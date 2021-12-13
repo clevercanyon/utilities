@@ -1,0 +1,323 @@
+<?php
+/** CLEVER CANYON™ <https://clevercanyon.com>
+ *
+ *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
+ * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
+ * CC      LL      EEEEE    VV   VV  EEEEE   RRRRRR     CC      AA   AA NN N NN  YYYYY  OO   OO NN N NN
+ * CC      LL      EE        VV VV   EE      RR  RR     CC      AAAAAAA NN  NNN   YYY   OO   OO NN  NNN
+ *  CCCCC  LLLLLLL EEEEEEE    VVV    EEEEEEE RR   RR     CCCCC  AA   AA NN   NN   YYY    OOOO0  NN   NN
+ */
+namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
+
+/**
+ * Dependencies.
+ *
+ * @since 1.0.0
+ */
+use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\{ Base };
+use GetOpt\{ GetOpt as Parser, Option, Operand, Command };
+
+/**
+ * CLI tool base.
+ *
+ * @since 1.0.0
+ */
+abstract class CLI_Tool_Base extends Base {
+	/**
+	 * Parser.
+	 *
+	 * @since 1.0.0
+	 */
+	protected $parser;
+
+	/**
+	 * Parser args.
+	 *
+	 * @since 1.0.0
+	 */
+	protected $args_to_parse;
+
+	/**
+	 * Tool name.
+	 *
+	 * @since 1.0.0
+	 */
+	protected const NAME = 'CLI Tool';
+
+	/**
+	 * Current version.
+	 *
+	 * @since 1.0.0
+	 */
+	protected const VERSION = '0.0.0';
+
+	/**
+	 * Constructor.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param null|string|array $args_to_parse Custom args to parse?
+	 *                          If not given, defaults internally to `$_SERVER['argv']`.
+	 */
+	public function __construct( $args_to_parse = null ) {
+		parent::__construct();
+
+		$this->args_to_parse = $args_to_parse;
+
+		if ( isset( $this->args_to_parse ) && ! is_array( $this->args_to_parse ) ) {
+			$this->args_to_parse = (string) $this->args_to_parse;
+		}
+		$this->parser = new Parser( null, [
+			Parser::SETTING_STRICT_OPTIONS  => true,
+			Parser::SETTING_STRICT_OPERANDS => true,
+		] );
+
+		$this->add_options( [
+			'help'    => [ 'description' => 'Get help.' ],
+			'version' => [ 'description' => 'Show version.' ],
+		] );
+	}
+
+	/**
+	 * Routes request.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function route_request() : void {
+		// Parse CLI args.
+
+		try {
+			$this->parser->process( $this->args_to_parse );
+			// Defaults internally to `$_SERVER['argv']`.
+			// See: <http://getopt-php.github.io/getopt-php/options.html>
+			// See: <https://git.io/JMFLE>
+
+		} catch ( \Throwable $exception ) {
+			$this->maybe_process_help_request();
+			$this->maybe_process_version_request();
+
+			U\CLI::error( $exception->getMessage() );
+			U\CLI::exit_status( 1 );
+		}
+
+		// Maybe handle help/version requests.
+		// If either of these are requested they'll halt execution.
+
+		$this->maybe_process_help_request();
+		$this->maybe_process_version_request();
+
+		// Handle CLI commands parsed from CLI args above.
+
+		try {
+			$command                 = $this->parser->getCommand();
+			$process_command_request = $command ? $command->getHandler() : null;
+
+			if ( ! $command || ! is_callable( $process_command_request ) ) {
+				U\CLI::error( 'Please specify a valid command to run. You gave `' . $command . '`, which is not available.' );
+				U\CLI::output( $this->parser->getHelpText(), 'blue' );
+				U\CLI::exit_status( 1 );
+			}
+			try {
+				$process_command_request();
+				U\CLI::exit_status( 0 );
+
+			} catch ( \Throwable $exception ) {
+				U\CLI::error( $exception->getMessage() );
+				U\CLI::exit_status( 1 );
+			}
+		} catch ( \Throwable $exception ) {
+			U\CLI::error( 'Unexpected error running `' . $command . '` command. Please try again.' );
+			U\CLI::exit_status( 1 );
+		}
+	}
+
+	/**
+	 * Maybe process help request.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function maybe_process_help_request() : void {
+		if ( $this->parser->getOption( 'help' ) ) {
+			U\CLI::output( $this->parser->getHelpText(), 'blue' );
+			U\CLI::exit_status( 0 );
+		}
+	}
+
+	/**
+	 * Maybe process version request.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function maybe_process_version_request() : void {
+		if ( $this->parser->getOption( 'version' ) ) {
+			U\CLI::output( sprintf( '%s: %s', $this::NAME, $this::VERSION ), 'blue' );
+			U\CLI::exit_status( 0 );
+		}
+	}
+
+	/**
+	 * Adds commands.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  array $commands Command configurations.
+	 *
+	 * @return self            For easy chaining with {@link route_request()}.
+	 */
+	protected function add_commands( array $commands ) : self {
+		foreach ( $commands as $command => $config ) {
+			$this->parser->addCommand(
+				Command::create( $command, $config['callback'] ?? [ $this, str_replace( '-', '_', $command ) ] )
+					->setShortDescription( $config['synopsis'] ?? '' )
+					->setDescription( $config['description'] ?? '' )
+					->addOptions( $this->build_options( $config['options'] ?? [] ) )
+					->addOperands( $this->build_operands( $config['operands'] ?? [] ) )
+			);
+		}
+		return $this; // For chaining.
+	}
+
+	/**
+	 * Adds options.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  array $options Option configurations.
+	 *
+	 * @return self           For easy chaining with {@link route_request()}.
+	 */
+	protected function add_options( array $options ) : self {
+		$this->parser->addOptions( $this->build_options( $options ) );
+		return $this; // For chaining.
+	}
+
+	/**
+	 * Adds operands.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $operands Operand configurations.
+	 *
+	 * @return self           For easy chaining with {@link route_request()}.
+	 */
+	protected function add_operands( array $operands ) : self {
+		$this->parser->addOperands( $this->build_operands( $operands ) );
+		return $this; // For chaining.
+	}
+
+	/**
+	 * Gets an option.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $option Option name.
+	 *
+	 * @return mixed Option value.
+	 */
+	protected function get_option( string $option ) {
+		return $this->parser->getOption( $option );
+	}
+
+	/**
+	 * Gets all options.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array All options.
+	 */
+	protected function get_options() : array {
+		return $this->parser->getOptions();
+	}
+
+	/**
+	 * Gets an operand.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $operand Operand name.
+	 *
+	 * @return mixed Operand value.
+	 */
+	protected function get_operand( string $operand ) {
+		return $this->parser->getOperand( $operand );
+	}
+
+	/**
+	 * Gets all operands.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array All operands.
+	 */
+	protected function get_operands() : array {
+		return $this->parser->getOperands();
+	}
+
+	/**
+	 * Builds options.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  array $_options Option configurations.
+	 *
+	 * @return Option[]        An array of option instances.
+	 */
+	protected function build_options( array $_options ) : array {
+		foreach ( $_options as $option => $config ) {
+			$options[ $option ] = Option::create(
+				$config['short'] ?? null,
+				$config['long'] ?? $option,
+				( ! empty( $config['multiple'] ) ? Parser::MULTIPLE_ARGUMENT :
+					( ! empty( $config['required'] ) ? Parser::REQUIRED_ARGUMENT :
+						( ! empty( $config['optional'] ) ? Parser::OPTIONAL_ARGUMENT :
+							Parser::NO_ARGUMENT
+						)
+					)
+				)
+			);
+			$options[ $option ]->setDescription( $config['description'] ?? '' );
+			$options[ $option ]->setValidation( $config['validator'] ?? [ U\Callbacks::class, '__true' ] );
+
+			if ( empty( $config['required'] ) && isset( $config['default'] ) ) {
+				$options[ $option ]->setDefaultValue( $config['default'] );
+			}
+		}
+		return $options ?? [];
+	}
+
+	/**
+	 * Builds operands.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  array $_operands Operand configurations.
+	 *
+	 * @return Operand[]        An array of operand instances.
+	 */
+	protected function build_operands( array $_operands ) : array {
+		foreach ( $_operands as $operand => $config ) {
+			$operands[ $operand ] = Operand::create(
+				$operand,
+				( ! empty( $config['multiple'] ) && ! empty( $config['required'] ) ? Operand::MULTIPLE | Operand::REQUIRED :
+					( ! empty( $config['multiple'] ) ? Operand::MULTIPLE :
+						( ! empty( $config['required'] ) ? Operand::REQUIRED :
+							( ! empty( $config['optional'] ) ? Operand::OPTIONAL :
+								Operand::OPTIONAL
+							)
+						)
+					)
+				)
+			);
+			$operands[ $operand ]->setValidation( $config['validator'] ?? [ U\Callbacks::class, '__true' ] );
+
+			if ( $config['multiple'] && ! isset( $config['default'] ) ) {
+				$config['default'] = ''; // Avoids a bug in GetOpt class.
+			}
+			if ( isset( $config['default'] ) ) {
+				$operands[ $operand ]->setDefaultValue( $config['default'] );
+			}
+		}
+		return $operands ?? [];
+	}
+}
