@@ -15,6 +15,7 @@ namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 
 /**
  * Callbacks.
@@ -58,8 +59,8 @@ class Callbacks extends Base {
 	 *
 	 * @return null Null.
 	 */
-	public static function __null() : ?self {
-		return null;
+	public static function __null() : void {
+		return; // Null.
 	}
 
 	/**
@@ -69,7 +70,7 @@ class Callbacks extends Base {
 	 *
 	 * @param mixed $v Value.
 	 *
-	 * @return bool    True if empty.
+	 * @return bool True if empty.
 	 */
 	public static function __empty( $v ) : bool {
 		return empty( $v );
@@ -82,7 +83,7 @@ class Callbacks extends Base {
 	 *
 	 * @param mixed $v Value.
 	 *
-	 * @return bool    True if not empty.
+	 * @return bool True if not empty.
 	 */
 	public static function __not_empty( $v ) : bool {
 		return ! empty( $v );

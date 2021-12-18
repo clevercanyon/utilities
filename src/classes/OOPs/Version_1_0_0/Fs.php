@@ -15,6 +15,7 @@ namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 
 /**
  * Fs.
@@ -25,14 +26,14 @@ class Fs extends Base {
 	/**
 	 * Normalizes a path.
 	 *
-	 * @since 1.0.0
+	 * @since               1.0.0
 	 *
-	 * @param  string $path Path.
+	 * @param string $path Path.
 	 *
-	 * @return string       Noramlized path.
+	 * @return string Noramlized path.
 	 *
-	 * @internal            Matches behavior of `dirname()`.
-	 *                      <https://www.php.net/manual/en/function.dirname.php>
+	 * @internal            Matches behavior of {@see dirname()}.
+	 *                      {@see https://www.php.net/manual/en/function.dirname.php}
 	 */
 	public static function normalize( string $path ) : string {
 		$path = str_replace( '\\', '/', $path );
@@ -45,14 +46,14 @@ class Fs extends Base {
 	/**
 	 * Path exists?
 	 *
-	 * @since 1.0.0
+	 * @since               1.0.0
 	 *
-	 * @param  string $path Path.
+	 * @param string $path Path.
 	 *
-	 * @return bool         True if path exists.
+	 * @return bool True if path exists.
 	 *
-	 * @internal            Note: {@link file_exists()} returns false for symlinks pointing to non-existing files.
-	 *                      <https://www.php.net/manual/en/function.file-exists.php>
+	 * @internal            Note: {@see file_exists()} returns `false` for symlinks pointing to non-existing files.
+	 *                      {@link https://www.php.net/manual/en/function.file-exists.php}
 	 */
 	public static function path_exists( string $path ) : bool {
 		return file_exists( $path ) || is_link( $path );
@@ -63,9 +64,9 @@ class Fs extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $path Path.
+	 * @param string $path Path.
 	 *
-	 * @return string       One of `link`, `file`, `dir`, or ``.
+	 * @return string One of `link`, `file`, `dir`, or ``.
 	 */
 	public static function type( string $path ) : string {
 		if ( is_link( $path ) ) {
@@ -81,51 +82,16 @@ class Fs extends Base {
 	}
 
 	/**
-	 * Expands `~/` tilde at beginning of a path, and `${HOME}`.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  string|mixed   $value     Value(s) to expand deeply.
-	 *                                   This will recurse arrays/objects.
-	 *
-	 * @param  string         $key_regex Only expand deeply on keys matching this pattern.
-	 *
-	 * @param  null|\StdClass $_r        Internal use only. Do NOT pass.
-	 *
-	 * @return string|mixed              Expanded value.
-	 */
-	public static function expand_home( $value, string $key_regex = '/(?:^|[_\-])(?:dir(?:ectory)?|file|path)$/ui', ?\StdClass $_r = null ) {
-		$_r           ??= (object) [];
-		$_r->home_dir ??= U\Fs::normalize( getenv( 'HOME' ) );
-
-		if ( ! $_r->home_dir ) {
-			return $value; // Not possible.
-		}
-		if ( is_string( $value ) ) {
-			$value = preg_replace( '/^~\//u', rtrim( $_r->home_dir, '/' ) . '/', $value );
-			$value = preg_replace( '/\$\{HOME\}/u', $_r->home_dir, $value );
-
-		} elseif ( is_array( $value ) || is_object( $value ) ) {
-			foreach ( $value as $_key => &$_value ) {
-				if ( ! is_string( $_value ) || ( is_string( $_key ) && preg_match( $key_regex, $_key ) ) ) {
-					$_value = U\Fs::expand_home( $_value, $key_regex, $_r );
-				}
-			}
-		}
-		return $value;
-	}
-
-	/**
 	 * Gets a path's permissions.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $path  Path.
-	 * @param  bool   $octal Return octal representation?
+	 * @param string $path  Path.
+	 * @param bool   $octal Return octal representation?
 	 *
-	 * @return int|string    Permissions.
+	 * @return int|string Permissions.
 	 */
-	public static function perms( string $path, bool $octal = false ) {
+	public static function perms( string $path, bool $octal = false ) /* : int|string */ {
 		$perms = 0; // Initialize.
 
 		if ( file_exists( $path ) ) {
@@ -139,27 +105,39 @@ class Fs extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $from_path         Path to copy.
+	 * @param string $from_path          Path to copy.
 	 *                                   Note: If this ends with `/*`, the contents of `$from_path` will be copied to
 	 *                                   the contents of `$to_path`, such that a merge into `$to_path` occurs;
 	 *                                   i.e., instead of deleting & replacing `$to_path` entirely.
 	 *
-	 * @param  string $to_path           Destination path.
+	 * @param string $to_path            Destination path.
 	 *
-	 * @param  bool   $include_dot_paths Include dot paths? Defaults to `false`.
-	 * @param  bool   $follow_symlinks   Follow symlknks? Defaults to `false`.
+	 * @param bool   $include_dot_paths  Include dot paths? Defaults to `false`.
+	 * @param bool   $follow_symlinks    Follow symlknks? Defaults to `false`.
 	 *
-	 * @param  int    $to_path_dir_perms Defaults to `0700`.
-	 *                                   If `$to_path`'s parent directory does not exist, it will be created automatically.
-	 *                                   This establishes the permissions for that newly created directory, when/if applicable.
+	 * @param int    $to_path_dir_perms  Defaults to `0700`.
+	 *                                   If `$to_path`'s parent directories do not exist, they'll be created automatically.
+	 *                                   This establishes the permissions for those newly created directories, when/if applicable.
 	 *
-	 * @return bool                      True if copied successfully.
+	 * @return bool True if copied successfully.
 	 */
-	public static function copy( string $from_path, string $to_path, bool $include_dot_paths = false, bool $follow_symlinks = false, int $to_path_dir_perms = 0700 ) : bool {
+	public static function copy(
+		string $from_path,
+		string $to_path,
+		bool $include_dot_paths = false,
+		bool $follow_symlinks = false,
+		int $to_path_dir_perms = 0700
+	) : bool {
 		// Copy directory contents check.
 
 		if ( '/*' === mb_substr( $from_path, -2 ) ) {
-			return U\Fs::copy_dir_contents( mb_substr( $from_path, 0, -2 ), $to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms );
+			return U\Fs::copy_dir_contents(
+				mb_substr( $from_path, 0, -2 ),
+				$to_path,
+				$include_dot_paths,
+				$follow_symlinks,
+				$to_path_dir_perms
+			);
 		}
 
 		// `$from_path` validation.
@@ -224,7 +202,7 @@ class Fs extends Base {
 		while ( false !== ( $_subpath = readdir( $_from_path_open ) ) ) {
 			if ( in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
-			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[0] ?? '' ) ) {
+			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[ 0 ] ?? '' ) ) {
 				continue; // Not including dot paths.
 			}
 			$_from_path = $from_path_no_trailing_slash . '/' . $_subpath;
@@ -243,24 +221,30 @@ class Fs extends Base {
 	/**
 	 * Copies contents of one path to contents of another path.
 	 *
-	 * Do NOT call this directly. Instead, use {@link copy()} with `/*` on the end of `$from_path`.
+	 * Do NOT call this directly. Instead, use {@see copy()} with `/*` on the end of `$from_path`.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $from_path         Path to copy.
+	 * @param string $from_path          Path to copy.
 	 *
-	 * @param  string $to_path           Destination path.
+	 * @param string $to_path            Destination path.
 	 *
-	 * @param  bool   $include_dot_paths Include dot paths? Defaults to `false`.
-	 * @param  bool   $follow_symlinks   Follow symlknks? Defaults to `false`.
+	 * @param bool   $include_dot_paths  Include dot paths? Defaults to `false`.
+	 * @param bool   $follow_symlinks    Follow symlknks? Defaults to `false`.
 	 *
-	 * @param  int    $to_path_dir_perms Defaults to `0700`.
-	 *                                   If `$to_path`'s parent directory does not exist, it will be created automatically.
-	 *                                   This establishes the permissions for that newly created directory, when/if applicable.
+	 * @param int    $to_path_dir_perms  Defaults to `0700`.
+	 *                                   If `$to_path`'s parent directories do not exist, they'll be created automatically.
+	 *                                   This establishes the permissions for those newly created directories, when/if applicable.
 	 *
-	 * @return bool                      True if copied successfully.
+	 * @return bool True if copied successfully.
 	 */
-	protected static function copy_dir_contents( string $from_path, string $to_path, bool $include_dot_paths = false, bool $follow_symlinks = false, int $to_path_dir_perms = 0700 ) : bool {
+	protected static function copy_dir_contents(
+		string $from_path,
+		string $to_path,
+		bool $include_dot_paths = false,
+		bool $follow_symlinks = false,
+		int $to_path_dir_perms = 0700
+	) : bool {
 		// `$from_path` validation.
 
 		$from_path                   = U\Fs::normalize( $from_path );
@@ -291,7 +275,7 @@ class Fs extends Base {
 		while ( false !== ( $_subpath = readdir( $_from_path_open ) ) ) {
 			if ( in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
-			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[0] ?? '' ) ) {
+			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[ 0 ] ?? '' ) ) {
 				continue; // Not including dot paths.
 			}
 			$_from_path = $from_path_no_trailing_slash . '/' . $_subpath;
@@ -312,25 +296,33 @@ class Fs extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string         $from_path         Path to zip.
-	 * @param  string         $to_path           Destination path.
+	 * @param string         $from_path            Path to zip.
+	 * @param string         $to_path              Destination path.
 	 *
-	 * @param  bool           $include_dot_paths Include dot paths? Defaults to `false`.
+	 * @param bool           $include_dot_paths    Include dot paths? Defaults to `false`.
 	 *
-	 * @param  bool           $follow_symlinks   Follow symlknks? Defaults to `true`.
-	 *                                           This should almost always be `true` for zip files.
-	 *                                           If `false`, symlinks are not followed. Instead, empty directories and/or files are created to hold the place
-	 *                                             of what would otherwise have been followed and copied into the zip archive. Thus, recommend always leaving this as `true`.
+	 * @param bool           $follow_symlinks      Follow symlknks? Defaults to `true`.
+	 *                                             This should almost always be `true` for zip files.
+	 *                                             If `false`, symlinks are not followed. Instead, empty directories and/or files are created to hold
+	 *                                             the place of what would otherwise have been followed and copied into the zip archive. Thus,
+	 *                                             recommend always leaving this as `true`.
 	 *
-	 * @param  int            $to_path_dir_perms Defaults to `0700`.
-	 *                                           If `$to_path`'s parent directory does not exist, it will be created automatically.
-	 *                                           This establishes the permissions for that newly created directory, when/if applicable.
+	 * @param int            $to_path_dir_perms    Defaults to `0700`.
+	 *                                             If `$to_path`'s parent directory does not exist, it will be created automatically.
+	 *                                             This establishes the permissions for that newly created directory, when/if applicable.
 	 *
-	 * @param  null|\StdClass $_r                For internal recursive use only. Do not pass.
+	 * @param \StdClass|null $_r                   For internal recursive use only. Do not pass.
 	 *
-	 * @return bool                              True if zipped successfully.
+	 * @return bool True if zipped successfully.
 	 */
-	public static function zip( string $from_path, string $to_path, bool $include_dot_paths = false, bool $follow_symlinks = true, int $to_path_dir_perms = 0700, ?\StdClass $_r = null ) : bool {
+	public static function zip(
+		string $from_path,
+		string $to_path,
+		bool $include_dot_paths = false,
+		bool $follow_symlinks = true,
+		int $to_path_dir_perms = 0700,
+		/* \StdClass|null */ ?\StdClass $_r = null
+	) : bool {
 		// Dependency check.
 
 		if ( ! class_exists( 'ZipArchive' ) ) {
@@ -339,7 +331,7 @@ class Fs extends Base {
 		// Recursion info.
 
 		$is_recursive = isset( $_r );
-		$_r           = $_r ?? (object) [];
+		$_r           ??= (object) [];
 
 		// `$from_path` validation.
 
@@ -347,7 +339,7 @@ class Fs extends Base {
 		$from_path_basename = basename( $from_path );
 
 		if ( ! $is_recursive && preg_match( '/-\>([^\/]+)$/ui', $from_path, $_m ) ) {
-			$_r->root_from_path_alias          = dirname( $from_path ) . '/' . $_m[1];
+			$_r->root_from_path_alias          = dirname( $from_path ) . '/' . $_m[ 1 ];
 			$_r->root_from_path_alias_basename = basename( $_r->root_from_path_alias );
 
 			$from_path          = preg_replace( '/-\>([^\/]+)$/ui', '', $from_path );
@@ -441,7 +433,7 @@ class Fs extends Base {
 		while ( false !== ( $_subpath = readdir( $_from_path_open ) ) ) {
 			if ( in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
-			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[0] ?? '' ) ) {
+			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[ 0 ] ?? '' ) ) {
 				continue; // Not including dot paths.
 			}
 			$_from_path = $from_path_no_trailing_slash . '/' . $_subpath;
@@ -461,17 +453,17 @@ class Fs extends Base {
 	/**
 	 * Deletes a path.
 	 *
-	 * @since 1.0.0
+	 * @since                      1.0.0
 	 *
-	 * @param  string $path        Path to delete.
-	 * @param  bool   $recursively Defaults to `true`.
+	 * @param string $path        Path to delete.
+	 * @param bool   $recursively Defaults to `true`.
 	 *
-	 * @return bool                True if deleted successfully.
+	 * @return bool True if deleted successfully.
 	 *
 	 * @internal                   Note: This intentionally does not follow symlinks.
 	 *                             i.e., A link is just a link, so this does not recurse into symlinked directories.
 	 */
-	public static function delete( string $path, bool $recursively = true ): bool {
+	public static function delete( string $path, bool $recursively = true ) : bool {
 		// `$path` validation.
 
 		$path                   = U\Fs::normalize( $path );
@@ -510,5 +502,51 @@ class Fs extends Base {
 		closedir( $_path_open );
 
 		return rmdir( $path );
+	}
+
+	/**
+	 * Regexp with `.gitignore` exclusions as a negative lookahead pattern.
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @param string $regexp    Regexp to append to `.gitignore` rules.
+	 * @param string $modifiers Any additional modifiers to append to existing ones.
+	 *                          Always-on modifiers include `xui`.
+	 *
+	 * @return string Final regexp with `.gitignore` exclusions as a negative lookahead pattern.
+	 *
+	 * @see   https://regex101.com/r/yceJKL/1
+	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
+	 */
+	public static function gitignore_regexp( string $regexp, string $modifiers = '' ) : string {
+		$modifiers = str_split( $modifiers );
+		$modifiers = array_unique( array_merge( [ 'x', 'u', 'i' ], $modifiers ) );
+		$modifiers = implode( '', $modifiers );
+
+		return '/^' . // Beginning of line.
+
+			'    (?!.*' . // 0+ characters leading up to our `.gitignore` searches.
+			'        (^|[\/\\\]+)' . // Beginning of string, or 1+ directory separators.
+			'        (' . // Begin `.gitignore` searches.
+
+			'            (?:\.[#_~][^\/\\\]*)' . // `.#*`, `._*`, `.~*`
+			'             |(?:[^\/\\\]*~)' . // `*~` backup files.
+
+			// This covers all ignored file extensions.
+			'             |(?:[^\/\\\]*\.(?:log|bak|rej|orig|patch|diff|sublime-project|sublime-workspace|nbproject|code-workspace|ctags|tags))' .
+
+			// This covers all ignored dotfiles; i.e., names beginning with a `.`.
+			'             |(?:\.(?:vagrant|idea|vscode|npmrc|linaria-cache|sass-cache|elasticbeanstalk|git|git-dir|svn|cvsignore|bzr|bzrignore|hg|hgignore|AppleDB|AppleDouble|AppleDesktop|com\.apple\.timemachine\.donotpresent|LSOverride|Spotlight-V100|VolumeIcon\.icns|TemporaryItems|fseventsd|DS_Store|Trashes|apdisk))' .
+
+			// This covers everything else, which is a longer list of specific names to ignore.
+			'             |(?:typings|vendor|node[_\-]modules|jspm[_\-]packages|bower[_\-]components|_svn|CVS|SCCS|RCS|\$RECYCLE\.BIN|Desktop\.ini|Thumbs\.db|ehthumbs\.db|Network\sTrash\sFolder|Temporary\sItems|Icon[^s])' .
+
+			'        )' . // End `.gitignore` searches.
+			'        ($|[\/\\\]+)' . // End of line, or 1+ directory separators.
+
+			'    )' . // End negative lookahead group.
+
+			$regexp . // Included regex we are prepending.
+			'$/' . $modifiers; // End of line + /modifiers.
 	}
 }

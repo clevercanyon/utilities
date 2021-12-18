@@ -15,6 +15,7 @@ namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 
 /**
  * Str.
@@ -27,12 +28,12 @@ class Str extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  mixed $data         Data.
-	 * @param  bool  $pretty_print Pretty print?
+	 * @param mixed $data         Data.
+	 * @param bool  $pretty_print Pretty print?
 	 *
-	 * @return string      String representation.
+	 * @return string String representation.
 	 */
-	public static function stringify( $data, bool $pretty_print = true ) : string {
+	public static function stringify( /* mixed */ $data, bool $pretty_print = true ) : string {
 		if ( is_scalar( $data ) ) {
 			$string = (string) $data;
 		} elseif ( $pretty_print ) {

@@ -15,8 +15,10 @@ namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
-use Clever_Canyon\Utilities\OOP\Version_1_0_0\{ Base };
-use GetOpt\{ GetOpt as Parser, Option, Operand, Command };
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
+
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Base};
+use GetOpt\{GetOpt as Parser, Option, Operand, Command};
 
 /**
  * CLI tool base.
@@ -29,14 +31,14 @@ abstract class CLI_Tool_Base extends Base {
 	 *
 	 * @since 1.0.0
 	 */
-	protected $parser;
+	protected Parser $parser;
 
 	/**
 	 * Parser args.
 	 *
 	 * @since 1.0.0
 	 */
-	protected $args_to_parse;
+	protected $args_to_parse; /* string|array|null */
 
 	/**
 	 * Tool name.
@@ -57,10 +59,10 @@ abstract class CLI_Tool_Base extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param null|string|array $args_to_parse Custom args to parse?
-	 *                          If not given, defaults internally to `$_SERVER['argv']`.
+	 * @param string|array|null $args_to_parse Custom args to parse?
+	 *                                         If not given, defaults internally to `$_SERVER['argv']`.
 	 */
-	public function __construct( $args_to_parse = null ) {
+	public function __construct( /* string|array|null */ $args_to_parse = null ) {
 		parent::__construct();
 
 		$this->args_to_parse = $args_to_parse;
@@ -161,18 +163,18 @@ abstract class CLI_Tool_Base extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  array $commands Command configurations.
+	 * @param array $commands Command configurations.
 	 *
-	 * @return self            For easy chaining with {@link route_request()}.
+	 * @return self For easy chaining with {@see route_request()}.
 	 */
 	protected function add_commands( array $commands ) : self {
 		foreach ( $commands as $command => $config ) {
 			$this->parser->addCommand(
-				Command::create( $command, $config['callback'] ?? [ $this, str_replace( '-', '_', $command ) ] )
-					->setShortDescription( $config['synopsis'] ?? '' )
-					->setDescription( $config['description'] ?? '' )
-					->addOptions( $this->build_options( $config['options'] ?? [] ) )
-					->addOperands( $this->build_operands( $config['operands'] ?? [] ) )
+				Command::create( $command, $config[ 'callback' ] ?? [ $this, str_replace( '-', '_', $command ) ] )
+					->setShortDescription( $config[ 'synopsis' ] ?? '' )
+					->setDescription( $config[ 'description' ] ?? '' )
+					->addOptions( $this->build_options( $config[ 'options' ] ?? [] ) )
+					->addOperands( $this->build_operands( $config[ 'operands' ] ?? [] ) )
 			);
 		}
 		return $this; // For chaining.
@@ -183,9 +185,9 @@ abstract class CLI_Tool_Base extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  array $options Option configurations.
+	 * @param array $options Option configurations.
 	 *
-	 * @return self           For easy chaining with {@link route_request()}.
+	 * @return self For easy chaining with {@see route_request()}.
 	 */
 	protected function add_options( array $options ) : self {
 		$this->parser->addOptions( $this->build_options( $options ) );
@@ -199,7 +201,7 @@ abstract class CLI_Tool_Base extends Base {
 	 *
 	 * @param array $operands Operand configurations.
 	 *
-	 * @return self           For easy chaining with {@link route_request()}.
+	 * @return self For easy chaining with {@see route_request()}.
 	 */
 	protected function add_operands( array $operands ) : self {
 		$this->parser->addOperands( $this->build_operands( $operands ) );
@@ -211,11 +213,11 @@ abstract class CLI_Tool_Base extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $option Option name.
+	 * @param string $option Option name.
 	 *
 	 * @return mixed Option value.
 	 */
-	protected function get_option( string $option ) {
+	protected function get_option( string $option ) /* : mixed */ {
 		return $this->parser->getOption( $option );
 	}
 
@@ -235,11 +237,11 @@ abstract class CLI_Tool_Base extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $operand Operand name.
+	 * @param string $operand Operand name.
 	 *
 	 * @return mixed Operand value.
 	 */
-	protected function get_operand( string $operand ) {
+	protected function get_operand( string $operand ) /* : mixed */ {
 		return $this->parser->getOperand( $operand );
 	}
 
@@ -259,28 +261,28 @@ abstract class CLI_Tool_Base extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  array $_options Option configurations.
+	 * @param array $_options Option configurations.
 	 *
-	 * @return Option[]        An array of option instances.
+	 * @return Option[] An array of option instances.
 	 */
 	protected function build_options( array $_options ) : array {
 		foreach ( $_options as $option => $config ) {
 			$options[ $option ] = Option::create(
-				$config['short'] ?? null,
-				$config['long'] ?? $option,
-				( ! empty( $config['multiple'] ) ? Parser::MULTIPLE_ARGUMENT :
-					( ! empty( $config['required'] ) ? Parser::REQUIRED_ARGUMENT :
-						( ! empty( $config['optional'] ) ? Parser::OPTIONAL_ARGUMENT :
+				$config[ 'short' ] ?? null,
+				$config[ 'long' ] ?? $option,
+				( ! empty( $config[ 'multiple' ] ) ? Parser::MULTIPLE_ARGUMENT :
+					( ! empty( $config[ 'required' ] ) ? Parser::REQUIRED_ARGUMENT :
+						( ! empty( $config[ 'optional' ] ) ? Parser::OPTIONAL_ARGUMENT :
 							Parser::NO_ARGUMENT
 						)
 					)
 				)
 			);
-			$options[ $option ]->setDescription( $config['description'] ?? '' );
-			$options[ $option ]->setValidation( $config['validator'] ?? [ U\Callbacks::class, '__true' ] );
+			$options[ $option ]->setDescription( $config[ 'description' ] ?? '' );
+			$options[ $option ]->setValidation( $config[ 'validator' ] ?? [ U\Callbacks::class, '__true' ] );
 
-			if ( empty( $config['required'] ) && isset( $config['default'] ) ) {
-				$options[ $option ]->setDefaultValue( $config['default'] );
+			if ( empty( $config[ 'required' ] ) && isset( $config[ 'default' ] ) ) {
+				$options[ $option ]->setDefaultValue( $config[ 'default' ] );
 			}
 		}
 		return $options ?? [];
@@ -291,31 +293,31 @@ abstract class CLI_Tool_Base extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  array $_operands Operand configurations.
+	 * @param array $_operands Operand configurations.
 	 *
-	 * @return Operand[]        An array of operand instances.
+	 * @return Operand[] An array of operand instances.
 	 */
 	protected function build_operands( array $_operands ) : array {
 		foreach ( $_operands as $operand => $config ) {
 			$operands[ $operand ] = Operand::create(
 				$operand,
-				( ! empty( $config['multiple'] ) && ! empty( $config['required'] ) ? Operand::MULTIPLE | Operand::REQUIRED :
-					( ! empty( $config['multiple'] ) ? Operand::MULTIPLE :
-						( ! empty( $config['required'] ) ? Operand::REQUIRED :
-							( ! empty( $config['optional'] ) ? Operand::OPTIONAL :
+				( ! empty( $config[ 'multiple' ] ) && ! empty( $config[ 'required' ] ) ? Operand::MULTIPLE | Operand::REQUIRED :
+					( ! empty( $config[ 'multiple' ] ) ? Operand::MULTIPLE :
+						( ! empty( $config[ 'required' ] ) ? Operand::REQUIRED :
+							( ! empty( $config[ 'optional' ] ) ? Operand::OPTIONAL :
 								Operand::OPTIONAL
 							)
 						)
 					)
 				)
 			);
-			$operands[ $operand ]->setValidation( $config['validator'] ?? [ U\Callbacks::class, '__true' ] );
+			$operands[ $operand ]->setValidation( $config[ 'validator' ] ?? [ U\Callbacks::class, '__true' ] );
 
-			if ( $config['multiple'] && ! isset( $config['default'] ) ) {
-				$config['default'] = ''; // Avoids a bug in GetOpt class.
+			if ( $config[ 'multiple' ] && ! isset( $config[ 'default' ] ) ) {
+				$config[ 'default' ] = ''; // Avoids a bug in GetOpt class.
 			}
-			if ( isset( $config['default'] ) ) {
-				$operands[ $operand ]->setDefaultValue( $config['default'] );
+			if ( isset( $config[ 'default' ] ) ) {
+				$operands[ $operand ]->setDefaultValue( $config[ 'default' ] );
 			}
 		}
 		return $operands ?? [];

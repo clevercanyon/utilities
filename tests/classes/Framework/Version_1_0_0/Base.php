@@ -15,7 +15,9 @@ namespace Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
-use PHPUnit\Framework\{ TestCase as Base_TestCase };
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
+
+use PHPUnit\Framework\{TestCase as Base_TestCase};
 
 /**
  * Base class for tests.
@@ -70,11 +72,11 @@ abstract class Base extends Base_TestCase {
 	/**
 	 * Fires before each method is run.
 	 *
-	 * @since 1.0.0
+	 * @since    1.0.0
 	 *
 	 * @internal See <https://phpunit.readthedocs.io/en/9.5/fixtures.html>
 	 */
-	protected function setUp() :void {
+	protected function setUp() : void {
 		parent::setUp();
 
 		$this->counter    = 0;
@@ -85,11 +87,11 @@ abstract class Base extends Base_TestCase {
 	/**
 	 * Fires after each method is run.
 	 *
-	 * @since 1.0.0
+	 * @since    1.0.0
 	 *
 	 * @internal See <https://phpunit.readthedocs.io/en/9.5/fixtures.html>
 	 */
-	protected function tearDown() :void {
+	protected function tearDown() : void {
 		parent::tearDown();
 
 		foreach ( $this->temp_dirs as $_dir ) {
@@ -120,7 +122,7 @@ abstract class Base extends Base_TestCase {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  bool $populate Populate? Defaults to `false`.
+	 * @param bool $populate Populate? Defaults to `false`.
 	 *
 	 * @return string         Temp file path.
 	 */
@@ -150,7 +152,7 @@ abstract class Base extends Base_TestCase {
 	 * @since 1.0.0
 	 *
 	 * @param string $ext File extension.
-	 * @param string $dir Directory. Defaults to {@link U\Dir::temp()}.
+	 * @param string $dir Directory. Defaults to {@see U\Dir::temp()}.
 	 *
 	 * @return string     Temp file path.
 	 */

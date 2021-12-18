@@ -15,7 +15,9 @@ namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
-use Clever_Canyon\Chalk\{ Chalk, Style, Fg_Color, Bg_Color };
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
+
+use Clever_Canyon\Chalk\{Chalk, Style, Fg_Color, Bg_Color};
 
 /**
  * CLI.
@@ -28,9 +30,9 @@ class CLI extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  int $lines Defaults to `0` (no limit).
+	 * @param int $lines Defaults to `0` (no limit).
 	 *
-	 * @return string     X lines of stdin.
+	 * @return string X lines of stdin.
 	 */
 	public static function stdin( int $lines = 0 ) : string {
 		$stdin      = '';
@@ -56,7 +58,7 @@ class CLI extends Base {
 	 *
 	 * @param mixed $data Output data.
 	 */
-	public static function stdout( $data ) : void {
+	public static function stdout( /* mixed */ $data ) : void {
 		$string = U\Str::stringify( $data );
 
 		stream_set_blocking( STDOUT, true );
@@ -70,7 +72,7 @@ class CLI extends Base {
 	 *
 	 * @param mixed $data Output data.
 	 */
-	public static function stderr( $data ) : void {
+	public static function stderr( /* mixed */ $data ) : void {
 		$string = U\Str::stringify( $data );
 
 		stream_set_blocking( STDERR, true );
@@ -85,7 +87,7 @@ class CLI extends Base {
 	 * @param mixed        $data  Output data.
 	 * @param string|array $style Chalk style. Default is `none`.
 	 */
-	public static function output( $data, $style = 'none' ) : void {
+	public static function output( /* mixed */ $data, /* string|array */ $style = 'none' ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data ), $style ) );
 	}
 
@@ -97,7 +99,7 @@ class CLI extends Base {
 	 * @param mixed        $data  Output data.
 	 * @param string|array $style Chalk style. Default is `[ 'white', 'none', 'dim' ]`.
 	 */
-	public static function log( $data, $style = [ 'white', 'none', 'dim' ] ) : void {
+	public static function log( /* mixed */ $data, /* string|array */ $style = [ 'white', 'none', 'dim' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data ), $style ) );
 	}
 
@@ -109,7 +111,7 @@ class CLI extends Base {
 	 * @param mixed        $data  Output data.
 	 * @param string|array $style Chalk style. Default is `[ 'black', 'blue' ]`.
 	 */
-	public static function notice( $data, $style = [ 'black', 'blue' ] ) : void {
+	public static function notice( /* mixed */ $data, /* string|array */ $style = [ 'black', 'blue' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data ), $style ) );
 	}
 
@@ -121,7 +123,7 @@ class CLI extends Base {
 	 * @param mixed        $data  Output data.
 	 * @param string|array $style Chalk style. Default is `[ 'black', 'green' ]`.
 	 */
-	public static function success( $data, $style = [ 'black', 'green' ] ) : void {
+	public static function success( /* mixed */ $data, /* string|array */ $style = [ 'black', 'green' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data ), $style ) );
 	}
 
@@ -133,7 +135,7 @@ class CLI extends Base {
 	 * @param mixed        $data  Output data.
 	 * @param string|array $style Chalk style. Default is `[ 'black', 'yellow' ]`.
 	 */
-	public static function warning( $data, $style = [ 'black', 'yellow' ] ) : void {
+	public static function warning( /* mixed */ $data, /* string|array */ $style = [ 'black', 'yellow' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data ), $style ) );
 	}
 
@@ -142,10 +144,10 @@ class CLI extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param mixed        $data        Output data.
-	 * @param string|array $style       Chalk style. Default is `[ 'white', 'red', 'bright' ]`.
+	 * @param mixed        $data  Output data.
+	 * @param string|array $style Chalk style. Default is `[ 'white', 'red', 'bright' ]`.
 	 */
-	public static function error( $data, $style = [ 'white', 'red', 'bright' ] ) : void {
+	public static function error( /* mixed */ $data, /* string|array */ $style = [ 'white', 'red', 'bright' ] ) : void {
 		U\CLI::stderr( U\CLI::chalk( U\Str::stringify( $data ), $style ) );
 	}
 
@@ -174,11 +176,11 @@ class CLI extends Base {
 	 *                                  That said, if you intend to pass a style code, you must pass a background color at key index `1`.
 	 *                                  If you'd like to bypass any value (e.g., background color) simply set that value to `none`.
 	 *
-	 *                                  You can also pass an instance of {@link Clever_Canyon\Chalk\Style} if you'd prefer.
+	 *                                  You can also pass an instance of {@see \Clever_Canyon\Chalk\Style} if you'd prefer.
 	 *
-	 * @return string                   Styled string.
+	 * @return string Styled string.
 	 */
-	public static function chalk( $data, $style = 'none' ) : string {
+	public static function chalk( /* mixed */ $data, /* string|array|Style */ $style = 'none' ) : string {
 		$string = U\Str::stringify( $data );
 
 		if ( is_array( $style ) ) {
@@ -199,6 +201,8 @@ class CLI extends Base {
 						break;
 				}
 			}
+			unset( $_style ); // Reference.
+
 		} elseif ( ! $style instanceof Style ) {
 			$style = Fg_Color::code( (string) $style );
 		}
@@ -209,22 +213,21 @@ class CLI extends Base {
 	/**
 	 * Runs a shell command (displays output).
 	 *
-	 * @param  array       $args         Command arguments (unquoted/unescaped).
-	 * @param  null|string $dir          Current working directory. Defaults to `null` value.
-	 * @param  bool        $check_status Check status and throw exception on failure? Defaults to `true`.
+	 * @param array       $args         Command arguments (unquoted/unescaped).
+	 * @param string|null $dir          Current working directory. Defaults to `null` value.
+	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
 	 *
-	 * @return int                       Status code.
-	 *
-	 * @throws \Exception                On non-zero exit status code.
+	 * @throws Exception                On non-zero exit status code.
+	 * @return int Status code.
 	 */
-	public static function run( array $args, ?string $dir = null, bool $check_status = true ) : int {
-		$cmd  = $dir ? 'cd ' . escapeshellarg( $dir ) . ' && ' : '';
+	public static function run( array $args, /* string|null */ ?string $dir = null, bool $check_status = true ) : int {
+		$cmd = $dir ? 'cd ' . escapeshellarg( $dir ) . ' && ' : '';
 		$cmd .= implode( ' ', array_map( 'escapeshellarg', $args ) );
 
 		passthru( $cmd, $status );
 
 		if ( $check_status && 0 !== $status ) {
-			throw new \Exception( 'Unexpected status: ' . $status );
+			throw new Exception( 'Unexpected status: ' . $status );
 		}
 
 		return $status;
@@ -235,16 +238,15 @@ class CLI extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  array       $args         Command arguments (unquoted/unescaped).
-	 * @param  null|string $dir          Current working directory. Defaults to `null` value.
-	 * @param  bool        $check_status Check status and throw exception on failure? Defaults to `true`.
-	 * @param  null|string $stdin        Stdin to send to command. Defaults to `null` value.
+	 * @param array       $args         Command arguments (unquoted/unescaped).
+	 * @param string|null $dir          Current working directory. Defaults to `null` value.
+	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
+	 * @param string|null $stdin        Stdin to send to command. Defaults to `null` value.
 	 *
-	 * @return \StdClass                 `[status, stdout, stderr]`.
-	 *
-	 * @throws \Exception                On non-zero exit status code.
+	 * @throws Exception                On non-zero exit status code.
+	 * @return \StdClass `[status, stdout, stderr]`.
 	 */
-	public static function exec( array $args, ?string $dir = null, bool $check_status = true, ?string $stdin = null ) : \StdClass {
+	public static function exec( array $args, /* string|null */ ?string $dir = null, bool $check_status = true, /* string|null */ ?string $stdin = null ) : \StdClass {
 		$response = (object) [
 			'status' => 0,
 			'stdout' => '',
@@ -260,29 +262,29 @@ class CLI extends Base {
 
 		if ( ! is_resource( $process ) ) {
 			if ( $check_status ) {
-				throw new \Exception( 'Unexpected `proc_open()` failure.' );
+				throw new Exception( 'Unexpected `proc_open()` failure.' );
 			}
 			return $response;
 		}
 		if ( isset( $stdin ) ) {
-			fwrite( $pipes[0], $stdin );
+			fwrite( $pipes[ 0 ], $stdin );
 		}
-		fclose( $pipes[0] );
+		fclose( $pipes[ 0 ] );
 
-		stream_set_blocking( $pipes[1], true );
-		$response->stdout = trim( stream_get_contents( $pipes[1] ) );
-		fclose( $pipes[1] );
+		stream_set_blocking( $pipes[ 1 ], true );
+		$response->stdout = trim( stream_get_contents( $pipes[ 1 ] ) );
+		fclose( $pipes[ 1 ] );
 
-		stream_set_blocking( $pipes[2], true );
-		$response->stderr = trim( stream_get_contents( $pipes[2] ) );
-		fclose( $pipes[2] );
+		stream_set_blocking( $pipes[ 2 ], true );
+		$response->stderr = trim( stream_get_contents( $pipes[ 2 ] ) );
+		fclose( $pipes[ 2 ] );
 
 		$status           = proc_get_status( $process );
-		$response->status = $status['exitcode'];
+		$response->status = $status[ 'exitcode' ];
 		proc_close( $process );
 
 		if ( $check_status && 0 !== $response->status ) {
-			throw new \Exception( $response->stderr ?: $response->stdout );
+			throw new Exception( $response->stderr ?: $response->stdout );
 		}
 
 		return $response;

@@ -15,7 +15,9 @@ namespace Clever_Canyon\Utilities__Tests\Tests\OOPs\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
-use Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\{ Base };
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
+
+use Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\{Base};
 
 /**
  * PHPCS configuration.
@@ -73,49 +75,6 @@ final class Fs_Tests extends Base {
 	public function test_type() : void {
 		$this->assertSame( 'dir', U\Fs::type( $this->temp_dir() ), $this->counter() );
 		$this->assertSame( 'file', U\Fs::type( $this->temp_file() ), $this->counter() );
-	}
-
-	/**
-	 * @covers ::expand_home()
-	 */
-	public function test_expand_home() : void {
-		$home_dir    = U\Fs::normalize( getenv( 'HOME' ) );
-		$home_dir_ts = rtrim( $home_dir, '/' ) . '/';
-
-		$this->assertSame( $home_dir_ts, U\Fs::expand_home( '~/' ), $this->counter() );
-		$this->assertSame( $home_dir . '/foo/bar', U\Fs::expand_home( '~/foo/bar' ), $this->counter() );
-
-		$this->assertSame( [ 'dir' => $home_dir . '/foo/bar' ], U\Fs::expand_home( [ 'dir' => '~/foo/bar' ] ), $this->counter() );
-		$this->assertSame( json_encode( (object) [ 'dir' => $home_dir . '/foo/bar' ] ), json_encode( U\Fs::expand_home( (object) [ 'dir' => '~/foo/bar' ] ) ), $this->counter() );
-		$this->assertSame(
-			json_encode( (object) [
-				'foo' => [
-					'bar' => [
-						'baz' => [
-							'home_dir'         => $home_dir,
-							'public_html_dir'  => $home_dir . '/my/site',
-							'public_html_path' => $home_dir . '/my/site',
-							'public_html'      => '~/my/site',
-						],
-					],
-				],
-			] ),
-			json_encode( U\Fs::expand_home( (object) [
-				'foo' => [
-					'bar' => [
-						'baz' => [
-							'home_dir'         => '${HOME}',
-							'public_html_dir'  => '~/my/site',
-							'public_html_path' => '~/my/site',
-							'public_html'      => '~/my/site',
-						],
-					],
-				],
-			] ) ),
-			$this->counter()
-		);
-		$this->assertSame( $home_dir, U\Fs::expand_home( '${HOME}' ), $this->counter() );
-		$this->assertSame( $home_dir . $home_dir, U\Fs::expand_home( '${HOME}${HOME}' ), $this->counter() );
 	}
 
 	/**

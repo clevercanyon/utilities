@@ -15,6 +15,7 @@ namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 
 /**
  * Base class.

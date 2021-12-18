@@ -15,6 +15,7 @@ namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 
 /**
  * Dir.
@@ -25,17 +26,16 @@ class Dir extends Base {
 	/**
 	 * Gets a temp directory path.
 	 *
-	 * @return string     Temp directory path.
+	 * @throws Exception On any failure.
+	 * @return string Temp directory path.
 	 *
-	 * @internal          Note: The directory is created automagically.
-	 *
-	 * @throws \Exception On any failure.
+	 * @internal The directory is created automagically.
 	 */
 	public static function temp() : string {
 		$dir = U\Dir::tmp() . '/' . U\Crypto::uuid_v4();
 
 		if ( ! mkdir( $dir, 0700, true ) ) {
-			throw new \Exception( 'Unable to create temp directory.' );
+			throw new Exception( 'Unable to create temp directory.' );
 		}
 		return $dir;
 	}
@@ -43,9 +43,8 @@ class Dir extends Base {
 	/**
 	 * Gets TMP directory.
 	 *
-	 * @return string     TMP directory.
-	 *
-	 * @throws \Exception On failure to locate TMP directory.
+	 * @throws Exception On failure to locate TMP directory.
+	 * @return string TMP directory.
 	 */
 	public static function tmp() : string {
 		static $cache;
@@ -61,21 +60,20 @@ class Dir extends Base {
 		$haystack[] = sys_get_temp_dir();
 		$haystack[] = ini_get( 'upload_tmp_dir' );
 
-		if ( ! empty( $_SERVER['TEMP'] ) ) {
-			$haystack[] = $_SERVER['TEMP']; // phpcs:ignore
+		if ( ! empty( $_SERVER[ 'TEMP' ] ) ) {
+			$haystack[] = $_SERVER[ 'TEMP' ]; // phpcs:ignore
 		}
-		if ( ! empty( $_SERVER['TMPDIR'] ) ) {
-			$haystack[] = $_SERVER['TMPDIR']; // phpcs:ignore
+		if ( ! empty( $_SERVER[ 'TMPDIR' ] ) ) {
+			$haystack[] = $_SERVER[ 'TMPDIR' ]; // phpcs:ignore
 		}
-		if ( ! empty( $_SERVER['TMP'] ) ) {
-			$haystack[] = $_SERVER['TMP']; // phpcs:ignore
+		if ( ! empty( $_SERVER[ 'TMP' ] ) ) {
+			$haystack[] = $_SERVER[ 'TMP' ]; // phpcs:ignore
 		}
 		if ( 0 === stripos( PHP_OS, 'win' ) ) {
 			$haystack[] = 'C:/Temp';
 		} else {
 			$haystack[] = '/tmp';
 		}
-
 		foreach ( $haystack as $_dir ) {
 			$_dir = rtrim( U\Fs::normalize( realpath( $_dir ) ), '/' );
 
@@ -90,9 +88,8 @@ class Dir extends Base {
 				}
 			}
 		}
-
 		$cache = ''; // Empty string and exception on failure.
-		throw new \Exception( 'Unable to locate a tmp directory.' );
+		throw new Exception( 'Unable to locate a tmp directory.' );
 	}
 
 	/**
@@ -100,15 +97,15 @@ class Dir extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string      $path             Directory to prune.
-	 * @param  array       $prune            Array of regex expressions to prune.
-	 * @param  array       $prune_exceptions Array of regex expressions to keep (i.e., prune exceptions).
-	 * @param  null|string $base_path        Base path, which gets stripped prior to regex matching. Defaults to `$path`.
+	 * @param string      $path              Directory to prune.
+	 * @param array       $prune             Array of regex expressions to prune.
+	 * @param array       $prune_exceptions  Array of regex expressions to keep (i.e., prune exceptions).
+	 * @param string|null $base_path         Base path, which gets stripped prior to regex matching. Defaults to `$path`.
 	 *                                       Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
 	 *
-	 * @return bool                          True on success.
+	 * @return bool True on success.
 	 */
-	public static function prune( string $path, array $prune, array $prune_exceptions = [], ?string $base_path = null ) : bool {
+	public static function prune( string $path, array $prune, array $prune_exceptions = [], /* string|null */ ?string $base_path = null ) : bool {
 		// Initialization.
 
 		$paths_to_prune = [];
@@ -128,7 +125,7 @@ class Dir extends Base {
 
 		// Base path collection.
 
-		$base_path                 ??= $path; // Default value.
+		$base_path                   ??= $path; // Default value.
 		$base_path                   = U\Fs::normalize( $base_path );
 		$base_path_no_trailing_slash = rtrim( $base_path, '/' );
 
@@ -146,7 +143,6 @@ class Dir extends Base {
 
 			foreach ( $prune as $_prune ) {
 				if ( preg_match( $_prune, $_base_subpath ) ) {
-
 					foreach ( $prune_exceptions as $_prune_exception ) {
 						if ( preg_match( $_prune_exception, $_base_subpath ) ) {
 							continue 2; // Continue iterating prunes.
@@ -174,37 +170,44 @@ class Dir extends Base {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
 	/**
 	 * Gets a directory iterator.
 	 *
-	 * @since 1.0.0
+	 * @since                 1.0.0
 	 *
-	 * @param  string $path   Directory to iterate.
-	 * @param  string $regex  Regular expression.
+	 * @param string      $path   Directory to iterate.
+	 * @param string|null $regexp Regular expression to use in filtering.
+	 *                            Default is everything except `.gitignore` items.
+	 *
+	 * @throws Exception     If either of the input parameters are empty.
+	 * @throws Exception     If `$path` is not a readable/iterable directory.
 	 *
 	 * @return \RegexIterator Recursive directory regex iterator.
 	 *
-	 * @throws \Exception     If either of the input parameters are empty.
-	 * @throws \Exception     If `$path` is not a readable/iterable directory.
+	 * @see                   U\Fs::gitignore_regexp() — PLEASE REVIEW CAREFULLY!
+	 * @see                   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
+	 *
+	 * @internal              Please {@see U\Fs::gitignore_regexp()} and note the use of the `x` modifier.
+	 *                        Whitespace may not be included without carefull attention. Use `\s` or `\S` instead please.
 	 *
 	 * @internal              Note: This intentionally does not follow symlinks.
-	 *                        i.e., A link is just a link, so this does not recurse into symlinked directories.
+	 *                        i.e., A link is just a link. This does not recurse into symlinked directories.
 	 */
-	public static function iterator( string $path, string $regex = '/.+/u' ) : \RegexIterator {
-		if ( ! $path || ! $regex ) {
-			throw new \Exception( 'Missing required parameters.' );
+	public static function iterator( string $path, /* string|null */ ?string $regexp = null ) : \RegexIterator {
+		$regexp ??= U\Fs::gitignore_regexp( '.+' );
+
+		if ( ! $path || ! $regexp ) {
+			throw new Exception( 'Missing required parameters.' );
 		}
 		if ( ! is_dir( $path ) || ! is_readable( $path ) ) {
-			throw new \Exception( 'Not a readable/iterable directory.' );
+			throw new Exception( 'Not a readable/iterable directory.' );
 		}
-
 		$iterator = new \RecursiveDirectoryIterator( $path, \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_SELF | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS );
 		$iterator = new \RecursiveIteratorIterator( $iterator, \RecursiveIteratorIterator::CHILD_FIRST );
-		$iterator = new \RegexIterator( $iterator, $regex, \RegexIterator::MATCH, \RegexIterator::USE_KEY );
+		$iterator = new \RegexIterator( $iterator, $regexp, \RegexIterator::MATCH, \RegexIterator::USE_KEY );
 
 		return $iterator;
 	}

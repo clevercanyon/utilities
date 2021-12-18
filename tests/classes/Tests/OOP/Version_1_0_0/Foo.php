@@ -15,7 +15,9 @@ namespace Clever_Canyon\Utilities__Tests\Tests\OOP\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
-use Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\{ Base };
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
+
+use Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\{Base};
 
 /**
  * PHPCS configuration.

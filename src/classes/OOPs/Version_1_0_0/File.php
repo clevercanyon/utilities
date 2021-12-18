@@ -15,6 +15,7 @@ namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 
 /**
  * File.
@@ -25,14 +26,13 @@ class File extends Base {
 	/**
 	 * Gets a temp file path.
 	 *
-	 * @param  string $ext File extension. Defaults to ``.
-	 * @param  string $dir Directory where file should be created. Defaults to {@link U\Dir::temp()}.
+	 * @param string $ext File extension. Defaults to ``.
+	 * @param string $dir Directory where file should be created. Defaults to {@see U\Dir::temp()}.
 	 *
-	 * @return string      Temp file path.
+	 * @throws Exception  On any failure.
+	 * @return string Temp file path.
 	 *
-	 * @internal           Note: The file is created automagically.
-	 *
-	 * @throws \Exception  On any failure.
+	 * @internal           The file is created automatically.
 	 */
 	public static function temp( string $ext = '', string $dir = '' ) : string {
 		$dir  = $dir ?: U\Dir::temp();
@@ -40,10 +40,10 @@ class File extends Base {
 		$file = $ext ? $file . '.' . $ext : $file;
 
 		if ( ! is_dir( $dir ) && ! mkdir( $dir, 0700, true ) ) {
-			throw new \Exception( 'Unable to create temp file\'s directory.' );
+			throw new Exception( 'Unable to create temp file\'s directory.' );
 		}
 		if ( ! touch( $file ) || ! chmod( $file, 0600 ) ) {
-			throw new \Exception( 'Unable to create temp file.' );
+			throw new Exception( 'Unable to create temp file.' );
 		}
 		return $file;
 	}

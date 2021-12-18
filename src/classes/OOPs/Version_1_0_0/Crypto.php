@@ -15,6 +15,7 @@ namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 
 /**
  * Crypto.
@@ -27,9 +28,9 @@ class Crypto extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  bool $optimize  Remove dashes?
+	 * @param bool $optimize Remove dashes?
 	 *
-	 * @return string          Version 4 UUID (32 bytes optimized, 36 unoptimized).
+	 * @return string Version 4 UUID (32 bytes optimized, 36 unoptimized).
 	 */
 	public static function uuid_v4( bool $optimize = true ) : string {
 		$uuid_v4 = sprintf(

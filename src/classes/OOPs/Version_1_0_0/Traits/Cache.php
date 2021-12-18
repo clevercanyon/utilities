@@ -15,6 +15,7 @@ namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0\Traits;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 
 /**
  * Cache traits.
@@ -34,13 +35,18 @@ trait Cache {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $key   Cache key to get or set.
-	 * @param  mixed  $value Cache value, when setting cache.
+	 * @param string|array $key   Cache key part(s) to get or set.
+	 * @param mixed        $value Cache value, when setting cache.
 	 *
-	 * @return mixed         Cached value, by reference. Defaults to `null`.
+	 * @return mixed Cached value, by reference. Defaults to `null`.
 	 */
-	protected static function &static_cache( string $key, $value = null ) {
-		$called_class                            = get_called_class();
+	protected static function &static_cache( /* string|array */ $key, /* mixed */ $value = null ) /* : mixed */ {
+		if ( is_array( $key ) ) {
+			$key = implode( '|©|', array_map( 'strval', $key ) );
+		}
+		$key = (string) $key; // Force string key.
+
+		$called_class                          = get_called_class();
 		static::$static_cache[ $called_class ] ??= [];
 
 		if ( func_num_args() >= 2 ) {

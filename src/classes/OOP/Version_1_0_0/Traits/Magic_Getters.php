@@ -15,6 +15,7 @@ namespace Clever_Canyon\Utilities\OOP\Version_1_0_0\Traits;
  * @since 1.0.0
  */
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 
 /**
  * Magic getters.
@@ -27,11 +28,11 @@ trait Magic_Getters {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $prop Property.
+	 * @param string $prop Property.
 	 *
-	 * @return bool         True if property exists.
+	 * @return bool True if property exists.
 	 */
-	public function __isset( string $prop ) {
+	public function __isset( string $prop ) : bool {
 		return property_exists( $this, $prop );
 	}
 
@@ -40,11 +41,11 @@ trait Magic_Getters {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string $prop Property.
+	 * @param string $prop Property.
 	 *
-	 * @return mixed        Property value.
+	 * @return mixed Property value.
 	 */
-	public function __get( string $prop ) {
+	public function __get( string $prop ) /* : mixed */ {
 		if ( property_exists( $this, $prop ) ) {
 			return $this->{$prop};
 		}
