@@ -93,13 +93,13 @@ abstract class CLI_Tool_Base extends Base {
 			$this->parser->process( $this->args_to_parse );
 			// Defaults internally to `$_SERVER['argv']`.
 			// See: <http://getopt-php.github.io/getopt-php/options.html>
-			// See: <https://git.io/JMFLE>
+			// See: <https://git.io/JMFLE>.
 
-		} catch ( \Throwable $exception ) {
+		} catch ( \Throwable $throwable ) {
 			$this->maybe_process_help_request();
 			$this->maybe_process_version_request();
 
-			U\CLI::error( $exception->getMessage() );
+			U\CLI::error( $throwable->getMessage() );
 			U\CLI::exit_status( 1 );
 		}
 
@@ -124,11 +124,11 @@ abstract class CLI_Tool_Base extends Base {
 				$process_command_request();
 				U\CLI::exit_status( 0 );
 
-			} catch ( \Throwable $exception ) {
-				U\CLI::error( $exception->getMessage() );
+			} catch ( \Throwable $throwable ) {
+				U\CLI::error( $throwable->getMessage() );
 				U\CLI::exit_status( 1 );
 			}
-		} catch ( \Throwable $exception ) {
+		} catch ( \Throwable $throwable ) {
 			U\CLI::error( 'Unexpected error running `' . $command . '` command. Please try again.' );
 			U\CLI::exit_status( 1 );
 		}
@@ -279,7 +279,7 @@ abstract class CLI_Tool_Base extends Base {
 				)
 			);
 			$options[ $option ]->setDescription( $config[ 'description' ] ?? '' );
-			$options[ $option ]->setValidation( $config[ 'validator' ] ?? [ U\Callbacks::class, '__true' ] );
+			$options[ $option ]->setValidation( $config[ 'validator' ] ?? [ U\Cb::class, 'noop_true' ] );
 
 			if ( empty( $config[ 'required' ] ) && isset( $config[ 'default' ] ) ) {
 				$options[ $option ]->setDefaultValue( $config[ 'default' ] );
@@ -311,7 +311,7 @@ abstract class CLI_Tool_Base extends Base {
 					)
 				)
 			);
-			$operands[ $operand ]->setValidation( $config[ 'validator' ] ?? [ U\Callbacks::class, '__true' ] );
+			$operands[ $operand ]->setValidation( $config[ 'validator' ] ?? [ U\Cb::class, 'noop_true' ] );
 
 			if ( $config[ 'multiple' ] && ! isset( $config[ 'default' ] ) ) {
 				$config[ 'default' ] = ''; // Avoids a bug in GetOpt class.

@@ -63,15 +63,15 @@ class Arr extends Base {
 	 *
 	 * @return array Sorted array.
 	 *
-	 * @see   Ctn::sort_by For collection use.
+	 * @see   Ctn::sort_by() For collection use.
 	 */
 	public static function sort_by( string $by, array $arr, int $flags = SORT_NATURAL ) : array {
 		switch ( $by ) {
-			case 'key' :
+			case 'key':
 				ksort( $arr, SORT_NATURAL );
 				break;
 
-			case 'value' :
+			case 'value':
 				foreach ( $arr as $_value ) {
 					if ( ! is_scalar( $_value ) ) {
 						throw new Exception( 'All values must be scalar.' );
@@ -80,7 +80,7 @@ class Arr extends Base {
 				sort( $arr, SORT_NATURAL );
 				break;
 
-			default :
+			default:
 				throw new Exception( 'Unexpected sort by directive: `' . $by . '`.' );
 		}
 		return $arr;

@@ -20,9 +20,13 @@ use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 use Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\{Base};
 
 /**
- * PHPCS configuration.
+ * PHPCS exceptions.
+ *
+ * @since 1.0.0
+ *
+ * @note  Don't need short description for all tests.
+ * phpcs:disable Generic.Commenting.DocComment.MissingShort
  */
-// phpcs:disable Generic.Commenting.DocComment.MissingShort
 
 /**
  * Test case.
@@ -39,24 +43,25 @@ final class Fs_Tests extends Base {
 			'C:/foo/bar' => 'C:\\foo\\bar\\',
 			'C:/foo/bar' => 'C:\\foo\\bar\\\\',
 
-			'/foo/bar'   => '\\foo\\bar',
-			'/foo/bar'   => '\\foo\\bar\\',
+			'/foo/bar' => '\\foo\\bar',
+			'/foo/bar' => '\\foo\\bar\\',
 
-			'/foo/bar'   => '/foo/bar/',
-			'/foo/bar'   => '/foo/bar//',
+			'/foo/bar' => '/foo/bar/',
+			'/foo/bar' => '/foo/bar//',
 
-			'/foo'       => '/foo/',
-			'/foo'       => '/foo//',
+			'/foo' => '/foo/',
+			'/foo' => '/foo//',
 
-			'/foo'       => '/foo',
-			'/bar'       => '//bar',
+			'/foo' => '/foo',
+			'/bar' => '//bar',
 
-			'/'          => '\\',
-			'/'          => '\\\\',
+			'/' => '\\',
+			'/' => '\\\\',
 
-			'/'          => '/',
-			'/'          => '//',
-		] as $_expecting => $_path ) {
+			'/' => '/',
+			'/' => '//',
+		] as $_expecting => $_path
+		) {
 			$this->assertSame( $_expecting, U\Fs::normalize( $_path ), $this->counter() );
 		}
 	}

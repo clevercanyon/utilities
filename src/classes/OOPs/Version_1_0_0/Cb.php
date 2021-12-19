@@ -22,70 +22,37 @@ use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
  *
  * @since 1.0.0
  */
-class Callbacks extends Base {
+class Cb extends Base {
 	/**
-	 * No-op.
+	 * Returns `null`.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return void Null.
 	 */
-	public static function noop() : void {}
+	public static function noop() : void {
+		return; // Null.
+	}
 
 	/**
-	 * Return true.
+	 * Returns `true`.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return bool True.
 	 */
-	public static function __true() : bool {
+	public static function noop_true() : bool {
 		return true;
 	}
 
 	/**
-	 * Return false.
+	 * Returns `false`.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return bool False.
 	 */
-	public static function __false() : bool {
+	public static function noop_false() : bool {
 		return false;
-	}
-
-	/**
-	 * Return null.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return null Null.
-	 */
-	public static function __null() : void {
-		return; // Null.
-	}
-
-	/**
-	 * Return empty().
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param mixed $v Value.
-	 *
-	 * @return bool True if empty.
-	 */
-	public static function __empty( $v ) : bool {
-		return empty( $v );
-	}
-
-	/**
-	 * Return !empty().
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param mixed $v Value.
-	 *
-	 * @return bool True if not empty.
-	 */
-	public static function __not_empty( $v ) : bool {
-		return ! empty( $v );
 	}
 }

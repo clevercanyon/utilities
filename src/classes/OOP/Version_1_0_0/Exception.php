@@ -17,6 +17,16 @@ namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
 use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
 
 /**
+ * PHPCS rule exceptions.
+ *
+ * @since 2021-12-15
+ *
+ * @note  Leading underscores in this file help us guard against collisions with PHP core in the future.
+ *        Also using `snake_case()` method names to guard against collisions, as PHP core uses `camelCase()`.
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ */
+
+/**
  * Custom exception.
  *
  * @since 1.0.0

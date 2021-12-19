@@ -28,7 +28,7 @@ class Crypto extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param bool $optimize Remove dashes?
+	 * @param bool $optimize Remove dashes? Default is `true`.
 	 *
 	 * @return string Version 4 UUID (32 bytes optimized, 36 unoptimized).
 	 */

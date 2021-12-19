@@ -32,7 +32,7 @@ class Fs extends Base {
 	 *
 	 * @return string Noramlized path.
 	 *
-	 * @internal            Matches behavior of {@see dirname()}.
+	 * @note                Matches behavior of {@see dirname()}.
 	 *                      {@see https://www.php.net/manual/en/function.dirname.php}
 	 */
 	public static function normalize( string $path ) : string {
@@ -52,7 +52,7 @@ class Fs extends Base {
 	 *
 	 * @return bool True if path exists.
 	 *
-	 * @internal            Note: {@see file_exists()} returns `false` for symlinks pointing to non-existing files.
+	 * @note                Note: {@see file_exists()} returns `false` for symlinks pointing to non-existing files.
 	 *                      {@link https://www.php.net/manual/en/function.file-exists.php}
 	 */
 	public static function path_exists( string $path ) : bool {
@@ -87,7 +87,7 @@ class Fs extends Base {
 	 * @since 1.0.0
 	 *
 	 * @param string $path  Path.
-	 * @param bool   $octal Return octal representation?
+	 * @param bool   $octal Return octal representation? Default is `false`.
 	 *
 	 * @return int|string Permissions.
 	 */
@@ -325,7 +325,7 @@ class Fs extends Base {
 	) : bool {
 		// Dependency check.
 
-		if ( ! class_exists( 'ZipArchive' ) ) {
+		if ( ! U\Env::can_use_class( 'ZipArchive' ) ) {
 			return false; // Not possible.
 		}
 		// Recursion info.
@@ -460,7 +460,7 @@ class Fs extends Base {
 	 *
 	 * @return bool True if deleted successfully.
 	 *
-	 * @internal                   Note: This intentionally does not follow symlinks.
+	 * @note                       Note: This intentionally does not follow symlinks.
 	 *                             i.e., A link is just a link, so this does not recurse into symlinked directories.
 	 */
 	public static function delete( string $path, bool $recursively = true ) : bool {

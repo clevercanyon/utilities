@@ -18,7 +18,7 @@ use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
 use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 
 /**
- * Str.
+ * String utilities.
  *
  * @since 1.0.0
  */
@@ -29,7 +29,7 @@ class Str extends Base {
 	 * @since 1.0.0
 	 *
 	 * @param mixed $data         Data.
-	 * @param bool  $pretty_print Pretty print?
+	 * @param bool  $pretty_print Pretty print? Default is `true`.
 	 *
 	 * @return string String representation.
 	 */

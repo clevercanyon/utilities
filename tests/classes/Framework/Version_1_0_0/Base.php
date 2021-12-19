@@ -35,7 +35,6 @@ abstract class Base extends Base_TestCase {
 	 */
 	public static function setUpBeforeClass() : void {
 		parent::setUpBeforeClass();
-		static::static_cache_clear();
 	}
 
 	/**
@@ -45,7 +44,7 @@ abstract class Base extends Base_TestCase {
 	 */
 	public static function tearDownAfterClass() : void {
 		parent::tearDownAfterClass();
-		static::static_cache_clear();
+		static::oops_cache_clear();
 	}
 
 	/**
@@ -72,9 +71,9 @@ abstract class Base extends Base_TestCase {
 	/**
 	 * Fires before each method is run.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
 	 *
-	 * @internal See <https://phpunit.readthedocs.io/en/9.5/fixtures.html>
+	 * @see   https://phpunit.readthedocs.io/en/9.5/fixtures.html
 	 */
 	protected function setUp() : void {
 		parent::setUp();
@@ -87,9 +86,9 @@ abstract class Base extends Base_TestCase {
 	/**
 	 * Fires after each method is run.
 	 *
-	 * @since    1.0.0
+	 * @since 1.0.0
 	 *
-	 * @internal See <https://phpunit.readthedocs.io/en/9.5/fixtures.html>
+	 * @see   https://phpunit.readthedocs.io/en/9.5/fixtures.html
 	 */
 	protected function tearDown() : void {
 		parent::tearDown();
@@ -104,6 +103,7 @@ abstract class Base extends Base_TestCase {
 				U\Fs::delete( $_file );
 			}
 		}
+		$this->oop_cache_clear();
 	}
 
 	/**

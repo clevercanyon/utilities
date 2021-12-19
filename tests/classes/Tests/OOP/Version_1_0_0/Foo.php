@@ -20,9 +20,13 @@ use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
 use Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\{Base};
 
 /**
- * PHPCS configuration.
+ * PHPCS exceptions.
+ *
+ * @since 1.0.0
+ *
+ * @note  Don't need short description for all tests.
+ * phpcs:disable Generic.Commenting.DocComment.MissingShort
  */
-// phpcs:disable Generic.Commenting.DocComment.MissingShort
 
 /**
  * Test case.

@@ -24,11 +24,11 @@ use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
  */
 trait Cache {
 	/**
-	 * Static cache.
+	 * OOPs cache.
 	 *
 	 * @since 1.0.0
 	 */
-	protected static array $static_cache = [];
+	protected static array $oops_cache = [];
 
 	/**
 	 * Gets|sets static cache.
@@ -40,21 +40,21 @@ trait Cache {
 	 *
 	 * @return mixed Cached value, by reference. Defaults to `null`.
 	 */
-	protected static function &static_cache( /* string|array */ $key, /* mixed */ $value = null ) /* : mixed */ {
+	protected static function &oops_cache( /* string|array */ $key, /* mixed */ $value = null ) /* : mixed */ {
 		if ( is_array( $key ) ) {
 			$key = implode( '|©|', array_map( 'strval', $key ) );
 		}
 		$key = (string) $key; // Force string key.
 
-		$called_class                          = get_called_class();
-		static::$static_cache[ $called_class ] ??= [];
+		$called_class                        = get_called_class();
+		static::$oops_cache[ $called_class ] ??= [];
 
 		if ( func_num_args() >= 2 ) {
-			static::$static_cache[ $called_class ][ $key ] = $value;
+			static::$oops_cache[ $called_class ][ $key ] = $value;
 		} else {
-			static::$static_cache[ $called_class ][ $key ] ??= null;
+			static::$oops_cache[ $called_class ][ $key ] ??= null;
 		}
-		return static::$static_cache[ $called_class ][ $key ];
+		return static::$oops_cache[ $called_class ][ $key ];
 	}
 
 	/**
@@ -62,8 +62,8 @@ trait Cache {
 	 *
 	 * @since 1.0.0
 	 */
-	protected static function static_cache_clear() : void {
-		$called_class                          = get_called_class();
-		static::$static_cache[ $called_class ] = [];
+	protected static function oops_cache_clear() : void {
+		$called_class                        = get_called_class();
+		static::$oops_cache[ $called_class ] = [];
 	}
 }

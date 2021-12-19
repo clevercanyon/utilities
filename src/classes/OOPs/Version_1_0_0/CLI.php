@@ -217,7 +217,7 @@ class CLI extends Base {
 	 * @param string|null $dir          Current working directory. Defaults to `null` value.
 	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
 	 *
-	 * @throws Exception                On non-zero exit status code.
+	 * @throws Exception On non-zero exit status code.
 	 * @return int Status code.
 	 */
 	public static function run( array $args, /* string|null */ ?string $dir = null, bool $check_status = true ) : int {
@@ -243,7 +243,7 @@ class CLI extends Base {
 	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
 	 * @param string|null $stdin        Stdin to send to command. Defaults to `null` value.
 	 *
-	 * @throws Exception                On non-zero exit status code.
+	 * @throws Exception On non-zero exit status code.
 	 * @return \StdClass `[status, stdout, stderr]`.
 	 */
 	public static function exec( array $args, /* string|null */ ?string $dir = null, bool $check_status = true, /* string|null */ ?string $stdin = null ) : \StdClass {

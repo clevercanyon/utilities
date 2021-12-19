@@ -29,7 +29,7 @@ class Dir extends Base {
 	 * @throws Exception On any failure.
 	 * @return string Temp directory path.
 	 *
-	 * @internal The directory is created automagically.
+	 * @note The directory is created automagically.
 	 */
 	public static function temp() : string {
 		$dir = U\Dir::tmp() . '/' . U\Crypto::uuid_v4();
@@ -97,11 +97,11 @@ class Dir extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string      $path              Directory to prune.
-	 * @param array       $prune             Array of regex expressions to prune.
-	 * @param array       $prune_exceptions  Array of regex expressions to keep (i.e., prune exceptions).
-	 * @param string|null $base_path         Base path, which gets stripped prior to regex matching. Defaults to `$path`.
-	 *                                       Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
+	 * @param string      $path             Directory to prune.
+	 * @param array       $prune            Array of regex expressions to prune.
+	 * @param array       $prune_exceptions Array of regex expressions to keep (i.e., prune exceptions).
+	 * @param string|null $base_path        Base path, which gets stripped prior to regex matching. Defaults to `$path`.
+	 *                                      Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
 	 *
 	 * @return bool True on success.
 	 */
@@ -176,25 +176,25 @@ class Dir extends Base {
 	/**
 	 * Gets a directory iterator.
 	 *
-	 * @since                 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param string      $path   Directory to iterate.
 	 * @param string|null $regexp Regular expression to use in filtering.
 	 *                            Default is everything except `.gitignore` items.
 	 *
-	 * @throws Exception     If either of the input parameters are empty.
-	 * @throws Exception     If `$path` is not a readable/iterable directory.
+	 * @throws Exception If either of the input parameters are empty.
+	 * @throws Exception If `$path` is not a readable/iterable directory.
 	 *
 	 * @return \RegexIterator Recursive directory regex iterator.
 	 *
-	 * @see                   U\Fs::gitignore_regexp() — PLEASE REVIEW CAREFULLY!
-	 * @see                   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
+	 * @see   U\Fs::gitignore_regexp() — PLEASE REVIEW CAREFULLY!
+	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
 	 *
-	 * @internal              Please {@see U\Fs::gitignore_regexp()} and note the use of the `x` modifier.
-	 *                        Whitespace may not be included without carefull attention. Use `\s` or `\S` instead please.
+	 * @note  Please {@see U\Fs::gitignore_regexp()} and note the use of the `x` modifier.
+	 *        Whitespace may not be included without carefull attention. Use `\s` or `\S` instead please.
 	 *
-	 * @internal              Note: This intentionally does not follow symlinks.
-	 *                        i.e., A link is just a link. This does not recurse into symlinked directories.
+	 * @note  Note: This intentionally does not follow symlinks.
+	 *        i.e., A link is just a link. This does not recurse into symlinked directories.
 	 */
 	public static function iterator( string $path, /* string|null */ ?string $regexp = null ) : \RegexIterator {
 		$regexp ??= U\Fs::gitignore_regexp( '.+' );

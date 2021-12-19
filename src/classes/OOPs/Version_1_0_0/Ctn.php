@@ -60,8 +60,8 @@ class Ctn extends Base {
 	 *
 	 * @return mixed Value, else `null` on failure to locate.
 	 *
-	 * @see   Obj::get_prop For further details.
-	 * @see   Arr::get_key For further details.
+	 * @see   Obj::get_prop()
+	 * @see   Arr::get_key()
 	 */
 	public static function get_prop_key( /* object|array */ $ctn, string $path, string $delimiter = '.' ) /* : mixed */ {
 		return is_object( $ctn )
@@ -83,8 +83,8 @@ class Ctn extends Base {
 	 *
 	 * @return object|array Sorted collection.
 	 *
-	 * @see   Obj::sort_by For further details.
-	 * @see   Arr::sort_by For further details.
+	 * @see   Obj::sort_by()
+	 * @see   Arr::sort_by()
 	 */
 	public static function sort_by( string $by, /* object|array */ $ctn, int $flags = SORT_NATURAL ) /* : object|array */ {
 		return is_object( $ctn )
@@ -120,7 +120,7 @@ class Ctn extends Base {
 				$_value_is_object = is_object( $_value );
 
 				switch ( $is_object_base_ctn ) {
-					case true :
+					case true:
 						if ( $_value_is_object && is_object( $base_ctn->{$_prop_key} ?? null ) ) {
 							$base_ctn->{$_prop_key} = U\Ctn::merge( $base_ctn->{$_prop_key}, $_value );
 						} elseif ( $_value_is_object ) {
@@ -130,8 +130,8 @@ class Ctn extends Base {
 						}
 						break;
 
-					case false :
-					default :
+					case false:
+					default:
 						if ( $_value_is_object && is_object( $base_ctn[ $_prop_key ] ?? null ) ) {
 							$base_ctn[ $_prop_key ] = U\Ctn::merge( $base_ctn[ $_prop_key ], $_value );
 						} elseif ( $_value_is_object ) {
@@ -151,12 +151,12 @@ class Ctn extends Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param mixed          $value      Value(s) to resolve deeply.
-	 *                                   This will recurse arrays/objects.
+	 * @param mixed          $value    Value(s) to resolve deeply.
+	 *                                 This will recurse arrays/objects.
 	 *
-	 * @param array          $env_vars   An array of any additional environment vars. Defaults to `[]`.
+	 * @param array          $env_vars An array of any additional environment vars. Defaults to `[]`.
 	 *
-	 * @param \StdClass|null $_r         Internal use only. Do NOT pass.
+	 * @param \StdClass|null $_r       Internal use only. Do NOT pass.
 	 *
 	 * @return mixed The `$value` after having resolved environment vars recursively.
 	 */

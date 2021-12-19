@@ -26,13 +26,15 @@ class File extends Base {
 	/**
 	 * Gets a temp file path.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param string $ext File extension. Defaults to ``.
 	 * @param string $dir Directory where file should be created. Defaults to {@see U\Dir::temp()}.
 	 *
 	 * @throws Exception  On any failure.
 	 * @return string Temp file path.
 	 *
-	 * @internal           The file is created automatically.
+	 * @note  The file is created automatically.
 	 */
 	public static function temp( string $ext = '', string $dir = '' ) : string {
 		$dir  = $dir ?: U\Dir::temp();

@@ -47,7 +47,7 @@ class Obj extends Base {
 	 *
 	 * @return mixed Value, else `null` on failure to locate.
 	 *
-	 * @see   Ctn::get_prop_key For collection use.
+	 * @see   Ctn::get_prop_key()
 	 */
 	public static function get_prop( object $obj, string $path, string $delimiter = '.' ) /* : mixed */ {
 		if ( ! strlen( $path ) ) {
@@ -78,17 +78,17 @@ class Obj extends Base {
 	 *
 	 * @return \StdClass Sorted object, converted to {@see \StdClass}.
 	 *
-	 * @see   Ctn::sort_by For collection use.
+	 * @see   Ctn::sort_by()
 	 */
 	public static function sort_by( string $by, object $obj, int $flags = SORT_NATURAL ) : \StdClass {
 		$obj = (array) $obj; // For sorting below.
 
 		switch ( $by ) {
-			case 'prop' :
+			case 'prop':
 				ksort( $obj, SORT_NATURAL );
 				break;
 
-			case 'value' :
+			case 'value':
 				foreach ( $obj as $_value ) {
 					if ( ! is_scalar( $_value ) ) {
 						throw new Exception( 'All values must be scalar.' );
@@ -97,7 +97,7 @@ class Obj extends Base {
 				sort( $obj, SORT_NATURAL );
 				break;
 
-			default :
+			default:
 				throw new Exception( 'Unexpected sort by directive: `' . $by . '`.' );
 		}
 		return (object) $obj;
