@@ -1,5 +1,6 @@
 <?php
-/** CLEVER CANYON™ <https://clevercanyon.com>
+/**
+ * CLEVER CANYON™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
@@ -7,20 +8,30 @@
  * CC      LL      EE        VV VV   EE      RR  RR     CC      AAAAAAA NN  NNN   YYY   OO   OO NN  NNN
  *  CCCCC  LLLLLLL EEEEEEE    VVV    EEEEEEE RR   RR     CCCCC  AA   AA NN   NN   YYY    OOOO0  NN   NN
  */
+// <editor-fold desc="Strict types, namespace, use statements, and other headers.">
+
+/**
+ * Declarations & namespace.
+ *
+ * @since 2021-12-25
+ */
+declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
 namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
 
 /**
- * Dependencies.
+ * Utilities.
  *
- * @since 1.0.0
+ * @since 2021-12-15
  */
-use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
-use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
+use Clever_Canyon\Utilities\OOPs\{Version_1_0_0 as U};
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Exception};
+
+// </editor-fold>
 
 /**
- * Collection.
+ * Collection utilities.
  *
- * @since 1.0.0
+ * @since 2021-12-15
  */
 class Ctn extends Base {
 	/**
@@ -46,13 +57,15 @@ class Ctn extends Base {
 	 * @return bool True if collection is empty.
 	 */
 	public static function empty( /* object|array */ $ctn ) : bool {
+		assert( is_object( $ctn ) || is_array( $ctn ) );
+
 		return is_object( $ctn ) ? U\Obj::empty( $ctn ) : empty( $ctn );
 	}
 
 	/**
 	 * Property/key accessor.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param object|array $ctn       Collection to query.
 	 * @param string       $path      Path to query object for.
@@ -64,6 +77,8 @@ class Ctn extends Base {
 	 * @see   Arr::get_key()
 	 */
 	public static function get_prop_key( /* object|array */ $ctn, string $path, string $delimiter = '.' ) /* : mixed */ {
+		assert( is_object( $ctn ) || is_array( $ctn ) );
+
 		return is_object( $ctn )
 			? U\Obj::get_prop( $ctn, $path, $delimiter )
 			: U\Arr::get_key( $ctn, $path, $delimiter );
@@ -87,35 +102,79 @@ class Ctn extends Base {
 	 * @see   Arr::sort_by()
 	 */
 	public static function sort_by( string $by, /* object|array */ $ctn, int $flags = SORT_NATURAL ) /* : object|array */ {
+		assert( is_object( $ctn ) || is_array( $ctn ) );
+
 		return is_object( $ctn )
 			? U\Obj::sort_by( 'prop_key' === $by ? 'prop' : $by, $ctn, $flags )
 			: U\Arr::sort_by( 'prop_key' === $by ? 'key' : $by, $ctn, $flags );
 	}
 
 	/**
+	 * Stringifies a collection.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param object|array $ctn          Collection to stringify.
+	 *
+	 * @param bool|null    $pretty_print Pretty print? Default is `null`,
+	 *                                   which defaults to {@see U\Str::stringify()} default.
+	 *
+	 * @param int          $max_depth    Max depth to traverse. Default is `-1` (infinite).
+	 *                                   Setting this to `-1` traverses entire collection converting non object|array values to a string.
+	 *                                   Setting this to `0` indicates the collection itself should be converted to a string.
+	 *                                   Setting this to `1` would force all props/keys to a string value.
+	 *                                   Setting this to `2` would go one level deeper, etc.
+	 *
+	 * @param int          $_depth       Internal use only — do not pass.
+	 *
+	 * @return object|array|string Stringified collection.
+	 *
+	 * @see   U\Str::stringify()
+	 * @see   U\Str::json_encode()
+	 *
+	 * @note  This is NOT purely a JSON-encoder.
+	 *        For example, null, scalar, and resource values are simply converted to strings.
+	 *        To actually JSON-encode a collection you should use {@see U\Str::json_encode()}.
+	 */
+	public static function stringify( /* object|array */ $ctn, /* bool|null */ ?bool $pretty_print = null, int $max_depth = -1, int $_depth = 0 ) /* : object|array|string */ {
+		assert( is_object( $ctn ) || is_array( $ctn ) );
+
+		if ( $max_depth >= 0 && $_depth >= $max_depth ) {
+			return U\Str::stringify( $ctn, $pretty_print );
+		}
+		foreach ( $ctn as &$_value ) {
+			if ( U\Ctn::is( $_value ) ) {
+				$_value = U\Ctn::stringify( $_value, $pretty_print, $max_depth, $_depth + 1 );
+			} else {
+				$_value = U\Str::stringify( $_value, $pretty_print );
+			}
+		}
+		unset( $_value ); // Reference.
+
+		return $ctn;
+	}
+
+	/**
 	 * Merges collections recursively.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param object|array $base_ctn Base collection.
 	 * @param object|array ...$ctns  Collections to merge.
 	 *
-	 * @throws Exception If `$base_ctn` is not an `object|array`.
 	 * @return object|array Shallow clone of the base, merged with shallow clone of collections, recursively.
 	 *                      Numerically indexed arrays will always replace the original arrays entirely.
 	 */
 	public static function merge( /* object|array */ $base_ctn, /* object|array */ ...$ctns ) /* : object|array */ {
+		assert( is_object( $base_ctn ) || is_array( $base_ctn ) );
 		$is_object_base_ctn = is_object( $base_ctn );
 
 		if ( $is_object_base_ctn ) {
 			$base_ctn = clone $base_ctn;
-		} elseif ( ! is_array( $base_ctn ) ) {
-			throw new Exception( 'Base collection must be object|array.' );
 		}
 		foreach ( $ctns as $_ctn ) {
-			if ( ! U\Ctn::is( $_ctn ) ) {
-				continue; // Not possible.
-			}
+			assert( is_object( $_ctn ) || is_array( $_ctn ) );
+
 			foreach ( $_ctn as $_prop_key => $_value ) {
 				$_value_is_object = is_object( $_value );
 
@@ -149,65 +208,65 @@ class Ctn extends Base {
 	/**
 	 * Resolves `~/`, `${HOME}`, and other environment vars recursively.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
-	 * @param mixed          $value    Value(s) to resolve deeply.
+	 * @param object|array   $ctn      Value(s) to resolve deeply.
 	 *                                 This will recurse arrays/objects.
 	 *
 	 * @param array          $env_vars An array of any additional environment vars. Defaults to `[]`.
+	 *                                 These will override any existing environment vars with same name.
 	 *
-	 * @param \StdClass|null $_r       Internal use only. Do NOT pass.
+	 * @param \stdClass|null $_r       Internal use only — do not pass.
 	 *
-	 * @return mixed The `$value` after having resolved environment vars recursively.
+	 * @return object|array The collection after having resolved environment vars recursively.
 	 */
-	public static function resolve_env_vars( /* mixed */ $value, array $env_vars = [], /* \StdClass|null */ ?\StdClass $_r = null ) /* : mixed */ {
-		$_r           ??= (object) [];
-		$_r->env_vars ??= (object) array_map(
-			'strval', [
-				'CWD'  => U\Fs::normalize( getcwd() ),
-				'PWD'  => U\Fs::normalize( getenv( 'PWD' ) ),
-				'HOME' => U\Fs::normalize( getenv( 'HOME' ) ),
-			] + getenv() + $env_vars
-		);
-		if ( is_string( $value ) ) {
-			$value = preg_replace( '/^~\//u', rtrim( $_r->env_vars->HOME, '/' ) . '/', $value );
-			foreach ( $_r->env_vars as $_env_var => $_env_var_value ) {
-				$value = str_replace( '${' . $_env_var . '}', $_env_var_value, $value );
-			}
-		} elseif ( U\Ctn::is( $value ) ) {
-			foreach ( $value as &$_value ) {
+	public static function resolve_env_vars(
+		/* object|array */ $ctn,
+		array $env_vars = [],
+		/* \stdClass|null */ ?\stdClass $_r = null
+	) /* : object|array */ {
+		assert( is_object( $ctn ) || is_array( $ctn ) );
+		$_r ??= (object) [ 'env_vars' => (object) U\Env::vars( $env_vars ) ];
+
+		foreach ( $ctn as &$_value ) {
+			if ( is_string( $_value ) ) {
+				foreach ( $_r->env_vars as $_env_var => $_env_var_value ) {
+					$_value = str_replace( '${' . $_env_var . '}', $_env_var_value, $_value );
+				}
+				$_value = preg_replace( '/^~\//u', U\Dir::join_ets( $_r->env_vars->HOME, '/' ), $_value );
+				$_value = preg_replace( '/\$\{[a-z0-9_\-]+\}/ui', '', $_value );
+			} elseif ( U\Ctn::is( $_value ) ) {
 				$_value = U\Ctn::resolve_env_vars( $_value, [], $_r );
 			}
-			unset( $_value ); // Reference.
 		}
-		return $value;
+		unset( $_value ); // Reference.
+
+		return $ctn;
 	}
 
 	/**
 	 * Resolves `@extends` directives recursively.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param object|array $base_ctn Base collection.
-	 * @param object|null  $_r       For internal recursive use only.
+	 * @param object|null  $_r       Internal use only — do not pass.
 	 *
-	 * @throws Exception If `$base_ctn` is not an `object|array`.
 	 * @throws Exception If `$base_ctn` contains invalid an `@extends` directive.
-	 *
 	 * @return object|array Collection after having resolved `@extends` directives recursively.
 	 */
 	public static function resolve_extends( /* object|array */ $base_ctn, /* object|null */ ?object $_r = null ) /* : object|array */ {
+		assert( is_object( $base_ctn ) || is_array( $base_ctn ) );
+
 		$is_recursive       = isset( $_r );
 		$_r                 ??= (object) [];
 		$is_object_base_ctn = is_object( $base_ctn );
 
 		if ( $is_object_base_ctn ) {
 			$base_ctn = clone $base_ctn;
-		} elseif ( ! is_array( $base_ctn ) ) {
-			throw new Exception( 'Base collection must be object|array.' );
 		}
-		if ( ! $is_recursive ) {             // Store root collection.
-			$_r->root_ctn = clone $base_ctn; // Re-clone. This copy is a map.
+		if ( ! $is_recursive ) { // Store root collection as a map.
+			$_r->root_ctn = $is_object_base_ctn ? clone $base_ctn : $base_ctn;
 		}
 		foreach ( $base_ctn as $_prop_key => &$_value ) {
 			if ( '@extends' === $_prop_key ) {
@@ -226,6 +285,7 @@ class Ctn extends Base {
 						throw new Exception( 'Invalid `@extends` directive. Each item must be a string.' );
 					}
 					$__extends_ctn = U\Ctn::get_prop_key( $_r->root_ctn, $__value );
+
 					if ( ! U\Ctn::is( $__extends_ctn ) ) {
 						throw new Exception( 'Invalid item in `@extends`. Could not resolve: `' . $__value . '` to a collection.' );
 					}
@@ -244,5 +304,35 @@ class Ctn extends Base {
 		unset( $_value ); // Reference.
 
 		return $base_ctn;
+	}
+
+	/**
+	 * Applies a callback to all items in a collection.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param callable     $callback Callback to run.
+	 * @param object|array ...$ctns  Collection(s) to map.
+	 *
+	 * @return object|array Possibly modified collection(s).
+	 *                      The returned collection will preserve the props/keys of the collection argument iff exactly one collection is
+	 *                      passed. If more than one collection is passed, an array will be returned with sequential integer keys.
+	 */
+	public static function map( callable $callback, /* object|array */ ...$ctns ) /* : object|array */ {
+		foreach ( $ctns as &$_ctn ) {
+			assert( is_object( $_ctn ) || is_array( $_ctn ) );
+
+			foreach ( $_ctn as &$_value ) {
+				if ( U\Ctn::is( $_value ) ) {
+					$_value = U\Ctn::map( $callback, $_value );
+				} else {
+					$_value = $callback( $_value );
+				}
+			}
+			unset( $_value ); // Reference.
+		}
+		unset( $_ctn ); // Reference.
+
+		return count( $ctns ) > 1 ? $ctns : $ctns[ 0 ];
 	}
 }

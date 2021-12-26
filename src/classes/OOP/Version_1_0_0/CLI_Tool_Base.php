@@ -1,5 +1,6 @@
 <?php
-/** CLEVER CANYON™ <https://clevercanyon.com>
+/**
+ * CLEVER CANYON™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
@@ -7,57 +8,71 @@
  * CC      LL      EE        VV VV   EE      RR  RR     CC      AAAAAAA NN  NNN   YYY   OO   OO NN  NNN
  *  CCCCC  LLLLLLL EEEEEEE    VVV    EEEEEEE RR   RR     CCCCC  AA   AA NN   NN   YYY    OOOO0  NN   NN
  */
+// <editor-fold desc="Strict types, namespace, use statements, and other headers.">
+
+/**
+ * Declarations & namespace.
+ *
+ * @since 2021-12-25
+ */
+declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
 namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
 
 /**
- * Dependencies.
+ * Utilities.
  *
- * @since 1.0.0
+ * @since 2021-12-15
  */
-use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
-use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
+use Clever_Canyon\Utilities\OOPs\{Version_1_0_0 as U};
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Exception};
 
-use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Base};
+/**
+ * File-specific.
+ *
+ * @since 2021-12-15
+ */
 use GetOpt\{GetOpt as Parser, Option, Operand, Command};
+
+// </editor-fold>
 
 /**
  * CLI tool base.
  *
- * @since 1.0.0
+ * @since 2021-12-15
  */
 abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Parser.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 */
 	protected Parser $parser;
 
 	/**
 	 * Parser args.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 */
 	protected $args_to_parse; /* string|array|null */
 
 	/**
 	 * Tool name.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 */
 	protected const NAME = 'CLI Tool';
 
 	/**
 	 * Current version.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 */
 	protected const VERSION = '0.0.0';
 
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param string|array|null $args_to_parse Custom args to parse?
 	 *                                         If not given, defaults internally to `$_SERVER['argv']`.
@@ -84,7 +99,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Routes request.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 */
 	protected function route_request() : void {
 		// Parse CLI args.
@@ -137,7 +152,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Maybe process help request.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 */
 	protected function maybe_process_help_request() : void {
 		if ( $this->parser->getOption( 'help' ) ) {
@@ -149,7 +164,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Maybe process version request.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 */
 	protected function maybe_process_version_request() : void {
 		if ( $this->parser->getOption( 'version' ) ) {
@@ -161,7 +176,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Adds commands.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param array $commands Command configurations.
 	 *
@@ -183,7 +198,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Adds options.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param array $options Option configurations.
 	 *
@@ -197,7 +212,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Adds operands.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param array $operands Operand configurations.
 	 *
@@ -211,7 +226,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Gets an option.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param string $option Option name.
 	 *
@@ -224,7 +239,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Gets all options.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @return array All options.
 	 */
@@ -235,7 +250,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Gets an operand.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param string $operand Operand name.
 	 *
@@ -248,7 +263,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Gets all operands.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @return array All operands.
 	 */
@@ -259,7 +274,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Builds options.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param array $_options Option configurations.
 	 *
@@ -291,7 +306,7 @@ abstract class CLI_Tool_Base extends Base {
 	/**
 	 * Builds operands.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param array $_operands Operand configurations.
 	 *

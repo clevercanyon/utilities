@@ -11,12 +11,22 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-15
+ *
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpStaticAsDynamicMethodCallInspection
+ * phpcs:disable Generic.Commenting.DocComment.MissingShort
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
+namespace Clever_Canyon\Utilities__Tests\Tests\OOPs\Version_1_0_0;
 
 /**
  * Utilities.
@@ -29,10 +39,20 @@ use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Exception};
 // </editor-fold>
 
 /**
- * Base utilities.
+ * Test case.
  *
  * @since 2021-12-15
+ * @coversDefaultClass \Clever_Canyon\Utilities\OOPs\Version_1_0_0\Math
  */
-abstract class Base {
-	use \Clever_Canyon\Utilities\OOPs\Version_1_0_0\Traits\Cache;
+final class Math_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\Base {
+	/**
+	 * @covers ::percentage_change()
+	 */
+	public function test_percentage_change() : void {
+		$this->assertSame( '+100%', U\Math::percentage_change( 1, 2, 2, true ), $this->message() );
+		$this->assertSame( '+150%', U\Math::percentage_change( 2, 5, 2, true ), $this->message() );
+
+		$this->assertSame( '-50%', U\Math::percentage_change( 2, 1, 2, true ), $this->message() );
+		$this->assertSame( '-60%', U\Math::percentage_change( 5, 2, 2, true ), $this->message() );
+	}
 }

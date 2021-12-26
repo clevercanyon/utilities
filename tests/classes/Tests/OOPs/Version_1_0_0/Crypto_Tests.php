@@ -11,12 +11,22 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-15
+ *
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpStaticAsDynamicMethodCallInspection
+ * phpcs:disable Generic.Commenting.DocComment.MissingShort
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
+namespace Clever_Canyon\Utilities__Tests\Tests\OOPs\Version_1_0_0;
 
 /**
  * Utilities.
@@ -29,10 +39,17 @@ use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Exception};
 // </editor-fold>
 
 /**
- * Base utilities.
+ * Test case.
  *
  * @since 2021-12-15
+ * @coversDefaultClass \Clever_Canyon\Utilities\OOPs\Version_1_0_0\Crypto
  */
-abstract class Base {
-	use \Clever_Canyon\Utilities\OOPs\Version_1_0_0\Traits\Cache;
+final class Crypto_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\Base {
+	/**
+	 * @covers ::uuid_v4()
+	 */
+	public function test_uuid_v4() : void {
+		$this->assertSame( 32, strlen( U\Crypto::uuid_v4() ), $this->message() );
+		$this->assertSame( 36, strlen( U\Crypto::uuid_v4( false ) ), $this->message() );
+	}
 }

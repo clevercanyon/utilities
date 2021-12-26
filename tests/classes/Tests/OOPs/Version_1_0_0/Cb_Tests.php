@@ -13,8 +13,10 @@
 /**
  * Lint configuration.
  *
- * @since 2021-12-15
+ * @since        2021-12-15
  *
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpStaticAsDynamicMethodCallInspection
  * phpcs:disable Generic.Commenting.DocComment.MissingShort
  */
 
@@ -24,7 +26,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities__Tests\Tests\OOP\Version_1_0_0;
+namespace Clever_Canyon\Utilities__Tests\Tests\OOPs\Version_1_0_0;
 
 /**
  * Utilities.
@@ -40,13 +42,35 @@ use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Exception};
  * Test case.
  *
  * @since 2021-12-15
- * @coversDefaultClass \Clever_Canyon\Utilities\OOP\Version_1_0_0\Foo
+ * @coversDefaultClass \Clever_Canyon\Utilities\OOPs\Version_1_0_0\Cb
  */
-final class Foo extends \Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\Base {
+final class Cb_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\Base {
 	/**
-	 * @covers ::bar()
+	 * @covers ::noop()
 	 */
-	public function test_bar() : void {
-		// Nothing for now.
+	public function test_noop() : void {
+		/** @noinspection PhpVoidFunctionResultUsedInspection */
+		$this->assertSame( null, U\Cb::noop(), $this->message() );
+	}
+
+	/**
+	 * @covers ::noop_null()
+	 */
+	public function test_noop_null() : void {
+		$this->assertSame( null, U\Cb::noop_null(), $this->message() );
+	}
+
+	/**
+	 * @covers ::noop_true()
+	 */
+	public function test_noop_true() : void {
+		$this->assertSame( true, U\Cb::noop_true(), $this->message() );
+	}
+
+	/**
+	 * @covers ::noop_false()
+	 */
+	public function test_noop_false() : void {
+		$this->assertSame( false, U\Cb::noop_false(), $this->message() );
 	}
 }

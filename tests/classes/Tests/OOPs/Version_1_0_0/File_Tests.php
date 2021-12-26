@@ -13,8 +13,10 @@
 /**
  * Lint configuration.
  *
- * @since 2021-12-15
+ * @since        2021-12-15
  *
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpStaticAsDynamicMethodCallInspection
  * phpcs:disable Generic.Commenting.DocComment.MissingShort
  */
 
@@ -24,7 +26,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities__Tests\Tests\OOP\Version_1_0_0;
+namespace Clever_Canyon\Utilities__Tests\Tests\OOPs\Version_1_0_0;
 
 /**
  * Utilities.
@@ -40,13 +42,31 @@ use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Exception};
  * Test case.
  *
  * @since 2021-12-15
- * @coversDefaultClass \Clever_Canyon\Utilities\OOP\Version_1_0_0\Foo
+ * @coversDefaultClass \Clever_Canyon\Utilities\OOPs\Version_1_0_0\File
  */
-final class Foo extends \Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\Base {
+final class File_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_1_0_0\Base {
 	/**
-	 * @covers ::bar()
+	 * @covers ::ext()
 	 */
-	public function test_bar() : void {
-		// Nothing for now.
+	public function test_ext() : void {
+		$this->assertSame( 'coo', U\File::ext( '/foo/bar/baz.coo' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::make()
+	 */
+	public function test_make() : void {
+		$temp_dir = $this->temp_dir();
+
+		$this->assertSame( true, U\File::make( U\Dir::join( $temp_dir, '/foo/bar/baz/coo.caz' ) ), $this->message() );
+	}
+
+	/**
+	 * @covers ::make_temp()
+	 */
+	public function test_make_temp() : void {
+		$temp_dir = $this->temp_dir();
+
+		$this->assertSame( true, is_file( U\File::make_temp( 'foo', U\Dir::join( $temp_dir, '/foo/bar/baz' ) ) ), $this->message() );
 	}
 }

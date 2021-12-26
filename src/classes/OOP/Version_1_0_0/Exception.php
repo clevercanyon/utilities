@@ -1,5 +1,6 @@
 <?php
-/** CLEVER CANYON™ <https://clevercanyon.com>
+/**
+ * CLEVER CANYON™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
@@ -7,49 +8,60 @@
  * CC      LL      EE        VV VV   EE      RR  RR     CC      AAAAAAA NN  NNN   YYY   OO   OO NN  NNN
  *  CCCCC  LLLLLLL EEEEEEE    VVV    EEEEEEE RR   RR     CCCCC  AA   AA NN   NN   YYY    OOOO0  NN   NN
  */
-namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
+// <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Dependencies.
- *
- * @since 1.0.0
- */
-use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
-
-/**
- * PHPCS rule exceptions.
+ * Lint configuration.
  *
  * @since 2021-12-15
  *
  * @note  Leading underscores in this file help us guard against collisions with PHP core in the future.
- *        Also using `snake_case()` method names to guard against collisions, as PHP core uses `camelCase()`.
+ *        Using `snake_case()` method names to guard against collisions also. PHP core uses `camelCase()`.
+ *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 
 /**
+ * Declarations & namespace.
+ *
+ * @since 2021-12-25
+ */
+declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
+namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
+
+/**
+ * Utilities.
+ *
+ * @since 2021-12-15
+ */
+use Clever_Canyon\Utilities\OOPs\{Version_1_0_0 as U};
+
+// </editor-fold>
+
+/**
  * Custom exception.
  *
- * @since 1.0.0
+ * @since 2021-12-15
  */
 class Exception extends \Exception {
 	/**
 	 * Exception code.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 */
 	protected string $___code;
 
 	/**
 	 * Exception data.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 */
 	protected object $___data;
 
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param string|null       $message  Optional message. Default is empty.
 	 * @param string|null       $code     Optional code. Default is: `basename(file):line`.

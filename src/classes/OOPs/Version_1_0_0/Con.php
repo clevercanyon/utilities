@@ -29,10 +29,9 @@ use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Exception};
 // </editor-fold>
 
 /**
- * Base utilities.
+ * Constant utilities.
  *
  * @since 2021-12-15
  */
-abstract class Base {
-	use \Clever_Canyon\Utilities\OOPs\Version_1_0_0\Traits\Cache;
+class Con extends Base {
 }

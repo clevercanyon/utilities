@@ -1,5 +1,6 @@
 <?php
-/** CLEVER CANYON™ <https://clevercanyon.com>
+/**
+ * CLEVER CANYON™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
@@ -7,53 +8,160 @@
  * CC      LL      EE        VV VV   EE      RR  RR     CC      AAAAAAA NN  NNN   YYY   OO   OO NN  NNN
  *  CCCCC  LLLLLLL EEEEEEE    VVV    EEEEEEE RR   RR     CCCCC  AA   AA NN   NN   YYY    OOOO0  NN   NN
  */
+// <editor-fold desc="Strict types, namespace, use statements, and other headers.">
+
+/**
+ * Declarations & namespace.
+ *
+ * @since 2021-12-25
+ */
+declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
 namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
 
 /**
- * Dependencies.
+ * Utilities.
  *
- * @since 1.0.0
+ * @since 2021-12-15
  */
-use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
-use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
+use Clever_Canyon\Utilities\OOPs\{Version_1_0_0 as U};
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Exception};
+
+// </editor-fold>
 
 /**
- * Fs.
+ * Filesystem utilities.
  *
- * @since 1.0.0
+ * @since 2021-12-15
  */
 class Fs extends Base {
 	/**
 	 * Normalizes a path.
 	 *
-	 * @since               1.0.0
+	 * @since 2021-12-15
 	 *
-	 * @param string $path Path.
+	 * @param string $path Path to parse.
+	 * @param array  $_d   Internal use only — do not pass.
 	 *
-	 * @return string Noramlized path.
+	 * @return string Normalized path, preserving wrappers.
 	 *
-	 * @note                Matches behavior of {@see dirname()}.
-	 *                      {@see https://www.php.net/manual/en/function.dirname.php}
+	 * @note  This function is not URL scheme-safe. That's another set of concerns.
+	 *        Therefore, don't use with `http://`, `data://` or other remote protocols.
+	 *
+	 * @see   https://regex101.com/r/elgxgZ/3
+	 * @see   https://www.php.net/manual/en/wrappers.php
+	 *
+	 * @see   U\Fs::wrappers() before updating this function.
 	 */
-	public static function normalize( string $path ) : string {
-		$path = str_replace( '\\', '/', $path );
-		$path = preg_replace( '/\/+/u', '/', $path );
-		$path = '/' === $path ? $path : rtrim( $path, '/' );
+	public static function normalize( string $path, array $_d = [] ) : string {
+		// Normalize type of slashes.
 
-		return $path;
+		$path = str_replace( '\\', '/', $path );
+
+		// Parse & temporarily remove wrappers.
+
+		if ( false === mb_strpos( $path, ':/' ) ) {
+			$wrappers = ''; // Saves time.
+		} else {
+			$wrappers = U\Fs::wrappers( $path, '', [ 'bypass:normalize,mb-strpos' ] );
+			$wrappers = $wrappers ? mb_strtolower( $wrappers ) : ''; // Normalize.
+			$path     = $wrappers ? mb_substr( $path, mb_strlen( $wrappers ) ) : $path;
+		}
+		// Reduce to single slashes after having removed wrappers.
+		// @todo Should we support leading `//` for network drives on Windows?
+
+		$path = preg_replace( '/\/+/u', '/', $path );
+
+		// If there are wrappers and a path, fix any obvious problems
+		// with path, based on examination of it's last (innermost) wrapper.
+
+		if ( $wrappers && '' !== $path && ( $last_wrapper = U\Arr::value_last( U\Fs::split_wrappers( $wrappers ) ) ) ) {
+			if ( '/' === $path[ 0 ] ) { // Root slash?
+				if ( preg_match( '/^(?:[a-z]{1}\:\/{1}|(?:s3|php|http|data|expect|ssh2\.tunnel)\:\/{2})$/ui', $last_wrapper ) ) {
+					$path = ltrim( $path, '/' );
+				}
+			} elseif ( 'file://' === $last_wrapper ) {
+				$path = '/' . $path;
+			} // ↑ In other wrappers leave path as-is.
+		}
+		// ↓ Complete path normalization and return path now.
+
+		if ( '/' === $path ) {        // Nothing more to do here.
+			return $wrappers . $path; // Wrappers + normalized path.
+		}
+		$path = rtrim( $path, '/' );  // ← Otherwise, this completes normalization.
+
+		return $wrappers . $path . // Wrappers + normalized path + possible trailing slash.
+			// ↓ In other words, do not add a trailing slash to what is nothing more than wrappers.
+			// That would potentially conflict with the root/no-root slash checks above and be confusing.
+			// It would also be weird. In practice, a filesystem wrapper should go in front of an absolute path.
+			( $_d && ( ! $wrappers || '' !== $path ) && in_array( 'append:trailing-slash', $_d, true ) ? '/' : '' );
+	}
+
+	/**
+	 * Gets a path's wrappers.
+	 *
+	 * @since 2021-12-19
+	 *
+	 * @param string $path        Path to parse.
+	 *
+	 * @param string $return_type Return type. Default is ``, indicating string.
+	 *                            Set to `array` to return an array of all wrappers.
+	 *                            Setting this to anything other than `array` returns a string.
+	 *
+	 * @param array  $_d          Internal use only — do not pass.
+	 *
+	 * @return string|array Wrappers. Empty string|array = no wrappers.
+	 *
+	 * @note  This function is not URL scheme-safe. That's another set of concerns.
+	 *        Therefore, don't use with `http://`, `data://` or other remote protocols.
+	 *
+	 * @see   https://regex101.com/r/elgxgZ/3
+	 * @see   https://www.php.net/manual/en/wrappers.php
+	 *
+	 * @see   U\Fs::normalize() before updating this function.
+	 * @see   U\Fs::split_wrappers() before updating this function.
+	 */
+	public static function wrappers( string $path, string $return_type = '', array $_d = [] ) /* : string|array */ {
+		if ( ! $_d || ! in_array( 'bypass:normalize,mb-strpos', $_d, true ) ) {
+			$path = U\Fs::normalize( $path );
+			if ( false === mb_strpos( $path, ':/' ) ) {
+				return 'array' === $return_type ? [] : '';
+			}
+		}
+		if ( preg_match( '/^(?:(?:(?:[a-z]{1}\:\/{1}|[^\s\/:]{1,}\:\/{2}))+)/ui', $path, $_m ) ) {
+			return 'array' === $return_type ? U\Fs::split_wrappers( $_m[ 0 ] ) : $_m[ 0 ];
+		}
+		return 'array' === $return_type ? [] : '';
+	}
+
+	/**
+	 * Splits a string of wrappers into an array.
+	 *
+	 * @since 2021-12-19
+	 *
+	 * @param string $wrappers String of wrappers from {@see wrappers()}.
+	 *
+	 * @return array An array of all wrappers, in sequence.
+	 *
+	 * @see   U\Fs::wrappers() before updating this function.
+	 * @see   U\Fs::normalize() before updating this function.
+	 */
+	public static function split_wrappers( string $wrappers ) : array {
+		return preg_split( '/([^\s\/:]{1,}\:\/{1,})/u', $wrappers, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
 	}
 
 	/**
 	 * Path exists?
 	 *
-	 * @since               1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param string $path Path.
 	 *
 	 * @return bool True if path exists.
 	 *
-	 * @note                Note: {@see file_exists()} returns `false` for symlinks pointing to non-existing files.
-	 *                      {@link https://www.php.net/manual/en/function.file-exists.php}
+	 * @see   https://www.php.net/manual/en/function.file-exists.php
+	 * @note  A path is different from a file or directory in this context.
+	 *       {@see file_exists()} returns `false` for symlinks pointing to non-existing files.
 	 */
 	public static function path_exists( string $path ) : bool {
 		return file_exists( $path ) || is_link( $path );
@@ -62,7 +170,7 @@ class Fs extends Base {
 	/**
 	 * Gets path type.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param string $path Path.
 	 *
@@ -84,7 +192,7 @@ class Fs extends Base {
 	/**
 	 * Gets a path's permissions.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param string $path  Path.
 	 * @param bool   $octal Return octal representation? Default is `false`.
@@ -103,7 +211,7 @@ class Fs extends Base {
 	/**
 	 * Copies one path to another path.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param string $from_path          Path to copy.
 	 *                                   Note: If this ends with `/*`, the contents of `$from_path` will be copied to
@@ -142,10 +250,9 @@ class Fs extends Base {
 
 		// `$from_path` validation.
 
-		$from_path                   = U\Fs::normalize( $from_path );
-		$from_path_type              = U\Fs::type( $from_path );
-		$from_path_perms             = U\Fs::perms( $from_path );
-		$from_path_no_trailing_slash = rtrim( $from_path, '/' );
+		$from_path       = U\Fs::normalize( $from_path );
+		$from_path_type  = U\Fs::type( $from_path );
+		$from_path_perms = U\Fs::perms( $from_path );
 
 		if ( ! $from_path_type ) {
 			return false; // Not possible.
@@ -156,9 +263,8 @@ class Fs extends Base {
 
 		// `$to_path` validation.
 
-		$to_path                   = U\Fs::normalize( $to_path );
-		$to_path_type              = U\Fs::type( $to_path );
-		$to_path_no_trailing_slash = rtrim( $to_path, '/' );
+		$to_path      = U\Fs::normalize( $to_path );
+		$to_path_type = U\Fs::type( $to_path );
 
 		if ( ! $to_path ) {
 			return false; // Not possible.
@@ -169,13 +275,13 @@ class Fs extends Base {
 
 		// `$to_path` directory validation.
 
-		$to_path_dir      = dirname( $to_path );
+		$to_path_dir      = U\Dir::name( $to_path );
 		$to_path_dir_type = U\Fs::type( $to_path_dir );
 
 		if ( $to_path_dir_type && ! is_writable( $to_path_dir ) ) {
 			return false; // Not possible.
 		}
-		if ( ! $to_path_dir_type && ! mkdir( $to_path_dir, $to_path_dir_perms, true ) ) {
+		if ( ! $to_path_dir_type && ! U\Dir::make( $to_path_dir, $to_path_dir_perms, true ) ) {
 			return false; // Not possible.
 		}
 
@@ -205,8 +311,8 @@ class Fs extends Base {
 			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[ 0 ] ?? '' ) ) {
 				continue; // Not including dot paths.
 			}
-			$_from_path = $from_path_no_trailing_slash . '/' . $_subpath;
-			$_to_path   = $to_path_no_trailing_slash . '/' . $_subpath;
+			$_from_path = U\Dir::join( $from_path, '/' . $_subpath );
+			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
 			if ( ! U\Fs::copy( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms ) ) {
 				closedir( $_from_path_open );
@@ -223,7 +329,7 @@ class Fs extends Base {
 	 *
 	 * Do NOT call this directly. Instead, use {@see copy()} with `/*` on the end of `$from_path`.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param string $from_path          Path to copy.
 	 *
@@ -247,11 +353,9 @@ class Fs extends Base {
 	) : bool {
 		// `$from_path` validation.
 
-		$from_path                   = U\Fs::normalize( $from_path );
-		$from_path_no_trailing_slash = rtrim( $from_path, '/' );
-		$from_path_is_dir            = is_dir( $from_path );
+		$from_path = U\Fs::normalize( $from_path );
 
-		if ( ! $from_path_is_dir ) {
+		if ( ! is_dir( $from_path ) ) {
 			return false; // Not possible.
 		}
 		if ( ! is_readable( $from_path ) ) {
@@ -260,8 +364,7 @@ class Fs extends Base {
 
 		// `$to_path` validation.
 
-		$to_path                   = U\Fs::normalize( $to_path );
-		$to_path_no_trailing_slash = rtrim( $to_path, '/' );
+		$to_path = U\Fs::normalize( $to_path );
 
 		if ( ! $to_path ) {
 			return false; // Not possible.
@@ -278,8 +381,8 @@ class Fs extends Base {
 			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[ 0 ] ?? '' ) ) {
 				continue; // Not including dot paths.
 			}
-			$_from_path = $from_path_no_trailing_slash . '/' . $_subpath;
-			$_to_path   = $to_path_no_trailing_slash . '/' . $_subpath;
+			$_from_path = U\Dir::join( $from_path, '/' . $_subpath );
+			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
 			if ( ! U\Fs::copy( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms ) ) {
 				closedir( $_from_path_open );
@@ -294,7 +397,7 @@ class Fs extends Base {
 	/**
 	 * Zip one path into another path.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param string         $from_path            Path to zip.
 	 * @param string         $to_path              Destination path.
@@ -311,7 +414,7 @@ class Fs extends Base {
 	 *                                             If `$to_path`'s parent directory does not exist, it will be created automatically.
 	 *                                             This establishes the permissions for that newly created directory, when/if applicable.
 	 *
-	 * @param \StdClass|null $_r                   For internal recursive use only. Do not pass.
+	 * @param \stdClass|null $_r                   Internal use only — do not pass.
 	 *
 	 * @return bool True if zipped successfully.
 	 */
@@ -321,11 +424,11 @@ class Fs extends Base {
 		bool $include_dot_paths = false,
 		bool $follow_symlinks = true,
 		int $to_path_dir_perms = 0700,
-		/* \StdClass|null */ ?\StdClass $_r = null
+		/* \stdClass|null */ ?\stdClass $_r = null
 	) : bool {
 		// Dependency check.
 
-		if ( ! U\Env::can_use_class( 'ZipArchive' ) ) {
+		if ( ! class_exists( 'ZipArchive' ) ) {
 			return false; // Not possible.
 		}
 		// Recursion info.
@@ -335,18 +438,17 @@ class Fs extends Base {
 
 		// `$from_path` validation.
 
-		$from_path          = U\Fs::normalize( $from_path );
-		$from_path_basename = basename( $from_path );
+		$from_path = U\Fs::normalize( $from_path );
 
-		if ( ! $is_recursive && preg_match( '/-\>([^\/]+)$/ui', $from_path, $_m ) ) {
-			$_r->root_from_path_alias          = dirname( $from_path ) . '/' . $_m[ 1 ];
-			$_r->root_from_path_alias_basename = basename( $_r->root_from_path_alias );
-
-			$from_path          = preg_replace( '/-\>([^\/]+)$/ui', '', $from_path );
-			$from_path_basename = basename( $from_path );
-		}
-		$from_path_type              = U\Fs::type( $from_path );
-		$from_path_no_trailing_slash = rtrim( $from_path, '/' );
+		if ( ! $is_recursive ) {
+			if ( preg_match( '/-\>([^\/]+)$/u', $from_path, $_m ) ) {
+				$_r->root_from_path_basename = basename( $_m[ 1 ] );
+				$from_path                   = preg_replace( '/-\>([^\/]+)$/u', '', $from_path );
+			} else {
+				$_r->root_from_path_basename = basename( $from_path );
+			}
+		} // Now get type, in case of alias.
+		$from_path_type = U\Fs::type( $from_path );
 
 		if ( ! $from_path_type ) {
 			$is_recursive ?: $_r->zip->close();
@@ -359,15 +461,16 @@ class Fs extends Base {
 
 		// `$to_path` validation.
 
-		$to_path                   = U\Fs::normalize( $to_path );
-		$to_path_type              = U\Fs::type( $to_path );
-		$to_path_no_trailing_slash = rtrim( $to_path, '/' );
+		$to_path      = U\Fs::normalize( $to_path );
+		$to_path_type = U\Fs::type( $to_path );
 
 		if ( ! $to_path ) {
 			$is_recursive ?: $_r->zip->close();
 			return false; // Not possible.
 		}
 		if ( ! $is_recursive ) {
+			$_r->root_to_path = $to_path;
+
 			if ( $to_path_type && ! U\Fs::delete( $to_path ) ) {
 				$is_recursive ?: $_r->zip->close();
 				return false; // Not possible.
@@ -377,14 +480,14 @@ class Fs extends Base {
 		// `$to_path` directory validation.
 
 		if ( ! $is_recursive ) {
-			$to_path_dir      = dirname( $to_path );
+			$to_path_dir      = U\Dir::name( $to_path );
 			$to_path_dir_type = U\Fs::type( $to_path_dir );
 
 			if ( $to_path_dir_type && ! is_writable( $to_path_dir ) ) {
 				$is_recursive ?: $_r->zip->close();
 				return false; // Not possible.
 			}
-			if ( ! $to_path_dir_type && ! mkdir( $to_path_dir, $to_path_dir_perms, true ) ) {
+			if ( ! $to_path_dir_type && ! U\Dir::make( $to_path_dir, $to_path_dir_perms, true ) ) {
 				$is_recursive ?: $_r->zip->close();
 				return false; // Not possible.
 			}
@@ -392,32 +495,31 @@ class Fs extends Base {
 
 		// `$to_path_in_zip` validation.
 
-		if ( ! $is_recursive ) {
-			$_r->root_to_path_in_zip_prefix_to_strip = $to_path_no_trailing_slash;
-			$_r->root_to_path_in_zip_prefix_to_addon = ( $_r->root_from_path_alias_basename ?? $from_path_basename );
-		}
-		$to_path_in_zip = str_replace( $_r->root_to_path_in_zip_prefix_to_strip, '', $to_path_no_trailing_slash );
-		$to_path_in_zip = $_r->root_to_path_in_zip_prefix_to_addon . $to_path_in_zip;
+		$to_path_in_zip    = '/' . $_r->root_from_path_basename;
+		$to_subpath_in_zip = U\Dir::subpath( $_r->root_to_path, $to_path );
+		$to_path_in_zip    = U\Dir::join( $to_path_in_zip, '/' . $to_subpath_in_zip );
 
 		// Zip archive.
 
 		if ( ! $is_recursive ) {
 			$_r->zip = new \ZipArchive();
 
-			if ( $_r->zip->open( $to_path, \ZipArchive::CREATE | \ZIPARCHIVE::OVERWRITE ) !== true ) {
+			if ( $_r->zip->open( $to_path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE ) !== true ) {
 				return false; // Not possible.
 			}
 		}
 		// Link zip.
 
 		if ( 'link' === $from_path_type && ! $follow_symlinks ) {
-			return $_r->zip->addFromString( $to_path_in_zip, '' ) === true && ( $is_recursive || $_r->zip->close() === true );
+			return $_r->zip->addFromString( $to_path_in_zip, '' ) === true
+				&& ( $is_recursive || $_r->zip->close() === true );
 		}
 
 		// File zip.
 
 		if ( 'file' === $from_path_type || ( $follow_symlinks && is_file( $from_path ) ) ) {
-			return $_r->zip->addFile( $from_path, $to_path_in_zip ) === true && ( $is_recursive || $_r->zip->close() === true );
+			return $_r->zip->addFile( $from_path, $to_path_in_zip ) === true
+				&& ( $is_recursive || $_r->zip->close() === true );
 		}
 
 		// Recursive directory zip.
@@ -436,8 +538,8 @@ class Fs extends Base {
 			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[ 0 ] ?? '' ) ) {
 				continue; // Not including dot paths.
 			}
-			$_from_path = $from_path_no_trailing_slash . '/' . $_subpath;
-			$_to_path   = $to_path_no_trailing_slash . '/' . $_subpath;
+			$_from_path = U\Dir::join( $from_path, '/' . $_subpath );
+			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
 			if ( ! U\Fs::zip( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms, $_r ) ) {
 				closedir( $_from_path_open );
@@ -466,18 +568,25 @@ class Fs extends Base {
 	public static function delete( string $path, bool $recursively = true ) : bool {
 		// `$path` validation.
 
-		$path                   = U\Fs::normalize( $path );
-		$path_type              = U\Fs::type( $path );
-		$path_no_trailing_slash = rtrim( $path, '/' );
+		$path      = U\Fs::normalize( $path );
+		$path_type = U\Fs::type( $path );
 
 		if ( ! $path_type ) {
 			return true; // No longer exists.
 		}
 		if ( ! is_writable( $path ) ) {
+			// Special case.
+			if ( 'link' === $path_type ) {
+				try { // Broken link.
+					return unlink( $path );
+				} catch ( \Throwable $throwable ) {
+					return false;
+				}
+			}
 			return false; // Not possible.
 		}
 
-		// Link, file, and non-recursive direction deletion.
+		// Link, file, and non-recursive directory deletion.
 
 		if ( in_array( $path_type, [ 'link', 'file' ], true ) || ! $recursively ) {
 			return 'dir' === $path_type ? rmdir( $path ) : unlink( $path );
@@ -492,7 +601,7 @@ class Fs extends Base {
 			if ( in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
 			}
-			$_path = $path_no_trailing_slash . '/' . $_subpath;
+			$_path = U\Dir::join( $path, '/' . $_subpath );
 
 			if ( ! U\Fs::delete( $_path, $recursively ) ) {
 				closedir( $_path_open );
@@ -509,19 +618,23 @@ class Fs extends Base {
 	 *
 	 * @since 2021-12-18
 	 *
-	 * @param string $regexp    Regexp to append to `.gitignore` rules.
-	 * @param string $modifiers Any additional modifiers to append to existing ones.
-	 *                          Always-on modifiers include `xui`.
+	 * @param string $regexp_fragment Optional regexp fragment to append to generated full regexp pattern.
+	 *                                Default is `.*`. You get back simply the ignore pattern in front of `.*`.
+	 *
+	 * @param string $modifiers       Optional additional modifiers to append to existing always-on modifiers.
+	 *                                Always-on modifiers include `xui`. If you pass in conflicting modifiers, future versions
+	 *                                of this function will throw an exception; i.e., if they cause conflict with this function's objectives.
 	 *
 	 * @return string Final regexp with `.gitignore` exclusions as a negative lookahead pattern.
+	 *                The ignore pattern is a non-capturing negative lookahead for greatest flexibility.
 	 *
 	 * @see   https://regex101.com/r/yceJKL/1
 	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
 	 */
-	public static function gitignore_regexp( string $regexp, string $modifiers = '' ) : string {
-		$modifiers = str_split( $modifiers );
+	public static function gitignore_regexp( string $regexp_fragment = '.*', string $modifiers = '' ) : string {
+		$modifiers = mb_str_split( $modifiers ); // Into single characters.
 		$modifiers = array_unique( array_merge( [ 'x', 'u', 'i' ], $modifiers ) );
-		$modifiers = implode( '', $modifiers );
+		$modifiers = implode( '', $modifiers ); // Back together again.
 
 		return '/^' . // Beginning of line.
 
@@ -546,7 +659,7 @@ class Fs extends Base {
 
 			'    )' . // End negative lookahead group.
 
-			$regexp . // Included regex we are prepending.
+			$regexp_fragment . // Append regexp fragment to the above.
 			'$/' . $modifiers; // End of line + /modifiers.
 	}
 }

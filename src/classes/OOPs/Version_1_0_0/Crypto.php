@@ -1,5 +1,6 @@
 <?php
-/** CLEVER CANYON™ <https://clevercanyon.com>
+/**
+ * CLEVER CANYON™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
@@ -7,26 +8,36 @@
  * CC      LL      EE        VV VV   EE      RR  RR     CC      AAAAAAA NN  NNN   YYY   OO   OO NN  NNN
  *  CCCCC  LLLLLLL EEEEEEE    VVV    EEEEEEE RR   RR     CCCCC  AA   AA NN   NN   YYY    OOOO0  NN   NN
  */
+// <editor-fold desc="Strict types, namespace, use statements, and other headers.">
+
+/**
+ * Declarations & namespace.
+ *
+ * @since 2021-12-25
+ */
+declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
 namespace Clever_Canyon\Utilities\OOPs\Version_1_0_0;
 
 /**
- * Dependencies.
+ * Utilities.
  *
- * @since 1.0.0
+ * @since 2021-12-15
  */
-use Clever_Canyon\Utilities\OOPs\Version_1_0_0 as U;
-use Clever_Canyon\Utilities\OOP\Version_1_0_0\Exception;
+use Clever_Canyon\Utilities\OOPs\{Version_1_0_0 as U};
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Exception};
+
+// </editor-fold>
 
 /**
- * Crypto.
+ * Crypto utilities.
  *
- * @since 1.0.0
+ * @since 2021-12-15
  */
 class Crypto extends Base {
 	/**
 	 * Version 4 UUID.
 	 *
-	 * @since 1.0.0
+	 * @since 2021-12-15
 	 *
 	 * @param bool $optimize Remove dashes? Default is `true`.
 	 *
