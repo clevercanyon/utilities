@@ -14,13 +14,15 @@
 	"config"            : {
 		"process-timeout"     : 0,
 		"optimize-autoloader" : true,
-		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
+		"allow-plugins"       : {
+			"dealerdirect/phpcodesniffer-composer-installer" : true
 		}
 	},
 	"require"           : {
 		"php"                    : "^7.4 || ^8.0 || ^8.1",
 		"ext-json"               : "*",
+		"ext-mbstring"           : "*",
+		"ext-zip"                : "*",
 
 		"ulrichsg/getopt-php"    : "^3.4",
 		"clevercanyon/php-chalk" : "dev-main"
