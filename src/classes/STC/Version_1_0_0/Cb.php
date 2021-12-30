@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
+namespace Clever_Canyon\Utilities\STC\Version_1_0_0;
 
 /**
  * Utilities.
@@ -24,15 +24,57 @@ namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
  * @since 2021-12-15
  */
 use Clever_Canyon\Utilities\STC\{Version_1_0_0 as U};
-use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Offsets, Generic, Error, Fatal_Exception};
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Offsets, Generic, Error, Exception, Fatal_Exception};
 use Clever_Canyon\Utilities\OOP\Version_1_0_0\Abstracts\{A6t_Base, A6t_Offsets, A6t_Generic, A6t_Error, A6t_Exception};
 use Clever_Canyon\Utilities\OOP\Version_1_0_0\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, I7e_Error, I7e_Exception};
 
 // </editor-fold>
 
 /**
- * Exception.
+ * Callback utilities.
  *
  * @since 2021-12-15
  */
-final class Exception extends A6t_Exception { }
+class Cb extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Base {
+	/**
+	 * Returns nothing.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return void Nothing.
+	 */
+	public static function noop() : void {}
+
+	/**
+	 * Returns `null`.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return null Null.
+	 */
+	public static function noop_null() /* : null */ {
+		return null;
+	}
+
+	/**
+	 * Returns `true`.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return bool True.
+	 */
+	public static function noop_true() : bool {
+		return true;
+	}
+
+	/**
+	 * Returns `false`.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return bool False.
+	 */
+	public static function noop_false() : bool {
+		return false;
+	}
+}

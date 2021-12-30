@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
+namespace Clever_Canyon\Utilities\OOP\Version_1_0_0\Abstracts;
 
 /**
  * Utilities.
@@ -24,15 +24,38 @@ namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
  * @since 2021-12-15
  */
 use Clever_Canyon\Utilities\STC\{Version_1_0_0 as U};
-use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Offsets, Generic, Error, Fatal_Exception};
-use Clever_Canyon\Utilities\OOP\Version_1_0_0\Abstracts\{A6t_Base, A6t_Offsets, A6t_Generic, A6t_Error, A6t_Exception};
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Offsets, Generic, Error, Exception, Fatal_Exception};
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\Abstracts\{A6t_Base, A6t_Generic, A6t_Error, A6t_Exception};
 use Clever_Canyon\Utilities\OOP\Version_1_0_0\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, I7e_Error, I7e_Exception};
 
 // </editor-fold>
 
 /**
- * Exception.
+ * Base offsets class.
  *
  * @since 2021-12-15
  */
-final class Exception extends A6t_Exception { }
+abstract class A6t_Offsets extends A6t_Base implements I7e_Offsets {
+	/**
+	 * OOP traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use \Clever_Canyon\Utilities\OOP\Version_1_0_0\Traits\I7e_Offsets\Members;
+
+	/**
+	 * Constructor.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param object|array $offsets Optional initial offsets. Default is `[]`.
+	 */
+	public function __construct( /* array|object */ $offsets = [] ) {
+		assert( U\Ctn::is( $offsets ) );
+		parent::__construct();
+
+		foreach ( $offsets as $_key => $_value ) {
+			$this[ $_key ] = $_value;
+		}
+	}
+}

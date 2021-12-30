@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
+namespace Clever_Canyon\Utilities\OOP\Version_1_0_0\Traits\I7e_Base\Utilities;
 
 /**
  * Utilities.
@@ -24,15 +24,57 @@ namespace Clever_Canyon\Utilities\OOP\Version_1_0_0;
  * @since 2021-12-15
  */
 use Clever_Canyon\Utilities\STC\{Version_1_0_0 as U};
-use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Offsets, Generic, Error, Fatal_Exception};
+use Clever_Canyon\Utilities\OOP\Version_1_0_0\{Offsets, Generic, Error, Exception, Fatal_Exception};
 use Clever_Canyon\Utilities\OOP\Version_1_0_0\Abstracts\{A6t_Base, A6t_Offsets, A6t_Generic, A6t_Error, A6t_Exception};
 use Clever_Canyon\Utilities\OOP\Version_1_0_0\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, I7e_Error, I7e_Exception};
 
 // </editor-fold>
 
 /**
- * Exception.
+ * Interface members.
  *
  * @since 2021-12-15
+ *
+ * @see   I7e_Base
  */
-final class Exception extends A6t_Exception { }
+trait OOP_Cache_Members {
+	/**
+	 * OOP cache.
+	 *
+	 * @since 2021-12-15
+	 */
+	private array $oop_cache = [];
+
+	/**
+	 * Gets|sets OOP cache.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string|array $key   Cache key part(s) to get or set.
+	 * @param mixed        $value Cache value, when setting cache.
+	 *
+	 * @return mixed Cached value, by reference. Defaults to `null`.
+	 */
+	protected function &oop_cache( /* string|array */ $key, /* mixed */ $value = null ) /* : mixed */ {
+		if ( is_array( $key ) ) {
+			$key = implode( '|©|', array_map( 'strval', $key ) );
+		}
+		$key = (string) $key; // Force string key.
+
+		if ( func_num_args() >= 2 ) {
+			$this->oop_cache[ $key ] = $value;
+		} else {
+			$this->oop_cache[ $key ] ??= null;
+		}
+		return $this->oop_cache[ $key ];
+	}
+
+	/**
+	 * Clears OOP cache.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected function oop_cache_clear() : void {
+		$this->oop_cache = [];
+	}
+}
