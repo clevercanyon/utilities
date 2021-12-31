@@ -234,12 +234,14 @@ class CLI extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 	 * @param string|null $dir          Current working directory. Defaults to `null` value.
 	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
 	 *
-	 * @throws Exception On non-zero exit status code.
+	 * @throws Fatal_Exception If environment is lacking CLI functions.
+	 *                         On non-zero exit status code or other issue.
+	 *
 	 * @return int Status code.
 	 */
 	public static function run( array $args, /* string|null */ ?string $dir = null, bool $check_status = true ) : int {
 		if ( ! U\Env::can_use_function( 'escapeshellarg', 'passthru' ) ) {
-			throw new Exception(
+			throw new Fatal_Exception(
 				'Unable to use PHP’s `escapeshellarg()` and/or `passthru()` functions.' .
 				' Have one or both of these PHP functions been disabled by your hosting company?'
 			);
@@ -250,7 +252,7 @@ class CLI extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 		passthru( $cmd, $status );
 
 		if ( $check_status && 0 !== $status ) {
-			throw new Exception( 'Unexpected status: ' . $status );
+			throw new Fatal_Exception( 'Unexpected status: ' . $status );
 		}
 		return $status;
 	}
@@ -265,7 +267,9 @@ class CLI extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
 	 * @param string|null $stdin        Stdin to send to command. Defaults to `null` value.
 	 *
-	 * @throws Exception On non-zero exit status code.
+	 * @throws Fatal_Exception If environment is lacking CLI functions.
+	 *                         On non-zero exit status code or other issue.
+	 *
 	 * @return object Object with properties `{}->status|stdout|stderr`.
 	 */
 	public static function exec(
@@ -275,7 +279,7 @@ class CLI extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 		/* string|null */ ?string $stdin = null
 	) : object {
 		if ( ! U\Env::can_use_function( 'escapeshellarg', 'proc_open', 'proc_get_status', 'proc_close' ) ) {
-			throw new Exception(
+			throw new Fatal_Exception(
 				'Unable to use PHP’s `escapeshellarg()`, `proc_open()`, `proc_get_status()`, and/or `proc_close()` functions.' .
 				' Have one or more of these PHP functions been disabled by your hosting company?'
 			);
@@ -295,7 +299,7 @@ class CLI extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 
 		if ( ! is_resource( $process ) ) {
 			if ( $check_status ) {
-				throw new Exception( 'Unexpected `proc_open()` failure.' );
+				throw new Fatal_Exception( 'Unexpected `proc_open()` failure.' );
 			}
 			return $response;
 		}
@@ -317,7 +321,7 @@ class CLI extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 		proc_close( $process );
 
 		if ( $check_status && 0 !== $response->status ) {
-			throw new Exception( $response->stderr ?: $response->stdout );
+			throw new Fatal_Exception( $response->stderr ?: $response->stdout );
 		}
 		return $response;
 	}

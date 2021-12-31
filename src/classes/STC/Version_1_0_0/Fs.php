@@ -320,11 +320,15 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		// Link copy.
 
 		if ( 'link' === $from_path_type && ! $follow_symlinks ) {
-			return symlink( readlink( $from_path ), $to_path );
+			return symlink( readlink( $from_path ), $to_path ); // Read link. No links to links.
 		}
 		// File copy.
 
+		exit( 'copy exit' );
 		if ( 'file' === $from_path_type || ( 'link' === $from_path_type && $follow_symlinks && is_file( $from_path ) ) ) {
+			if ( 'link' === $from_path_type ) { // Read link, avoiding endless loops.
+				return copy( readlink( $from_path ), $to_path ) && chmod( $to_path, $from_path_perms );
+			}
 			return copy( $from_path, $to_path ) && chmod( $to_path, $from_path_perms );
 		}
 		// Recursive directory copy.
@@ -332,10 +336,10 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		if ( ! mkdir( $to_path, $from_path_perms ) ) {
 			return false; // Not possible.
 		}
-		if ( ! ( $_from_path_open = opendir( $from_path ) ) ) {
+		if ( ! ( $_from_path_opendir = opendir( $from_path ) ) ) {
 			return false; // Not possible.
 		}
-		while ( false !== ( $_subpath = readdir( $_from_path_open ) ) ) {
+		while ( false !== ( $_subpath = readdir( $_from_path_opendir ) ) ) {
 			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
 			} elseif ( ! $include_dot_paths && '.' === $_subpath[ 0 ] ) {
@@ -345,11 +349,11 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
 			if ( ! U\Fs::copy( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms, $_r ) ) {
-				closedir( $_from_path_open );
+				closedir( $_from_path_opendir );
 				return false;
 			}
 		}
-		closedir( $_from_path_open );
+		closedir( $_from_path_opendir );
 
 		return true;
 	}
@@ -400,10 +404,10 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		}
 		// Copy directory contents.
 
-		if ( ! ( $_from_path_open = opendir( $from_path ) ) ) {
+		if ( ! ( $_from_path_opendir = opendir( $from_path ) ) ) {
 			return false; // Not possible.
 		}
-		while ( false !== ( $_subpath = readdir( $_from_path_open ) ) ) {
+		while ( false !== ( $_subpath = readdir( $_from_path_opendir ) ) ) {
 			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
 			} elseif ( ! $include_dot_paths && '.' === $_subpath[ 0 ] ) {
@@ -413,11 +417,11 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
 			if ( ! U\Fs::copy( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms ) ) {
-				closedir( $_from_path_open );
+				closedir( $_from_path_opendir );
 				return false;
 			}
 		}
-		closedir( $_from_path_open );
+		closedir( $_from_path_opendir );
 
 		return true;
 	}
@@ -564,15 +568,15 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		}
 		// Recursive directory zip.
 
-		if ( $_r->zip->addEmptyDir( $to_path_in_zip ) !== true ) {
+		if ( true !== $_r->zip->addEmptyDir( $to_path_in_zip ) ) {
 			$_r->maybe_close_zip( $is_recursive );
 			return false; // Not possible.
 		}
-		if ( ! ( $_from_path_open = opendir( $from_path ) ) ) {
+		if ( ! ( $_from_path_opendir = opendir( $from_path ) ) ) {
 			$_r->maybe_close_zip( $is_recursive );
 			return false; // Not possible.
 		}
-		while ( false !== ( $_subpath = readdir( $_from_path_open ) ) ) {
+		while ( false !== ( $_subpath = readdir( $_from_path_opendir ) ) ) {
 			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
 			} elseif ( ! $include_dot_paths && '.' === $_subpath[ 0 ] ) {
@@ -582,12 +586,12 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
 			if ( ! U\Fs::zip( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms, $_r ) ) {
-				closedir( $_from_path_open );
+				closedir( $_from_path_opendir );
 				$_r->maybe_close_zip( $is_recursive );
 				return false;
 			}
 		}
-		closedir( $_from_path_open );
+		closedir( $_from_path_opendir );
 
 		return $_r->maybe_close_zip( $is_recursive );
 	}
@@ -597,15 +601,22 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	 *
 	 * @since                      1.0.0
 	 *
-	 * @param string $path        Path to delete.
-	 * @param bool   $recursively Defaults to `true`.
+	 * @param string      $path        Path to delete.
+	 * @param bool        $recursively Defaults to `true`.
+	 *
+	 * @param object|null $_r          Internal use only — do not pass.
 	 *
 	 * @return bool True if deleted successfully.
 	 *
 	 * @note                       Note: This intentionally does not follow symlinks.
 	 *                             i.e., A link is just a link, so this does not recurse into symlinked directories.
 	 */
-	public static function delete( string $path, bool $recursively = true ) : bool {
+	public static function delete( string $path, bool $recursively = true, /* object|null */ ?object $_r = null ) : bool {
+		// Recursive check.
+
+		// $is_recursive = isset( $_r );
+		$_r ??= (object) [];
+
 		// `$path` validation.
 
 		$path      = U\Fs::normalize( $path );
@@ -627,26 +638,29 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		}
 		// Link, file, and non-recursive directory deletion.
 
-		if ( in_array( $path_type, [ 'link', 'file' ], true ) || ! $recursively ) {
+		if ( ! $recursively || in_array( $path_type, [ 'link', 'file' ], true ) ) {
 			return 'dir' === $path_type ? rmdir( $path ) : unlink( $path );
 		}
 		// Recursive directory deletion.
 
-		if ( ! ( $_path_open = 'dir' === $path_type ? opendir( $path ) : false ) ) {
+		if ( 'dir' !== $path_type ) {
 			return false; // Not possible.
 		}
-		while ( false !== ( $_subpath = readdir( $_path_open ) ) ) {
+		if ( ! ( $_path_opendir = opendir( $path ) ) ) {
+			return false; // Not possible.
+		}
+		while ( false !== ( $_subpath = readdir( $_path_opendir ) ) ) {
 			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
 			}
 			$_path = U\Dir::join( $path, '/' . $_subpath );
 
-			if ( ! U\Fs::delete( $_path, $recursively ) ) {
-				closedir( $_path_open );
+			if ( ! U\Fs::delete( $_path, $recursively, $_r ) ) {
+				closedir( $_path_opendir );
 				return false;
 			}
 		}
-		closedir( $_path_open );
+		closedir( $_path_opendir );
 
 		return rmdir( $path );
 	}

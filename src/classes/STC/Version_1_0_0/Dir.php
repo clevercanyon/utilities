@@ -240,7 +240,7 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 	 * @param string|null $base_path        Base path, which gets stripped prior to regex matching. Defaults to `$path`.
 	 *                                      Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
 	 *
-	 * @param object|null $_r               For internal use only. Used in recursion.
+	 * @param object|null $_r               Internal use only — do not pass.
 	 *
 	 * @return bool True on success.
 	 */
@@ -271,7 +271,6 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 		if ( ! is_readable( $path ) ) {
 			return false; // Not possible.
 		}
-
 		// Base path collection.
 
 		if ( ! $is_recursive ) {
@@ -280,10 +279,10 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 		}
 		// Recursive directory pruning.
 
-		if ( ! ( $_path_open = opendir( $path ) ) ) {
+		if ( ! ( $_path_opendir = opendir( $path ) ) ) {
 			return false; // Not possible.
 		}
-		while ( false !== ( $_subpath = readdir( $_path_open ) ) ) {
+		while ( false !== ( $_subpath = readdir( $_path_opendir ) ) ) {
 			if ( in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
 			}
@@ -298,11 +297,11 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 				}
 			}
 			if ( is_dir( $_path ) && ! U\Dir::prune( $_path, $prune, $prune_exceptions, $base_path, $_r ) ) {
-				closedir( $_path_open );
+				closedir( $_path_opendir );
 				return false;
 			}
 		}
-		closedir( $_path_open );
+		closedir( $_path_opendir );
 
 		foreach ( $paths_to_prune as $_path ) {
 			if ( ! U\Fs::delete( $_path ) ) {

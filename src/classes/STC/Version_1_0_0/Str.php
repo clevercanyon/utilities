@@ -156,9 +156,13 @@ class Str extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 	 *
 	 * @param string $str String.
 	 *
-	 * @return string Escaped string.
+	 * @throws Fatal_Exception If {@see escapeshellarg()} is not available.
+	 * @return string Escaped string. It's actually an escaped and `'single-quoted'` string.
 	 */
 	public static function esc_shell_arg( string $str ) : string {
+		if ( ! U\Env::can_use_function( 'escapeshellarg' ) ) {
+			throw new Fatal_Exception( 'Unable to use PHP’s `escapeshellarg()` function. Disabled?' );
+		}
 		return escapeshellarg( $str );
 	}
 

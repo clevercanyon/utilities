@@ -411,6 +411,9 @@ final class Fs_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_1
 	public function test_copy() : void {
 		$this->assertSame( true, U\Fs::copy( $this->temp_dir(), $this->temp_dir() ), $this->message() );
 		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ) ), $this->message() );
+		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ), true, true ), $this->message() );
+		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ), false, true ), $this->message() );
+		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ), true, false ), $this->message() );
 	}
 
 	/**
