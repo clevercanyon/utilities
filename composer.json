@@ -24,7 +24,7 @@
 		"ext-mbstring"           : "*",
 		"ext-zip"                : "*",
 
-		"ulrichsg/getopt-php"    : "^3.4",
+		"ulrichsg/getopt-php"    : "^4.0",
 		"clevercanyon/php-chalk" : "dev-main"
 	},
 	"autoload"          : {
