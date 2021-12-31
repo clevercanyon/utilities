@@ -80,6 +80,8 @@ abstract class A6t_CLI_Tool extends A6t_Base implements \Clever_Canyon\Utilities
 	 *
 	 * @param string|array|null $args_to_parse Custom args to parse?
 	 *                                         If not given, defaults internally to `$_SERVER['argv']`.
+	 *
+	 * @see   http://getopt-php.github.io/getopt-php/
 	 */
 	public function __construct( /* string|array|null */ $args_to_parse = null ) {
 		parent::__construct();
@@ -189,18 +191,27 @@ abstract class A6t_CLI_Tool extends A6t_Base implements \Clever_Canyon\Utilities
 	 * @return self For easy chaining with {@see route_request()}.
 	 */
 	protected function add_commands( array $commands ) : self {
-		foreach ( $commands as $command => $config ) {
-			try {
+		try {
+			foreach ( $commands as $_command => $_config ) {
+				$_callback    = $_config[ 'callback' ] ?? null;
+				$_synopsis    = $_config[ 'synopsis' ] ?? null;
+				$_description = $_config[ 'description' ] ?? null;
+				$_options     = $_config[ 'options' ] ?? null;
+				$_operands    = $_config[ 'operands' ] ?? null;
+
+				if ( ! isset( $_callback ) ) {
+					$_callback = [ $this, str_replace( '-', '_', $_command ) ];
+				}
 				$this->parser->addCommand(
-					Command::create( $command, $config[ 'callback' ] ?? [ $this, str_replace( '-', '_', $command ) ] )
-						->setShortDescription( $config[ 'synopsis' ] ?? '' )
-						->setDescription( $config[ 'description' ] ?? '' )
-						->addOptions( $this->build_options( $config[ 'options' ] ?? [] ) )
-						->addOperands( $this->build_operands( $config[ 'operands' ] ?? [] ) )
+					Command::create( $_command, $_callback )
+						->setShortDescription( $_synopsis ?? '' )
+						->setDescription( $_description ?? '' )
+						->addOptions( $this->build_options( $_options ?? [] ) )
+						->addOperands( $this->build_operands( $_operands ?? [] ) )
 				);
-			} catch ( \InvalidArgumentException $exception ) {
-				throw new Fatal_Exception( $exception->getMessage() );
 			}
+		} catch ( \InvalidArgumentException $exception ) {
+			throw new Fatal_Exception( $exception->getMessage() );
 		}
 		return $this; // For chaining.
 	}
@@ -301,23 +312,31 @@ abstract class A6t_CLI_Tool extends A6t_Base implements \Clever_Canyon\Utilities
 	 * @return Option[] An array of option instances.
 	 */
 	protected function build_options( array $_options ) : array {
-		foreach ( $_options as $option => $config ) {
-			$options[ $option ] = Option::create(
-				$config[ 'short' ] ?? null,
-				$config[ 'long' ] ?? $option,
-				( ! empty( $config[ 'multiple' ] ) ? Parser::MULTIPLE_ARGUMENT :
-					( ! empty( $config[ 'required' ] ) ? Parser::REQUIRED_ARGUMENT :
-						( ! empty( $config[ 'optional' ] ) ? Parser::OPTIONAL_ARGUMENT :
-							Parser::NO_ARGUMENT
-						)
-					)
-				)
-			);
-			$options[ $option ]->setDescription( $config[ 'description' ] ?? '' );
-			$options[ $option ]->setValidation( $config[ 'validator' ] ?? [ U\Cb::class, 'noop_true' ] );
+		foreach ( $_options as $_option => $_config ) {
+			$_short       = $_config[ 'short' ] ?? null;
+			$_long        = $_config[ 'long' ] ?? null;
+			$_multiple    = $_config[ 'multiple' ] ?? null;
+			$_required    = $_config[ 'required' ] ?? null;
+			$_optional    = $_config[ 'optional' ] ?? null;
+			$_description = $_config[ 'description' ] ?? null;
+			$_validator   = $_config[ 'validator' ] ?? null;
+			$_default     = $_config[ 'default' ] ?? null;
 
-			if ( empty( $config[ 'required' ] ) && isset( $config[ 'default' ] ) ) {
-				$options[ $option ]->setDefaultValue( $config[ 'default' ] );
+			if ( $_multiple ) {
+				$_mode = Parser::MULTIPLE_ARGUMENT;
+			} elseif ( $_required || false === $_optional ) {
+				$_mode = Parser::REQUIRED_ARGUMENT;
+			} elseif ( $_optional || false === $_required ) {
+				$_mode = Parser::OPTIONAL_ARGUMENT;
+			} else {
+				$_mode = Parser::NO_ARGUMENT;
+			}
+			$options[ $_option ] = Option::create( $_short, $_long ?? $_option, $_mode );
+			$options[ $_option ]->setDescription( $_description ?? '' );
+			$options[ $_option ]->setValidation( $_validator ?? [ U\Cb::class, 'noop_true' ] );
+
+			if ( ( $_required || false === $_optional ) && isset( $_default ) ) {
+				$options[ $_option ]->setDefaultValue( $_default );
 			}
 		}
 		return $options ?? [];
@@ -334,24 +353,30 @@ abstract class A6t_CLI_Tool extends A6t_Base implements \Clever_Canyon\Utilities
 	 * @return Operand[] An array of operand instances, else empty array.
 	 */
 	protected function build_operands( array $_operands ) : array {
-		foreach ( $_operands as $operand => $config ) {
-			$operands[ $operand ] = Operand::create(
-				$operand,
-				( ! empty( $config[ 'multiple' ] ) && ! empty( $config[ 'required' ] ) ? Operand::MULTIPLE | Operand::REQUIRED :
-					( ! empty( $config[ 'multiple' ] ) ? Operand::MULTIPLE :
-						( ! empty( $config[ 'required' ] ) ? Operand::REQUIRED :
-							Operand::OPTIONAL
-						)
-					)
-				)
-			);
-			$operands[ $operand ]->setValidation( $config[ 'validator' ] ?? [ U\Cb::class, 'noop_true' ] );
+		foreach ( $_operands as $_operand => $_config ) {
+			$_multiple  = $_config[ 'multiple' ] ?? null;
+			$_required  = $_config[ 'required' ] ?? null;
+			$_optional  = $_config[ 'optional' ] ?? null;
+			$_validator = $_config[ 'validator' ] ?? null;
+			$_default   = $_config[ 'default' ] ?? null;
 
-			if ( $config[ 'multiple' ] && ! isset( $config[ 'default' ] ) ) {
-				$config[ 'default' ] = ''; // Avoids a bug in GetOpt class.
+			if ( $_multiple && ( $_required || false === $_optional ) ) {
+				$_mode = Operand::MULTIPLE | Operand::REQUIRED;
+			} elseif ( $_multiple ) {
+				$_mode = Operand::MULTIPLE;
+			} elseif ( $_required || false === $_optional ) {
+				$_mode = Operand::REQUIRED;
+			} else {
+				$_mode = Operand::OPTIONAL;
 			}
-			if ( isset( $config[ 'default' ] ) ) {
-				$operands[ $operand ]->setDefaultValue( $config[ 'default' ] );
+			$operands[ $_operand ] = Operand::create( $_operand, $_mode );
+			$operands[ $_operand ]->setValidation( $_validator ?: [ U\Cb::class, 'noop_true' ] );
+
+			if ( $_multiple && ! isset( $_default ) ) {
+				$_default = ''; // Avoids a bug in GetOpt class.
+			}
+			if ( isset( $_default ) ) {
+				$operands[ $_operand ]->setDefaultValue( $_default );
 			}
 		}
 		return $operands ?? [];

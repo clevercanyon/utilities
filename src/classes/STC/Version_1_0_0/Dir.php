@@ -127,6 +127,8 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 	 * @note  The resulting subpath will NOT have wrappers or leading/trailing slashes.
 	 *        This is done to ensure the function always returns a subpath. Thus, handling cases where a `$base_path`
 	 *        cannot be removed from `$path`. In such an event, this function returns the full original `$path`, as a pseudo subpath.
+	 *
+	 * @todo  Should this throw an exception on failure to produce the expected subpath?
 	 */
 	public static function subpath( string $base_path, string $path ) : string {
 		$base_path = U\Fs::normalize( $base_path );

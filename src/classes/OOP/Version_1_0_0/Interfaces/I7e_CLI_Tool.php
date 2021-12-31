@@ -43,6 +43,8 @@ interface I7e_CLI_Tool extends I7e_Base {
 	 *
 	 * @param string|array|null $args_to_parse Optional custom args to parse instead of `$_SERVER['argv']`.
 	 *                                         If not given, defaults internally to `$_SERVER['argv']`.
+	 *
+	 * @see   http://getopt-php.github.io/getopt-php/
 	 */
 	public function __construct( /* string|array|null */ $args_to_parse = null );
 }

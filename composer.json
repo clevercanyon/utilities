@@ -48,7 +48,7 @@
 	},
 	"extra"             : {
 		"clevercanyon" : {
-			"@extends-packages" : [ "clevercanyon/php-js-utilities-dev" ]
+			"$extends-packages" : [ "clevercanyon/php-js-utilities-dev" ]
 		}
 	}
 }

@@ -241,19 +241,21 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $from_path          Path to copy.
-	 *                                   Note: If this ends with `/*`, the contents of `$from_path` will be copied to
-	 *                                   the contents of `$to_path`, such that a merge into `$to_path` occurs;
-	 *                                   i.e., instead of deleting & replacing `$to_path` entirely.
+	 * @param string      $from_path         Path to copy.
+	 *                                       Note: If this ends with `/*`, the contents of `$from_path` will be copied to
+	 *                                       the contents of `$to_path`, such that a merge into `$to_path` occurs;
+	 *                                       i.e., instead of deleting & replacing `$to_path` entirely.
 	 *
-	 * @param string $to_path            Destination path.
+	 * @param string      $to_path           Destination path.
 	 *
-	 * @param bool   $include_dot_paths  Include dot paths? Defaults to `false`.
-	 * @param bool   $follow_symlinks    Follow symlknks? Defaults to `false`.
+	 * @param bool        $include_dot_paths Include dot paths? Defaults to `false`.
+	 * @param bool        $follow_symlinks   Follow symlknks? Defaults to `false`.
 	 *
-	 * @param int    $to_path_dir_perms  Defaults to `0700`.
-	 *                                   If `$to_path`'s parent directories do not exist, they'll be created automatically.
-	 *                                   This establishes the permissions for those newly created directories, when/if applicable.
+	 * @param int         $to_path_dir_perms Defaults to `0700`.
+	 *                                       If `$to_path`'s parent directories do not exist, they'll be created automatically.
+	 *                                       This establishes the permissions for those newly created directories, when/if applicable.
+	 *
+	 * @param object|null $_r                Internal use only — do not pass.
 	 *
 	 * @return bool True if copied successfully.
 	 */
@@ -262,12 +264,18 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		string $to_path,
 		bool $include_dot_paths = false,
 		bool $follow_symlinks = false,
-		int $to_path_dir_perms = 0700
+		int $to_path_dir_perms = 0700,
+		/* object|null */ ?object $_r = null
 	) : bool {
+		// Check recursion.
+
+		$is_recursive = isset( $_r );
+		$_r           ??= (object) [];
+
 		// Copy directory contents check.
 
-		if ( '/*' === mb_substr( $from_path, -2 ) ) {
-			return U\Fs::copy_dir_contents(
+		if ( ! $is_recursive && '/*' === mb_substr( $from_path, -2 ) ) {
+			return U\Fs::copy_dir_contents_helper(
 				mb_substr( $from_path, 0, -2 ),
 				$to_path,
 				$include_dot_paths,
@@ -275,7 +283,6 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 				$to_path_dir_perms
 			);
 		}
-
 		// `$from_path` validation.
 
 		$from_path       = U\Fs::normalize( $from_path );
@@ -288,7 +295,6 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		if ( ! is_readable( $from_path ) ) {
 			return false; // Not possible.
 		}
-
 		// `$to_path` validation.
 
 		$to_path      = U\Fs::normalize( $to_path );
@@ -300,7 +306,6 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		if ( $to_path_type && ! U\Fs::delete( $to_path ) ) {
 			return false; // Not possible.
 		}
-
 		// `$to_path` directory validation.
 
 		$to_path_dir      = U\Dir::name( $to_path );
@@ -312,19 +317,16 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		if ( ! $to_path_dir_type && ! U\Dir::make( $to_path_dir, $to_path_dir_perms, true ) ) {
 			return false; // Not possible.
 		}
-
 		// Link copy.
 
 		if ( 'link' === $from_path_type && ! $follow_symlinks ) {
 			return symlink( readlink( $from_path ), $to_path );
 		}
-
 		// File copy.
 
-		if ( 'file' === $from_path_type || ( $follow_symlinks && is_file( $from_path ) ) ) {
+		if ( 'file' === $from_path_type || ( 'link' === $from_path_type && $follow_symlinks && is_file( $from_path ) ) ) {
 			return copy( $from_path, $to_path ) && chmod( $to_path, $from_path_perms );
 		}
-
 		// Recursive directory copy.
 
 		if ( ! mkdir( $to_path, $from_path_perms ) ) {
@@ -334,15 +336,15 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			return false; // Not possible.
 		}
 		while ( false !== ( $_subpath = readdir( $_from_path_open ) ) ) {
-			if ( in_array( $_subpath, [ '.', '..' ], true ) ) {
+			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
-			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[ 0 ] ?? '' ) ) {
+			} elseif ( ! $include_dot_paths && '.' === $_subpath[ 0 ] ) {
 				continue; // Not including dot paths.
 			}
 			$_from_path = U\Dir::join( $from_path, '/' . $_subpath );
 			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
-			if ( ! U\Fs::copy( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms ) ) {
+			if ( ! U\Fs::copy( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms, $_r ) ) {
 				closedir( $_from_path_open );
 				return false;
 			}
@@ -353,15 +355,15 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	}
 
 	/**
-	 * Copies contents of one path to contents of another path.
+	 * Helps copy contents of one directory to contents of another directory.
 	 *
 	 * Do NOT call this directly. Instead, use {@see copy()} with `/*` on the end of `$from_path`.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $from_path          Path to copy.
+	 * @param string $from_path          Directory to copy.
 	 *
-	 * @param string $to_path            Destination path.
+	 * @param string $to_path            Destination directory.
 	 *
 	 * @param bool   $include_dot_paths  Include dot paths? Defaults to `false`.
 	 * @param bool   $follow_symlinks    Follow symlknks? Defaults to `false`.
@@ -372,7 +374,7 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	 *
 	 * @return bool True if copied successfully.
 	 */
-	protected static function copy_dir_contents(
+	protected static function copy_dir_contents_helper(
 		string $from_path,
 		string $to_path,
 		bool $include_dot_paths = false,
@@ -389,7 +391,6 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		if ( ! is_readable( $from_path ) ) {
 			return false; // Not possible.
 		}
-
 		// `$to_path` validation.
 
 		$to_path = U\Fs::normalize( $to_path );
@@ -397,16 +398,15 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		if ( ! $to_path ) {
 			return false; // Not possible.
 		}
-
 		// Copy directory contents.
 
 		if ( ! ( $_from_path_open = opendir( $from_path ) ) ) {
 			return false; // Not possible.
 		}
 		while ( false !== ( $_subpath = readdir( $_from_path_open ) ) ) {
-			if ( in_array( $_subpath, [ '.', '..' ], true ) ) {
+			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
-			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[ 0 ] ?? '' ) ) {
+			} elseif ( ! $include_dot_paths && '.' === $_subpath[ 0 ] ) {
 				continue; // Not including dot paths.
 			}
 			$_from_path = U\Dir::join( $from_path, '/' . $_subpath );
@@ -444,6 +444,7 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	 *
 	 * @param object|null $_r                Internal use only — do not pass.
 	 *
+	 * @throws Exception If `ZipArchive` extension is missing.
 	 * @return bool True if zipped successfully.
 	 */
 	public static function zip(
@@ -452,16 +453,20 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		bool $include_dot_paths = false,
 		bool $follow_symlinks = true,
 		int $to_path_dir_perms = 0700,
-		/* I7e_Generic|null */ ?object $_r = null
+		/* object|null */ ?object $_r = null
 	) : bool {
+		// Recursive check.
+
+		$is_recursive = isset( $_r );
+
 		// Dependency check.
 
-		if ( ! class_exists( 'ZipArchive' ) ) {
-			return false; // Not possible.
+		if ( ! $is_recursive && ! class_exists( 'ZipArchive' ) ) {
+			throw new Exception( 'Missing PHP `ZipArchive` extension.' );
 		}
-		// Recursion info.
+		// Recursive class initialization.
 
-		if ( ! $is_recursive = isset( $_r ) ) {
+		if ( ! $is_recursive ) {
 			$_r = ( new class extends A6t_Generic {
 				/**
 				 * Maybe close zip file.
@@ -499,7 +504,6 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			$_r->maybe_close_zip( $is_recursive );
 			return false; // Not possible.
 		}
-
 		// `$to_path` validation.
 
 		$to_path      = U\Fs::normalize( $to_path );
@@ -517,7 +521,6 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 				return false; // Not possible.
 			}
 		}
-
 		// `$to_path` directory validation.
 
 		if ( ! $is_recursive ) {
@@ -533,7 +536,6 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 				return false; // Not possible.
 			}
 		}
-
 		// `$to_path_in_zip` validation.
 
 		$to_path_in_zip    = '/' . $_r->root_from_path_basename;
@@ -554,14 +556,12 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			return true === $_r->zip->addFromString( $to_path_in_zip, '' )
 				&& $_r->maybe_close_zip( $is_recursive );
 		}
-
 		// File zip.
 
-		if ( 'file' === $from_path_type || ( $follow_symlinks && is_file( $from_path ) ) ) {
+		if ( 'file' === $from_path_type || ( 'link' === $from_path_type && $follow_symlinks && is_file( $from_path ) ) ) {
 			return true === $_r->zip->addFile( $from_path, $to_path_in_zip )
 				&& $_r->maybe_close_zip( $is_recursive );
 		}
-
 		// Recursive directory zip.
 
 		if ( $_r->zip->addEmptyDir( $to_path_in_zip ) !== true ) {
@@ -573,9 +573,9 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			return false; // Not possible.
 		}
 		while ( false !== ( $_subpath = readdir( $_from_path_open ) ) ) {
-			if ( in_array( $_subpath, [ '.', '..' ], true ) ) {
+			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
-			} elseif ( ! $include_dot_paths && '.' === ( $_subpath[ 0 ] ?? '' ) ) {
+			} elseif ( ! $include_dot_paths && '.' === $_subpath[ 0 ] ) {
 				continue; // Not including dot paths.
 			}
 			$_from_path = U\Dir::join( $from_path, '/' . $_subpath );
@@ -589,7 +589,7 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		}
 		closedir( $_from_path_open );
 
-		return $is_recursive ?: $_r->zip->close() === true;
+		return $_r->maybe_close_zip( $is_recursive );
 	}
 
 	/**
@@ -625,20 +625,18 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			}
 			return false; // Not possible.
 		}
-
 		// Link, file, and non-recursive directory deletion.
 
 		if ( in_array( $path_type, [ 'link', 'file' ], true ) || ! $recursively ) {
 			return 'dir' === $path_type ? rmdir( $path ) : unlink( $path );
 		}
-
 		// Recursive directory deletion.
 
 		if ( ! ( $_path_open = 'dir' === $path_type ? opendir( $path ) : false ) ) {
 			return false; // Not possible.
 		}
 		while ( false !== ( $_subpath = readdir( $_path_open ) ) ) {
-			if ( in_array( $_subpath, [ '.', '..' ], true ) ) {
+			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
 			}
 			$_path = U\Dir::join( $path, '/' . $_subpath );
