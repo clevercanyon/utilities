@@ -83,7 +83,6 @@ abstract class A6t_CLI_Tool extends A6t_Base implements \Clever_Canyon\Utilities
 	 */
 	public function __construct( /* string|array|null */ $args_to_parse = null ) {
 		parent::__construct();
-
 		$this->args_to_parse = $args_to_parse;
 
 		if ( isset( $this->args_to_parse ) && ! is_array( $this->args_to_parse ) ) {
@@ -93,7 +92,6 @@ abstract class A6t_CLI_Tool extends A6t_Base implements \Clever_Canyon\Utilities
 			Parser::SETTING_STRICT_OPTIONS  => true,
 			Parser::SETTING_STRICT_OPERANDS => true,
 		] );
-
 		$this->add_options( [
 			'help'    => [ 'description' => 'Get help.' ],
 			'version' => [ 'description' => 'Show version.' ],
@@ -107,7 +105,6 @@ abstract class A6t_CLI_Tool extends A6t_Base implements \Clever_Canyon\Utilities
 	 */
 	protected function route_request() : void {
 		// Parse CLI args.
-
 		try {
 			$this->parser->process( $this->args_to_parse );
 			// Defaults internally to `$_SERVER['argv']`.
@@ -121,13 +118,11 @@ abstract class A6t_CLI_Tool extends A6t_Base implements \Clever_Canyon\Utilities
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::exit_status( 1 );
 		}
-
 		// Maybe handle help/version requests.
-		// If either of these are requested they'll halt execution.
 
-		$this->maybe_process_help_request();
-		$this->maybe_process_version_request();
-
+		if ( $this->maybe_process_help_request() || $this->maybe_process_version_request() ) {
+			return; // Nothing more to do here.
+		}
 		// Handle CLI commands parsed from CLI args above.
 
 		try {
@@ -142,7 +137,6 @@ abstract class A6t_CLI_Tool extends A6t_Base implements \Clever_Canyon\Utilities
 			}
 			try {
 				$process_command_request();
-				U\CLI::exit_status( 0 );
 
 			} catch ( \Throwable $throwable ) {
 				U\CLI::error( $throwable->getMessage() );
@@ -158,24 +152,30 @@ abstract class A6t_CLI_Tool extends A6t_Base implements \Clever_Canyon\Utilities
 	 * Maybe process help request.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @return bool True if processed.
 	 */
-	protected function maybe_process_help_request() : void {
+	protected function maybe_process_help_request() : bool {
 		if ( $this->parser->getOption( 'help' ) ) {
 			U\CLI::output( $this->parser->getHelpText(), 'blue' );
-			U\CLI::exit_status( 0 );
+			return true;
 		}
+		return false;
 	}
 
 	/**
 	 * Maybe process version request.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @return bool True if processed.
 	 */
-	protected function maybe_process_version_request() : void {
+	protected function maybe_process_version_request() : bool {
 		if ( $this->parser->getOption( 'version' ) ) {
 			U\CLI::output( sprintf( '%s: %s', $this::NAME, $this::VERSION ), 'blue' );
-			U\CLI::exit_status( 0 );
+			return true;
 		}
+		return false;
 	}
 
 	/**
