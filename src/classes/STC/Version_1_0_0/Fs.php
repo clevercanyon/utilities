@@ -324,7 +324,6 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		}
 		// File copy.
 
-		exit( 'copy exit' );
 		if ( 'file' === $from_path_type || ( 'link' === $from_path_type && $follow_symlinks && is_file( $from_path ) ) ) {
 			if ( 'link' === $from_path_type ) { // Read link, avoiding endless loops.
 				return copy( readlink( $from_path ), $to_path ) && chmod( $to_path, $from_path_perms );
