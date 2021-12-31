@@ -320,12 +320,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/php-js-utilities-dev.git",
-                "reference": "8e8f8fd2e06cb4341a7a1925f63a0032cf9899e0"
+                "reference": "78958409eabf79c5b12136670167ed464412fd08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/php-js-utilities-dev/zipball/8e8f8fd2e06cb4341a7a1925f63a0032cf9899e0",
-                "reference": "8e8f8fd2e06cb4341a7a1925f63a0032cf9899e0",
+                "url": "https://api.github.com/repos/clevercanyon/php-js-utilities-dev/zipball/78958409eabf79c5b12136670167ed464412fd08",
+                "reference": "78958409eabf79c5b12136670167ed464412fd08",
                 "shasum": ""
             },
             "require": {
@@ -393,7 +393,7 @@
                 "issues": "https://github.com/clevercanyon/php-js-utilities-dev/issues",
                 "source": "https://github.com/clevercanyon/php-js-utilities-dev/tree/main"
             },
-            "time": "2021-12-31T11:07:26+00:00"
+            "time": "2021-12-31T11:11:53+00:00"
         },
         {
             "name": "clevercanyon/php-js-utilities-dev-npm",
