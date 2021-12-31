@@ -272,6 +272,9 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		$is_recursive = isset( $_r );
 		$_r           ??= (object) [];
 
+		if ( ! $is_recursive ) {
+			error_log( __FILE__ );
+		}
 		// Copy directory contents check.
 
 		if ( ! $is_recursive && '/*' === mb_substr( $from_path, -2 ) ) {
