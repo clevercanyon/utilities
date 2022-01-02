@@ -338,7 +338,7 @@ final class Dir_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_
 			[ 'bar' => [ '/foo', '\\foo\\\\bar\\\\' ] ],
 
 			[ 'bar' => [ '/foo/', '\\foo\\bar' ] ],
-			[ 'foo/bar' => [ '/foo', '//\\foo//\\\\//bar//\\\\' ] ],
+			[ 'bar' => [ '//foo', '//\\foo//\\\\//bar//\\\\' ] ],
 
 			[ 'bar' => [ 'C:\\foo', 'C:\\foo\\bar\\' ] ],
 			[ 'foo/bar' => [ 'C:/', 'C:\\foo\\\\bar\\\\' ] ],
@@ -355,11 +355,6 @@ final class Dir_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_
 			[ 'bar/baz' => [ 'foo://', 'foo://bar/baz' ] ],
 			[ 'baz/coo.x' => [ 'foo://bar://', 'foo://bar://baz/coo.x' ] ],
 			[ 'x.x' => [ 'foo://bar/baz/coo/caz/cuz', 'foo://bar/baz/coo/caz/cuz/x.x' ] ],
-
-			// When there's an incorrect base path, wrappers get removed and a pseudo subpath is returned?
-
-			[ 'bar.baz' => [ 'xxx://', 'foo://bar.baz' ] ],
-			[ 'bar2/baz.coo' => [ 'foo://xxx', 'foo://bar://baz://bar2/baz.coo' ] ],
 
 			// UTF-8 characters work well?
 

@@ -122,22 +122,21 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 	 * @param string $base_path Base path to strip away.
 	 * @param string $path      Path from which to strip the base.
 	 *
-	 * @return string New subpath formed by the removal (or failure to remove) `$base`.
-	 *
-	 * @note  The resulting subpath will NOT have wrappers or leading/trailing slashes.
-	 *        This is done to ensure the function always returns a subpath. Thus, handling cases where a `$base_path`
-	 *        cannot be removed from `$path`. In such an event, this function returns the full original `$path`, as a pseudo subpath.
-	 *
-	 * @todo  Should this throw an exception on failure to produce the expected subpath?
+	 * @throws Fatal_Exception On failure to strip the given base path.
+	 * @return string Subpath; i.e., `$path` with `$base_path` stripped away.
 	 */
 	public static function subpath( string $base_path, string $path ) : string {
 		$base_path = U\Fs::normalize( $base_path );
 		$path      = U\Fs::normalize( $path );
 
-		$subpath = preg_replace( '/^' . U\Str::esc_reg( rtrim( $base_path, '/' ) ) . '(?:\/|$)/u', '', $path, 1, $_rp );
+		$esc_reg_base_path_no_ts = U\Str::esc_reg( rtrim( $base_path, '/' ) );
+		$subpath                 = preg_replace( '/^' . $esc_reg_base_path_no_ts . '(?:\/|$)/u', '', $path, 1, $_replacements );
 
-		if ( ! $_rp && U\Fs::may_have_wrappers( $subpath ) ) {
-			$subpath = mb_substr( $subpath, mb_strlen( U\Fs::wrappers( $subpath ) ) );
+		if ( 1 !== $_replacements ) {
+			throw new Fatal_Exception(
+				'Failed to formulate a subpath using base: `' . $base_path . '`' .
+				' against `' . $path . '`. Fatal error — cannot continue.'
+			);
 		}
 		return trim( $subpath, '/' );
 	}
@@ -233,21 +232,22 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string      $path             Directory to prune.
-	 * @param array       $prune            Array of regex expressions to prune.
-	 * @param array       $prune_exceptions Array of regex expressions to keep (i.e., prune exceptions).
+	 * @param string      $path       Directory to prune.
 	 *
-	 * @param string|null $base_path        Base path, which gets stripped prior to regex matching. Defaults to `$path`.
-	 *                                      Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
+	 * @param array       $prune      Array of regex expressions to prune.
+	 * @param array       $exceptions Array of regex expressions to keep (i.e., prune exceptions).
 	 *
-	 * @param object|null $_r               Internal use only — do not pass.
+	 * @param string|null $base_path  Base path, which gets stripped prior to regex matching. Defaults to `$path`.
+	 *                                Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
+	 *
+	 * @param object|null $_r         Internal use only — do not pass.
 	 *
 	 * @return bool True on success.
 	 */
 	public static function prune(
 		string $path,
 		array $prune,
-		array $prune_exceptions = [],
+		array $exceptions = [],
 		/* string|null */ ?string $base_path = null,
 		/* object|null */ ?object $_r = null
 	) : bool {
@@ -256,16 +256,17 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 		$is_recursive = isset( $_r );
 		$_r           ??= (object) [];
 
-		// Initialization.
+		// Anything to prune?
 
-		$paths_to_prune = [];
-
+		if ( ! $prune ) {
+			return true; // Nothing to do.
+		}
 		// `$path` validation.
 
-		$path        = U\Fs::normalize( $path );
-		$path_is_dir = is_dir( $path );
+		$path      = U\Fs::normalize( $path );
+		$path_type = U\Fs::type( $path );
 
-		if ( ! $path_is_dir ) {
+		if ( 'dir' !== $path_type ) {
 			return false; // Not possible.
 		}
 		if ( ! is_readable( $path ) ) {
@@ -283,31 +284,31 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 			return false; // Not possible.
 		}
 		while ( false !== ( $_subpath = readdir( $_path_opendir ) ) ) {
-			if ( in_array( $_subpath, [ '.', '..' ], true ) ) {
+			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
 			}
 			$_path         = U\Dir::join( $path, '/' . $_subpath );
 			$_base_subpath = U\Dir::subpath( $base_path, $_path );
 
-			if ( U\Str::preg_match_in( $prune, $_base_subpath ) ) {
-				if ( ! U\Str::preg_match_in( $prune_exceptions, $_base_subpath ) ) {
-					$paths_to_prune[] = $_path;
+			if ( $prune && U\Str::preg_match_in( $prune, $_base_subpath ) ) {
+				if ( ! $exceptions || ! U\Str::preg_match_in( $exceptions, $_base_subpath ) ) {
+					if ( ! U\Fs::delete( $_path ) ) {
+						closedir( $_path_opendir );
+						return false;
+					}
 					continue; // Continue iterating subpaths.
-					// i.e., Avoiding unnecessary directory recursion below.
+					// i.e., Avoiding unnecessary recursion below.
 				}
 			}
-			if ( is_dir( $_path ) && ! U\Dir::prune( $_path, $prune, $prune_exceptions, $base_path, $_r ) ) {
+			if ( // Only recurse into directores, not links.
+				'dir' === U\Fs::type( $_path ) // Do not follow symlinks.
+				&& ! U\Dir::prune( $_path, $prune, $exceptions, $base_path, $_r )
+			) {
 				closedir( $_path_opendir );
 				return false;
 			}
 		}
 		closedir( $_path_opendir );
-
-		foreach ( $paths_to_prune as $_path ) {
-			if ( ! U\Fs::delete( $_path ) ) {
-				return false;
-			}
-		}
 		return true;
 	}
 
@@ -316,27 +317,25 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string      $path   Directory to iterate.
-	 * @param string|null $regexp Regular expression to use in filtering.
-	 *                            Default is everything except `.gitignore` items.
+	 * @param string      $path            Directory to iterate.
+	 * @param string|null $regexp          Regular expression to use in filtering.
+	 *                                     Default is everything except `.gitignore` items.
+	 * @param bool        $follow_symlinks Default is `false`.
 	 *
 	 * @throws Exception If either of the input parameters are empty.
 	 * @throws Exception If `$path` is not a readable/iterable directory.
 	 * @throws Exception On failure to construct iterator.
 	 *
-	 * @return \RegexIterator Recursive directory regex iterator.
+	 * @return \RecursiveDirectoryIterator|\RegexIterator Recursive iterator.
 	 *
 	 * @see   U\Fs::gitignore_regexp() — PLEASE REVIEW CAREFULLY!
 	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
 	 *
 	 * @note  Please {@see U\Fs::gitignore_regexp()} and note the use of the `x` modifier.
 	 *        Whitespace may not be included without careful attention. Use `\s` or `\S` instead please.
-	 *
-	 * @note  Note: This intentionally does not follow symlinks.
-	 *        i.e., A link is just a link. This does not recurse into symlinked directories.
 	 */
-	public static function iterator( string $path, /* string|null */ ?string $regexp = null ) : \RegexIterator {
-		$regexp ??= U\Fs::gitignore_regexp( '.+' );
+	public static function iterator( string $path, /* string|null */ ?string $regexp = null, bool $follow_symlinks = false ) : \RegexIterator {
+		$regexp ??= U\Fs::gitignore_regexp( 'negative', '.+' );
 
 		if ( ! $path || ! $regexp ) {
 			throw new Exception( 'Missing required parameters.' );
@@ -345,13 +344,19 @@ class Dir extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_B
 			throw new Exception( 'Not a readable/iterable directory.' );
 		}
 		try {
-			$iterator = new \RecursiveDirectoryIterator(
-				$path, // Path to begin from.
-				\FilesystemIterator::KEY_AS_PATHNAME
-				| \FilesystemIterator::CURRENT_AS_SELF
-				| \FilesystemIterator::SKIP_DOTS
-				| \FilesystemIterator::UNIX_PATHS
-			);
+			if ( $follow_symlinks ) {
+				$flags = \FilesystemIterator::KEY_AS_PATHNAME
+					| \FilesystemIterator::CURRENT_AS_SELF
+					| \FilesystemIterator::SKIP_DOTS
+					| \FilesystemIterator::UNIX_PATHS
+					| \FilesystemIterator::FOLLOW_SYMLINKS;
+			} else {
+				$flags = \FilesystemIterator::KEY_AS_PATHNAME
+					| \FilesystemIterator::CURRENT_AS_SELF
+					| \FilesystemIterator::SKIP_DOTS
+					| \FilesystemIterator::UNIX_PATHS;
+			}
+			$iterator = new \RecursiveDirectoryIterator( $path, $flags );
 			$iterator = new \RecursiveIteratorIterator( $iterator, \RecursiveIteratorIterator::CHILD_FIRST );
 			$iterator = new \RegexIterator( $iterator, $regexp, \RegexIterator::MATCH, \RegexIterator::USE_KEY );
 		} catch ( \Throwable $throwable ) {

@@ -248,8 +248,13 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	 *
 	 * @param string      $to_path           Destination path.
 	 *
-	 * @param bool        $include_dot_paths Include dot paths? Defaults to `false`.
-	 * @param bool        $follow_symlinks   Follow symlknks? Defaults to `false`.
+	 * @param array       $ignore            Array of regex expressions to ignore; i.e., not copy.
+	 * @param array       $exceptions        Array of regex expressions to not ignore (i.e., exceptions to the ignore list).
+	 *
+	 * @param string|null $base_path         Base path, which gets stripped prior to regex matching. Defaults to `$from_path`.
+	 *                                       Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
+	 *
+	 * @param bool        $follow_symlinks   Follow symlinks? Default is `true`.
 	 *
 	 * @param int         $to_path_dir_perms Defaults to `0700`.
 	 *                                       If `$to_path`'s parent directories do not exist, they'll be created automatically.
@@ -257,33 +262,36 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	 *
 	 * @param object|null $_r                Internal use only — do not pass.
 	 *
+	 * @throws Fatal_Exception If attempting to copy into self, leading to an endless loop.
+	 *
 	 * @return bool True if copied successfully.
 	 */
 	public static function copy(
 		string $from_path,
 		string $to_path,
-		bool $include_dot_paths = false,
-		bool $follow_symlinks = false,
+		array $ignore = [],
+		array $exceptions = [],
+		/* string|null */ ?string $base_path = null,
+		bool $follow_symlinks = true,
 		int $to_path_dir_perms = 0700,
 		/* object|null */ ?object $_r = null
 	) : bool {
 		// Check recursion.
 
 		$is_recursive = isset( $_r );
-		$_r           ??= (object) [];
+		$_r           ??= (object) [ 'cycle_stack' => [] ];
 
-		if ( ! $is_recursive ) {
-			error_log( __FILE__ );
-		}
 		// Copy directory contents check.
 
 		if ( ! $is_recursive && '/*' === mb_substr( $from_path, -2 ) ) {
 			return U\Fs::copy_dir_contents_helper(
 				mb_substr( $from_path, 0, -2 ),
 				$to_path,
-				$include_dot_paths,
+				$ignore,
+				$exceptions,
+				$base_path,
 				$follow_symlinks,
-				$to_path_dir_perms
+				$to_path_dir_perms,
 			);
 		}
 		// `$from_path` validation.
@@ -298,6 +306,18 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		if ( ! is_readable( $from_path ) ) {
 			return false; // Not possible.
 		}
+		$real_from_path = realpath( $from_path );
+		$real_from_path = U\Fs::normalize( (string) $real_from_path );
+
+		if ( ! $real_from_path ) {
+			return false; // Not possible.
+		}
+		if ( ! $is_recursive ) {
+			$base_path ??= $from_path;
+			$base_path = U\Fs::normalize( $base_path );
+		}
+		$from_base_subpath = U\Dir::subpath( $base_path, $from_path );
+
 		// `$to_path` validation.
 
 		$to_path      = U\Fs::normalize( $to_path );
@@ -306,8 +326,15 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		if ( ! $to_path ) {
 			return false; // Not possible.
 		}
-		if ( $to_path_type && ! U\Fs::delete( $to_path ) ) {
-			return false; // Not possible.
+		if ( ! $is_recursive ) {
+			$real_to_path = $to_path_type ? realpath( $to_path ) : $to_path;
+			$real_to_path = U\Fs::normalize( (string) $real_to_path );
+
+			if ( ! $real_to_path ) {
+				return false; // Not possible.
+			}
+			$_r->root_to_path      = $to_path;
+			$_r->root_real_to_path = $real_to_path;
 		}
 		// `$to_path` directory validation.
 
@@ -317,24 +344,55 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		if ( $to_path_dir_type && ! is_writable( $to_path_dir ) ) {
 			return false; // Not possible.
 		}
+		// Are we ignoring this `$from_base_subpath`?
+
+		if ( '' !== $from_base_subpath && $ignore && U\Str::preg_match_in( $ignore, $from_base_subpath ) ) {
+			if ( ! $exceptions || ! U\Str::preg_match_in( $exceptions, $from_base_subpath ) ) {
+				return true; // Ignoring.
+			}
+		}
+		// After checking ignores, are we attempting to copy into self?
+
+		if ( 0 === mb_strpos( $real_from_path, $_r->root_real_to_path ) ) {
+			throw new Fatal_Exception(
+				'Attempting to copy into self. Cannot continue as this results in an endless loop.' .
+				' From: `' . $real_from_path . '`, to: `' . $_r->root_real_to_path . '`.'
+			);
+		} elseif ( 0 === mb_strpos( $from_path, $_r->root_to_path ) ) {
+			throw new Fatal_Exception(
+				'Attempting to copy into self. Cannot continue as this results in an endless loop.' .
+				' From: `' . $from_path . '`, to: `' . $_r->root_to_path . '`.'
+			);
+		}
+		// `$to_path` deletion before copy.
+
+		if ( $to_path_type && ! U\Fs::delete( $to_path ) ) {
+			return false; // Not possible.
+		}
+		// `$to_path_dir` creation.
+
 		if ( ! $to_path_dir_type && ! U\Dir::make( $to_path_dir, $to_path_dir_perms, true ) ) {
 			return false; // Not possible.
 		}
 		// Link copy.
 
 		if ( 'link' === $from_path_type && ! $follow_symlinks ) {
-			return symlink( readlink( $from_path ), $to_path ); // Read link. No links to links.
+			return symlink( $real_from_path, $to_path );
 		}
 		// File copy.
 
 		if ( 'file' === $from_path_type || ( 'link' === $from_path_type && $follow_symlinks && is_file( $from_path ) ) ) {
-			if ( 'link' === $from_path_type ) { // Read link, avoiding endless loops.
-				return copy( readlink( $from_path ), $to_path ) && chmod( $to_path, $from_path_perms );
-			}
 			return copy( $from_path, $to_path ) && chmod( $to_path, $from_path_perms );
 		}
 		// Recursive directory copy.
 
+		// @todo This doesn't seem to be effective at catching cycles.
+		if ( 'link' === $from_path_type && in_array( $real_from_path, $_r->cycle_stack, true ) ) {
+			// Have no choice but to not follow the symlink. It's a circular reference.
+			return symlink( $real_from_path, $to_path );
+		} else {
+			$_r->cycle_stack[] = $real_from_path;
+		}
 		if ( ! mkdir( $to_path, $from_path_perms ) ) {
 			return false; // Not possible.
 		}
@@ -344,19 +402,17 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		while ( false !== ( $_subpath = readdir( $_from_path_opendir ) ) ) {
 			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
-			} elseif ( ! $include_dot_paths && '.' === $_subpath[ 0 ] ) {
-				continue; // Not including dot paths.
 			}
 			$_from_path = U\Dir::join( $from_path, '/' . $_subpath );
 			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
-			if ( ! U\Fs::copy( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms, $_r ) ) {
+			if ( ! U\Fs::copy( $_from_path, $_to_path, $ignore, $exceptions, $base_path, $follow_symlinks, $to_path_dir_perms, $_r ) ) {
 				closedir( $_from_path_opendir );
 				return false;
 			}
 		}
 		closedir( $_from_path_opendir );
-
+		array_pop( $_r->cycle_stack );
 		return true;
 	}
 
@@ -367,29 +423,33 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $from_path          Directory to copy.
+	 * @param string      $from_path         Directory to copy.
+	 * @param string      $to_path           Destination directory.
 	 *
-	 * @param string $to_path            Destination directory.
+	 * @param array       $ignore            Array of regex expressions to ignore; i.e., not copy.
+	 * @param array       $exceptions        Array of regex expressions to keep (i.e., exceptions to the ignore list).
 	 *
-	 * @param bool   $include_dot_paths  Include dot paths? Defaults to `false`.
-	 * @param bool   $follow_symlinks    Follow symlknks? Defaults to `false`.
+	 * @param string|null $base_path         Base path, which gets stripped prior to regex matching. Defaults to `$from_path`.
+	 *                                       Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
 	 *
-	 * @param int    $to_path_dir_perms  Defaults to `0700`.
-	 *                                   If `$to_path`'s parent directories do not exist, they'll be created automatically.
-	 *                                   This establishes the permissions for those newly created directories, when/if applicable.
+	 * @param bool        $follow_symlinks   Follow symlinks? Default is `true`.
+	 *
+	 * @param int         $to_path_dir_perms Defaults to `0700`.
+	 *                                       If `$to_path`'s parent directories do not exist, they'll be created automatically.
+	 *                                       This establishes the permissions for those newly created directories, when/if applicable.
 	 *
 	 * @return bool True if copied successfully.
 	 */
 	protected static function copy_dir_contents_helper(
 		string $from_path,
 		string $to_path,
-		bool $include_dot_paths = false,
-		bool $follow_symlinks = false,
+		array $ignore = [],
+		array $exceptions = [],
+		/* string|null */ ?string $base_path = null,
+		bool $follow_symlinks = true,
 		int $to_path_dir_perms = 0700
 	) : bool {
 		// `$from_path` validation.
-
-		$from_path = U\Fs::normalize( $from_path );
 
 		if ( ! is_dir( $from_path ) ) {
 			return false; // Not possible.
@@ -397,9 +457,10 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		if ( ! is_readable( $from_path ) ) {
 			return false; // Not possible.
 		}
-		// `$to_path` validation.
+		$base_path ??= $from_path;
+		$base_path = U\Fs::normalize( $base_path );
 
-		$to_path = U\Fs::normalize( $to_path );
+		// `$to_path` validation.
 
 		if ( ! $to_path ) {
 			return false; // Not possible.
@@ -412,19 +473,16 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		while ( false !== ( $_subpath = readdir( $_from_path_opendir ) ) ) {
 			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
-			} elseif ( ! $include_dot_paths && '.' === $_subpath[ 0 ] ) {
-				continue; // Not including dot paths.
 			}
 			$_from_path = U\Dir::join( $from_path, '/' . $_subpath );
 			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
-			if ( ! U\Fs::copy( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms ) ) {
+			if ( ! U\Fs::copy( $_from_path, $_to_path, $ignore, $exceptions, $base_path, $follow_symlinks, $to_path_dir_perms ) ) {
 				closedir( $_from_path_opendir );
 				return false;
 			}
 		}
 		closedir( $_from_path_opendir );
-
 		return true;
 	}
 
@@ -436,10 +494,13 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	 * @param string      $from_path         Path to zip.
 	 * @param string      $to_path           Destination path.
 	 *
-	 * @param bool        $include_dot_paths Include dot paths? Defaults to `false`.
+	 * @param array       $ignore            Array of regex expressions to ignore; i.e., not add to zip.
+	 * @param array       $exceptions        Array of regex expressions to not ignore (i.e., exceptions to the ignore list).
 	 *
-	 * @param bool        $follow_symlinks   Follow symlknks? Defaults to `true`.
-	 *                                       This should almost always be `true` for zip files.
+	 * @param string|null $base_path         Base path, which gets stripped prior to regex matching. Defaults to `$from_path`.
+	 *                                       Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
+	 *
+	 * @param bool        $follow_symlinks   Follow symlinks? Default is `true`. This should almost always be `true` for zip files.
 	 *                                       If `false`, symlinks are not followed. Instead, empty directories and/or files are created to hold
 	 *                                       the place of what would otherwise have been followed and copied into the zip archive. Thus,
 	 *                                       recommend always leaving this as `true`.
@@ -450,13 +511,17 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	 *
 	 * @param object|null $_r                Internal use only — do not pass.
 	 *
-	 * @throws Exception If `ZipArchive` extension is missing.
+	 * @throws Fatal_Exception If `ZipArchive` extension is missing.
+	 * @throws Fatal_Exception If attempting to zip into self, leading to an endless loop.
+	 *
 	 * @return bool True if zipped successfully.
 	 */
 	public static function zip(
 		string $from_path,
 		string $to_path,
-		bool $include_dot_paths = false,
+		array $ignore = [],
+		array $exceptions = [],
+		/* string|null */ ?string $base_path = null,
 		bool $follow_symlinks = true,
 		int $to_path_dir_perms = 0700,
 		/* object|null */ ?object $_r = null
@@ -468,12 +533,19 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		// Dependency check.
 
 		if ( ! $is_recursive && ! class_exists( 'ZipArchive' ) ) {
-			throw new Exception( 'Missing PHP `ZipArchive` extension.' );
+			throw new Fatal_Exception( 'Missing PHP `ZipArchive` extension.' );
 		}
 		// Recursive class initialization.
 
 		if ( ! $is_recursive ) {
 			$_r = ( new class extends A6t_Generic {
+				/**
+				 * Cycle stack.
+				 *
+				 * @since 2021-12-31
+				 */
+				public array $cycle_stack = [];
+
 				/**
 				 * Maybe close zip file.
 				 *
@@ -510,6 +582,19 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			$_r->maybe_close_zip( $is_recursive );
 			return false; // Not possible.
 		}
+		$real_from_path = realpath( $from_path );
+		$real_from_path = U\Fs::normalize( (string) $real_from_path );
+
+		if ( ! $real_from_path ) {
+			$_r->maybe_close_zip( $is_recursive );
+			return false; // Not possible.
+		}
+		if ( ! $is_recursive ) {
+			$base_path ??= $from_path;
+			$base_path = U\Fs::normalize( $base_path );
+		}
+		$from_base_subpath = U\Dir::subpath( $base_path, $from_path );
+
 		// `$to_path` validation.
 
 		$to_path      = U\Fs::normalize( $to_path );
@@ -520,12 +605,15 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			return false; // Not possible.
 		}
 		if ( ! $is_recursive ) {
-			$_r->root_to_path = $to_path;
+			$real_to_path = $to_path_type ? realpath( $to_path ) : $to_path;
+			$real_to_path = U\Fs::normalize( (string) $real_to_path );
 
-			if ( $to_path_type && ! U\Fs::delete( $to_path ) ) {
+			if ( ! $real_to_path ) {
 				$_r->maybe_close_zip( $is_recursive );
 				return false; // Not possible.
 			}
+			$_r->root_to_path      = $to_path;
+			$_r->root_real_to_path = $real_to_path;
 		}
 		// `$to_path` directory validation.
 
@@ -537,10 +625,6 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 				$_r->maybe_close_zip( $is_recursive );
 				return false; // Not possible.
 			}
-			if ( ! $to_path_dir_type && ! U\Dir::make( $to_path_dir, $to_path_dir_perms, true ) ) {
-				$_r->maybe_close_zip( $is_recursive );
-				return false; // Not possible.
-			}
 		}
 		// `$to_path_in_zip` validation.
 
@@ -548,6 +632,43 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		$to_subpath_in_zip = U\Dir::subpath( $_r->root_to_path, $to_path );
 		$to_path_in_zip    = U\Dir::join( $to_path_in_zip, '/' . $to_subpath_in_zip );
 
+		// Are we ignoring this `$from_base_subpath`?
+
+		if ( '' !== $from_base_subpath && $ignore && U\Str::preg_match_in( $ignore, $from_base_subpath ) ) {
+			if ( ! $exceptions || ! U\Str::preg_match_in( $exceptions, $from_base_subpath ) ) {
+				$_r->maybe_close_zip( $is_recursive );
+				return true; // Ignoring.
+			}
+		}
+		// After checking ignores, are we attempting to zip into self?
+
+		if ( 0 === mb_strpos( $real_from_path, $_r->root_real_to_path ) ) {
+			throw new Fatal_Exception(
+				'Attempting to zip into self. Cannot continue as this results in an endless loop.' .
+				' From: `' . $real_from_path . '`, to: `' . $_r->root_real_to_path . '`.'
+			);
+		} elseif ( 0 === mb_strpos( $from_path, $_r->root_to_path ) ) {
+			throw new Fatal_Exception(
+				'Attempting to zip into self. Cannot continue as this results in an endless loop.' .
+				' From: `' . $from_path . '`, to: `' . $_r->root_to_path . '`.'
+			);
+		}
+		// `$to_path` deletion ahead of zip.
+
+		if ( ! $is_recursive ) {
+			if ( $to_path_type && ! U\Fs::delete( $to_path ) ) {
+				$_r->maybe_close_zip( $is_recursive );
+				return false; // Not possible.
+			}
+		}
+		// `$to_path_dir` directory creation.
+
+		if ( ! $is_recursive ) {
+			if ( ! $to_path_dir_type && ! U\Dir::make( $to_path_dir, $to_path_dir_perms, true ) ) {
+				$_r->maybe_close_zip( $is_recursive );
+				return false; // Not possible.
+			}
+		}
 		// Zip archive.
 
 		if ( ! $is_recursive ) {
@@ -570,6 +691,14 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		}
 		// Recursive directory zip.
 
+		// @todo This doesn't seem to be effective at catching cycles.
+		if ( 'link' === $from_path_type && in_array( $real_from_path, $_r->cycle_stack, true ) ) {
+			// Have no choice but to not follow the symlink. It's a circular reference.
+			return true === $_r->zip->addFromString( $to_path_in_zip, '' )
+				&& $_r->maybe_close_zip( $is_recursive );
+		} else {
+			$_r->cycle_stack[] = $real_from_path;
+		}
 		if ( true !== $_r->zip->addEmptyDir( $to_path_in_zip ) ) {
 			$_r->maybe_close_zip( $is_recursive );
 			return false; // Not possible.
@@ -581,27 +710,25 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		while ( false !== ( $_subpath = readdir( $_from_path_opendir ) ) ) {
 			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
 				continue; // Skip dots.
-			} elseif ( ! $include_dot_paths && '.' === $_subpath[ 0 ] ) {
-				continue; // Not including dot paths.
 			}
 			$_from_path = U\Dir::join( $from_path, '/' . $_subpath );
 			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
-			if ( ! U\Fs::zip( $_from_path, $_to_path, $include_dot_paths, $follow_symlinks, $to_path_dir_perms, $_r ) ) {
+			if ( ! U\Fs::zip( $_from_path, $_to_path, $ignore, $exceptions, $base_path, $follow_symlinks, $to_path_dir_perms, $_r ) ) {
 				closedir( $_from_path_opendir );
 				$_r->maybe_close_zip( $is_recursive );
 				return false;
 			}
 		}
 		closedir( $_from_path_opendir );
-
+		array_pop( $_r->cycle_stack );
 		return $_r->maybe_close_zip( $is_recursive );
 	}
 
 	/**
 	 * Deletes a path.
 	 *
-	 * @since                      1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param string      $path        Path to delete.
 	 * @param bool        $recursively Defaults to `true`.
@@ -610,14 +737,14 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 	 *
 	 * @return bool True if deleted successfully.
 	 *
-	 * @note                       Note: This intentionally does not follow symlinks.
-	 *                             i.e., A link is just a link, so this does not recurse into symlinked directories.
+	 * @note  This intentionally does not follow symlinks.
+	 *        i.e., A link is just a link, so this does not recurse into symlinked directories.
 	 */
 	public static function delete( string $path, bool $recursively = true, /* object|null */ ?object $_r = null ) : bool {
 		// Recursive check.
 
-		// $is_recursive = isset( $_r );
-		$_r ??= (object) [];
+		$is_recursive = isset( $_r );
+		$_r           ??= (object) [];
 
 		// `$path` validation.
 
@@ -626,6 +753,20 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 
 		if ( ! $path_type ) {
 			return true; // No longer exists.
+		}
+		if ( ! $path || '' === trim( $path, '/' ) ) {
+			return false; // Let's not destroy the root of something.
+		}
+		if ( ! $is_recursive && U\Fs::may_have_wrappers( $path, [ 'skip:str_replace' => true ] ) ) {
+			$wrappers         = U\Fs::wrappers( $path, '', [
+				'bypass:may_have_wrappers' => true,
+				'bypass:normalize'         => true,
+			] );
+			$path_no_wrappers = $wrappers ? mb_substr( $path, mb_strlen( $wrappers ) ) : $path;
+
+			if ( ! $path_no_wrappers || '' === trim( $path_no_wrappers, '/' ) ) {
+				return false; // Let's not destroy the root of something.
+			}
 		}
 		if ( ! is_writable( $path ) ) {
 			// Special case.
@@ -645,9 +786,6 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 		}
 		// Recursive directory deletion.
 
-		if ( 'dir' !== $path_type ) {
-			return false; // Not possible.
-		}
 		if ( ! ( $_path_opendir = opendir( $path ) ) ) {
 			return false; // Not possible.
 		}
@@ -663,38 +801,52 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			}
 		}
 		closedir( $_path_opendir );
-
 		return rmdir( $path );
 	}
 
 	/**
-	 * Regexp with `.gitignore` exclusions as a negative lookahead pattern.
+	 * Regexp with `.gitignore` exclusions as a positive|negative lookahead pattern.
 	 *
 	 * @since 2021-12-18
 	 *
+	 * @param string $lookahead       One of `positive` or `negative`.
+	 *                                This indicates whether you want a positive or negative match.
+	 *
 	 * @param string $regexp_fragment Optional regexp fragment to append to generated full regexp pattern.
-	 *                                Default is `.*`. You get back simply the ignore pattern in front of `.*`.
+	 *                                Default is `.*`. You get back simply the pattern in front of `.*`.
 	 *
-	 * @param string $modifiers       Optional additional modifiers to append to existing always-on modifiers.
-	 *                                Always-on modifiers include `xui`. If you pass in conflicting modifiers, future versions
-	 *                                of this function will throw an exception; i.e., if they cause conflict with this function's objectives.
+	 * @param array  $args            Optional arguments that offer some additional options.
 	 *
-	 * @return string Final regexp with `.gitignore` exclusions as a negative lookahead pattern.
-	 *                The ignore pattern is a non-capturing negative lookahead for greatest flexibility.
+	 *    string 'modifiers' Optional additional modifiers to append to existing always-on modifiers.
+	 *                       Always-on modifiers include `xui`. If you pass in conflicting modifiers, future versions
+	 *                       of this function will throw an exception; i.e., if they cause conflict with this function's objectives.
+	 *
+	 *    bool   'vendor'    Default is `true`, as ignoring `/vendor` matches our `.gitignore` configuration.
+	 *                       That said, it's often desirable to ship `/vendor` as part of a distro, so the option is here.
+	 *
+	 * @return string Final regexp with `.gitignore` exclusions as a positive|negative lookahead.
+	 *                The pattern is a non-capturing positive|negative lookahead for greatest flexibility.
 	 *
 	 * @see   https://regex101.com/r/yceJKL/1
 	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
 	 */
-	public static function gitignore_regexp( string $regexp_fragment = '.*', string $modifiers = '' ) : string {
-		$modifiers = mb_str_split( $modifiers ); // Into single characters.
+	public static function gitignore_regexp( string $lookahead, string $regexp_fragment = '.*', array $args = [] ) : string {
+		$default_args = [
+			'modifiers' => '',
+			'vendor'    => true,
+		];
+		$args         = $args + $default_args;
+
+		$modifiers = mb_str_split( $args[ 'modifiers' ] );
 		$modifiers = array_unique( array_merge( [ 'x', 'u', 'i' ], $modifiers ) );
 		$modifiers = implode( '', $modifiers ); // Back together again.
 
 		return '/^' . // Beginning of line.
 
-			'    (?!.*' . // 0+ characters leading up to our `.gitignore` searches.
-			'        (^|[\/\\\]+)' . // Beginning of string, or 1+ directory separators.
-			'        (' . // Begin `.gitignore` searches.
+			'    (' . ( 'positive' === $lookahead ? '?=' : '?!' ) .
+			'    .*' . // 0+ characters leading up to our `.gitignore` searches.
+			'        (?:^|[\/\\\]+)' . // Beginning of string, or 1+ directory separators.
+			'        (?:' . // Begin `.gitignore` searches.
 
 			'            (?:\.[#_~][^\/\\\]*)' . // `.#*`, `._*`, `.~*`
 			'             |(?:[^\/\\\]*~)' . // `*~` backup files.
@@ -706,10 +858,10 @@ class Fs extends \Clever_Canyon\Utilities\STC\Version_1_0_0\Abstracts\A6t_Stc_Ba
 			'             |(?:\.(?:vagrant|idea|vscode|npmrc|linaria-cache|sass-cache|elasticbeanstalk|git|git-dir|svn|cvsignore|bzr|bzrignore|hg|hgignore|AppleDB|AppleDouble|AppleDesktop|com\.apple\.timemachine\.donotpresent|LSOverride|Spotlight-V100|VolumeIcon\.icns|TemporaryItems|fseventsd|DS_Store|Trashes|apdisk))' .
 
 			// This covers everything else, which is a longer list of specific names to ignore.
-			'             |(?:typings|vendor|node[_\-]modules|jspm[_\-]packages|bower[_\-]components|_svn|CVS|SCCS|RCS|\$RECYCLE\.BIN|Desktop\.ini|Thumbs\.db|ehthumbs\.db|Network\sTrash\sFolder|Temporary\sItems|Icon[^s])' .
+			'             |(?:typings' . ( $args[ 'vendor' ] ? '|vendor' : '' ) . '|node[_\-]modules|jspm[_\-]packages|bower[_\-]components|_svn|CVS|SCCS|RCS|\$RECYCLE\.BIN|Desktop\.ini|Thumbs\.db|ehthumbs\.db|Network\sTrash\sFolder|Temporary\sItems|Icon[^s])' .
 
 			'        )' . // End `.gitignore` searches.
-			'        ($|[\/\\\]+)' . // End of line, or 1+ directory separators.
+			'        (?:$|[\/\\\]+)' . // End of line, or 1+ directory separators.
 
 			'    )' . // End negative lookahead group.
 

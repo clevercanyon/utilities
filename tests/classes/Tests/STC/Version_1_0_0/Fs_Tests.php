@@ -411,9 +411,8 @@ final class Fs_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_1
 	public function test_copy() : void {
 		$this->assertSame( true, U\Fs::copy( $this->temp_dir(), $this->temp_dir() ), $this->message() );
 		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ) ), $this->message() );
-		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ), true, true ), $this->message() );
-		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ), false, true ), $this->message() );
-		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ), true, false ), $this->message() );
+		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ), [], [], null, true ), $this->message() );
+		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ), [], [], null, false ), $this->message() );
 	}
 
 	/**
@@ -448,7 +447,7 @@ final class Fs_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_1
 	 * @covers ::gitignore_regexp()
 	 */
 	public function test_gitignore_regexp() : void {
-		$gitignore_regexp = U\Fs::gitignore_regexp();
+		$gitignore_regexp = U\Fs::gitignore_regexp( 'negative' );
 
 		foreach ( [
 			'/.git'     => 'ignored',
@@ -472,6 +471,12 @@ final class Fs_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_1
 			'/foo/bar/~'                    => 'ignored',
 			'/foo/bar/baz.~/foo'            => 'ignored',
 
+			'foo/node_modules/foo'         => 'ignored',
+			'foo/bar/bower_components/foo' => 'ignored',
+			'vendor/foo'                   => 'ignored',
+			'foo/bar/~'                    => 'ignored',
+			'foo/bar/baz.~/foo'            => 'ignored',
+
 			'.'    => 'not-ignored',
 			'/'    => 'not-ignored',
 			''     => 'not-ignored',
@@ -487,6 +492,11 @@ final class Fs_Tests extends \Clever_Canyon\Utilities__Tests\Framework\Version_1
 			'/foo/bar/baz/.gitattributs' => 'not-ignored',
 			'/foo/bar/baz/.gitmodules'   => 'not-ignored',
 			'/foo/bar/baz/.gitchange'    => 'not-ignored',
+
+			'foo/bar/baz/.gitignore'    => 'not-ignored',
+			'foo/bar/baz/.gitattributs' => 'not-ignored',
+			'foo/bar/baz/.gitmodules'   => 'not-ignored',
+			'foo/bar/baz/.gitchange'    => 'not-ignored',
 
 			'/foo/bar/baz/package.json'  => 'not-ignored',
 			'/foo/bar/baz/composer.json' => 'not-ignored',
