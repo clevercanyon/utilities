@@ -59,7 +59,7 @@ class Crypto extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 				random_int( 0, 0xffff )
 			);
 		} catch ( \Throwable $throwable ) {
-			$fn_rand = U\Env::is_wordpress() && function_exists( 'wp_rand' )
+			$fn_rand = U\Env::is_wordpress()
 				? 'wp_rand' // {@see https://developer.wordpress.org/reference/functions/wp_rand/}.
 				: 'mt_rand'; // {@see https://www.php.net/manual/en/function.mt-rand.php}.
 
@@ -74,6 +74,7 @@ class Crypto extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 				$fn_rand( 0, 0xffff ),
 				$fn_rand( 0, 0xffff )
 			);
+
 		}
 		return $optimize ? str_replace( '-', '', $uuid_v4 ) : $uuid_v4;
 	}
