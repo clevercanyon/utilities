@@ -499,8 +499,8 @@ class Env extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 
 			$set_headers = null; // Initialize.
 
-			if ( function_exists( 'nocache_headers' ) ) {
-				$set_headers = ! headers_sent() && 'nill' !== nocache_headers();
+			if ( ! headers_sent() ) {
+				$set_headers = 'nill' !== nocache_headers();
 			}
 			return $defined_constants && $set_headers
 				&& false === U\Env::static_var( 'CACHE', false );
