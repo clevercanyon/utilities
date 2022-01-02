@@ -12,16 +12,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/php-chalk.git",
-                "reference": "b49e8393978743d2e81df504627dde7982c63545"
+                "reference": "d40f04066efa5bf1b45ce22f1c027d52bf044b70"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/php-chalk/zipball/b49e8393978743d2e81df504627dde7982c63545",
-                "reference": "b49e8393978743d2e81df504627dde7982c63545",
+                "url": "https://api.github.com/repos/clevercanyon/php-chalk/zipball/d40f04066efa5bf1b45ce22f1c027d52bf044b70",
+                "reference": "d40f04066efa5bf1b45ce22f1c027d52bf044b70",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.4 || ^8.0"
+                "php": "^7.4 || ^8.0 || ^8.1"
             },
             "require-dev": {
                 "clevercanyon/php-js-utilities-dev": "dev-main"
@@ -62,7 +62,7 @@
                 "issues": "https://github.com/clevercanyon/php-chalk/issues",
                 "source": "https://github.com/clevercanyon/php-chalk/tree/main"
             },
-            "time": "2022-01-02T02:30:28+00:00"
+            "time": "2022-01-02T14:14:39+00:00"
         },
         {
             "name": "ulrichsg/getopt-php",
@@ -263,17 +263,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/php-js-standards.git",
-                "reference": "eaeb82d0e1670b458d28e7b46ac92c7131f3742c"
+                "reference": "c73f849a008d5569bff963f85a7091b7e7dd5e2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/php-js-standards/zipball/eaeb82d0e1670b458d28e7b46ac92c7131f3742c",
-                "reference": "eaeb82d0e1670b458d28e7b46ac92c7131f3742c",
+                "url": "https://api.github.com/repos/clevercanyon/php-js-standards/zipball/c73f849a008d5569bff963f85a7091b7e7dd5e2b",
+                "reference": "c73f849a008d5569bff963f85a7091b7e7dd5e2b",
                 "shasum": ""
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-                "php": "^7.4 || ^8.0",
+                "php": "^7.4 || ^8.0 || ^8.1",
                 "phpcompatibility/php-compatibility": "^9.3",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "squizlabs/php_codesniffer": "^3.6",
@@ -312,7 +312,7 @@
                 "issues": "https://github.com/clevercanyon/php-js-standards/issues",
                 "source": "https://github.com/clevercanyon/php-js-standards/tree/main"
             },
-            "time": "2022-01-02T02:30:47+00:00"
+            "time": "2022-01-02T14:08:29+00:00"
         },
         {
             "name": "clevercanyon/php-js-utilities-dev",
@@ -320,12 +320,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/php-js-utilities-dev.git",
-                "reference": "a59e30ddb788db7893a922fc189d132546296603"
+                "reference": "e6f43447de9a45a16efd2db89471842ba24bca1b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/php-js-utilities-dev/zipball/a59e30ddb788db7893a922fc189d132546296603",
-                "reference": "a59e30ddb788db7893a922fc189d132546296603",
+                "url": "https://api.github.com/repos/clevercanyon/php-js-utilities-dev/zipball/e6f43447de9a45a16efd2db89471842ba24bca1b",
+                "reference": "e6f43447de9a45a16efd2db89471842ba24bca1b",
                 "shasum": ""
             },
             "require": {
@@ -393,7 +393,7 @@
                 "issues": "https://github.com/clevercanyon/php-js-utilities-dev/issues",
                 "source": "https://github.com/clevercanyon/php-js-utilities-dev/tree/main"
             },
-            "time": "2021-12-31T16:58:23+00:00"
+            "time": "2022-01-02T02:31:20+00:00"
         },
         {
             "name": "clevercanyon/php-js-utilities-dev-npm",
@@ -401,12 +401,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/php-js-utilities-dev-npm.git",
-                "reference": "2262f77d8d235ed1cf50a3d400e9051f18ad639a"
+                "reference": "e89bc28131e4bea28848120b5cd7d4bbc7014562"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/php-js-utilities-dev-npm/zipball/2262f77d8d235ed1cf50a3d400e9051f18ad639a",
-                "reference": "2262f77d8d235ed1cf50a3d400e9051f18ad639a",
+                "url": "https://api.github.com/repos/clevercanyon/php-js-utilities-dev-npm/zipball/e89bc28131e4bea28848120b5cd7d4bbc7014562",
+                "reference": "e89bc28131e4bea28848120b5cd7d4bbc7014562",
                 "shasum": ""
             },
             "require": {
@@ -442,7 +442,7 @@
                 "issues": "https://github.com/clevercanyon/php-js-utilities-dev-npm/issues",
                 "source": "https://github.com/clevercanyon/php-js-utilities-dev-npm/tree/main"
             },
-            "time": "2021-12-31T16:59:20+00:00"
+            "time": "2022-01-02T02:31:36+00:00"
         },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
