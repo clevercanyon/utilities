@@ -222,10 +222,14 @@ class Env extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @param string                     $name  Name.
 	 * @param int|float|string|bool|null $value Value.
 	 *
-	 * @return bool True if defined successfully.
+	 * @return bool True if already defined and already set to `$value`.
+	 *              Otherwise, `true` if a new constant is defined successfully.
 	 */
 	public static function maybe_define( string $name, /* int|float|string|bool|null */ $value ) : bool {
-		return ! defined( $name ) && define( $name, $value );
+		if ( defined( $name ) ) {
+			return constant( $name ) === $value;
+		}
+		return define( $name, $value );
 	}
 
 	/**
@@ -336,6 +340,30 @@ class Env extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	}
 
 	/**
+	 * Checks if an INI setting is changeable.
+	 *
+	 * @since 2022-01-02
+	 *
+	 * @param string $setting INI setting to check.
+	 *
+	 * @return bool True if `$setting` is changeable.
+	 */
+	public static function is_ini_setting_changeable( string $setting ) : bool {
+		if ( null === ( $cache = &static::stc_cache( [ __FUNCTION__, 'ini_all' ] ) ) ) {
+			if ( U\Env::can_use_function( 'ini_get_all' ) ) {
+				$cache = ini_get_all();
+			}
+			$cache = is_array( $cache ) ? $cache : false;
+		}
+		if ( ! is_array( $cache ) ) {
+			return true; // Unable to read all, assume `true`.
+		}
+		return isset( $cache[ $setting ][ 'access' ] )
+			&& ( INI_ALL === ( $cache[ $setting ][ 'access' ] & INI_ALL )
+				|| INI_USER === ( $cache[ $setting ][ 'access' ] & INI_ALL ) );
+	}
+
+	/**
 	 * Sets time limit for script execution.
 	 *
 	 * @since 2021-12-15
@@ -351,13 +379,9 @@ class Env extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 		if ( ! U\Env::can_use_function( 'set_time_limit' ) ) {
 			return false; // Not possible.
 		}
-		try {                              // Catch any issues.
-			set_time_limit( $limit );      // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-			return true;                   // NOTE: `set_time_limit()`'s return value is unreliable.
-			// In recent tests on macOS `set_time_limit()` consistently returned `false`, yet was consistently effective.
-		} catch ( \Throwable $throwable ) {
-			return false; // Fail gracefully.
-		}
+		set_time_limit( $limit );      // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+		return true;                   // NOTE: `set_time_limit()`'s return value is unreliable.
+		// In recent tests on macOS `set_time_limit()` consistently returned `false`, yet was consistently effective.
 	}
 
 	/**
@@ -420,6 +444,77 @@ class Env extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	}
 
 	/**
+	 * Raises memory limit.
+	 *
+	 * @since 2022-01-02
+	 *
+	 * @param string $context Default is `admin`. Set to any arbitrary value.
+	 *                        The special value of `admin` is assigned to `256M` in WordPress, and filtered by plugins.
+	 *                        The special value of `admin` is assigned to `512M` outside of WordPress.
+	 *
+	 * @param string $limit   Either `-1` (no limit) or an abbreviated byte notation following PHP's shorthand syntax.
+	 *                        {@see https://www.php.net/manual/en/faq.using.php#faq.using.shorthandbytes}.
+	 *
+	 *                        This will be ignored in a WordPress environment in favor of `$context` only.
+	 *                        For specific limits in WordPress there are filters.
+	 *                        {@see wp_raise_memory_limit()} for details.
+	 *
+	 * @return bool A value of `false` is returned on error, `true` otherwise.
+	 */
+	public static function raise_memory_limit( string $context = 'admin', string $limit = '' ) : bool {
+		if ( U\Env::is_wordpress() ) {
+			return false !== wp_raise_memory_limit( $context );
+		} else {
+			if ( false === U\Env::is_ini_setting_changeable( 'memory_limit' ) ) {
+				return false; // Not possible.
+			}
+			$current_limit       = (string) ini_get( 'memory_limit' );
+			$current_limit_bytes = '-1' === $current_limit ? -1 : U\File::abbr_bytes( $current_limit );
+
+			switch ( $context ) {
+				default:
+					$context_limit       = '512M';
+					$context_limit_bytes = U\File::abbr_bytes( $context_limit );
+			}
+			$requested_limit       = '' !== $limit ? $limit : '';
+			$requested_limit_bytes = '' === $requested_limit ? 0
+				: ( '-1' === $requested_limit ? -1 : U\File::abbr_bytes( $requested_limit ) );
+
+			if ( -1 === $context_limit_bytes || -1 === $requested_limit_bytes ) {
+				$new_limit       = '-1'; // Infinite.
+				$new_limit_bytes = -1;   // Infinite.
+			} else {
+				$new_limit_bytes = max( $context_limit_bytes, $requested_limit_bytes );
+				$new_limit       = U\File::ini_bytes_abbr( $new_limit_bytes );
+			}
+			if ( -1 === $new_limit_bytes && -1 !== $current_limit_bytes ) {
+				return false !== ini_set( 'memory_limit', $new_limit ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+
+			} elseif ( $new_limit_bytes > $current_limit_bytes ) {
+				return false !== ini_set( 'memory_limit', $new_limit ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+			}
+			return true;
+		}
+	}
+
+	/**
+	 * Disables robots w/ WordPress compat.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return bool True if robots disabled successfully.
+	 *
+	 * @see   https://o5p.me/R99lRZ Google article about `robots.txt` and `x-robots-tag` header.
+	 */
+	public static function disable_robots() : bool {
+		return U\Env::config_robots( [
+			'none'     => true,
+			'noindex'  => true,
+			'nofollow' => true,
+		] );
+	}
+
+	/**
 	 * Configures robot directives w/ WordPress compat.
 	 *
 	 * @since 2021-12-15
@@ -442,11 +537,11 @@ class Env extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 			}
 			if ( is_string( $_value ) ) {
 				$directives[] = $_directive . ':' . $_value;
+
 			} elseif ( $_value ) {
 				$directives[] = $_directive;
 			}
-		} // `$robots` and `$directives` (may need both).
-
+		}
 		if ( U\Env::is_wordpress() ) {
 			$set_headers = null; // Initialize.
 
@@ -470,17 +565,6 @@ class Env extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 			}
 			return $set_headers && U\Env::static_var( 'ROBOTS', $directives );
 		}
-	}
-
-	/**
-	 * Disables robots w/ WordPress compat.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return bool True if robots disabled successfully.
-	 */
-	public static function disable_robots() : bool {
-		return U\Env::config_robots( [ 'noindex' => true ] );
 	}
 
 	/**
@@ -537,27 +621,22 @@ class Env extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @see   https://www.php.net/manual/en/zlib.configuration.php#ini.zlib.output-compression
 	 */
 	public static function disable_gzip() : bool {
-		try { // Catch any issues.
-			$apache_setenv_response = null;
-			$set_headers            = null;
+		$apache_setenv_response = null;
+		$set_headers            = null;
 
-			if ( ! headers_sent() ) {
-				$set_headers // If all of these are true.
-					= 'nill' !== header( 'content-encoding: none' )
-					&& 'nill' !== header( 'transfer-encoding: binary' )
-					&& 'nill' !== header( 'content-transfer-encoding: binary' )
-					// This also requires that headers not be sent yet, else it triggers a warning.
-					&& false !== ini_set( 'zlib.output_compression', 'off' ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-			}
-			if ( U\Env::can_use_function( 'apache_setenv' ) ) {
-				/** @noinspection PhpUndefinedFunctionInspection */        // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-				$apache_setenv_response = apache_setenv( 'no-gzip', '1' ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-			}
-			return $set_headers && false !== $apache_setenv_response;
-
-		} catch ( \Throwable $throwable ) {
-			return false; // Fail gracefully.
+		if ( ! headers_sent() ) {
+			$set_headers // If all of these are true.
+				= 'nill' !== header( 'content-encoding: none' )
+				&& 'nill' !== header( 'transfer-encoding: binary' )
+				&& 'nill' !== header( 'content-transfer-encoding: binary' )
+				// This also requires that headers not be sent yet, else it triggers a warning.
+				&& false !== ini_set( 'zlib.output_compression', 'off' ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
 		}
+		if ( U\Env::can_use_function( 'apache_setenv' ) ) {
+			/** @noinspection PhpUndefinedFunctionInspection */        // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+			$apache_setenv_response = apache_setenv( 'no-gzip', '1' ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+		}
+		return $set_headers && false !== $apache_setenv_response;
 	}
 
 	/**
@@ -574,12 +653,8 @@ class Env extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 		if ( ! U\Env::can_use_function( 'session_status', 'session_write_close' ) ) {
 			return false; // Not possible.
 		}
-		try { // Catch any issues.
-			return ! headers_sent() // Headers must not have been sent yet.
-				&& ( PHP_SESSION_ACTIVE !== session_status() || session_write_close() );
-		} catch ( \Throwable $throwable ) {
-			return false; // Fail gracefully.
-		}
+		return ! headers_sent() // Headers must not have been sent yet.
+			&& ( PHP_SESSION_ACTIVE !== session_status() || session_write_close() );
 	}
 
 	/**
@@ -599,16 +674,12 @@ class Env extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 		$keep_ob_level ??= ( 'phpunit' === U\Env::static_var( 'TESTING' ) ? 1 : 0 );
 		$keep_ob_level = max( 0, $keep_ob_level ); // Guard against infinite loop below.
 
-		try { // Catch any issues.
-			while ( ob_get_level() !== $keep_ob_level ) {
-				if ( ! ob_end_clean() ) {
-					return false; // Special buffers exist ☜(▀̿ ͜▀̿ ̿).
-				}
+		while ( ob_get_level() !== $keep_ob_level ) {
+			if ( ! ob_end_clean() ) {
+				return false; // Special buffers exist ☜(▀̿ ͜▀̿ ̿).
 			}
-			return true;
-		} catch ( \Throwable $throwable ) {
-			return false; // Fail gracefully.
 		}
+		return true;
 	}
 
 	/**
