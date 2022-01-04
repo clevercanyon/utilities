@@ -74,7 +74,6 @@ class Crypto extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 				$fn_rand( 0, 0xffff ),
 				$fn_rand( 0, 0xffff )
 			);
-
 		}
 		return $optimize ? str_replace( '-', '', $uuid_v4 ) : $uuid_v4;
 	}
