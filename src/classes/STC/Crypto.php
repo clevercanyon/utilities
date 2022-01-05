@@ -37,6 +37,34 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 class Crypto extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	/**
+	 * Alpha-hash (alphabetic).
+	 *
+	 * @since 2022-01-04
+	 *
+	 * @param string $str    String to hash.
+	 * @param int    $length Optional length of the hash. Default is `64`.
+	 *                       Minimum length is `8`. Maximum length is `128`.
+	 *
+	 * @return string Alpha-hash at requested length.
+	 *
+	 * @see   https://o5p.me/NEDMAD
+	 * @see   https://o5p.me/19BcSY
+	 * @see   https://www.php.net/manual/en/function.hash.php
+	 */
+	public static function alpha_hash( string $str, int $length = 64 ) : string {
+		$length = min( 128, max( 8, $length ) );
+
+		// Base-64 encoding expands to include full alphabetic character range.
+		$hash = hash( 'sha512', $str );                                // 128 bytes.
+		$hash = base64_encode( $hash );                                // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+
+		$hash = strtr( $hash, '0123456789', 'qrstuvwxyz' );            // Replace with letters.
+		$hash = preg_replace( '/[^a-z]+/u', '', strtolower( $hash ) ); // Avg. length approx. 160-175 bytes.
+
+		return substr( $hash, 0, $length );
+	}
+
+	/**
 	 * Version 4 UUID.
 	 *
 	 * @since 2021-12-15

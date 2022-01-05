@@ -199,11 +199,15 @@ class CLI extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @return string Styled string.
 	 */
 	public static function chalk( /* mixed */ $data, /* string|array|Style */ $style = 'none' ) : string {
+		assert( is_string( $style ) || is_array( $style ) || $style instanceof Style );
 		$string = U\Str::stringify( $data, true );
 
+		if ( is_string( $style ) ) {
+			$style = Fg_Color::code( $style );
+		}
 		if ( is_array( $style ) ) {
 			$style = array_values( $style );
-			$style = array_map( 'strval', $style );
+			assert( array_map( 'strval', $style ) === $style );
 
 			foreach ( $style as $_key => &$_style ) {
 				switch ( $_key ) {
@@ -220,9 +224,6 @@ class CLI extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 				}
 			}
 			unset( $_style ); // Reference.
-
-		} elseif ( ! $style instanceof Style ) {
-			$style = Fg_Color::code( (string) $style );
 		}
 		return Chalk::style( $string, $style );
 	}
