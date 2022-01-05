@@ -152,7 +152,7 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 		// Validate name property.
 
 		$this->name      = strval( $this->json->name );
-		$this->name_hash = 'x' . mb_substr( sha1( $this->name ), 0, 15 );
+		$this->name_hash = U\Crypto::x_sha( $this->name );
 
 		if ( ! $this->name || ! preg_match( T\Composer::PACKAGE_NAME_REGEXP, $this->name ) ) {
 			throw new Fatal_Exception( 'Missing or invalid characters in `Project->name`. Must match: `' . T\Composer::PACKAGE_NAME_REGEXP . '`.' );
