@@ -13,7 +13,7 @@
  * This file and the contents of it are updated automatically.
  * Instead of editing, please configure `composer.json`. See instructions below.
  * Instead of editing, please create `.scoper.prj.cfg.php`, which can also be merged in.
- * Instead of editing, please see source repository {@see https://git.io/JD8Zo}.
+ * Instead of editing, please review source repository {@see https://o5p.me/LevQOD}.
  */
 
 /* @formatter:ignore
