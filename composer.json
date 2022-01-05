@@ -63,6 +63,9 @@
 						}
 					}
 				},
+				"scoper"                  : {
+					"cfg" : { }
+				},
 				"post_update_cmd_handler" : {
 					"symlink_local_packages" : {
 						"vendor"       : [

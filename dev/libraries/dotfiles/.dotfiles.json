@@ -13,7 +13,7 @@
 		".phpunit.xml",
 		".postcssrc.cjs",
 		".prettierrc.cjs",
-		".scoper.php",
+		".scoper.cfg.php",
 		".stylelintrc.cjs",
 		".tailwindrc.cjs",
 		"package.json"
