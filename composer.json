@@ -45,12 +45,9 @@
 		}
 	},
 	"scripts"           : {
-		"post-update-cmd"   : [
-			"[ $COMPOSER_DEV_MODE -eq 0 ] || ./dev/toolchain/composer/post-update-cmd.php"
-		],
-		"run-project-tests" : [
-			"./vendor/bin/phpunit --configuration ./.phpunit.xml --testsuite tests"
-		]
+		"post-update-cmd"           : "[ $COMPOSER_DEV_MODE -eq 0 ] || ./dev/toolchain/composer/post-update-cmd.php",
+		"phpunit-tests"             : "./vendor/bin/phpunit --configuration ./.phpunit.xml --testsuite tests",
+		"scoper-config-file-update" : "./dev/toolchain/scoper/config-file-update.php"
 	},
 	"extra"             : {
 		"clevercanyon" : {

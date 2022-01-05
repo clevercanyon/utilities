@@ -116,7 +116,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	 */
 	protected function update_file() : void {
 		U\Env::raise_memory_limit();
-		$file = dirname( __FILE__, 4 ) . '/libraries/dotfiles/.scoper.php';
+		$file = dirname( __FILE__, 6 ) . '/dev/libraries/dotfiles/.scoper.php';
 
 		if ( false === file_put_contents( $file, $this->generate_config_file_contents() ) ) {
 			throw new Fatal_Exception( 'Failed to update PHP Scoper config file: `' . $file . '`.' );
@@ -156,7 +156,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		/**
 		 * Lint configuration.
 		 *
-		 * @since        2021-12-15
+		 * @since 2021-12-15
 		 *
 		 * @noinspection ALL
 		 * phpcs:disableFile
@@ -165,7 +165,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		/**
 		 * Declarations & namespace.
 		 *
-		 * @since 2021-12-25
+		 * @since 2021-12-15
 		 */
 		declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
 		namespace Clever_Canyon\Scoper\Config_File;
@@ -175,7 +175,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		/**
 		 * Configuration.
 		 *
-		 * @since 2021-12-25
+		 * @since 2021-12-15
 		 */
 		BODY;
 		$body .= "\n" . '$cfg = ' .
@@ -354,7 +354,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	 * @return string WordPress global stubs.
 	 */
 	protected function php_stubs_wordpress_globals() : string {
-		return file_get_contents( dirname( __FILE__, 5 ) . '/vendor/php-stubs/wordpress-globals/wordpress-globals.php' );
+		return file_get_contents( dirname( __FILE__, 6 ) . '/vendor/php-stubs/wordpress-globals/wordpress-globals.php' );
 	}
 
 	/**
@@ -365,7 +365,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	 * @return string WordPress stubs.
 	 */
 	protected function php_stubs_wordpress_stubs() : string {
-		$stubs = file_get_contents( dirname( __FILE__, 5 ) . '/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php' );
+		$stubs = file_get_contents( dirname( __FILE__, 6 ) . '/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php' );
 		// Works around an unexpected T_READONLY token. Likely due to a bug in PhpParser.
 		return str_replace( 'function readonly(', 'function x_stubfix_readonly(', $stubs );
 	}
@@ -378,7 +378,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	 * @return string WooCommerce stubs.
 	 */
 	protected function php_stubs_woocommerce_stubs() : string {
-		return file_get_contents( dirname( __FILE__, 5 ) . '/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php' );
+		return file_get_contents( dirname( __FILE__, 6 ) . '/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php' );
 	}
 
 	/**
@@ -389,6 +389,6 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	 * @return string WooCommerce packages stubs.
 	 */
 	protected function php_stubs_woocommerce_packages_stubs() : string {
-		return file_get_contents( dirname( __FILE__, 5 ) . '/vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php' );
+		return file_get_contents( dirname( __FILE__, 6 ) . '/vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php' );
 	}
 }
