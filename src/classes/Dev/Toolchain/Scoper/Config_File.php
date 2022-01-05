@@ -137,7 +137,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		sort( $names->classes, SORT_NATURAL );
 		sort( $names->functions, SORT_NATURAL );
 
-		$header = <<<'HEADER'
+		$headers = <<<'HEADERS'
 		<?php
 		/**
 		 * PHP Scoper config file.
@@ -182,9 +182,23 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		 */
 		declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
 		namespace Clever_Canyon\Scoper\Config_File;
-		HEADER;
+		HEADERS;
 
-		$body = <<<'BODY'
+		$body = ''; // Initialize.
+
+		$body .= <<<'BODY'
+		/**
+		 * CLI check.
+		 *
+		 * @since 2021-12-15
+		 */
+		if ( 'cli' !== PHP_SAPI ) {
+			exit( 'CLI mode only.' );
+		}
+		BODY;
+		$body .= "\n\n";
+
+		$body .= <<<'BODY'
 		/**
 		 * Configuration.
 		 *
@@ -193,8 +207,9 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		 * @see https://o5p.me/DsVI6o
 		 */
 		BODY;
+		$body .= "\n";
 
-		$body .= "\n" . '$cfg = ' .
+		$body .= '$cfg = ' .
 			var_export( [
 				'expose-global-constants' => false,
 				'expose-global-classes'   => false,
@@ -227,7 +242,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		return $cfg;
 		BODY;
 
-		return $header . "\n\n" . $body;
+		return $headers . "\n\n" . $body;
 	}
 
 	/**
