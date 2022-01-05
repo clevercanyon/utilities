@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c3361c74658f54a842f27994f6d87137",
+    "content-hash": "e57b3d630d43dae6ade8b7221440d38b",
     "packages": [
         {
             "name": "clevercanyon/php-chalk",
