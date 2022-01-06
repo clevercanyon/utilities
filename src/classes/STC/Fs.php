@@ -855,7 +855,7 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 			'             |(?:[^\/\\\]*\.(?:log|bak|rej|orig|patch|diff|sublime-project|sublime-workspace|nbproject|code-workspace|ctags|tags))' .
 
 			// This covers all ignored dotfiles; i.e., names beginning with a `.`.
-			'             |(?:\.(?:vagrant|idea|vscode|npmrc|linaria-cache|sass-cache|elasticbeanstalk|git|git-dir|svn|cvsignore|bzr|bzrignore|hg|hgignore|AppleDB|AppleDouble|AppleDesktop|com\.apple\.timemachine\.donotpresent|LSOverride|Spotlight-V100|VolumeIcon\.icns|TemporaryItems|fseventsd|DS_Store|Trashes|apdisk))' .
+			'             |(?:\.(?:vagrant|idea|vscode|npmrc|yarnrc|yarn|linaria-cache|sass-cache|elasticbeanstalk|git|git-dir|svn|cvsignore|bzr|bzrignore|hg|hgignore|AppleDB|AppleDouble|AppleDesktop|com\.apple\.timemachine\.donotpresent|LSOverride|Spotlight-V100|VolumeIcon\.icns|TemporaryItems|fseventsd|DS_Store|Trashes|apdisk))' .
 
 			// This covers everything else, which is a longer list of specific names to ignore.
 			'             |(?:typings' . ( $args[ 'vendor' ] ? '|vendor' : '' ) . '|node[_\-]modules|jspm[_\-]packages|bower[_\-]components|_svn|CVS|SCCS|RCS|\$RECYCLE\.BIN|Desktop\.ini|Thumbs\.db|ehthumbs\.db|Network\sTrash\sFolder|Temporary\sItems|Icon[^s])' .
