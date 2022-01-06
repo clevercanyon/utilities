@@ -158,16 +158,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.208.9",
+            "version": "3.208.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "acc9e8f88f568e03e00c2a57c27b550740e6c493"
+                "reference": "a7802ac9289e0c4de2c76cfe0ea0f11f72955754"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/acc9e8f88f568e03e00c2a57c27b550740e6c493",
-                "reference": "acc9e8f88f568e03e00c2a57c27b550740e6c493",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a7802ac9289e0c4de2c76cfe0ea0f11f72955754",
+                "reference": "a7802ac9289e0c4de2c76cfe0ea0f11f72955754",
                 "shasum": ""
             },
             "require": {
@@ -243,9 +243,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.208.9"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.208.10"
             },
-            "time": "2022-01-04T19:15:39+00:00"
+            "time": "2022-01-05T19:19:54+00:00"
         },
         {
             "name": "clevercanyon/php-js-standards",

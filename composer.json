@@ -46,7 +46,8 @@
 	},
 	"scripts"           : {
 		"post-update-cmd"           : "[ $COMPOSER_DEV_MODE -eq 0 ] || ./dev/toolchain/composer/post-update-cmd.php",
-		"phpunit-tests"             : "./vendor/bin/phpunit --configuration ./.phpunit.xml --testsuite tests",
+		"phpunit"                   : "composer exec -- phpunit --configuration ./.phpunit.xml",
+		"webpack"                   : "npx webpack --config ./.webpack.cjs",
 		"scoper-config-file-update" : "./dev/toolchain/scoper/config-file-update.php"
 	},
 	"extra"             : {

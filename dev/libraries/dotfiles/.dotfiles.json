@@ -1,6 +1,5 @@
 {
 	"manifest" : [
-		".webpack/webpack.config.cjs",
 		".babelrc.cjs",
 		".browserslistrc",
 		".cssnanorc.cjs",
@@ -16,6 +15,7 @@
 		".scoper.cfg.php",
 		".stylelintrc.cjs",
 		".tailwindrc.cjs",
+		".webpack.cjs",
 		"package.json"
 	]
 }

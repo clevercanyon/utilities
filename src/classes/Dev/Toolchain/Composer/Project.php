@@ -662,8 +662,8 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 				// All of these project build paths.
 				'/(?:^|.+?\/)(?:builds?|make(files?)?)$/ui',
 
-				// All of these project dev paths.
-				'/(?:^|.+?\/)(?:dev|dev[_\-]?only)$/ui',
+				// All of these project devop paths.
+				'/(?:^|.+?\/)(?:ci|dev|dev[_\-]ops?|dev[_\-]?only)$/ui',
 
 				// All of these project package paths.
 				'/(?:^|.+?\/)(?:node[_\-]modules|jspm[_\-]packages|bower[_\-]components)$/ui',
