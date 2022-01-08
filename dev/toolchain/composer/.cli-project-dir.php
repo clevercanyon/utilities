@@ -36,13 +36,34 @@ if ( 'cli' !== PHP_SAPI ) {
  * @since 2021-12-15
  *
  * @throws \Exception On any failure.
- * @returns string Absolute project directory path.
+ * @returns string Absolute project directory realpath.
  */
 return ( function () : string {
-	global $argv;
+	// `$argv[ 0 ]` is most likely relative.
+	// Resolve here, but w/o resolving symlinks.
+	$script_file = ( function () : string {
+		global $argv;
+		$path = $argv[ 0 ];
+		$path = str_replace( '\\', '/', $path );
 
-	// Potentially relative.
-	$script_file = $argv[ 0 ];
+		if ( '/' !== ( $path[ 0 ] ?? '' ) ) {
+			$cwd            = getcwd();
+			$cwd            = str_replace( '\\', '/', $cwd );
+			$abs_path_parts = explode( '/', rtrim( $cwd, '/' ) );
+		} else {
+			$abs_path_parts = []; // Already absolute.
+		}
+		foreach ( explode( '/', $path ) as $_path_part ) {
+			if ( '.' === $_path_part ) {
+				continue; // Nothing to do.
+			} elseif ( '..' == $_path_part ) {
+				array_pop( $abs_path_parts );
+			} else {
+				$abs_path_parts[] = $_path_part;
+			}
+		}
+		return implode( '/', $abs_path_parts );
+	} )();
 	$script_dir  = dirname( $script_file );
 
 	// Confirm that we are starting from a good location.
@@ -54,15 +75,13 @@ return ( function () : string {
 	// Symlinks are bypassed because we use them locally for development.
 	// e.g., `[project-dir]/vendor/clevercanyon/[project-symlink]/composer.json`.
 	for ( $_i = 0; $_i <= 25; $_i++ ) {
-		$_project_file          = $script_dir . str_repeat( '/..', $_i ) . '/composer.json';
-		$_project_autoload_file = dirname( $_project_file ) . '/vendor/autoload.php';
+		$_project_dir           = $_i
+			? dirname( $script_dir, $_i ) : $script_dir;
+		$_project_file          = $_project_dir . '/composer.json';
+		$_project_autoload_file = $_project_dir . '/vendor/autoload.php';
 
-		if ( is_file( $_project_file ) && is_file( $_project_autoload_file ) ) {
-			$_project_dir = dirname( $_project_file );
-
-			if ( ! is_link( $_project_dir ) ) {
-				return realpath( $_project_dir );
-			}
+		if ( ! is_link( $_project_dir ) && is_file( $_project_file ) && is_file( $_project_autoload_file ) ) {
+			return realpath( $_project_dir );
 		}
 	} // Throw exception on any failure.
 	throw new \Exception( 'Failed to acquire project directory.' );

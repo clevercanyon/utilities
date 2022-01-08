@@ -69,7 +69,12 @@ if ( ! getenv( 'COMPOSER_DEV_MODE' ) ) {
  *
  * @since 2021-12-15
  */
+error_reporting( E_ALL );
+ini_set( 'display_errors', '1' );
+
 $project_dir = require __DIR__ . '/.cli-project-dir.php';
+echo $project_dir . "\n";
+exit();
 
 /**
  * Requires autoloader.
