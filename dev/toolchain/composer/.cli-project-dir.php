@@ -53,7 +53,7 @@ return ( function () : string {
 	// Look for nearest project directory that's not a symlink.
 	// Symlinks are bypassed because we use them locally for development.
 	// e.g., `[project-dir]/vendor/clevercanyon/[project-symlink]/composer.json`.
-	for ( $_i = 0; $_i <= 75; $_i++ ) {
+	for ( $_i = 0; $_i <= 25; $_i++ ) {
 		$_project_file          = $script_dir . str_repeat( '/..', $_i ) . '/composer.json';
 		$_project_autoload_file = dirname( $_project_file ) . '/vendor/autoload.php';
 

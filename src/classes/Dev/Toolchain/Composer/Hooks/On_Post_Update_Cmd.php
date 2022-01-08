@@ -231,7 +231,7 @@ class On_Post_Update_Cmd extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_
 				if ( ! is_dir( $_package_dir ) ) {
 					continue; // Not even the package path is available.
 				}
-				for ( $_i = 1; $_i <= 10; $_i++ ) { // Search 10 directories up.
+				for ( $_i = 1; $_i <= 25; $_i++ ) { // Searches higher up directory tree.
 					$_local_repo_dir = U\Dir::join( $this->project->dir, '/../' . str_repeat( '../', $_i ) . $_package_name );
 
 					if ( ! is_dir( $_local_repo_dir ) ) {
