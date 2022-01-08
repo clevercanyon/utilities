@@ -21,7 +21,7 @@
 		}
 	},
 	"bin"               : [
-		"dev/toolchain/php-scoper/php-scoper-config-file"
+		"./dev/toolchain/php-scoper/php-scoper-config-file"
 	],
 	"require"           : {
 		"php-64bit"              : "^7.4 || ^8.0 || ^8.1",
