@@ -34,6 +34,7 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  * @since 2021-12-15
  */
 use Clever_Canyon\Utilities\Dev\Toolchain\{Tools as T};
+use Clever_Canyon\Utilities\Dev\Toolchain\Composer\{Project};
 
 // </editor-fold>
 

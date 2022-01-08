@@ -25,7 +25,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\Dev\Toolchain\Scoper;
+namespace Clever_Canyon\Utilities\Dev\Toolchain\PHP_Scoper;
 
 /**
  * Utilities.
@@ -55,7 +55,7 @@ use PhpParser;
 // </editor-fold>
 
 /**
- * Scoper config file generator.
+ * PHP Scoper config file generator.
  *
  * @since 2021-12-15
  */
@@ -68,7 +68,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	/**
 	 * Tool name.
 	 */
-	protected const NAME = 'Scoper/Config_File';
+	protected const NAME = 'PHP_Scoper/Config_File';
 
 	/**
 	 * Constructor.
@@ -78,13 +78,14 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	 * @param string|array|null $args_to_parse Optional custom args to parse instead of `$_SERVER['argv']`.
 	 *                                         If not given, defaults internally to `$_SERVER['argv']`.
 	 */
-	public function __construct( /* string|array|null */ $args_to_parse = 'update' ) {
+	public function __construct( /* string|array|null */ $args_to_parse = null ) {
 		parent::__construct( $args_to_parse );
+
 		$this->add_commands( [
 			'update' => [
 				'callback'    => [ $this, 'update' ],
-				'synopsis'    => 'Updates `src/libraries/dotfiles/.scoper.php` config file.',
-				'description' => 'Updates `src/libraries/dotfiles/.scoper.php` config file. See ' . __CLASS__ . '::update()',
+				'synopsis'    => 'Updates `src/libraries/dotfiles/.scoper.cfg.php` config file.',
+				'description' => 'Updates `src/libraries/dotfiles/.scoper.cfg.php` config file. See ' . __CLASS__ . '::update()',
 				'options'     => [],
 			],
 		] );
@@ -158,12 +159,12 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 
 		/* @formatter:ignore
 		-----------------------------------------------------------------------------------------------------------------------
-		Example `extra.clevercanyon.&.scoper` in `composer.json`:
+		Example `extra.clevercanyon.&.php_scoper` in `composer.json`:
 		-----------------------------------------------------------------------------------------------------------------------
 		"extra" : {
 			"clevercanyon" : {
 				"&" : {
-					"scoper" : {
+					"php_scoper" : {
 						"cfg" : {
 							"exclude-constants" : [],
 							"exclude-classes"   : [],
@@ -181,7 +182,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		 * @since 2021-12-15
 		 */
 		declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-		namespace Clever_Canyon\Scoper\Config_File;
+		namespace Clever_Canyon\PHP_Scoper\Config_File;
 		HEADERS;
 
 		$body = ''; // Initialize.
@@ -193,7 +194,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		 * @since 2021-12-15
 		 */
 		if ( 'cli' !== PHP_SAPI ) {
-			exit( 'CLI mode only.' );
+			exit( 1 ); // CLI mode only.
 		}
 		BODY;
 		$body .= "\n\n";
@@ -224,7 +225,7 @@ class Config_File extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		if ( is_file( __DIR__ . '/composer.json' ) ) {
 			$prj_cfg = file_get_contents( __DIR__ . '/composer.json' );
 			$prj_cfg = is_array( $prj_cfg = json_decode( $prj_cfg, true ) ) ? $prj_cfg : [];
-			$prj_cfg = $prj_cfg['extra']['clevercanyon']['&']['scoper']['cfg'] ?? [];
+			$prj_cfg = $prj_cfg['extra']['clevercanyon']['&']['php_scoper']['cfg'] ?? [];
 			$cfg     = array_merge( $cfg, $prj_cfg, [
 				'exclude-constants' => array_merge( $cfg['exclude-constants'], $prj_cfg['exclude-constants'] ?? [] ),
 				'exclude-classes'   => array_merge( $cfg['exclude-classes'], $prj_cfg['exclude-classes'] ?? [] ),

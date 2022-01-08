@@ -313,20 +313,27 @@ class Dir extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	}
 
 	/**
-	 * Gets a directory iterator.
+	 * Gets a recursive directory iterator.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string      $path            Directory to iterate.
-	 * @param string|null $regexp          Regular expression to use in filtering.
+	 *
+	 * @param string|null $regexp          Regular expression to use as a filter.
 	 *                                     Default is everything except `.gitignore` items.
+	 *                                     Depends on use of {@see U\Fs::gitignore_regexp()}.
+	 *
+	 *                                     You can pass a complete regular expression, which must begin with `/`.
+	 *                                     Or, pass a regular expression fragment, which is anything that doesn't begin with `/`.
+	 *                                     Fragments are auto-expanded into `U\Fs::gitignore_regexp( 'negative', [fragment] )`.
+	 *
 	 * @param bool        $follow_symlinks Default is `false`.
 	 *
 	 * @throws Exception If either of the input parameters are empty.
 	 * @throws Exception If `$path` is not a readable/iterable directory.
 	 * @throws Exception On failure to construct iterator.
 	 *
-	 * @return \RecursiveDirectoryIterator|\RegexIterator Recursive iterator.
+	 * @return \Generator|\RecursiveDirectoryIterator[] Recursive directory iterator.
 	 *
 	 * @see   U\Fs::gitignore_regexp() — PLEASE REVIEW CAREFULLY!
 	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
@@ -334,8 +341,11 @@ class Dir extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @note  Please {@see U\Fs::gitignore_regexp()} and note the use of the `x` modifier.
 	 *        Whitespace may not be included without careful attention. Use `\s` or `\S` instead please.
 	 */
-	public static function iterator( string $path, /* string|null */ ?string $regexp = null, bool $follow_symlinks = false ) : \RegexIterator {
-		$regexp ??= U\Fs::gitignore_regexp( 'negative', '.+' );
+	public static function iterator( string $path, /* string|null */ ?string $regexp = null, bool $follow_symlinks = false ) : \Generator {
+		if ( isset( $regexp ) && '' !== $regexp && '/' !== $regexp[ 0 ] ) {
+			$regexp = U\Fs::gitignore_regexp( 'negative', $regexp );
+		}
+		$regexp ??= U\Fs::gitignore_regexp( 'negative' );
 
 		if ( ! $path || ! $regexp ) {
 			throw new Exception( 'Missing required parameters.' );
@@ -356,12 +366,16 @@ class Dir extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 					| \FilesystemIterator::SKIP_DOTS
 					| \FilesystemIterator::UNIX_PATHS;
 			}
-			$iterator = new \RecursiveDirectoryIterator( $path, $flags );
-			$iterator = new \RecursiveIteratorIterator( $iterator, \RecursiveIteratorIterator::CHILD_FIRST );
-			$iterator = new \RegexIterator( $iterator, $regexp, \RegexIterator::MATCH, \RegexIterator::USE_KEY );
+			$iterator          = new \RecursiveDirectoryIterator( $path, $flags );
+			$iterator_iterator = new \RecursiveIteratorIterator( $iterator, \RecursiveIteratorIterator::CHILD_FIRST );
+
+			foreach ( $iterator_iterator as $_iterator ) {
+				if ( preg_match( $regexp, $_iterator->getSubPathname() ) ) {
+					yield $_iterator; // `\RecursiveDirectoryIterator` instance.
+				}
+			}
 		} catch ( \Throwable $throwable ) {
 			throw new Exception( $throwable->getMessage() );
 		}
-		return $iterator;
 	}
 }

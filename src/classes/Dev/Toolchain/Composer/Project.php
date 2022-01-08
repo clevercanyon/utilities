@@ -633,7 +633,7 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 		$config = [
 			'prune'      => [
 				// `.gitignore`, except `/vendor`.
-				U\Fs::gitignore_regexp( 'positive', '.*', [ 'vendor' => false ] ),
+				U\Fs::gitignore_regexp( 'positive', null, [ 'vendor' => false ] ),
 
 				// All dotfiles.
 				'/(?:^|.+?\/)\./ui',

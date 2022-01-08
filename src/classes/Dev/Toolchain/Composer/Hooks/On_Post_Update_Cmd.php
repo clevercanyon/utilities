@@ -52,7 +52,7 @@ use Clever_Canyon\Utilities\Dev\Toolchain\Composer\{Project};
  *
  * @since 2021-12-15
  */
-class Post_Update_Cmd_Handler extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
+class On_Post_Update_Cmd extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	/**
 	 * Project.
 	 *
@@ -62,11 +62,15 @@ class Post_Update_Cmd_Handler extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t
 
 	/**
 	 * Version.
+	 *
+	 * @since 2021-12-15
 	 */
 	protected const VERSION = '1.0.0';
 
 	/**
 	 * Tool name.
+	 *
+	 * @since 2021-12-15
 	 */
 	protected const NAME = 'Hook/Post_Update_Cmd_Handler';
 
@@ -78,7 +82,7 @@ class Post_Update_Cmd_Handler extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t
 	 * @param string|array|null $args_to_parse Optional custom args to parse instead of `$_SERVER['argv']`.
 	 *                                         If not given, defaults internally to `$_SERVER['argv']`.
 	 */
-	public function __construct( /* string|array|null */ $args_to_parse = 'update' ) {
+	public function __construct( /* string|array|null */ $args_to_parse = null ) {
 		parent::__construct( $args_to_parse );
 
 		$this->add_commands( [
@@ -164,7 +168,8 @@ class Post_Update_Cmd_Handler extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t
 
 		if ( null === $symlink_local_packages ) {
 			return; // Nothing to do here.
-		} elseif ( ! is_object( $symlink_local_packages ) ) {
+		}
+		if ( ! is_object( $symlink_local_packages ) ) {
 			throw new Exception(
 				'Unexpected extra prop: `' . $symlink_local_packages_prop . '` in: `' . $this->project->file . '`.' .
 				' Must be an object with props matching pattern: `' . T\Composer::PACKAGES_DIR_REGEXP . '`.'

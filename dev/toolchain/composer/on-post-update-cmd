@@ -42,7 +42,7 @@ use Clever_Canyon\Utilities\Dev\Toolchain\Composer\{Project};
  *
  * @since 2021-12-15
  */
-use Clever_Canyon\Utilities\Dev\Toolchain\Composer\Hooks\{Post_Update_Cmd_Handler};
+use Clever_Canyon\Utilities\Dev\Toolchain\Composer\Hooks\{On_Post_Update_Cmd};
 
 // </editor-fold>
 
@@ -52,7 +52,7 @@ use Clever_Canyon\Utilities\Dev\Toolchain\Composer\Hooks\{Post_Update_Cmd_Handle
  * @since 2021-12-15
  */
 if ( 'cli' !== PHP_SAPI ) {
-	exit( 'CLI mode only.' );
+	exit( 1 ); // CLI mode only.
 }
 
 /**
@@ -61,22 +61,22 @@ if ( 'cli' !== PHP_SAPI ) {
  * @since 2021-12-15
  */
 if ( ! getenv( 'COMPOSER_DEV_MODE' ) ) {
-	exit( 'Dev mode only.' );
+	exit( 1 ); // Dev mode only.
 }
 
 /**
- * Gets current working dir.
+ * Project directory.
  *
  * @since 2021-12-15
  */
-${__FILE__}[ 'cwd' ] = getcwd();
+$project_dir = require __DIR__ . '/.cli-project-dir.php';
 
 /**
  * Requires autoloader.
  *
  * @since 2021-12-15
  */
-require_once ${__FILE__}[ 'cwd' ] . '/vendor/autoload.php';
+require_once $project_dir . '/vendor/autoload.php';
 
 /**
  * Enables debugging mode.
@@ -91,15 +91,8 @@ U\Env::config_debugging_mode();
  * @since 2021-12-15
  */
 if ( 'update' === ( $argv[ 1 ] ?? '' ) ) {
-	new Post_Update_Cmd_Handler( [ 'update', '--project-dir', ${__FILE__}[ 'cwd' ] ] );
+	new On_Post_Update_Cmd( [ 'update', '--project-dir', $project_dir ] );
 } else {
-	new Post_Update_Cmd_Handler( [ 'symlink', '--project-dir', ${__FILE__}[ 'cwd' ] ] );
+	new On_Post_Update_Cmd( [ 'symlink', '--project-dir', $project_dir ] );
 	U\CLI::run( [ $argv[ 0 ], 'update' ] ); // Separate process, after symlinks.
 }
-
-/**
- * Unsets `${__FILE__}`.
- *
- * @since 2021-12-15
- */
-unset( ${__FILE__} );

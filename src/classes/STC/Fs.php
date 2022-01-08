@@ -809,13 +809,13 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 *
 	 * @since 2021-12-18
 	 *
-	 * @param string $lookahead       One of `positive` or `negative`.
-	 *                                This indicates whether you want a positive or negative match.
+	 * @param string      $lookahead       One of `positive` or `negative`.
+	 *                                     This indicates whether you want a positive or negative lookahead.
 	 *
-	 * @param string $regexp_fragment Optional regexp fragment to append to generated full regexp pattern.
-	 *                                Default is `.*`. You get back simply the pattern in front of `.*`.
+	 * @param string|null $regexp_fragment Optional regexp fragment to append to generated full regexp pattern.
+	 *                                     Default is `.+$`. You get back simply the lookahead pattern in front of `.+$`.
 	 *
-	 * @param array  $args            Optional arguments that offer some additional options.
+	 * @param array       $args            Optional arguments that offer some additional options.
 	 *
 	 *    string 'modifiers' Optional additional modifiers to append to existing always-on modifiers.
 	 *                       Always-on modifiers include `xui`. If you pass in conflicting modifiers, future versions
@@ -830,7 +830,13 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @see   https://regex101.com/r/yceJKL/1
 	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
 	 */
-	public static function gitignore_regexp( string $lookahead, string $regexp_fragment = '.*', array $args = [] ) : string {
+	public static function gitignore_regexp(
+		string $lookahead,
+		/* string|null */ ?string $regexp_fragment = null,
+		array $args = []
+	) : string {
+		$regexp_fragment ??= '.+$';
+
 		$default_args = [
 			'modifiers' => '',
 			'vendor'    => true,
@@ -841,12 +847,12 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 		$modifiers = array_unique( array_merge( [ 'x', 'u', 'i' ], $modifiers ) );
 		$modifiers = implode( '', $modifiers ); // Back together again.
 
-		return '/^' . // Beginning of line.
+		return '/^' . // Beginning of line, or file path, in this case.
 
 			'    (' . ( 'positive' === $lookahead ? '?=' : '?!' ) .
-			'    .*' . // 0+ characters leading up to our `.gitignore` searches.
-			'        (?:^|[\/\\\]+)' . // Beginning of string, or 1+ directory separators.
-			'        (?:' . // Begin `.gitignore` searches.
+			'        .*' . // 0+ characters leading up to matching `.gitignore` entries.
+			'        (?:^|[\/\\\]+)' . // Beginning of string or 1+ directory separators.
+			'        (?:' . // Begin list of matching `.gitignore` entries.
 
 			'            (?:\.[#_~][^\/\\\]*)' . // `.#*`, `._*`, `.~*`
 			'             |(?:[^\/\\\]*~)' . // `*~` backup files.
@@ -860,12 +866,12 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 			// This covers everything else, which is a longer list of specific names to ignore.
 			'             |(?:typings' . ( $args[ 'vendor' ] ? '|vendor' : '' ) . '|node[_\-]modules|jspm[_\-]packages|bower[_\-]components|_svn|CVS|SCCS|RCS|\$RECYCLE\.BIN|Desktop\.ini|Thumbs\.db|ehthumbs\.db|Network\sTrash\sFolder|Temporary\sItems|Icon[^s])' .
 
-			'        )' . // End `.gitignore` searches.
+			'        )' . // End list of matching `.gitignore` entries.
 			'        (?:$|[\/\\\]+)' . // End of line, or 1+ directory separators.
 
-			'    )' . // End negative lookahead group.
+			'    )' . // End lookahead group.
 
-			$regexp_fragment . // Append regexp fragment to the above.
-			'$/' . $modifiers; // End of line + /modifiers.
+			$regexp_fragment . // Appends a regular expression fragment onto all of the above.
+			'/' . $modifiers; // Ends regular expression and adds modifiers, including any custom modifiers.
 	}
 }

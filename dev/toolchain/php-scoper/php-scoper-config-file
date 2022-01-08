@@ -17,7 +17,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\Dev\Toolchain\Scoper;
+namespace Clever_Canyon\Utilities\Dev\Toolchain\PHP_Scoper;
 
 /**
  * Utilities.
@@ -42,7 +42,7 @@ use Clever_Canyon\Utilities\Dev\Toolchain\Composer\{Project};
  *
  * @since 2021-12-15
  */
-use Clever_Canyon\Utilities\Dev\Toolchain\Scoper\{Config_File};
+use Clever_Canyon\Utilities\Dev\Toolchain\PHP_Scoper\{Config_File};
 
 // </editor-fold>
 
@@ -52,22 +52,22 @@ use Clever_Canyon\Utilities\Dev\Toolchain\Scoper\{Config_File};
  * @since 2021-12-15
  */
 if ( 'cli' !== PHP_SAPI ) {
-	exit( 'CLI mode only.' );
+	exit( 1 ); // CLI mode only.
 }
 
 /**
- * Gets current working dir.
+ * Project directory.
  *
  * @since 2021-12-15
  */
-${__FILE__}[ 'cwd' ] = getcwd();
+$project_dir = require dirname( __FILE__, 2 ) . '/composer/.cli-project-dir.php';
 
 /**
  * Requires autoloader.
  *
  * @since 2021-12-15
  */
-require_once ${__FILE__}[ 'cwd' ] . '/vendor/autoload.php';
+require_once $project_dir . '/vendor/autoload.php';
 
 /**
  * Enables debugging mode.
@@ -77,15 +77,8 @@ require_once ${__FILE__}[ 'cwd' ] . '/vendor/autoload.php';
 U\Env::config_debugging_mode();
 
 /**
- * Updates scoper config file.
+ * CLI tool instance.
  *
  * @since 2021-12-15
  */
-new Config_File( [ 'update' ] );
-
-/**
- * Unsets `${__FILE__}`.
- *
- * @since 2021-12-15
- */
-unset( ${__FILE__} );
+new Config_File();
