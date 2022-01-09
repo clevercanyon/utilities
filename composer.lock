@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "71369ad578a3e7d7a69d45438dc7336a",
+    "content-hash": "5be43ddc998af734dca5ccd9f2b3cc57",
     "packages": [
         {
             "name": "clevercanyon/php-chalk",
@@ -53,56 +53,6 @@
                 "source": "https://github.com/clevercanyon/php-chalk/tree/main"
             },
             "time": "2022-01-06T12:08:18+00:00"
-        },
-        {
-            "name": "ulrichsg/getopt-php",
-            "version": "v4.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/getopt-php/getopt-php.git",
-                "reference": "ad9e8cdf1b709caf84ca545ff90bcc7298f0fa5a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/getopt-php/getopt-php/zipball/ad9e8cdf1b709caf84ca545ff90bcc7298f0fa5a",
-                "reference": "ad9e8cdf1b709caf84ca545ff90bcc7298f0fa5a",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*",
-                "php": ">=7.1.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^7.5.20",
-                "squizlabs/php_codesniffer": "^3.5.8"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "GetOpt\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Ulrich Schmidt-Goertz",
-                    "email": "ulrich@schmidt-goertz.de"
-                },
-                {
-                    "name": "Thomas Flori",
-                    "email": "thflori@gmail.com"
-                }
-            ],
-            "description": "Command line arguments parser for PHP 7.1 and above",
-            "homepage": "http://getopt-php.github.io/getopt-php",
-            "support": {
-                "issues": "https://github.com/getopt-php/getopt-php/issues",
-                "source": "https://github.com/getopt-php/getopt-php/tree/v4.0.1"
-            },
-            "time": "2022-01-04T11:01:04+00:00"
         }
     ],
     "packages-dev": [
@@ -294,12 +244,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/php-js-utilities-dev.git",
-                "reference": "a2599a83ce85972fb3cae8c526ac4b46cb2dd5ac"
+                "reference": "6b59da648d30c72419e6c9494fd36b151fdc023f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/php-js-utilities-dev/zipball/a2599a83ce85972fb3cae8c526ac4b46cb2dd5ac",
-                "reference": "a2599a83ce85972fb3cae8c526ac4b46cb2dd5ac",
+                "url": "https://api.github.com/repos/clevercanyon/php-js-utilities-dev/zipball/6b59da648d30c72419e6c9494fd36b151fdc023f",
+                "reference": "6b59da648d30c72419e6c9494fd36b151fdc023f",
                 "shasum": ""
             },
             "require": {
@@ -312,7 +262,8 @@
                 "php-stubs/woocommerce-stubs": ">=6.0.0",
                 "php-stubs/wordpress-globals": ">=0.2.0",
                 "php-stubs/wordpress-stubs": ">=5.8.2",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "^9.5",
+                "ulrichsg/getopt-php": "^4.0"
             },
             "default-branch": true,
             "type": "library",
@@ -332,7 +283,7 @@
                 "issues": "https://github.com/clevercanyon/php-js-utilities-dev/issues",
                 "source": "https://github.com/clevercanyon/php-js-utilities-dev/tree/main"
             },
-            "time": "2022-01-08T19:07:34+00:00"
+            "time": "2022-01-09T17:34:53+00:00"
         },
         {
             "name": "clevercanyon/php-js-utilities-dev-npm",
@@ -4879,6 +4830,56 @@
                 }
             ],
             "time": "2021-07-28T10:34:58+00:00"
+        },
+        {
+            "name": "ulrichsg/getopt-php",
+            "version": "v4.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/getopt-php/getopt-php.git",
+                "reference": "ad9e8cdf1b709caf84ca545ff90bcc7298f0fa5a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/getopt-php/getopt-php/zipball/ad9e8cdf1b709caf84ca545ff90bcc7298f0fa5a",
+                "reference": "ad9e8cdf1b709caf84ca545ff90bcc7298f0fa5a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7.5.20",
+                "squizlabs/php_codesniffer": "^3.5.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "GetOpt\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ulrich Schmidt-Goertz",
+                    "email": "ulrich@schmidt-goertz.de"
+                },
+                {
+                    "name": "Thomas Flori",
+                    "email": "thflori@gmail.com"
+                }
+            ],
+            "description": "Command line arguments parser for PHP 7.1 and above",
+            "homepage": "http://getopt-php.github.io/getopt-php",
+            "support": {
+                "issues": "https://github.com/getopt-php/getopt-php/issues",
+                "source": "https://github.com/getopt-php/getopt-php/tree/v4.0.1"
+            },
+            "time": "2022-01-04T11:01:04+00:00"
         },
         {
             "name": "webmozart/assert",

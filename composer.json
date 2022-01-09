@@ -29,11 +29,11 @@
 		"ext-json"               : "*",
 		"ext-mbstring"           : "*",
 
-		"ulrichsg/getopt-php"    : "^4.0",
 		"clevercanyon/php-chalk" : "dev-main"
 	},
 	"suggest"           : {
-		"ext-zip" : "*"
+		"ext-zip"             : "*",
+		"ulrichsg/getopt-php" : "^4.0"
 	},
 	"autoload"          : {
 		"psr-4" : {

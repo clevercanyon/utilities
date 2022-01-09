@@ -88,29 +88,26 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 				'description' => 'Fixes docBlocks and other types of comments. See ' . __CLASS__ . '::fix_comments()',
 				'options'     => [
 					'dir' => [
-						'optional'    => true,
+						'required'    => true,
 						'description' => 'Directory path.',
 						'validator'   => fn( $value ) => is_dir( $value ),
-						'default'     => getcwd(),
 					],
 				],
 			],
 			'fix-formatting' => [
 				'callback'    => [ $this, 'fix_formatting' ],
-				'synopsis'    => 'Fixes formatting, aligning with our coding standards.',
-				'description' => 'Fixes formatting, aligning with our coding standards. See ' . __CLASS__ . '::fix_formatting()',
+				'synopsis'    => 'Fixes formatting; aligns with coding standards.',
+				'description' => 'Fixes formatting; aligns with coding standards. See ' . __CLASS__ . '::fix_formatting()',
 				'options'     => [
-					'dir'      => [
-						'optional'    => true,
+					'project-dir' => [
+						'required'    => true,
+						'description' => 'Project directory.',
+						'validator'   => fn( $value ) => is_dir( $value ),
+					],
+					'dir'         => [
+						'required'    => true,
 						'description' => 'Directory path.',
 						'validator'   => fn( $value ) => is_dir( $value ),
-						'default'     => getcwd(),
-					],
-					'standard' => [
-						'optional'    => true,
-						'description' => 'PHPCS standard to use.',
-						'validator'   => fn( $value ) => is_file( $value ),
-						'default'     => dirname( __FILE__, 6 ) . '/.phpcs.xml',
 					],
 				],
 			],
@@ -141,16 +138,21 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	/**
 	 * Command: `fix-formatting`.
 	 *
-	 * @since 2021-12-15
+	 * @since        2021-12-15
+	 *
+	 * @throws Exception On any failure.
+	 * @noinspection PhpDocRedundantThrowsInspection
 	 */
 	protected function fix_formatting() : void {
 		try {
-			$dir                = $this->get_option( 'dir' );
-			$standard           = $this->get_option( 'standard' );
-			$php_files_iterator = U\Dir::iterator( $dir, U\Fs::gitignore_regexp( 'negative', '.+\.php$', [ 'vendor' => false ] ) );
+			$dir         = $this->get_option( 'dir' );
+			$project_dir = $this->get_option( 'project-dir' );
 
-			foreach ( $php_files_iterator as $_php_file ) {
-				U\CLI::run( [ 'composer', 'exec', '--', 'phpcbf', '--standard', $standard, $_php_file->getPathname() ] );
+			$standard = U\Dir::join( $project_dir, '/.phpcs.xml' );
+			$ignore   = '*/\.git/*,*/\.svn/*,*/bin/*,*/dev/*,*/tests/*,*/vendor/(?!clevercanyon/)*,*/node_modules/*';
+
+			if ( 3 <= U\CLI::run( [ 'composer', 'exec', '--', 'phpcbf', '-pv', '--parallel=1', '--standard=' . $standard, '--extensions=php', '--ignore=' . $ignore, $dir ], $project_dir, false ) ) {
+				throw new Exception( 'Got unexpected exit status from `phpcbf` when formatting: `' . $dir . '` from `' . $project_dir . '`.' );
 			}
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
@@ -184,6 +186,7 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	 *
 	 * @param string $str PHP file contents.
 	 *
+	 * @throws Exception On any failure.
 	 * @return string Modified PHP file contents.
 	 */
 	protected function fix_comments_process_string( string $str ) : string {
@@ -197,9 +200,17 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	 *
 	 * @param array $tokens PHP file tokens.
 	 *
+	 * @throws Exception On any failure.
 	 * @return string Modified PHP file contents (tokens converted to string).
 	 */
 	protected function fix_comments_process_tokens( array $tokens ) : string {
+		if ( version_compare( PHP_VERSION, '8.0', '<' ) ) {
+			throw new Exception(
+				'PHP version 8.0+ is required for parsing tokens.' .
+				'The way whitespace is handled in tokens changed in PHP 8.0+.' .
+				'This code is written to support the new and improved handling of whitespace.'
+			);
+		}
 		foreach ( $tokens as $_i => &$_this_token ) {
 			// Current token references.
 
