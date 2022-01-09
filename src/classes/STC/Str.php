@@ -167,7 +167,7 @@ class Str extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	}
 
 	/**
-	 * String begins with?
+	 * Checks if string begins with needle.
 	 *
 	 * @since 2022-01-08
 	 *
@@ -177,11 +177,25 @@ class Str extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @return bool True if `$needle` is at beginning of `$haystack`.
 	 */
 	public static function begins_with( string $haystack, string $needle ) : bool {
-		return mb_substr( $haystack, 0, mb_strlen( $needle ) ) === $needle;
+		return 0 === mb_strpos( $haystack, $needle );
 	}
 
 	/**
-	 * String ends with?
+	 * Checks if string begins with needle (caSe-insensitive).
+	 *
+	 * @since 2022-01-08
+	 *
+	 * @param string $haystack Haystack string.
+	 * @param string $needle   Needle string to search for.
+	 *
+	 * @return bool True if `$needle` is at beginning of `$haystack`.
+	 */
+	public static function ibegins_with( string $haystack, string $needle ) : bool {
+		return 0 === mb_stripos( $haystack, $needle );
+	}
+
+	/**
+	 * Checks if string ends with needle.
 	 *
 	 * @since 2022-01-08
 	 *
@@ -192,6 +206,48 @@ class Str extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 */
 	public static function ends_with( string $haystack, string $needle ) : bool {
 		return mb_substr( $haystack, -mb_strlen( $needle ) ) === $needle;
+	}
+
+	/**
+	 * Checks if string ends with needle (caSe-insensitive).
+	 *
+	 * @since 2022-01-08
+	 *
+	 * @param string $haystack Haystack string.
+	 * @param string $needle   Needle string to search for.
+	 *
+	 * @return bool True if `$needle` is at end of `$haystack`.
+	 */
+	public static function iends_with( string $haystack, string $needle ) : bool {
+		return mb_strtolower( mb_substr( $haystack, -mb_strlen( $needle ) ) ) === mb_strtolower( $needle );
+	}
+
+	/**
+	 * Checks if string contains needle.
+	 *
+	 * @since 2022-01-08
+	 *
+	 * @param string $haystack Haystack string.
+	 * @param string $needle   Needle string to search for.
+	 *
+	 * @return bool True if `$needle` is at end of `$haystack`.
+	 */
+	public static function contains( string $haystack, string $needle ) : bool {
+		return false !== mb_strpos( $haystack, $needle );
+	}
+
+	/**
+	 * Checks if string contains needle (caSe-insensitive).
+	 *
+	 * @since 2022-01-08
+	 *
+	 * @param string $haystack Haystack string.
+	 * @param string $needle   Needle string to search for.
+	 *
+	 * @return bool True if `$needle` is at end of `$haystack`.
+	 */
+	public static function icontains( string $haystack, string $needle ) : bool {
+		return false !== mb_stripos( $haystack, $needle );
 	}
 
 	/**

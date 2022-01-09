@@ -107,7 +107,7 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	protected function fix_comments() : void {
 		try {
 			$dir                = $this->get_option( 'dir' );
-			$php_files_iterator = U\Dir::iterator( $dir, '.+\.php$' );
+			$php_files_iterator = U\Dir::iterator( $dir, U\Fs::gitignore_regexp( 'negative', '.+\.php$', [ 'vendor' => false ] ) );
 
 			foreach ( $php_files_iterator as $_php_file ) {
 				$this->fix_comments_process_file( $_php_file->getPathname() );
@@ -204,36 +204,49 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 			}
 			// Token inspection & modification.
 
-			if ( T_DOC_COMMENT === $_this_token_type ) {
+			if ( 0 === $_i && T_OPEN_TAG === $_this_token_type ) {
+				if (
+					T_WHITESPACE === $_next_token_type
+					&& U\Str::begins_with( $_next_token_value, "\n" )
+					&& is_array( $tokens[ $_i + 2 ] ?? null )
+					&& T_DOC_COMMENT === $tokens[ $_i + 2 ][ 0 ]
+				) {
+					// Removes line break after PHP open tag
+					// whenever there's a file docBlock section.
+					$_next_token_value = ltrim( $_next_token_value, "\n" );
+				}
+			} elseif ( T_DOC_COMMENT === $_this_token_type ) {
 				if (
 					T_WHITESPACE === $_prev_token_type
-					&& U\Str::ends_with( $_prev_token_value, "\n" )
+					&& U\Str::begins_with( $_prev_token_value, "\n" )
+					&& ( ! isset( $tokens[ $_i - 2 ] ) || '{' !== $tokens[ $_i - 2 ] )
 				) {
-					// Double line break before doc comments.
-					$_prev_token_value = rtrim( $_prev_token_value ) . "\n\n";
+					// Adds double line break before docBlock comments.
+					// So long as they don't appear right after an opening `{`.
+					$_prev_token_value = "\n\n" . ltrim( $_prev_token_value, "\n" );
 				}
 			} elseif ( T_COMMENT === $_this_token_type ) {
 				if (
 					T_WHITESPACE === $_prev_token_type
-					&& U\Str::ends_with( $_prev_token_value, "\n" )
+					&& U\Str::begins_with( $_prev_token_value, "\n" )
 					&& (
 						'// ｡･:*:･ﾟ★.' . "\n" === $_this_token_value
 						|| U\Str::begins_with( $_this_token_value, '// phpcs:ignore' )
 					)
 					&& U\Str::ends_with( $_this_token_value, "\n" )
 				) {
-					// Move comment to end of previous line.
-					$_prev_token_value = rtrim( $_prev_token_value ) . ' ';
+					// Moves special comments to end of previous line.
+					$_prev_token_value = trim( $_prev_token_value ) . ' ';
 				} elseif (
 					T_WHITESPACE === $_prev_token_type
-					&& U\Str::ends_with( $_prev_token_value, "\n" )
+					&& U\Str::begins_with( $_prev_token_value, "\n" )
 					&& ! U\Str::ends_with( $_this_token_value, "\n" )
 					&& U\Str::begins_with( $_next_token_value, "\n" )
 				) {
-					$_this_token_value = ''; // Remove comment & empty line.
-					$_prev_token_value = rtrim( $_prev_token_value );
+					$_this_token_value = '';                                // Removes comment.
+					$_prev_token_value = ltrim( $_prev_token_value, "\n" ); // ... and empty line it leaves behind.
 				} else {
-					$_this_token_value = ''; // Remove comment only.
+					// $_this_token_value = ''; // Remove comment only.
 				}
 			}
 		}
