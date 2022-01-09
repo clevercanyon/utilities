@@ -261,7 +261,7 @@ class Str extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 */
 	public static function normalize_eols( string $str ) : string {
 		$str = str_replace( [ "\r\n", "\r", "\n" ], "\n", $str );
-		return preg_replace( "/\n{3,}/", "\n\n", $str );
+		return preg_replace( "/\n{3,}/u", "\n\n", $str );
 	}
 
 	/**

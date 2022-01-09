@@ -82,7 +82,7 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		parent::__construct( $args_to_parse );
 
 		$this->add_commands( [
-			'fix-comments' => [
+			'fix-comments'   => [
 				'callback'    => [ $this, 'fix_comments' ],
 				'synopsis'    => 'Fixes docBlocks and other types of comments.',
 				'description' => 'Fixes docBlocks and other types of comments. See ' . __CLASS__ . '::fix_comments()',
@@ -92,6 +92,25 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 						'description' => 'Directory path.',
 						'validator'   => fn( $value ) => is_dir( $value ),
 						'default'     => getcwd(),
+					],
+				],
+			],
+			'fix-formatting' => [
+				'callback'    => [ $this, 'fix_formatting' ],
+				'synopsis'    => 'Fixes formatting, aligning with our coding standards.',
+				'description' => 'Fixes formatting, aligning with our coding standards. See ' . __CLASS__ . '::fix_formatting()',
+				'options'     => [
+					'dir'      => [
+						'optional'    => true,
+						'description' => 'Directory path.',
+						'validator'   => fn( $value ) => is_dir( $value ),
+						'default'     => getcwd(),
+					],
+					'standard' => [
+						'optional'    => true,
+						'description' => 'PHPCS standard to use.',
+						'validator'   => fn( $value ) => is_file( $value ),
+						'default'     => dirname( __FILE__, 6 ) . '/.phpcs.xml',
 					],
 				],
 			],
@@ -111,6 +130,27 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 
 			foreach ( $php_files_iterator as $_php_file ) {
 				$this->fix_comments_process_file( $_php_file->getPathname() );
+			}
+		} catch ( \Throwable $throwable ) {
+			U\CLI::error( $throwable->getMessage() );
+			U\CLI::error( $throwable->getTraceAsString() );
+			U\CLI::exit_status( 1 );
+		}
+	}
+
+	/**
+	 * Command: `fix-formatting`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected function fix_formatting() : void {
+		try {
+			$dir                = $this->get_option( 'dir' );
+			$standard           = $this->get_option( 'standard' );
+			$php_files_iterator = U\Dir::iterator( $dir, U\Fs::gitignore_regexp( 'negative', '.+\.php$', [ 'vendor' => false ] ) );
+
+			foreach ( $php_files_iterator as $_php_file ) {
+				U\CLI::run( [ 'composer', 'exec', '--', 'phpcbf', '--standard', $standard, $_php_file->getPathname() ] );
 			}
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
@@ -230,23 +270,22 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 					T_WHITESPACE === $_prev_token_type
 					&& U\Str::begins_with( $_prev_token_value, "\n" )
 					&& (
-						'// ｡･:*:･ﾟ★.' . "\n" === $_this_token_value
+						'// ｡･:*:･ﾟ★.' === $_this_token_value
 						|| U\Str::begins_with( $_this_token_value, '// phpcs:ignore' )
 					)
-					&& U\Str::ends_with( $_this_token_value, "\n" )
+					&& U\Str::begins_with( $_next_token_value, "\n" )
 				) {
 					// Moves special comments to end of previous line.
 					$_prev_token_value = trim( $_prev_token_value ) . ' ';
 				} elseif (
 					T_WHITESPACE === $_prev_token_type
 					&& U\Str::begins_with( $_prev_token_value, "\n" )
-					&& ! U\Str::ends_with( $_this_token_value, "\n" )
 					&& U\Str::begins_with( $_next_token_value, "\n" )
 				) {
 					$_this_token_value = '';                                // Removes comment.
 					$_prev_token_value = ltrim( $_prev_token_value, "\n" ); // ... and empty line it leaves behind.
 				} else {
-					// $_this_token_value = ''; // Remove comment only.
+					$_this_token_value = ''; // Remove comment only.
 				}
 			}
 		}
