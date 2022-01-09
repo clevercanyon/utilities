@@ -21,6 +21,7 @@
 		}
 	},
 	"bin"               : [
+		"./dev/toolchain/php-scoper/php-scoper-cleanup",
 		"./dev/toolchain/php-scoper/php-scoper-config-file"
 	],
 	"require"           : {

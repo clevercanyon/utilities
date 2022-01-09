@@ -167,6 +167,48 @@ class Str extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	}
 
 	/**
+	 * String begins with?
+	 *
+	 * @since 2022-01-08
+	 *
+	 * @param string $haystack Haystack string.
+	 * @param string $needle   Needle string to search for.
+	 *
+	 * @return bool True if `$needle` is at beginning of `$haystack`.
+	 */
+	public static function begins_with( string $haystack, string $needle ) : bool {
+		return mb_substr( $haystack, 0, mb_strlen( $needle ) ) === $needle;
+	}
+
+	/**
+	 * String ends with?
+	 *
+	 * @since 2022-01-08
+	 *
+	 * @param string $haystack Haystack string.
+	 * @param string $needle   Needle string to search for.
+	 *
+	 * @return bool True if `$needle` is at end of `$haystack`.
+	 */
+	public static function ends_with( string $haystack, string $needle ) : bool {
+		return mb_substr( $haystack, -mb_strlen( $needle ) ) === $needle;
+	}
+
+	/**
+	 * Normalizes line breaks.
+	 *
+	 * @since 2022-01-08
+	 *
+	 * @param string $str Input string to normalize.
+	 *
+	 * @return string Normalized output string.
+	 */
+	public static function normalize_eols( string $str ) : string {
+		$str = str_replace( [ "\r\n", "\r", "\n" ], "\n", $str );
+		return preg_replace( "/\n{3,}/", "\n\n", $str );
+	}
+
+	/**
 	 * Checks name validity; e.g., `My Name`.
 	 *
 	 * @since 2021-12-26
