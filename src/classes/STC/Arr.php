@@ -177,4 +177,27 @@ class Arr extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 		}
 		return $key;
 	}
+
+	/**
+	 * Flattens a multidimensional array.
+	 *
+	 * @since 2022-01-09
+	 *
+	 * @param array $arr           Input array to flatten.
+	 * @param bool  $preserve_keys Should keys be preserved? Default is `false`.
+	 *
+	 * @return array Flattened array.
+	 */
+	public static function flatten( array $arr, bool $preserve_keys = false ) : array {
+		$flat = []; // Initialize.
+
+		array_walk_recursive( $arr, function ( $value, $key ) use ( &$flat, $preserve_keys ) {
+			if ( $preserve_keys ) {
+				$flat[ $key ] = $value;
+			} else {
+				$flat[] = $value;
+			}
+		} );
+		return $flat;
+	}
 }

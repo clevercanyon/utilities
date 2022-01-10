@@ -817,12 +817,16 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 *
 	 * @param array       $args            Optional arguments that offer some additional options.
 	 *
-	 *    string 'modifiers' Optional additional modifiers to append to existing always-on modifiers.
-	 *                       Always-on modifiers include `xui`. If you pass in conflicting modifiers, future versions
-	 *                       of this function will throw an exception; i.e., if they cause conflict with this function's objectives.
+	 *    string 'modifiers'      Optional additional modifiers to append to existing always-on modifiers.
+	 *                            Always-on modifiers include `ui`. If you pass in conflicting modifiers, future versions
+	 *                            of this function will throw an exception if they cause conflict with this function's objectives.
 	 *
-	 *    bool   'vendor'    Default is `true`, as ignoring `/vendor` matches our `.gitignore` configuration.
-	 *                       That said, it's often desirable to ship `/vendor` as part of a distro, so the option is here.
+	 *    bool   'vendor'         Default is `true`, as ignoring `/vendor` matches our `.gitignore` configuration.
+	 *                            That said, it's often desirable to ship `/vendor` as part of a distro, so the option is here.
+	 *
+	 *    string 'except:vendor/' Default is ``. When `vendor` is `true`, this adds one or more exceptions.
+	 *                            e.g., `[ 'except:vendor/' => 'clevercanyon' ]`.
+	 *                            e.g., `[ 'except:vendor/' => '(?:clevercanyon|acme)' ]`.
 	 *
 	 * @return string Final regexp with `.gitignore` exclusions as a positive|negative lookahead.
 	 *                The pattern is a non-capturing positive|negative lookahead for greatest flexibility.
@@ -830,7 +834,7 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @see   https://regex101.com/r/yceJKL/1
 	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
 	 */
-	public static function gitignore_regexp(
+	public static function gitignore_regexp_lookahead(
 		string $lookahead,
 		/* string|null */ ?string $regexp_fragment = null,
 		array $args = []
@@ -838,40 +842,112 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 		$regexp_fragment ??= '.+$';
 
 		$default_args = [
-			'modifiers' => '',
-			'vendor'    => true,
+			'modifiers'      => '',
+			'vendor'         => true,
+			'except:vendor/' => '',
 		];
 		$args         = $args + $default_args;
 
 		$modifiers = mb_str_split( $args[ 'modifiers' ] );
-		$modifiers = array_unique( array_merge( [ 'x', 'u', 'i' ], $modifiers ) );
+		$modifiers = array_unique( array_merge( [ 'u', 'i' ], $modifiers ) );
 		$modifiers = implode( '', $modifiers ); // Back together again.
 
-		return '/^' . // Beginning of line, or file path, in this case.
+		$re = '';    // Initialize for string concatenation.
+		$re .= '/^'; // Beginning of line, or file path, in this case.
 
-			'    (' . ( 'positive' === $lookahead ? '?=' : '?!' ) .
-			'        .*' . // 0+ characters leading up to matching `.gitignore` entries.
-			'        (?:^|[\/\\\]+)' . // Beginning of string or 1+ directory separators.
-			'        (?:' . // Begin list of matching `.gitignore` entries.
+		$re .= '    (' . ( 'positive' === $lookahead ? '?=' : '?!' );
+		$re .= '        .*';             // 0+ characters leading up to matching `.gitignore` entries.
+		$re .= '        (?:^|[\/\\\]+)'; // Beginning of string or 1+ directory separators.
+		$re .= '        (?:';            // Begin list of matching `.gitignore` entries.
 
-			'            (?:\.[#_~][^\/\\\]*)' . // `.#*`, `._*`, `.~*`
-			'             |(?:[^\/\\\]*~)' . // `*~` backup files.
+		$re .= '            (?:\.[#_~][^\/\\\]*)'; // `.#*`, `._*`, `.~*`
+		$re .= '             |(?:[^\/\\\]*~)';     // `*~` backup files.
 
-			// This covers all ignored file extensions.
-			'             |(?:[^\/\\\]*\.(?:log|bak|rej|orig|patch|diff|sublime-project|sublime-workspace|nbproject|code-workspace|ctags|tags))' .
+		// This covers all ignored file extensions.
+		$re .= '             |(?:[^\/\\\]*\.(?:log|bak|rej|orig|patch|diff|sublime-project|sublime-workspace|nbproject|code-workspace|ctags|tags))';
 
-			// This covers all ignored dotfiles; i.e., names beginning with a `.`.
-			'             |(?:\.(?:vagrant|idea|vscode|npmrc|yarnrc|yarn|linaria-cache|sass-cache|elasticbeanstalk|git|git-dir|svn|cvsignore|bzr|bzrignore|hg|hgignore|AppleDB|AppleDouble|AppleDesktop|com\.apple\.timemachine\.donotpresent|LSOverride|Spotlight-V100|VolumeIcon\.icns|TemporaryItems|fseventsd|DS_Store|Trashes|apdisk))' .
+		// This covers all ignored dotfiles; i.e., names beginning with a `.`.
+		$re .= '             |(?:\.(?:vagrant|idea|vscode|npmrc|yarnrc|yarn|linaria-cache|sass-cache|elasticbeanstalk|git|git-dir|svn|cvsignore|bzr|bzrignore|hg|hgignore|AppleDB|AppleDouble|AppleDesktop|com\.apple\.timemachine\.donotpresent|LSOverride|Spotlight-V100|VolumeIcon\.icns|TemporaryItems|fseventsd|DS_Store|Trashes|apdisk))';
 
-			// This covers everything else, which is a longer list of specific names to ignore.
-			'             |(?:typings' . ( $args[ 'vendor' ] ? '|vendor' : '' ) . '|node[_\-]modules|jspm[_\-]packages|bower[_\-]components|_svn|CVS|SCCS|RCS|\$RECYCLE\.BIN|Desktop\.ini|Thumbs\.db|ehthumbs\.db|Network\sTrash\sFolder|Temporary\sItems|Icon[^s])' .
+		// This covers everything else, which is a longer list of specific names to ignore.
+		$re .= '             |(?:typings' . ( $args[ 'vendor' ] ? '|vendor' . ( $args[ 'except:vendor/' ] ? '(?![\/\\\]+' . $args[ 'except:vendor/' ] . '[\/\\\]+)' : '' ) : '' ) . '|node[_\-]modules|jspm[_\-]packages|bower[_\-]components|_svn|CVS|SCCS|RCS|\$RECYCLE\.BIN|Desktop\.ini|Thumbs\.db|ehthumbs\.db|Network\sTrash\sFolder|Temporary\sItems|Icon[^s])';
 
-			'        )' . // End list of matching `.gitignore` entries.
-			'        (?:$|[\/\\\]+)' . // End of line, or 1+ directory separators.
+		$re .= '        )';              // End list of matching `.gitignore` entries.
+		$re .= '        (?:$|[\/\\\]+)'; // End of line, or 1+ directory separators.
 
-			'    )' . // End lookahead group.
+		$re .= '    )'; // End lookahead group.
 
-			$regexp_fragment . // Appends a regular expression fragment onto all of the above.
-			'/' . $modifiers; // Ends regular expression and adds modifiers, including any custom modifiers.
+		$re .= $regexp_fragment; // Appends a regular expression fragment onto all of the above.
+		$re .= '/' . $modifiers; // Ends regular expression and adds modifiers, including any custom modifiers.
+
+		return preg_replace( '/\s+/u', '', $re ); // Removes whitespace from pattern.
+	}
+
+	/**
+	 * Regexp with `.gitignore` exclusions as a positive lookahead pattern, for PHPCS/PHPCBF tools.
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @param array $args Optional arguments that offer some additional options.
+	 *
+	 *    bool   'vendor'         Default is `true`, as ignoring `/vendor` matches our `.gitignore` configuration.
+	 *                            That said, it's often desirable to ship `/vendor` as part of a distro, so the option is here.
+	 *
+	 *    string 'except:vendor/' Default is ``. When `vendor` is `true`, this adds one or more exceptions.
+	 *                            e.g., `[ 'except:vendor/' => 'clevercanyon' ]`.
+	 *                            e.g., `[ 'except:vendor/' => '(?:clevercanyon|acme)' ]`.
+	 *
+	 * @return string Final regexp with `.gitignore` exclusions as a positive lookahead.
+	 *                The pattern is a non-capturing positive lookahead for greatest flexibility.
+	 *
+	 * @note  Regarding PHPCS/PHPCBF tools. {@see https://git.io/J9nrw}.
+	 *
+	 *        In PHPCS/PHPCBF, `*` is auto-expanded into `.*` at runtime.
+	 *        Unescaped commas are pattern delimiters. To get a real comma, must escape: `\\,`.
+	 *
+	 *        Directory separators, on Windows, are replaced with `\\` on-the-fly at runtime, so use only `/` here.
+	 *        The regular expression pattern is encapsulated by `backticks`i at runtime and uses an `i` modifier only.
+	 *
+	 *        Patterns that end with `/*` are tested against both directories and files. Otherwise, files only.
+	 *        A `/*` on the end of the pattern is replaced by `(?=/|$)` at runtime.
+	 */
+	public static function gitignore_phpcs_regexp_lookahead_positive( array $args = [] ) : string {
+		$lookahead       = 'positive';
+		$regexp_fragment = '.+/*'; // `/*` becomes `(?=/|$)`.
+
+		$default_args = [
+			'vendor'         => true,
+			'except:vendor/' => '',
+		];
+		$args         = $args + $default_args;
+
+		$re = '';   // Initialize for string concatenation.
+		$re .= '^'; // Beginning of line, or file path, in this case.
+
+		$re .= '    (' . ( 'positive' === $lookahead ? '?=' : '?!' );
+		$re .= '        *';        // 0+ characters leading up to matching `.gitignore` entries.
+		$re .= '        (?:^|/+)'; // Beginning of string or 1+ directory separators.
+		$re .= '        (?:';      // Begin list of matching `.gitignore` entries.
+
+		$re .= '            (?:\.[#_~][^/]{0\\,})'; // `.#*`, `._*`, `.~*`
+		$re .= '             |(?:[^/]{0\\,}~)';     // `*~` backup files.
+
+		// This covers all ignored file extensions.
+		$re .= '             |(?:[^/]{0\\,}\.(?:log|bak|rej|orig|patch|diff|sublime-project|sublime-workspace|nbproject|code-workspace|ctags|tags))';
+
+		// This covers all ignored dotfiles; i.e., names beginning with a `.`.
+		$re .= '             |(?:\.(?:vagrant|idea|vscode|npmrc|yarnrc|yarn|linaria-cache|sass-cache|elasticbeanstalk|git|git-dir|svn|cvsignore|bzr|bzrignore|hg|hgignore|AppleDB|AppleDouble|AppleDesktop|com\.apple\.timemachine\.donotpresent|LSOverride|Spotlight-V100|VolumeIcon\.icns|TemporaryItems|fseventsd|DS_Store|Trashes|apdisk))';
+
+		// This covers everything else, which is a longer list of specific names to ignore.
+		$re .= '             |(?:typings' . ( $args[ 'vendor' ] ? '|vendor' . ( $args[ 'except:vendor/' ] ? '(?!/+' . $args[ 'except:vendor/' ] . '/+)' : '' ) : '' ) . '|node[_\-]modules|jspm[_\-]packages|bower[_\-]components|_svn|CVS|SCCS|RCS|\$RECYCLE\.BIN|Desktop\.ini|Thumbs\.db|ehthumbs\.db|Network\sTrash\sFolder|Temporary\sItems|Icon[^s])';
+
+		$re .= '        )';        // End list of matching `.gitignore` entries.
+		$re .= '        (?:$|/+)'; // End of line, or 1+ directory separators.
+
+		$re .= '    )'; // End lookahead group.
+
+		$re .= $regexp_fragment; // Appends a regular expression fragment onto all of the above.
+
+		return preg_replace( '/\s+/u', '', $re ); // Removes whitespace from pattern.
 	}
 }

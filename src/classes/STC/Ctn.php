@@ -138,7 +138,12 @@ class Ctn extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 *        For example, null, scalar, and resource values are simply converted to strings.
 	 *        To actually JSON-encode a collection you should use {@see U\Str::json_encode()}.
 	 */
-	public static function stringify( /* object|array */ $ctn, /* bool|null */ ?bool $pretty_print = null, int $max_depth = -1, int $_depth = 0 ) /* : object|array|string */ {
+	public static function stringify(
+		/* object|array */ $ctn,
+		/* bool|null */ ?bool $pretty_print = null,
+		int $max_depth = -1,
+		int $_depth = 0
+	) /* : object|array|string */ {
 		assert( U\Ctn::is( $ctn ) );
 
 		if ( $max_depth >= 0 && $_depth >= $max_depth ) {
@@ -184,7 +189,10 @@ class Ctn extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @note  The only known caveat with `reflection` is that it's currently not possible (at all)
 	 *        to break internal refrences in protected or private properties. {@see clone_deep_obj_helper()}.
 	 */
-	public static function clone_deep( /* object|array */ $ctn, /* string|null */ ?string $method = null ) /* : object|array */ {
+	public static function clone_deep(
+		/* object|array */ $ctn,
+		/* string|null */ ?string $method = null
+	) /* : object|array */ {
 		assert( U\Ctn::is( $ctn ) );
 
 		switch ( $method ) {

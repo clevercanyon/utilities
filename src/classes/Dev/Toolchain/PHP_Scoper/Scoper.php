@@ -55,11 +55,11 @@ use PhpParser;
 // </editor-fold>
 
 /**
- * PHP Scoper cleanup suite.
+ * PHP Scoper.
  *
  * @since 2021-12-15
  */
-class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
+class Scoper extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	/**
 	 * Version.
 	 */
@@ -68,7 +68,7 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	/**
 	 * Tool name.
 	 */
-	protected const NAME = 'PHP_Scoper/Cleanup';
+	protected const NAME = 'PHP_Scoper/Scoper';
 
 	/**
 	 * Constructor.
@@ -82,32 +82,47 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		parent::__construct( $args_to_parse );
 
 		$this->add_commands( [
-			'fix-comments'   => [
-				'callback'    => [ $this, 'fix_comments' ],
-				'synopsis'    => 'Fixes docBlocks and other types of comments.',
-				'description' => 'Fixes docBlocks and other types of comments. See ' . __CLASS__ . '::fix_comments()',
+			'scope' => [
+				'callback'    => [ $this, 'scope' ],
+				'synopsis'    => 'Runs PHP scoper, fixes docBlocks, formatting, and autoloader.',
+				'description' => 'Runs PHP scoper, fixes docBlocks, formatting, and autoloader. See ' . __CLASS__ . '::scope()',
 				'options'     => [
-					'dir' => [
+					'project-dir'                   => [
 						'required'    => true,
-						'description' => 'Directory path.',
-						'validator'   => fn( $value ) => is_dir( $value ),
+						'description' => 'Project directory path.',
+						'validator'   => fn( $value ) => $value && is_string( $value ) && is_dir( $value )
+							&& is_file( U\Dir::join( $value, '/composer.json' ) ),
 					],
-				],
-			],
-			'fix-formatting' => [
-				'callback'    => [ $this, 'fix_formatting' ],
-				'synopsis'    => 'Fixes formatting; aligns with coding standards.',
-				'description' => 'Fixes formatting; aligns with coding standards. See ' . __CLASS__ . '::fix_formatting()',
-				'options'     => [
-					'project-dir' => [
+					'prefix'                        => [
 						'required'    => true,
-						'description' => 'Project directory.',
-						'validator'   => fn( $value ) => is_dir( $value ),
+						'description' => 'Namespace prefix to apply.',
+						'validator'   => fn( $value ) => $value && is_string( $value )
+							&& preg_match( '/^[a-z0-9]+$/ui', $value ),
 					],
-					'dir'         => [
+					'dir'                           => [
 						'required'    => true,
-						'description' => 'Directory path.',
-						'validator'   => fn( $value ) => is_dir( $value ),
+						'description' => 'Directory to scope.',
+						'validator'   => fn( $value ) => $value && is_string( $value ) && is_dir( $value )
+							&& preg_match( '/\/\._[^\/]*\//u', U\Fs::normalize( $value ) ),
+					],
+					'output-dir'                    => [
+						'required'    => true,
+						'description' => 'Directory to output scoped files to.',
+						'validator'   => fn( $value ) => $value && is_string( $value )
+							&& preg_match( '/\/\._[^\/]*\//u', U\Fs::normalize( $value ) ),
+					],
+					'output-project-dir'            => [
+						'required'    => true,
+						'description' => 'Output project directory. In case it’s different from `output-dir`.',
+						'validator'   => fn( $value ) => $value && is_string( $value )
+							&& preg_match( '/\/\._[^\/]*\//u', U\Fs::normalize( $value ) ),
+					],
+					'output-project-dir-entry-file' => [
+						'required'    => true,
+						'description' => 'Output project directory entry file; i.e., PHP file that `require()`’s autoloader.',
+						'validator'   => fn( $value ) => $value && is_string( $value )
+							&& preg_match( '/\/\._[^\/]*\//u', U\Fs::normalize( $value ) )
+							&& preg_match( '/\.php$/ui', U\Fs::normalize( $value ) ),
 					],
 				],
 			],
@@ -116,18 +131,17 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	}
 
 	/**
-	 * Command: `fix-comments`.
+	 * Command: `scope`.
 	 *
 	 * @since 2021-12-15
 	 */
-	protected function fix_comments() : void {
+	protected function scope() : void {
 		try {
-			$dir                = $this->get_option( 'dir' );
-			$php_files_iterator = U\Dir::iterator( $dir, U\Fs::gitignore_regexp( 'negative', '.+\.php$', [ 'vendor' => false ] ) );
+			$this->run_scoper();
+			$this->fix_comments();
+			$this->fix_formatting();
+			$this->fix_autoloader();
 
-			foreach ( $php_files_iterator as $_php_file ) {
-				$this->fix_comments_process_file( $_php_file->getPathname() );
-			}
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
@@ -136,30 +150,124 @@ class Cleanup extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	}
 
 	/**
-	 * Command: `fix-formatting`.
+	 * Runs PHP Scoper.
 	 *
 	 * @since        2021-12-15
 	 *
 	 * @throws Exception On any failure.
-	 * @noinspection PhpDocRedundantThrowsInspection
 	 */
-	protected function fix_formatting() : void {
-		try {
-			$dir         = $this->get_option( 'dir' );
-			$project_dir = $this->get_option( 'project-dir' );
+	protected function run_scoper() : void {
+		$project_dir = U\Fs::normalize( $this->get_option( 'project-dir' ) );
+		$prefix      = $this->get_option( 'prefix' );
 
-			$standard = U\Dir::join( $project_dir, '/.phpcs.xml' );
-			$ignore   = '*/\.git/*,*/\.svn/*,*/bin/*,*/dev/*,*/tests/*,*/vendor/(?!clevercanyon/)*,*/node_modules/*';
+		$dir        = U\Fs::normalize( $this->get_option( 'dir' ) );
+		$output_dir = U\Fs::normalize( $this->get_option( 'output-dir' ) );
 
-			if ( 3 <= U\CLI::run( [ 'composer', 'exec', '--', 'phpcbf', '-pv', '--parallel=1', '--standard=' . $standard, '--extensions=php', '--ignore=' . $ignore, $dir ], $project_dir, false ) ) {
-				throw new Exception( 'Got unexpected exit status from `phpcbf` when formatting: `' . $dir . '` from `' . $project_dir . '`.' );
-			}
-		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
-			U\CLI::error( $throwable->getTraceAsString() );
-			U\CLI::exit_status( 1 );
+		$config_file = U\Dir::join( $project_dir, '/.scoper.cfg.php' );
+		if ( ! is_file( $config_file ) ) {
+			throw new Exception( 'Missing PHP Scoper config file: `' . $config_file . '`.' );
+		}
+		U\CLI::run( [
+			[ 'composer', 'exec', '--', 'php-scoper', 'add-prefix' ],
+			[ '--force', '--no-interaction', '--stop-on-failure' ],
+			[ '--working-dir', $dir, '--config', $config_file, '--prefix', $prefix ],
+			[ '--output-dir', $output_dir ],
+		], $project_dir );
+	}
+
+	/**
+	 * Fixes docBlocks and other types of comments.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @throws Exception On any failure.
+	 */
+	protected function fix_comments() : void {
+		$output_dir = U\Fs::normalize( $this->get_option( 'output-dir' ) );
+
+		if ( ! is_dir( $output_dir ) ) {
+			throw new Exception( 'Missing `output-dir`: `' . $output_dir . '`.' );
+		}
+		$regexp             = U\Fs::gitignore_regexp_lookahead( 'negative', '.+\.php$', [ 'vendor' => false ] );
+		$php_files_iterator = U\Dir::iterator( $output_dir, $regexp );
+
+		foreach ( $php_files_iterator as $_php_file ) {
+			$this->fix_comments_process_file( $_php_file->getPathname() );
 		}
 	}
+
+	/**
+	 * Fixes formatting; aligns with coding standards.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @throws Exception On any failure.
+	 */
+	protected function fix_formatting() : void {
+		$project_dir = U\Fs::normalize( $this->get_option( 'project-dir' ) );
+		$output_dir  = U\Fs::normalize( $this->get_option( 'output-dir' ) );
+
+		if ( ! is_dir( $output_dir ) ) {
+			throw new Exception( 'Missing `output-dir`: `' . $output_dir . '`.' );
+		}
+		$standard = U\Dir::join( $project_dir, '/.phpcs.xml' );
+		$ignore   = U\Fs::gitignore_phpcs_regexp_lookahead_positive( [ 'except:vendor/' => 'clevercanyon' ] );
+
+		if ( // This tool has non-standard exit codes. Exit status of `3` or higher is an issue.
+			// {@see https://github.com/squizlabs/PHP_CodeSniffer/issues/1818#issuecomment-354420927}.
+			3 <= U\CLI::run( [
+				[ 'composer', 'exec', '--', 'phpcbf' ],
+				[ '-pv', '--parallel=1', '--standard=' . $standard ],
+				[ '--extensions=php', '--ignore=' . $ignore ],
+				$output_dir, // ← directory to fix.
+			], $project_dir, false ) ) {
+			throw new Exception(
+				'Got unexpected exit status from `phpcbf` when formatting: `' . $output_dir . '`,' .
+				' when running from: `' . $project_dir . '`.'
+			);
+		}
+	}
+
+	/**
+	 * Fixes autoloader; aligns with PHP Scoper autoloader.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @throws Exception On any failure.
+	 *
+	 * @note  Regarding use of `--no-plugins` in Composer calls below.
+	 *       {@see https://github.com/humbug/php-scoper#composer-plugins}.
+	 */
+	protected function fix_autoloader() : void {
+		$output_project_dir            = U\Fs::normalize( $this->get_option( 'output-project-dir' ) );
+		$output_project_dir_entry_file = U\Fs::normalize( $this->get_option( 'output-project-dir-entry-file' ) );
+
+		if ( ! is_dir( $output_project_dir ) ) {
+			throw new Exception( 'Missing `output-project-dir`: `' . $output_project_dir . '`.' );
+		}
+		if ( ! is_file( U\Dir::join( $output_project_dir, '/composer.json' ) ) ) {
+			throw new Exception( 'Missing `[output-project-dir]/composer.json`: `' . U\Dir::join( $output_project_dir, '/composer.json' ) . '`.' );
+		}
+		if ( ! is_file( $output_project_dir_entry_file ) ) {
+			throw new Exception( 'Missing `output-project-dir-entry-file`: `' . $output_project_dir_entry_file . '`.' );
+		}
+		U\CLI::run( [
+			[ 'composer', 'dump-autoload' ],
+			[ '--no-dev', '--no-scripts', '--no-plugins' ],
+			[ '--optimize', '--classmap-authoritative' ],
+		], $output_project_dir );
+
+		if (
+			! is_readable( $output_project_dir_entry_file )
+			|| ! is_writable( $output_project_dir_entry_file )
+			|| ! ( $_f15s = file_get_contents( $output_project_dir_entry_file ) )
+			|| false === file_put_contents( $output_project_dir_entry_file, str_replace( '/autoload.php', '/scoper-autoload.php', $_f15s ) )
+		) {
+			throw new Exception( 'Failed to change `/autoload.php` to `/scoper-autoload.php` in `' . $output_project_dir_entry_file . '`.' );
+		}
+	}
+
+	// -- Comment fixing helpers. -------------------------------------------------------------------------------------
 
 	/**
 	 * Fixes comments in a single file.

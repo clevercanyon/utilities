@@ -321,11 +321,11 @@ class Dir extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 *
 	 * @param string|null $regexp          Regular expression to use as a filter.
 	 *                                     Default is everything except `.gitignore` items.
-	 *                                     Depends on use of {@see U\Fs::gitignore_regexp()}.
+	 *                                     Depends on use of {@see U\Fs::gitignore_regexp_lookahead()}.
 	 *
 	 *                                     You can pass a complete regular expression, which must begin with `/`.
 	 *                                     Or, pass a regular expression fragment, which is anything that doesn't begin with `/`.
-	 *                                     Fragments are auto-expanded into `U\Fs::gitignore_regexp( 'negative', [fragment] )`.
+	 *                                     Fragments are auto-expanded into `U\Fs::gitignore_regexp_lookahead( 'negative', [fragment] )`.
 	 *
 	 * @param bool        $follow_symlinks Default is `false`.
 	 *
@@ -335,17 +335,14 @@ class Dir extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 *
 	 * @return \Generator|\RecursiveDirectoryIterator[] Recursive directory iterator.
 	 *
-	 * @see   U\Fs::gitignore_regexp() — PLEASE REVIEW CAREFULLY!
+	 * @see   U\Fs::gitignore_regexp_lookahead() — please review carefully.
 	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
-	 *
-	 * @note  Please {@see U\Fs::gitignore_regexp()} and note the use of the `x` modifier.
-	 *        Whitespace may not be included without careful attention. Use `\s` or `\S` instead please.
 	 */
 	public static function iterator( string $path, /* string|null */ ?string $regexp = null, bool $follow_symlinks = false ) : \Generator {
 		if ( isset( $regexp ) && '' !== $regexp && '/' !== $regexp[ 0 ] ) {
-			$regexp = U\Fs::gitignore_regexp( 'negative', $regexp );
+			$regexp = U\Fs::gitignore_regexp_lookahead( 'negative', $regexp );
 		}
-		$regexp ??= U\Fs::gitignore_regexp( 'negative' );
+		$regexp ??= U\Fs::gitignore_regexp_lookahead( 'negative' );
 
 		if ( ! $path || ! $regexp ) {
 			throw new Exception( 'Missing required parameters.' );

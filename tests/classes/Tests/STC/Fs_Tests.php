@@ -444,10 +444,10 @@ final class Fs_Tests extends \Clever_Canyon\Utilities__Tests\Framework\A7s_Tests
 	}
 
 	/**
-	 * @covers ::gitignore_regexp()
+	 * @covers ::gitignore_regexp_lookahead()
 	 */
-	public function test_gitignore_regexp() : void {
-		$gitignore_regexp = U\Fs::gitignore_regexp( 'negative' );
+	public function test_gitignore_regexp_lookahead() : void {
+		$gitignore_regexp = U\Fs::gitignore_regexp_lookahead( 'negative' );
 
 		foreach ( [
 			'/.git'     => 'ignored',

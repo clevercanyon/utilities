@@ -44,6 +44,24 @@ use Clever_Canyon\Chalk\{Chalk, Style, Fg_Color, Bg_Color};
  */
 class CLI extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	/**
+	 * Last command.
+	 *
+	 * @since 2022-01-09
+	 */
+	protected static string $last_cmd = '';
+
+	/**
+	 * Gets {@see $last_cmd} string.
+	 *
+	 * @since 2022-01-09
+	 *
+	 * @return string Last CMD string.
+	 */
+	public static function last_cmd() : string {
+		return U\CLI::$last_cmd;
+	}
+
+	/**
 	 * Gets standard input.
 	 *
 	 * @since 2021-12-15
@@ -229,6 +247,28 @@ class CLI extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	}
 
 	/**
+	 * Prepares CMD string.
+	 *
+	 * @since 2022-01-09
+	 *
+	 * @param array       $args Command arguments (unquoted/unescaped).
+	 *                          This array can have multiple dimensions, which will be flattened here.
+	 *
+	 * @param string|null $dir  Current working directory. Defaults to `null` value.
+	 *
+	 * @return string Escaped/quoted command string.
+	 */
+	public static function prepare_cmd( array $args, /* string|null */ ?string $dir = null ) : string {
+		$args = U\Arr::flatten( $args );
+		$args = array_map( 'strval', $args );
+
+		$cmd = $dir ? 'cd ' . U\Str::esc_shell_arg( $dir ) . ' && ' : '';
+		$cmd .= implode( ' ', array_map( [ U\Str::class, 'esc_shell_arg' ], $args ) );
+
+		return $cmd;
+	}
+
+	/**
 	 * Runs a shell command (displays output).
 	 *
 	 * @param array       $args         Command arguments (unquoted/unescaped).
@@ -247,13 +287,15 @@ class CLI extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 				' Have one or both of these PHP functions been disabled by your hosting company?'
 			);
 		}
-		$cmd = $dir ? 'cd ' . U\Str::esc_shell_arg( $dir ) . ' && ' : '';
-		$cmd .= implode( ' ', array_map( [ U\Str::class, 'esc_shell_arg' ], $args ) );
+		$cmd             = U\CLI::prepare_cmd( $args, $dir );
+		U\CLI::$last_cmd = $cmd; // Records last CMD string.
 
 		passthru( $cmd, $status );
 
 		if ( $check_status && 0 !== $status ) {
-			throw new Fatal_Exception( 'Unexpected status: ' . $status );
+			throw new Fatal_Exception(
+				'Unexpected non-zero status: `' . $status . '` when running: `' . $cmd . '`.'
+			);
 		}
 		return $status;
 	}
@@ -285,22 +327,27 @@ class CLI extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 				' Have one or more of these PHP functions been disabled by your hosting company?'
 			);
 		}
-		$response = (object) [
+		$response        = (object) [
 			'status' => 0,
 			'stdout' => '',
 			'stderr' => '',
 		];
-		$config   = [
+		$config          = [
 			0 => [ 'pipe', 'r' ], // stdin.
 			1 => [ 'pipe', 'w' ], // stdout.
 			2 => [ 'pipe', 'w' ], // stderr.
 		];
-		$cmd      = implode( ' ', array_map( [ U\Str::class, 'esc_shell_arg' ], $args ) );
-		$process  = proc_open( $cmd, $config, $pipes, $dir );
+		$cmd_no_dir      = U\CLI::prepare_cmd( $args );
+		$cmd             = U\CLI::prepare_cmd( $args, $dir );
+		U\CLI::$last_cmd = $cmd; // Record last CMD string.
+
+		$process = proc_open( $cmd_no_dir, $config, $pipes, $dir );
 
 		if ( ! is_resource( $process ) ) {
 			if ( $check_status ) {
-				throw new Fatal_Exception( 'Unexpected `proc_open()` failure.' );
+				throw new Fatal_Exception(
+					'Unexpected `proc_open()` failure when running: `' . $cmd . '`.'
+				);
 			}
 			return $response;
 		}
@@ -322,7 +369,10 @@ class CLI extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 		proc_close( $process );
 
 		if ( $check_status && 0 !== $response->status ) {
-			throw new Fatal_Exception( $response->stderr ?: $response->stdout );
+			throw new Fatal_Exception(
+				'Unexpected non-zero status: `' . $response->status . '` when running: `' . $cmd . '`.' .
+				' ' . ( $response->stderr ?: $response->stdout )
+			);
 		}
 		return $response;
 	}

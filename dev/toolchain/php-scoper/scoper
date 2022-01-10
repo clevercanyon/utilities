@@ -42,7 +42,7 @@ use Clever_Canyon\Utilities\Dev\Toolchain\Composer\{Project};
  *
  * @since 2021-12-15
  */
-use Clever_Canyon\Utilities\Dev\Toolchain\PHP_Scoper\{Cleanup};
+use Clever_Canyon\Utilities\Dev\Toolchain\PHP_Scoper\{Scoper};
 
 // </editor-fold>
 
@@ -81,4 +81,4 @@ U\Env::config_debugging_mode();
  *
  * @since 2021-12-15
  */
-new Cleanup();
+new Scoper();

@@ -276,7 +276,7 @@ class Str extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @return bool True if it's a valid name.
 	 */
 	public static function is_name( string $str, string $prefix = '' ) : bool {
-		return U\Str::is_valid( $str, 2, 128, '/^.+$/ui', $prefix );
+		return U\Str::is_valid_helper( $str, 2, 128, '/^.+$/ui', $prefix );
 	}
 
 	/**
@@ -291,7 +291,7 @@ class Str extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @return bool True if it's a valid slug.
 	 */
 	public static function is_slug( string $str, string $prefix = '' ) : bool {
-		return U\Str::is_valid( $str, 2, 128, '/^[a-z](?:-{0,2}[a-z0-9])+$/u', $prefix );
+		return U\Str::is_valid_helper( $str, 2, 128, '/^[a-z](?:-{0,2}[a-z0-9])+$/u', $prefix );
 	}
 
 	/**
@@ -306,7 +306,7 @@ class Str extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @return bool True if it's a valid var.
 	 */
 	public static function is_var( string $str, string $prefix = '' ) : bool {
-		return U\Str::is_valid( $str, 2, 128, '/^[a-z](?:_{0,2}[a-z0-9])+$/u', $prefix );
+		return U\Str::is_valid_helper( $str, 2, 128, '/^[a-z](?:_{0,2}[a-z0-9])+$/u', $prefix );
 	}
 
 	/**
@@ -319,7 +319,7 @@ class Str extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 * @return bool True if it's a valid version.
 	 */
 	public static function is_version( string $str ) : bool {
-		return U\Str::is_valid( $str, 1, 100, '/^[0-9]+(?:\.[0-9]+)*(?:\.(?:dev|alpha|beta|rc)\.[0-9](?:\.[0-9]+)*)?$/u' );
+		return U\Str::is_valid_helper( $str, 1, 100, '/^[0-9]+(?:\.[0-9]+)*(?:\.(?:dev|alpha|beta|rc)\.[0-9](?:\.[0-9]+)*)?$/u' );
 	}
 
 	/**
@@ -343,7 +343,7 @@ class Str extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 *
 	 * @return bool True if it's a valid string.
 	 */
-	public static function is_valid(
+	protected static function is_valid_helper(
 		string $str,
 		int $min_chars = 2,
 		int $max_chars = 100,

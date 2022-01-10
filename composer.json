@@ -20,10 +20,6 @@
 			"composer/package-versions-deprecated"           : true
 		}
 	},
-	"bin"               : [
-		"./dev/toolchain/php-scoper/php-scoper-cleanup",
-		"./dev/toolchain/php-scoper/php-scoper-config-file"
-	],
 	"require"           : {
 		"php-64bit"              : "^7.4 || ^8.0 || ^8.1",
 		"ext-json"               : "*",
@@ -52,7 +48,7 @@
 		"post-update-cmd"               : "[ $COMPOSER_DEV_MODE -eq 0 ] || ./dev/toolchain/composer/on-post-update-cmd",
 		"phpunit"                       : "composer exec -- phpunit --configuration ./.phpunit.xml",
 		"webpack"                       : "npx webpack --config ./.webpack.cjs",
-		"php-scoper-config-file-update" : "composer exec -- php-scoper-config-file update"
+		"php-scoper-config-file-update" : "./dev/toolchain/php-scoper/config-file update"
 	},
 	"extra"             : {
 		"clevercanyon" : {

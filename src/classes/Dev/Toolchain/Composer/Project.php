@@ -251,7 +251,8 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 		if ( ! $this->is_wp_plugin() ) {
 			return $cache = false; // Not possible.
 		}
-		$data = (object) [];
+		$data       = (object) [];
+		$data->type = 'plugin';
 
 		$data->file        = U\Dir::join( $this->dir, '/trunk/plugin.php' );
 		$data->readme_file = U\Dir::join( $this->dir, '/trunk/readme.txt' );
@@ -374,7 +375,8 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 		if ( ! $this->is_wp_theme() ) {
 			return $cache = false; // Not possible.
 		}
-		$data = (object) [];
+		$data       = (object) [];
+		$data->type = 'theme';
 
 		$data->file           = U\Dir::join( $this->dir, '/trunk/theme.php' );
 		$data->functions_file = U\Dir::join( $this->dir, '/trunk/functions.php' );
@@ -607,7 +609,7 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	}
 
 	/**
-	 * Gets comp directory copy configuration, applies to all projects.
+	 * Gets comp directory copy configuration.
 	 *
 	 * @since 2021-12-15
 	 *
@@ -616,24 +618,24 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	public function comp_dir_copy_config() : array {
 		return [
 			'ignore'     => [
-				U\Fs::gitignore_regexp( 'positive' ),
+				U\Fs::gitignore_regexp_lookahead( 'positive' ),
 			],
 			'exceptions' => [],
 		];
 	}
 
 	/**
-	 * Gets distro directory prune configuration, applies to all projects.
+	 * Gets comp directory prune configuration.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @return array Distro directory prune configuration.
+	 * @return array Comp directory prune configuration.
 	 */
-	public function distro_dir_prune_config() : array {
+	public function comp_dir_prune_config() : array {
 		$config = [
 			'prune'      => [
-				// `.gitignore`, except `/vendor`.
-				U\Fs::gitignore_regexp( 'positive', null, [ 'vendor' => false ] ),
+				// `.gitignore`, except `/vendor`, which we keep in final distros.
+				U\Fs::gitignore_regexp_lookahead( 'positive', null, [ 'vendor' => false ] ),
 
 				// All dotfiles.
 				'/(?:^|.+?\/)\./ui',
@@ -674,7 +676,8 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 		];
 		if ( $this->is_wp_project() ) {
 			$config[ 'prune' ] = array_merge( $config[ 'prune' ], [
-				// Also all of these in root directory.
+				// The root directory of a WP project is dev-only.
+				// We still keep `trunk/vendor`; i.e., this is a root exclusion only.
 				'/^(?:vendor)$/ui',
 				'/^(?:readme)\.(?:md|txt|rtf)$/ui',
 			] );

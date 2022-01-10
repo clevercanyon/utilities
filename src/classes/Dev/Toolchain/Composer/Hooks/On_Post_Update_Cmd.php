@@ -94,7 +94,8 @@ class On_Post_Update_Cmd extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_
 					'project-dir' => [
 						'optional'    => true,
 						'description' => 'Project directory path.',
-						'validator'   => fn( $value ) => is_dir( $value ),
+						'validator'   => fn( $value ) => $value && is_string( $value ) && is_dir( $value )
+							&& is_file( U\Dir::join( $value, '/composer.json' ) ),
 						'default'     => getcwd(),
 					],
 				],
@@ -107,7 +108,8 @@ class On_Post_Update_Cmd extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_
 					'project-dir' => [
 						'optional'    => true,
 						'description' => 'Project directory path.',
-						'validator'   => fn( $value ) => is_dir( $value ),
+						'validator'   => fn( $value ) => $value && is_string( $value ) && is_dir( $value )
+							&& is_file( U\Dir::join( $value, '/composer.json' ) ),
 						'default'     => getcwd(),
 					],
 				],
@@ -347,7 +349,7 @@ class On_Post_Update_Cmd extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_
 							throw new Exception( 'Failed to update `devDependencies` in: `' . $_to_path . '`.' );
 						}
 						break;
-					} // PLEASE NOTE THE FALLTHROUGH FROM ABOVE!
+					} // Please note the important fallthrough from above.
 				default: // Everything falls through unless there's a `break` above.
 					if ( ! U\Fs::copy( $_from_path, $_to_path ) ) {
 						throw new Exception( 'Failed to setup dotfile: `' . $_to_path . '`.' );
