@@ -51,11 +51,12 @@ trait Stringable_Members {
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @return string {@see AA6t_Plugin::jsonSerialize()} for further details.
+	 * @return string {@see A6t_Base::props()} for further details.
 	 *
 	 * @see   https://www.php.net/manual/en/class.stringable.php
 	 */
 	public function __toString() : string {
-		return get_class( $this ) . "\n" . U\Str::json_encode( $this );
+		return get_class( $this ) . "\n"
+			. U\Str::json_encode( $this->props() );
 	}
 }

@@ -39,12 +39,11 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 trait Members {
 	/**
-	 * STC traits.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
 	use \Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Base\Magic\Uncallable_Members;
 	use \Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Base\Magic\Unimportable_Members;
-
-	use \Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Base\Utilities\STC_Cache_Members;
+	use \Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Base\Utilities\Finals\STC_Cache_Members;
 }

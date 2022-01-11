@@ -1,0 +1,121 @@
+<?php
+/**
+ * CLEVER CANYON™ {@see https://clevercanyon.com}
+ *
+ *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
+ * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
+ * CC      LL      EEEEE    VV   VV  EEEEE   RRRRRR     CC      AA   AA NN N NN  YYYYY  OO   OO NN N NN
+ * CC      LL      EE        VV VV   EE      RR  RR     CC      AAAAAAA NN  NNN   YYY   OO   OO NN  NNN
+ *  CCCCC  LLLLLLL EEEEEEE    VVV    EEEEEEE RR   RR     CCCCC  AA   AA NN   NN   YYY    OOOO0  NN   NN
+ */
+// <editor-fold desc="Strict types, namespace, use statements, and other headers.">
+
+/**
+ * Declarations & namespace.
+ *
+ * @since 2021-12-25
+ */
+declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
+namespace Clever_Canyon\Utilities\OOP\Traits\I7e_CLI_Tool\Utilities;
+
+/**
+ * Utilities.
+ *
+ * @since 2021-12-15
+ */
+use Clever_Canyon\Utilities\{STC as U};
+use Clever_Canyon\Utilities\OOP\{Offsets, Generic, Error, Exception, Fatal_Exception};
+use Clever_Canyon\Utilities\OOP\Abstracts\{A6t_Base, A6t_Offsets, A6t_Generic, A6t_Error, A6t_Exception};
+use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, I7e_Error, I7e_Exception};
+
+/**
+ * File-specific.
+ *
+ * @since 2021-12-15
+ */
+use GetOpt\{GetOpt as Parser, Option, Operand, Command};
+
+// </editor-fold>
+
+/**
+ * Interface members.
+ *
+ * @since 2021-12-15
+ *
+ * @see   I7e_CLI_Tool
+ */
+trait Setter_Members {
+	/**
+	 * Adds commands.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param array $commands Command configurations.
+	 *
+	 * @throws Fatal_Exception On invalid arguments.
+	 * @return self For easy chaining with {@see route_request()}.
+	 */
+	protected function add_commands( array $commands ) : self {
+		try {
+			foreach ( $commands as $_command => $_config ) {
+				$_callback    = $_config[ 'callback' ] ?? null;
+				$_synopsis    = $_config[ 'synopsis' ] ?? null;
+				$_description = $_config[ 'description' ] ?? null;
+				$_options     = $_config[ 'options' ] ?? null;
+				$_operands    = $_config[ 'operands' ] ?? null;
+
+				if ( ! isset( $_callback ) ) {
+					$_callback = [ $this, str_replace( '-', '_', $_command ) ];
+				}
+				$this->parser->addCommand(
+					Command::create( $_command, $_callback )
+						->setShortDescription( $_synopsis ?? '' )
+						->setDescription( $_description ?? '' )
+						->addOptions( $this->build_options( $_options ?? [] ) )
+						->addOperands( $this->build_operands( $_operands ?? [] ) )
+				);
+			}
+		} catch ( \InvalidArgumentException $exception ) {
+			throw new Fatal_Exception( $exception->getMessage() );
+		}
+		return $this; // For chaining.
+	}
+
+	/**
+	 * Adds options.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param array $options Option configurations.
+	 *
+	 * @throws Fatal_Exception On invalid arguments.
+	 * @return self For easy chaining with {@see route_request()}.
+	 */
+	protected function add_options( array $options ) : self {
+		try {
+			$this->parser->addOptions( $this->build_options( $options ) );
+			return $this; // For chaining.
+		} catch ( \InvalidArgumentException $exception ) {
+			throw new Fatal_Exception( $exception->getMessage() );
+		}
+	}
+
+	/**
+	 * Adds operands.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param array $operands Operand configurations.
+	 *
+	 * @throws Fatal_Exception On invalid arguments.
+	 * @return self For easy chaining with {@see route_request()}.
+	 */
+	protected function add_operands( array $operands ) : self {
+		try {
+			$this->parser->addOperands( $this->build_operands( $operands ) );
+			return $this; // For chaining.
+		} catch ( \InvalidArgumentException $exception ) {
+			throw new Fatal_Exception( $exception->getMessage() );
+		}
+	}
+}

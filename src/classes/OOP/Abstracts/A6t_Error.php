@@ -37,7 +37,7 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 abstract class A6t_Error extends A6t_Base implements I7e_Error {
 	/**
-	 * OOP traits.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */

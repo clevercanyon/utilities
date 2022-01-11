@@ -39,22 +39,14 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 trait Members {
 	/**
-	 * OOP traits.
+	 * Traits.
 	 *
 	 * @since 2021-12-28
 	 */
-	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\I7e\ArrayAccess_Members;
-	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\I7e\IteratorAggregate_Members;
-	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\I7e\Countable_Members;
-
-	/**
-	 * Access to offsets.
-	 *
-	 * @since 2021-12-28
-	 *
-	 * @return array Offsets, by value.
-	 */
-	public function offsets() : array {
-		return $this->offsets;
-	}
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\Magic\Constructable_Members;
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\Utilities\Finals\Property_Members;
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\Utilities\Finals\Utility_Members;
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\I7e\Finals\ArrayAccess_Members;
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\I7e\Finals\IteratorAggregate_Members;
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\I7e\Finals\Countable_Members;
 }

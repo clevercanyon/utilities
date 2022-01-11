@@ -37,23 +37,6 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 interface I7e_Exception extends \Throwable {
 	/**
-	 * Constructor.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param string|null       $message  Optional message. Default is empty.
-	 * @param string|null       $code     Optional code. Default is: `basename(file):line`.
-	 * @param object|array|null $data     Optional data, which is converted to an object type.
-	 * @param \Throwable|null   $previous Optional previous exception for chaining in complex applications.
-	 */
-	public function __construct(
-		/* string|null */ ?string $message = null,
-		/* string|null */ ?string $code = null,
-		/* object|array|null */ $data = null,
-		/* \Throwable|null */ ?\Throwable $previous = null
-	);
-
-	/**
 	 * Gets message.
 	 *
 	 * @since 2021-12-17

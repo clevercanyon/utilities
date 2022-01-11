@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\I7e;
+namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\Utilities\Finals;
 
 /**
  * Utilities.
@@ -37,15 +37,11 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  *
  * @see   I7e_Offsets
  */
-trait Countable_Members {
+trait Property_Members {
 	/**
-	 * Counts offsets.
+	 * Offsets container.
 	 *
 	 * @since 2021-12-28
-	 *
-	 * @return int Count.
 	 */
-	public function count() : int {
-		return count( $this->offsets );
-	}
+	private array $offsets = [];
 }

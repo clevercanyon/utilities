@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since 2021-12-15
+ *
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Utilities;
+namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\I7e\Finals;
 
 /**
  * Utilities.
@@ -35,34 +43,23 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  *
  * @since 2021-12-15
  *
- * @see   I7e_Base
+ * @see   I7e_Offsets
  */
-trait Prop_Members {
+trait IteratorAggregate_Members {
 	/**
-	 * Provides access to all properties, by value.
+	 * Accessible non-static props iterator, from outside scope.
 	 *
-	 * @since 2021-12-27
+	 * @since 2021-12-28
 	 *
-	 * @param string $filter Optional filter. Default is `` indicating all props.
-	 *                       `` returns all props and `public` returns only public props.
+	 * @return \Generator Accessible non-static props iterator, from outside scope.
 	 *
-	 * @return array All accessible non-static props w/ the requested visibility.
-	 *               Plus `offsets` if class is an instance of {@see I7e_Offsets}.
+	 * @see   https://www.php.net/manual/en/class.iteratoraggregate.php
+	 * @see   https://www.php.net/manual/en/class.arrayiterator.php
+	 *
+	 * @note  Intentionally not iterating offsets here.
+	 *        To iterate offsets {@see A6t_Offsets::offsets()}.
 	 */
-	public function props( string $filter = '' ) : array {
-		switch ( $filter ) {
-			case 'public':
-				$props = U\Obj::props( $this );
-				break; // Done here.
-
-			default: // All properties.
-				$props = get_object_vars( $this );
-
-				if ( $this instanceof I7e_Offsets ) {
-					$props[ U\Arr::maybe_prefix_key( 'offsets', $props ) ] = $this->offsets();
-				}
-				unset( $props[ 'oop_cache' ] ); // Never export cache.
-		}
-		return $props;
+	final public function getIterator() : \Generator {
+		yield from $this->props( 'public' );
 	}
 }

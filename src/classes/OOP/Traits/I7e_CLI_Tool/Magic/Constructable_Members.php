@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Utilities;
+namespace Clever_Canyon\Utilities\OOP\Traits\I7e_CLI_Tool\Magic;
 
 /**
  * Utilities.
@@ -28,6 +28,13 @@ use Clever_Canyon\Utilities\OOP\{Offsets, Generic, Error, Exception, Fatal_Excep
 use Clever_Canyon\Utilities\OOP\Abstracts\{A6t_Base, A6t_Offsets, A6t_Generic, A6t_Error, A6t_Exception};
 use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, I7e_Error, I7e_Exception};
 
+/**
+ * File-specific.
+ *
+ * @since 2021-12-15
+ */
+use GetOpt\{GetOpt as Parser, Option, Operand, Command};
+
 // </editor-fold>
 
 /**
@@ -35,46 +42,33 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  *
  * @since 2021-12-15
  *
- * @see   I7e_Base
+ * @see   I7e_CLI_Tool
  */
-trait OOP_Cache_Members {
+trait Constructable_Members {
 	/**
-	 * OOP cache.
+	 * Constructor.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param string|array|null $args_to_parse Custom args to parse?
+	 *                                         If not given, defaults internally to `$_SERVER['argv']`.
+	 *
+	 * @see   http://getopt-php.github.io/getopt-php/
 	 */
-	private array $oop_cache = [];
+	public function __construct( /* string|array|null */ $args_to_parse = null ) {
+		parent::__construct();
+		$this->args_to_parse = $args_to_parse;
 
-	/**
-	 * Gets|sets OOP cache.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param string|array $key   Cache key part(s) to get or set.
-	 * @param mixed        $value Cache value, when setting cache.
-	 *
-	 * @return mixed Cached value, by reference. Defaults to `null`.
-	 */
-	protected function &oop_cache( /* string|array */ $key, /* mixed */ $value = null ) /* : mixed */ {
-		if ( is_array( $key ) ) {
-			$key = implode( '|©|', array_map( 'strval', $key ) );
+		if ( isset( $this->args_to_parse ) && ! is_array( $this->args_to_parse ) ) {
+			$this->args_to_parse = (string) $this->args_to_parse;
 		}
-		$key = (string) $key; // Force string key.
-
-		if ( func_num_args() >= 2 ) {
-			$this->oop_cache[ $key ] = $value;
-		} else {
-			$this->oop_cache[ $key ] ??= null;
-		}
-		return $this->oop_cache[ $key ];
-	}
-
-	/**
-	 * Clears OOP cache.
-	 *
-	 * @since 2021-12-15
-	 */
-	protected function oop_cache_clear() : void {
-		$this->oop_cache = [];
+		$this->parser = new Parser( null, [
+			Parser::SETTING_STRICT_OPTIONS  => true,
+			Parser::SETTING_STRICT_OPERANDS => true,
+		] );
+		$this->add_options( [
+			'help'    => [ 'description' => 'Get help.' ],
+			'version' => [ 'description' => 'Show version.' ],
+		] );
 	}
 }

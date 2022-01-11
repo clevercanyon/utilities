@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Base\Utilities;
+namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Finals;
 
 /**
  * Utilities.
@@ -35,50 +35,36 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  *
  * @since 2021-12-15
  *
- * @see   \Clever_Canyon\Utilities\STC\Interfaces\I7e_Stc_Base
+ * @see   I7e_Base
  */
-trait STC_Cache_Members {
+trait Unreadable_Members {
 	/**
-	 * STC cache.
-	 *
-	 * @since 2021-12-15
-	 */
-	private static array $stc_cache = [];
-
-	/**
-	 * Gets|sets STC cache.
+	 * Tests inaccessible properties.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string|array $key   Cache key part(s) to get or set.
-	 * @param mixed        $value Cache value, when setting cache.
+	 * @param string $prop Property name.
 	 *
-	 * @return mixed Cached value, by reference. Defaults to `null`.
+	 * @return bool True if property exists.
 	 */
-	protected static function &stc_cache( /* string|array */ $key, /* mixed */ $value = null ) /* : mixed */ {
-		if ( is_array( $key ) ) {
-			$key = implode( '|©|', array_map( 'strval', $key ) );
-		}
-		$key = (string) $key; // Force string key.
-
-		$called_class                       = get_called_class();
-		static::$stc_cache[ $called_class ] ??= [];
-
-		if ( func_num_args() >= 2 ) {
-			static::$stc_cache[ $called_class ][ $key ] = $value;
-		} else {
-			static::$stc_cache[ $called_class ][ $key ] ??= null;
-		}
-		return static::$stc_cache[ $called_class ][ $key ];
+	final public function __isset( string $prop ) : bool {
+		return false; // Inaccessible.
 	}
 
 	/**
-	 * Clears STC cache.
+	 * Gets inaccessible properties.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param string $prop Property name.
+	 *
+	 * @throws Fatal_Exception If called in any way.
+	 * @return mixed Property value.
 	 */
-	protected static function stc_cache_clear() : void {
-		$called_class                       = get_called_class();
-		static::$stc_cache[ $called_class ] = [];
+	final public function __get( string $prop ) /* : mixed */ {
+		throw new Fatal_Exception(
+			'Any attempt to read inaccessible properties of: `' . get_class( $this ) . '`.' .
+			' is potentially dangerous and therefore not allowed at this time.'
+		);
 	}
 }

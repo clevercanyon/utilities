@@ -211,7 +211,7 @@ class Scoper extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 			throw new Exception( 'Missing `output-dir`: `' . $output_dir . '`.' );
 		}
 		$standard = U\Dir::join( $project_dir, '/.phpcs.xml' );
-		$ignore   = U\Fs::gitignore_phpcs_regexp_lookahead_positive( [ 'except:vendor/' => 'clevercanyon' ] );
+		$ignore   = U\Fs::gitignore_phpcs_regexp_lookahead_positive( $output_dir, [ 'except:vendor/' => 'clevercanyon' ] );
 
 		if ( // This tool has non-standard exit codes. Exit status of `3` or higher is an issue.
 			// {@see https://github.com/squizlabs/PHP_CodeSniffer/issues/1818#issuecomment-354420927}.

@@ -37,18 +37,9 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 abstract class A6t_Base implements I7e_Base {
 	/**
-	 * OOP traits.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Members;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 2021-12-15
-	 */
-	public function __construct() {
-		// Nothing at this time.
-	}
 }

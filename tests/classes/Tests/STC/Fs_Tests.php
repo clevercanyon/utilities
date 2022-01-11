@@ -479,7 +479,7 @@ final class Fs_Tests extends \Clever_Canyon\Utilities__Tests\Framework\A7s_Tests
 
 			'.'    => 'not-ignored',
 			'/'    => 'not-ignored',
-			''     => 'not-ignored',
+			''     => 'ignored',
 			'/foo' => 'not-ignored',
 
 			'/foo/bar/git'     => 'not-ignored',

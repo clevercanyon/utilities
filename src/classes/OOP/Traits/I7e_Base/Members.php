@@ -39,17 +39,13 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 trait Members {
 	/**
-	 * STC traits.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
 	use \Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Base\Members;
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Constructable_Members;
 
-	/**
-	 * OOP traits.
-	 *
-	 * @since 2021-12-15
-	 */
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Cloneable_Members;
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Debuggable_Members;
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Stringable_Members;
@@ -60,10 +56,9 @@ trait Members {
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Uncallable_Members;
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Uninvokable_Members;
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Unserializable_Members;
-
-	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Utilities\Prop_Members;
-	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Utilities\Equals_Members;
-	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Utilities\OOP_Cache_Members;
-
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\I7e\JsonSerializable_Members;
+
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Utilities\Finals\Prop_Members;
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Utilities\Finals\Equals_Members;
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Utilities\Finals\OOP_Cache_Members;
 }

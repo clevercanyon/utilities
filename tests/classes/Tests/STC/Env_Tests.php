@@ -202,7 +202,7 @@ final class Env_Tests extends \Clever_Canyon\Utilities__Tests\Framework\A7s_Test
 	public function test_disable_robots() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
 		$this->assertSame( true, U\Env::disable_robots(), $this->message() );
-		$this->assertSame( [ 'noindex' ], U\Env::static_var( 'ROBOTS' ), $this->message() );
+		$this->assertSame( [ 'none', 'noindex', 'nofollow' ], U\Env::static_var( 'ROBOTS' ), $this->message() );
 	}
 
 	/**
@@ -287,6 +287,6 @@ final class Env_Tests extends \Clever_Canyon\Utilities__Tests\Framework\A7s_Test
 		$this->assertSame( true, PHP_SESSION_ACTIVE !== session_status(), $this->message() );
 		$this->assertSame( true, 1 === ob_get_level(), $this->message() );
 		$this->assertSame( false, U\Env::static_var( 'CACHE' ), $this->message() );
-		$this->assertSame( [ 'noindex' ], U\Env::static_var( 'ROBOTS' ), $this->message() );
+		$this->assertSame( [ 'none', 'noindex', 'nofollow' ], U\Env::static_var( 'ROBOTS' ), $this->message() );
 	}
 }

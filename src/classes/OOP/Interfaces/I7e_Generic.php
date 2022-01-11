@@ -35,14 +35,4 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Error, I7
  *
  * @since 2021-12-15
  */
-interface I7e_Generic extends I7e_Offsets {
-	/**
-	 * Constructor.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param object|array $props   Optional initial props. Default is `[]`.
-	 * @param object|array $offsets Optional initial offsets. Default is `[]`.
-	 */
-	public function __construct( /* array|object */ $props = [], /* array|object */ $offsets = [] );
-}
+interface I7e_Generic extends I7e_Offsets { }

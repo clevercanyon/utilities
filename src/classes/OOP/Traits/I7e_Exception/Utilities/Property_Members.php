@@ -15,7 +15,10 @@
  *
  * @since 2021-12-15
  *
- * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ * @note  Leading underscores in this file help us guard against collisions with PHP core in the future.
+ *        Using `snake_case()` method names to guard against collisions also. PHP core uses `camelCase()`.
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 
 /**
@@ -24,7 +27,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\I7e;
+namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Exception\Utilities;
 
 /**
  * Utilities.
@@ -43,65 +46,20 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  *
  * @since 2021-12-15
  *
- * @see   I7e_Offsets
+ * @see   I7e_Exception
  */
-trait ArrayAccess_Members {
+trait Property_Members {
 	/**
-	 * Offsets container.
+	 * Exception code.
 	 *
-	 * @since 2021-12-28
+	 * @since 2021-12-15
 	 */
-	private array $offsets = [];
+	protected string $___code;
 
 	/**
-	 * Sets an offset key.
+	 * Exception data.
 	 *
-	 * @since 2021-12-28
-	 *
-	 * @param mixed $offset Offset key.
-	 * @param mixed $value  Offset value.
+	 * @since 2021-12-15
 	 */
-	public function offsetSet( /* mixed */ $offset, /* mixed */ $value ) : void {
-		if ( null === $offset ) {
-			$this->offsets[] = $value;
-		} else {
-			$this->offsets[ $offset ] = $value;
-		}
-	}
-
-	/**
-	 * Checks if offset exists.
-	 *
-	 * @since 2021-12-28
-	 *
-	 * @param mixed $offset Offset key.
-	 */
-	public function offsetExists( /* mixed */ $offset ) : bool {
-		return isset( $this->offsets[ $offset ] );
-	}
-
-	/**
-	 * Unsets an offset key.
-	 *
-	 * @since 2021-12-28
-	 *
-	 * @param mixed $offset Offset key.
-	 */
-	public function offsetUnset( /* mixed */ $offset ) : void {
-		unset( $this->offsets[ $offset ] );
-	}
-
-	/**
-	 * Gets an offset value.
-	 *
-	 * @since        2021-12-28
-	 *
-	 * @param mixed $offset Offset key.
-	 *
-	 * @noinspection PhpLanguageLevelInspection
-	 */
-	#[\ReturnTypeWillChange]
-	public function offsetGet( /* mixed */ $offset ) /* : mixed */ {
-		return $this->offsets[ $offset ] ?? null;
-	}
+	protected object $___data;
 }

@@ -37,25 +37,9 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 abstract class A6t_Offsets extends A6t_Base implements I7e_Offsets {
 	/**
-	 * OOP traits.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\Members;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param object|array $offsets Optional initial offsets. Default is `[]`.
-	 */
-	public function __construct( /* array|object */ $offsets = [] ) {
-		assert( U\Ctn::is( $offsets ) );
-		parent::__construct();
-
-		foreach ( $offsets as $_key => $_value ) {
-			$this[ $_key ] = $_value;
-		}
-	}
 }

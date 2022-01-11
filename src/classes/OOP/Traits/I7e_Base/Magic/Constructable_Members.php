@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Utilities;
+namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic;
 
 /**
  * Utilities.
@@ -37,23 +37,13 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  *
  * @see   I7e_Base
  */
-trait Equals_Members {
+trait Constructable_Members {
 	/**
-	 * Checks equality with another instance.
+	 * Constructor.
 	 *
-	 * @since 2021-12-27
-	 *
-	 * @param I7e_Base $b Instance to compare equality with.
-	 *
-	 * @return bool True if equal, based on {@see AA6t_Plugin::props()}.
+	 * @since 2021-12-15
 	 */
-	public function equals( I7e_Base $b ) : bool {
-		$a_str = get_class( $this ) . "\n" .
-			U\Str::json_encode( $this->props() );
-
-		$b_str = get_class( $b ) . "\n" .
-			U\Str::json_encode( $b->props() );
-
-		return $a_str === $b_str;
+	public function __construct() {
+		// Establishes a parent constructor for all child classes.
 	}
 }

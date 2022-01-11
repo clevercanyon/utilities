@@ -39,37 +39,13 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 trait Members {
 	/**
-	 * STC traits.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
+	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Generic\Magic\Constructable_Members;
 	use \Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Base\Magic\Callable_Members;
-
-	/**
-	 * OOP traits.
-	 *
-	 * @since 2021-12-15
-	 */
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Readable_Members;
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Writable_Members;
 	use \Clever_Canyon\Utilities\OOP\Traits\I7e_Base\Magic\Callable_Members;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param object|array $props   Optional initial props. Default is `[]`.
-	 * @param object|array $offsets Optional initial offsets. Default is `[]`.
-	 */
-	public function __construct( /* array|object */ $props = [], /* array|object */ $offsets = [] ) {
-		parent::__construct( $offsets );
-		assert( U\Ctn::is( $props ) );
-
-		foreach ( $props as $_prop => $_value ) {
-			if ( 'offsets' !== $_prop ) { // Reserved property.
-				$this->{$_prop} = $_value;
-			}
-		}
-	}
 }

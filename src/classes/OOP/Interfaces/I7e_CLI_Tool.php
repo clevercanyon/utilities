@@ -35,16 +35,4 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  *
  * @since 2021-12-15
  */
-interface I7e_CLI_Tool extends I7e_Base {
-	/**
-	 * Constructor.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param string|array|null $args_to_parse Optional custom args to parse instead of `$_SERVER['argv']`.
-	 *                                         If not given, defaults internally to `$_SERVER['argv']`.
-	 *
-	 * @see   http://getopt-php.github.io/getopt-php/
-	 */
-	public function __construct( /* string|array|null */ $args_to_parse = null );
-}
+interface I7e_CLI_Tool extends I7e_Base { }

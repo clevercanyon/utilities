@@ -37,20 +37,10 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 abstract class A6t_Stc_Base implements \Clever_Canyon\Utilities\STC\Interfaces\I7e_Stc_Base {
 	/**
-	 * STC traits.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
 	use \Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Base\Members;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @throws Exception If class instantiation occurs.
-	 */
-	final public function __construct() {
-		throw new Exception( 'Any attempt to instantiate: `' . get_class( $this ) . '` is pointless and therefore not allowed.' );
-	}
+	use \Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Base\Magic\Unconstructable_Members;
 }

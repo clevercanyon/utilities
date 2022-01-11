@@ -888,7 +888,11 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 *
 	 * @since 2021-12-18
 	 *
-	 * @param array $args Optional arguments that offer some additional options.
+	 * @param string $base_path The PHPCS/PHPCBF tools treat `--ignore=` patterns as absolute path checks.
+	 *                          We can force them to be treated as relative path checks by prefixing
+	 *                          our pattern with a base path that we're giving to these tools.
+	 *
+	 * @param array  $args      Optional arguments that offer some additional options.
 	 *
 	 *    bool   'vendor'         Default is `true`, as ignoring `/vendor` matches our `.gitignore` configuration.
 	 *                            That said, it's often desirable to ship `/vendor` as part of a distro, so the option is here.
@@ -911,7 +915,7 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 *        Patterns that end with `/*` are tested against both directories and files. Otherwise, files only.
 	 *        A `/*` on the end of the pattern is replaced by `(?=/|$)` at runtime.
 	 */
-	public static function gitignore_phpcs_regexp_lookahead_positive( array $args = [] ) : string {
+	public static function gitignore_phpcs_regexp_lookahead_positive( string $base_path, array $args = [] ) : string {
 		$lookahead       = 'positive';
 		$regexp_fragment = '.+/*'; // `/*` becomes `(?=/|$)`.
 
@@ -922,6 +926,8 @@ class Fs extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 		$args         = $args + $default_args;
 
 		$re = '';   // Initialize for string concatenation.
+		$re .= U\Str::esc_reg( U\Fs::normalize( $base_path ), '`' );
+
 		$re .= '^'; // Beginning of line, or file path, in this case.
 
 		$re .= '    (' . ( 'positive' === $lookahead ? '?=' : '?!' );

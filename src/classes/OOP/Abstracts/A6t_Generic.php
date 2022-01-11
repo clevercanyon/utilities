@@ -37,7 +37,7 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 abstract class A6t_Generic extends A6t_Offsets implements I7e_Generic {
 	/**
-	 * OOP traits.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */

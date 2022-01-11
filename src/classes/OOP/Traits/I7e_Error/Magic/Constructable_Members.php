@@ -11,20 +11,12 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Lint configuration.
- *
- * @since 2021-12-15
- *
- * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
- */
-
-/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Offsets\I7e;
+namespace Clever_Canyon\Utilities\OOP\Traits\I7e_Error\Magic;
 
 /**
  * Utilities.
@@ -43,23 +35,33 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  *
  * @since 2021-12-15
  *
- * @see   I7e_Offsets
+ * @see   I7e_Error
  */
-trait IteratorAggregate_Members {
+trait Constructable_Members {
 	/**
-	 * Accessible non-static props iterator, from outside scope.
+	 * Initializes the error.
 	 *
-	 * @since 2021-12-28
+	 * @since 2021-12-15
 	 *
-	 * @return \Generator Accessible non-static props iterator, from outside scope.
+	 * @param string|int $code    Error code. If `$code` is empty, the other parameters will be ignored.
+	 * @param string     $message Error message. When `$code` is not empty, `$message` will be used even if it's empty.
+	 * @param mixed      $data    Optional. Error data. The `$data` parameter will be used only if it is not empty.
 	 *
-	 * @see   https://www.php.net/manual/en/class.iteratoraggregate.php
-	 * @see   https://www.php.net/manual/en/class.arrayiterator.php
+	 * @note  This is a slightly modified clone of {@see \WP_Error}.
+	 *        It remains 100% interchangeable with WordPress errors as of 2021-12-15.
 	 *
-	 * @note  Intentionally not iterating offsets here.
-	 *        To iterate offsets {@see A6t_Offsets::offsets()}.
+	 * @note  Though the class is constructed with a single error code and
+	 *        message, multiple codes can be added using the {@see add()} method.
 	 */
-	public function getIterator() : \Generator {
-		yield from $this->props( 'public' );
+	public function __construct( /* string|int */ $code = '', string $message = '', /* mixed */ $data = '' ) {
+		assert( is_string( $code ) || is_int( $code ) );
+		assert( is_string( $message ) );
+
+		parent::__construct();
+
+		if ( ! $code ) {
+			return; // Nothing.
+		}
+		$this->add( $code, $message, $data );
 	}
 }

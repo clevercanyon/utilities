@@ -40,20 +40,6 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 interface I7e_Error {
 	/**
-	 * Initializes the error.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param string|int $code    Error code. If `$code` is empty, the other parameters will be ignored.
-	 * @param string     $message Error message. When `$code` is not empty, `$message` will be used even if it's empty.
-	 * @param mixed      $data    Optional. Error data. The `$data` parameter will be used only if it is not empty.
-	 *
-	 * @note  Though the class is constructed with a single error code and
-	 *        message, multiple codes can be added using the {@see add()} method.
-	 */
-	public function __construct( /* string|int */ $code = '', string $message = '', /* mixed */ $data = '' );
-
-	/**
 	 * Retrieves all error codes.
 	 *
 	 * @since 2021-12-15
