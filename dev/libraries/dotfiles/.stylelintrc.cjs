@@ -12,15 +12,15 @@
 /* eslint-env node */
 
 module.exports = {
-	plugins     : [ 'stylelint-scss' ],
-	extends     : [
+	plugins   : [ 'stylelint-scss' ],
+	extends   : [
 		'stylelint-config-standard',
 		'stylelint-config-html',
 		'stylelint-no-unsupported-browser-features',
 		'stylelint-config-recess-order',
 		'stylelint-config-prettier',
 	],
-	rules       : {
+	rules     : {
 		indentation                 : 'tab',
 		'no-duplicate-selectors'    : false,
 		'selector-type-no-unknown'  : false,
@@ -39,10 +39,7 @@ module.exports = {
 			},
 		],
 	},
-	ignoreFiles : [
-		'{**/*,**/.*,.*,*}.css',
-	],
-	overrides   : [
+	overrides : [
 		{
 			files        : [ '{**/*,**/.*,.*,*}.css' ],
 			customSyntax : 'postcss-safe-parser',
