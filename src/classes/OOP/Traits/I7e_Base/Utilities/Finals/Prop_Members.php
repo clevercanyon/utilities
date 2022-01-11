@@ -39,30 +39,16 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 trait Prop_Members {
 	/**
-	 * Provides access to all properties, by value.
+	 * Gets non-static properties, by value.
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @param string $filter Optional filter. Default is `` indicating all props.
-	 *                       `` returns all props and `public` returns only public props.
+	 * @param string|null $filter Optional filter. Default is `null`.
+	 *                            {@see U\Obj::props()} for further details.
 	 *
-	 * @return array All accessible non-static props w/ the requested visibility.
-	 *               Plus `offsets` if class is an instance of {@see A6t_Offsets}.
+	 * @return array Non-static properties using the given `$filter`.
 	 */
-	final public function props( string $filter = '' ) : array {
-		switch ( $filter ) {
-			case 'public':
-				$props = U\Obj::props( $this );
-				break; // Done here.
-
-			default: // All properties.
-				$props = get_object_vars( $this );
-
-				if ( $this instanceof A6t_Offsets ) {
-					$props[ U\Arr::maybe_prefix_key( 'offsets', $props ) ] = $this->offsets();
-				}
-				unset( $props[ 'oop_cache' ] ); // Never export cache.
-		}
-		return $props;
+	final public function props( /* string|null */ ?string $filter = null ) : array {
+		return U\Obj::props( $this, $filter );
 	}
 }

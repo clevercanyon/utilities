@@ -48,11 +48,31 @@ use Clever_Canyon\Utilities\Dev\Toolchain\{Tools as T};
  * @property-read $json
  * @property-read $dev_json
  *
- * @property-read $name
- * @property-read $name_hash
+ * @property-read $type
+ * @property-read $layout
  *
+ * @property-read $version
+ * @property-read $stable_tag
+ *
+ * @property-read $pkg_name
+ * @property-read $pkg_name_hash
+ *
+ * @property-read $brand_name
  * @property-read $brand_slug
  * @property-read $brand_var
+ *
+ * @property-read $brand_slug_prefix
+ * @property-read $brand_var_prefix
+ *
+ * @property-read $name
+ * @property-read $slug
+ * @property-read $var
+ *
+ * @property-read $slug_prefix
+ * @property-read $var_prefix
+ *
+ * @property-read $unbranded_slug
+ * @property-read $unbranded_var
  */
 class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	/**
@@ -81,42 +101,140 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	 *
 	 * @since 2021-12-15
 	 */
-	protected \stdClass $json;
+	protected object $json;
 
 	/**
 	 * Dev.json props.
 	 *
 	 * @since 2021-12-15
 	 */
-	protected \stdClass $dev_json;
+	protected object $dev_json;
 
 	/**
-	 * Name.
+	 * Type; e.g., `library`.
 	 *
 	 * @since 2021-12-15
 	 */
-	protected string $name;
+	protected string $type;
 
 	/**
-	 * Name hash.
+	 * Layout; e.g., `library`.
 	 *
 	 * @since 2021-12-15
 	 */
-	protected string $name_hash;
+	protected string $layout;
 
 	/**
-	 * Brand slug.
+	 * Version; e.g., `1.0.0`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $version;
+
+	/**
+	 * Stable tag; e.g., `1.0.0`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $stable_tag;
+
+	/**
+	 * Pkg name; e.g., `clevercanyon/my-brand-my-thing`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $pkg_name;
+
+	/**
+	 * Pkg name hash; e.g., `xj9ier8xr3oa`
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $pkg_name_hash;
+
+	/**
+	 * Brand name; e.g., `My Brand`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $brand_name;
+
+	/**
+	 * Brand slug; e.g., `my-brand`.
 	 *
 	 * @since 2021-12-15
 	 */
 	protected string $brand_slug;
 
 	/**
-	 * Brand var.
+	 * Brand var; e.g., `my_brand`.
 	 *
 	 * @since 2021-12-15
 	 */
 	protected string $brand_var;
+
+	/**
+	 * Brand slug prefix (i.e., my-brand-).
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $brand_slug_prefix;
+
+	/**
+	 * Brand var prefix (i.e., my_brand_).
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $brand_var_prefix;
+
+	/**
+	 * Name; e.g., `My Thing`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $name;
+
+	/**
+	 * Slug; e.g., `my-brand-my-thing`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $slug;
+
+	/**
+	 * Var; e.g., `my_brand_my_thing`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $var;
+
+	/**
+	 * Slug prefix (e.g., my-brand-my-thing--).
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $slug_prefix;
+
+	/**
+	 * Var prefix (e.g., my_brand_my_thing__).
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $var_prefix;
+
+	/**
+	 * Unbranded slug; e.g., `my-thing`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $unbranded_slug;
+
+	/**
+	 * Unbranded var; e.g., `my_thing`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $unbranded_var;
 
 	/**
 	 * Constructor.
@@ -130,18 +248,18 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	public function __construct( string $dir ) {
 		parent::__construct();
 
-		// Validate directory.
+		// Validate directory & file.
 
 		$this->dir  = U\Fs::normalize( $dir );
 		$this->file = U\Dir::join( $this->dir, '/composer.json' );
 
-		if ( ! $this->dir ) {
+		if ( ! $this->dir || ! is_dir( $this->dir ) ) {
 			throw new Fatal_Exception( 'Missing `Project->dir`.' );
 		}
-		if ( ! is_file( $this->file ) ) {
+		if ( ! $this->file || ! is_file( $this->file ) ) {
 			throw new Fatal_Exception( 'Missing `Project->file`.' );
 		}
-		// Validate JSON data.
+		// Validate JSON properties.
 
 		$this->dev_json = T\Dev::json( null, 'clevercanyon' );
 		$this->json     = T\Composer::json( $this->dir, 'clevercanyon' );
@@ -149,23 +267,94 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 		if ( ! isset( $this->json->name, $this->json->extra ) ) {
 			throw new Fatal_Exception( 'Missing or extremely incomplete `Project->json` file.' );
 		}
-		// Validate name property.
+		if ( ! $this->json->name || ! is_string( $this->json->name ) ) {
+			throw new Fatal_Exception( 'Missing or invalid data type for `Project->json->name`.' );
+		}
+		if ( ! $this->json->extra || ! is_object( $this->json->extra ) ) {
+			throw new Fatal_Exception( 'Missing or invalid data type for `Project->json->extra`.' );
+		}
+		// Validate type and layout properties.
 
-		$this->name      = strval( $this->json->name );
-		$this->name_hash = U\Crypto::x_sha( $this->name );
+		$this->type   = strval( $this->json->type ?? '' ) ?: 'library';
+		$this->layout = strval( $this->extra_json_prop( '&.project.data.layout' ) ) ?: 'library';
 
-		if ( ! $this->name || ! preg_match( T\Composer::PACKAGE_NAME_REGEXP, $this->name ) ) {
-			throw new Fatal_Exception( 'Missing or invalid characters in `Project->name`. Must match: `' . T\Composer::PACKAGE_NAME_REGEXP . '`.' );
+		if ( ! $this->type || ! U\Str::is_slug( $this->type ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->type`.' );
+		}
+		if ( ! $this->layout || ! U\Str::is_slug( $this->layout ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->layout`.' );
+		}
+		// Validate version and stable tag properties.
+
+		$this->version    = strval( $this->extra_json_prop( '&.project.data.version' ) );
+		$this->stable_tag = strval( $this->extra_json_prop( '&.project.data.stable_tag' ) );
+
+		if ( ! $this->version || ! U\Str::is_version( $this->version ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->version`.' );
+		}
+		if ( ! $this->stable_tag || ! U\Str::is_version( $this->stable_tag ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->stable_tag`.' );
+		}
+		// Validate package name properties.
+
+		$this->pkg_name      = strval( $this->json->name );
+		$this->pkg_name_hash = U\Crypto::x_sha( $this->pkg_name, 12 );
+
+		if ( ! $this->pkg_name || ! preg_match( T\Composer::PACKAGE_NAME_REGEXP, $this->pkg_name ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->pkg_name`.' );
+		}
+		if ( ! $this->pkg_name_hash || 12 !== strlen( $this->pkg_name_hash ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->pkg_name_hash`.' );
 		}
 		// Validate brand properties.
 
-		$this->brand_slug = strval( U\Obj::get_prop( $this->json->extra, '&.brand.data.slug' ) );
+		$this->brand_name = strval( $this->extra_json_prop( '&.brand.data.name' ) );
+		$this->brand_slug = strval( $this->extra_json_prop( '&.brand.data.slug' ) );
 		$this->brand_var  = str_replace( '-', '_', $this->brand_slug );
 
-		if ( ! $this->brand_slug || ! $this->brand_var ) {
-			throw new Fatal_Exception( 'Missing `Project->brand_slug|brand_var`.' );
+		$this->brand_slug_prefix = $this->brand_slug . '-';
+		$this->brand_var_prefix  = $this->brand_var . '_';
+
+		if ( ! $this->brand_name || ! U\Str::is_name( $this->brand_name ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->brand_name`.' );
 		}
-		// Validate WordPress plugin/theme data.
+		if ( ! $this->brand_slug || ! U\Str::is_slug( $this->brand_slug ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->brand_slug`.' );
+		}
+		if ( ! $this->brand_var || ! U\Str::is_var( $this->brand_var ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->brand_var`.' );
+		}
+		// Validate project name, slug, and var properties.
+
+		$this->name = strval( $this->extra_json_prop( '&.project.data.name' ) );
+		$this->slug = basename( $this->pkg_name ); // Project slug can easily be derived from Composer package name.
+		$this->slug = ! U\Str::begins_with( $this->slug, $this->brand_slug_prefix ) ? $this->brand_slug_prefix . $this->slug : $this->slug;
+		$this->var  = str_replace( '-', '_', $this->slug );
+
+		$this->slug_prefix = $this->slug . '--';
+		$this->var_prefix  = $this->var . '__';
+
+		if ( ! $this->name || ! U\Str::is_name( $this->name ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->name`.' );
+		}
+		if ( ! $this->slug || ! U\Str::is_slug( $this->slug, $this->brand_slug_prefix ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->slug`.' );
+		}
+		if ( ! $this->var || ! U\Str::is_var( $this->var, $this->brand_var_prefix ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->var`.' );
+		}
+		// Validate unbranded slug & var properties.
+
+		$this->unbranded_slug = preg_replace( '/^' . U\Str::esc_reg( $this->brand_slug_prefix ) . '/ui', '', $this->slug );
+		$this->unbranded_var  = str_replace( '-', '_', $this->unbranded_slug );
+
+		if ( ! $this->unbranded_slug || ! U\Str::is_slug( $this->unbranded_slug ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->unbranded_slug`.' );
+		}
+		if ( ! $this->unbranded_var || ! U\Str::is_var( $this->unbranded_var ) ) {
+			throw new Fatal_Exception( 'Missing or invalid characters in `Project->unbranded_var`.' );
+		}
+		// Validate WordPress plugin & theme data.
 
 		if ( $this->is_wp_plugin() && ! $this->wp_plugin_data() ) {
 			throw new Fatal_Exception( 'Missing or incomplete `Project->wp_plugin_data()`.' );
@@ -202,6 +391,18 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	}
 
 	/**
+	 * Distro library?
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return bool True if distro lib.
+	 */
+	public function is_distro_lib() : bool {
+		return 'library' === $this->type
+			&& 'distro-lib' === $this->layout;
+	}
+
+	/**
 	 * WordPress project?
 	 *
 	 * @since 2021-12-15
@@ -220,7 +421,9 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	 * @return bool True if WordPress plugin.
 	 */
 	public function is_wp_plugin() : bool {
-		return $this->has_file( 'trunk/plugin.php' );
+		return 'library' === $this->type
+			&& 'wp-plugin' === $this->layout
+			&& $this->has_file( 'trunk/plugin.php' );
 	}
 
 	/**
@@ -231,7 +434,35 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	 * @return bool True if WordPress theme.
 	 */
 	public function is_wp_theme() : bool {
-		return $this->has_file( 'trunk/theme.php' );
+		return 'library' === $this->type
+			&& 'wp-theme' === $this->layout
+			&& $this->has_file( 'trunk/theme.php' );
+	}
+
+	/**
+	 * Gets `composer.json` extra property value, by path.
+	 *
+	 * @since 2022-01-11
+	 *
+	 * @param string $prop Prop path to query.
+	 *
+	 * @return mixed Value, else `null` on failure to locate.
+	 */
+	public function extra_json_prop( string $prop ) /* : mixed */ {
+		return U\Obj::get_prop( $this->json->extra, preg_replace( '/^clevercanyon\./u', '&.', $prop ) );
+	}
+
+	/**
+	 * Gets `.dev.json` property value, by path.
+	 *
+	 * @since 2022-01-11
+	 *
+	 * @param string $prop Prop path to query.
+	 *
+	 * @return mixed Value, else `null` on failure to locate.
+	 */
+	public function dev_json_prop( string $prop ) /* : mixed */ {
+		return U\Obj::get_prop( $this->dev_json, preg_replace( '/^clevercanyon\./u', '&.', $prop ) );
 	}
 
 	/**
@@ -251,12 +482,11 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 		if ( ! $this->is_wp_plugin() ) {
 			return $cache = false; // Not possible.
 		}
-		$data       = (object) [];
-		$data->type = 'plugin';
+		$data = (object) []; // Initialize.
 
+		$data->dir         = U\Dir::join( $this->dir, '/trunk' );
 		$data->file        = U\Dir::join( $this->dir, '/trunk/plugin.php' );
 		$data->readme_file = U\Dir::join( $this->dir, '/trunk/readme.txt' );
-		$data->dir         = U\Dir::name( $data->file );
 
 		if ( ! is_dir( $data->dir )
 			|| ! is_readable( $data->dir )
@@ -272,20 +502,6 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 				' Must have `plugin.php` and `readme.txt`.'
 			);
 		}
-		if ( count( $_p = explode( '/', $data->file ) ) < 3 ) {
-			throw new Fatal_Exception( 'Unexpected plugin file path: `' . $data->file . '`.' );
-		}
-		$data->basename = $_p[ count( $_p ) - 3 ] . '/' . $_p[ count( $_p ) - 2 ];
-
-		$data->slug = basename( U\Dir::name( $data->basename ) );
-		$data->var  = str_replace( '-', '_', $data->slug );
-
-		$data->brand_slug = &$this->brand_slug;
-		$data->brand_var  = &$this->brand_var;
-
-		$data->unbranded_slug = preg_replace( '/^' . U\Str::esc_reg( $data->brand_slug . '-' ) . '/ui', '', $data->slug );
-		$data->unbranded_var  = str_replace( '-', '_', $data->unbranded_slug );
-
 		$data->headers = $this->wp_plugin_file_headers();
 
 		return $cache = $data;
@@ -375,14 +591,13 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 		if ( ! $this->is_wp_theme() ) {
 			return $cache = false; // Not possible.
 		}
-		$data       = (object) [];
-		$data->type = 'theme';
+		$data = (object) []; // Initialize.
 
+		$data->dir            = U\Dir::join( $this->dir, '/trunk' );
 		$data->file           = U\Dir::join( $this->dir, '/trunk/theme.php' );
 		$data->functions_file = U\Dir::join( $this->dir, '/trunk/functions.php' );
 		$data->style_file     = U\Dir::join( $this->dir, '/trunk/style.css' );
 		$data->readme_file    = U\Dir::join( $this->dir, '/trunk/readme.txt' );
-		$data->dir            = U\Dir::name( $data->file );
 
 		if ( ! is_dir( $data->dir )
 			|| ! is_readable( $data->dir )
@@ -404,20 +619,6 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 				' Must have `theme.php`, `functions.php`, `style.css`, and `readme.txt`.'
 			);
 		}
-		if ( count( $_p = explode( '/', $data->file ) ) < 3 ) {
-			throw new Fatal_Exception( 'Unexpected theme file path: `' . $data->file . '`.' );
-		}
-		$data->basename = $_p[ count( $_p ) - 3 ] . '/' . $_p[ count( $_p ) - 2 ];
-
-		$data->slug = basename( U\Dir::name( $data->basename ) );
-		$data->var  = str_replace( '-', '_', $data->slug );
-
-		$data->brand_slug = &$this->brand_slug;
-		$data->brand_var  = &$this->brand_var;
-
-		$data->unbranded_slug = preg_replace( '/^' . U\Str::esc_reg( $data->brand_slug . '-' ) . '/ui', '', $data->slug );
-		$data->unbranded_var  = str_replace( '-', '_', $data->unbranded_slug );
-
 		$data->headers = $this->wp_theme_file_headers();
 
 		return $cache = $data;
@@ -504,7 +705,7 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	public function s3_bucket() : string {
 		$bucket_prop = '&.brand.aws.s3.bucket';
 
-		if ( ! $bucket = strval( U\Obj::get_prop( $this->json->extra, $bucket_prop ) ) ) {
+		if ( ! $bucket = strval( $this->extra_json_prop( $bucket_prop ) ) ) {
 			throw new Fatal_Exception( 'Missing extra prop: `' . $bucket_prop . '` in: `' . $this->file . '`.' );
 		}
 		return $bucket;
@@ -520,10 +721,10 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	 */
 	public function s3_bucket_config() : array {
 		$access_key_prop = $this->brand_var . '.aws.credentials.access_key';
-		$access_key      = U\Obj::get_prop( $this->dev_json, $access_key_prop );
+		$access_key      = $this->dev_json_prop( $access_key_prop );
 
 		$secret_key_prop = $this->brand_var . '.aws.credentials.secret_key';
-		$secret_key      = U\Obj::get_prop( $this->dev_json, $secret_key_prop );
+		$secret_key      = $this->dev_json_prop( $secret_key_prop );
 
 		if ( ! $access_key || ! $secret_key ) {
 			throw new Fatal_Exception(
@@ -553,7 +754,7 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	 */
 	public function s3_hash_hmac_sha256( string $string ) : string {
 		$hash_hmac_key_prop = $this->brand_var . '.aws.s3.hash_hmac_key';
-		$hash_hmac_key      = U\Obj::get_prop( $this->dev_json, $hash_hmac_key_prop );
+		$hash_hmac_key      = $this->dev_json_prop( $hash_hmac_key_prop );
 
 		if ( ! $hash_hmac_key ) {
 			throw new Fatal_Exception( 'Missing prop: `' . $hash_hmac_key_prop . '` in: `~/.dev.json`.' );
@@ -571,7 +772,7 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	 */
 	public function local_wp_public_html_dir() : string {
 		$public_html_dir_prop = '&.local.wordpress.public_html_dir';
-		$public_html_dir      = U\Obj::get_prop( $this->dev_json, $public_html_dir_prop );
+		$public_html_dir      = $this->dev_json_prop( $public_html_dir_prop );
 		$public_html_dir      = U\Fs::normalize( $public_html_dir ?: '' );
 
 		if ( ! $public_html_dir || ! is_dir( $public_html_dir ) ) {

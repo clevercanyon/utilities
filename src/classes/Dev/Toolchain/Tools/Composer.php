@@ -75,19 +75,27 @@ class Composer extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string      $dir        Directory path.
-	 * @param string|null $namespace  Namespace. Defaults to `null`.
-	 *                                If set, we extract a specific top-level namespace property from the `extra` props section in a
-	 *                                `composer.json` file. The `$namespace` is bumped up and becomes the only `extra` props.
+	 * @param string      $dir                     Directory path.
 	 *
-	 * @param object|null $_r         For internal recursive use only.
+	 * @param string|null $extra_namespace         Optional trusted extra namespace. Default is `null`.
+	 *                                             If set, conduct special operations on trusted extra namespace.
+	 *
+	 * @param bool        $extract_extra_namespace Optional. Default is `true`. If a trusted `$extra_namespace` is given, it is
+	 *                                             extracted, thus the object’s `extra` property will consist of only namespaced properties.
+	 *
+	 * @param object|null $_r                      Internal use only — do not pass.
 	 *
 	 * @throws Fatal_Exception On any failure, except if file does not exist. That's ok ... unless the file is associated with an `$extends-packages`
 	 *                         directive, in which case an exception *will* be thrown, as that would be unexpected behavior and likely problematic.
 	 *
 	 * @return object Object with `composer.json` properties from the given `$dir` parameter.
 	 */
-	public static function json( string $dir, /* string|null */ ?string $namespace = null, /* object|null */ ?object $_r = null ) : object {
+	public static function json(
+		string $dir,
+		/* string|null */ ?string $extra_namespace = null,
+		bool $extract_extra_namespace = true,
+		/* object|null */ ?object $_r = null
+	) : object {
 		// Setup variables.
 
 		$is_recursive = isset( $_r );
@@ -99,12 +107,17 @@ class Composer extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 		if ( ! $is_recursive ) {
 			$_r->dir = $dir; // Top-level project dir.
 		}
-		// Check the cache.
+		// Checks STC cache.
 
 		if ( ! $is_recursive ) {
-			$cache_key = [ __FUNCTION__, $dir, $namespace ];
-			if ( null !== ( $cache = &static::stc_cache( $cache_key ) ) ) {
-				return $cache; // Cached already.
+			if ( // A few cache keys here.
+				null !== ( $cache = &static::stc_cache( [
+					__FUNCTION__,
+					$dir,
+					$extra_namespace,
+					$extract_extra_namespace,
+				] ) ) ) {
+				return $cache;
 			}
 		}
 		// Validate, setup, early returns.
@@ -124,22 +137,22 @@ class Composer extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 		if ( ! is_object( $json->extra ?? null ) ) {
 			$json->extra = (object) [];
 		}
-		if ( $namespace && ! is_object( $json->extra->{$namespace} ?? null ) ) {
-			$json->extra->{$namespace} = (object) [];
+		if ( $extra_namespace && ! is_object( $json->extra->{$extra_namespace} ?? null ) ) {
+			$json->extra->{$extra_namespace} = (object) [];
 		}
 		// Maybe handles `$extends-packages` directive(s) recursively.
 
-		if ( $namespace && property_exists( $json->extra->{$namespace}, '$extends-packages' ) ) {
+		if ( $extra_namespace && property_exists( $json->extra->{$extra_namespace}, '$extends-packages' ) ) {
 			// Validate `$extends-packages` directive.
 
-			if ( ! is_array( $json->extra->{$namespace}->{'$extends-packages'} ) ) {
+			if ( ! is_array( $json->extra->{$extra_namespace}->{'$extends-packages'} ) ) {
 				throw new Fatal_Exception( 'Unexpected `$extends-packages` directive in: `' . $file . '`. Must be array.' );
 			}
 			// Compile packages that we need to extend, recursively.
 
 			$_extends_json_extra_namespace = (object) []; // Initialize.
 
-			foreach ( $json->extra->{$namespace}->{'$extends-packages'} as $_package_name ) {
+			foreach ( $json->extra->{$extra_namespace}->{'$extends-packages'} as $_package_name ) {
 				if ( ! $_package_name
 					|| ! is_string( $_package_name )
 					|| ! preg_match( T\Composer::PACKAGE_NAME_REGEXP, $_package_name )
@@ -160,33 +173,36 @@ class Composer extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 						' in: `' . $file . '`. The missing location is: `' . $_package_file . '`.'
 					);
 				}
-				$_package_json = T\Composer::json( $_package_dir, $namespace, $_r );
+				$_package_json = T\Composer::json( $_package_dir, $extra_namespace, $extract_extra_namespace, $_r );
 
-				if ( is_object( $_package_json->extra ?? null ) && is_object( $_package_json->extra->{$namespace} ?? null ) ) {
-					$_extends_json_extra_namespace = U\Ctn::super_merge( $_extends_json_extra_namespace, $_package_json->extra->{$namespace} );
+				if ( is_object( $_package_json->extra ?? null ) && is_object( $_package_json->extra->{$extra_namespace} ?? null ) ) {
+					$_extends_json_extra_namespace = U\Ctn::super_merge( $_extends_json_extra_namespace, $_package_json->extra->{$extra_namespace} );
 				}
 			}
 			// Merge into everything we're extending.
 
 			if ( $_extends_json_extra_namespace ) {
-				$json->extra->{$namespace} = U\Ctn::super_merge( $_extends_json_extra_namespace, $json->extra->{$namespace} );
+				$json->extra->{$extra_namespace} = U\Ctn::super_merge( $_extends_json_extra_namespace, $json->extra->{$extra_namespace} );
 			}
 			// Drop the `$extends-packages` directive now.
 
-			unset( $json->extra->{$namespace}->{'$extends-packages'} );
+			unset( $json->extra->{$extra_namespace}->{'$extends-packages'} );
 		}
 		// Maybe bump namespace up into extra props.
 
-		if ( ! $is_recursive && $namespace ) {
+		if ( ! $is_recursive && $extra_namespace ) {
 			$extra_env_vars = [
-				'PROJECT_DIR'  => $dir,
-				'PROJECT_NAME' => $json->name ?? '',
+				'PROJECT_DIR'      => $dir,
+				'PROJECT_PKG_NAME' => $json->name ?? '',
 			];
 			$extra_env_vars = array_map( 'strval', $extra_env_vars );
 
-			$json->extra->{$namespace} = U\Ctn::super_merge( $json->extra->{$namespace} );
-			$json->extra->{$namespace} = U\Ctn::resolve_env_vars( $json->extra->{$namespace}, $extra_env_vars );
-			$json->extra               = $json->extra->{$namespace};
+			$json->extra->{$extra_namespace} = U\Ctn::super_merge( $json->extra->{$extra_namespace} );
+			$json->extra->{$extra_namespace} = U\Ctn::resolve_env_vars( $json->extra->{$extra_namespace}, $extra_env_vars );
+
+			if ( $extract_extra_namespace ) {
+				$json->extra = $json->extra->{$extra_namespace};
+			}
 		}
 		// Return cache.
 

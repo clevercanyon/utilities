@@ -207,34 +207,49 @@ interface I7e_Base extends \Clever_Canyon\Utilities\STC\Interfaces\I7e_Stc_Base,
 	public function __destruct(); /* : void */
 
 	/**
+	 * Defines string representation used for equality tests.
+	 *
+	 * @since 2021-12-27
+	 *
+	 * @return string String representation used for equality tests.
+	 *                Implementations should make use of {@see A6t_Base::props()}.
+	 *
+	 * @note  This can be very helpful when PHPUnit testing.
+	 *        Use of this method is preferred in concert with PHPUnit's `assertSame()`.
+	 *        Reason is this approach supports a comparative diff in IDEs like PhpStorm.
+	 */
+	public function to_eq_string() : string;
+
+	/**
 	 * Checks equality with another instance.
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @param I7e_Base $other Instance to compare equality with.
+	 * @param I7e_Base $other Instance to compare `$this` to.
 	 *
-	 * @return bool True if equal; e.g., based on {@see __debugInfo()}.
+	 * @return bool True if objects are practically equal to each other.
+	 *              Must be based on the return value of {@see to_eq_string()}.
 	 *
-	 * @note  This is very helpful when PHPUnit testing.
+	 * @note  This can be very helpful when PHPUnit testing.
 	 * @see   https://phpunit.readthedocs.io/en/9.5/assertions.html#assertobjectequals
 	 */
 	public function equals( I7e_Base $other ) : bool;
 
 	/**
-	 * Provides access to all properties, by value.
+	 * Gets non-static properties, by value.
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @param string $filter Optional filter. Default is `` indicating all props.
-	 *                       Classes implementing this interface must handle a `public` filter.
-	 *                       If a caller requests only publicly accessible props, the return value
-	 *                       must be filtered appropriately. It's OK to support other custom filters
-	 *                       so long as `` returns all props and `public` returns only public props.
+	 * @param string|null $filter Optional filter. Default is `null`.
+	 *                            {@see U\Obj::props()} for further details.
 	 *
-	 * @return array All properties.
+	 *                            Classes implementing this interface must support the same filters
+	 *                            that {@see U\Obj::props()} supports. You can support additional filters also.
 	 *
-	 * @note  This is very helpful when PHPUnit testing.
+	 * @return array Non-static properties using the given `$filter`.
+	 *
+	 * @note  This can be very helpful when PHPUnit testing.
 	 *        It's a much cleaner way of converting an object to an array.
 	 */
-	public function props( string $filter = '' ) : array;
+	public function props( /* string|null */ ?string $filter = null ) : array;
 }

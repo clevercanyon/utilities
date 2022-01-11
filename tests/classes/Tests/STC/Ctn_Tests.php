@@ -691,8 +691,8 @@ final class Ctn_Tests extends \Clever_Canyon\Utilities__Tests\Framework\A7s_Test
 		$arr2 = $obj2->props(); // Copy of object, as array.
 
 		foreach ( [ [ $obj1, $obj2 ], [ $arr1, $arr2 ] ] as $_ctn ) {
-			$_new_ctn = U\Ctn::super_merge( $_ctn[ 0 ], $_ctn[ 1 ] );                           // Tests input both as an object and array.
-			$_new_ctn = ! $_ctn[ 0 ] instanceof Generic ? new Generic( $_new_ctn ) : $_new_ctn; // Converts back to `Gen` for comparison.
+			$_new_ctn = U\Ctn::super_merge( $_ctn[ 0 ], $_ctn[ 1 ] );                  // Tests input both as an object and array.
+			$_new_ctn = is_array( $_ctn[ 0 ] ) ? new Generic( $_new_ctn ) : $_new_ctn; // Converts back to `Generic` for comparison.
 
 			$this->assertObjEquals(
 				new Generic( [

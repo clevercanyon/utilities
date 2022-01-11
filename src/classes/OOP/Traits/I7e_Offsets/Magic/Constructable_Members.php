@@ -44,6 +44,8 @@ trait Constructable_Members {
 	 * @since        2021-12-15
 	 *
 	 * @param object|array $offsets Optional initial offsets. Default is `[]`.
+	 *                              Offsets beginning with a `NUL` byte are not allowed in.
+	 *                              {@see https://o5p.me/VZP4FM} for further details.
 	 *
 	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */
@@ -52,7 +54,9 @@ trait Constructable_Members {
 		parent::__construct();
 
 		foreach ( $offsets as $_key => $_value ) {
-			$this[ $_key ] = $_value;
+			if ( ! is_string( $_key ) || '' === $_key || "\0" !== $_key[ 0 ] ) {
+				$this[ $_key ] = $_value;
+			}
 		}
 	}
 }

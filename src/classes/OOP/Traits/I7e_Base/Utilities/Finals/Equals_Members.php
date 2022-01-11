@@ -43,17 +43,25 @@ trait Equals_Members {
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @param I7e_Base $b Instance to compare equality with.
+	 * @param I7e_Base $other Instance to compare `$this` to.
 	 *
-	 * @return bool True if equal, based on {@see AA6t_Plugin::props()}.
+	 * @return bool True if objects are practically equal to each other,
+	 *              based on return value of {@see to_eq_string()}.
 	 */
-	final public function equals( I7e_Base $b ) : bool {
-		$a_str = get_class( $this ) . "\n" .
-			U\Str::json_encode( $this->props() );
+	final public function equals( I7e_Base $other ) : bool {
+		return $this->to_eq_string() === $other->to_eq_string();
+	}
 
-		$b_str = get_class( $b ) . "\n" .
-			U\Str::json_encode( $b->props() );
-
-		return $a_str === $b_str;
+	/**
+	 * Defines string representation used for equality tests.
+	 *
+	 * @since 2021-12-27
+	 *
+	 * @return string String representation used for equality tests.
+	 *                {@see A6t_Base::props()} for further details.
+	 */
+	final public function to_eq_string() : string {
+		return get_class( $this ) . "\n" .
+			U\Str::json_encode( $this->props( 'public...private' ) );
 	}
 }

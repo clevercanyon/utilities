@@ -15,7 +15,6 @@
  *
  * @since 2021-12-15
  *
- * phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
  * phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
  */
 
@@ -44,6 +43,14 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  */
 use Clever_Canyon\Utilities\Dev\Toolchain\{Tools as T};
 use Clever_Canyon\Utilities\Dev\Toolchain\Composer\{Project};
+
+/**
+ * File-specific.
+ *
+ * @since 2021-12-15
+ */
+use Aws\S3\S3Client;
+use Aws\Exception\AwsException;
 
 // </editor-fold>
 
@@ -150,6 +157,10 @@ class On_Post_Update_Cmd extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_
 			$this->maybe_setup_dotfiles();
 			$this->maybe_run_npm_update();
 
+			$this->maybe_compile_distro_lib_dir();
+			$this->maybe_compile_distro_lib_zip();
+			$this->maybe_s3_upload_distro_lib_zip();
+
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
@@ -166,7 +177,7 @@ class On_Post_Update_Cmd extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_
 	 */
 	protected function maybe_symlink_local_repos() : void {
 		$symlink_local_packages_prop = '&.post_update_cmd_handler.symlink_local_packages';
-		$symlink_local_packages      = U\Obj::get_prop( $this->project->json->extra, $symlink_local_packages_prop );
+		$symlink_local_packages      = $this->project->extra_json_prop( $symlink_local_packages_prop );
 
 		if ( null === $symlink_local_packages ) {
 			return; // Nothing to do here.
@@ -338,7 +349,7 @@ class On_Post_Update_Cmd extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_
 						// Update `$_to_path_json`.
 
 						foreach ( $_from_path_json->devDependencies as $_package => $_version ) {
-							if ( '@' . $this->project->name !== $_package ) {
+							if ( '@' . $this->project->pkg_name !== $_package ) {
 								$_to_path_json->devDependencies->{$_package} = $_version;
 							} // Package should NOT depend on itself ^.
 						}
@@ -367,5 +378,197 @@ class On_Post_Update_Cmd extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_
 		if ( $this->project->has_file( 'package.json' ) ) {
 			U\CLI::run( [ 'npm', 'update' ], $this->project->dir );
 		}
+	}
+
+	/**
+	 * Maybe compile project’s distro directory.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @throws Exception On any failure.
+	 *
+	 * @note  Regarding use of `--no-plugins` in Composer calls below.
+	 *       {@see https://github.com/humbug/php-scoper#composer-plugins}.
+	 */
+	protected function maybe_compile_distro_lib_dir() : void {
+		if ( ! $this->project->is_distro_lib() ) {
+			return; // Not applicable.
+		}
+		$comp_dir_copy_config  = $this->project->comp_dir_copy_config();
+		$comp_dir_prune_config = $this->project->comp_dir_prune_config();
+
+		$comp_dir   = U\Dir::join( $this->project->dir, '/._x/comp' );
+		$distro_dir = U\Dir::join( $this->project->dir, '/._x/distro' );
+
+		// Copies project directory into `._x/comp`.
+		// This copy ignores everything in `.gitignore`, and nothing else.
+		// For further details {@see Project::comp_dir_copy_config()}.
+
+		if ( ! U\Fs::copy(
+			$this->project->dir,
+			$comp_dir,
+			$comp_dir_copy_config[ 'ignore' ],
+			$comp_dir_copy_config[ 'exceptions' ]
+		) ) {
+			throw new Exception( 'Failed to create `./._x/comp`.' );
+		}
+		// Installs composer dependencies in `._x/comp`.
+		// We didn't ignore `composer.json` when copying, so it's available.
+		// The autoloader is optimized here, as we are compiling for production.
+
+		U\CLI::run( [
+			[ 'composer', 'install' ],
+			[ '--no-dev', '--no-scripts', '--no-plugins' ],
+			[ '--optimize-autoloader', '--classmap-authoritative' ],
+		], $comp_dir );
+
+		// Prunes the `./._x/comp` directory, which speeds up remaining tasks.
+		// This prunes everything in `.gitignore`, except: `vendor`, `composer.json`.
+		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
+
+		if ( ! U\Dir::prune(
+			$comp_dir,
+			$comp_dir_prune_config[ 'prune' ],
+			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
+				'/(?:^|.+?\/)composer\.json$/ui',
+			] ),
+		) ) {
+			throw new Exception( 'Failed to prune `./._x/comp`.' );
+		}
+		// Runs PHP Scoper on full `._x/comp` directory; outputting to `._x/distro`.
+		// PHP Scoper ignores files based on Finders in the `.scoper.cfg.php` file.
+		// We're not using that functionality, though, as we have already pruned the directory.
+
+		if ( 'clevercanyon/php-js-utilities' === $this->project->pkg_name ) {
+			$scoper = U\Dir::join( $this->project->dir, '/dev/toolchain/php-scoper/scoper' );
+		} else {
+			$scoper = U\Dir::join( $this->project->dir, '/vendor/clevercanyon/php-js-utilities/dev/toolchain/php-scoper/scoper' );
+		}
+		U\CLI::run( [
+			[ $scoper, 'scope' ],
+			[ '--project-dir', $this->project->dir ],
+			[ '--prefix', ucfirst( $this->project->pkg_name_hash ) ],
+			[ '--dir', $comp_dir ],
+			[ '--output-dir', $distro_dir ],
+			[ '--output-project-dir', $distro_dir ],
+		] );
+		// Prunes the `./._x/distro` directory now.
+		// This prunes everything in `.gitignore`, except `vendor`. This time, including `composer.json` files.
+		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
+
+		if ( ! U\Dir::prune(
+			$distro_dir,
+			$comp_dir_prune_config[ 'prune' ],
+			$comp_dir_prune_config[ 'exceptions' ]
+		) ) {
+			throw new Exception( 'Failed to prune `./._x/distro`.' );
+		}
+	}
+
+	/**
+	 * Maybe compile project’s distro zip file.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @throws Exception On any failure.
+	 */
+	protected function maybe_compile_distro_lib_zip() : void {
+		if ( ! $this->project->is_distro_lib() ) {
+			return; // Not applicable.
+		}
+		$distro_dir = U\Dir::join( $this->project->dir, '/._x/distro' );
+
+		if ( ! is_dir( $distro_dir ) ) {
+			throw new Exception( 'Failed to zip `./._x/distro` directory. Missing: `' . $distro_dir . '`.' );
+		}
+		$zip_basename = $this->project->slug . '-v' . $this->project->version . '.zip';
+		$zip_path     = U\Dir::join( $this->project->dir, '/._x/distro-zips/' . $zip_basename );
+
+		if ( ! U\Fs::zip( $distro_dir . '->' . $this->project->slug, $zip_path ) ) {
+			throw new Exception( 'Failed to zip: `' . $distro_dir . '->' . $this->project->slug . '`, to: `' . $zip_path . '`.' );
+		}
+	}
+
+	/**
+	 * Maybe upload project’s distro zip file to AWS S3.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @throws Exception On any failure.
+	 * @throws \Throwable On some failures.
+	 */
+	protected function maybe_s3_upload_distro_lib_zip() : void {
+		if ( ! $this->project->is_distro_lib() ) {
+			return; // Not applicable.
+		}
+		$zip_basename = $this->project->slug . '-v' . $this->project->version . '.zip';
+		$zip_path     = U\Dir::join( $this->project->dir, '/._x/distro-zips/' . $zip_basename );
+
+		if ( ! is_file( $zip_path ) ) {
+			throw new Exception( 'Missing zip file: `' . $zip_path . '`.' );
+		}
+		$s3_zip_hash           = $this->project->s3_hash_hmac_sha256( $this->project->unbranded_slug . $this->project->version );
+		$s3_zip_file_subpath   = 'cdn/product/' . $this->project->unbranded_slug . '/zips/' . $s3_zip_hash . '/' . $zip_basename;
+		$s3_index_file_subpath = 'cdn/product/' . $this->project->unbranded_slug . '/data/index.json';
+
+		$s3 = new S3Client( $this->project->s3_bucket_config() );
+
+		// Get index w/ tagged versions.
+
+		try {
+			$_s3r     = $s3->getObject( [
+				'Bucket' => $this->project->s3_bucket(),
+				'Key'    => $s3_index_file_subpath,
+			] );
+			$s3_index = U\Str::json_decode( (string) $_s3r->get( 'Body' ) );
+
+			if ( ! is_object( $s3_index )
+				|| ! isset( $s3_index->versions->tags )
+				|| ! isset( $s3_index->versions->stable_tag )
+				|| ! is_object( $s3_index->versions->tags )
+				|| ! is_string( $s3_index->versions->stable_tag )
+			) {
+				throw new Exception(
+					'Unable to retrieve valid JSON data from: ' .
+					' `' . U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_index_file_subpath ) . '`.'
+				);
+			}
+		} catch ( \Throwable $throwable ) {
+			if ( ! $throwable instanceof AwsException ) {
+				throw $throwable; // Problem.
+			}
+			if ( 'NoSuchKey' !== $throwable->getAwsErrorCode() ) {
+				throw $throwable; // Problem.
+			}
+			$s3_index = (object) [
+				'versions' => (object) [
+					'tags'       => (object) [],
+					'stable_tag' => '',
+				],
+			]; // No index file yet, we'll create below.
+		}
+		// Upload zip file. Throws exception on failure, which we intentionally do not catch.
+
+		$s3->putObject( [
+			'SourceFile' => $zip_path,
+			'Bucket'     => $this->project->s3_bucket(),
+			'Key'        => $s3_zip_file_subpath,
+		] );
+		// Update index w/ tagged versions.
+		// Throws exception on failure, which we intentionally do not catch.
+
+		$s3_index->versions->tags = (array) $s3_index->versions->tags;
+		$s3_index->versions->tags = array_merge( $s3_index->versions->tags, [ $this->project->version => time() ] );
+
+		uksort( $s3_index->versions->tags, 'version_compare' ); // Example: <https://3v4l.org/QitGb>.
+		$s3_index->versions->tags = array_reverse( $s3_index->versions->tags );
+
+		$s3_index->versions->stable_tag = $this->project->stable_tag;
+
+		$s3->putObject( [
+			'Body'   => U\Str::json_encode( $s3_index ),
+			'Bucket' => $this->project->s3_bucket(),
+			'Key'    => $s3_index_file_subpath,
+		] );
 	}
 }

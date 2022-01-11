@@ -49,21 +49,34 @@ class Dev extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string|null $dir       Default is {@see U\Env::var() 'HOME')}.
-	 * @param string|null $namespace Optional namespace. Defaults to `null`.
-	 *                               If set, we extract a specific top-level namespace property from the `.dev.json` file.
-	 *                               The `$namespace` is bumped up and becomes the entirety of the return object.
+	 * @param string|null $dir               Default is {@see U\Env::var() 'HOME')}.
+	 *
+	 * @param string|null $namespace         Optional trusted top-level namespace. Default is `null`.
+	 *                                       If set, conduct special operations on trusted top-level namespace.
+	 *
+	 * @param bool        $extract_namespace Optional. Default is `true`. If a trusted top-level `$namespace` is given, it is
+	 *                                       extracted, thus the object returned will consist of only the `$namespace` properties.
 	 *
 	 * @throws Fatal_Exception On any failure, except if file does not exist, that's ok.
-	 * @return \stdClass Object with `.dev.json` properties from the given `$dir` parameter.
+	 * @return object Object with `~/.dev.json` properties from the given `$dir` parameter.
 	 */
-	public static function json( /* string|null */ ?string $dir = null, /* string|null */ ?string $namespace = null ) : \stdClass {
+	public static function json(
+		/* string|null */ ?string $dir = null,
+		/* string|null */ ?string $namespace = null,
+		bool $extract_namespace = true
+	) : object {
 		$dir  ??= U\Env::var( 'HOME' );
 		$dir  = U\Fs::normalize( $dir );
 		$file = U\Dir::join( $dir, '/.dev.json' );
 
-		if ( null !== ( $cache = &static::stc_cache( [ __FUNCTION__, $dir, $namespace ] ) ) ) {
-			return $cache; // Cached already.
+		if ( // A few cache keys here.
+			null !== ( $cache = &static::stc_cache( [
+				__FUNCTION__,
+				$dir,
+				$namespace,
+				$extract_namespace,
+			] ) ) ) {
+			return $cache;
 		}
 		if ( ! $dir || ! $file ) {
 			throw new Fatal_Exception( 'Missing dir: `' . $dir . '` or file: `' . $file . '`.' );
@@ -81,7 +94,10 @@ class Dev extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
 			$json->{$namespace} = is_object( $json->{$namespace} ?? null ) ? $json->{$namespace} : (object) [];
 			$json->{$namespace} = U\Ctn::super_merge( $json->{$namespace} );
 			$json->{$namespace} = U\Ctn::resolve_env_vars( $json->{$namespace} );
-			$json               = $json->{$namespace};
+
+			if ( $extract_namespace ) {
+				$json = $json->{$namespace};
+			}
 		}
 		return $cache = $json;
 	}

@@ -131,13 +131,22 @@ abstract class A7s_Tests extends \PHPUnit\Framework\TestCase {
 	 * @param object $actual   Actual object value.
 	 * @param string $message  Optional message.
 	 *
-	 * @throws \PHPUnit\Framework\ExpectationFailedException {@see assertObjectEquals()}.
+	 * @throws \PHPUnit\Framework\ExpectationFailedException On assertion failure.
 	 *
-	 * @see   AA6t_Plugin::equals() for further details.
+	 * @see   I7e_Base::equals() for further details.
+	 * @see   I7e_Base::to_eq_string() for further details.
 	 * @see   https://phpunit.readthedocs.io/en/9.5/assertions.html#assertobjectequals
 	 */
 	protected function assertObjEquals( object $expected, object $actual, string $message = '' ) : void {
-		$this->assertObjectEquals( $expected, $actual, 'equals', $message );
+		if ( $expected instanceof I7e_Base && $actual instanceof I7e_Base ) {
+			$this->assertSame( $expected->to_eq_string(), $actual->to_eq_string(), $message );
+		} else {
+			$this->assertSame(
+				I7e_Base::class,                                                       // Expecting class.
+				'`' . get_class( $expected ) . '` <-> `' . get_class( $actual ) . '`', // Instead, got these classes.
+				$message                                                               // Keep same message to aid in reporting.
+			);
+		}
 	}
 
 	/**

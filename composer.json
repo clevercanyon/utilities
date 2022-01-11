@@ -53,8 +53,17 @@
 	"extra"             : {
 		"clevercanyon" : {
 			"&" : {
+				"project"                 : {
+					"data" : {
+						"version"    : "1.0.0",
+						"stable_tag" : "1.0.0",
+						"layout"     : "distro-lib",
+						"name"       : "CLEVER CANYON: PHP/JS Utilities"
+					}
+				},
 				"brand"                   : {
 					"data" : {
+						"name" : "CLEVER CANYON",
 						"slug" : "clevercanyon"
 					},
 					"aws"  : {

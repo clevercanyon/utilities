@@ -43,12 +43,12 @@ trait Unserializable_Members {
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @return array {@see AA6t_Plugin::props()} for further details.
+	 * @return array {@see A6t_Base::props()} for further details.
 	 *
 	 * @see   https://www.php.net/manual/en/class.serializable.php
 	 */
 	public function __serialize() : array {
-		return $this->props();
+		return $this->props( 'public...private' );
 	}
 
 	/**

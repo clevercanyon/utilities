@@ -118,7 +118,7 @@ class Scoper extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 							&& preg_match( '/\/\._[^\/]*\//u', U\Fs::normalize( $value ) ),
 					],
 					'output-project-dir-entry-file' => [
-						'required'    => true,
+						'optional'    => true,
 						'description' => 'Output project directory entry file; i.e., PHP file that `require()`’s autoloader.',
 						'validator'   => fn( $value ) => $value && is_string( $value )
 							&& preg_match( '/\/\._[^\/]*\//u', U\Fs::normalize( $value ) )
@@ -240,7 +240,7 @@ class Scoper extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 	 */
 	protected function fix_autoloader() : void {
 		$output_project_dir            = U\Fs::normalize( $this->get_option( 'output-project-dir' ) );
-		$output_project_dir_entry_file = U\Fs::normalize( $this->get_option( 'output-project-dir-entry-file' ) );
+		$output_project_dir_entry_file = U\Fs::normalize( $this->get_option( 'output-project-dir-entry-file' ) ?: '' );
 
 		if ( ! is_dir( $output_project_dir ) ) {
 			throw new Exception( 'Missing `output-project-dir`: `' . $output_project_dir . '`.' );
@@ -248,22 +248,24 @@ class Scoper extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_Tool {
 		if ( ! is_file( U\Dir::join( $output_project_dir, '/composer.json' ) ) ) {
 			throw new Exception( 'Missing `[output-project-dir]/composer.json`: `' . U\Dir::join( $output_project_dir, '/composer.json' ) . '`.' );
 		}
-		if ( ! is_file( $output_project_dir_entry_file ) ) {
-			throw new Exception( 'Missing `output-project-dir-entry-file`: `' . $output_project_dir_entry_file . '`.' );
-		}
 		U\CLI::run( [
 			[ 'composer', 'dump-autoload' ],
 			[ '--no-dev', '--no-scripts', '--no-plugins' ],
 			[ '--optimize', '--classmap-authoritative' ],
 		], $output_project_dir );
 
-		if (
-			! is_readable( $output_project_dir_entry_file )
-			|| ! is_writable( $output_project_dir_entry_file )
-			|| ! ( $_f15s = file_get_contents( $output_project_dir_entry_file ) )
-			|| false === file_put_contents( $output_project_dir_entry_file, str_replace( '/autoload.php', '/scoper-autoload.php', $_f15s ) )
-		) {
-			throw new Exception( 'Failed to change `/autoload.php` to `/scoper-autoload.php` in `' . $output_project_dir_entry_file . '`.' );
+		if ( $output_project_dir_entry_file ) { // Optional entry file.
+			if ( ! is_file( $output_project_dir_entry_file ) ) {
+				throw new Exception( 'Missing `output-project-dir-entry-file`: `' . $output_project_dir_entry_file . '`.' );
+			}
+			if (
+				! is_readable( $output_project_dir_entry_file )
+				|| ! is_writable( $output_project_dir_entry_file )
+				|| ! ( $_f15s = file_get_contents( $output_project_dir_entry_file ) )
+				|| false === file_put_contents( $output_project_dir_entry_file, str_replace( '/autoload.php', '/scoper-autoload.php', $_f15s ) )
+			) {
+				throw new Exception( 'Failed to change `/autoload.php` to `/scoper-autoload.php` in `' . $output_project_dir_entry_file . '`.' );
+			}
 		}
 	}
 

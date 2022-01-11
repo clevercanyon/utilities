@@ -44,7 +44,12 @@ trait Constructable_Members {
 	 * @since        2021-12-15
 	 *
 	 * @param object|array $props   Optional initial props. Default is `[]`.
+	 *                              Properties beginning with a `NUL` byte are not allowed in.
+	 *                              {@see https://o5p.me/VZP4FM} for further details.
+	 *
 	 * @param object|array $offsets Optional initial offsets. Default is `[]`.
+	 *                              Offsets beginning with a `NUL` byte are not allowed in.
+	 *                              {@see https://o5p.me/VZP4FM} for further details.
 	 *
 	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */
@@ -53,7 +58,9 @@ trait Constructable_Members {
 		parent::__construct( $offsets );
 
 		foreach ( $props as $_prop => $_value ) {
-			$this->{$_prop} = $_value;
+			if ( ! is_string( $_prop ) || '' === $_prop || "\0" !== $_prop[ 0 ] ) {
+				$this->{$_prop} = $_value;
+			}
 		}
 	}
 }
