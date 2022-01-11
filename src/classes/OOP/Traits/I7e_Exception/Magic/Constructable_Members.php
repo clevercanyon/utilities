@@ -41,12 +41,15 @@ trait Constructable_Members {
 	/**
 	 * Constructor.
 	 *
-	 * @since 2021-12-15
+	 * @since        2021-12-15
 	 *
 	 * @param string|null       $message  Optional message. Default is empty.
 	 * @param string|null       $code     Optional code. Default is: `basename(file):line`.
 	 * @param object|array|null $data     Optional data, which is converted to an object type.
+	 *
 	 * @param \Throwable|null   $previous Optional previous exception for chaining in complex applications.
+	 *
+	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */
 	public function __construct(
 		/* string|null */ ?string $message = null,

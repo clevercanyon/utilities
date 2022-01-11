@@ -41,17 +41,19 @@ trait Constructable_Members {
 	/**
 	 * Initializes the error.
 	 *
-	 * @since 2021-12-15
+	 * @since        2021-12-15
 	 *
 	 * @param string|int $code    Error code. If `$code` is empty, the other parameters will be ignored.
 	 * @param string     $message Error message. When `$code` is not empty, `$message` will be used even if it's empty.
 	 * @param mixed      $data    Optional. Error data. The `$data` parameter will be used only if it is not empty.
 	 *
-	 * @note  This is a slightly modified clone of {@see \WP_Error}.
-	 *        It remains 100% interchangeable with WordPress errors as of 2021-12-15.
+	 * @note         This is a slightly modified clone of {@see \WP_Error}.
+	 *               It remains 100% interchangeable with WordPress errors as of 2021-12-15.
 	 *
-	 * @note  Though the class is constructed with a single error code and
-	 *        message, multiple codes can be added using the {@see add()} method.
+	 * @note         Though the class is constructed with a single error code and
+	 *               message, multiple codes can be added using the {@see add()} method.
+	 *
+	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */
 	public function __construct( /* string|int */ $code = '', string $message = '', /* mixed */ $data = '' ) {
 		assert( is_string( $code ) || is_int( $code ) );

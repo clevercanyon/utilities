@@ -48,15 +48,17 @@ trait Constructable_Members {
 	/**
 	 * Constructor.
 	 *
-	 * @since 2021-12-15
+	 * @since        2021-12-15
 	 *
 	 * @param string|array|null $args_to_parse Custom args to parse?
 	 *                                         If not given, defaults internally to `$_SERVER['argv']`.
 	 *
-	 * @see   http://getopt-php.github.io/getopt-php/
+	 * @see          http://getopt-php.github.io/getopt-php/
+	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */
 	public function __construct( /* string|array|null */ $args_to_parse = null ) {
 		parent::__construct();
+
 		$this->args_to_parse = $args_to_parse;
 
 		if ( isset( $this->args_to_parse ) && ! is_array( $this->args_to_parse ) ) {

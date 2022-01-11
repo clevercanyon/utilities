@@ -41,10 +41,12 @@ trait Constructable_Members {
 	/**
 	 * Constructor.
 	 *
-	 * @since 2021-12-15
+	 * @since        2021-12-15
 	 *
 	 * @param object|array $props   Optional initial props. Default is `[]`.
 	 * @param object|array $offsets Optional initial offsets. Default is `[]`.
+	 *
+	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */
 	public function __construct( /* array|object */ $props = [], /* array|object */ $offsets = [] ) {
 		assert( U\Ctn::is( $props ) );
