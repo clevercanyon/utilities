@@ -35,7 +35,7 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
  *
  * @since 2021-12-15
  */
-class Crypto extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
+class Crypto extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Utilities {
 	/**
 	 * Hash at requested length, always beginning with an `x`.
 	 *

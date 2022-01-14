@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\STC\Abstracts;
+namespace Clever_Canyon\Utilities\STC\Interfaces;
 
 /**
  * Utilities.
@@ -31,16 +31,8 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
 // </editor-fold>
 
 /**
- * Utility base class.
+ * STC: I7e_Stc_Utilities.
  *
  * @since 2021-12-15
  */
-abstract class A6t_Stc_Utility extends A6t_Stc_Base {
-	/**
-	 * Traits.
-	 *
-	 * @since 2021-12-15
-	 */
-	use \Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Utility\Members;
-	use \Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Base\Magic\Finals\Unconstructable_Members;
-}
+interface I7e_Stc_Utilities extends I7e_Stc_Base { }

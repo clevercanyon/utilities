@@ -79,7 +79,7 @@ class On_Post_Update_Cmd extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_CLI_
 	 *
 	 * @since 2021-12-15
 	 */
-	protected const NAME = 'Hook/Post_Update_Cmd_Handler';
+	protected const NAME = 'Composer/Hook/On_Post_Update_Cmd';
 
 	/**
 	 * Constructor.

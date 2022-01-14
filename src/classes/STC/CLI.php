@@ -42,7 +42,7 @@ use Clever_Canyon\Chalk\{Chalk, Style, Fg_Color, Bg_Color};
  *
  * @since 2021-12-15
  */
-class CLI extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Base {
+class CLI extends \Clever_Canyon\Utilities\STC\Abstracts\A6t_Stc_Utilities {
 	/**
 	 * Last command.
 	 *

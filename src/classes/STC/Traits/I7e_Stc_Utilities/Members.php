@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 ); // ｡･:*:･ﾟ★.
-namespace Clever_Canyon\Utilities\STC\Interfaces;
+namespace Clever_Canyon\Utilities\STC\Traits\I7e_Stc_Utilities;
 
 /**
  * Utilities.
@@ -31,8 +31,10 @@ use Clever_Canyon\Utilities\OOP\Interfaces\{I7e_Base, I7e_Offsets, I7e_Generic, 
 // </editor-fold>
 
 /**
- * STC: I7e_Stc_Utility.
+ * Interface members.
  *
  * @since 2021-12-15
+ *
+ * @see   \Clever_Canyon\Utilities\STC\Interfaces\I7e_Stc_Utilities
  */
-interface I7e_Stc_Utility extends I7e_Stc_Base { }
+trait Members { }

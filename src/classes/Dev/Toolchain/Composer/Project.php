@@ -468,14 +468,14 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	/**
 	 * Gets WordPress plugin data.
 	 *
-	 * @since                 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @throws Fatal_Exception On any failure.
-	 * @return \stdClass|false Plugin data.
+	 * @return object|false Plugin data.
 	 *
-	 * @see                   \WP_Groove\Framework\Plugin\Abstracts\AA6t_Plugin::__construct()
+	 * @see   \WP_Groove\Framework\Plugin\Abstracts\AA6t_Plugin
 	 */
-	public function wp_plugin_data() /* : \stdClass|false */ {
+	public function wp_plugin_data() /* : object|false */ {
 		if ( null !== ( $cache = &$this->oop_cache( __FUNCTION__ ) ) ) {
 			return $cache; // Cached already.
 		}
@@ -510,14 +510,14 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	/**
 	 * Gets WordPress plugin file headers.
 	 *
-	 * @since                 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @throws Fatal_Exception On any failure.
-	 * @return \stdClass|null Plugin file headers.
+	 * @return object|null Plugin file headers.
 	 *
-	 * @see                   https://developer.wordpress.org/reference/functions/get_plugin_data/
+	 * @see   https://developer.wordpress.org/reference/functions/get_plugin_data/
 	 */
-	protected function wp_plugin_file_headers() /* : \stdClass|null */ : ?\stdClass {
+	protected function wp_plugin_file_headers() /* : object|null */ : ?object {
 		if ( ! $this->is_wp_plugin() ) {
 			return null; // Not possible.
 		}
@@ -577,14 +577,14 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	/**
 	 * Gets a theme's data.
 	 *
-	 * @since                 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @throws Fatal_Exception On any failure.
-	 * @return \stdClass|false Theme data.
+	 * @return object|false Theme data.
 	 *
-	 * @see                   \WP_Groove\Framework\Theme\Abstracts\AA6t_Theme::__construct()
+	 * @see   \WP_Groove\Framework\Theme\Abstracts\AA6t_Theme
 	 */
-	public function wp_theme_data() /* : \stdClass|false */ {
+	public function wp_theme_data() /* : object|false */ {
 		if ( null !== ( $cache = &$this->oop_cache( __FUNCTION__ ) ) ) {
 			return $cache; // Cached already.
 		}
@@ -627,14 +627,14 @@ class Project extends \Clever_Canyon\Utilities\OOP\Abstracts\A6t_Base {
 	/**
 	 * Gets theme file headers.
 	 *
-	 * @since                 1.0.0
+	 * @since 1.0.0
 	 *
 	 * @throws Fatal_Exception On any failure.
-	 * @return \stdClass|null Theme file headers.
+	 * @return object|null Theme file headers.
 	 *
-	 * @see                   https://developer.wordpress.org/reference/classes/wp_theme/
+	 * @see   https://developer.wordpress.org/reference/classes/wp_theme/
 	 */
-	protected function wp_theme_file_headers() /* : \stdClass|null */ : ?\stdClass {
+	protected function wp_theme_file_headers() /* : object|null */ : ?object {
 		if ( ! $this->is_wp_theme() ) {
 			return null; // Not possible.
 		}
