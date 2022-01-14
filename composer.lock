@@ -244,12 +244,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/php-js-utilities-dev.git",
-                "reference": "58e941734ec38ebe2a3297e2af442bcd58e67557"
+                "reference": "b62af384cf36fbf1b87aca8c774e6403ce3dfa81"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/php-js-utilities-dev/zipball/58e941734ec38ebe2a3297e2af442bcd58e67557",
-                "reference": "58e941734ec38ebe2a3297e2af442bcd58e67557",
+                "url": "https://api.github.com/repos/clevercanyon/php-js-utilities-dev/zipball/b62af384cf36fbf1b87aca8c774e6403ce3dfa81",
+                "reference": "b62af384cf36fbf1b87aca8c774e6403ce3dfa81",
                 "shasum": ""
             },
             "require": {
@@ -259,6 +259,7 @@
                 "clevercanyon/php-scoper": "dev-fork",
                 "ext-zip": "*",
                 "nikic/php-parser": "^4.13",
+                "php-64bit": "^7.4 || ^8.0 || ^8.1",
                 "php-stubs/woocommerce-stubs": ">=6.0.0",
                 "php-stubs/wordpress-globals": ">=0.2.0",
                 "php-stubs/wordpress-stubs": ">=5.8.2",
@@ -283,7 +284,7 @@
                 "issues": "https://github.com/clevercanyon/php-js-utilities-dev/issues",
                 "source": "https://github.com/clevercanyon/php-js-utilities-dev/tree/main"
             },
-            "time": "2022-01-11T02:38:52+00:00"
+            "time": "2022-01-14T08:37:44+00:00"
         },
         {
             "name": "clevercanyon/php-js-utilities-dev-npm",
