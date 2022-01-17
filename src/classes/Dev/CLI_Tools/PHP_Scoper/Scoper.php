@@ -153,7 +153,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 			throw new U\Exception( 'Missing `[project-dir]/.scoper.cfg.php`: `' . $config_file . '`.' );
 		}
 		U\CLI::run( [
-			[ 'composer', 'exec', '--', 'php-scoper', 'add-prefix' ],
+			[ 'composer', 'exec', '--profile', '--', 'php-scoper', 'add-prefix' ],
 			[ '--force', '--no-interaction', '--stop-on-failure' ],
 			[ '--config', $config_file, '--prefix', $prefix ],
 			[ '--working-dir', $work_dir ],
@@ -241,7 +241,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 		}
 		U\CLI::run( [
 			[ 'composer', 'dump-autoload' ],
-			[ '--no-dev', '--no-scripts', '--no-plugins' ],
+			[ '--no-dev', '--no-scripts', '--no-plugins', '--profile' ],
 			[ '--optimize', '--classmap-authoritative' ],
 		], $output_project_dir );
 
