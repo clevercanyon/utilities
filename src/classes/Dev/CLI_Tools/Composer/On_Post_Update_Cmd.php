@@ -158,24 +158,14 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			U\CLI::success(
 				'[' . __METHOD__ . '()]: Update complete ✔.'
 			);
-			U\CLI::heading(
-				'[' . __METHOD__ . '()]: Heading ✔.'
-			);
-			U\CLI::notice(
-				'[' . __METHOD__ . '()]: Notice ✔.'
-			);
-			U\CLI::warning(
-				'[' . __METHOD__ . '()]: Warning ✔.'
-			);
-			U\CLI::error(
-				'[' . __METHOD__ . '()]: Error ✔.'
-			);
-			U\CLI::output(
-				'[' . __METHOD__ . '()]: Output ✔.'
-			);
-			U\CLI::log(
-				'[' . __METHOD__ . '()]: Log ✔.'
-			);
+			U\CLI::heading( '[' . __METHOD__ . '()]: Heading ✔.' );
+			U\CLI::output( '[' . __METHOD__ . '()]: Output ✔.' );
+			U\CLI::log( '[' . __METHOD__ . '()]: Log ✔.' );
+			U\CLI::done( '[' . __METHOD__ . '()]: Done ✔.' );
+			U\CLI::notice( '[' . __METHOD__ . '()]: Notice ✔.' );
+			U\CLI::warning( '[' . __METHOD__ . '()]: Warning ✔.' );
+			U\CLI::error( '[' . __METHOD__ . '()]: Error ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: Success ✔.' );
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
