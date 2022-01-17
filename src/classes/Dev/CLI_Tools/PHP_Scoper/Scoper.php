@@ -11,15 +11,6 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Lint configuration.
- *
- * @since 2021-12-15
- *
- * phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
- * phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
- */
-
-/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
@@ -213,7 +204,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 		if ( // This tool has non-standard exit codes. Exit status of `3` or higher is an issue.
 			// {@see https://github.com/squizlabs/PHP_CodeSniffer/issues/1818#issuecomment-354420927}.
 			3 <= U\CLI::run( [
-				[ 'composer', 'exec', '--quiet', '--', 'phpcbf' ],
+				[ 'composer', 'exec', '--quiet', '--profile', '--', 'phpcbf' ],
 				[ '-pv', '--parallel=1', '--standard=' . $standard ],
 				[ '--extensions=php', '--ignore=' . $ignore ],
 				$output_dir, // ← directory to fix.

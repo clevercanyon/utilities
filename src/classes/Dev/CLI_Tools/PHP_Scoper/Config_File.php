@@ -15,7 +15,6 @@
  *
  * @since 2021-12-15
  *
- * phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
  * phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
  */
 
