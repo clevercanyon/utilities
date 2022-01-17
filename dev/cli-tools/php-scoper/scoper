@@ -25,6 +25,7 @@ namespace Clever_Canyon\Utilities\Dev\CLI_Tools\PHP_Scoper;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
+use Clever_Canyon\Utilities\Dev\{Utilities as D};
 
 // </editor-fold>
 

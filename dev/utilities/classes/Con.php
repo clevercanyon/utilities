@@ -16,14 +16,14 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Dev\Utilities;
 
 /**
  * Utilities.
  *
  * @since 2021-12-15
  */
-use Clever_Canyon\{Utilities as U};
+use Clever_Canyon\Utilities\Dev\{Utilities as D};
 
 // </editor-fold>
 
@@ -32,19 +32,19 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-final class Con extends U\A6t\Stc_Utilities {
+final class Con {
 	/**
 	 * Matches path wrappers.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @see   U\Fs::wrappers()
-	 * @see   U\Fs::normalize()
+	 * @see   D\Fs::wrappers()
+	 * @see   D\Fs::normalize()
 	 *
 	 * @see   https://regex101.com/r/elgxgZ/8
-	 * @see   U\Con::PATH_WRAPPERS_SPLIT_REGEXP Same pattern, just prepared differently.
+	 * @see   D\Con::PATH_WRAPPERS_SPLIT_REGEXP Same pattern, just prepared differently.
 	 *
-	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Con::PATH_WRAPPERS_SPLIT_REGEXP
+	 * @see   \Clever_Canyon\Utilities\Con::PATH_WRAPPERS_SPLIT_REGEXP
 	 */
 	public const PATH_WRAPPERS_REGEXP = '/^(?:(?:\/{2})|(?:(?:[a-z]{1}\:|[^\s\/:]{1,}\:[\/]{2}))+)/ui';
 
@@ -53,13 +53,13 @@ final class Con extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @see   U\Fs::wrappers()
-	 * @see   U\Fs::normalize()
+	 * @see   D\Fs::wrappers()
+	 * @see   D\Fs::normalize()
 	 *
 	 * @see   https://regex101.com/r/elgxgZ/8
-	 * @see   U\Con::PATH_WRAPPERS_REGEXP Same pattern, just prepared differently.
+	 * @see   D\Con::PATH_WRAPPERS_REGEXP Same pattern, just prepared differently.
 	 *
-	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Con::PATH_WRAPPERS_REGEXP
+	 * @see   \Clever_Canyon\Utilities\Con::PATH_WRAPPERS_REGEXP
 	 */
 	public const PATH_WRAPPERS_SPLIT_REGEXP = '/(\/{2}|[a-z]{1}\:|[^\s\/:]{1,}\:[\/]{2})/ui';
 }

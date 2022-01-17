@@ -59,9 +59,9 @@ trait STC_Cache_Members {
 		assert( is_string( $key ) || is_array( $key ) );
 
 		if ( is_array( $key ) ) {
-			$key = implode( '|©|', array_map( 'strval', $key ) );
+			$key = serialize( $key ); // phpcs:ignore.
 		}
-		$key = (string) $key; // Force string key.
+		$key = sha1( $key ); // Convert to SHA-1 hash.
 
 		$called_class                       = get_called_class();
 		static::$stc_cache[ $called_class ] ??= [];

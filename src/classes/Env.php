@@ -32,7 +32,16 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-class Env extends U\A6t\Stc_Utilities {
+final class Env extends U\A6t\Stc_Utilities {
+	/**
+	 * Static vars.
+	 *
+	 * @since 2022-01-16
+	 *
+	 * @see   U\Env::static_var()
+	 */
+	protected static array $vars = [];
+
 	/**
 	 * Is CLI?
 	 *
@@ -107,7 +116,7 @@ class Env extends U\A6t\Stc_Utilities {
 		foreach ( [ // {@see var()} below.
 			'USER',
 			'HOME',
-			'PWD',
+			'CWD',
 			'TMPDIR',
 			'PHP_SELF',
 			'SCRIPT_NAME',
@@ -116,9 +125,12 @@ class Env extends U\A6t\Stc_Utilities {
 		] as $_var
 		) {
 			$vars[ $_var ] = U\Env::var( $_var );
+			if ( 'CWD' === $_var ) {
+				$vars[ 'PWD' ] = &$vars[ $_var ];
+			}
 		}
 		$vars += getenv() + $_SERVER;
-		$vars = $others + $vars; // `$others` get precedence.
+		$vars = $others + $vars; // Gives `$others` precedence.
 		$vars = U\Ctn::stringify( $vars, true, 1 );
 
 		return $vars;
@@ -136,10 +148,11 @@ class Env extends U\A6t\Stc_Utilities {
 	 *
 	 * @see   https://en.wikipedia.org/wiki/Environment_variable
 	 *
-	 * @note  Absence of {@see realpath()} usage here. Callers should handle that as necessary.
-	 *        One exception is `TMPDIR` via {@see U\Dir::sys_temp()}, which does do a {@see realpath()} expansion.
-	 * @see   U\Env::vars() When modifying.
-	 * @see   U\Env::sys_temp() When modifying.
+	 * @note  Absence of {@see U\Fs::realize()} here. Callers should handle that as necessary.
+	 *        One exception is `TMPDIR` via {@see U\Dir::sys_temp()}, which does use {@see U\Fs::realize()}.
+	 *
+	 * @see   U\Env::vars() Before modifying this function
+	 * @see   U\Env::sys_temp() Before modifying.
 	 */
 	public static function var( string $var, array $_d = [] ) : string {
 		switch ( $var ) {
@@ -153,15 +166,17 @@ class Env extends U\A6t\Stc_Utilities {
 				$value = getenv( $var ) // POSIX: Unix/Linux, macOS.
 					?: getenv( 'USERPROFILE' ) // Windows; easier than drive+path.
 						?: ( getenv( 'HOMEDRIVE' ) . getenv( 'HOMEPATH' ) ); // Windows.
-				$value = U\Fs::normalize( (string) $value );
+				$value = U\Fs::normalize( (string) $value, [ 'cache' => [ __METHOD__, $var ] ] );
 				break;
 
-			case 'PWD': // Current working directory.
-				// {@see https://en.wikipedia.org/wiki/Pwd}.
+			case 'CWD': // Current working directory.
+			case 'PWD': // Kinda weird POSIX-compliant name.
+				// {@see https://en.wikipedia.org/wiki/Pwd} for details.
+				// Preference is `CWD`, but `PWD` is standards compliant, so it's here also.
 				$value = getcwd() // PHP: Unix/Linux, macOS, Windows.
-					?: getenv( $var ) // POSIX: Unix/Linux, macOS.
+					?: getenv( 'PWD' ) // POSIX: Unix/Linux, macOS.
 						?: getenv( 'CD' ); // Windows.
-				$value = U\Fs::normalize( (string) $value );
+				$value = U\Fs::normalize( (string) $value, [ 'cache' => [ __METHOD__, $var ] ] );
 				break;
 
 			case 'TMPDIR': // Temporary directory.
@@ -169,7 +184,7 @@ class Env extends U\A6t\Stc_Utilities {
 				$value = ! empty( $_d[ 'bypass:U\\Dir::sys_temp' ] ) ? '' : U\Dir::sys_temp();
 				$value = $value ?: getenv( $var ) // POSIX: Unix/Linux, macOS, Windows.
 					?: getenv( 'TEMP' ) ?: getenv( 'TMP' ); // Unix/Linux, macOS.
-				$value = U\Fs::normalize( (string) $value );
+				$value = U\Fs::normalize( (string) $value, [ 'cache' => [ __METHOD__, $var ] ] );
 				break;
 
 			case 'PHP_SELF': // ↓ Normalize.
@@ -177,7 +192,7 @@ class Env extends U\A6t\Stc_Utilities {
 			case 'DOCUMENT_ROOT':
 			case 'SCRIPT_FILENAME':
 				$value = getenv( $var );
-				$value = U\Fs::normalize( (string) $value );
+				$value = U\Fs::normalize( (string) $value, [ 'cache' => [ __METHOD__, $var ] ] );
 				break;
 
 			default: // If `$var` is not empty.
@@ -187,28 +202,26 @@ class Env extends U\A6t\Stc_Utilities {
 	}
 
 	/**
-	 * Gets/sets static environment var.
+	 * Gets/sets static environment variables.
 	 *
 	 * @since 2021-12-22
 	 *
-	 * @param string $name  Static environment var name.
-	 * @param mixed  $value Static environment var value, when/if setting.
+	 * @param string $name  Static environment variable name.
+	 * @param mixed  $value Static environment variable value, if setting.
 	 *                      If not passed, this simply operates as a getter.
-	 *                      If passed explicitly as `null`, var is {@see unset()}.
+	 *                      If passed explicitly as `null`, variable is {@see unset()}.
 	 *
-	 * @return mixed Value of the static environment var, else `null`.
+	 * @return mixed Value of the static environment variable, else `null`.
 	 */
 	public static function static_var( string $name, /* mixed */ $value = null ) /* : mixed */ {
-		static $static_vars = []; // Intitialize.
-
 		if ( func_num_args() >= 2 ) {
 			if ( null === $value ) {
-				unset( $static_vars[ $name ] );
+				unset( static::$vars[ $name ] );
 			} else {
-				$static_vars[ $name ] = $value;
+				static::$vars[ $name ] = $value;
 			}
 		}
-		return $static_vars[ $name ] ?? null;
+		return static::$vars[ $name ] ?? null;
 	}
 
 	/**
@@ -292,8 +305,8 @@ class Env extends U\A6t\Stc_Utilities {
 			$cache->disable_functions = mb_strtolower( (string) ini_get( 'disable_functions' ) );
 			$cache->disable_functions = preg_split( '/[\s,]+/u', $cache->disable_functions, -1, PREG_SPLIT_NO_EMPTY );
 
-			// These are not really functions, they're language constructs. ☜(▀̿ ͜▀̿ ̿)
-			// `function_exists()` returns `false`, but we're returning `true` here.
+			// These are not really functions, they're language constructs.
+			// `function_exists()` returns `false`, but we return `true` here.
 			$cache->language_constructs = [
 				'__halt_compiler',
 				'die',
@@ -376,7 +389,7 @@ class Env extends U\A6t\Stc_Utilities {
 		if ( ! U\Env::can_use_function( 'set_time_limit' ) ) {
 			return false; // Not possible.
 		}
-		set_time_limit( $limit );      // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+		set_time_limit( $limit );      // phpcs:ignore.
 		return true;                   // NOTE: `set_time_limit()`'s return value is unreliable.
 		// In recent tests on macOS `set_time_limit()` consistently returned `false`, yet was consistently effective.
 	}
@@ -410,8 +423,8 @@ class Env extends U\A6t\Stc_Utilities {
 			return U\Env::maybe_define( 'WP_DEBUG', true )
 				&& U\Env::maybe_define( 'WP_DEBUG_LOG', true )
 				&& U\Env::maybe_define( 'WP_DEBUG_DISPLAY', true )
-				&& false !== ini_set( 'zend.assertions', '1' )   // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-				&& false !== ini_set( 'assert.exception', '1' ) // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+				&& false !== ini_set( 'zend.assertions', '1' )  // phpcs:ignore.
+				&& false !== ini_set( 'assert.exception', '1' ) // phpcs:ignore.
 				&& U\Env::static_var( 'DEBUGGING', $type ?: 'unknown' );
 		} else {
 			error_reporting( E_ALL );
@@ -419,23 +432,20 @@ class Env extends U\A6t\Stc_Utilities {
 			$php_errors_file = '/tmp/php-errors.log';
 			$php_errors_dir  = U\Dir::name( $php_errors_file );
 
-			if ( // Test ideal location.
-				is_dir( $php_errors_dir )
+			if ( is_dir( $php_errors_dir ) // Ideal location is possible?
 				&& (
 					is_writable( $php_errors_file )
-					|| ( ! U\Fs::path_exists( $php_errors_file )
-						&& is_writable( $php_errors_dir ) )
-				)
-			) {
+					|| ( ! U\Fs::exists( $php_errors_file ) && is_writable( $php_errors_dir ) )
+				) ) {
 				$error_log = $php_errors_file; // Use ideal location.
 			} else {
 				$error_log = U\Dir::join( U\Dir::sys_temp(), '/' . basename( $php_errors_file ) );
 			}
-			return false !== ini_set( 'error_log', $error_log )  // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-				&& false !== ini_set( 'log_errors', '1' )        // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-				&& false !== ini_set( 'display_errors', '1' )    // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-				&& false !== ini_set( 'zend.assertions', '1' )   // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-				&& false !== ini_set( 'assert.exception', '1' )  // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+			return false !== ini_set( 'error_log', $error_log )  // phpcs:ignore.
+				&& false !== ini_set( 'log_errors', '1' )        // phpcs:ignore.
+				&& false !== ini_set( 'display_errors', '1' )    // phpcs:ignore.
+				&& false !== ini_set( 'zend.assertions', '1' )   // phpcs:ignore.
+				&& false !== ini_set( 'assert.exception', '1' )  // phpcs:ignore.
 				&& U\Env::static_var( 'DEBUGGING', $type ?: 'unknown' );
 		}
 	}
@@ -485,10 +495,10 @@ class Env extends U\A6t\Stc_Utilities {
 				$new_limit       = U\File::ini_bytes_abbr( $new_limit_bytes );
 			}
 			if ( -1 === $new_limit_bytes && -1 !== $current_limit_bytes ) {
-				return false !== ini_set( 'memory_limit', $new_limit ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+				return false !== ini_set( 'memory_limit', $new_limit ); // phpcs:ignore.
 
 			} elseif ( $new_limit_bytes > $current_limit_bytes ) {
-				return false !== ini_set( 'memory_limit', $new_limit ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+				return false !== ini_set( 'memory_limit', $new_limit ); // phpcs:ignore.
 			}
 			return true;
 		}
@@ -627,11 +637,11 @@ class Env extends U\A6t\Stc_Utilities {
 				&& 'nill' !== header( 'transfer-encoding: binary' )
 				&& 'nill' !== header( 'content-transfer-encoding: binary' )
 				// This also requires that headers not be sent yet, else it triggers a warning.
-				&& false !== ini_set( 'zlib.output_compression', 'off' ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+				&& false !== ini_set( 'zlib.output_compression', 'off' ); // phpcs:ignore.
 		}
 		if ( U\Env::can_use_function( 'apache_setenv' ) ) {
-			/** @noinspection PhpUndefinedFunctionInspection */        // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-			$apache_setenv_response = apache_setenv( 'no-gzip', '1' ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+			/** @noinspection PhpUndefinedFunctionInspection */        // phpcs:ignore.
+			$apache_setenv_response = apache_setenv( 'no-gzip', '1' ); // phpcs:ignore.
 		}
 		return $set_headers && false !== $apache_setenv_response;
 	}
@@ -669,11 +679,11 @@ class Env extends U\A6t\Stc_Utilities {
 	 */
 	public static function end_output_buffering( /* int|null */ ?int $keep_ob_level = null ) : bool {
 		$keep_ob_level ??= ( 'phpunit' === U\Env::static_var( 'TESTING' ) ? 1 : 0 );
-		$keep_ob_level = max( 0, $keep_ob_level ); // Guard against infinite loop below.
+		$keep_ob_level = max( 0, $keep_ob_level ); // Guard against infinite loop.
 
 		while ( ob_get_level() !== $keep_ob_level ) {
 			if ( ! ob_end_clean() ) {
-				return false; // Special buffers exist ☜(▀̿ ͜▀̿ ̿).
+				return false; // Special buffers do exist!
 			}
 		}
 		return true;

@@ -64,7 +64,7 @@ use Clever_Canyon\{Utilities as U};
  * @property-read $unbranded_slug
  * @property-read $unbranded_var
  */
-class Project extends U\A6t\Base {
+final class Project extends U\A6t\Base {
 	/**
 	 * OOP traits.
 	 *
@@ -240,7 +240,7 @@ class Project extends U\A6t\Base {
 
 		// Validate directory & file.
 
-		$this->dir  = U\Fs::normalize( $dir );
+		$this->dir  = U\Fs::abs( $dir );
 		$this->file = U\Dir::join( $this->dir, '/composer.json' );
 
 		if ( ! $this->dir || ! is_dir( $this->dir ) ) {

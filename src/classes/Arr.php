@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-class Arr extends U\A6t\Stc_Utilities {
+final class Arr extends U\A6t\Stc_Utilities {
 	/**
 	 * Gets first value from array.
 	 *
@@ -86,7 +86,7 @@ class Arr extends U\A6t\Stc_Utilities {
 	 * @return string The array's hash. 40 bytes in length.
 	 */
 	public static function hash( array $arr ) : string {
-		return sha1( serialize( U\Arr::hash_helper( $arr ) ) ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+		return sha1( serialize( U\Arr::hash_helper( $arr ) ) ); // phpcs:ignore.
 	}
 
 	/**

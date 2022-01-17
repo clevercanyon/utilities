@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-class Dir extends U\A6t\Stc_Utilities {
+final class Dir extends U\A6t\Stc_Utilities {
 	/**
 	 * Joins paths.
 	 *
@@ -41,6 +41,8 @@ class Dir extends U\A6t\Stc_Utilities {
 	 * @param string ...$paths Path(s) to join.
 	 *
 	 * @return string New path formed by the joins.
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Dir::join()
 	 */
 	public static function join( string ...$paths ) : string {
 		if ( ! $paths ) {
@@ -65,6 +67,8 @@ class Dir extends U\A6t\Stc_Utilities {
 	 *
 	 * @note  A trailing slash will never be added to a single `/` root path.
 	 *        A trailing slash will never be added to what is nothing but wrappers; e.g., `foo://bar://baz://`.
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Dir::join_ets()
 	 */
 	public static function join_ets( string ...$paths ) : string {
 		if ( ! $paths ) {
@@ -90,6 +94,8 @@ class Dir extends U\A6t\Stc_Utilities {
 	 *                                    Followed by optional (string) paths to join. Default is no join.
 	 *
 	 * @return string Newly formed by path, based on input parameters.
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Dir::name()
 	 */
 	public static function name( string $path, /* int|string */ ...$levels_paths ) : string {
 		if ( $levels_paths ) {
@@ -121,6 +127,8 @@ class Dir extends U\A6t\Stc_Utilities {
 	 *
 	 * @throws U\Fatal_Exception On failure to strip the given base path.
 	 * @return string Subpath; i.e., `$path` with `$base_path` stripped away.
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Dir::subpath()
 	 */
 	public static function subpath( string $base_path, string $path ) : string {
 		$base_path = U\Fs::normalize( $base_path );
@@ -209,7 +217,7 @@ class Dir extends U\A6t\Stc_Utilities {
 		$haystack = array_unique( $haystack );
 
 		foreach ( $haystack as $_dir ) {
-			$_dir = U\Fs::normalize( (string) realpath( $_dir ) );
+			$_dir = U\Fs::realize( $_dir );
 
 			if ( ! $_dir || ! is_dir( $_dir ) || ! is_writable( $_dir ) ) {
 				continue; // Not going to work.

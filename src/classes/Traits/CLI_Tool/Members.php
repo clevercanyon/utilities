@@ -46,5 +46,6 @@ trait Members {
 	use U\Traits\CLI_Tool\Utilities\Getter_Members;
 	use U\Traits\CLI_Tool\Utilities\Setter_Members;
 	use U\Traits\CLI_Tool\Utilities\Builder_Members;
+	use U\Traits\CLI_Tool\Utilities\Validation_Members;
 	use U\Traits\CLI_Tool\Utilities\Utility_Members;
 }

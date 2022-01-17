@@ -81,7 +81,7 @@ final class Env_Tests extends UT\A6t\Tests {
 
 		$this->assertSame( true, ! empty( $vars[ 'USER' ] ), $this->message() );
 		$this->assertSame( true, ! empty( $vars[ 'HOME' ] ), $this->message() );
-		$this->assertSame( true, ! empty( $vars[ 'PWD' ] ), $this->message() );
+		$this->assertSame( true, ! empty( $vars[ 'CWD' ] ), $this->message() );
 		$this->assertSame( true, ! empty( $vars[ 'TMPDIR' ] ), $this->message() );
 	}
 
@@ -91,7 +91,7 @@ final class Env_Tests extends UT\A6t\Tests {
 	public function test_var() : void {
 		$this->assertSame( true, ! empty( U\Env::var( 'USER' ) ), $this->message() );
 		$this->assertSame( true, ! empty( U\Env::var( 'HOME' ) ), $this->message() );
-		$this->assertSame( true, ! empty( U\Env::var( 'PWD' ) ), $this->message() );
+		$this->assertSame( true, ! empty( U\Env::var( 'CWD' ) ), $this->message() );
 		$this->assertSame( true, ! empty( U\Env::var( 'TMPDIR' ) ), $this->message() );
 	}
 

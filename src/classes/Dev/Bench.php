@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-class Bench extends U\A6t\Stc_Utilities {
+final class Bench extends U\A6t\Stc_Utilities {
 	/**
 	 * Runs a callable w/ scratch output; i.e., JSON data.
 	 *
@@ -48,10 +48,10 @@ class Bench extends U\A6t\Stc_Utilities {
 		}
 		$details = U\Dev\Bench::run( ...$args );
 
-		echo '-------------------------------------------' . "\n"; // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-		echo $details->summary . "\n";                             // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-		echo '-------------------------------------------' . "\n"; // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-		echo U\Str::json_encode( $details, true );                 // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+		echo '-------------------------------------------' . "\n"; // phpcs:ignore.
+		echo $details->summary . "\n";                             // phpcs:ignore.
+		echo '-------------------------------------------' . "\n"; // phpcs:ignore.
+		echo U\Str::json_encode( $details, true );                 // phpcs:ignore.
 	}
 
 	/**
@@ -69,10 +69,10 @@ class Bench extends U\A6t\Stc_Utilities {
 		}
 		$comparison = U\Dev\Bench::compare( ...$args );
 
-		echo '-------------------------------------------' . "\n"; // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-		echo $comparison->summary . "\n";                          // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-		echo '-------------------------------------------' . "\n"; // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
-		echo U\Str::json_encode( $comparison, true );              // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+		echo '-------------------------------------------' . "\n"; // phpcs:ignore.
+		echo $comparison->summary . "\n";                          // phpcs:ignore.
+		echo '-------------------------------------------' . "\n"; // phpcs:ignore.
+		echo U\Str::json_encode( $comparison, true );              // phpcs:ignore.
 	}
 
 	/**

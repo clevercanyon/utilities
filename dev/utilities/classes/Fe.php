@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /**
  * CLEVER CANYON™ {@see https://clevercanyon.com}
@@ -17,51 +16,20 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Dev\CLI_Tools\PHP_Scoper;
+namespace Clever_Canyon\Utilities\Dev\Utilities;
 
 /**
  * Utilities.
  *
  * @since 2021-12-15
  */
-use Clever_Canyon\{Utilities as U};
 use Clever_Canyon\Utilities\Dev\{Utilities as D};
 
 // </editor-fold>
 
 /**
- * CLI mode only.
+ * Fatal exception.
  *
  * @since 2021-12-15
  */
-if ( 'cli' !== PHP_SAPI ) {
-	exit( 1 ); // CLI mode only.
-}
-
-/**
- * Project directory.
- *
- * @since 2021-12-15
- */
-$project_dir = require dirname( __FILE__, 2 ) . '/composer/.cli-project-dir.php';
-
-/**
- * Requires autoloader.
- *
- * @since 2021-12-15
- */
-require_once $project_dir . '/vendor/autoload.php';
-
-/**
- * Enables debugging mode.
- *
- * @since 2021-12-15
- */
-U\Env::config_debugging_mode();
-
-/**
- * CLI tool instance.
- *
- * @since 2021-12-15
- */
-new U\Dev\CLI_Tools\PHP_Scoper\Config_File();
+final class Fatal_Exception extends \Exception { }

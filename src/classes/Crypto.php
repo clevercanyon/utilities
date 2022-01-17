@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-class Crypto extends U\A6t\Stc_Utilities {
+final class Crypto extends U\A6t\Stc_Utilities {
 	/**
 	 * Hash at requested length, always beginning with an `x`.
 	 *

@@ -46,6 +46,64 @@ use Clever_Canyon\{Utilities__Tests as UT};
  */
 final class Fs_Tests extends UT\A6t\Tests {
 	/**
+	 * @covers ::realize()
+	 */
+	public function test_realize() : void {
+		foreach ( [
+			// Basics covered?
+
+			[ __DIR__ => __DIR__ ],
+			[ __FILE__ => __FILE__ ],
+			[ '' => '/.x-nonexistent' ],
+		] as $_assertion
+		) {
+			$_expecting = (string) array_keys( $_assertion )[ 0 ];
+			$_path      = array_values( $_assertion )[ 0 ];
+
+			$this->assertSame( $_expecting, U\Fs::realize( $_path ), $this->message( $_expecting . '=>' . $_path ) );
+		}
+	}
+
+	/**
+	 * @covers ::abs()
+	 */
+	public function test_abs() : void {
+		$cwd_path = U\Env::var( 'CWD' );
+
+		if ( U\Env::is_unix_based() ) {
+			foreach ( [
+				// Basics covered?
+
+				[ __DIR__ => __DIR__ ],
+				[ __FILE__ => __FILE__ ],
+				[ 'file://' . $cwd_path . '/foo' => 'file://foo' ],
+				[ $cwd_path . '/.x-nonexistent' => '.x-nonexistent' ],
+			] as $_assertion
+			) {
+				$_expecting = (string) array_keys( $_assertion )[ 0 ];
+				$_path      = array_values( $_assertion )[ 0 ];
+
+				$this->assertSame( $_expecting, U\Fs::abs( $_path ), $this->message( $_expecting . '=>' . $_path ) );
+			}
+		} elseif ( U\Env::is_windows() ) {
+			foreach ( [
+				// Basics covered?
+
+				[ __DIR__ => __DIR__ ],
+				[ __FILE__ => __FILE__ ],
+				[ 'c:' . $cwd_path . '/foo' => 'c:foo' ],
+				[ $cwd_path . '/.x-nonexistent' => '.x-nonexistent' ],
+			] as $_assertion
+			) {
+				$_expecting = (string) array_keys( $_assertion )[ 0 ];
+				$_path      = array_values( $_assertion )[ 0 ];
+
+				$this->assertSame( $_expecting, U\Fs::abs( $_path ), $this->message( $_expecting . '=>' . $_path ) );
+			}
+		}
+	}
+
+	/**
 	 * @covers ::normalize()
 	 * @covers ::wrappers()
 	 * @covers ::split_wrappers()
@@ -372,15 +430,15 @@ final class Fs_Tests extends UT\A6t\Tests {
 	}
 
 	/**
-	 * @covers ::path_exists()
+	 * @covers ::exists()
 	 */
-	public function test_path_exists() : void {
-		$this->assertSame( true, U\Fs::path_exists( __DIR__ ), $this->message() );
-		$this->assertSame( true, U\Fs::path_exists( __FILE__ ), $this->message() );
+	public function test_exists() : void {
+		$this->assertSame( true, U\Fs::exists( __DIR__ ), $this->message() );
+		$this->assertSame( true, U\Fs::exists( __FILE__ ), $this->message() );
 
-		$this->assertSame( true, U\Fs::path_exists( $this->temp_link() ), $this->message() );
+		$this->assertSame( true, U\Fs::exists( $this->temp_link() ), $this->message() );
 		$this->assertSame( true, ! file_exists( $this->temp_broken_link() ), $this->message() );
-		$this->assertSame( true, U\Fs::path_exists( $this->temp_broken_link() ), $this->message() );
+		$this->assertSame( true, U\Fs::exists( $this->temp_broken_link() ), $this->message() );
 	}
 
 	/**
@@ -392,6 +450,17 @@ final class Fs_Tests extends UT\A6t\Tests {
 		$this->assertSame( 'link', U\Fs::type( $this->temp_link() ), $this->message() );
 		$this->assertSame( 'link', U\Fs::type( $this->temp_broken_link() ), $this->message() );
 		$this->assertSame( '', U\Fs::type( $this->temp_file() . '.x-nonexistent-file' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::real_type()
+	 */
+	public function test_real_type() : void {
+		$this->assertSame( 'dir', U\Fs::real_type( $this->temp_dir() ), $this->message() );
+		$this->assertSame( 'file', U\Fs::real_type( $this->temp_file() ), $this->message() );
+		$this->assertSame( 'file', U\Fs::real_type( $this->temp_link() ), $this->message() );
+		$this->assertSame( 'broken-link', U\Fs::real_type( $this->temp_broken_link() ), $this->message() );
+		$this->assertSame( '', U\Fs::real_type( $this->temp_file() . '.x-nonexistent-file' ), $this->message() );
 	}
 
 	/**

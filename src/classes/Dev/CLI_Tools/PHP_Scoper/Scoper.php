@@ -41,14 +41,25 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-class Scoper extends U\A6t\CLI_Tool {
+final class Scoper extends U\A6t\CLI_Tool {
+	/**
+	 * Project.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected U\Dev\Project $project;
+
 	/**
 	 * Version.
+	 *
+	 * @since 2021-12-15
 	 */
 	protected const VERSION = '1.0.0';
 
 	/**
 	 * Tool name.
+	 *
+	 * @since 2021-12-15
 	 */
 	protected const NAME = 'PHP_Scoper/Scoper';
 
@@ -72,8 +83,14 @@ class Scoper extends U\A6t\CLI_Tool {
 					'project-dir'                   => [
 						'required'    => true,
 						'description' => 'Project directory path.',
-						'validator'   => fn( $value ) => $value && is_string( $value ) && is_dir( $value )
-							&& is_file( U\Dir::join( $value, '/composer.json' ) ),
+						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
+							&& is_file( U\Dir::join( $abs_path, '/composer.json' ) ),
+					],
+					'work-dir'                      => [
+						'required'    => true,
+						'description' => 'Work directory path.',
+						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
+							&& preg_match( '/\/\._[^\/]*\//u', $abs_path ),
 					],
 					'prefix'                        => [
 						'required'    => true,
@@ -81,30 +98,24 @@ class Scoper extends U\A6t\CLI_Tool {
 						'validator'   => fn( $value ) => $value && is_string( $value )
 							&& preg_match( '/^[a-z0-9]+$/ui', $value ),
 					],
-					'dir'                           => [
-						'required'    => true,
-						'description' => 'Directory to scope.',
-						'validator'   => fn( $value ) => $value && is_string( $value ) && is_dir( $value )
-							&& preg_match( '/\/\._[^\/]*\//u', U\Fs::normalize( $value ) ),
-					],
 					'output-dir'                    => [
 						'required'    => true,
 						'description' => 'Directory to output scoped files to.',
-						'validator'   => fn( $value ) => $value && is_string( $value )
-							&& preg_match( '/\/\._[^\/]*\//u', U\Fs::normalize( $value ) ),
+						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'dir' ] ) )
+							&& preg_match( '/\/\._[^\/]*\//u', $abs_path ),
 					],
 					'output-project-dir'            => [
 						'required'    => true,
 						'description' => 'Output project directory. In case it’s different from `output-dir`.',
-						'validator'   => fn( $value ) => $value && is_string( $value )
-							&& preg_match( '/\/\._[^\/]*\//u', U\Fs::normalize( $value ) ),
+						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'dir' ] ) )
+							&& preg_match( '/\/\._[^\/]*\//u', $abs_path ),
 					],
 					'output-project-dir-entry-file' => [
 						'optional'    => true,
 						'description' => 'Output project directory entry file; i.e., PHP file that `require()`’s autoloader.',
-						'validator'   => fn( $value ) => $value && is_string( $value )
-							&& preg_match( '/\/\._[^\/]*\//u', U\Fs::normalize( $value ) )
-							&& preg_match( '/\.php$/ui', U\Fs::normalize( $value ) ),
+						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'file' ] ) )
+							&& preg_match( '/\/\._[^\/]*\//u', $abs_path )
+							&& preg_match( '/\.php$/ui', $abs_path ),
 					],
 				],
 			],
@@ -119,6 +130,9 @@ class Scoper extends U\A6t\CLI_Tool {
 	 */
 	protected function scope() : void {
 		try {
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
 			$this->run_scoper();
 			$this->fix_comments();
 			$this->fix_formatting();
@@ -139,22 +153,21 @@ class Scoper extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function run_scoper() : void {
-		$project_dir = U\Fs::normalize( $this->get_option( 'project-dir' ) );
 		$prefix      = $this->get_option( 'prefix' );
+		$work_dir    = U\Fs::abs( $this->get_option( 'work-dir' ) );
+		$output_dir  = U\Fs::abs( $this->get_option( 'output-dir' ) );
+		$config_file = U\Dir::join( $this->project->dir, '/.scoper.cfg.php' );
 
-		$dir        = U\Fs::normalize( $this->get_option( 'dir' ) );
-		$output_dir = U\Fs::normalize( $this->get_option( 'output-dir' ) );
-
-		$config_file = U\Dir::join( $project_dir, '/.scoper.cfg.php' );
 		if ( ! is_file( $config_file ) ) {
-			throw new U\Exception( 'Missing PHP Scoper config file: `' . $config_file . '`.' );
+			throw new U\Exception( 'Missing `[project-dir]/.scoper.cfg.php`: `' . $config_file . '`.' );
 		}
 		U\CLI::run( [
 			[ 'composer', 'exec', '--', 'php-scoper', 'add-prefix' ],
 			[ '--force', '--no-interaction', '--stop-on-failure' ],
-			[ '--working-dir', $dir, '--config', $config_file, '--prefix', $prefix ],
+			[ '--config', $config_file, '--prefix', $prefix ],
+			[ '--working-dir', $work_dir ],
 			[ '--output-dir', $output_dir ],
-		], $project_dir );
+		], $this->project->dir );
 	}
 
 	/**
@@ -165,7 +178,7 @@ class Scoper extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function fix_comments() : void {
-		$output_dir = U\Fs::normalize( $this->get_option( 'output-dir' ) );
+		$output_dir = U\Fs::abs( $this->get_option( 'output-dir' ) );
 
 		if ( ! is_dir( $output_dir ) ) {
 			throw new U\Exception( 'Missing `output-dir`: `' . $output_dir . '`.' );
@@ -186,26 +199,28 @@ class Scoper extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function fix_formatting() : void {
-		$project_dir = U\Fs::normalize( $this->get_option( 'project-dir' ) );
-		$output_dir  = U\Fs::normalize( $this->get_option( 'output-dir' ) );
+		$standard   = U\Dir::join( $this->project->dir, '/.phpcs.xml' );
+		$output_dir = U\Fs::abs( $this->get_option( 'output-dir' ) );
 
 		if ( ! is_dir( $output_dir ) ) {
 			throw new U\Exception( 'Missing `output-dir`: `' . $output_dir . '`.' );
 		}
-		$standard = U\Dir::join( $project_dir, '/.phpcs.xml' );
-		$ignore   = U\Fs::gitignore_phpcs_regexp_lookahead_positive( $output_dir, [ 'except:vendor/' => 'clevercanyon' ] );
+		if ( ! is_file( $standard ) ) {
+			throw new U\Exception( 'Missing `[project-dir]/.phpcs.xml`: `' . $standard . '`.' );
+		}
+		$ignore = U\Fs::gitignore_phpcs_regexp_lookahead_positive( $output_dir, [ 'except:vendor/' => 'clevercanyon' ] );
 
 		if ( // This tool has non-standard exit codes. Exit status of `3` or higher is an issue.
 			// {@see https://github.com/squizlabs/PHP_CodeSniffer/issues/1818#issuecomment-354420927}.
 			3 <= U\CLI::run( [
-				[ 'composer', 'exec', '--', 'phpcbf' ],
+				[ 'composer', 'exec', '--quiet', '--', 'phpcbf' ],
 				[ '-pv', '--parallel=1', '--standard=' . $standard ],
 				[ '--extensions=php', '--ignore=' . $ignore ],
 				$output_dir, // ← directory to fix.
-			], $project_dir, false ) ) {
+			], $this->project->dir, false ) ) {
 			throw new U\Exception(
-				'Got unexpected exit status from `phpcbf` when formatting: `' . $output_dir . '`,' .
-				' when running from: `' . $project_dir . '`.'
+				'Got unexpected exit status from `phpcbf` while formatting: `' . $output_dir . '`.' .
+				' Running from: `' . $this->project->dir . '`.'
 			);
 		}
 	}
@@ -221,11 +236,14 @@ class Scoper extends U\A6t\CLI_Tool {
 	 *       {@see https://github.com/humbug/php-scoper#composer-plugins}.
 	 */
 	protected function fix_autoloader() : void {
-		$output_project_dir            = U\Fs::normalize( $this->get_option( 'output-project-dir' ) );
-		$output_project_dir_entry_file = U\Fs::normalize( $this->get_option( 'output-project-dir-entry-file' ) ?: '' );
+		$output_project_dir            = U\Fs::abs( $this->get_option( 'output-project-dir' ) );
+		$output_project_dir_entry_file = U\Fs::abs( $this->get_option( 'output-project-dir-entry-file' ) ?: '' );
 
 		if ( ! is_dir( $output_project_dir ) ) {
 			throw new U\Exception( 'Missing `output-project-dir`: `' . $output_project_dir . '`.' );
+		}
+		if ( ! is_dir( U\Dir::join( $output_project_dir, '/vendor' ) ) ) {
+			throw new U\Exception( 'Missing `[output-project-dir]/vendor`: `' . U\Dir::join( $output_project_dir, '/vendor' ) . '`.' );
 		}
 		if ( ! is_file( U\Dir::join( $output_project_dir, '/composer.json' ) ) ) {
 			throw new U\Exception( 'Missing `[output-project-dir]/composer.json`: `' . U\Dir::join( $output_project_dir, '/composer.json' ) . '`.' );

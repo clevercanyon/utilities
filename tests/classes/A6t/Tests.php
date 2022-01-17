@@ -157,21 +157,21 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 		$sys_temp = U\Dir::sys_temp();
 
 		foreach ( $this->temp_dirs as $_dir ) {
-			if ( is_dir( $_dir ) || U\Fs::path_exists( $_dir ) ) {
+			if ( is_dir( $_dir ) || U\Fs::exists( $_dir ) ) {
 				if ( 0 !== mb_stripos( $_dir, $sys_temp ) || ! U\Fs::delete( $_dir ) ) {
 					throw new U\Fatal_Exception( 'Failed to cleanup dir: `' . $_dir . '`. System temp dir is: `' . $sys_temp . '`.' );
 				}
 			}
 		}
 		foreach ( $this->temp_files as $_file ) {
-			if ( is_file( $_file ) || U\Fs::path_exists( $_file ) ) {
+			if ( is_file( $_file ) || U\Fs::exists( $_file ) ) {
 				if ( 0 !== mb_stripos( $_file, $sys_temp ) || ! U\Fs::delete( $_file ) ) {
 					throw new U\Fatal_Exception( 'Failed to cleanup file: `' . $_file . '`. System temp dir is: `' . $sys_temp . '`.' );
 				}
 			}
 		}
 		foreach ( $this->temp_links as $_link ) {
-			if ( is_link( $_link ) || U\Fs::path_exists( $_link ) ) {
+			if ( is_link( $_link ) || U\Fs::exists( $_link ) ) {
 				if ( 0 !== mb_stripos( $_link, $sys_temp ) || ! U\Fs::delete( $_link ) ) {
 					throw new U\Fatal_Exception( 'Failed to cleanup link: `' . $_link . '`. System temp dir is: `' . $sys_temp . '`.' );
 				}

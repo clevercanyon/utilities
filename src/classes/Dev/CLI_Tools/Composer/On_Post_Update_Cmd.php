@@ -48,7 +48,7 @@ use Aws\Exception\AwsException;
  *
  * @since 2021-12-15
  */
-class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
+final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	/**
 	 * Project.
 	 *
@@ -68,7 +68,7 @@ class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 */
-	protected const NAME = 'Composer/Hook/On_Post_Update_Cmd';
+	protected const NAME = 'Composer/On_Post_Update_Cmd';
 
 	/**
 	 * Constructor.
@@ -88,11 +88,10 @@ class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 				'description' => 'Updates project symlinks. See ' . __CLASS__ . '::symlink()',
 				'options'     => [
 					'project-dir' => [
-						'optional'    => true,
+						'required'    => true,
 						'description' => 'Project directory path.',
-						'validator'   => fn( $value ) => $value && is_string( $value ) && is_dir( $value )
-							&& is_file( U\Dir::join( $value, '/composer.json' ) ),
-						'default'     => getcwd(),
+						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
+							&& is_file( U\Dir::join( $abs_path, '/composer.json' ) ),
 					],
 				],
 			],
@@ -102,11 +101,10 @@ class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 				'description' => 'Updates project dotfiles and NPM packages. See ' . __CLASS__ . '::update()',
 				'options'     => [
 					'project-dir' => [
-						'optional'    => true,
+						'required'    => true,
 						'description' => 'Project directory path.',
-						'validator'   => fn( $value ) => $value && is_string( $value ) && is_dir( $value )
-							&& is_file( U\Dir::join( $value, '/composer.json' ) ),
-						'default'     => getcwd(),
+						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
+							&& is_file( U\Dir::join( $abs_path, '/composer.json' ) ),
 					],
 				],
 			],
@@ -121,9 +119,9 @@ class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 */
 	protected function symlink() : void {
 		try {
-			$this->project = new U\Dev\Project(
-				$this->get_option( 'project-dir' )
-			);
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
 			$this->maybe_symlink_local_repos();
 
 		} catch ( \Throwable $throwable ) {
@@ -140,9 +138,9 @@ class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 */
 	protected function update() : void {
 		try {
-			$this->project = new U\Dev\Project(
-				$this->get_option( 'project-dir' )
-			);
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
 			$this->maybe_setup_dotfiles();
 			$this->maybe_run_npm_update();
 
@@ -429,15 +427,15 @@ class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		// We're not using that functionality, though, as we have already pruned the directory.
 
 		if ( 'clevercanyon/php-js-utilities' === $this->project->pkg_name ) {
-			$scoper = U\Dir::join( $this->project->dir, '/dev/cli-tools/php-scoper/scoper' );
+			$scoper_bin_script = U\Dir::join( $this->project->dir, '/dev/cli-tools/php-scoper/scoper' );
 		} else {
-			$scoper = U\Dir::join( $this->project->dir, '/vendor/clevercanyon/php-js-utilities/dev/cli-tools/php-scoper/scoper' );
+			$scoper_bin_script = U\Dir::join( $this->project->dir, '/vendor/clevercanyon/php-js-utilities/dev/cli-tools/php-scoper/scoper' );
 		}
 		U\CLI::run( [
-			[ $scoper, 'scope' ],
+			[ $scoper_bin_script, 'scope' ],
 			[ '--project-dir', $this->project->dir ],
+			[ '--work-dir', $comp_dir ],
 			[ '--prefix', ucfirst( $this->project->pkg_name_hash ) ],
-			[ '--dir', $comp_dir ],
 			[ '--output-dir', $distro_dir ],
 			[ '--output-project-dir', $distro_dir ],
 		] );

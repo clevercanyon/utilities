@@ -56,7 +56,7 @@ return ( function () : string {
 		foreach ( explode( '/', $path ) as $_path_part ) {
 			if ( '.' === $_path_part ) {
 				continue; // Nothing to do.
-			} elseif ( '..' == $_path_part ) {
+			} elseif ( '..' === $_path_part ) {
 				array_pop( $abs_path_parts );
 			} else {
 				$abs_path_parts[] = $_path_part;

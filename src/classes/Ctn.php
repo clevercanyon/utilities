@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-class Ctn extends U\A6t\Stc_Utilities {
+final class Ctn extends U\A6t\Stc_Utilities {
 	/**
 	 * A collection?
 	 *
@@ -197,7 +197,7 @@ class Ctn extends U\A6t\Stc_Utilities {
 				return U\Str::json_decode( U\Str::json_encode( $ctn, false ) );
 
 			case 'serialize':
-				return unserialize( serialize( $ctn ) ); // phpcs:ignore -- ☜(▀̿ ͜▀̿ ̿) ok.
+				return unserialize( serialize( $ctn ) ); // phpcs:ignore.
 
 			case 'reflection':
 			default: // Default approach.
@@ -272,7 +272,7 @@ class Ctn extends U\A6t\Stc_Utilities {
 				$_prop_name = $_prop->getName();
 				unset( $obj_clone->{$_prop_name} );  // Breaks reference.
 				$obj_clone->{$_prop_name} = $_value; // Restoration by value.
-			} // @todo: Currently no solution for protected/private references.
+			} // @todo: Edge case. Currently no solution for protected/private references.
 
 			if ( $_is_object_value || $_is_array_value ) {
 				$_prop->setValue(

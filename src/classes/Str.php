@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-class Str extends U\A6t\Stc_Utilities {
+final class Str extends U\A6t\Stc_Utilities {
 	/**
 	 * Escapes single quotes.
 	 *

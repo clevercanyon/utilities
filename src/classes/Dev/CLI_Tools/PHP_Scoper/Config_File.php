@@ -48,14 +48,25 @@ use PhpParser;
  *
  * @since 2021-12-15
  */
-class Config_File extends U\A6t\CLI_Tool {
+final class Config_File extends U\A6t\CLI_Tool {
+	/**
+	 * Project.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected U\Dev\Project $project;
+
 	/**
 	 * Version.
+	 *
+	 * @since 2021-12-15
 	 */
 	protected const VERSION = '1.0.0';
 
 	/**
 	 * Tool name.
+	 *
+	 * @since 2021-12-15
 	 */
 	protected const NAME = 'PHP_Scoper/Config_File';
 
@@ -75,7 +86,14 @@ class Config_File extends U\A6t\CLI_Tool {
 				'callback'    => [ $this, 'update' ],
 				'synopsis'    => 'Updates `src/libraries/dotfiles/.scoper.cfg.php` config file.',
 				'description' => 'Updates `src/libraries/dotfiles/.scoper.cfg.php` config file. See ' . __CLASS__ . '::update()',
-				'options'     => [],
+				'options'     => [
+					'project-dir' => [
+						'required'    => true,
+						'description' => 'Project directory path.',
+						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
+							&& is_file( U\Dir::join( $abs_path, '/composer.json' ) ),
+					],
+				],
 			],
 		] );
 		$this->route_request();
@@ -88,6 +106,9 @@ class Config_File extends U\A6t\CLI_Tool {
 	 */
 	protected function update() : void {
 		try {
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
 			$this->update_file();
 
 		} catch ( \Throwable $throwable ) {
@@ -243,7 +264,7 @@ class Config_File extends U\A6t\CLI_Tool {
 	 * @throws U\Fatal_Exception On any error.
 	 *
 	 * @return object Object w/ properties containing names of class, functions, etc.
-	 *                {@see php_parser_node_visitor()} for further details.
+	 *                {@see Config_File::php_parser_node_visitor()} for further details.
 	 */
 	protected function php_parser_compile_names() : object {
 		try {
@@ -285,7 +306,7 @@ class Config_File extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2022-01-02
 	 *
-	 * @param PhpParser\NodeVisitorAbstract $visitor Visitor; {@see php_parser_node_visitor()}.
+	 * @param PhpParser\NodeVisitorAbstract $visitor Visitor; {@see Config_File::php_parser_node_visitor()}.
 	 *
 	 * @return PhpParser\NodeTraverser Node traverser.
 	 */
@@ -402,7 +423,7 @@ class Config_File extends U\A6t\CLI_Tool {
 	 *
 	 * @note  Patchwork below works around an unexpected `T_READONLY` token.
 	 *        Likely due to a bug in PhpParser. Please reassess when support for PHP 8.1 is ready.
-	 *        {@see php_parser_node_visitor()} also, where `x_stubfix_readonly` is converted on-the-fly.
+	 *        {@see Config_File::php_parser_node_visitor()} also, where `x_stubfix_readonly` conversion occurs.
 	 */
 	protected function php_stubs_wordpress_stubs() : string {
 		$stubs = file_get_contents( U\Dir::name( __FILE__, 6, '/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php' ) );

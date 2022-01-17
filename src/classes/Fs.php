@@ -32,23 +32,83 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-class Fs extends U\A6t\Stc_Utilities {
+final class Fs extends U\A6t\Stc_Utilities {
+	/**
+	 * Resolves and normalizes path (symlinks *not* resolved).
+	 *
+	 * @since 2022-01-15
+	 *
+	 * @param string $path Path to parse.
+	 *
+	 * @throws U\Fatal_Exception On failure; {@see U\Fs::normalize()}.
+	 * @return string Absolute path normalized (symlinks *not* resolved).
+	 *
+	 * @note  This expands to absolute path. It is CWD-aware, but not filesystem-aware.
+	 *        Therefore, the absolute path it returns may or may not *actually* exist.
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::abs()
+	 */
+	public static function abs( string $path ) : string {
+		return U\Fs::normalize( $path, [ 'resolve:relative-path' => true ] );
+	}
+
+	/**
+	 * Resolves, realizes (symlinks resolved), normalizes path.
+	 *
+	 * @since 2022-01-15
+	 *
+	 * @param string $path Path to parse.
+	 *
+	 * @return string Realized (symlinks resolved) canonical path normalized.
+	 *                This returns an empty string on failure to realize.
+	 *
+	 * @note  This expands/resolves everything, and it is filesystem-aware.
+	 *        All symbolic links are resolved; {@see realpath()}.
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::realize()
+	 */
+	public static function realize( string $path ) : string {
+		return false !== ( $rp = realpath( $path ) ) ? U\Fs::normalize( $rp ) : '';
+	}
+
 	/**
 	 * Normalizes a path.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $path Path to parse.
+	 * @param string $path Path to normalize.
 	 * @param array  $_d   Internal use only — do not pass.
 	 *
-	 * @return string Normalized path, preserving wrappers.
+	 * @throws U\Fatal_Exception On failure to resolve a relative path.
+	 * @return string Normalized path, with wrappers considered and preserved.
+	 *
+	 * @note  This function takes a number of internal directives that have an impact on behavior.
+	 *        However, none of the directives are part of a public API. Other utilities are available.
 	 *
 	 * @note  This function is not URL scheme-safe. That's another set of concerns.
-	 *        Therefore, don't use with `http://`, `data://` or other remote protocols.
+	 *        While this function is scheme-agnostic, using it with (e.g., `http://`, `data://`) is not recommended.
+	 *        In fact, recommend not using with any arbitrary schemes not officially known|registered as PHP stream wrappers.
 	 *
-	 * @see   U\Fs::wrappers() before updating this function.
+	 * @see   U\Fs::abs()
+	 * @see   U\Fs::realize()
+	 *
+	 * @see   U\Dir::name()
+	 * @see   U\Dir::subpath()
+	 *
+	 * @see   U\Dir::join()
+	 * @see   U\Dir::join_ets()
+	 *
+	 * @see   U\Fs::wrappers()
+	 * @see   U\Fs::split_wrappers()
+	 * @see   U\Fs::may_have_wrappers()
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::normalize()
 	 */
 	public static function normalize( string $path, array $_d = [] ) : string {
+		if ( ! empty( $_d[ 'cache' ] ) // Enable caching?
+			&& null !== ( $cache = &static::stc_cache( [ __FUNCTION__, $path, $_d ] ) ) ) {
+			return $cache; // Already cached; saves a little time.
+		}
 		// Normalize type of slashes.
 
 		$path = str_replace( '\\', '/', $path );
@@ -56,14 +116,16 @@ class Fs extends U\A6t\Stc_Utilities {
 		// Parse & temporarily remove wrappers.
 
 		if ( ! U\Fs::may_have_wrappers( $path, [ 'skip:str_replace' => true ] ) ) {
-			$wrappers = ''; // Saves time. No wrappers.
+			$wrappers = ''; // Saves time; no `$wrappers` to parse.
 		} else {
-			$wrappers = U\Fs::wrappers( $path, '', [
+			$wrappers = U\Fs::wrappers( $path, 'string', [
 				'bypass:may_have_wrappers' => true,
 				'bypass:normalize'         => true,
 			] );
-			$wrappers = $wrappers ? mb_strtolower( $wrappers ) : ''; // Normalize.
-			$path     = $wrappers ? mb_substr( $path, mb_strlen( $wrappers ) ) : $path;
+			if ( $wrappers ) {
+				$wrappers = mb_strtolower( $wrappers );
+				$path     = mb_substr( $path, mb_strlen( $wrappers ) );
+			}
 		}
 		// Maybe join additional paths by directive.
 
@@ -74,30 +136,110 @@ class Fs extends U\A6t\Stc_Utilities {
 
 		$path = preg_replace( '/\/+/u', '/', $path );
 
-		// If there are wrappers and a path, fix any obvious problems
-		// with path, based on examination of it's last (innermost) wrapper.
+		// Maybe resolve relative filesystem path to absolute path, by directive.
+		// Only if no `$wrappers`, or when `file://`, `//`, `[a-z]:` is `$last_wrapper`.
+		// For Windows, please carefully review {@see https://o5p.me/z52z8j} for further details.
 
-		if ( $wrappers && '' !== $path && ( $split_wrappers = U\Fs::split_wrappers( $wrappers ) ) ) {
-			if ( '/' !== $path[ 0 ] && [ 'file://' ] === $split_wrappers ) {
-				$path = '/' . $path; // Force leading slash for validity.
+		if ( ! empty( $_d[ 'resolve:relative-path' ] ) && '' !== $path && '/' !== $path[ 0 ] ) {
+			if ( $wrappers ) {
+				$split_wrappers ??= U\Fs::split_wrappers( $wrappers );
+				$last_wrapper   ??= U\Arr::value_last( $split_wrappers );
+			} else {
+				$split_wrappers ??= []; // Make sure this gets set.
+				$last_wrapper   ??= ''; // Same in this case.
+			}
+			if ( $wrappers && ! preg_match( '/^(?:\/{2}|[a-z]{1}\:|(?:file)\:\/{2})$/ui', $last_wrapper ) ) {
+				throw new U\Fatal_Exception(
+					'Unable to resolve relative path: `' . $path . '`, with wrappers: `' . $wrappers . '`.' .
+					' The available data is incompatible with absolute path resolution in a known filesystem.'
+				);
+			}
+			$cwd_path = U\Env::var( 'CWD' ); // Already-normalized path.
 
-			} elseif ( '/' === $path[ 0 ] ) {
-				$last_wrapper = U\Arr::value_last( $split_wrappers );
-				if (
-					'file://' !== $last_wrapper // Just to make sure, as this saves time.
+			if ( ! U\Fs::may_have_wrappers( $cwd_path, [ 'skip:str_replace' => true ] ) ) {
+				$cwd_wrappers = ''; // Saves time; no `$cwd_wrappers` to parse.
+			} else {
+				$cwd_wrappers = U\Fs::wrappers( $cwd_path, 'string', [
+					'bypass:may_have_wrappers' => true,
+					'bypass:normalize'         => true,
+				] );
+				if ( $cwd_wrappers ) {
+					$cwd_wrappers = mb_strtolower( $cwd_wrappers );
+					$cwd_path     = mb_substr( $cwd_path, mb_strlen( $cwd_wrappers ) );
+				}
+			}
+			$_cwd_path_parts                 = explode( '/', '/' === $cwd_path ? $cwd_path : rtrim( $cwd_path, '/' ) );
+			$_have_compatible_cwd_path_parts = count( $_cwd_path_parts ) >= 2 && '' === $_cwd_path_parts[ 0 ];
+
+			$_no_wrappers_to_no_cwd_wrappers        = ! $wrappers && ! $cwd_wrappers;
+			$_last_wrapper_file_to_no_cwd_wrappers  = $wrappers && ! $cwd_wrappers && 'file://' === $last_wrapper;
+			$_last_wrapper_to_matching_cwd_wrappers = $wrappers && $cwd_wrappers && $last_wrapper === $cwd_wrappers;
+			$_no_wrappers_to_compat_cwd_wrappers    = ! $wrappers && $cwd_wrappers && preg_match( '/^(?:\/{2}|[a-z]{1}\:)$/ui', $cwd_wrappers );
+
+			$_have_compatible_wrappers_to_cwd_wrappers = // Any of the following scenarios are compatible.
+				$_no_wrappers_to_no_cwd_wrappers           // Don't need to worry about wrappers.
+				|| $_last_wrapper_file_to_no_cwd_wrappers  // Use the already-compatible `$last_wrapper`.
+				|| $_last_wrapper_to_matching_cwd_wrappers // Use the already-compatible `$last_wrapper`.
+				|| $_no_wrappers_to_compat_cwd_wrappers;   // Use `$cwd_wrappers` and renormalize.
+
+			if ( ! $_have_compatible_cwd_path_parts || ! $_have_compatible_wrappers_to_cwd_wrappers ) {
+				throw new U\Fatal_Exception(
+					'Unable to resolve relative path: `' . $path . '`, from CWD: `' . $cwd_path . '`.' .
+					' Relative path wrappers: `' . $wrappers . '`, to CWD wrappers: `' . $cwd_wrappers . '`.' .
+					' The available data is incompatible with absolute path resolution in a known filesystem.'
+				);
+			}
+			$_abs_path_parts = $_cwd_path_parts; // Start from CWD base.
+
+			foreach ( explode( '/', $path ) as $_part_of_path ) {
+				if ( '.' === $_part_of_path ) {
+					continue; // No action.
+				} elseif ( '..' === $_part_of_path ) {
+					array_pop( $_abs_path_parts );
+				} else {
+					$_abs_path_parts[] = $_part_of_path;
+				}
+			}
+			$_total_abs_path_parts = count( $_abs_path_parts );
+
+			while ( $_total_abs_path_parts < 2 || '' !== $_abs_path_parts[ 0 ] ) {
+				array_unshift( $_abs_path_parts, '' ); // i.e., `['', '']` = `/`.
+				$_total_abs_path_parts = count( $_abs_path_parts );
+			}
+			$path = implode( '/', $_abs_path_parts ); // Absolute path now.
+
+			if ( $_no_wrappers_to_compat_cwd_wrappers ) { // Got new `$cwd_wrappers`, must renormalize.
+				return $cache = U\Fs::normalize( $cwd_wrappers . $path, array_intersect_key( $_d, [ 'append:trailing-slash' => 0 ] ) );
+			}
+		}
+		// If there are `$wrappers` and a `$path`, fix any obvious problems with `$path`,
+		// based on an examination of it's last (innermost) wrapper. Note the `file://` wrapper doesn't
+		// work with relative paths whatsoever. So we make sure `$path` starts with a `/` for validity.
+
+		if ( $wrappers && '' !== $path ) {
+			$split_wrappers ??= U\Fs::split_wrappers( $wrappers );
+			$last_wrapper   ??= U\Arr::value_last( $split_wrappers );
+
+			if ( '/' !== $path[ 0 ] && $last_wrapper ) {
+				if ( 'file://' === $last_wrapper ) {
+					$path = '/' . $path; // Force leading slash for validity.
+				}
+			} elseif ( '/' === $path[ 0 ] && $last_wrapper ) {
+				if ( 'file://' !== $last_wrapper // Just to make sure, as this saves a little time.
+					// UNC `//` should be followed by a server share, not `/`; {@see https://o5p.me/PnKPmm}.
 					&& preg_match( '/^(?:\/{2}|(?:s3|php|http|data|expect|ssh2\.tunnel)\:\/{2})$/ui', $last_wrapper )
 				) {
 					$path = ltrim( $path, '/' ); // Strip leading slash.
 				}
 			}
-		} // Complete path normalization and return now.
+		} // Complete `$path` normalization and return now.
 
-		if ( '/' === $path ) {        // Nothing more to do here.
-			return $wrappers . $path; // Wrappers + normalized path.
+		if ( '/' === $path ) {                 // Nothing more to do here.
+			return $cache = $wrappers . $path; // `$wrappers` + normalized `$path`.
 		}
 		$path = rtrim( $path, '/' );  // ← This completes normalization.
 
-		return $wrappers . $path . // Wrappers + normalized path (+ possible trailing slash).
+		return $cache = $wrappers . $path . // `$wrappers` + normalized `$path` (+ possible trailing slash).
 			( ! empty( $_d[ 'append:trailing-slash' ] ) && ( ! $wrappers || '' !== $path ) ? '/' : '' );
 	}
 
@@ -106,14 +248,18 @@ class Fs extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2021-12-30
 	 *
-	 * @param string $path Paath to check.
+	 * @param string $path Path to check.
 	 * @param array  $_d   Internal use only — do not pass.
 	 *
 	 * @return bool True if path may have wrappers.
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::may_have_wrappers()
 	 */
 	public static function may_have_wrappers( string $path, array $_d = [] ) : bool {
-		$path = ! empty( $_d[ 'skip:str_replace' ] ) ? $path : str_replace( '\\', '/', $path );
-		return '//' === mb_substr( $path, 0, 2 ) || false !== mb_strpos( $path, ':' );
+		if ( empty( $_d[ 'skip:str_replace' ] ) ) {
+			$path = str_replace( '\\', '/', $path );
+		}
+		return false !== mb_strpos( $path, ':' ) || '//' === mb_substr( $path, 0, 2 );
 	}
 
 	/**
@@ -121,42 +267,43 @@ class Fs extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string $path        Path to parse.
+	 * @param string $path     Path to parse.
 	 *
-	 * @param string $return_type Return type. Default is ``, indicating string.
-	 *                            Set to `array` to return an array of all wrappers.
-	 *                            Setting this to anything other than `array` returns a string.
+	 * @param string $rtn_type Return type. Default is ``, indicating string.
+	 *                         Set to `array` to return an array of all wrappers.
+	 *                         Setting this to anything other than `array` returns a string.
 	 *
-	 * @param array  $_d          Internal use only — do not pass.
+	 * @param array  $_d       Internal use only — do not pass.
 	 *
 	 * @return string|array Wrappers. Empty string|array = no wrappers.
 	 *
 	 * @note  This function is not URL scheme-safe. That's another set of concerns.
 	 *        Therefore, don't use with `http://`, `data://` or other remote protocols.
 	 *
-	 * @see   U\Fs::normalize() carefully review before updating this function.
-	 * @see   U\Fs::split_wrappers() carefully review before updating this function.
+	 * @see   U\Fs::normalize()
+	 * @see   U\Fs::split_wrappers()
 	 *
 	 * @see   https://regex101.com/r/elgxgZ/8
 	 * @see   https://www.php.net/manual/en/wrappers.php
 	 *
 	 * @see   https://o5p.me/PnKPmm
 	 * @see   https://o5p.me/llPqdv
+	 * @see   https://o5p.me/z52z8j
 	 * @see   https://stackoverflow.com/a/21194605/1219741
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::wrappers()
 	 */
-	public static function wrappers( string $path, string $return_type = '', array $_d = [] ) /* : string|array */ {
-		if ( empty( $_d[ 'bypass:may_have_wrappers' ] ) ) {
-			if ( false === U\Fs::may_have_wrappers( $path ) ) {
-				return 'array' === $return_type ? [] : '';
-			}
+	public static function wrappers( string $path, string $rtn_type = '', array $_d = [] ) /* : string|array */ {
+		if ( empty( $_d[ 'bypass:may_have_wrappers' ] ) && false === U\Fs::may_have_wrappers( $path ) ) {
+			return 'array' === $rtn_type ? [] : '';
 		}
 		if ( empty( $_d[ 'bypass:normalize' ] ) ) {
 			$path = U\Fs::normalize( $path );
 		}
 		if ( preg_match( U\Con::PATH_WRAPPERS_REGEXP, $path, $_m ) ) {
-			return 'array' === $return_type ? U\Fs::split_wrappers( $_m[ 0 ] ) : $_m[ 0 ];
+			return 'array' === $rtn_type ? U\Fs::split_wrappers( $_m[ 0 ] ) : $_m[ 0 ];
 		}
-		return 'array' === $return_type ? [] : '';
+		return 'array' === $rtn_type ? [] : '';
 	}
 
 	/**
@@ -168,28 +315,13 @@ class Fs extends U\A6t\Stc_Utilities {
 	 *
 	 * @return array An array of all wrappers, in sequence.
 	 *
-	 * @see   U\Fs::wrappers() carefully review before updating this function.
-	 * @see   U\Fs::normalize() carefully review before updating this function.
+	 * @see   U\Fs::wrappers()
+	 * @see   U\Fs::normalize()
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::split_wrappers()
 	 */
 	public static function split_wrappers( string $wrappers ) : array {
 		return preg_split( U\Con::PATH_WRAPPERS_SPLIT_REGEXP, $wrappers, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
-	}
-
-	/**
-	 * Path exists?
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param string $path Path.
-	 *
-	 * @return bool True if path exists.
-	 *
-	 * @see   https://www.php.net/manual/en/function.file-exists.php
-	 * @note  A path is different from a file or directory in this context.
-	 *       {@see file_exists()} returns `false` for symlinks pointing to non-existing files.
-	 */
-	public static function path_exists( string $path ) : bool {
-		return file_exists( $path ) || is_link( $path );
 	}
 
 	/**
@@ -197,21 +329,50 @@ class Fs extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $path Path.
+	 * @param string $path Path to check.
 	 *
-	 * @return string One of `link`, `file`, `dir`, or ``.
+	 * @return string One of `link`, `dir`, `file`, or `` (nonexistent).
+	 *
+	 * @note  A `link` may or may not point to a location that exists.
+	 *       i.e., A link can exist, but be broken; {@see U\Fs::real_type()}.
 	 */
 	public static function type( string $path ) : string {
 		if ( is_link( $path ) ) {
 			return 'link';
 		}
-		if ( is_file( $path ) ) {
-			return 'file';
-		}
 		if ( is_dir( $path ) ) {
 			return 'dir';
 		}
-		return ''; // Unknown/nonexistent path.
+		if ( is_file( $path ) ) {
+			return 'file';
+		}
+		return ''; // Nonexistent path.
+	}
+
+	/**
+	 * Gets real path type.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string $path Path to check.
+	 *
+	 * @return string One of `dir`, `file`, `broken-link`, or `` (nonexistent).
+	 *
+	 * @note  The difference here is the order of the FS checks.
+	 *        Instead of checking for a link first, we attempt to resolve
+	 *        to `dir`, `file`, and then if it's a link, it's a `broken-link`.
+	 */
+	public static function real_type( string $path ) : string {
+		if ( is_dir( $path ) ) {
+			return 'dir';
+		}
+		if ( is_file( $path ) ) {
+			return 'file';
+		}
+		if ( is_link( $path ) ) {
+			return 'broken-link';
+		}
+		return ''; // Nonexistent path.
 	}
 
 	/**
@@ -231,6 +392,24 @@ class Fs extends U\A6t\Stc_Utilities {
 			$perms = fileperms( $path );
 		}
 		return $octal ? mb_substr( sprintf( '%o', $perms ), -4 ) : $perms;
+	}
+
+	/**
+	 * Filesystem path exists?
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string $path Path to check.
+	 *
+	 * @return bool True if filesystem path exists.
+	 *
+	 * @see   https://www.php.net/manual/en/function.file-exists.php
+	 * @note  A path is different from a file or directory in this context.
+	 *        {@see file_exists()} returns `false` for symlinks pointing to nonexistent paths.
+	 *        This returns `true` if it exists in any way, even if it's a broken symlink.
+	 */
+	public static function exists( string $path ) : bool {
+		return file_exists( $path ) || is_link( $path );
 	}
 
 	/**
@@ -303,8 +482,7 @@ class Fs extends U\A6t\Stc_Utilities {
 		if ( ! is_readable( $from_path ) ) {
 			return false; // Not possible.
 		}
-		$real_from_path = realpath( $from_path );
-		$real_from_path = U\Fs::normalize( (string) $real_from_path );
+		$real_from_path = U\Fs::realize( $from_path );
 
 		if ( ! $real_from_path ) {
 			return false; // Not possible.
@@ -324,8 +502,8 @@ class Fs extends U\A6t\Stc_Utilities {
 			return false; // Not possible.
 		}
 		if ( ! $is_recursive ) {
-			$real_to_path = $to_path_type ? realpath( $to_path ) : $to_path;
-			$real_to_path = U\Fs::normalize( (string) $real_to_path );
+			// This may or may not exist, so fall back on `$to_path`.
+			$real_to_path = $to_path_type ? U\Fs::realize( $to_path ) : $to_path;
 
 			if ( ! $real_to_path ) {
 				return false; // Not possible.
@@ -580,8 +758,7 @@ class Fs extends U\A6t\Stc_Utilities {
 			$_r->maybe_close_zip( $is_recursive );
 			return false; // Not possible.
 		}
-		$real_from_path = realpath( $from_path );
-		$real_from_path = U\Fs::normalize( (string) $real_from_path );
+		$real_from_path = U\Fs::realize( $from_path );
 
 		if ( ! $real_from_path ) {
 			$_r->maybe_close_zip( $is_recursive );
@@ -603,8 +780,8 @@ class Fs extends U\A6t\Stc_Utilities {
 			return false; // Not possible.
 		}
 		if ( ! $is_recursive ) {
-			$real_to_path = $to_path_type ? realpath( $to_path ) : $to_path;
-			$real_to_path = U\Fs::normalize( (string) $real_to_path );
+			// This may or may not exist, so fall back on `$to_path`.
+			$real_to_path = $to_path_type ? U\Fs::realize( $to_path ) : $to_path;
 
 			if ( ! $real_to_path ) {
 				$_r->maybe_close_zip( $is_recursive );
