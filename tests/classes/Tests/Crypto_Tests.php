@@ -42,7 +42,7 @@ use Clever_Canyon\{Utilities__Tests as UT};
  * Test case.
  *
  * @since 2021-12-15
- * @coversDefaultClass U\Crypto
+ * @coversDefaultClass \Clever_Canyon\Utilities\Crypto
  */
 final class Crypto_Tests extends UT\A6t\Tests {
 	/**

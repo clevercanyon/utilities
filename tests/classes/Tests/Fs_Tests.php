@@ -42,7 +42,7 @@ use Clever_Canyon\{Utilities__Tests as UT};
  * Test case.
  *
  * @since 2021-12-15
- * @coversDefaultClass U\Fs
+ * @coversDefaultClass \Clever_Canyon\Utilities\Fs
  */
 final class Fs_Tests extends UT\A6t\Tests {
 	/**
@@ -483,9 +483,9 @@ final class Fs_Tests extends UT\A6t\Tests {
 	}
 
 	/**
-	 * @covers ::copy_dir_contents()
+	 * @covers ::copy_dir_contents_helper()
 	 */
-	public function test_copy_dir_contents() : void {
+	public function test_copy_dir_contents_helper() : void {
 		$this->assertSame( true, U\Fs::copy( U\Dir::join( $this->temp_dir( true ), '/*' ), $this->temp_dir( true ) ), $this->message() );
 	}
 

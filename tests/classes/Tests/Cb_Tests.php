@@ -42,7 +42,7 @@ use Clever_Canyon\{Utilities__Tests as UT};
  * Test case.
  *
  * @since 2021-12-15
- * @coversDefaultClass U\Cb
+ * @coversDefaultClass \Clever_Canyon\Utilities\Cb
  */
 final class Cb_Tests extends UT\A6t\Tests {
 	/**

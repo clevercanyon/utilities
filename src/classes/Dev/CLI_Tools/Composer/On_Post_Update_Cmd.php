@@ -405,7 +405,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 
 		U\CLI::run( [
 			[ 'composer', 'install' ],
-			[ '--no-dev', '--no-scripts', '--no-plugins' ],
+			[ '--profile', '--no-dev', '--no-scripts', '--no-plugins' ],
 			[ '--optimize-autoloader', '--classmap-authoritative' ],
 		], $comp_dir );
 
