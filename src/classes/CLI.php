@@ -212,9 +212,9 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'dark-gray', 'blue' ]`.
+	 * @param string|array $style Chalk style. Default is `[ 'black', 'blue' ]`.
 	 */
-	public static function notice( /* mixed */ $data, /* string|array */ $style = [ 'dark-gray', 'blue' ] ) : void {
+	public static function notice( /* mixed */ $data, /* string|array */ $style = [ 'black', 'blue' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
@@ -224,9 +224,9 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'black', 'light-green' ]`.
+	 * @param string|array $style Chalk style. Default is `[ 'green' ]`.
 	 */
-	public static function success( /* mixed */ $data, /* string|array */ $style = [ 'black', 'light-green' ] ) : void {
+	public static function success( /* mixed */ $data, /* string|array */ $style = [ 'green' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
