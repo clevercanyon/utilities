@@ -190,7 +190,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function fix_formatting() : void {
-		U\CLI::log( '...' . __FUNCTION__ . '()' );
+		U\CLI::log( __FUNCTION__ . '(): Running PHPCBF ...' );
 
 		$standard   = U\Dir::join( $this->project->dir, '/.phpcs.xml' );
 		$output_dir = U\Fs::abs( $this->get_option( 'output-dir' ) );
@@ -201,12 +201,16 @@ final class Scoper extends U\A6t\CLI_Tool {
 		if ( ! is_file( $standard ) ) {
 			throw new U\Exception( 'Missing `[project-dir]/.phpcs.xml`: `' . $standard . '`.' );
 		}
-		$ignore = U\Fs::gitignore_phpcs_regexp_lookahead_positive( $output_dir, [ 'except:vendor/' => 'clevercanyon' ] );
+		$ignore            = U\Fs::gitignore_phpcs_regexp_lookahead_positive( $output_dir, [ 'except:vendor/' => 'clevercanyon' ] );
+		$phpcbf_bin_script = U\Dir::join( $this->project->dir, '/vendor/bin/phpcbf' );
 
+		if ( ! is_file( $phpcbf_bin_script ) ) {
+			throw new U\Exception( 'Missing `[project-dir]/vendor/bin/phpcbf`: `' . $phpcbf_bin_script . '`.' );
+		}
 		if ( // This tool has non-standard exit codes. Exit status of `3` or higher is an issue.
 			// {@see https://github.com/squizlabs/PHP_CodeSniffer/issues/1818#issuecomment-354420927}.
 			3 <= U\CLI::run( [
-				[ $this->project->dir . '/vendor/bin/phpcbf' ],
+				[ $phpcbf_bin_script ],
 				[ '-p', '--parallel=1', '--standard=' . $standard ],
 				[ '--extensions=php', '--ignore=' . $ignore ],
 				$output_dir, // ← directory to fix.
