@@ -207,7 +207,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 			// {@see https://github.com/squizlabs/PHP_CodeSniffer/issues/1818#issuecomment-354420927}.
 			3 <= U\CLI::run( [
 				[ $this->project->dir . '/vendor/bin/phpcbf' ],
-				[ '-p', '--parallel=4', '--standard=' . $standard ],
+				[ '-p', '--parallel=1', '--standard=' . $standard ],
 				[ '--extensions=php', '--ignore=' . $ignore ],
 				$output_dir, // ← directory to fix.
 			], $this->project->dir, false ) ) {
