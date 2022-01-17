@@ -112,9 +112,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 
 			$this->update_file();
 
-			U\CLI::done(
-				'[' . __METHOD__ . '()]: Update complete ✔.'
-			);
+			U\CLI::done( '[' . __METHOD__ . '()]: Update complete ✔.' );
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );

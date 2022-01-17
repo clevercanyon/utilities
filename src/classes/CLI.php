@@ -291,6 +291,9 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 *                            That said, if you intend to pass a style code, you must pass a background color at key index `1`.
 	 *                            If you'd like to bypass any value (e.g., background color) simply set that value to `none`.
 	 *
+	 *                            Instead of color slugs, you can also pass 256 8-bit color codes; {@see https://o5p.me/BV06XN}.
+	 *                            256 8-bit works for both foreground and background colors in terminals that support 256 colors.
+	 *
 	 * @return string Styled string.
 	 */
 	public static function chalk( /* mixed */ $data, /* string|array */ $chalk = 'none' ) : string {
@@ -344,7 +347,7 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2022-01-15
 	 *
-	 * @param string $color Foreground color slug, or a 256-color code.
+	 * @param string $color Foreground color slug, or 256 8-bit codes.
 	 *                      {@see https://o5p.me/BV06XN}.
 	 *
 	 * @return string Foreground color escape sequence.
@@ -361,7 +364,7 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2022-01-15
 	 *
-	 * @param string $color Background color slug, or a 256-color code.
+	 * @param string $color Background color slug, or 256 8-bit codes.
 	 *                      {@see https://o5p.me/BV06XN}.
 	 *
 	 * @return string Background color escape sequence.

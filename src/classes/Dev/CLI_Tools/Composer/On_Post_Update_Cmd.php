@@ -126,9 +126,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 
 			$this->maybe_symlink_local_repos();
 
-			U\CLI::done(
-				'[' . __METHOD__ . '()]: Symlinking complete ✔.'
-			);
+			U\CLI::done( '[' . __METHOD__ . '()]: Symlinking complete ✔.' );
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
@@ -155,9 +153,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			$this->maybe_compile_distro_lib_zip();
 			$this->maybe_s3_upload_distro_lib_zip();
 
-			U\CLI::done(
-				'[' . __METHOD__ . '()]: Update complete ✔.'
-			);
+			U\CLI::done( '[' . __METHOD__ . '()]: Update complete ✔.' );
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );

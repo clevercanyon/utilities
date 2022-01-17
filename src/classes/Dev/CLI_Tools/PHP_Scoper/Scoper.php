@@ -131,9 +131,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 			$this->fix_formatting();
 			$this->fix_autoloader();
 
-			U\CLI::done(
-				'[' . __METHOD__ . '()]: Scoping complete ✔.'
-			);
+			U\CLI::done( '[' . __METHOD__ . '()]: Scoping complete ✔.' );
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
