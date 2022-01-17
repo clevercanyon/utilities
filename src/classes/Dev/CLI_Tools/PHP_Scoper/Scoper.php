@@ -190,6 +190,8 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function fix_formatting() : void {
+		U\CLI::log( '...' . __FUNCTION__ . '()' );
+
 		$standard   = U\Dir::join( $this->project->dir, '/.phpcs.xml' );
 		$output_dir = U\Fs::abs( $this->get_option( 'output-dir' ) );
 
@@ -204,7 +206,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 		if ( // This tool has non-standard exit codes. Exit status of `3` or higher is an issue.
 			// {@see https://github.com/squizlabs/PHP_CodeSniffer/issues/1818#issuecomment-354420927}.
 			3 <= U\CLI::run( [
-				[ 'composer', 'exec', '--profile', '--', 'phpcbf' ],
+				[ $this->project->dir . '/vendor/bin/phpcbf' ],
 				[ '-q', '--parallel=4', '--standard=' . $standard ],
 				[ '--extensions=php', '--ignore=' . $ignore ],
 				$output_dir, // ← directory to fix.
