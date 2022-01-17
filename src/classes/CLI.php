@@ -224,9 +224,9 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'black', 'green' ]`.
+	 * @param string|array $style Chalk style. Default is `[ 'black', 'light-green' ]`.
 	 */
-	public static function success( /* mixed */ $data, /* string|array */ $style = [ 'black', 'green' ] ) : void {
+	public static function success( /* mixed */ $data, /* string|array */ $style = [ 'black', 'light-green' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
