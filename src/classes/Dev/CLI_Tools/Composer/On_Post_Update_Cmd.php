@@ -158,10 +158,19 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			U\CLI::success(
 				'[' . __METHOD__ . '()]: Update complete ✔.'
 			);
+			U\CLI::heading(
+				'[' . __METHOD__ . '()]: Update complete ✔.'
+			);
+			U\CLI::notice(
+				'[' . __METHOD__ . '()]: Update complete ✔.'
+			);
 			U\CLI::warning(
 				'[' . __METHOD__ . '()]: Update complete ✔.'
 			);
 			U\CLI::error(
+				'[' . __METHOD__ . '()]: Update complete ✔.'
+			);
+			U\CLI::output(
 				'[' . __METHOD__ . '()]: Update complete ✔.'
 			);
 		} catch ( \Throwable $throwable ) {
