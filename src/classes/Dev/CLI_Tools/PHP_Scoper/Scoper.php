@@ -204,8 +204,8 @@ final class Scoper extends U\A6t\CLI_Tool {
 		if ( // This tool has non-standard exit codes. Exit status of `3` or higher is an issue.
 			// {@see https://github.com/squizlabs/PHP_CodeSniffer/issues/1818#issuecomment-354420927}.
 			3 <= U\CLI::run( [
-				[ 'composer', 'exec', '--profile', '--', 'phpcbf' ],
-				[ '-pv', '--parallel=1', '--standard=' . $standard ],
+				[ $this->project->dir . '/vendor/bin/phpcbf' ],
+				[ '--parallel=4', '--standard=' . $standard ],
 				[ '--extensions=php', '--ignore=' . $ignore ],
 				$output_dir, // ← directory to fix.
 			], $this->project->dir, false ) ) {
