@@ -105,6 +105,8 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 */
 	protected function update() : void {
 		try {
+			U\CLI::output( __METHOD__ . '(): Updating ...' );
+
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
@@ -125,12 +127,14 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 * @throws U\Fatal_Exception On any error.
 	 */
 	protected function update_file() : void {
-		U\Env::raise_memory_limit();
+		U\CLI::log( __FUNCTION__ . '(): Regenerating config file ...' );
+
 		$cfg_file = U\Dir::name( __FILE__, 6, '/dev/libraries/dotfiles/.scoper.cfg.php' );
 
 		if ( false === file_put_contents( $cfg_file, $this->generate_config_file_contents() ) ) {
 			throw new U\Fatal_Exception( 'Failed to update PHP Scoper config file: `' . $cfg_file . '`.' );
 		}
+		U\CLI::log( __FUNCTION__ . '(): Updated: `' . $cfg_file . '`.' );
 	}
 
 	/**
@@ -141,8 +145,9 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 * @return string Config file contents.
 	 */
 	protected function generate_config_file_contents() : string {
-		$names = $this->php_parser_compile_names();
+		U\Env::raise_memory_limit();
 
+		$names = $this->php_parser_compile_names();
 		sort( $names->constants, SORT_NATURAL );
 		sort( $names->classes, SORT_NATURAL );
 		sort( $names->functions, SORT_NATURAL );
@@ -278,10 +283,11 @@ final class Config_File extends U\A6t\CLI_Tool {
 			] as $_stubs
 			) {
 				$_parser = $this->php_parser();
-				U\CLI::log( 'Parsing: ' . $_stubs . '()' );
+				U\CLI::log( __FUNCTION__ . '(): Parsing: `' . $_stubs . '()`.' );
 				$traverser->traverse( $_parser->parse( $this->{$_stubs}() ) );
 			}
 			return (object) (array) $visitor;
+
 		} catch ( \Throwable $throwable ) {
 			throw new U\Fatal_Exception( $throwable->getMessage() );
 		}
@@ -362,7 +368,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 						$_fqn = $_const->namespacedName->toString();
 
 						$this->constants[] = $_fqn;
-						U\CLI::log( 'Constant: ' . $_fqn );
+						U\CLI::log( __FUNCTION__ . '(): Constant: `' . $_fqn . '`.' );
 					}
 				} elseif ( $node instanceof PhpParser\Node\Expr\FuncCall && $node->name instanceof PhpParser\Node\Name ) {
 					if ( 'define' === $node->name->toString() && count( $node->args ) >= 2 ) {
@@ -370,33 +376,33 @@ final class Config_File extends U\A6t\CLI_Tool {
 							$_fqn = $node->args[ 0 ]->value->value;
 
 							$this->constants[] = $_fqn;
-							U\CLI::log( 'Constant: ' . $_fqn );
+							U\CLI::log( __FUNCTION__ . '(): Constant: `' . $_fqn . '`.' );
 						}
 					}
 				} elseif ( $node instanceof PhpParser\Node\Stmt\Class_ ) {
 					$_fqn = $node->namespacedName->toString();
 
 					$this->classes[] = $_fqn;
-					U\CLI::log( 'Class: ' . $_fqn );
+					U\CLI::log( __FUNCTION__ . '(): Class: `' . $_fqn . '`.' );
 
 				} elseif ( $node instanceof PhpParser\Node\Stmt\Interface_ ) {
 					$_fqn = $node->namespacedName->toString();
 
 					$this->classes[] = $_fqn;
-					U\CLI::log( 'Interface: ' . $_fqn );
+					U\CLI::log( __FUNCTION__ . '(): Interface: `' . $_fqn . '`.' );
 
 				} elseif ( $node instanceof PhpParser\Node\Stmt\Trait_ ) {
 					$_fqn = $node->namespacedName->toString();
 
 					$this->classes[] = $_fqn;
-					U\CLI::log( 'Trait: ' . $_fqn );
+					U\CLI::log( __FUNCTION__ . '(): Trait: `' . $_fqn . '`.' );
 
 				} elseif ( $node instanceof PhpParser\Node\Stmt\Function_ ) {
 					$_fqn = $node->namespacedName->toString();
 					$_fqn = 'x_stubfix_readonly' === $_fqn ? 'readonly' : $_fqn;
 
 					$this->functions[] = $_fqn;
-					U\CLI::log( 'Function: ' . $_fqn );
+					U\CLI::log( __FUNCTION__ . '(): Function: `' . $_fqn . '`.' );
 				}
 			}
 		};

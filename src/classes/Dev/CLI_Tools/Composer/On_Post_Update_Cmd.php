@@ -119,6 +119,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 */
 	protected function symlink() : void {
 		try {
+			U\CLI::output( __METHOD__ . '(): Symlinking ...' );
+
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
@@ -138,6 +140,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 */
 	protected function update() : void {
 		try {
+			U\CLI::output( __METHOD__ . '(): Updating ...' );
+
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
@@ -163,6 +167,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function maybe_symlink_local_repos() : void {
+		U\CLI::log( __FUNCTION__ . '(): Maybe; looking ...' );
+
 		$symlink_local_packages_prop = '&.post_update_cmd_handler.symlink_local_packages';
 		$symlink_local_packages      = $this->project->extra_json_prop( $symlink_local_packages_prop );
 
@@ -243,6 +249,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 					if ( ! symlink( $_local_repo_dir, $_package_dir ) ) {
 						throw new U\Exception( 'Failed to symlink: `' . $_package_dir . '`.' );
 					}
+					U\CLI::log( __FUNCTION__ . '(): Symlinked: `' . $_package_dir . '`' . "\n" . ' → `' . $_local_repo_dir . '`.' );
 					break; // We can stop this loop.
 				}
 			}
@@ -257,6 +264,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function maybe_setup_dotfiles() : void {
+		U\CLI::log( __FUNCTION__ . '(): Maybe; looking ...' );
+
 		$dotfiles_dir  = U\Dir::name( __FILE__, 6, '/dev/libraries/dotfiles' );
 		$dotfiles_file = U\Dir::join( $dotfiles_dir, '/.dotfiles.json' );
 
@@ -346,12 +355,15 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 						if ( false === file_put_contents( $_to_path, U\Str::json_encode( $_to_path_json, true ) ) ) {
 							throw new U\Exception( 'Failed to update `devDependencies` in: `' . $_to_path . '`.' );
 						}
-						break;
+						U\CLI::log( __FUNCTION__ . '(): Updated: `' . $_to_path . '`.' );
+						break; // We can stop here.
+
 					} // Please note the important fallthrough from above.
 				default: // Everything falls through unless there's a `break` above.
 					if ( ! U\Fs::copy( $_from_path, $_to_path ) ) {
 						throw new U\Exception( 'Failed to setup dotfile: `' . $_to_path . '`.' );
 					}
+					U\CLI::log( __FUNCTION__ . '(): Copied: `' . $_from_path . '`' . "\n" . ' → `' . $_to_path . '`.' );
 			}
 		}
 	}
@@ -362,7 +374,10 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 * @since 2021-12-15
 	 */
 	protected function maybe_run_npm_update() : void {
+		U\CLI::log( __FUNCTION__ . '(): Maybe; looking ...' );
+
 		if ( $this->project->has_file( 'package.json' ) ) {
+			U\CLI::log( __FUNCTION__ . '(): Yes. Updating ...' );
 			U\CLI::run( [ 'npm', 'update' ], $this->project->dir );
 		}
 	}
@@ -378,6 +393,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 *       {@see https://github.com/humbug/php-scoper#composer-plugins}.
 	 */
 	protected function maybe_compile_distro_lib_dir() : void {
+		U\CLI::log( __FUNCTION__ . '(): Maybe; looking ...' );
+
 		if ( ! $this->project->is_distro_lib() ) {
 			return; // Not applicable.
 		}
@@ -399,6 +416,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		) ) {
 			throw new U\Exception( 'Failed to create `./._x/comp`.' );
 		}
+		U\CLI::log( __FUNCTION__ . '(): Copied: `' . $this->project->dir . '`' . "\n" . ' → `' . $comp_dir . '`.' );
+
 		// Installs composer dependencies in `._x/comp`.
 		// We didn't ignore `composer.json` when copying, so it's available.
 		// The autoloader is optimized here, as we are compiling for production.
@@ -408,6 +427,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			[ '--profile', '--no-dev', '--no-scripts', '--no-plugins' ],
 			[ '--optimize-autoloader', '--classmap-authoritative' ],
 		], $comp_dir );
+		U\CLI::log( __FUNCTION__ . '(): Ran `composer install` in: `' . $comp_dir . '`.' );
 
 		// Prunes the `./._x/comp` directory, which speeds up remaining tasks.
 		// This prunes everything in `.gitignore`, except: `vendor`, `composer.json`.
@@ -422,6 +442,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		) ) {
 			throw new U\Exception( 'Failed to prune `./._x/comp`.' );
 		}
+		U\CLI::log( __FUNCTION__ . '(): Pruned: `' . $comp_dir . '`.' );
+
 		// Runs PHP Scoper on full `._x/comp` directory; outputting to `._x/distro`.
 		// PHP Scoper ignores files based on Finders in the `.scoper.cfg.php` file.
 		// We're not using that functionality, though, as we have already pruned the directory.
@@ -439,6 +461,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			[ '--output-dir', $distro_dir ],
 			[ '--output-project-dir', $distro_dir ],
 		] );
+		U\CLI::log( __FUNCTION__ . '(): Scoped: `' . $comp_dir . '`' . "\n" . ' → `' . $distro_dir . '`.' );
+
 		// Prunes the `./._x/distro` directory now.
 		// This prunes everything in `.gitignore`, except `vendor`. This time, including `composer.json` files.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
@@ -450,6 +474,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		) ) {
 			throw new U\Exception( 'Failed to prune `./._x/distro`.' );
 		}
+		U\CLI::log( __FUNCTION__ . '(): Pruned: `' . $distro_dir . '`.' );
 	}
 
 	/**
@@ -460,6 +485,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function maybe_compile_distro_lib_zip() : void {
+		U\CLI::log( __FUNCTION__ . '(): Maybe; looking ...' );
+
 		if ( ! $this->project->is_distro_lib() ) {
 			return; // Not applicable.
 		}
@@ -474,6 +501,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		if ( ! U\Fs::zip( $distro_dir . '->' . $this->project->slug, $zip_path ) ) {
 			throw new U\Exception( 'Failed to zip: `' . $distro_dir . '->' . $this->project->slug . '`, to: `' . $zip_path . '`.' );
 		}
+		U\CLI::log( __FUNCTION__ . '(): Zipped: `' . $distro_dir . '`' . "\n" . ' → `' . $zip_path . '`.' );
 	}
 
 	/**
@@ -485,6 +513,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 * @throws \Throwable On some failures.
 	 */
 	protected function maybe_s3_upload_distro_lib_zip() : void {
+		U\CLI::log( __FUNCTION__ . '(): Maybe; looking ...' );
+
 		if ( ! $this->project->is_distro_lib() ) {
 			return; // Not applicable.
 		}
@@ -541,6 +571,10 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			'Bucket'     => $this->project->s3_bucket(),
 			'Key'        => $s3_zip_file_subpath,
 		] );
+		U\CLI::log(
+			__FUNCTION__ . '(): Uploaded: `' . $zip_path . '`' . "\n" .
+			' → `' . U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_zip_file_subpath ) . '`.'
+		);
 		// Update index w/ tagged versions.
 		// Throws exception on failure, which we intentionally do not catch.
 
@@ -557,5 +591,10 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			'Bucket' => $this->project->s3_bucket(),
 			'Key'    => $s3_index_file_subpath,
 		] );
+		U\CLI::log(
+			__FUNCTION__ . '(): Updated: `' .
+			U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_index_file_subpath ) .
+			'`.'
+		);
 	}
 }

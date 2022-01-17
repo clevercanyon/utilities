@@ -121,6 +121,8 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 */
 	protected function scope() : void {
 		try {
+			U\CLI::output( __METHOD__ . '(): Scoping ...' );
+
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
@@ -144,6 +146,8 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function run_scoper() : void {
+		U\CLI::log( __FUNCTION__ . '(): Running PHP Scoper ...' );
+
 		$prefix      = $this->get_option( 'prefix' );
 		$work_dir    = U\Fs::abs( $this->get_option( 'work-dir' ) );
 		$output_dir  = U\Fs::abs( $this->get_option( 'output-dir' ) );
@@ -169,6 +173,8 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function fix_comments() : void {
+		U\CLI::log( __FUNCTION__ . '(): Fixing comments ...' );
+
 		$output_dir = U\Fs::abs( $this->get_option( 'output-dir' ) );
 
 		if ( ! is_dir( $output_dir ) ) {
@@ -179,6 +185,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 
 		foreach ( $php_files_iterator as $_php_file ) {
 			$this->fix_comments_process_file( $_php_file->getPathname() );
+			U\CLI::log( __FUNCTION__ . '(): Fixed: `' . $_php_file->getPathname() . '`.' );
 		}
 	}
 
@@ -190,7 +197,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 * @throws U\Exception On any failure.
 	 */
 	protected function fix_formatting() : void {
-		U\CLI::log( __FUNCTION__ . '(): Running PHPCBF ...' );
+		U\CLI::log( __FUNCTION__ . '(): Fixing formatting ...' );
 
 		$standard   = U\Dir::join( $this->project->dir, '/.phpcs.xml' );
 		$output_dir = U\Fs::abs( $this->get_option( 'output-dir' ) );
@@ -207,11 +214,13 @@ final class Scoper extends U\A6t\CLI_Tool {
 		if ( ! is_file( $phpcbf_bin_script ) ) {
 			throw new U\Exception( 'Missing `[project-dir]/vendor/bin/phpcbf`: `' . $phpcbf_bin_script . '`.' );
 		}
+		U\CLI::log( __FUNCTION__ . '(): Running PHPCBF w/ standard: `' . $standard . '`.' );
+
 		if ( // This tool has non-standard exit codes. Exit status of `3` or higher is an issue.
 			// {@see https://github.com/squizlabs/PHP_CodeSniffer/issues/1818#issuecomment-354420927}.
 			3 <= U\CLI::run( [
 				[ $phpcbf_bin_script ],
-				[ '-p', '--parallel=1', '--standard=' . $standard ],
+				[ '-p', '--parallel=16', '--standard=' . $standard ],
 				[ '--extensions=php', '--ignore=' . $ignore ],
 				$output_dir, // ← directory to fix.
 			], $this->project->dir, false ) ) {
@@ -220,6 +229,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 				' Running from: `' . $this->project->dir . '`.'
 			);
 		}
+		U\CLI::log( __FUNCTION__ . '(): Fixed: `' . $output_dir . '`.' );
 	}
 
 	/**
@@ -233,6 +243,8 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 *       {@see https://github.com/humbug/php-scoper#composer-plugins}.
 	 */
 	protected function fix_autoloader() : void {
+		U\CLI::log( __FUNCTION__ . '(): Fixing autoloader ...' );
+
 		$output_project_dir            = U\Fs::abs( $this->get_option( 'output-project-dir' ) );
 		$output_project_dir_entry_file = U\Fs::abs( $this->get_option( 'output-project-dir-entry-file' ) ?: '' );
 
@@ -245,6 +257,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 		if ( ! is_file( U\Dir::join( $output_project_dir, '/composer.json' ) ) ) {
 			throw new U\Exception( 'Missing `[output-project-dir]/composer.json`: `' . U\Dir::join( $output_project_dir, '/composer.json' ) . '`.' );
 		}
+		U\CLI::log( __FUNCTION__ . '(): Dumping autoloader ...' );
 		U\CLI::run( [
 			[ 'composer', 'dump-autoload' ],
 			[ '--profile', '--no-dev', '--no-scripts', '--no-plugins' ],
@@ -263,6 +276,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 			) {
 				throw new U\Exception( 'Failed to change `/autoload.php` to `/scoper-autoload.php` in `' . $output_project_dir_entry_file . '`.' );
 			}
+			U\CLI::log( __FUNCTION__ . '(): Updated: `' . $output_project_dir_entry_file . '`.' );
 		}
 	}
 
