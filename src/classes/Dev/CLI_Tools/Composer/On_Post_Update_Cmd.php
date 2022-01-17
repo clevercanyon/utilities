@@ -148,6 +148,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 
 			$this->maybe_setup_dotfiles();
 			$this->maybe_run_npm_update();
+			$this->maybe_run_npx_webpack();
 
 			$this->maybe_compile_distro_lib_dir();
 			$this->maybe_compile_distro_lib_zip();
@@ -381,6 +382,20 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		if ( $this->project->has_file( 'package.json' ) ) {
 			U\CLI::log( '[' . __FUNCTION__ . '()]: Running `npm update` ...' );
 			U\CLI::run( [ 'npm', 'update' ], $this->project->dir );
+		}
+	}
+
+	/**
+	 * Maybe run NPX webpack.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected function maybe_run_npx_webpack() : void {
+		U\CLI::output( '[' . __FUNCTION__ . '()]: Maybe; looking ...' );
+
+		if ( $this->project->has_file( '.webpack.cjs' ) ) {
+			U\CLI::log( '[' . __FUNCTION__ . '()]: Running `npx webpack` ...' );
+			U\CLI::run( [ 'npx', 'webpack', '--config', U\Dir::join( $this->project->dir, '/.webpack.cjs' ) ], $this->project->dir );
 		}
 	}
 
