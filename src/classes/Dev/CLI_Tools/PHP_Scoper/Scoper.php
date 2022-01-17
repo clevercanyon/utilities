@@ -214,7 +214,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 		if ( ! is_file( $phpcbf_bin_script ) ) {
 			throw new U\Exception( 'Missing `[project-dir]/vendor/bin/phpcbf`: `' . $phpcbf_bin_script . '`.' );
 		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Running PHPCBF w/ standard: `' . $standard . '`.' );
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Running PHPCBF w/ standard: `' . $standard . '` ...' );
 
 		if ( // This tool has non-standard exit codes. Exit status of `3` or higher is an issue.
 			// {@see https://github.com/squizlabs/PHP_CodeSniffer/issues/1818#issuecomment-354420927}.
@@ -229,7 +229,6 @@ final class Scoper extends U\A6t\CLI_Tool {
 				' Running from: `' . $this->project->dir . '`.'
 			);
 		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Fixed: `' . $output_dir . '`.' );
 	}
 
 	/**
@@ -257,12 +256,12 @@ final class Scoper extends U\A6t\CLI_Tool {
 		if ( ! is_file( U\Dir::join( $output_project_dir, '/composer.json' ) ) ) {
 			throw new U\Exception( 'Missing `[output-project-dir]/composer.json`: `' . U\Dir::join( $output_project_dir, '/composer.json' ) . '`.' );
 		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Dumping autoloader ...' );
 		U\CLI::run( [
 			[ 'composer', 'dump-autoload' ],
 			[ '--profile', '--no-dev', '--no-scripts', '--no-plugins' ],
 			[ '--optimize', '--classmap-authoritative' ],
 		], $output_project_dir );
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Dumped composer autoloader.' );
 
 		if ( $output_project_dir_entry_file ) { // Optional entry file.
 			if ( ! is_file( $output_project_dir_entry_file ) ) {
