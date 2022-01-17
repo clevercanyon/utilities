@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Offsets\Utilities\Finals;
+namespace Clever_Canyon\Utilities\Traits\Offsets\Utilities;
 
 /**
  * Utilities.

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Utilities\Finals;
+namespace Clever_Canyon\Utilities\Traits\Base\Utilities;
 
 /**
  * Utilities.
@@ -34,49 +34,31 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait OOP_Cache_Members {
+trait Equals_Members {
 	/**
-	 * OOP cache.
+	 * Checks equality with another instance.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-27
+	 *
+	 * @param U\I7e\Base $other Instance to compare `$this` to.
+	 *
+	 * @return bool True if objects are practically equal to each other,
+	 *              based on return value of {@see U\Traits\Base\Utilities\Equals_Members::to_eq_string()}.
 	 */
-	private array $oop_cache = [];
-
-	/**
-	 * Gets|sets OOP cache.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param string|array $key   Cache key part(s) to get or set.
-	 * @param mixed        $value Cache value, when setting cache.
-	 *
-	 * @return mixed Cached value, by reference. Defaults to `null`.
-	 */
-	final protected function &oop_cache(
-		/* string|array */ $key,
-		/* mixed */ $value = null
-	) /* : mixed */ {
-		assert( is_string( $key ) || is_array( $key ) );
-
-		if ( is_array( $key ) ) {
-			$key = serialize( $key ); // phpcs:ignore.
-		}
-		$key = sha1( $key ); // Convert to SHA-1 hash.
-
-		if ( func_num_args() >= 2 ) {
-			$this->oop_cache[ $key ] = $value;
-		} else {
-			$this->oop_cache[ $key ] ??= null;
-		}
-		return $this->oop_cache[ $key ];
+	final public function equals( U\I7e\Base $other ) : bool {
+		return $this->to_eq_string() === $other->to_eq_string();
 	}
 
 	/**
-	 * Clears OOP cache.
+	 * Defines string representation used for equality tests.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-27
+	 *
+	 * @return string String representation used for equality tests.
+	 *                {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Prop_Members::props()} for further details.
 	 */
-	final protected function oop_cache_clear() : void {
-		$this->oop_cache = [];
+	final public function to_eq_string() : string {
+		return get_class( $this ) . "\n" .
+			U\Str::json_encode( $this->props( 'public...private' ) );
 	}
 }

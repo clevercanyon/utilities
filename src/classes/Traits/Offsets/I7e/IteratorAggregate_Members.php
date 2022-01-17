@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since 2021-12-15
+ *
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Offsets\I7e\Finals;
+namespace Clever_Canyon\Utilities\Traits\Offsets\I7e;
 
 /**
  * Utilities.
@@ -34,15 +42,21 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Offsets
  */
-trait Countable_Members {
+trait IteratorAggregate_Members {
 	/**
-	 * Counts offsets.
+	 * Accessible non-static props iterator, from outside scope.
 	 *
 	 * @since 2021-12-28
 	 *
-	 * @return int Count.
+	 * @return \Generator Accessible non-static props iterator, from outside scope.
+	 *
+	 * @see   https://www.php.net/manual/en/class.iteratoraggregate.php
+	 * @see   https://www.php.net/manual/en/class.arrayiterator.php
+	 *
+	 * @note  Intentionally not iterating offsets here.
+	 *        To iterate offsets {@see \Clever_Canyon\Utilities\Traits\Offsets\Utilities\Utility_Members::offsets()}.
 	 */
-	final public function count() : int {
-		return count( $this->offsets );
+	final public function getIterator() : \Generator {
+		yield from $this->props( 'public' );
 	}
 }

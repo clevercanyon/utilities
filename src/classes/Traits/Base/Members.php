@@ -55,7 +55,7 @@ trait Members {
 	use U\Traits\Base\Magic\Unserializable_Members;
 	use U\Traits\Base\I7e\JsonSerializable_Members;
 
-	use U\Traits\Base\Utilities\Finals\Prop_Members;
-	use U\Traits\Base\Utilities\Finals\Equals_Members;
-	use U\Traits\Base\Utilities\Finals\OOP_Cache_Members;
+	use U\Traits\Base\Utilities\Prop_Members;
+	use U\Traits\Base\Utilities\Equals_Members;
+	use U\Traits\Base\Utilities\OOP_Cache_Members;
 }

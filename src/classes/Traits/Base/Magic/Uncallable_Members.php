@@ -50,7 +50,7 @@ trait Uncallable_Members {
 	 */
 	public function __call( string $method, array $args ) /* : mixed */ {
 		throw new U\Fatal_Exception(
-			'Any attempt to invoke inaccessible methods of `' . get_class( $this ) . '`' .
+			'Any attempt to invoke inaccessible methods|properties of `' . get_class( $this ) . '`' .
 			' is potentially dangerous and therefore not allowed at this time.'
 		);
 	}

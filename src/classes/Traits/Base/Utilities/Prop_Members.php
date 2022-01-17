@@ -11,20 +11,12 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Lint configuration.
- *
- * @since 2021-12-15
- *
- * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
- */
-
-/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Offsets\I7e\Finals;
+namespace Clever_Canyon\Utilities\Traits\Base\Utilities;
 
 /**
  * Utilities.
@@ -40,23 +32,20 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Offsets
+ * @see   U\I7e\Base
  */
-trait IteratorAggregate_Members {
+trait Prop_Members {
 	/**
-	 * Accessible non-static props iterator, from outside scope.
+	 * Gets non-static properties, by value.
 	 *
-	 * @since 2021-12-28
+	 * @since 2021-12-27
 	 *
-	 * @return \Generator Accessible non-static props iterator, from outside scope.
+	 * @param string|null $filter Optional filter. Default is `null`.
+	 *                            {@see U\Obj::props()} for further details.
 	 *
-	 * @see   https://www.php.net/manual/en/class.iteratoraggregate.php
-	 * @see   https://www.php.net/manual/en/class.arrayiterator.php
-	 *
-	 * @note  Intentionally not iterating offsets here.
-	 *        To iterate offsets {@see U\Traits\Offsets\Utilities\Finals\Utility_Members::offsets()}.
+	 * @return array Non-static properties using the given `$filter`.
 	 */
-	final public function getIterator() : \Generator {
-		yield from $this->props( 'public' );
+	final public function props( /* string|null */ ?string $filter = null ) : array {
+		return U\Obj::props( $this, $filter );
 	}
 }

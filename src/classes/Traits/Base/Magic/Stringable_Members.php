@@ -48,12 +48,12 @@ trait Stringable_Members {
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @return string {@see U\Traits\Base\Utilities\Finals\Prop_Members::props()} for further details.
+	 * @return string {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Prop_Members::props()} for further details.
 	 *
 	 * @see   https://www.php.net/manual/en/class.stringable.php
 	 */
 	public function __toString() : string {
-		return get_class( $this ) . "\n"
-			. U\Str::json_encode( $this->props() );
+		return get_class( $this ) . "\n" .
+			U\Str::json_encode( $this->props() );
 	}
 }

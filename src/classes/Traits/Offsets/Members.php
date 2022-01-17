@@ -41,9 +41,10 @@ trait Members {
 	 * @since 2021-12-28
 	 */
 	use U\Traits\Offsets\Magic\Constructable_Members;
-	use U\Traits\Offsets\Utilities\Finals\Property_Members;
-	use U\Traits\Offsets\Utilities\Finals\Utility_Members;
-	use U\Traits\Offsets\I7e\Finals\Countable_Members;
-	use U\Traits\Offsets\I7e\Finals\ArrayAccess_Members;
-	use U\Traits\Offsets\I7e\Finals\IteratorAggregate_Members;
+	use U\Traits\Offsets\Utilities\Property_Members;
+	use U\Traits\Offsets\Utilities\Utility_Members;
+
+	use U\Traits\Offsets\I7e\Countable_Members;
+	use U\Traits\Offsets\I7e\ArrayAccess_Members;
+	use U\Traits\Offsets\I7e\IteratorAggregate_Members;
 }

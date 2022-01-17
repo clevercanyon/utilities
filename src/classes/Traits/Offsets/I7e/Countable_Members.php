@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Utilities\Finals;
+namespace Clever_Canyon\Utilities\Traits\Offsets\I7e;
 
 /**
  * Utilities.
@@ -32,20 +32,17 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Base
+ * @see   U\I7e\Offsets
  */
-trait Prop_Members {
+trait Countable_Members {
 	/**
-	 * Gets non-static properties, by value.
+	 * Counts offsets.
 	 *
-	 * @since 2021-12-27
+	 * @since 2021-12-28
 	 *
-	 * @param string|null $filter Optional filter. Default is `null`.
-	 *                            {@see U\Obj::props()} for further details.
-	 *
-	 * @return array Non-static properties using the given `$filter`.
+	 * @return int Count.
 	 */
-	final public function props( /* string|null */ ?string $filter = null ) : array {
-		return U\Obj::props( $this, $filter );
+	final public function count() : int {
+		return count( $this->offsets );
 	}
 }
