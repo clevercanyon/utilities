@@ -176,9 +176,9 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'light-blue' ]`.
+	 * @param string|array $style Chalk style. Default is `[ 'cyan' ]`.
 	 */
-	public static function heading( /* mixed */ $data, /* string|array */ $style = [ 'light-blue' ] ) : void {
+	public static function heading( /* mixed */ $data, /* string|array */ $style = [ 'cyan' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
