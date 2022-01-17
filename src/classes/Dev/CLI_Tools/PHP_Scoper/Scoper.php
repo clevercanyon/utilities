@@ -121,7 +121,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 */
 	protected function scope() : void {
 		try {
-			U\CLI::notice( '[' . __METHOD__ . '()]: Scoping ...' );
+			U\CLI::heading( '[' . __METHOD__ . '()]: Scoping ...' );
 
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
@@ -131,6 +131,9 @@ final class Scoper extends U\A6t\CLI_Tool {
 			$this->fix_formatting();
 			$this->fix_autoloader();
 
+			U\CLI::success(
+				'[' . __METHOD__ . '()]: Scoping complete ✔.'
+			);
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );

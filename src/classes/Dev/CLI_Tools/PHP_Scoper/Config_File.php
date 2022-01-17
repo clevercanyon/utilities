@@ -105,13 +105,16 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 */
 	protected function update() : void {
 		try {
-			U\CLI::notice( '[' . __METHOD__ . '()]: Updating ...' );
+			U\CLI::heading( '[' . __METHOD__ . '()]: Updating ...' );
 
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
 			$this->update_file();
 
+			U\CLI::success(
+				'[' . __METHOD__ . '()]: Update complete ✔.'
+			);
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );

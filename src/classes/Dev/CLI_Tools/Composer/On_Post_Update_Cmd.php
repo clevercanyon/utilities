@@ -119,13 +119,16 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 */
 	protected function symlink() : void {
 		try {
-			U\CLI::notice( '[' . __METHOD__ . '()]: Symlinking ...' );
+			U\CLI::heading( '[' . __METHOD__ . '()]: Symlinking ...' );
 
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
 			$this->maybe_symlink_local_repos();
 
+			U\CLI::success(
+				'[' . __METHOD__ . '()]: Symlinking complete ✔.'
+			);
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
@@ -140,7 +143,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 */
 	protected function update() : void {
 		try {
-			U\CLI::notice( '[' . __METHOD__ . '()]: Updating ...' );
+			U\CLI::heading( '[' . __METHOD__ . '()]: Updating ...' );
 
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
@@ -152,6 +155,9 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			$this->maybe_compile_distro_lib_zip();
 			$this->maybe_s3_upload_distro_lib_zip();
 
+			U\CLI::success(
+				'[' . __METHOD__ . '()]: Update complete ✔.'
+			);
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
