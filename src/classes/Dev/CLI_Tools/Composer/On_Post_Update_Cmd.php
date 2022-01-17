@@ -249,7 +249,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 					if ( ! symlink( $_local_repo_dir, $_package_dir ) ) {
 						throw new U\Exception( 'Failed to symlink: `' . $_package_dir . '`.' );
 					}
-					U\CLI::log( '[' . __FUNCTION__ . '()]: Symlinked: `' . $_package_dir . '`' . "\n" . ' → `' . $_local_repo_dir . '`.' );
+					U\CLI::log( '[' . __FUNCTION__ . '()]: Symlinked: `' . $_package_dir . '`' . "\n" . ' →  `' . $_local_repo_dir . '`.' );
 					break; // We can stop this loop.
 				}
 			}
@@ -363,7 +363,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 					if ( ! U\Fs::copy( $_from_path, $_to_path ) ) {
 						throw new U\Exception( 'Failed to setup dotfile: `' . $_to_path . '`.' );
 					}
-					U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $_from_path . '`' . "\n" . ' → `' . $_to_path . '`.' );
+					U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $_from_path . '`' . "\n" . ' →  `' . $_to_path . '`.' );
 			}
 		}
 	}
@@ -416,7 +416,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		) ) {
 			throw new U\Exception( 'Failed to create `./._x/comp`.' );
 		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $this->project->dir . '`' . "\n" . ' → `' . $comp_dir . '`.' );
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $this->project->dir . '`' . "\n" . ' →  `' . $comp_dir . '`.' );
 
 		// Installs composer dependencies in `._x/comp`.
 		// We didn't ignore `composer.json` when copying, so it's available.
@@ -461,7 +461,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			[ '--output-dir', $distro_dir ],
 			[ '--output-project-dir', $distro_dir ],
 		] );
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $comp_dir . '`' . "\n" . ' → `' . $distro_dir . '`.' );
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $comp_dir . '`' . "\n" . ' →  `' . $distro_dir . '`.' );
 
 		// Prunes the `./._x/distro` directory now.
 		// This prunes everything in `.gitignore`, except `vendor`. This time, including `composer.json` files.
@@ -501,7 +501,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		if ( ! U\Fs::zip( $distro_dir . '->' . $this->project->slug, $zip_path ) ) {
 			throw new U\Exception( 'Failed to zip: `' . $distro_dir . '->' . $this->project->slug . '`, to: `' . $zip_path . '`.' );
 		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Zipped: `' . $distro_dir . '`' . "\n" . ' → `' . $zip_path . '`.' );
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Zipped: `' . $distro_dir . '`' . "\n" . ' →  `' . $zip_path . '`.' );
 	}
 
 	/**
@@ -573,7 +573,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		] );
 		U\CLI::log(
 			'[' . __FUNCTION__ . '()]: Uploaded: `' . $zip_path . '`' . "\n" .
-			' → `' . U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_zip_file_subpath ) . '`.'
+			' →  `' . U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_zip_file_subpath ) . '`.'
 		);
 		// Update index w/ tagged versions.
 		// Throws exception on failure, which we intentionally do not catch.
