@@ -47,7 +47,7 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 */
 	protected static array $style_es_map = [
 		'none'       => '0',
-		'bold'       => '1',
+		'bright'     => '1',
 		'dim'        => '2',
 		'underlined' => '4',
 		'blink'      => '5',
@@ -176,9 +176,9 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'magenta', 'none', 'bold' ]`.
+	 * @param string|array $style Chalk style. Default is `[ 'magenta', 'none', 'bright' ]`.
 	 */
-	public static function heading( /* mixed */ $data, /* string|array */ $style = [ 'magenta', 'none', 'bold' ] ) : void {
+	public static function heading( /* mixed */ $data, /* string|array */ $style = [ 'magenta', 'none', 'bright' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
@@ -212,9 +212,9 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'blue', 'none', 'bold' ]`.
+	 * @param string|array $style Chalk style. Default is `[ 'blue', 'none', 'bright' ]`.
 	 */
-	public static function notice( /* mixed */ $data, /* string|array */ $style = [ 'blue', 'none', 'bold' ] ) : void {
+	public static function notice( /* mixed */ $data, /* string|array */ $style = [ 'blue', 'none', 'bright' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
@@ -236,9 +236,9 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'light-red', 'none', 'bold' ]`.
+	 * @param string|array $style Chalk style. Default is `[ 'light-red', 'none', 'bright' ]`.
 	 */
-	public static function warning( /* mixed */ $data, /* string|array */ $style = [ 'light-red', 'none', 'bold' ] ) : void {
+	public static function warning( /* mixed */ $data, /* string|array */ $style = [ 'light-red', 'none', 'bright' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
@@ -248,9 +248,9 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'white', 'red', 'bright', 'bold' ]`.
+	 * @param string|array $style Chalk style. Default is `[ 'white', 'red', 'bright' ]`.
 	 */
-	public static function error( /* mixed */ $data, /* string|array */ $style = [ 'white', 'red', 'bright', 'bold' ] ) : void {
+	public static function error( /* mixed */ $data, /* string|array */ $style = [ 'white', 'red', 'bright' ] ) : void {
 		U\CLI::stderr( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
