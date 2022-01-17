@@ -236,9 +236,9 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'yellow', 'white', 'dim' ]`.
+	 * @param string|array $style Chalk style. Default is `[ 'white', '166', 'bright' ]`.
 	 */
-	public static function warning( /* mixed */ $data, /* string|array */ $style = [ 'yellow', 'white', 'dim' ] ) : void {
+	public static function warning( /* mixed */ $data, /* string|array */ $style = [ 'white', '166', 'bright' ] ) : void {
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
@@ -332,11 +332,15 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2022-01-15
 	 *
-	 * @param string $color Foreground color slug.
+	 * @param string $color Foreground color slug, or a 256-color code.
+	 *                      {@see https://o5p.me/BV06XN}.
 	 *
 	 * @return string Foreground color escape sequence.
 	 */
 	protected static function fg_color_esc_seq( string $color ) : string {
+		if ( is_numeric( $color ) ) {
+			return "\033" . '[38;5;' . $color . 'm';
+		}
 		return "\033" . '[' . ( U\CLI::$fg_color_es_map[ $color ] ?? U\CLI::$fg_color_es_map[ 'none' ] ) . 'm';
 	}
 
@@ -345,11 +349,15 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2022-01-15
 	 *
-	 * @param string $color Background color slug.
+	 * @param string $color Background color slug, or a 256-color code.
+	 *                      {@see https://o5p.me/BV06XN}.
 	 *
 	 * @return string Background color escape sequence.
 	 */
 	protected static function bg_color_esc_seq( string $color ) : string {
+		if ( is_numeric( $color ) ) {
+			return "\033" . '[48;5;' . $color . 'm';
+		}
 		return "\033" . '[' . ( U\CLI::$bg_color_es_map[ $color ] ?? U\CLI::$bg_color_es_map[ 'none' ] ) . 'm';
 	}
 
