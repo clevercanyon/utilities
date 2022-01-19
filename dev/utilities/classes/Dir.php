@@ -122,27 +122,30 @@ final class Dir {
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string $base_path Base path to strip away.
-	 * @param string $path      Path from which to strip the base.
+	 * @param string $base_path        Base path to strip away.
+	 * @param string $path             Path from which to strip the base.
+	 * @param bool   $throw_on_failure Throw on failure? Default is `true`.
 	 *
 	 * @throws D\Fatal_Exception On failure to strip the given base path.
+	 *                           Change by setting `$throw_on_failure` to `false`.
+	 *
 	 * @return string Subpath; i.e., `$path` with `$base_path` stripped away.
 	 *
 	 * @see   \Clever_Canyon\Utilities\Dir::subpath()
 	 */
-	public static function subpath( string $base_path, string $path ) : string {
+	public static function subpath( string $base_path, string $path, bool $throw_on_failure = true ) : string {
 		$base_path = D\Fs::normalize( $base_path );
 		$path      = D\Fs::normalize( $path );
 
 		$esc_reg_base_path_no_ts = preg_quote( rtrim( $base_path, '/' ), '/' );
 		$subpath                 = preg_replace( '/^' . $esc_reg_base_path_no_ts . '(?:\/|$)/u', '', $path, 1, $_replacements );
 
-		if ( 1 !== $_replacements ) {
-			throw new D\Fatal_Exception(
+		if ( 1 !== $_replacements && $throw_on_failure ) {
+			throw new D\Fatal_Exception( // Default behavior.
 				'Failed to formulate a subpath using base: `' . $base_path . '`' .
 				' against `' . $path . '`. Fatal error — cannot continue.'
 			);
 		}
-		return trim( $subpath, '/' );
+		return 1 !== $_replacements ? '' : trim( $subpath, '/' );
 	}
 }
