@@ -517,7 +517,10 @@ final class Fs extends U\A6t\Stc_Utilities {
 			$_will_ignore_rtps = false !== $_rtps && $ignore && U\Str::preg_match_in( $ignore, $_rtps );
 			$_will_ignore_rtps = $_will_ignore_rtps && ( ! $exceptions || ! U\Str::preg_match_in( $exceptions, $_rtps ) );
 
-			$_r->root_to_path      = $to_path;
+			// ↑ Goal is to determine if the root `$to_path` is within the `$base_path`; i.e., if {@see U\Dir::subpath()} generation works.
+			// Then take the root `$to_path` subpath (i.e., rtps) and check if that subpath will be ignored while traversing `$from_path`.
+			// If so, then one of the tests below can be bypassed safely. Calculating this one time, saves a little time.
+
 			$_r->root_real_to_path = $real_to_path;
 			$_r->will_ignore_rtps  = $_will_ignore_rtps;
 		}
@@ -540,8 +543,8 @@ final class Fs extends U\A6t\Stc_Utilities {
 		// The examples given are caught because we're copying recursively `$from_path` and into `$to_path`.
 		// Also, because `$to_path` is deleted prior to copying, which means we can't copy from it!
 
-		// e.g., from: /foo/bar/foo, to: /foo               (invalid: /foo includes /foo/bar/foo).
-		// e.g., from: /foo/bar/foo, to: /foo/bar/foo/bar   (invalid: /foo/bar/foo includes /foo/bar/foo/bar).
+		// e.g., from: /foo/bar/foo, to: /foo               (invalid: /foo ...includes /foo/bar/foo).
+		// e.g., from: /foo/bar/foo, to: /foo/bar/foo/bar   (invalid: /foo/bar/foo ...includes /foo/bar/foo/bar).
 
 		if ( preg_match( '/^' . U\Str::esc_reg( $_r->root_real_to_path ) . '(?:$|\/)/u', $real_from_path ) ) {
 			throw new U\Fatal_Exception(
@@ -732,27 +735,21 @@ final class Fs extends U\A6t\Stc_Utilities {
 		// Recursive class initialization.
 
 		if ( ! $is_recursive ) {
-			$_r = ( new class extends U\A6t\Generic {
-				/**
-				 * Cycle stack.
-				 *
-				 * @since 2021-12-31
-				 */
-				public array $cycle_stack = [];
-
+			$_r              = ( new class extends U\A6t\Generic {
 				/**
 				 * Maybe close zip file.
-				 *
-				 * @since 2021-12-29
 				 *
 				 * @param bool $is_recursive Set `true` in recursive calls.
 				 *
 				 * @return bool True if recursive, zip not open, or zip closes.
 				 */
 				public function maybe_close_zip( bool $is_recursive ) : bool {
-					return $is_recursive || ! isset( $this->zip ) || $this->zip->close();
+					return $is_recursive || ! isset( $this->zip )
+						|| ! is_object( $this->zip )
+						|| $this->zip->close();
 				}
 			} );
+			$_r->cycle_stack = []; // Initialize.
 		}
 		// `$from_path` validation.
 
@@ -782,10 +779,14 @@ final class Fs extends U\A6t\Stc_Utilities {
 			$_r->maybe_close_zip( $is_recursive );
 			return false; // Not possible.
 		}
+		// `$base_path` validation.
+
 		if ( ! $is_recursive ) {
 			$base_path ??= $from_path;
 			$base_path = U\Fs::normalize( $base_path );
 		}
+		// `$from_base_subpath` validation.
+
 		$from_base_subpath = U\Dir::subpath( $base_path, $from_path );
 
 		// `$to_path` validation.
@@ -797,35 +798,39 @@ final class Fs extends U\A6t\Stc_Utilities {
 			$_r->maybe_close_zip( $is_recursive );
 			return false; // Not possible.
 		}
-		if ( ! $is_recursive ) {
-			// This may or may not exist, so fall back on `$to_path`.
-			$real_to_path = $to_path_type ? U\Fs::realize( $to_path ) : $to_path;
+		// This may or may not exist, so fall back on `$to_path`.
+		$real_to_path = $to_path_type ? U\Fs::realize( $to_path ) : $to_path;
 
-			if ( ! $real_to_path || 'zip' !== U\File::ext( $real_to_path ) ) {
+		if ( ! $real_to_path ) {
+			$_r->maybe_close_zip( $is_recursive );
+			return false; // Not possible.
+		}
+		if ( ! $is_recursive ) {
+			if ( 'zip' !== U\File::ext( $to_path ) ) {
 				$_r->maybe_close_zip( $is_recursive );
 				return false; // Not possible.
 			}
-			$_r->root_to_path      = $to_path;
-			$_r->root_real_to_path = $real_to_path;
+			$_rtps             = U\Dir::subpath( $base_path, $to_path, false );
+			$_will_ignore_rtps = false !== $_rtps && $ignore && U\Str::preg_match_in( $ignore, $_rtps );
+			$_will_ignore_rtps = $_will_ignore_rtps && ( ! $exceptions || ! U\Str::preg_match_in( $exceptions, $_rtps ) );
+
+			// ↑ Goal is to determine if the root `$to_path` is within the `$base_path`; i.e., if {@see U\Dir::subpath()} generation works.
+			// Then take the root `$to_path` subpath (i.e., rtps) and check if that subpath will be ignored while traversing `$from_path`.
+			// If so, then one of the tests below can be bypassed safely. Calculating this one time, saves a little time.
+
+			$_r->root_to_path     = $to_path;
+			$_r->will_ignore_rtps = $_will_ignore_rtps;
 		}
-		// `to_path_dir` validation.
+		// `$to_path_dir` validation.
 
 		if ( ! $is_recursive ) {
 			$to_path_dir      = U\Dir::name( $to_path );
 			$to_path_dir_type = U\Fs::type( $to_path_dir );
-			// This may or may not exist, so fall back on `$to_path_dir`.
-			$real_to_path_dir = $to_path_dir_type ? U\Fs::realize( $to_path_dir ) : $to_path_dir;
 
 			if ( $to_path_dir_type && ! is_writable( $to_path_dir ) ) {
 				$_r->maybe_close_zip( $is_recursive );
 				return false; // Not possible.
 			}
-			if ( ! $real_to_path_dir ) {
-				$_r->maybe_close_zip( $is_recursive );
-				return false; // Not possible.
-			}
-			$_r->root_to_path_dir      = $to_path_dir;
-			$_r->root_real_to_path_dir = $real_to_path_dir;
 		}
 		// `$to_path_in_zip` validation.
 
@@ -842,16 +847,16 @@ final class Fs extends U\A6t\Stc_Utilities {
 			}
 		}
 		// After checking ignores, are we attempting to zip into self?
-		// These examples are invalid because we're copying recursively `$from_path`.
+		// The examples given are caught because we're copying recursively `$from_path`.
 
-		// From: /foo/bar/foo, to: /foo/bar/foo/bar[/foo.zip] (invalid, zipping into `$from_path`).
-		// From: /foo, to: /foo/bar[/foo.zip] (invalid, zipping into `$from_path`).
+		// From: /foo/bar/foo, to: /foo/bar/foo/bar[/foo.zip]     (invalid: /foo/bar/foo ...includes /foo/bar/foo/bar).
+		// From: /foo, to: /foo/bar[/foo.zip]                     (invalid: /foo ...includes /foo/bar).
 
-		if ( preg_match( '/^' . U\Str::esc_reg( $real_from_path ) . '(?:$|\/)/u', $_r->root_real_to_path_dir ) ) {
+		if ( ! $_r->will_ignore_rtps && preg_match( '/^' . U\Str::esc_reg( $real_from_path ) . '(?:$|\/)/u', $real_to_path ) ) {
 			$_r->maybe_close_zip( $is_recursive );
 			throw new U\Fatal_Exception(
 				'Attempting to zip into self. Cannot continue as this results in an infinite loop.' .
-				' From: `' . $real_from_path . '`, to directory: `' . $_r->root_real_to_path_dir . '`.'
+				' From: `' . $real_from_path . '`, to: `' . $real_to_path . '`.'
 			);
 		}
 		// `$to_path` deletion ahead of zip.
