@@ -488,29 +488,15 @@ final class Fs extends U\A6t\Stc_Utilities {
 		if ( ! $real_from_path ) {
 			return false; // Not possible.
 		}
-		if ( ! $is_recursive ) {
-			$_r->root_from_path      = $from_path;
-			$_r->root_real_from_path = $real_from_path;
-		}
 		// `$base_path` validation.
 
 		if ( ! $is_recursive ) {
 			$base_path ??= $from_path;
 			$base_path = U\Fs::normalize( $base_path );
-
-			$base_path_type = U\Fs::type( $base_path );
-			// This may or may not exist, so fall back on `$base_path`.
-			$real_base_path = $base_path_type ? U\Fs::realize( $base_path ) : $base_path;
-
-			if ( ! $real_base_path ) {
-				return false; // Not possible.
-			}
-			$_r->root_base_path      = $base_path;
-			$_r->root_real_base_path = $real_base_path;
 		}
 		// `$from_base_subpath` validation.
 
-		$from_base_subpath = U\Dir::subpath( $_r->root_base_path, $from_path );
+		$from_base_subpath = U\Dir::subpath( $base_path, $from_path );
 
 		// `$to_path` validation.
 
@@ -527,8 +513,13 @@ final class Fs extends U\A6t\Stc_Utilities {
 			return false; // Not possible.
 		}
 		if ( ! $is_recursive ) {
+			$_rtps             = U\Dir::subpath( $base_path, $to_path, false );
+			$_will_ignore_rtps = false !== $_rtps && $ignore && U\Str::preg_match_in( $ignore, $_rtps );
+			$_will_ignore_rtps = $_will_ignore_rtps && ( ! $exceptions || ! U\Str::preg_match_in( $exceptions, $_rtps ) );
+
 			$_r->root_to_path      = $to_path;
 			$_r->root_real_to_path = $real_to_path;
+			$_r->will_ignore_rtps  = $_will_ignore_rtps;
 		}
 		// `$to_path_dir` validation.
 
@@ -538,16 +529,6 @@ final class Fs extends U\A6t\Stc_Utilities {
 		if ( $to_path_dir_type && ! is_writable( $to_path_dir ) ) {
 			return false; // Not possible.
 		}
-		// This may or may not exist, so fall back on `$to_path_dir`.
-		$real_to_path_dir = $to_path_dir_type ? U\Fs::realize( $to_path_dir ) : $to_path_dir;
-
-		if ( ! $real_to_path_dir ) {
-			return false; // Not possible.
-		}
-		if ( ! $is_recursive ) {
-			$_r->root_to_path_dir      = $to_path_dir;
-			$_r->root_real_to_path_dir = $real_to_path_dir;
-		}
 		// Are we ignoring this `$from_base_subpath`?
 
 		if ( '' !== $from_base_subpath && $ignore && U\Str::preg_match_in( $ignore, $from_base_subpath ) ) {
@@ -556,30 +537,23 @@ final class Fs extends U\A6t\Stc_Utilities {
 			}
 		}
 		// After checking ignores, are we attempting to copy into self?
-		// These examples are invalid because we're copying recursively `$from_path` and into `$to_path`.
+		// The examples given are caught because we're copying recursively `$from_path` and into `$to_path`.
 		// Also, because `$to_path` is deleted prior to copying, which means we can't copy from it!
 
-		// From: /foo/bar/foo, to: /foo (invalid, /foo is deleted prior to copying).
-		// From: /foo/bar/foo, to: /foo/bar/foo/bar (invalid, cannot copy from to-path).
+		// e.g., from: /foo/bar/foo, to: /foo               (invalid: /foo includes /foo/bar/foo).
+		// e.g., from: /foo/bar/foo, to: /foo/bar/foo/bar   (invalid: /foo/bar/foo includes /foo/bar/foo/bar).
 
 		if ( preg_match( '/^' . U\Str::esc_reg( $_r->root_real_to_path ) . '(?:$|\/)/u', $real_from_path ) ) {
 			throw new U\Fatal_Exception(
 				'Attempting to copy into self. Cannot continue as this results in an infinite loop.' .
-				' The to-path is also deleted recursively prior to copying. So not possible to copy from it!' .
-				' From: `' . $real_from_path . '`, to: `' . $_r->root_real_to_path . '`.'
+				' The root to-path is also deleted recursively prior to copying. So not possible to copy from it!' .
+				' From: `' . $real_from_path . '`; while considering root to-path: `' . $_r->root_real_to_path . '`.'
 			);
-		}
-		if ( preg_match( '/^' . U\Str::esc_reg( $real_from_path ) . '(?:$|\/)/u', $real_to_path ) ) {
-			$_rtps        = U\Dir::subpath( $_r->root_base_path, $_r->root_to_path, false );
-			$_will_ignore = '' !== $_rtps && $ignore && U\Str::preg_match_in( $ignore, $_rtps );
-			$_will_ignore = $_will_ignore && ( ! $exceptions || ! U\Str::preg_match_in( $exceptions, $_rtps ) );
-
-			if ( ! $_will_ignore ) {
-				throw new U\Fatal_Exception(
-					'Attempting to copy into self. Cannot continue as this results in an infinite loop.' .
-					' From: `' . $real_from_path . '`, to: `' . $real_to_path . '`.'
-				);
-			}
+		} elseif ( ! $_r->will_ignore_rtps && preg_match( '/^' . U\Str::esc_reg( $real_from_path ) . '(?:$|\/)/u', $real_to_path ) ) {
+			throw new U\Fatal_Exception(
+				'Attempting to copy into self. Cannot continue as this results in an infinite loop.' .
+				' From: `' . $real_from_path . '`, to: `' . $real_to_path . '`.'
+			);
 		}
 		// `$to_path` deletion before copy.
 
