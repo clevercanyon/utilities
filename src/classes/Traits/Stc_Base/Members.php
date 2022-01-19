@@ -42,5 +42,5 @@ trait Members {
 	 */
 	use U\Traits\Stc_Base\Magic\Uncallable_Members;
 	use U\Traits\Stc_Base\Magic\Unimportable_Members;
-	use U\Traits\Stc_Base\Utilities\STC_Cache_Members;
+	use U\Traits\Stc_Base\Utilities\Cache_Members;
 }

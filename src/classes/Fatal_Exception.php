@@ -31,5 +31,7 @@ use Clever_Canyon\{Utilities as U};
  * Fatal exception.
  *
  * @since 2021-12-15
+ *
+ * @todo  Review use of this across codebase.
  */
 final class Fatal_Exception extends U\A6t\Exception { }

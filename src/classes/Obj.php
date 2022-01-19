@@ -67,8 +67,8 @@ final class Obj extends U\A6t\Stc_Utilities {
 	 *  - `public...private` returns public, protected, and private non-static properties.
 	 *  - `protected...private` returns protected and private non-static properties.
 	 *
-	 *  - `debug` returns public, protected, and private non-static properties.
-	 *    Plus, it includes some internals like `oop_cache`, which is not returned otherwise.
+	 *  - `debug` returns public, protected, and private non-static properties. Same as `public...private`.
+	 *  - `debug+` Includes some internals like `obj_cache`, which is not returned otherwise.
 	 *
 	 * @return array All accessible non-static properties using the given `$filter`.
 	 *
@@ -135,6 +135,7 @@ final class Obj extends U\A6t\Stc_Utilities {
 				break;
 
 			case 'debug':
+			case 'debug+':
 			case 'public...private':
 				$props = get_mangled_object_vars( $obj );
 				break;
@@ -147,15 +148,15 @@ final class Obj extends U\A6t\Stc_Utilities {
 				}
 				break;
 		}
-		if ( 'debug' !== $filter ) {
-			// Remove `oop_cache` (uninteresting and super noisy).
-			unset( $props[ "\0" . U\A6t\Base::class . "\0" . 'oop_cache' ] );
+		if ( 'debug+' !== $filter ) {
+			// Remove `obj_cache` (uninteresting and super noisy).
+			unset( $props[ "\0" . U\A6t\Base::class . "\0" . 'obj_cache' ] );
 		}
 		return $props;
 	}
 
 	/**
-	 * Property accessor.
+	 * Property accessor, by path.
 	 *
 	 * @since 2021-12-15
 	 *

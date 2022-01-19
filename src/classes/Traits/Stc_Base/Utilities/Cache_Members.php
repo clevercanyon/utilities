@@ -34,16 +34,16 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Stc_Base
  */
-trait STC_Cache_Members {
+trait Cache_Members {
 	/**
-	 * STC cache.
+	 * Static cache.
 	 *
 	 * @since 2021-12-15
 	 */
-	private static array $stc_cache = [];
+	private static array $cache = [];
 
 	/**
-	 * Gets|sets STC cache.
+	 * Gets|sets static cache.
 	 *
 	 * @since 2021-12-15
 	 *
@@ -52,7 +52,7 @@ trait STC_Cache_Members {
 	 *
 	 * @return mixed Cached value, by reference. Defaults to `null`.
 	 */
-	final protected static function &stc_cache(
+	final protected static function &cache(
 		/* string|array */ $key,
 		/* mixed */ $value = null
 	) /* : mixed */ {
@@ -63,24 +63,24 @@ trait STC_Cache_Members {
 		}
 		$key = sha1( $key ); // Convert to SHA-1 hash.
 
-		$called_class                       = get_called_class();
-		static::$stc_cache[ $called_class ] ??= [];
+		$called_class                   = get_called_class();
+		static::$cache[ $called_class ] ??= [];
 
 		if ( func_num_args() >= 2 ) {
-			static::$stc_cache[ $called_class ][ $key ] = $value;
+			static::$cache[ $called_class ][ $key ] = $value;
 		} else {
-			static::$stc_cache[ $called_class ][ $key ] ??= null;
+			static::$cache[ $called_class ][ $key ] ??= null;
 		}
-		return static::$stc_cache[ $called_class ][ $key ];
+		return static::$cache[ $called_class ][ $key ];
 	}
 
 	/**
-	 * Clears STC cache.
+	 * Clears static cache.
 	 *
 	 * @since 2021-12-15
 	 */
-	final protected static function stc_cache_clear() : void {
-		$called_class                       = get_called_class();
-		static::$stc_cache[ $called_class ] = [];
+	final protected static function cache_clear() : void {
+		$called_class                   = get_called_class();
+		static::$cache[ $called_class ] = [];
 	}
 }

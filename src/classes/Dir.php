@@ -195,7 +195,7 @@ final class Dir extends U\A6t\Stc_Utilities {
 	 * @see U\Env::var() When modifying this function.
 	 */
 	public static function sys_temp() : string {
-		if ( null !== ( $cache = &static::stc_cache( __FUNCTION__ ) ) ) {
+		if ( null !== ( $cache = &static::cache( __FUNCTION__ ) ) ) {
 			return $cache; // Cached already.
 		}
 		$haystack = []; // Initialize.

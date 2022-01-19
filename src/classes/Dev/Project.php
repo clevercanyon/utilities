@@ -466,7 +466,7 @@ final class Project extends U\A6t\Base {
 	 * @see   \WP_Groove\Framework\A6t\Plugin
 	 */
 	public function wp_plugin_data() /* : object|false */ {
-		if ( null !== ( $cache = &$this->oop_cache( __FUNCTION__ ) ) ) {
+		if ( null !== ( $cache = &$this->obj_cache( __FUNCTION__ ) ) ) {
 			return $cache; // Cached already.
 		}
 		if ( ! $this->is_wp_plugin() ) {
@@ -575,7 +575,7 @@ final class Project extends U\A6t\Base {
 	 * @see   \WP_Groove\Framework\A6t\Theme
 	 */
 	public function wp_theme_data() /* : object|false */ {
-		if ( null !== ( $cache = &$this->oop_cache( __FUNCTION__ ) ) ) {
+		if ( null !== ( $cache = &$this->obj_cache( __FUNCTION__ ) ) ) {
 			return $cache; // Cached already.
 		}
 		if ( ! $this->is_wp_theme() ) {

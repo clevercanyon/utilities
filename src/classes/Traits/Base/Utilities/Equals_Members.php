@@ -58,7 +58,6 @@ trait Equals_Members {
 	 *                {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Prop_Members::props()} for further details.
 	 */
 	final public function to_eq_string() : string {
-		return get_class( $this ) . "\n" .
-			U\Str::json_encode( $this->props( 'public...private' ) );
+		return U\Str::dump( $this, true, false );
 	}
 }

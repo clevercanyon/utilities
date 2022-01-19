@@ -124,26 +124,35 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 *
 	 * @since 2021-12-28
 	 *
-	 * @param object $expected Expected object value.
-	 * @param object $actual   Actual object value.
-	 * @param string $message  Optional message.
+	 * @param U\I7e\Base $expected Expected object value.
+	 * @param U\I7e\Base $actual   Actual object value.
+	 * @param string     $message  Optional message.
 	 *
 	 * @throws \PHPUnit\Framework\ExpectationFailedException On assertion failure.
 	 *
-	 * @see   U\I7e\Base::equals() for further details.
 	 * @see   U\I7e\Base::to_eq_string() for further details.
 	 * @see   https://phpunit.readthedocs.io/en/9.5/assertions.html#assertobjectequals
 	 */
-	protected function assertObjEquals( object $expected, object $actual, string $message = '' ) : void {
-		if ( $expected instanceof U\I7e\Base && $actual instanceof U\I7e\Base ) {
-			$this->assertSame( $expected->to_eq_string(), $actual->to_eq_string(), $message );
-		} else {
-			$this->assertSame(
-				'`' . U\I7e\Base::class . '->to_eq_string()`',                          // Expecting interface.
-				'`' . get_class( $expected ) . '` <-> `' . get_class( $actual ) . '`',  // Instead, got these classes.
-				$message                                                                // Keep same message to aid in reporting.
-			);
-		}
+	protected function assertObjEquals( U\I7e\Base $expected, U\I7e\Base $actual, string $message = '' ) : void {
+		$this->assertSame( $expected->to_eq_string(), $actual->to_eq_string(), $message );
+	}
+
+	/**
+	 * Assert objects are *not* equal.
+	 *
+	 * @since 2021-12-28
+	 *
+	 * @param U\I7e\Base $expected Expected object value.
+	 * @param U\I7e\Base $actual   Actual object value.
+	 * @param string     $message  Optional message.
+	 *
+	 * @throws \PHPUnit\Framework\ExpectationFailedException On assertion failure.
+	 *
+	 * @see   U\I7e\Base::to_eq_string() for further details.
+	 * @see   https://phpunit.readthedocs.io/en/9.5/assertions.html#assertobjectequals
+	 */
+	protected function assertObjNotEquals( U\I7e\Base $expected, U\I7e\Base $actual, string $message = '' ) : void {
+		$this->assertNotSame( $expected->to_eq_string(), $actual->to_eq_string(), $message );
 	}
 
 	/**
@@ -221,9 +230,64 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 				}
 
 				for ( $___i = 1; $___i <= $population_multiplier; $___i++ ) {
+					U\Dir::make( U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i ) );
 					for ( $_j = 1; $_j <= $population_multiplier; $_j++ ) {
 						U\File::make( U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/file-' . $___i . '.' . $_j ) );
 					}
+				}
+			}
+		}
+		return $dir;
+	}
+
+	/**
+	 * Gets a temporary directory containing circular links.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param int $population_multiplier  Optional population multiplier.
+	 *                                    Default is `1`. Upper limit is `5`.
+	 *
+	 * @return string Absolute path to temporary directory.
+	 *
+	 * @uses  temp_dir() To create the temporary directory structure.
+	 */
+	protected function temp_dir_circular_links( int $population_multiplier = 1 ) : string {
+		$population_multiplier = min( max( 1, $population_multiplier ), 5 );
+		$dir                   = $this->temp_dir( true, $population_multiplier );
+
+		for ( $_i = 1; $_i <= $population_multiplier; $_i++ ) {
+			symlink(
+				U\Dir::join( $dir, '/dir-' . $_i ),
+				U\Dir::join( $dir, '/dir-' . $_i . '/cir-link-1up' )
+			);
+			symlink( $dir, U\Dir::join( $dir, '/dir-' . $_i . '/cir-link-2up' ) );
+
+			for ( $__i = 1; $__i <= $population_multiplier; $__i++ ) {
+				symlink(
+					U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i ),
+					U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/cir-link-1up' )
+				);
+				symlink(
+					U\Dir::join( $dir, '/dir-' . $_i ),
+					U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/cir-link-2up' )
+				);
+				symlink( $dir, U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/cir-link-3up' ) );
+
+				for ( $___i = 1; $___i <= $population_multiplier; $___i++ ) {
+					symlink(
+						U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i ),
+						U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i . '/cir-link-1up' )
+					);
+					symlink(
+						U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i ),
+						U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i . '/cir-link-2up' )
+					);
+					symlink(
+						U\Dir::join( $dir, '/dir-' . $_i ),
+						U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i . '/cir-link-3up' )
+					);
+					symlink( $dir, U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i . '/cir-link-4up' ) );
 				}
 			}
 		}

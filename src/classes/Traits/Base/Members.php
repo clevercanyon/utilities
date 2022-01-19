@@ -57,5 +57,5 @@ trait Members {
 
 	use U\Traits\Base\Utilities\Prop_Members;
 	use U\Traits\Base\Utilities\Equals_Members;
-	use U\Traits\Base\Utilities\OOP_Cache_Members;
+	use U\Traits\Base\Utilities\Obj_Cache_Members;
 }

@@ -62,7 +62,7 @@ final class Ctn extends U\A6t\Stc_Utilities {
 	}
 
 	/**
-	 * Property/key accessor.
+	 * Property/key accessor, by path.
 	 *
 	 * @since 2021-12-15
 	 *
@@ -212,29 +212,33 @@ final class Ctn extends U\A6t\Stc_Utilities {
 	/**
 	 * Helps clone deeply (handles objects).
 	 *
-	 * @since 2021-12-28
+	 * @since         2021-12-28
 	 *
 	 * @param object            $obj Object to clone.
 	 * @param \SplObjectStorage $map Object storage map.
 	 *
 	 * @return object Deep clone of object.
 	 *
-	 * @note  In PHP, a class is cloneable if this expression is true.
+	 * @future-review As of PHP 7.4 ... 8.1 it is not possible to break references that exist in
+	 *                protected/private properties of internal/built-in PHP classes (see code for details).
+	 *                This should be a definite edge-case, but it's important to be aware of the limitation.
+	 *
+	 * @note          In PHP, a class is cloneable if this expression is true.
 	 *        ```
 	 *        ! method_exists( $obj, '__clone' ) || is_callable( [ $obj, '__clone' ] )
 	 *        ```
-	 * @note  Throwing an exception from inside `__clone()` magic may have unexpected/unintended side effects.
+	 * @note          Throwing an exception from inside `__clone()` magic may have unexpected/unintended side effects.
 	 *        e.g., If the `clone` keyword is used PHP will call the `__clone()` magic method, triggering an exception.
 	 *        The same is true if `__clone()` magic method visibility is set to something other than `public`.
 	 *
-	 * @note  So there really is no great way to effectively disable object cloning in specific classes.
+	 * @note          So there really is no great way to effectively disable object cloning in specific classes.
 	 *        The only approach that sort of works is to set visibility to `protected` or `private`, and just hope
 	 *        that whomever (or whatever library) is doing the proper sanity checks before attempting to clone.
 	 *
-	 * @see   https://www.php.net/manual/en/language.oop5.cloning.php
-	 * @see   https://www.php.net/manual/en/reflectionclass.iscloneable.php
-	 * @see   https://github.com/ZeroConfig/clone/blob/master/src/Cloner.php
-	 * @see   https://github.com/myclabs/DeepCopy/blob/1.x/src/DeepCopy/DeepCopy.php
+	 * @see           https://www.php.net/manual/en/language.oop5.cloning.php
+	 * @see           https://www.php.net/manual/en/reflectionclass.iscloneable.php
+	 * @see           https://github.com/ZeroConfig/clone/blob/master/src/Cloner.php
+	 * @see           https://github.com/myclabs/DeepCopy/blob/1.x/src/DeepCopy/DeepCopy.php
 	 */
 	protected static function clone_deep_obj_helper( object $obj, \SplObjectStorage $map ) : object {
 		if ( isset( $map[ $obj ] ) ) {
@@ -251,10 +255,19 @@ final class Ctn extends U\A6t\Stc_Utilities {
 		} else { // ↑ Falls back on JSON approach.
 			$obj_clone = U\Ctn::clone_deep( $obj, 'json' );
 		}
-		$map[ $obj ]   = $obj_clone; // Save object hash.
-		$obj_clone_r8n = new \ReflectionObject( $obj_clone );
+		$map[ $obj ]               = $obj_clone; // Save object hash.
+		$obj_clone_r8n             = new \ReflectionObject( $obj_clone );
+		$obj_clone_r8n_is_internal = $obj_clone_r8n->isInternal();
 
-		static $must_request_property_access; // Only need this once.
+		static $reference_breaker; // Closure.
+		$reference_breaker ??= function ( $prop ) {
+			if ( property_exists( $this, $prop ) ) {
+				$value = $this->{$prop}; // Current value.
+				unset( $this->{$prop} ); // Break reference.
+				$this->{$prop} = $value; // Restore, by value.
+			}
+		};
+		static $must_request_property_access; // Static cache of this boolean.
 		$must_request_property_access ??= version_compare( PHP_VERSION, '8.1.0', '<' );
 
 		foreach ( $obj_clone_r8n->getProperties() as $_prop ) {
@@ -264,25 +277,29 @@ final class Ctn extends U\A6t\Stc_Utilities {
 			if ( $must_request_property_access ) {
 				$_prop->setAccessible( true );
 			}
-			$_value           = $_prop->getValue( $obj_clone );
-			$_is_object_value = is_object( $_value );
-			$_is_array_value  = ! $_is_object_value && is_array( $_value );
+			$_prop_name  = $_prop->getName();
+			$_prop_value = $_prop->getValue( $obj_clone );
 
 			if ( $_prop->isPublic() ) {
-				$_prop_name = $_prop->getName();
-				unset( $obj_clone->{$_prop_name} );  // Breaks reference.
-				$obj_clone->{$_prop_name} = $_value; // Restoration by value.
-			} // @todo: Edge case. Currently no solution for protected/private references.
+				unset( $obj_clone->{$_prop_name} );       // Breaks reference.
+				$obj_clone->{$_prop_name} = $_prop_value; // Restoration by value.
+			} elseif ( ! $obj_clone_r8n_is_internal ) {   // Cannot bind to internal classes.
+				$reference_breaker->bindTo( $obj_clone, $obj_clone )->__invoke( $_prop_name );
+			}
+			$_is_object_value = is_object( $_prop_value );
+			$_is_array_value  = ! $_is_object_value && is_array( $_prop_value );
 
 			if ( $_is_object_value || $_is_array_value ) {
 				$_prop->setValue(
 					$obj_clone,
 					$_is_object_value
-						? U\Ctn::clone_deep_obj_helper( $_value, $map )
-						: U\Ctn::clone_deep_arr_helper( $_value, $map )
+						? U\Ctn::clone_deep_obj_helper( $_prop_value, $map )
+						: U\Ctn::clone_deep_arr_helper( $_prop_value, $map )
 				);
 			}
 		}
+		$reference_breaker->bindTo( null, null ); // Unbinds.
+
 		return $obj_clone;
 	}
 

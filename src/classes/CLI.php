@@ -299,11 +299,14 @@ final class CLI extends U\A6t\Stc_Utilities {
 	public static function chalk( /* mixed */ $data, /* string|array */ $chalk = 'none' ) : string {
 		assert( is_string( $chalk ) || is_array( $chalk ) );
 
+		if ( ! U\Env::is_cli_256c() ) {
+			return U\Str::stringify( $data, true );
+		}
 		$esc_sequences = [];
 		$res_sequences = [];
 
 		$chalk = (array) ( $chalk ?: 'none' );
-		$chalk = array_values( $chalk ); // Rekey.
+		$chalk = array_values( $chalk ); // Re-key.
 		assert( array_map( 'strval', $chalk ) === $chalk );
 
 		foreach ( $chalk as $_key => $_chalk ) {

@@ -106,7 +106,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 */
 	public static function normalize( string $path, array $_d = [] ) : string {
 		if ( ! empty( $_d[ 'cache' ] ) // Enable caching?
-			&& null !== ( $cache = &static::stc_cache( [ __FUNCTION__, $path, $_d ] ) ) ) {
+			&& null !== ( $cache = &static::cache( [ __FUNCTION__, $path, $_d ] ) ) ) {
 			return $cache; // Already cached; saves a little time.
 		}
 		// Normalize type of slashes.
@@ -438,7 +438,8 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 *
 	 * @param object|null $_r                Internal use only — do not pass.
 	 *
-	 * @throws U\Fatal_Exception If attempting to copy into self, leading to an endless loop.
+	 * @throws U\Fatal_Exception If attempting to copy into self, leading to an infinite loop.
+	 * @throws U\Fatal_Exception If a circular symlink is detected, leading to an infinite loop.
 	 *
 	 * @return bool True if copied successfully.
 	 */
@@ -511,13 +512,24 @@ final class Fs extends U\A6t\Stc_Utilities {
 			$_r->root_to_path      = $to_path;
 			$_r->root_real_to_path = $real_to_path;
 		}
-		// `$to_path` directory validation.
+		// `to_path_dir` validation.
 
 		$to_path_dir      = U\Dir::name( $to_path );
 		$to_path_dir_type = U\Fs::type( $to_path_dir );
 
 		if ( $to_path_dir_type && ! is_writable( $to_path_dir ) ) {
+			// @todo: What about broken symlinks? {@see delete()}.
 			return false; // Not possible.
+		}
+		if ( ! $is_recursive ) {
+			// This may or may not exist, so fall back on `$to_path_dir`.
+			$real_to_path_dir = $to_path_dir_type ? U\Fs::realize( $to_path_dir ) : $to_path_dir;
+
+			if ( ! $real_to_path_dir ) {
+				return false; // Not possible.
+			}
+			$_r->root_to_path_dir      = $to_path_dir;
+			$_r->root_real_to_path_dir = $real_to_path_dir;
 		}
 		// Are we ignoring this `$from_base_subpath`?
 
@@ -527,17 +539,28 @@ final class Fs extends U\A6t\Stc_Utilities {
 			}
 		}
 		// After checking ignores, are we attempting to copy into self?
+		// These examples are invalid because we're copying recursively `$from_path` and into `$to_path`.
+		// Also, because `$to_path` is deleted prior to copying, which means we can't copy from it!
 
-		if ( 0 === mb_strpos( $real_from_path, $_r->root_real_to_path ) ) {
+		// From: /foo/bar/foo, to: /foo (invalid, /foo is deleted prior to copying).
+		// From: /foo/bar/foo, to: /foo/bar/foo/bar (invalid, cannot copy from to path).
+
+		if ( preg_match( '/^' . U\Str::esc_reg( $_r->root_real_to_path ) . '(?:$|\/)/u', $real_from_path ) ) {
 			throw new U\Fatal_Exception(
-				'Attempting to copy into self. Cannot continue as this results in an endless loop.' .
+				'Attempting to copy into self. Cannot continue as this results in an infinite loop.' .
 				' From: `' . $real_from_path . '`, to: `' . $_r->root_real_to_path . '`.'
 			);
-		} elseif ( 0 === mb_strpos( $from_path, $_r->root_to_path ) ) {
-			throw new U\Fatal_Exception(
-				'Attempting to copy into self. Cannot continue as this results in an endless loop.' .
-				' From: `' . $from_path . '`, to: `' . $_r->root_to_path . '`.'
-			);
+		}
+		if ( preg_match( '/^' . U\Str::esc_reg( $real_from_path ) . '(?:$|\/)/u', $_r->root_real_to_path ) ) {
+			$_root_real_to_path_base_subpath = U\Dir::subpath( $real_from_path, $_r->root_real_to_path );
+
+			if ( ( ! $ignore || ! U\Str::preg_match_in( $ignore, $_root_real_to_path_base_subpath ) )
+				&& ( ! $exceptions || U\Str::preg_match_in( $exceptions, $_root_real_to_path_base_subpath ) ) ) {
+				throw new U\Fatal_Exception(
+					'Attempting to copy into self. Cannot continue as this results in an infinite loop.' .
+					' From: `' . $real_from_path . '`, to: `' . $_r->root_real_to_path . '`.'
+				);
+			}
 		}
 		// `$to_path` deletion before copy.
 
@@ -561,10 +584,11 @@ final class Fs extends U\A6t\Stc_Utilities {
 		}
 		// Recursive directory copy.
 
-		// @todo This doesn't seem to be effective at catching cycles.
 		if ( 'link' === $from_path_type && in_array( $real_from_path, $_r->cycle_stack, true ) ) {
-			// Have no choice but to not follow the symlink. It's a circular reference.
-			return symlink( $real_from_path, $to_path );
+			throw new U\Fatal_Exception(
+				'Copy failure. Circular link: `' . $from_path . '` points to: `' . $real_from_path . '`,' .
+				' which is currently being traversed. Following this link would result in an infinite loop.'
+			);
 		} else {
 			$_r->cycle_stack[] = $real_from_path;
 		}
@@ -676,9 +700,9 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 *                                       Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
 	 *
 	 * @param bool        $follow_symlinks   Follow symlinks? Default is `true`. This should almost always be `true` for zip files.
-	 *                                       If `false`, symlinks are not followed. Instead, empty directories and/or files are created to hold
-	 *                                       the place of what would otherwise have been followed and copied into the zip archive. Thus,
-	 *                                       recommend always leaving this as `true`.
+	 *                                       If `false`, symlinks are not followed. Instead, empty directories and/or files are created
+	 *                                       to hold the place of what would otherwise have been followed and copied into the zip archive.
+	 *                                       Thus, it is recommended to always leave this as `true` unless there is a very special case.
 	 *
 	 * @param int         $to_path_dir_perms Defaults to `0700`.
 	 *                                       If `$to_path`'s parent directory does not exist, it will be created automatically.
@@ -687,7 +711,8 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 * @param object|null $_r                Internal use only — do not pass.
 	 *
 	 * @throws U\Fatal_Exception If `ZipArchive` extension is missing.
-	 * @throws U\Fatal_Exception If attempting to zip into self, leading to an endless loop.
+	 * @throws U\Fatal_Exception If attempting to zip into self, leading to an infinite loop.
+	 * @throws U\Fatal_Exception If a circular symlink is detected, leading to an infinite loop.
 	 *
 	 * @return bool True if zipped successfully.
 	 * @noinspection PhpComposerExtensionStubsInspection
@@ -783,23 +808,32 @@ final class Fs extends U\A6t\Stc_Utilities {
 			// This may or may not exist, so fall back on `$to_path`.
 			$real_to_path = $to_path_type ? U\Fs::realize( $to_path ) : $to_path;
 
-			if ( ! $real_to_path ) {
+			if ( ! $real_to_path || 'zip' !== U\File::ext( $real_to_path ) ) {
 				$_r->maybe_close_zip( $is_recursive );
 				return false; // Not possible.
 			}
 			$_r->root_to_path      = $to_path;
 			$_r->root_real_to_path = $real_to_path;
 		}
-		// `$to_path` directory validation.
+		// `to_path_dir` validation.
 
 		if ( ! $is_recursive ) {
 			$to_path_dir      = U\Dir::name( $to_path );
 			$to_path_dir_type = U\Fs::type( $to_path_dir );
+			// This may or may not exist, so fall back on `$to_path_dir`.
+			$real_to_path_dir = $to_path_dir_type ? U\Fs::realize( $to_path_dir ) : $to_path_dir;
 
 			if ( $to_path_dir_type && ! is_writable( $to_path_dir ) ) {
+				// @todo: What about broken symlinks? {@see delete()}.
 				$_r->maybe_close_zip( $is_recursive );
 				return false; // Not possible.
 			}
+			if ( ! $real_to_path_dir ) {
+				$_r->maybe_close_zip( $is_recursive );
+				return false; // Not possible.
+			}
+			$_r->root_to_path_dir      = $to_path_dir;
+			$_r->root_real_to_path_dir = $real_to_path_dir;
 		}
 		// `$to_path_in_zip` validation.
 
@@ -816,16 +850,16 @@ final class Fs extends U\A6t\Stc_Utilities {
 			}
 		}
 		// After checking ignores, are we attempting to zip into self?
+		// These examples are invalid because we're copying recursively `$from_path`.
 
-		if ( 0 === mb_strpos( $real_from_path, $_r->root_real_to_path ) ) {
+		// From: /foo/bar/foo, to: /foo/bar/foo/bar[/foo.zip] (invalid, zipping into `$from_path`).
+		// From: /foo, to: /foo/bar[/foo.zip] (invalid, zipping into `$from_path`).
+
+		if ( preg_match( '/^' . U\Str::esc_reg( $real_from_path ) . '(?:$|\/)/u', $_r->root_real_to_path_dir ) ) {
+			$_r->maybe_close_zip( $is_recursive );
 			throw new U\Fatal_Exception(
-				'Attempting to zip into self. Cannot continue as this results in an endless loop.' .
-				' From: `' . $real_from_path . '`, to: `' . $_r->root_real_to_path . '`.'
-			);
-		} elseif ( 0 === mb_strpos( $from_path, $_r->root_to_path ) ) {
-			throw new U\Fatal_Exception(
-				'Attempting to zip into self. Cannot continue as this results in an endless loop.' .
-				' From: `' . $from_path . '`, to: `' . $_r->root_to_path . '`.'
+				'Attempting to zip into self. Cannot continue as this results in an infinite loop.' .
+				' From: `' . $real_from_path . '`, to directory: `' . $_r->root_real_to_path_dir . '`.'
 			);
 		}
 		// `$to_path` deletion ahead of zip.
@@ -866,11 +900,11 @@ final class Fs extends U\A6t\Stc_Utilities {
 		}
 		// Recursive directory zip.
 
-		// @todo This doesn't seem to be effective at catching cycles.
 		if ( 'link' === $from_path_type && in_array( $real_from_path, $_r->cycle_stack, true ) ) {
-			// Have no choice but to not follow the symlink. It's a circular reference.
-			return true === $_r->zip->addFromString( $to_path_in_zip, '' )
-				&& $_r->maybe_close_zip( $is_recursive );
+			throw new U\Fatal_Exception(
+				'Zip failure. Circular link: `' . $from_path . '` points to: `' . $real_from_path . '`,' .
+				' which is currently being traversed. Following this link would result in an infinite loop.'
+			);
 		} else {
 			$_r->cycle_stack[] = $real_from_path;
 		}
@@ -901,21 +935,32 @@ final class Fs extends U\A6t\Stc_Utilities {
 	}
 
 	/**
-	 * Deletes a path.
+	 * Deletes a path recursively (by default).
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string      $path        Path to delete.
-	 * @param bool        $recursively Defaults to `true`.
+	 * @param string      $path           Path to delete.
+	 * @param bool        $recursively    Recursively? Default is `true`.
 	 *
-	 * @param object|null $_r          Internal use only — do not pass.
+	 * @param bool        $x_confirmation Added confirmation. Default is `false`.
+	 *                                    This is needed when attempting to delete the root of anything.
+	 *
+	 * @param object|null $_r             Internal use only — do not pass.
 	 *
 	 * @return bool True if deleted successfully.
 	 *
-	 * @note  This intentionally does not follow symlinks.
-	 *        i.e., A link is just a link, so this does not recurse into symlinked directories.
+	 * @note  This intentionally does not follow symlinks. It deletes them.
+	 *        A link is just a link. This does not recurse into symlinked directories.
+	 *
+	 * @todo  Review Windows compatibility with link deletion.
+	 *        {@see https://www.php.net/manual/en/function.unlink.php}.
 	 */
-	public static function delete( string $path, bool $recursively = true, /* object|null */ ?object $_r = null ) : bool {
+	public static function delete(
+		string $path,
+		bool $recursively = true,
+		bool $x_confirmation = false,
+		/* object|null */ ?object $_r = null
+	) : bool {
 		// Recursive check.
 
 		$is_recursive = isset( $_r );
@@ -926,31 +971,40 @@ final class Fs extends U\A6t\Stc_Utilities {
 		$path      = U\Fs::normalize( $path );
 		$path_type = U\Fs::type( $path );
 
-		if ( ! $path_type ) {
+		if ( ! $path || ! $path_type ) {
 			return true; // No longer exists.
 		}
-		if ( ! $path || '' === trim( $path, '/' ) ) {
-			return false; // Let's not destroy the root of something.
+		if ( ! $x_confirmation && '' === trim( $path, '/' ) ) {
+			// Refuse when we're missing added confirmation.
+			return false; // Don't destroy the root of anything.
 		}
-		if ( ! $is_recursive && U\Fs::may_have_wrappers( $path, [ 'skip:str_replace' => true ] ) ) {
-			$wrappers         = U\Fs::wrappers( $path, '', [
+		if ( ! $is_recursive && ! $x_confirmation
+			&& U\Fs::may_have_wrappers( $path, [ 'skip:str_replace' => true ] )
+		) {
+			$wrappers = U\Fs::wrappers( $path, 'string', [
 				'bypass:may_have_wrappers' => true,
 				'bypass:normalize'         => true,
 			] );
-			$path_no_wrappers = $wrappers ? mb_substr( $path, mb_strlen( $wrappers ) ) : $path;
+			if ( $wrappers ) { // Let's take a closer look.
+				$wrappers         = mb_strtolower( $wrappers );
+				$path_no_wrappers = mb_substr( $path, mb_strlen( $wrappers ) );
+				$last_wrapper     = U\Arr::value_last( U\Fs::split_wrappers( $wrappers ) );
 
-			if ( ! $path_no_wrappers || '' === trim( $path_no_wrappers, '/' ) ) {
-				return false; // Let's not destroy the root of something.
-			}
-		}
-		if ( ! is_writable( $path ) ) {
-			// Special case.
-			if ( 'link' === $path_type ) {
-				try { // Broken link.
-					return unlink( $path );
-				} catch ( \Throwable $throwable ) {
-					return false;
+				if ( ! $path_no_wrappers || '' === trim( $path_no_wrappers, '/' ) ) {
+					// Refuse when we're missing added confirmation.
+					return false; // Don't destroy the root of anything.
 				}
+				if ( false === mb_strpos( trim( $path_no_wrappers, '/' ), '/' )
+					&& preg_match( '/^(?:\/{2}|(?:s3|php|http|data|expect|ssh2\.tunnel)\:\/{2})$/ui', $last_wrapper ) ) {
+					// Must have `foo/bar` at minimum. Refuse when we're missing added confirmation.
+					return false; // Don't destroy the root of anything.
+				}
+			} // End `$wrappers` check from above.
+		} // ↑ With that done, let's get down to business.
+
+		if ( ! is_writable( $path ) ) {
+			if ( 'link' === $path_type && ! file_exists( $path ) ) {
+				return unlink( $path ); // Broken link; special case.
 			}
 			return false; // Not possible.
 		}
@@ -970,7 +1024,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 			}
 			$_path = U\Dir::join( $path, '/' . $_subpath );
 
-			if ( ! U\Fs::delete( $_path, $recursively, $_r ) ) {
+			if ( ! U\Fs::delete( $_path, $recursively, $x_confirmation, $_r ) ) {
 				closedir( $_path_opendir );
 				return false;
 			}

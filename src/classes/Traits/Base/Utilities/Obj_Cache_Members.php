@@ -34,16 +34,16 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait OOP_Cache_Members {
+trait Obj_Cache_Members {
 	/**
-	 * OOP cache.
+	 * Object cache.
 	 *
 	 * @since 2021-12-15
 	 */
-	private array $oop_cache = [];
+	private array $obj_cache = [];
 
 	/**
-	 * Gets|sets OOP cache.
+	 * Gets|sets object cache.
 	 *
 	 * @since 2021-12-15
 	 *
@@ -52,7 +52,7 @@ trait OOP_Cache_Members {
 	 *
 	 * @return mixed Cached value, by reference. Defaults to `null`.
 	 */
-	final protected function &oop_cache(
+	final protected function &obj_cache(
 		/* string|array */ $key,
 		/* mixed */ $value = null
 	) /* : mixed */ {
@@ -64,19 +64,19 @@ trait OOP_Cache_Members {
 		$key = sha1( $key ); // Convert to SHA-1 hash.
 
 		if ( func_num_args() >= 2 ) {
-			$this->oop_cache[ $key ] = $value;
+			$this->obj_cache[ $key ] = $value;
 		} else {
-			$this->oop_cache[ $key ] ??= null;
+			$this->obj_cache[ $key ] ??= null;
 		}
-		return $this->oop_cache[ $key ];
+		return $this->obj_cache[ $key ];
 	}
 
 	/**
-	 * Clears OOP cache.
+	 * Clears object cache.
 	 *
 	 * @since 2021-12-15
 	 */
-	final protected function oop_cache_clear() : void {
-		$this->oop_cache = [];
+	final protected function obj_cache_clear() : void {
+		$this->obj_cache = [];
 	}
 }

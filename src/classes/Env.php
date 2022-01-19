@@ -54,6 +54,18 @@ final class Env extends U\A6t\Stc_Utilities {
 	}
 
 	/**
+	 * Is CLI w/ 250-color support?
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @return bool True if CLI w/ 250-color support.
+	 */
+	public static function is_cli_256c() : bool {
+		return 'cli' === PHP_SAPI
+			&& false !== mb_strpos( U\Env::var( 'TERM' ), '256color' );
+	}
+
+	/**
 	 * Is OS Linux?
 	 *
 	 * @since 2021-12-18
@@ -254,7 +266,7 @@ final class Env extends U\A6t\Stc_Utilities {
 	 * @see   https://www.php.net/manual/en/ini.core.php#ini.disable-classes
 	 */
 	public static function can_use_class( string ...$classes ) : bool {
-		if ( null === ( $cache = &static::stc_cache( __FUNCTION__ ) ) ) {
+		if ( null === ( $cache = &static::cache( __FUNCTION__ ) ) ) {
 			$cache                  = (object) [ 'can' => [] ];
 			$cache->disable_classes = mb_strtolower( (string) ini_get( 'disable_classes' ) );
 			$cache->disable_classes = preg_split( '/[\s,]+/u', $cache->disable_classes, -1, PREG_SPLIT_NO_EMPTY );
@@ -300,7 +312,7 @@ final class Env extends U\A6t\Stc_Utilities {
 	 * @see   https://php.watch/versions/8.0/disable_functions-redeclare
 	 */
 	public static function can_use_function( string ...$functions ) : bool {
-		if ( null === ( $cache = &static::stc_cache( __FUNCTION__ ) ) ) {
+		if ( null === ( $cache = &static::cache( __FUNCTION__ ) ) ) {
 			$cache                    = (object) [ 'can' => [] ];
 			$cache->disable_functions = mb_strtolower( (string) ini_get( 'disable_functions' ) );
 			$cache->disable_functions = preg_split( '/[\s,]+/u', $cache->disable_functions, -1, PREG_SPLIT_NO_EMPTY );
@@ -359,7 +371,7 @@ final class Env extends U\A6t\Stc_Utilities {
 	 * @return bool True if `$setting` is changeable.
 	 */
 	public static function is_ini_setting_changeable( string $setting ) : bool {
-		if ( null === ( $cache = &static::stc_cache( [ __FUNCTION__, 'ini_all' ] ) ) ) {
+		if ( null === ( $cache = &static::cache( [ __FUNCTION__, 'ini_all' ] ) ) ) {
 			if ( U\Env::can_use_function( 'ini_get_all' ) ) {
 				$cache = ini_get_all();
 			}

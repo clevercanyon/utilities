@@ -100,7 +100,7 @@ final class Composer extends U\A6t\Stc_Utilities {
 
 		if ( ! $is_recursive ) {
 			if ( // A few cache keys here.
-				null !== ( $cache = &static::stc_cache( [
+				null !== ( $cache = &static::cache( [
 					__FUNCTION__,
 					$dir,
 					$extra_namespace,

@@ -86,7 +86,7 @@ final class Arr extends U\A6t\Stc_Utilities {
 	 * @return string The array's hash. 40 bytes in length.
 	 */
 	public static function hash( array $arr ) : string {
-		return sha1( serialize( U\Arr::hash_helper( $arr ) ) ); // phpcs:ignore.
+		return sha1( serialize( U\Arr::hash_helper( $arr ) ) ); // phpcs:ignore -- `serialize()` ok.
 	}
 
 	/**
@@ -99,20 +99,24 @@ final class Arr extends U\A6t\Stc_Utilities {
 	 * @return array Output array for {@see U\Arr::hash()}.
 	 */
 	protected static function hash_helper( array $arr ) : array {
+		foreach ( $arr as $_key => $_value ) {
+			unset( $arr[ $_key ] );  // Break reference.
+			$arr[ $_key ] = $_value; // Restore, by value.
+		}
 		foreach ( $arr as &$_value ) {
 			if ( is_array( $_value ) ) {
-				$_value = U\Arr::hash_helper( $arr );
+				$_value = U\Arr::hash_helper( $_value );
 			} elseif ( is_object( $_value ) ) {
-				$_value = '#' . "\0" . 'obj:' . "\0" . spl_object_id( $_value );
-			} elseif ( is_resource( $_value ) ) { // {@see get_resource_id()} is PHP 8+ only.
-				$_value = '#' . "\0" . 'res:' . "\0" . ( function_exists( 'get_resource_id' ) ? get_resource_id( $_value ) : (string) $_value );
+				$_value = '#' . "\0" . 'object:' . "\0" . spl_object_id( $_value );
+			} elseif ( is_resource( $_value ) ) { // @future-review: {@see get_resource_id()} is PHP 8+.
+				$_value = '#' . "\0" . 'resource:' . "\0" . ( function_exists( 'get_resource_id' ) ? get_resource_id( $_value ) : (int) $_value );
 			}
 		}
 		return U\Arr::sort_by( 'key', $arr );
 	}
 
 	/**
-	 * Key accessor.
+	 * Key accessor, by path.
 	 *
 	 * @since 2021-12-15
 	 *

@@ -248,26 +248,96 @@ final class Ctn_Tests extends UT\A6t\Tests {
 	 * @covers ::clone_deep()
 	 */
 	public function test_clone_deep() : void {
-		$obj = new U\Generic( [
-			'foo' => [
+		$foo  = 'foo'; // For testing below.
+		$obj1 = new class( $foo ) extends U\A6t\Generic {
+			/**
+			 * Public foo prop.
+			 */
+			public string $public_foo;
+
+			/**
+			 * Protected foo prop.
+			 */
+			protected string $protected_foo;
+
+			/**
+			 * Private foo prop.
+			 */
+			private string $private_foo;
+
+			/**
+			 * @param string $foo By reference.
+			 */
+			public function __construct( &$foo ) {
+				parent::__construct();
+				$this->public_foo    = &$foo;
+				$this->protected_foo = &$foo;
+				$this->private_foo   = &$foo;
+			}
+
+			/**
+			 * @return string Public foo.
+			 */
+			public function get_public_foo() : string {
+				return $this->public_foo;
+			}
+
+			/**
+			 * @return string Protected foo.
+			 */
+			public function get_protected_foo() : string {
+				return $this->protected_foo;
+			}
+
+			/**
+			 * @return string Private foo.
+			 */
+			public function get_private_foo() : string {
+				return $this->private_foo;
+			}
+		};
+		$obj2 = new U\Generic( [
+			'foo'  => [
 				'foo' => 1,
 			],
-			'bar' => [
+			'bar'  => [
 				'foo' => 2,
 				'bar' => 3,
 				'baz' => (object) [
 					'coo' => true,
 				],
 			],
-			'baz' => [
+			'baz'  => [
 				'coo' => false,
 				'bar' => [
 					'foo' => null,
 					'coo' => 'f6930b63c1da42e58e24d0bfdebc1177',
 				],
 			],
+			'obj1' => $obj1,
 		] );
-		$this->assertObjEquals( $obj, U\Ctn::clone_deep( $obj ), $this->message() );
+		/**
+		 * @var U\I7e\Base $obj1_cln
+		 * @var U\I7e\Base $obj2_cln
+		 */
+		$obj1_cln = U\Ctn::clone_deep( $obj1 );
+		$obj2_cln = U\Ctn::clone_deep( $obj2 );
+
+		$this->assertObjEquals( $obj1, $obj1_cln, $this->message() );
+		$this->assertObjEquals( $obj2, $obj2_cln, $this->message() );
+		$this->assertSame( get_class( $obj1 ), get_class( $obj1_cln ), $this->message() );
+		$this->assertSame( get_class( $obj2 ), get_class( $obj2_cln ), $this->message() );
+
+		$foo = 'x.foo'; // Modifies value that properties reference.
+		$this->assertSame( $foo, $obj2->obj1->get_public_foo(), $this->message() );
+		$this->assertSame( $foo, $obj2->obj1->get_protected_foo(), $this->message() );
+		$this->assertSame( $foo, $obj2->obj1->get_private_foo(), $this->message() );
+
+		// Should not impact clones, making objects !== to each other.
+		$this->assertObjNotEquals( $obj1, $obj1_cln, $this->message() );
+		$this->assertObjNotEquals( $obj2, $obj2_cln, $this->message() );
+		$this->assertSame( get_class( $obj1 ), get_class( $obj1_cln ), $this->message() );
+		$this->assertSame( get_class( $obj2 ), get_class( $obj2_cln ), $this->message() );
 	}
 
 	/**

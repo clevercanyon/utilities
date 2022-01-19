@@ -474,19 +474,70 @@ final class Fs_Tests extends UT\A6t\Tests {
 
 	/**
 	 * @covers ::copy()
+	 * @covers ::copy_dir_contents_helper()
 	 */
 	public function test_copy() : void {
 		$this->assertSame( true, U\Fs::copy( $this->temp_dir(), $this->temp_dir() ), $this->message() );
 		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ) ), $this->message() );
 		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ), [], [], null, true ), $this->message() );
 		$this->assertSame( true, U\Fs::copy( $this->temp_dir( true ), $this->temp_dir( true ), [], [], null, false ), $this->message() );
+		$this->assertSame( true, U\Fs::copy( U\Dir::join( $this->temp_dir( true ), '/*' ), $this->temp_dir( true ) ), $this->message() );
 	}
 
 	/**
+	 * @covers ::copy()
 	 * @covers ::copy_dir_contents_helper()
 	 */
-	public function test_copy_dir_contents_helper() : void {
-		$this->assertSame( true, U\Fs::copy( U\Dir::join( $this->temp_dir( true ), '/*' ), $this->temp_dir( true ) ), $this->message() );
+	public function test_copy_into_self() : void {
+		try {
+			$dir = $this->temp_dir( true );
+			U\Fs::copy( $dir . '/dir-1', $dir );
+			$this->fail( $this->message( 'Exception should have been thrown.' ) );
+		} catch ( U\Fatal_Exception $exception ) {
+			$this->assertStringContainsString(
+				'Attempting to copy into self.',
+				$exception->get_message(),
+				$this->message()
+			);
+		}
+		try {
+			$dir = $this->temp_dir( true );
+			U\Fs::copy( $dir . '/dir-1/*', $dir );
+			$this->fail( $this->message( 'Exception should have been thrown.' ) );
+		} catch ( U\Fatal_Exception $exception ) {
+			$this->assertStringContainsString(
+				'Attempting to copy into self.',
+				$exception->get_message(),
+				$this->message()
+			);
+		}
+	}
+
+	/**
+	 * @covers ::copy()
+	 * @covers ::copy_dir_contents_helper()
+	 */
+	public function test_copy_circular_dir_links() : void {
+		try {
+			U\Fs::copy( $this->temp_dir_circular_links(), $this->temp_dir() );
+			$this->fail( $this->message( 'Exception should have been thrown.' ) );
+		} catch ( U\Fatal_Exception $exception ) {
+			$this->assertStringContainsString(
+				'Following this link would result in an infinite loop.',
+				$exception->get_message(),
+				$this->message()
+			);
+		}
+		try {
+			U\Fs::copy( $this->temp_dir_circular_links() . '/*', $this->temp_dir() );
+			$this->fail( $this->message( 'Exception should have been thrown.' ) );
+		} catch ( U\Fatal_Exception $exception ) {
+			$this->assertStringContainsString(
+				'Following this link would result in an infinite loop.',
+				$exception->get_message(),
+				$this->message()
+			);
+		}
 	}
 
 	/**
@@ -496,6 +547,23 @@ final class Fs_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, U\Fs::zip( $this->temp_dir( true ), $this->temp_file( 'zip' ) ), $this->message() );
 		$this->assertSame( true, U\Fs::zip( $this->temp_dir( true ) . '->foo', $this->temp_file( 'zip' ) ), $this->message() );
 		$this->assertSame( true, U\Fs::zip( $this->temp_file(), $this->temp_file( 'zip' ) ), $this->message() );
+	}
+
+	/**
+	 * @covers ::zip()
+	 */
+	public function test_zip_into_self() : void {
+		try {
+			$dir = $this->temp_dir( true );
+			U\Fs::zip( $dir, $dir . '/foo.zip' );
+			$this->fail( $this->message( 'Exception should have been thrown.' ) );
+		} catch ( U\Fatal_Exception $exception ) {
+			$this->assertStringContainsString(
+				'Attempting to zip into self.',
+				$exception->get_message(),
+				$this->message()
+			);
+		}
 	}
 
 	/**
