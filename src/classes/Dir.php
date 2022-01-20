@@ -166,8 +166,10 @@ final class Dir extends U\A6t\Stc_Utilities {
 	public static function make( string $dir, int $perms = 0700, bool $recursively = true ) : bool {
 		$dir = U\Fs::normalize( $dir );
 
-		return ! file_exists( $dir ) && U\Fs::delete( $dir )
-			&& mkdir( $dir, $perms, $recursively );
+		return ! file_exists( $dir ) // Must not exist already.
+			&& ( ! is_link( $dir ) || U\Fs::delete( $dir ) ) // Deletes broken symlinks.
+			&& mkdir( $dir, $perms, $recursively )
+			&& chmod( $dir, $perms );
 	}
 
 	/**
@@ -206,23 +208,22 @@ final class Dir extends U\A6t\Stc_Utilities {
 		}
 		$haystack = []; // Initialize.
 
-		if ( defined( 'WP_TEMP_DIR' ) ) {
-			$haystack[] = WP_TEMP_DIR;
+		if ( U\Env::is_wordpress() && defined( 'WP_TEMP_DIR' ) ) {
+			$haystack[] = WP_TEMP_DIR; // Given explicitly.
 		}
-		$haystack[] = sys_get_temp_dir();          // {@see https://o5p.me/Yoz1zI}.
-		$haystack[] = ini_get( 'upload_tmp_dir' ); // {@see https://o5p.me/Zrk78z}.
+		$haystack[] = sys_get_temp_dir();
 
 		if ( $_needle = U\Env::var( 'TMPDIR', [ 'bypass:U\\Dir::sys_temp' => true ] ) ) {
-			$haystack[] = $_needle; // {@see U\Env::var()} for more details.
+			$haystack[] = $_needle; // {@see U\Env::var()} for further details.
 		}
 		if ( U\Env::is_windows() ) {
 			$haystack[] = 'c:/Temp';
-		} else {
+		} elseif ( U\Env::is_unix_based() ) {
 			$haystack[] = '/tmp';
 		}
-		$haystack = array_unique( $haystack );
+		$haystack[] = ini_get( 'upload_tmp_dir' );
 
-		foreach ( $haystack as $_dir ) {
+		foreach ( array_unique( $haystack ) as $_dir ) {
 			$_dir = U\Fs::realize( $_dir );
 
 			if ( ! $_dir || ! is_dir( $_dir ) || ! is_writable( $_dir ) ) {

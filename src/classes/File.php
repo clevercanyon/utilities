@@ -175,7 +175,8 @@ final class File extends U\A6t\Stc_Utilities {
 		$perms[ 0 ] ??= 0700; // Directory permissions.
 		$perms[ 1 ] ??= 0600; // File permissions.
 
-		return ! file_exists( $file ) && U\Fs::delete( $file )
+		return ! file_exists( $file ) // Must not exist already.
+			&& ( ! is_link( $file ) || U\Fs::delete( $file ) ) // Deletes broken symlinks.
 			&& ( is_dir( $dir ) || U\Dir::make( $dir, $perms[ 0 ], $recursively ) )
 			&& touch( $file )
 			&& chmod( $file, $perms[ 1 ] );
