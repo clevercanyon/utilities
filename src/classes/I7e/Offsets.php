@@ -49,7 +49,6 @@ interface Offsets extends U\I7e\Base, \ArrayAccess, \IteratorAggregate, \Countab
 	 *
 	 * @param mixed $offset Raw offset key.
 	 *
-	 * @throws U\Fatal_Exception On unexpected condition.
 	 * @return string|int Computed offset key, based on data type.
 	 */
 	public function offset_key( /* mixed */ $offset ); /* : string|int */

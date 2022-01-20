@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\File;
 
 /**
  * Utilities.
@@ -28,8 +28,17 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Fatal exception.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\File
  */
-final class Fatal_Exception extends U\A6t\Exception { }
+trait Members {
+	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\File\Utilities\MIME_Types_Property;
+}

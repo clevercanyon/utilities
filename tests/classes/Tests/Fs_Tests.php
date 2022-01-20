@@ -52,12 +52,17 @@ final class Fs_Tests extends UT\A6t\Tests {
 		foreach ( [
 			// Basics covered?
 
-			[ __DIR__ => __DIR__ ],
-			[ __FILE__ => __FILE__ ],
-			[ '' => '/.x-nonexistent' ],
+			[ U\Fs::normalize( __DIR__ ) => __DIR__ ],
+			[ U\Fs::normalize( __FILE__ ) => __FILE__ ],
+			[ U\Fs::normalize( '' ) => '/.x-nonexistent' ],
+
+			// Relative paths covered?
+
+			[ U\Fs::normalize( dirname( __DIR__ ) ) => __DIR__ . '/..' ],
+			[ U\Fs::normalize( __FILE__ ) => __DIR__ . '/./' . basename( __FILE__ ) ],
 		] as $_assertion
 		) {
-			$_expecting = (string) array_keys( $_assertion )[ 0 ];
+			$_expecting = array_keys( $_assertion )[ 0 ];
 			$_path      = array_values( $_assertion )[ 0 ];
 
 			$this->assertSame( $_expecting, U\Fs::realize( $_path ), $this->message( $_expecting . '=>' . $_path ) );
@@ -74,13 +79,13 @@ final class Fs_Tests extends UT\A6t\Tests {
 			foreach ( [
 				// Basics covered?
 
-				[ __DIR__ => __DIR__ ],
-				[ __FILE__ => __FILE__ ],
-				[ 'file://' . $cwd_path . '/foo' => 'file://foo' ],
-				[ $cwd_path . '/.x-nonexistent' => '.x-nonexistent' ],
+				[ U\Fs::normalize( __DIR__ ) => __DIR__ ],
+				[ U\Fs::normalize( __FILE__ ) => __FILE__ ],
+				[ U\Fs::normalize( 'file://' . $cwd_path . '/foo' ) => 'file://foo' ],
+				[ U\Fs::normalize( $cwd_path . '/.x-nonexistent' ) => '.x-nonexistent' ],
 			] as $_assertion
 			) {
-				$_expecting = (string) array_keys( $_assertion )[ 0 ];
+				$_expecting = array_keys( $_assertion )[ 0 ];
 				$_path      = array_values( $_assertion )[ 0 ];
 
 				$this->assertSame( $_expecting, U\Fs::abs( $_path ), $this->message( $_expecting . '=>' . $_path ) );
@@ -89,13 +94,14 @@ final class Fs_Tests extends UT\A6t\Tests {
 			foreach ( [
 				// Basics covered?
 
-				[ __DIR__ => __DIR__ ],
-				[ __FILE__ => __FILE__ ],
-				[ 'c:' . $cwd_path . '/foo' => 'c:foo' ],
-				[ $cwd_path . '/.x-nonexistent' => '.x-nonexistent' ],
+				[ U\Fs::normalize( __DIR__ ) => __DIR__ ],
+				[ U\Fs::normalize( __FILE__ ) => __FILE__ ],
+				[ U\Fs::normalize( 'c:' . $cwd_path . '/foo' ) => 'c:foo' ],
+				[ U\Fs::normalize( 'file://' . $cwd_path . '/foo' ) => 'file://foo' ],
+				[ U\Fs::normalize( $cwd_path . '/.x-nonexistent' ) => '.x-nonexistent' ],
 			] as $_assertion
 			) {
-				$_expecting = (string) array_keys( $_assertion )[ 0 ];
+				$_expecting = array_keys( $_assertion )[ 0 ];
 				$_path      = array_values( $_assertion )[ 0 ];
 
 				$this->assertSame( $_expecting, U\Fs::abs( $_path ), $this->message( $_expecting . '=>' . $_path ) );
@@ -538,24 +544,28 @@ final class Fs_Tests extends UT\A6t\Tests {
 				$this->message()
 			);
 		}
+		$dir = $this->temp_dir( true );
+		// Copies into self, but ignores destination subpath.
+		$copied = U\Fs::copy( $dir, $dir . '/.x', [ '/^\.x(?:$|\/)/u' ] );
+		$this->assertSame( true, $copied, $this->message() );
 	}
 
 	/**
-	 * @covers ::zip()
+	 * @covers ::zip_er()
 	 */
 	public function test_zip() : void {
-		$this->assertSame( true, U\Fs::zip( $this->temp_dir( true ), $this->temp_file( 'zip' ) ), $this->message() );
-		$this->assertSame( true, U\Fs::zip( $this->temp_dir( true ) . '->foo', $this->temp_file( 'zip' ) ), $this->message() );
-		$this->assertSame( true, U\Fs::zip( $this->temp_file(), $this->temp_file( 'zip' ) ), $this->message() );
+		$this->assertSame( true, U\Fs::zip_er( $this->temp_dir( true ), $this->temp_file( 'zip' ) ), $this->message() );
+		$this->assertSame( true, U\Fs::zip_er( $this->temp_dir( true ) . '->foo', $this->temp_file( 'zip' ) ), $this->message() );
+		$this->assertSame( true, U\Fs::zip_er( $this->temp_file(), $this->temp_file( 'zip' ) ), $this->message() );
 	}
 
 	/**
-	 * @covers ::zip()
+	 * @covers ::zip_er()
 	 */
 	public function test_zip_into_self() : void {
 		try {
 			$dir = $this->temp_dir( true );
-			U\Fs::zip( $dir, $dir . '/foo.zip' );
+			U\Fs::zip_er( $dir, $dir . '/foo.zip' );
 			$this->fail( $this->message( 'Exception should have been thrown.' ) );
 		} catch ( U\Fatal_Exception $exception ) {
 			$this->assertStringContainsString(
@@ -564,6 +574,10 @@ final class Fs_Tests extends UT\A6t\Tests {
 				$this->message()
 			);
 		}
+		$dir = $this->temp_dir( true );
+		// Zips into self, but ignores destination subpath.
+		$zipped = U\Fs::zip_er( $dir, $dir . '/.x/foo.zip', [ '/^\.x(?:$|\/)/u' ] );
+		$this->assertSame( true, $zipped, $this->message() );
 	}
 
 	/**
@@ -573,9 +587,11 @@ final class Fs_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, U\Fs::delete( $this->temp_dir(), false ), $this->message() );
 		$this->assertSame( true, U\Fs::delete( $this->temp_dir( true ) ), $this->message() );
 		$this->assertSame( true, U\Fs::delete( $this->temp_dir( true ), true ), $this->message() );
+
 		$this->assertSame( true, U\Fs::delete( $this->temp_file() ), $this->message() );
 		$this->assertSame( true, U\Fs::delete( $this->temp_link() ), $this->message() );
 		$this->assertSame( true, U\Fs::delete( $this->temp_broken_link() ), $this->message() );
+		$this->assertSame( true, U\Fs::delete( $this->temp_dir_circular_links() ), $this->message() );
 	}
 
 	/**

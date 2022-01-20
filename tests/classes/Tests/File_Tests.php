@@ -49,7 +49,108 @@ final class File_Tests extends UT\A6t\Tests {
 	 * @covers ::ext()
 	 */
 	public function test_ext() : void {
-		$this->assertSame( 'coo', U\File::ext( '/foo/bar/baz.coo' ), $this->message() );
+		$this->assertSame( 'log', U\File::ext( '/foo/bar/test.log' ), $this->message() );
+		$this->assertSame( 'php', U\File::ext( '/foo/bar/test.php' ), $this->message() );
+		$this->assertSame( 'wav', U\File::ext( '/foo/bar/text.wav' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::ext_type()
+	 */
+	public function test_ext_type() : void {
+		$this->assertSame( 'Log', U\File::ext_type( '/foo/bar/test.log' ), $this->message() );
+		$this->assertSame( 'PHP', U\File::ext_type( '/foo/bar/test.php' ), $this->message() );
+		$this->assertSame( 'Audio', U\File::ext_type( '/foo/bar/text.wav' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::mime_type()
+	 */
+	public function test_mime_type() : void {
+		$this->assertSame( 'text/plain', U\File::mime_type( '/foo/bar/test.log' ), $this->message() );
+		$this->assertSame( 'text/html', U\File::mime_type( '/foo/bar/test.php' ), $this->message() );
+		$this->assertSame( 'audio/wav', U\File::mime_type( '/foo/bar/text.wav' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::content_type()
+	 */
+	public function test_content_type() : void {
+		$this->assertSame( 'text/plain; charset=' . U\Env::charset(), U\File::content_type( '/foo/bar/test.log' ), $this->message() );
+		$this->assertSame( 'text/html; charset=' . U\Env::charset(), U\File::content_type( '/foo/bar/test.php' ), $this->message() );
+		$this->assertSame( 'audio/wav', U\File::content_type( '/foo/bar/text.wav' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::size_abbr()
+	 * @covers ::bytes_abbr()
+	 */
+	public function test_size_abbr() : void {
+		$temp_file = $this->temp_file();
+
+		file_put_contents( $temp_file, str_repeat( 'x', 1 ) );
+		$this->assertSame( '1 byte', U\File::size_abbr( $temp_file ), $this->message() );
+
+		file_put_contents( $temp_file, str_repeat( 'x', 2 ) );
+		clearstatcache( true, $temp_file );
+		$this->assertSame( '2 bytes', U\File::size_abbr( $temp_file ), $this->message() );
+
+		file_put_contents( $temp_file, str_repeat( 'x', 1024 ) );
+		clearstatcache( true, $temp_file );
+		$this->assertSame( '1 kb', U\File::size_abbr( $temp_file ), $this->message() );
+
+		file_put_contents( $temp_file, str_repeat( 'x', 1024 * 2 ) );
+		clearstatcache( true, $temp_file );
+		$this->assertSame( '2 kbs', U\File::size_abbr( $temp_file ), $this->message() );
+
+		file_put_contents( $temp_file, str_repeat( 'x', 1024 * 1024 ) );
+		clearstatcache( true, $temp_file );
+		$this->assertSame( '1 MB', U\File::size_abbr( $temp_file ), $this->message() );
+	}
+
+	/**
+	 * @covers ::ini_bytes_abbr()
+	 */
+	public function test_ini_bytes_abbr() : void {
+		$this->assertSame( '1', U\File::ini_bytes_abbr( 1 ), $this->message() );
+		$this->assertSame( '2', U\File::ini_bytes_abbr( 2 ), $this->message() );
+		$this->assertSame( '1K', U\File::ini_bytes_abbr( 1024 ), $this->message() );
+		$this->assertSame( '2K', U\File::ini_bytes_abbr( 1024 * 2 ), $this->message() );
+		$this->assertSame( '1M', U\File::ini_bytes_abbr( 1024 * 1024 ), $this->message() );
+	}
+
+	/**
+	 * @covers ::bytes_abbr()
+	 */
+	public function test_bytes_abbr() : void {
+		$this->assertSame( '1 byte', U\File::bytes_abbr( 1 ), $this->message() );
+		$this->assertSame( '2 bytes', U\File::bytes_abbr( 2 ), $this->message() );
+		$this->assertSame( '1 kb', U\File::bytes_abbr( 1024 ), $this->message() );
+		$this->assertSame( '2 kbs', U\File::bytes_abbr( 1024 * 2 ), $this->message() );
+		$this->assertSame( '1 MB', U\File::bytes_abbr( 1024 * 1024 ), $this->message() );
+	}
+
+	/**
+	 * @covers ::abbr_bytes()
+	 */
+	public function test_abbr_bytes() : void {
+		$this->assertSame( 1, U\File::abbr_bytes( '1 byte' ), $this->message() );
+		$this->assertSame( 2, U\File::abbr_bytes( '2 bytes' ), $this->message() );
+		$this->assertSame( 1024, U\File::abbr_bytes( '1 kb' ), $this->message() );
+		$this->assertSame( 1024 * 2, U\File::abbr_bytes( '2 kbs' ), $this->message() );
+		$this->assertSame( 1024 * 1024, U\File::abbr_bytes( '1 MB' ), $this->message() );
+
+		$this->assertSame( '1', U\File::ini_bytes_abbr( 1 ), $this->message() );
+		$this->assertSame( '2', U\File::ini_bytes_abbr( 2 ), $this->message() );
+		$this->assertSame( '1K', U\File::ini_bytes_abbr( 1024 ), $this->message() );
+		$this->assertSame( '2K', U\File::ini_bytes_abbr( 1024 * 2 ), $this->message() );
+		$this->assertSame( '1M', U\File::ini_bytes_abbr( 1024 * 1024 ), $this->message() );
+
+		$this->assertSame( 1, U\File::abbr_bytes( U\File::ini_bytes_abbr( 1 ) ), $this->message() );
+		$this->assertSame( 2, U\File::abbr_bytes( U\File::ini_bytes_abbr( 2 ) ), $this->message() );
+		$this->assertSame( 1024, U\File::abbr_bytes( U\File::ini_bytes_abbr( 1024 ) ), $this->message() );
+		$this->assertSame( 1024 * 2, U\File::abbr_bytes( U\File::ini_bytes_abbr( 1024 * 2 ) ), $this->message() );
+		$this->assertSame( 1024 * 1024, U\File::abbr_bytes( U\File::ini_bytes_abbr( 1024 * 1024 ) ), $this->message() );
 	}
 
 	/**

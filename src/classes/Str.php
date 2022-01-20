@@ -34,6 +34,13 @@ use Clever_Canyon\{Utilities as U};
  */
 final class Str extends U\A6t\Stc_Utilities {
 	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\Str\Members;
+
+	/**
 	 * Escapes single quotes.
 	 *
 	 * @since 2021-12-25
@@ -94,14 +101,11 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @param string $str String.
 	 *
 	 * @return string Escaped string.
-	 *
-	 * @todo  Outside of WordPress, or even inside of WordPress, how do we endure that we're always in UTF-8 mode?
-	 *       Should we always be in UTF-8 mode? Also, likely affects more than just this function of course.
 	 */
 	public static function esc_html( string $str ) : string {
 		return U\Env::is_wordpress()
 			? esc_html( $str )
-			: htmlspecialchars( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, null, false );
+			: htmlspecialchars( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, U\Env::charset(), false );
 	}
 
 	/**
@@ -116,7 +120,7 @@ final class Str extends U\A6t\Stc_Utilities {
 	public static function esc_attr( string $str ) : string {
 		return U\Env::is_wordpress()
 			? esc_attr( $str )
-			: htmlspecialchars( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, null, false );
+			: htmlspecialchars( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, U\Env::charset(), false );
 	}
 
 	/**
@@ -131,7 +135,7 @@ final class Str extends U\A6t\Stc_Utilities {
 	public static function esc_url( string $str ) : string {
 		return U\Env::is_wordpress()
 			? esc_url( $str )
-			: htmlspecialchars( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, null, false );
+			: htmlspecialchars( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, U\Env::charset(), false );
 	}
 
 	/**
@@ -146,7 +150,7 @@ final class Str extends U\A6t\Stc_Utilities {
 	public static function esc_textarea( string $str ) : string {
 		return U\Env::is_wordpress()
 			? esc_textarea( $str )
-			: htmlspecialchars( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, null, true );
+			: htmlspecialchars( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, U\Env::charset(), true );
 	}
 
 	/**
@@ -262,6 +266,215 @@ final class Str extends U\A6t\Stc_Utilities {
 	public static function normalize_eols( string $str ) : string {
 		$str = str_replace( [ "\r\n", "\r", "\n" ], "\n", $str );
 		return preg_replace( "/\n{3,}/u", "\n\n", $str );
+	}
+
+	/**
+	 * Converts to ASCII-range equivalents (`intl` extension required).
+	 *
+	 * @since        2022-01-08
+	 *
+	 * @param string $str Input string.
+	 *
+	 * @throws U\Fatal_Exception If missing `intl` extension.
+	 * @return string|false ASCII-range string, else `false` on failure.
+	 *
+	 * @see          https://www.php.net/manual/en/transliterator.transliterate.php
+	 * @see          https://unicode-org.github.io/icu/userguide/transforms/general/
+	 *
+	 * @note         From the docs on `Any-Latin; Latin-ASCII`. Here are the relevant details.
+	 *               `Latin-ASCII` converts non-ASCII-range punctuation, symbols, and letters to an approximate ASCII-range equiv.
+	 *               For example: © → ‘(C)’, Æ → AE. When combined with `Any-Latin` you get a transform that converts as
+	 *               much as possible to an ASCII-range representation; i.e., `Any-Latin; Latin-ASCII`.
+	 *
+	 * @noinspection PhpComposerExtensionStubsInspection
+	 */
+	public static function to_ascii_er( string $str ) /* : string|false */ {
+		if ( ! U\Env::can_use_extension( 'intl' ) ) {
+			throw new U\Fatal_Exception( 'Missing PHP `intl` extension.' );
+		}
+		return transliterator_transliterate( 'Any-Latin; Latin-ASCII', $str );
+	}
+
+	/**
+	 * Is valid UTF-8?
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str Input string.
+	 *
+	 * @return bool True if valid UTF-8.
+	 */
+	public static function is_utf8( string $str ) : bool {
+		if ( ! isset( $str[ 0 ] ) ) {
+			return true; // Nothing to do.
+		}
+		return (bool) preg_match( '/^./us', $str );
+	}
+
+	/**
+	 * Checks regular expression validity.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str           String to check.
+	 *
+	 * @param bool   $rtn_delimiter Return delimiter when valid? Default is `false`.
+	 *                              If `true`, and it's a valid regeular expression, the delimiter
+	 *                              is returned in string format; changing this function's return type.
+	 *
+	 * @return bool|string True if it's a valid regular expression.
+	 *                     Valid delimiters are: `/`, `~`, `@`, `;`, `%`, '`', `#`,
+	 *                     which is what {@see https://regex101.com} suggests.
+	 */
+	public static function is_regexp( string $str, bool $rtn_delimiter = false ) /* : bool|string */ {
+		preg_match( '/^([\/~@;%`#]).*\\1[a-z]*$/ui', $str, $m );
+		return ! empty( $m[ 1 ] ) ? ( $rtn_delimiter ? $m[ 1 ] : true ) : false;
+	}
+
+	/**
+	 * Checks hostname validity; e.g., `127.0.0.1`, `localhost`, `example.com`.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid hostname.
+	 *
+	 * @see   https://o5p.me/d3ayZ8
+	 * @note  See also the tests for function.
+	 *
+	 * @note  A trailing dot is allowed. Recommend trimming.
+	 * @note  Max length of each dotted label is `63` bytes.
+	 * @note  Max overall length is 253 bytes, not counting final `.`, which is optional.
+	 */
+	public static function is_hostname( string $str ) : bool {
+		return is_string( filter_var( $str, FILTER_VALIDATE_DOMAIN, [ 'flags' => FILTER_FLAG_HOSTNAME ] ) );
+	}
+
+	/**
+	 * Checks URL validity; e.g., `https://example.com`, `https://[::ffff:2d4f:713]`.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid URL containing scheme & hostname.
+	 *
+	 * @see   https://o5p.me/kEENZa
+	 * @note  See also the tests for function.
+	 *
+	 * @see   U\Str::is_hostname() for inherited validations for hostname.
+	 * @note  Additional schemes are allowed and some do not require a hostname;
+	 *        e.g., `mailto:`, `news:`, `file:`.
+	 */
+	public static function is_url( string $str ) : bool {
+		return is_string( filter_var( $str, FILTER_VALIDATE_URL ) );
+	}
+
+	/**
+	 * Checks URL validity; e.g., `https://example.com/?v=1`.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid URL containing scheme, hostname, and query.
+	 *              {@see U\Str::is_url()} for inherited validations.
+	 *
+	 * @see   https://o5p.me/kEENZa
+	 * @note  See also the tests for function.
+	 *
+	 * @see   U\Str::is_url() for inherited validations.
+	 * @note  Query string must come before an optional `#fragment`.
+	 */
+	public static function is_url_query( string $str ) : bool {
+		return is_string( filter_var( $str, FILTER_VALIDATE_URL, [ 'flags' => FILTER_FLAG_QUERY_REQUIRED ] ) );
+	}
+
+	/**
+	 * Checks email validity; e.g., `user@example.com`.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid email address.
+	 *
+	 * @see   https://o5p.me/cZpuIh
+	 * @note  See also the tests for function.
+	 *
+	 * @note  Maximum length is 320 characters, not bytes.
+	 * @note  A trailing dot is not allowed in email address hostnames.
+	 * @note  A user@local address is not allowed by this validator.
+	 */
+	public static function is_email( string $str ) : bool {
+		return is_string( filter_var( $str, FILTER_VALIDATE_EMAIL, [ 'flags' => FILTER_FLAG_EMAIL_UNICODE ] ) );
+	}
+
+	/**
+	 * Checks MAC address validity; e.g., `00:0C:F1:56:98:AD`.
+	 * Also in these formats: `00-0C-F1-56-98-AD`, `000C.F156.98AD`.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid MAC address.
+	 *
+	 * @see   https://o5p.me/q7tGiP
+	 * @note  See also the tests for function.
+	 */
+	public static function is_mac( string $str ) : bool {
+		return is_string( filter_var( $str, FILTER_VALIDATE_MAC ) );
+	}
+
+	/**
+	 * Checks IP address validity; e.g., `127.0.0.1`, `45.79.7.19`.
+	 * Or IPv6; e.g., `::1`, `::ffff:2d4f:713`, `0:0:0:0:0:ffff:2d4f:0713`.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid IP address.
+	 *
+	 * @see   https://o5p.me/9JSgKk
+	 * @note  See also the tests for function.
+	 */
+	public static function is_ip( string $str ) : bool {
+		return is_string( filter_var( $str, FILTER_VALIDATE_IP ) );
+	}
+
+	/**
+	 * Checks IPv4 address validity; e.g., `127.0.0.1`, `45.79.7.19`.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid IPv4 address.
+	 *
+	 * @see   https://o5p.me/yxPYQG
+	 * @note  See also the tests for function.
+	 */
+	public static function is_ipv4( string $str ) : bool {
+		return is_string( filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_IPV4 ] ) );
+	}
+
+	/**
+	 * Checks IPv6 address validity; e.g., `::1`, `::ffff:2d4f:713`, `0:0:0:0:0:ffff:2d4f:0713`.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid IPv6 address.
+	 *
+	 * @see   https://o5p.me/XsExYc
+	 * @note  See also the tests for function.
+	 */
+	public static function is_ipv6( string $str ) : bool {
+		return is_string( filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_IPV6 ] ) );
 	}
 
 	/**

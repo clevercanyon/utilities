@@ -34,7 +34,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Prop_Members {
+trait Property_Members {
 	/**
 	 * Gets non-static properties, by value.
 	 *

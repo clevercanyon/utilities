@@ -40,7 +40,7 @@ trait Unserializable_Members {
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @return array {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Prop_Members::props()} for further details.
+	 * @return array {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Property_Members::props()} for further details.
 	 *
 	 * @see   https://www.php.net/manual/en/class.serializable.php
 	 */

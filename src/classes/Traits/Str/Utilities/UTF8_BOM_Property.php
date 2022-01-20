@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
 
 /**
  * Utilities.
@@ -28,8 +28,17 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Fatal exception.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Str
  */
-final class Fatal_Exception extends U\A6t\Exception { }
+trait UTF8_BOM_Property {
+	/**
+	 * UTF-8 byte-order marker.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected static string $utf8_bom = "\xEF\xBB\xBF";
+}

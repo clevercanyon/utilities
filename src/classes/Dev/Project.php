@@ -844,7 +844,7 @@ final class Project extends U\A6t\Base {
 				'/(?:^|.+?\/)[^\/]+?\.(?:exe|bat|sh|bash|zsh)$/ui',
 
 				// All of these arbitrary archive paths.
-				'/(?:^|.+?\/)[^\/]+?\.(?:iso|dmg|bz2|7z|zip|tar|tgz|gz|phar)$/ui',
+				'/(?:^|.+?\/)[^\/]+?\.(?:iso|dmg|bz2|7z|zip|sketch|app|tar|tgz|gz|phar)$/ui',
 
 				// All of these project test paths.
 				'/(?:^|.+?\/)(?:tests?|test[_\-]files?|phpunit([_\-]tests?)?)$/ui',

@@ -119,6 +119,360 @@ final class Str_Tests extends UT\A6t\Tests {
 	}
 
 	/**
+	 * @covers ::begins_with()
+	 */
+	public function test_begins_with() : void {
+		$this->assertSame( true, U\Str::begins_with( 'foo bar', 'foo' ), $this->message() );
+		$this->assertSame( false, U\Str::begins_with( 'foo bar', 'Foo' ), $this->message() );
+		$this->assertSame( false, U\Str::begins_with( 'foo bar', 'bar' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::ibegins_with()
+	 */
+	public function test_ibegins_with() : void {
+		$this->assertSame( true, U\Str::ibegins_with( 'foo bar', 'foo' ), $this->message() );
+		$this->assertSame( true, U\Str::ibegins_with( 'foo bar', 'Foo' ), $this->message() );
+		$this->assertSame( false, U\Str::ibegins_with( 'foo bar', 'bar' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::ends_with()
+	 */
+	public function test_ends_with() : void {
+		$this->assertSame( true, U\Str::ends_with( 'foo bar', 'bar' ), $this->message() );
+		$this->assertSame( false, U\Str::ends_with( 'foo bar', 'Bar' ), $this->message() );
+		$this->assertSame( false, U\Str::ends_with( 'foo bar', 'foo' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::iends_with()
+	 */
+	public function test_iends_with() : void {
+		$this->assertSame( true, U\Str::iends_with( 'foo bar', 'bar' ), $this->message() );
+		$this->assertSame( true, U\Str::iends_with( 'foo bar', 'Bar' ), $this->message() );
+		$this->assertSame( false, U\Str::iends_with( 'foo bar', 'foo' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::contains()
+	 */
+	public function test_contains() : void {
+		$this->assertSame( true, U\Str::contains( 'foo bar', 'o b' ), $this->message() );
+		$this->assertSame( true, U\Str::contains( 'foo bar', 'oo' ), $this->message() );
+		$this->assertSame( false, U\Str::contains( 'foo bar', 'oO' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::icontains()
+	 */
+	public function test_icontains() : void {
+		$this->assertSame( true, U\Str::icontains( 'foo bar', 'o b' ), $this->message() );
+		$this->assertSame( true, U\Str::icontains( 'foo bar', 'oo' ), $this->message() );
+		$this->assertSame( true, U\Str::icontains( 'foo bar', 'oO' ), $this->message() );
+		$this->assertSame( false, U\Str::icontains( 'foo bar', 'o0' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::normalize_eols()
+	 */
+	public function test_normalize_eols() : void {
+		$this->assertSame( 'foo' . "\n\n" . 'bar', U\Str::normalize_eols( 'foo' . "\r\r\n" . 'bar' ), $this->message() );
+		$this->assertSame( 'foo' . "\n\n" . 'bar', U\Str::normalize_eols( 'foo' . "\r\r\n\r\r" . 'bar' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_regexp()
+	 */
+	public function test_is_regexp() : void {
+		$this->assertSame( true, U\Str::is_regexp( '//' ), $this->message() );
+		$this->assertSame( true, U\Str::is_regexp( '//u' ), $this->message() );
+		$this->assertSame( true, U\Str::is_regexp( '/foo/' ), $this->message() );
+		$this->assertSame( true, U\Str::is_regexp( '/foo/u' ), $this->message() );
+
+		$this->assertSame( '/', U\Str::is_regexp( '/foo/', true ), $this->message() );
+		$this->assertSame( '~', U\Str::is_regexp( '~foo~', true ), $this->message() );
+		$this->assertSame( '@', U\Str::is_regexp( '@foo@', true ), $this->message() );
+		$this->assertSame( ';', U\Str::is_regexp( ';foo;', true ), $this->message() );
+		$this->assertSame( '%', U\Str::is_regexp( '%foo%', true ), $this->message() );
+		$this->assertSame( '`', U\Str::is_regexp( '`foo`', true ), $this->message() );
+		$this->assertSame( '#', U\Str::is_regexp( '#foo#', true ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_hostname()
+	 */
+	public function test_is_hostname() : void {
+		$this->assertSame( true, U\Str::is_hostname( '45.79.7.19' ), $this->message() );
+		$this->assertSame( true, U\Str::is_hostname( '127.0.0.1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_hostname( '127.0.0.1.' ), $this->message() );
+
+		$this->assertSame( true, U\Str::is_hostname( 'localhost' ), $this->message() );
+		$this->assertSame( true, U\Str::is_hostname( 'foo-bar-example' ), $this->message() );
+		$this->assertSame( true, U\Str::is_hostname( 'foo-bar-example.' ), $this->message() );
+
+		$this->assertSame( true, U\Str::is_hostname( 'foo.example.com' ), $this->message() );
+		$this->assertSame( true, U\Str::is_hostname( 'foo.bar.example.com' ), $this->message() );
+		$this->assertSame( true, U\Str::is_hostname( 'foo-bar-example.com.' ), $this->message() );
+		$this->assertSame( true, U\Str::is_hostname( 'foo-bar--example.com.' ), $this->message() );
+		$this->assertSame( true, U\Str::is_hostname( 'foo----------bar.com.' ), $this->message() );
+
+		$this->assertSame(
+			true,
+			U\Str::is_hostname(
+				str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 61 ) . '.'
+			), $this->message()
+		);
+		$this->assertSame( true, U\Str::is_hostname( str_repeat( 'x', 63 ) ), $this->message() );
+
+		// Invalid examples.
+
+		$this->assertSame( false, U\Str::is_hostname( '.foo.bar' ), $this->message() );
+		$this->assertSame( false, U\Str::is_hostname( '.foo.bar' ), $this->message() );
+		$this->assertSame( false, U\Str::is_hostname( 'foo_bar' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_hostname( '::1' ), $this->message() );
+		$this->assertSame( false, U\Str::is_hostname( '::ffff:2d4f:713' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_hostname( 'foo..bar.com.' ), $this->message() );
+		$this->assertSame( false, U\Str::is_hostname( 'foo~bar.com.' ), $this->message() );
+		$this->assertSame( false, U\Str::is_hostname( 'foo----=-----bar.com.' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_hostname( '[::1]' ), $this->message() );
+		$this->assertSame( false, U\Str::is_hostname( '[::ffff:2d4f:713]' ), $this->message() );
+		$this->assertSame( false, U\Str::is_hostname( '[2001:db8:85a3:8d3:1319:8a2e:370:7348]' ), $this->message() );
+
+		$this->assertSame(
+			false,
+			U\Str::is_hostname(
+				str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 62 ) . '.'
+			), $this->message()
+		);
+		$this->assertSame( false, U\Str::is_hostname( str_repeat( 'x', 64 ) ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_url()
+	 */
+	public function test_is_url() : void {
+		$this->assertSame( true, U\Str::is_url( 'https://45.79.7.19' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'https://127.0.0.1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'https://127.0.0.1.' ), $this->message() );
+
+		$this->assertSame( true, U\Str::is_url( 'https://localhost' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'https://foo-bar-example' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'https://foo-bar-example.' ), $this->message() );
+
+		$this->assertSame( true, U\Str::is_url( 'https://foo.example.com' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'https://foo.bar.example.com' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'https://foo-bar-example.com.' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'https://foo-bar--example.com.' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'https://foo----------bar.com.' ), $this->message() );
+
+		$this->assertSame( true, U\Str::is_url( 'https://[::1]' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'https://[::ffff:2d4f:713]' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'https://[2001:db8:85a3:8d3:1319:8a2e:370:7348]' ), $this->message() );
+
+		$this->assertSame( true, U\Str::is_url( 'mailto:user@example.com' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'news:foo.bar.example' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url( 'file:///foo/bar' ), $this->message() );
+
+		$this->assertSame(
+			true,
+			U\Str::is_url(
+				'https://' . str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 61 ) . '.'
+			), $this->message()
+		);
+		$this->assertSame( true, U\Str::is_url( 'https://' . str_repeat( 'x', 63 ) . '.' ), $this->message() );
+
+		// Invalid examples.
+
+		$this->assertSame( false, U\Str::is_url( 'https://.foo.bar' ), $this->message() );
+		$this->assertSame( false, U\Str::is_url( 'https://.foo.bar' ), $this->message() );
+		$this->assertSame( false, U\Str::is_url( 'https://foo_bar' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_url( 'https://::1' ), $this->message() );
+		$this->assertSame( false, U\Str::is_url( 'https://::ffff:2d4f:713' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_url( 'https://foo..bar.com.' ), $this->message() );
+		$this->assertSame( false, U\Str::is_url( 'https://foo~bar.com.' ), $this->message() );
+		$this->assertSame( false, U\Str::is_url( 'https://foo----=-----bar.com.' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_url( 'https://[::1].' ), $this->message() );
+		$this->assertSame( false, U\Str::is_url( 'https://[::ffff:2d4f:713].' ), $this->message() );
+		$this->assertSame( false, U\Str::is_url( 'https://[2001:db8:85a3:8d3:1319:8a2e:370:7348].' ), $this->message() );
+
+		$this->assertSame(
+			false,
+			U\Str::is_url(
+				'https://' . str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 63 ) .
+				'.' . str_repeat( 'x', 62 ) . '.'
+			), $this->message()
+		);
+		$this->assertSame( false, U\Str::is_url( 'https://' . str_repeat( 'x', 64 ) ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_url_query()
+	 */
+	public function test_is_url_query() : void {
+		$this->assertSame( true, U\Str::is_url_query( 'https://localhost?' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url_query( 'https://foo-bar-example?v=1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url_query( 'https://foo-bar-example.?v=1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_url_query( 'https://foo-bar-example?v=1#foo' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_url_query( 'https://localhost..?' ), $this->message() );
+		$this->assertSame( false, U\Str::is_url_query( 'https://foo-bar-example..?v=1' ), $this->message() );
+		$this->assertSame( false, U\Str::is_url_query( 'https://foo-bar-example.&v=1' ), $this->message() );
+		$this->assertSame( false, U\Str::is_url_query( 'https://foo-bar-example#foo?v=1' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_email()
+	 */
+	public function test_is_email() : void {
+		$this->assertSame( true, U\Str::is_email( 'user@example.com' ), $this->message() );
+		$this->assertSame( true, U\Str::is_email( 'user@foo.bar.com' ), $this->message() );
+		$this->assertSame( true, U\Str::is_email( 'exämple@foo.bar.com' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_email( 'user@example' ), $this->message() );
+		$this->assertSame( false, U\Str::is_email( 'user@127.0.0.1' ), $this->message() );
+		$this->assertSame( false, U\Str::is_email( 'user@localhost' ), $this->message() );
+		$this->assertSame( false, U\Str::is_email( 'user@example.com.' ), $this->message() );
+		$this->assertSame( false, U\Str::is_email( 'user@foo.bar..com' ), $this->message() );
+		$this->assertSame( false, U\Str::is_email( 'x🔧x@foo.bar.com' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_mac()
+	 */
+	public function test_is_mac() : void {
+		$this->assertSame( true, U\Str::is_mac( '00:0C:F1:56:98:AD' ), $this->message() );
+		$this->assertSame( true, U\Str::is_mac( '00-0C-F1-56-98-AD' ), $this->message() );
+		$this->assertSame( true, U\Str::is_mac( '000C.F156.98AD' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_mac( '000CF15698AD' ), $this->message() );
+		$this->assertSame( false, U\Str::is_mac( '00:0C:F1:56:98:AD.' ), $this->message() );
+		$this->assertSame( false, U\Str::is_mac( '00:0C:F1:56:98:AD:' ), $this->message() );
+		$this->assertSame( false, U\Str::is_mac( '00-0C-F1-56-98-AD.' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_ip()
+	 */
+	public function test_is_ip() : void {
+		$this->assertSame( true, U\Str::is_ip( '127.0.0.1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_ip( '45.79.7.19' ), $this->message() );
+		$this->assertSame( true, U\Str::is_ip( '::1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_ip( '::ffff:2d4f:713' ), $this->message() );
+		$this->assertSame( true, U\Str::is_ip( '0:0:0:0:0:ffff:2d4f:0713' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_ip( '127.0.0.1.' ), $this->message() );
+		$this->assertSame( false, U\Str::is_ip( '45.79.7.19.' ), $this->message() );
+		$this->assertSame( false, U\Str::is_ip( '::1:' ), $this->message() );
+		$this->assertSame( false, U\Str::is_ip( '::ffff:2d4f:713.' ), $this->message() );
+		$this->assertSame( false, U\Str::is_ip( '0:0:0:0:0:ffff:2d4f:0713.' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_ipv4()
+	 */
+	public function test_is_ipv4() : void {
+		$this->assertSame( true, U\Str::is_ipv4( '127.0.0.1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_ipv4( '45.79.7.19' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_ipv4( '::1' ), $this->message() );
+		$this->assertSame( false, U\Str::is_ipv4( '::ffff:2d4f:713' ), $this->message() );
+		$this->assertSame( false, U\Str::is_ipv4( '0:0:0:0:0:ffff:2d4f:0713' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_ipv6()
+	 */
+	public function test_is_ipv6() : void {
+		$this->assertSame( true, U\Str::is_ipv6( '::1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_ipv6( '::ffff:2d4f:713' ), $this->message() );
+		$this->assertSame( true, U\Str::is_ipv6( '0:0:0:0:0:ffff:2d4f:0713' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_ipv6( '127.0.0.1' ), $this->message() );
+		$this->assertSame( false, U\Str::is_ipv6( '45.79.7.19' ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_name()
+	 */
+	public function test_is_name() : void {
+		$this->assertSame( true, U\Str::is_name( 'Acme' ), $this->message() );
+		$this->assertSame( true, U\Str::is_name( 'Acme™' ), $this->message() );
+		$this->assertSame( true, U\Str::is_name( 'John Smith' ), $this->message() );
+		$this->assertSame( true, U\Str::is_name( str_repeat( 'x', 128 ) ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_name( str_repeat( 'x', 129 ) ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_slug()
+	 */
+	public function test_is_slug() : void {
+		$this->assertSame( true, U\Str::is_slug( 'ac' ), $this->message() );
+		$this->assertSame( true, U\Str::is_slug( 'acme' ), $this->message() );
+		$this->assertSame( true, U\Str::is_slug( 'john-smith' ), $this->message() );
+		$this->assertSame( true, U\Str::is_slug( str_repeat( 'x', 128 ) ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_slug( 'a' ), $this->message() );
+		$this->assertSame( false, U\Str::is_slug( 'acme™' ), $this->message() );
+		$this->assertSame( false, U\Str::is_slug( 'john_smith' ), $this->message() );
+		$this->assertSame( false, U\Str::is_slug( str_repeat( 'x', 129 ) ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_var()
+	 */
+	public function test_is_var() : void {
+		$this->assertSame( true, U\Str::is_var( 'ac' ), $this->message() );
+		$this->assertSame( true, U\Str::is_var( 'acme' ), $this->message() );
+		$this->assertSame( true, U\Str::is_var( 'john_smith' ), $this->message() );
+		$this->assertSame( true, U\Str::is_var( str_repeat( 'x', 128 ) ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_var( 'a' ), $this->message() );
+		$this->assertSame( false, U\Str::is_var( 'acme™' ), $this->message() );
+		$this->assertSame( false, U\Str::is_var( 'john-smith' ), $this->message() );
+		$this->assertSame( false, U\Str::is_var( str_repeat( 'x', 129 ) ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_version()
+	 */
+	public function test_is_version() : void {
+		$this->assertSame( true, U\Str::is_version( '0' ), $this->message() );
+		$this->assertSame( true, U\Str::is_version( '0.0' ), $this->message() );
+		$this->assertSame( true, U\Str::is_version( '0.0.0' ), $this->message() );
+		$this->assertSame( true, U\Str::is_version( '1.0.0' ), $this->message() );
+		$this->assertSame( true, U\Str::is_version( '1.0.0.dev.1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_version( '1.0.0.alpha.1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_version( '1.0.0.beta.1' ), $this->message() );
+		$this->assertSame( true, U\Str::is_version( '1.0.0.rc.1' ), $this->message() );
+
+		$this->assertSame( false, U\Str::is_version( '.0' ), $this->message() );
+		$this->assertSame( false, U\Str::is_version( '.0.0' ), $this->message() );
+		$this->assertSame( false, U\Str::is_version( '1.0.0-dev.1' ), $this->message() );
+		$this->assertSame( false, U\Str::is_version( '1.0.0-alpha.1' ), $this->message() );
+		$this->assertSame( false, U\Str::is_version( '1.0.0.beta' ), $this->message() );
+		$this->assertSame( false, U\Str::is_version( '1.0.0.rc' ), $this->message() );
+	}
+
+	/**
 	 * @covers ::replace()
 	 */
 	public function test_replace() : void {
@@ -198,5 +552,26 @@ final class Str_Tests extends UT\A6t\Tests {
 		$this->assertSame( 'bar', $_m[ 0 ] ?? '', $this->message() );
 		$this->assertSame( '', $_m[ 1 ] ?? '', $this->message() );
 		$this->assertSame( 'bar', $_m[ 2 ] ?? '', $this->message() );
+	}
+
+	/**
+	 * @covers ::dump()
+	 * Needs further testing.
+	 */
+	public function test_dump() : void {
+		$this->assertSame( '(int) 0', U\Str::dump( 0, true ), $this->message() );
+		$this->assertSame( '(int) 1', U\Str::dump( 1, true ), $this->message() );
+
+		$this->assertSame( '(float) 0', U\Str::dump( 0.0, true ), $this->message() );
+		$this->assertSame( '(float) 1', U\Str::dump( 1.0, true ), $this->message() );
+
+		$this->assertSame( '(float) 0.1', U\Str::dump( 0.1, true ), $this->message() );
+		$this->assertSame( '(float) 1.1', U\Str::dump( 1.1, true ), $this->message() );
+
+		$this->assertSame( '(bool) true', U\Str::dump( true, true ), $this->message() );
+		$this->assertSame( '(bool) false', U\Str::dump( false, true ), $this->message() );
+
+		$this->assertSame( '(string) [3/3] ' . "'foo'", U\Str::dump( 'foo', true ), $this->message() );
+		$this->assertSame( '(string) [3/3] ' . "'bar'", U\Str::dump( 'bar', true ), $this->message() );
 	}
 }

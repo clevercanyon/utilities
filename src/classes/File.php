@@ -34,6 +34,13 @@ use Clever_Canyon\{Utilities as U};
  */
 final class File extends U\A6t\Stc_Utilities {
 	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\File\Members;
+
+	/**
 	 * Gets file extension.
 	 *
 	 * @since 2021-12-26
@@ -44,6 +51,107 @@ final class File extends U\A6t\Stc_Utilities {
 	 */
 	public static function ext( string $file ) : string {
 		return mb_strtolower( mb_substr( mb_strrchr( $file, '.' ) ?: '', 1 ) );
+	}
+
+	/**
+	 * Get a file's ext type; e.g., Image, Audio, Video, MS Office, etc.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $file    File path.
+	 * @param string $default Default ext. type, if unable to determine.
+	 *                        Default for this is: `File`.
+	 *
+	 * @return string File's ext type; e.g., Image, Audio, Video, MS Office, etc.
+	 */
+	public static function ext_type( string $file, string $default = 'File' ) : string {
+		$ext_type = $default;
+		$ext      = U\File::ext( $file );
+
+		foreach ( U\File::$mime_types as $_ext_type => $_mime_types ) {
+			foreach ( $_mime_types as $_exts => $_mime_type ) {
+				if ( in_array( $ext, explode( '|', $_exts ), true ) ) {
+					$ext_type = $_ext_type;
+					break 2; // Done.
+				}
+			}
+		}
+		return $ext_type;
+	}
+
+	/**
+	 * Gets a file's MIME type.
+	 *
+	 * @since 2022-01-19
+	 *
+	 * @param string      $file    File path.
+	 * @param string|null $default Default MIME type, if unable to determine.
+	 *                             Default for this is: `null`, indicating `application/octet-stream`.
+	 *
+	 * @return string MIME type; e.g., text/html, image/svg+xml, etc.
+	 */
+	public static function mime_type( string $file, /* string|null */ ?string $default = null ) : string {
+		$default   ??= 'application/octet-stream';
+		$mime_type = $default; // Maybe redefine below.
+		$ext       = U\File::ext( $file );
+
+		foreach ( U\File::$mime_types as $_mime_types ) {
+			foreach ( $_mime_types as $_exts => $_mime_type ) {
+				if ( in_array( $ext, explode( '|', $_exts ), true ) ) {
+					$mime_type = $_mime_type;
+					break 2; // Done.
+				}
+			}
+		}
+		return $mime_type;
+	}
+
+	/**
+	 * Gets a file's MIME type + charset, suitable for `content-type:` header.
+	 *
+	 * @since 2022-01-19
+	 *
+	 * @param string      $file    File path.
+	 * @param string|null $default {@see U\File::mime_type()} for details.
+	 *
+	 * @param string|null $charset Optional and specific charset code to use in a `content-type` header. Default is `null`.
+	 *                             If `null`, this is applied only to text/, +xml, JS/JSON, and a few other specifics,
+	 *                             using current environment charset code, as returned by {@see U\Env::charset()}.
+	 *
+	 *                             One should generally pass this explicitly based on what is being served to a user,
+	 *                             and based on the charset used by the file. The current charset may or may not be accurate.
+	 *
+	 *                             * To explicitly force no charset to be added, simply set this to an empty string.
+	 *
+	 * @return string MIME type + charset, suitable for `content-type:` header.
+	 */
+	public static function content_type(
+		string $file,
+		/* string|null */ ?string $default = null,
+		/* string|null */ ?string $charset = null
+	) : string {
+		$charset      ??= null; // See below.
+		$content_type = U\File::mime_type( $file, $default );
+
+		switch ( $content_type ) {
+			case ( isset( $charset ) ):
+				if ( '' !== $charset ) {
+					$content_type .= '; charset=' . $charset;
+				} // Empty string indicates no charset explicitly.
+				break; // Given explicitly.
+
+			case 'application/hta':
+			case 'application/xml-dtd':
+			case 'application/json':
+			case 'application/javascript':
+			case 'application/x-php-source':
+			case ( U\Str::begins_with( $content_type, 'text/' ) ):
+			case ( U\Str::ends_with( $content_type, '+xml' ) ):
+			case ( U\Str::ends_with( $content_type, '+json' ) ):
+				$content_type .= '; charset=' . U\Env::charset();
+				break; // Added automatically.
+		}
+		return $content_type;
 	}
 
 	/**
@@ -204,11 +312,11 @@ final class File extends U\A6t\Stc_Utilities {
 		if ( ! $bytes_abbr ) {
 			return 0; // Default value.
 		}
-		if ( ! preg_match( '/^([0-9\.]+)\s*(bytes|byte|b|kbs|kb|k|mb|m|gb|g|tb|t|pb|p)$/ui', $bytes_abbr, $_m ) ) {
+		if ( ! preg_match( '/^([0-9\.]+)\s*(bytes|byte|b|kbs|kb|k|mb|m|gb|g|tb|t|pb|p)?$/ui', $bytes_abbr, $_m ) ) {
 			return 0; // Default value.
 		}
 		$value    = (float) $_m[ 1 ];
-		$modifier = mb_strtolower( $_m[ 2 ] );
+		$modifier = mb_strtolower( $_m[ 2 ] ?? '' );
 
 		switch ( $modifier ) {
 			case 'p':

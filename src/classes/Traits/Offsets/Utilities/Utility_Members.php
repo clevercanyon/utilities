@@ -64,13 +64,13 @@ trait Utility_Members {
 			return (string) $offset;
 		}
 		if ( is_array( $offset ) ) {
-			return '#' . "\0" . 'arr:' . "\0" . U\Arr::hash( $offset );
+			return '#' . "\0" . 'array:' . "\0" . U\Arr::hash( $offset );
 		}
 		if ( is_object( $offset ) ) {
-			return '#' . "\0" . 'obj:' . "\0" . spl_object_id( $offset );
+			return '#' . "\0" . 'object:' . "\0" . spl_object_id( $offset );
 		}
 		if ( is_resource( $offset ) ) { // {@see get_resource_id()} is PHP 8+ only.
-			return '#' . "\0" . 'res:' . "\0" . ( function_exists( 'get_resource_id' ) ? get_resource_id( $offset ) : (string) $offset );
+			return '#' . "\0" . 'resource:' . "\0" . ( function_exists( 'get_resource_id' ) ? get_resource_id( $offset ) : (string) $offset );
 		}
 		throw new U\Fatal_Exception( 'Unexpected offset type: `' . gettype( $offset ) . '`.' );
 	}

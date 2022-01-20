@@ -55,7 +55,7 @@ trait Equals_Members {
 	 * @since 2021-12-27
 	 *
 	 * @return string String representation used for equality tests.
-	 *                {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Prop_Members::props()} for further details.
+	 *                {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Property_Members::props()} for further details.
 	 */
 	final public function to_eq_string() : string {
 		return U\Str::dump( $this, true, false );

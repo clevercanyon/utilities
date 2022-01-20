@@ -515,7 +515,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		$zip_basename = $this->project->slug . '-v' . $this->project->version . '.zip';
 		$zip_path     = U\Dir::join( $this->project->dir, '/._x/distro-zips/' . $zip_basename );
 
-		if ( ! U\Fs::zip( $distro_dir . '->' . $this->project->slug, $zip_path ) ) {
+		if ( ! U\Fs::zip_er( $distro_dir . '->' . $this->project->slug, $zip_path ) ) {
 			throw new U\Exception( 'Failed to zip: `' . $distro_dir . '->' . $this->project->slug . '`, to: `' . $zip_path . '`.' );
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Zipped: `' . $distro_dir . '`' . "\n" . ' →  `' . $zip_path . '`.' );

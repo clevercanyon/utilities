@@ -27,6 +27,7 @@
 	},
 	"suggest"           : {
 		"ext-zip"             : "*",
+		"ext-intl"            : "*",
 		"ulrichsg/getopt-php" : "^4.0"
 	},
 	"autoload"          : {

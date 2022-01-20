@@ -74,6 +74,18 @@ final class Env_Tests extends UT\A6t\Tests {
 	}
 
 	/**
+	 * @covers ::charset()
+	 * @covers ::is_charset_utf8()
+	 *
+	 * @note Can be tested with PHPUnit in other charsets by passing:
+	 *       e.g., `-d default_charset=iso-8859-1` to `phpunit` from command line.
+	 */
+	public function test_charset() : void {
+		$this->assertSame( true, ! empty( U\Env::charset() ), $this->message() );
+		$this->assertSame( 'utf-8' === U\Env::charset(), U\Env::is_charset_utf8(), $this->message() );
+	}
+
+	/**
 	 * @covers ::vars()
 	 */
 	public function test_vars() : void {

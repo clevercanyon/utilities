@@ -110,6 +110,63 @@ final class Env extends U\A6t\Stc_Utilities {
 	}
 
 	/**
+	 * Current charset is `utf-8`?
+	 *
+	 * @since 2022-01-20
+	 *
+	 * @return bool True if current charset is `utf-8`.
+	 */
+	public static function is_charset_utf8() : bool {
+		return 'utf-8' === U\Env::charset();
+	}
+
+	/**
+	 * Gets environment charset code.
+	 *
+	 * @since 2022-01-20
+	 *
+	 * @return string Current charset code.
+	 *
+	 * @see   https://o5p.me/kdiIi5
+	 * @see   https://www.php.net/manual/en/ini.core.php#ini.default-charset
+	 *
+	 * @note  In WordPress, {@see mb_internal_encoding()} is set to the `blog_charset` option value.
+	 *        That option value defaults to `utf-8`, but it could potentially be set to something other than `utf-8`.
+	 *
+	 * @note  WordPress doesn't alter `default_charset`. Rather, it takes the approach of using {@see mb_internal_encoding()}.
+	 *        Then it uses the `mb_*` functions w/o specifying a charset, since it has already defined an internal encoding.
+	 *
+	 * @note  In the case of {@see htmlentities()}, {@see htmlspecialchars()}, and {@see html_entity_decode()};
+	 *        WordPress passes the charset explictly. It has to, given that it doesn't modify the `default_charset` value.
+	 *
+	 * @note  Conclusions and guidance based on the above and other research:
+	 *
+	 *        - In a WordPress environment it is safe to use `mb_*` functions w/o explicitly defining a charset.
+	 *        - In a WordPress environment, {@see htmlentities()}, {@see htmlspecialchars()}, and {@see html_entity_decode()};
+	 *          must be explicitly told which charset to use for encoding, given that it doesn't modify the `default_charset` value.
+	 *            - WordPress does. This codebase must do the same!
+	 *
+	 *        - Outside of WordPress, PHP's default behavior is to use `default_charset` for all `mb_*` and `html*` functions.
+	 *          Thus, outside of WordPress it is generally safe to use `mb_*` and `html*` functions w/o explicitly defining a charset.
+	 *
+	 *        - If a charset is explicitly defined anywhere, it should be taken from the `blog_charset` option in a WordPress environment.
+	 *          Or, from some other application-level config. Otherwise, use `default_charset`, or whatever is required in a specific case.
+	 *
+	 *        - It is not safe to assume that `utf-8` is the charset this codebase is working in.
+	 *          If a string manipulation function must work with `utf-8`, or would like to inject `utf-8`,
+	 *          then it must first look at the current charset by reading this function's return value.
+	 */
+	public static function charset() : string {
+		$is_wordpress = U\Env::is_wordpress();
+
+		$charset = $is_wordpress ? get_option( 'blog_charset' ) : ini_get( 'default_charset' );
+		$charset = $is_wordpress && ( 'utf8' === $charset || 'UTF8' === $charset ) ? 'utf-8' : $charset;
+		$charset = mb_strtolower( (string) $charset ?: 'utf-8' );
+
+		return $charset;
+	}
+
+	/**
 	 * Gets environment variables.
 	 *
 	 * @since 2021-12-21
@@ -255,6 +312,45 @@ final class Env extends U\A6t\Stc_Utilities {
 	}
 
 	/**
+	 * Can use extension(s)?
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @param string ...$extensions Extension(s).
+	 *
+	 * @return bool True if all extensions are useable.
+	 *
+	 * @see   https://www.php.net/manual/en/extensions.membership.php
+	 * @see   https://www.php.net/manual/en/function.get-loaded-extensions.php
+	 */
+	public static function can_use_extension( string ...$extensions ) : bool {
+		if ( ! $extensions ) {
+			return true; // Nothing to check.
+		}
+		if ( null === ( $cache = &static::cache( __FUNCTION__ ) ) ) {
+			$cache                    = (object) [ 'can' => [] ];
+			$cache->loaded_extensions = array_merge( get_loaded_extensions( true ), get_loaded_extensions( false ) );
+			$cache->loaded_extensions = array_map( 'mb_strtolower', array_unique( $cache->loaded_extensions ) );
+		}
+		foreach ( array_map( 'mb_strtolower', $extensions ) as $_extension ) {
+			if ( ! $_extension ) {
+				continue; // Nothing to check.
+			}
+			if ( isset( $cache->can[ $_extension ] ) ) {
+				if ( false === $cache->can[ $_extension ] ) {
+					return $cache->can[ $_extension ];
+				}
+				continue; // Cached already.
+			}
+			if ( ! in_array( $_extension, $cache->loaded_extensions, true ) ) {
+				return $cache->can[ $_extension ] = false;
+			}
+			$cache->can[ $_extension ] = true;
+		}
+		return true;
+	}
+
+	/**
 	 * Can use class(es)?
 	 *
 	 * @since 2021-12-18
@@ -266,22 +362,23 @@ final class Env extends U\A6t\Stc_Utilities {
 	 * @see   https://www.php.net/manual/en/ini.core.php#ini.disable-classes
 	 */
 	public static function can_use_class( string ...$classes ) : bool {
+		if ( ! $classes ) {
+			return true; // Nothing to check.
+		}
 		if ( null === ( $cache = &static::cache( __FUNCTION__ ) ) ) {
 			$cache                  = (object) [ 'can' => [] ];
 			$cache->disable_classes = mb_strtolower( (string) ini_get( 'disable_classes' ) );
 			$cache->disable_classes = preg_split( '/[\s,]+/u', $cache->disable_classes, -1, PREG_SPLIT_NO_EMPTY );
 		}
-		$_classes = array_map( 'mb_strtolower', $classes );
-
-		foreach ( $_classes as $_class ) {
+		foreach ( array_map( 'mb_strtolower', $classes ) as $_class ) {
 			if ( ! $_class ) {
-				continue; // Empty.
+				continue; // Nothing to check.
 			}
 			if ( isset( $cache->can[ $_class ] ) ) {
 				if ( false === $cache->can[ $_class ] ) {
 					return $cache->can[ $_class ];
 				}
-				continue; // ↑ Cached already.
+				continue; // Cached already.
 			}
 			if ( ! class_exists( $_class ) || in_array( $_class, $cache->disable_classes, true ) ) {
 				return $cache->can[ $_class ] = false;
@@ -294,7 +391,7 @@ final class Env extends U\A6t\Stc_Utilities {
 					return $cache->can[ $_class ] = false;
 				}
 			}
-			$cache->can[ $_class ] = true; // ←↑ Adds to cache.
+			$cache->can[ $_class ] = true;
 		}
 		return true;
 	}
@@ -312,6 +409,9 @@ final class Env extends U\A6t\Stc_Utilities {
 	 * @see   https://php.watch/versions/8.0/disable_functions-redeclare
 	 */
 	public static function can_use_function( string ...$functions ) : bool {
+		if ( ! $functions ) {
+			return true; // Nothing to check.
+		}
 		if ( null === ( $cache = &static::cache( __FUNCTION__ ) ) ) {
 			$cache                    = (object) [ 'can' => [] ];
 			$cache->disable_functions = mb_strtolower( (string) ini_get( 'disable_functions' ) );
@@ -337,9 +437,7 @@ final class Env extends U\A6t\Stc_Utilities {
 				'unset',
 			];
 		}
-		$_functions = array_map( 'mb_strtolower', $functions );
-
-		foreach ( $_functions as $_function ) {
+		foreach ( array_map( 'mb_strtolower', $functions ) as $_function ) {
 			if ( ! $_function ) {
 				continue; // Nothing to check.
 			}
@@ -347,16 +445,16 @@ final class Env extends U\A6t\Stc_Utilities {
 				if ( false === $cache->can[ $_function ] ) {
 					return $cache->can[ $_function ];
 				}
-				continue; // ↑ Cached already.
+				continue; // Cached already.
 			}
 			if ( in_array( $_function, $cache->language_constructs, true ) ) {
-				$cache->can[ $_function ] = true; // ← Add to cache.
-				continue;                         // Always available.
+				$cache->can[ $_function ] = true;
+				continue; // Construct ok.
 			}
 			if ( ! function_exists( $_function ) || in_array( $_function, $cache->disable_functions, true ) ) {
 				return $cache->can[ $_function ] = false;
 			}
-			$cache->can[ $_function ] = true; // ←↑ Adds to cache.
+			$cache->can[ $_function ] = true;
 		}
 		return true;
 	}

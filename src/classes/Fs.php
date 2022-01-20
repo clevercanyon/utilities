@@ -682,7 +682,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 	}
 
 	/**
-	 * Zip one path into another path.
+	 * Zip one path into another path (`zip` extension required).
 	 *
 	 * @since        2021-12-15
 	 *
@@ -711,9 +711,10 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 * @throws U\Fatal_Exception If a circular symlink is detected, leading to an infinite loop.
 	 *
 	 * @return bool True if zipped successfully.
+	 *
 	 * @noinspection PhpComposerExtensionStubsInspection
 	 */
-	public static function zip(
+	public static function zip_er(
 		string $from_path,
 		string $to_path,
 		array $ignore = [],
@@ -729,13 +730,13 @@ final class Fs extends U\A6t\Stc_Utilities {
 
 		// Dependency check.
 
-		if ( ! $is_recursive && ! class_exists( 'ZipArchive' ) ) {
-			throw new U\Fatal_Exception( 'Missing PHP `ZipArchive` extension.' );
+		if ( ! $is_recursive && ! U\Env::can_use_extension( 'zip' ) ) {
+			throw new U\Fatal_Exception( 'Missing PHP `zip` extension.' );
 		}
 		// Recursive class initialization.
 
 		if ( ! $is_recursive ) {
-			$_r              = ( new class extends U\A6t\Generic {
+			$_r = ( new class extends U\A6t\Generic {
 				/**
 				 * Maybe close zip file.
 				 *
@@ -749,7 +750,8 @@ final class Fs extends U\A6t\Stc_Utilities {
 						|| $this->zip->close();
 				}
 			} );
-			$_r->cycle_stack = []; // Initialize.
+			// Initialize.
+			$_r->cycle_stack = [];
 		}
 		// `$from_path` validation.
 
@@ -920,7 +922,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 			$_from_path = U\Dir::join( $from_path, '/' . $_subpath );
 			$_to_path   = U\Dir::join( $to_path, '/' . $_subpath );
 
-			if ( ! U\Fs::zip( $_from_path, $_to_path, $ignore, $exceptions, $base_path, $follow_symlinks, $to_path_dir_perms, $_r ) ) {
+			if ( ! U\Fs::zip_er( $_from_path, $_to_path, $ignore, $exceptions, $base_path, $follow_symlinks, $to_path_dir_perms, $_r ) ) {
 				closedir( $_from_path_opendir );
 				$_r->maybe_close_zip( $is_recursive );
 				return false;
@@ -949,8 +951,9 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 * @note  This intentionally does not follow symlinks. It deletes them.
 	 *        A link is just a link. This does not recurse into symlinked directories.
 	 *
-	 * @todo  Review Windows compatibility with link deletion.
-	 *        {@see https://www.php.net/manual/en/function.unlink.php}.
+	 * @note  After reviewing PHP source code, confirming {@see unlink()} and {@see rmdir()}
+	 *        both fire {@see clearstatcache()} whenever a directory and/or file is deleted.
+	 *        So not necessary to do that here.
 	 */
 	public static function delete(
 		string $path,
@@ -997,17 +1000,19 @@ final class Fs extends U\A6t\Stc_Utilities {
 					return false; // Don't destroy the root of anything.
 				}
 			} // End `$wrappers` check from above.
-		} // ↑ With that done, let's get down to business.
+		}
+		// If it's not writable, and it's a link, then it's possibly a broken link.
+		// We skip over it here and instead let the next section handle link deletion.
 
-		if ( ! is_writable( $path ) ) {
-			if ( 'link' === $path_type && ! file_exists( $path ) ) {
-				return unlink( $path ); // Broken link; special case.
-			}
+		if ( ! is_writable( $path ) && 'link' !== $path_type ) {
 			return false; // Not possible.
 		}
 		// Link, file, and non-recursive directory deletion.
 
 		if ( ! $recursively || in_array( $path_type, [ 'link', 'file' ], true ) ) {
+			if ( 'link' === $path_type && U\Env::is_windows() ) {
+				return rmdir( $path ); // Link removal requires {@see rmdir()} on Windows.
+			}
 			return 'dir' === $path_type ? rmdir( $path ) : unlink( $path );
 		}
 		// Recursive directory deletion.

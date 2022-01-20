@@ -28,8 +28,9 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Fatal exception.
+ * Float utilities.
  *
  * @since 2021-12-15
  */
-final class Fatal_Exception extends U\A6t\Exception { }
+final class Flt extends U\A6t\Stc_Utilities {
+}
