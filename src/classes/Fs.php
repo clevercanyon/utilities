@@ -34,6 +34,13 @@ use Clever_Canyon\{Utilities as U};
  */
 final class Fs extends U\A6t\Stc_Utilities {
 	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\Fs\Utilities\Path_Wrapper_Properties;
+
+	/**
 	 * Resolves and normalizes path (symlinks *not* resolved).
 	 *
 	 * @since 2022-01-15
@@ -300,7 +307,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 		if ( empty( $_d[ 'bypass:normalize' ] ) ) {
 			$path = U\Fs::normalize( $path );
 		}
-		if ( preg_match( U\Con::PATH_WRAPPERS_REGEXP, $path, $_m ) ) {
+		if ( preg_match( U\Fs::$path_wrappers_regexp, $path, $_m ) ) {
 			return 'array' === $rtn_type ? U\Fs::split_wrappers( $_m[ 0 ] ) : $_m[ 0 ];
 		}
 		return 'array' === $rtn_type ? [] : '';
@@ -321,7 +328,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::split_wrappers()
 	 */
 	public static function split_wrappers( string $wrappers ) : array {
-		return preg_split( U\Con::PATH_WRAPPERS_SPLIT_REGEXP, $wrappers, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
+		return preg_split( U\Fs::$path_wrappers_split_regexp, $wrappers, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
 	}
 
 	/**

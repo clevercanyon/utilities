@@ -34,6 +34,34 @@ use Clever_Canyon\Utilities\Dev\{Utilities as D};
  */
 final class Fs {
 	/**
+	 * Matches path wrappers.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @see   D\Fs::wrappers()
+	 * @see   D\Fs::normalize()
+	 *
+	 * @see   https://regex101.com/r/elgxgZ/8
+	 * @see   D\Fs::$path_wrappers_split_regexp Same pattern, just prepared differently.
+	 * @see   \Clever_Canyon\Utilities\Fs::$path_wrappers_split_regexp
+	 */
+	protected static string $path_wrappers_regexp = '/^(?:(?:\/{2})|(?:(?:[a-z]{1}\:|[^\s\/:]{1,}\:[\/]{2}))+)/ui';
+
+	/**
+	 * Splits path wrappers.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @see   D\Fs::wrappers()
+	 * @see   D\Fs::normalize()
+	 *
+	 * @see   https://regex101.com/r/elgxgZ/8
+	 * @see   D\Fs::$path_wrappers_regexp Same pattern, just prepared differently.
+	 * @see   \Clever_Canyon\Utilities\Fs::$path_wrappers_regexp
+	 */
+	protected static string $path_wrappers_split_regexp = '/(\/{2}|[a-z]{1}\:|[^\s\/:]{1,}\:[\/]{2})/ui';
+
+	/**
 	 * Resolves and normalizes path (symlinks *not* resolved).
 	 *
 	 * @since  2022-01-15
@@ -296,7 +324,7 @@ final class Fs {
 		if ( empty( $_d[ 'bypass:normalize' ] ) ) {
 			$path = D\Fs::normalize( $path );
 		}
-		if ( preg_match( D\Con::PATH_WRAPPERS_REGEXP, $path, $_m ) ) {
+		if ( preg_match( D\Fs::$path_wrappers_regexp, $path, $_m ) ) {
 			return 'array' === $rtn_type ? D\Fs::split_wrappers( $_m[ 0 ] ) : $_m[ 0 ];
 		}
 		return 'array' === $rtn_type ? [] : '';
@@ -317,6 +345,6 @@ final class Fs {
 	 * @see   \Clever_Canyon\Utilities\Fs::split_wrappers()
 	 */
 	public static function split_wrappers( string $wrappers ) : array {
-		return preg_split( D\Con::PATH_WRAPPERS_SPLIT_REGEXP, $wrappers, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
+		return preg_split( D\Fs::$path_wrappers_split_regexp, $wrappers, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
 	}
 }
