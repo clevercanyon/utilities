@@ -159,14 +159,14 @@ final class File extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string $file        File path.
+	 * @param string $file        File path to make.
 	 *
 	 * @param array  $perms       Permissions. Default is `[ 0700, 0600 ]`.
 	 *                            Key `0` is for any directories, key `1` for the file.
 	 *
 	 * @param bool   $recursively Make directories recursively? Default is `true`.
 	 *
-	 * @return bool True if all directories and file created successfully.
+	 * @return bool True if all directories and file made successfully.
 	 */
 	public static function make( string $file, array $perms = [ 0700, 0600 ], bool $recursively = true ) : bool {
 		$dir   = U\Dir::name( $file );
@@ -175,21 +175,23 @@ final class File extends U\A6t\Stc_Utilities {
 		$perms[ 0 ] ??= 0700; // Directory permissions.
 		$perms[ 1 ] ??= 0600; // File permissions.
 
-		return ! file_exists( $file ) // Must not exist already.
-			&& ( ! is_link( $file ) || U\Fs::delete( $file ) ) // Deletes broken symlinks.
+		return '' !== $dir
+			&& '' !== $file
+			&& ! file_exists( $file )
+			&& ( ! is_link( $file ) || U\Fs::delete( $file ) )
 			&& ( is_dir( $dir ) || U\Dir::make( $dir, $perms[ 0 ], $recursively ) )
 			&& touch( $file )
 			&& chmod( $file, $perms[ 1 ] );
 	}
 
 	/**
-	 * Makes a temp file.
+	 * Makes a temporary file.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $ext         File extension. Defaults to ``.
+	 * @param string $ext         File extension. Default is ``.
 	 *
-	 * @param string $dir         Directory to create file in.
+	 * @param string $dir         Directory to make file in.
 	 *                            Defaults to {@see U\Dir::sys_temp()}.
 	 *
 	 * @param array  $perms       Permissions. Default is `[ 0700, 0600 ]`.
@@ -198,9 +200,30 @@ final class File extends U\A6t\Stc_Utilities {
 	 * @param bool   $recursively Make directories recursively? Default is `true`.
 	 *
 	 * @throws U\Fatal_Exception  On any failure.
-	 * @return string Absolute path to tempoary file.
+	 * @return string Absolute path to temporary file.
 	 */
 	public static function make_temp( string $ext = '', string $dir = '', array $perms = [ 0700, 0600 ], bool $recursively = true ) : string {
+		$file = U\File::make_unique_path( $ext, $dir );
+
+		if ( ! U\File::make( $file, $perms, $recursively ) ) {
+			throw new U\Fatal_Exception( 'Unable to create temp file: `' . $file . '`.' );
+		}
+		return $file;
+	}
+
+	/**
+	 * Makes a unique file path.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string $ext File extension. Default is ``.
+	 *
+	 * @param string $dir Directory to make unique path in.
+	 *                    Default is {@see U\Dir::sys_temp()}.
+	 *
+	 * @return string Absolute unique file path only; i.e., does not exist.
+	 */
+	public static function make_unique_path( string $ext = '', string $dir = '' ) : string {
 		$ext = trim( $ext, '.' );
 
 		$dir = $dir ?: U\Dir::sys_temp();
@@ -209,9 +232,6 @@ final class File extends U\A6t\Stc_Utilities {
 		$file = U\Dir::join( $dir, '/' . U\Crypto::uuid_v4() );
 		$file = '' !== $ext ? $file . '.' . $ext : $file;
 
-		if ( ! U\File::make( $file, $perms, $recursively ) ) {
-			throw new U\Fatal_Exception( 'Unable to create temp file: `' . $file . '`.' );
-		}
 		return $file;
 	}
 

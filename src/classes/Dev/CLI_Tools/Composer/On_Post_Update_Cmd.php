@@ -249,7 +249,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 					if ( ! U\Fs::delete( $_package_dir ) ) {
 						throw new U\Exception( 'Prior to symlink creation, failed to delete: `' . $_package_dir . '`.' );
 					}
-					if ( ! symlink( $_local_repo_dir, $_package_dir ) ) {
+					if ( ! U\Fs::make_link( $_local_repo_dir, $_package_dir ) ) {
 						throw new U\Exception( 'Failed to symlink: `' . $_package_dir . '`.' );
 					}
 					U\CLI::log( '[' . __FUNCTION__ . '()]: Symlinked: `' . $_package_dir . '`' . "\n" . ' →  `' . $_local_repo_dir . '`.' );

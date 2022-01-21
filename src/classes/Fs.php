@@ -356,7 +356,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 			return 'dir';
 		}
 		if ( is_file( $path ) ) {
-			return 'file';
+			return 'file'; // Possibly broken.
 		}
 		return ''; // Nonexistent path.
 	}
@@ -370,9 +370,9 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 *
 	 * @return string One of `dir`, `file`, `broken-link`, or `` (nonexistent).
 	 *
-	 * @note  The difference here is the order of the FS checks.
-	 *        Instead of checking for a link first, we attempt to resolve
-	 *        to `dir`, `file`, and then if it's a link, it's a `broken-link`.
+	 * @note  The difference here is the order of the filesystem checks.
+	 *        Instead of checking {@see is_link()} first, check if: {@see is_dir()} || {@see is_file()}.
+	 *        Then, in the case of it being a link, we know that it's actually a `broken-link`.
 	 */
 	public static function real_type( string $path ) : string {
 		if ( is_dir( $path ) ) {
@@ -382,7 +382,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 			return 'file';
 		}
 		if ( is_link( $path ) ) {
-			return 'broken-link';
+			return 'broken-link'; // Definitely broken.
 		}
 		return ''; // Nonexistent path.
 	}
@@ -416,12 +416,52 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 * @return bool True if filesystem path exists.
 	 *
 	 * @see   https://www.php.net/manual/en/function.file-exists.php
-	 * @note  A path is different from a file or directory in this context.
-	 *        {@see file_exists()} returns `false` for symlinks pointing to nonexistent paths.
+	 * @note  {@see file_exists()} returns `false` for symlinks pointing to nonexistent paths.
 	 *        This returns `true` if it exists in any way, even if it's a broken symlink.
+	 *
+	 * @note  On Windows, {@see file_exists()} returns true for symlinks pointing to nonexistent paths.
+	 *        This function returns consistently on Windows, but good to be aware of {@see file_exists()} behavior.
 	 */
 	public static function exists( string $path ) : bool {
 		return file_exists( $path ) || is_link( $path );
+	}
+
+	/**
+	 * Makes a symbolic link.
+	 *
+	 * @since 2022-01-21
+	 *
+	 * @param string $target_path Link target path.
+	 * @param string $link_path   Link path (symbolic).
+	 *
+	 * @param array  $perms       Permissions. Default is `[ 0700, 0600 ]`.
+	 *                            Key `0` is for any directories, key `1` for the link.
+	 *                            Permissions for the link are not applicable at this time.
+	 *
+	 * @param bool   $recursively Make directories recursively? Default is `true`.
+	 *
+	 * @return bool True if link created successfully.
+	 *
+	 * @note  On Windows and possibly other systems, it's not possible to create a link pointing to a
+	 *        symbolic and/or nonexitent path. That's the reason for {@see U\Fs::realize()} expansion below.
+	 */
+	public static function make_link( string $target_path, string $link_path, array $perms = [ 0700, 0600 ], bool $recursively = true ) : bool {
+		$link_path_dir    = U\Dir::name( $link_path );
+		$real_target_path = U\Fs::realize( $target_path );
+		$perms            = array_map( 'intval', $perms );
+
+		$perms[ 0 ] ??= 0700; // Directory permissions.
+		$perms[ 1 ] ??= 0600; // Link permissions (n/a at this time).
+
+		return '' !== $target_path
+			&& '' !== $real_target_path
+			&& '' !== $link_path
+			&& '' !== $link_path_dir
+			&& file_exists( $real_target_path )
+			&& ! file_exists( $link_path )
+			&& ( ! is_link( $link_path ) || U\Fs::delete( $link_path ) )
+			&& ( is_dir( $link_path_dir ) || U\Dir::make( $link_path_dir, $perms[ 0 ], $recursively ) )
+			&& symlink( $real_target_path, $link_path );
 	}
 
 	/**
@@ -583,7 +623,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 		// Link copy.
 
 		if ( 'link' === $from_path_type && ! $follow_symlinks ) {
-			return symlink( $real_from_path, $to_path );
+			return U\Fs::make_link( $real_from_path, $to_path );
 		}
 		// File copy.
 

@@ -202,6 +202,20 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Gets a temporary directory path.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return string Temporary directory path only; i.e., does not exist.
+	 */
+	protected function temp_dir_path() : string {
+		$dir               = U\Dir::make_unique_path();
+		$this->temp_dirs[] = $dir;
+
+		return $dir;
+	}
+
+	/**
 	 * Gets a temporary directory.
 	 *
 	 * @since 2021-12-15
@@ -257,37 +271,37 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 		$dir                   = $this->temp_dir( true, $population_multiplier );
 
 		for ( $_i = 1; $_i <= $population_multiplier; $_i++ ) {
-			symlink(
+			U\Fs::make_link(
 				U\Dir::join( $dir, '/dir-' . $_i ),
 				U\Dir::join( $dir, '/dir-' . $_i . '/cir-link-1up' )
 			);
-			symlink( $dir, U\Dir::join( $dir, '/dir-' . $_i . '/cir-link-2up' ) );
+			U\Fs::make_link( $dir, U\Dir::join( $dir, '/dir-' . $_i . '/cir-link-2up' ) );
 
 			for ( $__i = 1; $__i <= $population_multiplier; $__i++ ) {
-				symlink(
+				U\Fs::make_link(
 					U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i ),
 					U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/cir-link-1up' )
 				);
-				symlink(
+				U\Fs::make_link(
 					U\Dir::join( $dir, '/dir-' . $_i ),
 					U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/cir-link-2up' )
 				);
-				symlink( $dir, U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/cir-link-3up' ) );
+				U\Fs::make_link( $dir, U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/cir-link-3up' ) );
 
 				for ( $___i = 1; $___i <= $population_multiplier; $___i++ ) {
-					symlink(
+					U\Fs::make_link(
 						U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i ),
 						U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i . '/cir-link-1up' )
 					);
-					symlink(
+					U\Fs::make_link(
 						U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i ),
 						U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i . '/cir-link-2up' )
 					);
-					symlink(
+					U\Fs::make_link(
 						U\Dir::join( $dir, '/dir-' . $_i ),
 						U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i . '/cir-link-3up' )
 					);
-					symlink( $dir, U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i . '/cir-link-4up' ) );
+					U\Fs::make_link( $dir, U\Dir::join( $dir, '/dir-' . $_i . '/dir-' . $__i . '/dir-' . $___i . '/cir-link-4up' ) );
 				}
 			}
 		}
@@ -295,64 +309,79 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Gets a temp file.
+	 * Gets a temporary file path.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $ext File extension.
 	 * @param string $dir Directory. Defaults to {@see U\Dir::make_temp()}.
 	 *
-	 * @return string     Temp file path.
+	 * @return string Temporary file path only; i.e., does not exist.
 	 */
-	protected function temp_file( string $ext = 'tmp', string $dir = '' ) : string {
-		$file               = U\File::make_temp( 'file.' . $ext, $dir );
+	protected function temp_file_path( string $ext = 'tmp', string $dir = '' ) : string {
+		$file               = U\File::make_unique_path( $ext, $dir );
 		$this->temp_files[] = $file;
 
 		return $file;
 	}
 
 	/**
-	 * Gets a temp link.
+	 * Gets a temporary file.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $ext File extension.
 	 * @param string $dir Directory. Defaults to {@see U\Dir::make_temp()}.
 	 *
-	 * @return string     Temp link path.
+	 * @return string Temporary file path.
 	 */
-	protected function temp_link( string $ext = 'tmp', string $dir = '' ) : string {
-		$file               = U\File::make_temp( 'link-target.' . $ext, $dir );
+	protected function temp_file( string $ext = 'tmp', string $dir = '' ) : string {
+		$file               = U\File::make_temp( $ext, $dir );
 		$this->temp_files[] = $file;
 
-		$link               = U\File::make_temp( 'link.' . $ext, $dir );
+		return $file;
+	}
+
+	/**
+	 * Gets a temporary link.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string $ext File extension.
+	 * @param string $dir Directory. Defaults to {@see U\Dir::make_temp()}.
+	 *
+	 * @return string     Temporary link path.
+	 */
+	protected function temp_link( string $ext = 'tmp', string $dir = '' ) : string {
+		$file = U\File::make_temp( $ext, $dir );
+		$link = $this->temp_file_path( $ext, $dir );
+
+		$this->temp_files[] = $file;
 		$this->temp_links[] = $link;
 
-		U\Fs::delete( $link );
-		symlink( $file, $link );
+		U\Fs::make_link( $file, $link );
 
 		return $link;
 	}
 
 	/**
-	 * Gets a broken temp link.
+	 * Gets a broken temporary link.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $ext File extension.
 	 * @param string $dir Directory. Defaults to {@see U\Dir::make_temp()}.
 	 *
-	 * @return string     Temp broken link path.
+	 * @return string Temporary broken link path.
 	 */
 	protected function temp_broken_link( string $ext = 'tmp', string $dir = '' ) : string {
-		$file               = U\File::make_temp( 'broken-link-target.' . $ext, $dir );
-		$this->temp_files[] = $file;
+		$file = U\File::make_temp( $ext, $dir );
+		$link = $this->temp_file_path( $ext, $dir );
 
-		$link               = U\File::make_temp( 'broken-link.' . $ext, $dir );
+		$this->temp_files[] = $file;
 		$this->temp_links[] = $link;
 
-		U\Fs::delete( $link );
-		symlink( $file, $link );
+		U\Fs::make_link( $file, $link );
 		U\Fs::delete( $file );
 
 		return $link;

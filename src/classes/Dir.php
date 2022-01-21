@@ -157,26 +157,29 @@ final class Dir extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string $dir         Directory path.
+	 * @param string $dir         Directory path to make.
 	 * @param int    $perms       Permissions. Default is `0700`.
 	 * @param bool   $recursively Recursively? Default is `true`.
 	 *
-	 * @return bool True if all directories created successfully.
+	 * @return bool True if all directories made successfully.
 	 */
 	public static function make( string $dir, int $perms = 0700, bool $recursively = true ) : bool {
 		$dir = U\Fs::normalize( $dir );
 
-		return ! file_exists( $dir ) // Must not exist already.
-			&& ( ! is_link( $dir ) || U\Fs::delete( $dir ) ) // Deletes broken symlinks.
+		return '' !== $dir
+			&& ! file_exists( $dir )
+			&& ( ! is_link( $dir ) || U\Fs::delete( $dir ) )
 			&& mkdir( $dir, $perms, $recursively )
 			&& chmod( $dir, $perms );
 	}
 
 	/**
-	 * Makes a temp directory.
+	 * Makes a temporary directory.
 	 *
-	 * @param string $dir         Directory to create directory in.
-	 *                            Defaults to {@see U\Dir::sys_temp()}.
+	 * @since 2021-12-15
+	 *
+	 * @param string $dir         Directory to make temporary directory in.
+	 *                            Default is {@see U\Dir::sys_temp()}.
 	 *
 	 * @param int    $perms       Permissions. Default is `0700`.
 	 * @param bool   $recursively Recursively? Default is `true`.
@@ -185,8 +188,7 @@ final class Dir extends U\A6t\Stc_Utilities {
 	 * @return string Absolute path to temporary directory.
 	 */
 	public static function make_temp( string $dir = '', int $perms = 0700, bool $recursively = true ) : string {
-		$dir = $dir ?: U\Dir::sys_temp();
-		$dir = U\Dir::join( $dir, '/' . U\Crypto::uuid_v4() );
+		$dir = U\Dir::make_unique_path( $dir );
 
 		if ( ! U\Dir::make( $dir, $perms, $recursively ) ) {
 			throw new U\Fatal_Exception( 'Unable to create temp directory: `' . $dir . '`.' );
@@ -195,12 +197,31 @@ final class Dir extends U\A6t\Stc_Utilities {
 	}
 
 	/**
-	 * Gets system temp directory.
+	 * Makes a unique directory path.
 	 *
-	 * @throws U\Fatal_Exception On failure to locate temp dir.
-	 * @return string Absolute path to system temp directory.
+	 * @since 2021-12-15
 	 *
-	 * @see U\Env::var() When modifying this function.
+	 * @param string $dir Directory to make unique path in.
+	 *                    Default is {@see U\Dir::sys_temp()}.
+	 *
+	 * @return string Absolute unique directory path only; i.e., does not exist.
+	 */
+	public static function make_unique_path( string $dir = '' ) : string {
+		$dir = $dir ?: U\Dir::sys_temp();
+		$dir = U\Dir::join( $dir, '/' . U\Crypto::uuid_v4() );
+
+		return $dir;
+	}
+
+	/**
+	 * Gets a readable & writable temporary directory.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @throws U\Fatal_Exception On failure to locate temporary directory.
+	 * @return string Absolute path to a readable & writable temporary directory.
+	 *
+	 * @see   U\Env::var() When modifying this function.
 	 */
 	public static function sys_temp() : string {
 		if ( null !== ( $cache = &static::cache( __FUNCTION__ ) ) ) {
@@ -226,7 +247,9 @@ final class Dir extends U\A6t\Stc_Utilities {
 		foreach ( array_unique( $haystack ) as $_dir ) {
 			$_dir = U\Fs::realize( $_dir );
 
-			if ( ! $_dir || ! is_dir( $_dir ) || ! is_writable( $_dir ) ) {
+			if ( ! $_dir || ! is_dir( $_dir )
+				|| ! is_readable( $_dir )
+				|| ! is_writable( $_dir ) ) {
 				continue; // Not going to work.
 			}
 			$__dir = U\Dir::join( $_dir, '/clevercanyon/.tmp' );
@@ -275,10 +298,10 @@ final class Dir extends U\A6t\Stc_Utilities {
 		}
 		// `$path` validation.
 
-		$path      = U\Fs::normalize( $path );
-		$path_type = U\Fs::type( $path );
+		$path           = U\Fs::normalize( $path );
+		$path_real_type = U\Fs::real_type( $path );
 
-		if ( 'dir' !== $path_type ) {
+		if ( 'dir' !== $path_real_type ) {
 			return false; // Not possible.
 		}
 		if ( ! is_readable( $path ) ) {

@@ -390,6 +390,15 @@ final class Dir_Tests extends UT\A6t\Tests {
 	}
 
 	/**
+	 * @covers ::make_unique_path()
+	 */
+	public function test_make_unique_path() : void {
+		$temp_dir = $this->temp_dir();
+
+		$this->assertSame( true, ! empty( U\Dir::make_unique_path( $temp_dir ) ), $this->message() );
+	}
+
+	/**
 	 * @covers ::sys_temp()
 	 */
 	public function test_sys_temp() : void {

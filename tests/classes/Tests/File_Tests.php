@@ -170,4 +170,13 @@ final class File_Tests extends UT\A6t\Tests {
 
 		$this->assertSame( true, is_file( U\File::make_temp( 'foo', U\Dir::join( $temp_dir, '/foo/bar/baz' ) ) ), $this->message() );
 	}
+
+	/**
+	 * @covers ::make_unique_path()
+	 */
+	public function test_make_unique_path() : void {
+		$temp_dir = $this->temp_dir();
+
+		$this->assertSame( true, ! empty( U\File::make_unique_path( '', $temp_dir ) ), $this->message() );
+	}
 }

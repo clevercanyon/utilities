@@ -487,6 +487,15 @@ final class Fs_Tests extends UT\A6t\Tests {
 	}
 
 	/**
+	 * @covers ::make_link()
+	 */
+	public function test_make_link() : void {
+		$this->assertSame( true, U\Fs::make_link( $this->temp_dir(), $this->temp_dir_path() ), $this->message() );
+		$this->assertSame( true, U\Fs::make_link( $this->temp_dir( true ), $this->temp_dir_path() ), $this->message() );
+		$this->assertSame( true, U\Fs::make_link( $this->temp_file(), $this->temp_file_path() ), $this->message() );
+	}
+
+	/**
 	 * @covers ::copy()
 	 * @covers ::copy_dir_contents_helper()
 	 */
