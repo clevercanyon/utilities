@@ -1024,7 +1024,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 		$path_type      = U\Fs::type( $path );
 		$path_real_type = U\Fs::real_type( $path );
 
-		if ( ! $path || ! $path_type || ! $path_real_type ) {
+		if ( '' === $path || ! $path_type || ! $path_real_type ) {
 			return true; // No longer exists.
 		}
 		if ( ! $x_confirmation && '' === trim( $path, '/' ) ) {
@@ -1038,7 +1038,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 				'bypass:may_have_wrappers' => true,
 				'bypass:normalize'         => true,
 			] );
-			if ( $wrappers ) { // Let's take a closer look.
+			if ( $wrappers ) { // Take a closer look.
 				$wrappers         = mb_strtolower( $wrappers );
 				$path_no_wrappers = mb_substr( $path, mb_strlen( $wrappers ) );
 				$last_wrapper     = U\Arr::value_last( U\Fs::split_wrappers( $wrappers ) );
@@ -1064,12 +1064,12 @@ final class Fs extends U\A6t\Stc_Utilities {
 
 		if ( ! $recursively || in_array( $path_type, [ 'link', 'file' ], true ) ) {
 			if ( 'link' === $path_type && 'broken-link' === $path_real_type ) {
-				return @unlink( $path ); // phpcs:ignore -- in case it's not writable.
+				return @unlink( $path ) || ( U\Env::is_windows() && @rmdir( $path ) ); // phpcs:ignore.
 			}
 			if ( 'link' === $path_type && 'dir' === $path_real_type && U\Env::is_windows() ) {
 				return rmdir( $path ); // Directory links require {@see rmdir()} on Windows.
 			}
-			return 'dir' === $path_type ? @rmdir( $path ) : unlink( $path ); // phpcs:ignore -- in case not empty.
+			return 'dir' === $path_type ? @rmdir( $path ) : unlink( $path ); // phpcs:ignore.
 		}
 		// Recursive directory deletion.
 
