@@ -305,7 +305,7 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 * @return string     Temp file path.
 	 */
 	protected function temp_file( string $ext = 'tmp', string $dir = '' ) : string {
-		$file               = U\File::make_temp( $ext, $dir );
+		$file               = U\File::make_temp( 'file.' . $ext, $dir );
 		$this->temp_files[] = $file;
 
 		return $file;
@@ -322,10 +322,10 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 * @return string     Temp link path.
 	 */
 	protected function temp_link( string $ext = 'tmp', string $dir = '' ) : string {
-		$file               = U\File::make_temp( $ext, $dir );
+		$file               = U\File::make_temp( 'link-target.' . $ext, $dir );
 		$this->temp_files[] = $file;
 
-		$link               = U\File::make_temp( $ext, $dir );
+		$link               = U\File::make_temp( 'link.' . $ext, $dir );
 		$this->temp_links[] = $link;
 
 		U\Fs::delete( $link );
@@ -345,10 +345,10 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 * @return string     Temp broken link path.
 	 */
 	protected function temp_broken_link( string $ext = 'tmp', string $dir = '' ) : string {
-		$file               = U\File::make_temp( 'link-src-' . $ext, $dir );
+		$file               = U\File::make_temp( 'broken-link-target.' . $ext, $dir );
 		$this->temp_files[] = $file;
 
-		$link               = U\File::make_temp( 'link-' . $ext, $dir );
+		$link               = U\File::make_temp( 'broken-link.' . $ext, $dir );
 		$this->temp_links[] = $link;
 
 		U\Fs::delete( $link );
