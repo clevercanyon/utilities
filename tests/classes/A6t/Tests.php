@@ -352,7 +352,8 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 		$this->temp_links[] = $link;
 
 		U\Fs::delete( $link );
-		symlink( $file . '.x-nonexistent-file', $link );
+		symlink( $file, $link );
+		U\Fs::delete( $file );
 
 		return $link;
 	}
