@@ -475,6 +475,7 @@ final class Fs_Tests extends UT\A6t\Tests {
 	 */
 	public function test_perms() : void {
 		if ( U\Env::is_windows() ) { // Windows deals with permissions much differently.
+			// Can't really depend on specific permissions, but rather on read/write access.
 			$this->assertSame( '0777', U\Fs::perms( $this->temp_dir(), true ), $this->message() );
 			$this->assertSame( '0666', U\Fs::perms( $this->temp_file(), true ), $this->message() );
 			$this->assertSame( '0666', U\Fs::perms( $this->temp_link(), true ), $this->message() );
