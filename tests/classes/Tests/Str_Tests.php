@@ -114,8 +114,13 @@ final class Str_Tests extends UT\A6t\Tests {
 	 * @covers ::esc_shell_arg()
 	 */
 	public function test_esc_shell_arg() : void {
-		$this->assertSame( "'foo bar baz'\'''", U\Str::esc_shell_arg( 'foo bar baz\'' ), $this->message() );
-		$this->assertSame( "'foo bar \"baz\"'", U\Str::esc_shell_arg( 'foo bar "baz"' ), $this->message() );
+		if ( U\Env::is_windows() ) { // Windows uses double-quotes instead of single quotes.
+			$this->assertSame( '"foo bar baz\'"', U\Str::esc_shell_arg( 'foo bar baz\'' ), $this->message() );
+			$this->assertSame( '"foo bar \\"baz\\""', U\Str::esc_shell_arg( 'foo bar "baz"' ), $this->message() );
+		} elseif ( U\Env::is_unix_based() ) {
+			$this->assertSame( "'foo bar baz'\'''", U\Str::esc_shell_arg( 'foo bar baz\'' ), $this->message() );
+			$this->assertSame( "'foo bar \"baz\"'", U\Str::esc_shell_arg( 'foo bar "baz"' ), $this->message() );
+		}
 	}
 
 	/**
