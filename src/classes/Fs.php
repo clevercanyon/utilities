@@ -980,10 +980,11 @@ final class Fs extends U\A6t\Stc_Utilities {
 
 		// `$path` validation.
 
-		$path      = U\Fs::normalize( $path );
-		$path_type = U\Fs::type( $path );
+		$path           = U\Fs::normalize( $path );
+		$path_type      = U\Fs::type( $path );
+		$path_real_type = U\Fs::real_type( $path );
 
-		if ( ! $path || ! $path_type ) {
+		if ( ! $path || ! $path_type || ! $path_real_type ) {
 			return true; // No longer exists.
 		}
 		if ( ! $x_confirmation && '' === trim( $path, '/' ) ) {
@@ -1014,16 +1015,16 @@ final class Fs extends U\A6t\Stc_Utilities {
 			} // End `$wrappers` check from above.
 		}
 		// If it's not writable, and it's a link, then it's possibly a broken link.
-		// We skip over it here and instead let the next section handle link deletion.
+		// We skip over broken links and instead let the next section handle link deletion.
 
-		if ( ! is_writable( $path ) && 'link' !== $path_type ) {
+		if ( ! is_writable( $path ) && 'broken-link' !== $path_real_type ) {
 			return false; // Not possible.
 		}
-		// Link, file, and non-recursive directory deletion.
+		// Link, broken link, file, and non-recursive directory deletion.
 
 		if ( ! $recursively || in_array( $path_type, [ 'link', 'file' ], true ) ) {
-			if ( 'link' === $path_type && U\Env::is_windows() ) {
-				return rmdir( $path ); // Link removal requires {@see rmdir()} on Windows.
+			if ( 'link' === $path_type && 'dir' === $path_real_type && U\Env::is_windows() ) {
+				return rmdir( $path ); // Directory links require {@see rmdir()} on Windows.
 			}
 			return 'dir' === $path_type ? rmdir( $path ) : unlink( $path );
 		}
