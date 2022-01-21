@@ -1023,10 +1023,13 @@ final class Fs extends U\A6t\Stc_Utilities {
 		// Link, broken link, file, and non-recursive directory deletion.
 
 		if ( ! $recursively || in_array( $path_type, [ 'link', 'file' ], true ) ) {
+			if ( 'link' === $path_type && 'broken-link' === $path_real_type ) {
+				return @unlink( $path ); // phpcs:ignore -- in case it's not writable.
+			}
 			if ( 'link' === $path_type && 'dir' === $path_real_type && U\Env::is_windows() ) {
 				return rmdir( $path ); // Directory links require {@see rmdir()} on Windows.
 			}
-			return 'dir' === $path_type ? rmdir( $path ) : unlink( $path );
+			return 'dir' === $path_type ? @rmdir( $path ) : unlink( $path ); // phpcs:ignore -- in case not empty.
 		}
 		// Recursive directory deletion.
 
