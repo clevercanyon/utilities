@@ -474,9 +474,15 @@ final class Fs_Tests extends UT\A6t\Tests {
 	 * @covers ::perms()
 	 */
 	public function test_perms() : void {
-		$this->assertSame( '0700', U\Fs::perms( $this->temp_dir(), true ), $this->message() );
-		$this->assertSame( '0600', U\Fs::perms( $this->temp_file(), true ), $this->message() );
-		$this->assertSame( '0600', U\Fs::perms( $this->temp_link(), true ), $this->message() );
+		if ( U\Env::is_windows() ) { // Windows deals with permissions much differently.
+			$this->assertSame( '0777', U\Fs::perms( $this->temp_dir(), true ), $this->message() );
+			$this->assertSame( '0600', U\Fs::perms( $this->temp_file(), true ), $this->message() );
+			$this->assertSame( '0600', U\Fs::perms( $this->temp_link(), true ), $this->message() );
+		} elseif ( U\Env::is_unix_based() ) {
+			$this->assertSame( '0700', U\Fs::perms( $this->temp_dir(), true ), $this->message() );
+			$this->assertSame( '0600', U\Fs::perms( $this->temp_file(), true ), $this->message() );
+			$this->assertSame( '0600', U\Fs::perms( $this->temp_link(), true ), $this->message() );
+		}
 	}
 
 	/**
