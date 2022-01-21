@@ -438,14 +438,15 @@ final class Fs_Tests extends UT\A6t\Tests {
 
 	/**
 	 * @covers ::exists()
+	 * @covers ::really_exists()
 	 */
-	public function test_exists() : void {
+	public function test_exists_really_exists() : void {
 		$this->assertSame( true, U\Fs::exists( __DIR__ ), $this->message() );
 		$this->assertSame( true, U\Fs::exists( __FILE__ ), $this->message() );
 
 		$this->assertSame( true, U\Fs::exists( $this->temp_link() ), $this->message() );
-		$this->assertSame( true, ! file_exists( $this->temp_broken_link() ), $this->message() );
 		$this->assertSame( true, U\Fs::exists( $this->temp_broken_link() ), $this->message() );
+		$this->assertSame( true, ! U\Fs::really_exists( $this->temp_broken_link() ), $this->message() );
 	}
 
 	/**

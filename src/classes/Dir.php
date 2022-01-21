@@ -167,7 +167,7 @@ final class Dir extends U\A6t\Stc_Utilities {
 		$dir = U\Fs::normalize( $dir );
 
 		return '' !== $dir
-			&& ! file_exists( $dir )
+			&& ! U\Fs::really_exists( $dir )
 			&& ( ! is_link( $dir ) || U\Fs::delete( $dir ) )
 			&& mkdir( $dir, $perms, $recursively )
 			&& chmod( $dir, $perms );

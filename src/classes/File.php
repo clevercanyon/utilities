@@ -177,7 +177,7 @@ final class File extends U\A6t\Stc_Utilities {
 
 		return '' !== $dir
 			&& '' !== $file
-			&& ! file_exists( $file )
+			&& ! U\Fs::really_exists( $file )
 			&& ( ! is_link( $file ) || U\Fs::delete( $file ) )
 			&& ( is_dir( $dir ) || U\Dir::make( $dir, $perms[ 0 ], $recursively ) )
 			&& touch( $file )

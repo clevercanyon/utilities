@@ -523,19 +523,22 @@ final class Env extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string $type Optional debugging tool or framework.
-	 *                     e.g., `xdebug`. Default is `unknown`.
+	 * @param string|null $type Optional debugging tool or framework.
+	 *                          e.g., `xdebug`. Default is `null`, indicating `uknown`.
 	 *
 	 * @return bool True if debugging mode configured successfully.
 	 */
-	public static function config_debugging_mode( string $type = '' ) : bool {
+	public static function config_debugging_mode( /* string|null */ ?string $type = null ) : bool {
+		$type ??= 'unknown';
+		$type = $type ?: 'unknown';
+
 		if ( U\Env::is_wordpress() ) {
 			return U\Env::maybe_define( 'WP_DEBUG', true )
 				&& U\Env::maybe_define( 'WP_DEBUG_LOG', true )
 				&& U\Env::maybe_define( 'WP_DEBUG_DISPLAY', true )
 				&& false !== ini_set( 'zend.assertions', '1' )  // phpcs:ignore.
 				&& false !== ini_set( 'assert.exception', '1' ) // phpcs:ignore.
-				&& U\Env::static_var( 'DEBUGGING', $type ?: 'unknown' );
+				&& U\Env::static_var( 'DEBUGGING', $type );
 		} else {
 			error_reporting( E_ALL );
 
@@ -544,7 +547,7 @@ final class Env extends U\A6t\Stc_Utilities {
 
 			if ( is_dir( $php_errors_dir ) // Ideal location is possible?
 				&& (
-					is_writable( $php_errors_file )
+					( is_file( $php_errors_file ) && is_writable( $php_errors_file ) )
 					|| ( ! U\Fs::exists( $php_errors_file ) && is_writable( $php_errors_dir ) )
 				) ) {
 				$error_log = $php_errors_file; // Use ideal location.
@@ -556,7 +559,7 @@ final class Env extends U\A6t\Stc_Utilities {
 				&& false !== ini_set( 'display_errors', '1' )    // phpcs:ignore.
 				&& false !== ini_set( 'zend.assertions', '1' )   // phpcs:ignore.
 				&& false !== ini_set( 'assert.exception', '1' )  // phpcs:ignore.
-				&& U\Env::static_var( 'DEBUGGING', $type ?: 'unknown' );
+				&& U\Env::static_var( 'DEBUGGING', $type );
 		}
 	}
 
