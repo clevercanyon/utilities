@@ -75,12 +75,14 @@ final class Fs_Tests extends UT\A6t\Tests {
 	public function test_abs() : void {
 		$cwd_path = U\Env::var( 'CWD' );
 
-		if ( U\Env::is_unix_based() ) {
+		if ( U\Env::is_windows() ) {
 			foreach ( [
 				// Basics covered?
+				// Assumes running from `C:` drive.
 
 				[ U\Fs::normalize( __DIR__ ) => __DIR__ ],
 				[ U\Fs::normalize( __FILE__ ) => __FILE__ ],
+				[ U\Fs::normalize( $cwd_path . '/foo' ) => 'c:foo' ],
 				[ U\Fs::normalize( 'file://' . $cwd_path . '/foo' ) => 'file://foo' ],
 				[ U\Fs::normalize( $cwd_path . '/.x-nonexistent' ) => '.x-nonexistent' ],
 			] as $_assertion
@@ -90,13 +92,12 @@ final class Fs_Tests extends UT\A6t\Tests {
 
 				$this->assertSame( $_expecting, U\Fs::abs( $_path ), $this->message( $_expecting . '=>' . $_path ) );
 			}
-		} elseif ( U\Env::is_windows() ) {
+		} elseif ( U\Env::is_unix_based() ) {
 			foreach ( [
 				// Basics covered?
 
 				[ U\Fs::normalize( __DIR__ ) => __DIR__ ],
 				[ U\Fs::normalize( __FILE__ ) => __FILE__ ],
-				[ U\Fs::normalize( 'c:' . $cwd_path . '/foo' ) => 'c:foo' ],
 				[ U\Fs::normalize( 'file://' . $cwd_path . '/foo' ) => 'file://foo' ],
 				[ U\Fs::normalize( $cwd_path . '/.x-nonexistent' ) => '.x-nonexistent' ],
 			] as $_assertion
