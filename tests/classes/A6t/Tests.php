@@ -348,7 +348,7 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 		$file               = U\File::make_temp( $ext, $dir );
 		$this->temp_files[] = $file;
 
-		$link               = U\File::make_temp( $ext, $dir );
+		$link               = U\File::make_temp( 'link-' . $ext, $dir );
 		$this->temp_links[] = $link;
 
 		U\Fs::delete( $link );
