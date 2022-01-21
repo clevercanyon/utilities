@@ -162,6 +162,10 @@ final class Str extends U\A6t\Stc_Utilities {
 	 *
 	 * @throws U\Fatal_Exception If {@see escapeshellarg()} is not available.
 	 * @return string Escaped string. It's actually an escaped and `'single-quoted'` string.
+	 *
+	 * @note  On Windows, {@see escapeshellarg()} instead replaces percent signs, exclamation marks (delayed variable substitution)
+	 *        and double quotes with spaces; and adds double quotes around the string. Furthermore, each streak of
+	 *        consecutive backslashes (\) is escaped by one additional backslash.
 	 */
 	public static function esc_shell_arg( string $str ) : string {
 		if ( ! U\Env::can_use_function( 'escapeshellarg' ) ) {
