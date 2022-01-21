@@ -409,7 +409,7 @@ final class CLI extends U\A6t\Stc_Utilities {
 	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
 	 *
 	 * @throws U\Fatal_Exception If environment is lacking CLI functions.
-	 *                         On non-zero exit status code or other issue.
+	 *                           On non-zero exit status code or other issue.
 	 *
 	 * @return int Status code.
 	 */

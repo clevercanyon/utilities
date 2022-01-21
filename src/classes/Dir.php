@@ -146,7 +146,7 @@ final class Dir extends U\A6t\Stc_Utilities {
 		if ( 1 !== $_replacements && $throw_on_failure ) {
 			throw new U\Fatal_Exception( // Default behavior.
 				'Failed to formulate a subpath using base: `' . $base_path . '`' .
-				' against `' . $path . '`. Fatal exception; cannot safely continue.'
+				' against `' . $path . '`. Fatal exception; cannot continue safely.'
 			);
 		}
 		return 1 !== $_replacements ? false : trim( $subpath, '/' );
