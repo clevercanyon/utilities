@@ -178,17 +178,17 @@ final class Fs extends U\A6t\Stc_Utilities {
 			$_cwd_path_parts                 = explode( '/', '/' === $cwd_path ? $cwd_path : rtrim( $cwd_path, '/' ) );
 			$_have_compatible_cwd_path_parts = count( $_cwd_path_parts ) >= 2 && '' === $_cwd_path_parts[ 0 ];
 
-			$_no_wrappers_to_no_cwd_wrappers           = ! $wrappers && ! $cwd_wrappers;
-			$_last_wrapper_to_matching_cwd_wrappers    = $wrappers && $cwd_wrappers && $last_wrapper === $cwd_wrappers;
-			$_last_wrapper_file_to_no_cwd_wrappers     = $wrappers && 'file://' === $last_wrapper && ! $cwd_wrappers;
-			$_last_wrapper_file_to_compat_cwd_wrappers = $wrappers && 'file://' === $last_wrapper && $cwd_wrappers && preg_match( '/^(?:[a-z]{1}\:)$/ui', $cwd_wrappers );
-			$_no_wrappers_to_compat_cwd_wrappers       = ! $wrappers && $cwd_wrappers && preg_match( '/^(?:\/{2}|[a-z]{1}\:)$/ui', $cwd_wrappers );
+			$_no_wrappers_to_no_cwd_wrappers        = ! $wrappers && ! $cwd_wrappers;
+			$_last_wrapper_to_matching_cwd_wrappers = $wrappers && $cwd_wrappers && $last_wrapper === $cwd_wrappers;
+			$_last_wrapper_file_to_no_cwd_wrappers  = $wrappers && 'file://' === $last_wrapper && ! $cwd_wrappers;
+			$_last_wrapper_file_to_wdl_cwd_wrappers = $wrappers && 'file://' === $last_wrapper && $cwd_wrappers && preg_match( '/^(?:[a-z]{1}\:)$/ui', $cwd_wrappers );
+			$_no_wrappers_to_compat_cwd_wrappers    = ! $wrappers && $cwd_wrappers && preg_match( '/^(?:\/{2}|[a-z]{1}\:)$/ui', $cwd_wrappers );
 
 			$_have_compatible_wrappers_to_cwd_wrappers = // Any of the following scenarios are compatible.
 				$_no_wrappers_to_no_cwd_wrappers               // Don't need to worry about wrappers.
 				|| $_last_wrapper_to_matching_cwd_wrappers     // Use the already-compatible `$last_wrapper`.
 				|| $_last_wrapper_file_to_no_cwd_wrappers      // Use the already-compatible `$last_wrapper`.
-				|| $_last_wrapper_file_to_compat_cwd_wrappers  // Use the already-compatible `$last_wrapper` + CWD inner wrapper.
+				|| $_last_wrapper_file_to_wdl_cwd_wrappers  // Use `$last_wrapper` + CWD inner wrapper.
 				|| $_no_wrappers_to_compat_cwd_wrappers;       // Use `$cwd_wrappers` and renormalize.
 
 			if ( ! $_have_compatible_cwd_path_parts || ! $_have_compatible_wrappers_to_cwd_wrappers ) {
@@ -217,8 +217,8 @@ final class Fs extends U\A6t\Stc_Utilities {
 			}
 			$path = implode( '/', $_abs_path_parts ); // Absolute path now.
 
-			if ( $_last_wrapper_file_to_compat_cwd_wrappers ) { // Got new `$cwd_wrappers`, must renormalize.
-				return $cache = U\Fs::normalize( $wrappers . $cwd_wrappers . $path, array_intersect_key( $_d, [ 'append:trailing-slash' => 0 ] ) );
+			if ( $_last_wrapper_file_to_wdl_cwd_wrappers ) { // Got Windows drive-letter `$cwd_wrappers`, must renormalize.
+				return $cache = U\Fs::normalize( $wrappers . '/' . $cwd_wrappers . $path, array_intersect_key( $_d, [ 'append:trailing-slash' => 0 ] ) );
 			}
 			if ( $_no_wrappers_to_compat_cwd_wrappers ) { // Got new `$cwd_wrappers`, must renormalize.
 				return $cache = U\Fs::normalize( $cwd_wrappers . $path, array_intersect_key( $_d, [ 'append:trailing-slash' => 0 ] ) );

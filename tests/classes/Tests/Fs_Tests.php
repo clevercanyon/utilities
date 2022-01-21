@@ -83,7 +83,7 @@ final class Fs_Tests extends UT\A6t\Tests {
 				[ U\Fs::normalize( __DIR__ ) => __DIR__ ],
 				[ U\Fs::normalize( __FILE__ ) => __FILE__ ],
 				[ U\Fs::normalize( $cwd_path . '/foo' ) => 'c:foo' ],
-				[ U\Fs::normalize( 'file://' . $cwd_path . '/foo' ) => 'file://foo' ],
+				[ U\Fs::normalize( 'file:///' . $cwd_path . '/foo' ) => 'file://foo' ],
 				[ U\Fs::normalize( $cwd_path . '/.x-nonexistent' ) => '.x-nonexistent' ],
 			] as $_assertion
 			) {
