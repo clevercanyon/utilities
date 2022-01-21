@@ -345,7 +345,7 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 * @return string     Temp broken link path.
 	 */
 	protected function temp_broken_link( string $ext = 'tmp', string $dir = '' ) : string {
-		$file               = U\File::make_temp( $ext, $dir );
+		$file               = U\File::make_temp( 'link-src-' . $ext, $dir );
 		$this->temp_files[] = $file;
 
 		$link               = U\File::make_temp( 'link-' . $ext, $dir );
