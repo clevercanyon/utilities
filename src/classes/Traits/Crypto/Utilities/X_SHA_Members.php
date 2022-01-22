@@ -34,11 +34,32 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Crypto
  */
-trait Foo_Property {
+trait X_SHA_Members {
 	/**
-	 * Foo property.
+	 * Hash at requested length, always beginning with an `x`.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-05
+	 *
+	 * @param string $str    String to hash.
+	 * @param int    $length Length of the hash. Default is `12`.
+	 *                       Must be in the range of `2-129`. Shorter = more collisions.
+	 *
+	 * @return string Hash at requested length, always beginning with an `x`.
+	 *
+	 * @see   https://www.php.net/manual/en/function.hash.php#104987
 	 */
-	protected static string $foo = 'foo';
+	public static function x_sha( string $str, int $length = 12 ) : string {
+		$length = min( 129, max( 2, $length ) );
+
+		$algo = 'sha512'; // 128 bytes in length.
+		// Optimize for time based on length requirement.
+		if ( $length - 1 <= 40 ) {
+			$algo = 'sha1';
+		} elseif ( $length - 1 <= 64 ) {
+			$algo = 'sha256';
+		} elseif ( $length - 1 <= 96 ) {
+			$algo = 'sha384';
+		}
+		return 'x' . mb_substr( hash( $algo, $str ), 0, $length - 1 );
+	}
 }

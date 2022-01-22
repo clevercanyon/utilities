@@ -40,5 +40,7 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Crypto\Utilities\Foo_Property;
+	use U\Traits\Crypto\Utilities\X_SHA_Members;
+	use U\Traits\Crypto\Utilities\Keygen_Members;
+	use U\Traits\Crypto\Utilities\UUID_V4_Members;
 }
