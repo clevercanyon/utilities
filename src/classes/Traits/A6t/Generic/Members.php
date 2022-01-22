@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Generic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Generic;
 
 /**
  * Utilities.
@@ -40,7 +40,7 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Generic\Magic\Constructable_Members;
+	use U\Traits\A6t\Generic\Magic\Constructable_Members;
 	use U\Traits\A6t\Base\Magic\Readable_Members;
 	use U\Traits\A6t\Base\Magic\Writable_Members;
 	use U\Traits\A6t\Base\Magic\Callable_Members;

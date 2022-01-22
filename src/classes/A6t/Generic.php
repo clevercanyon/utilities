@@ -38,5 +38,5 @@ abstract class Generic extends U\A6t\Offsets implements U\I7e\Generic {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Generic\Members;
+	use U\Traits\A6t\Generic\Members;
 }
