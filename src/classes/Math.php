@@ -39,44 +39,4 @@ final class Math extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Math\Members;
-
-	/**
-	 * Calculates percentage change.
-	 *
-	 * @param int|float $from          Calculate from (i.e., value then).
-	 * @param int|float $to            Calculate to (i.e., the value now).
-	 * @param int       $precision     Defaults to `0`; i.e., no decimal place.
-	 * @param bool      $format_string If true, formatted as `+|-[percent]%`.
-	 *
-	 * @return int|float|string A float if `$precision` is passed, else an integer (default behavior).
-	 *                          If `$format_string`, converted to string format: `+|-[percent]%`.
-	 *
-	 * @see  https://o5p.me/NPtmpS
-	 * @note Relative Change = `(Final value – Initial value) / Initial value * 100`
-	 */
-	public static function percentage_change( float $from, float $to, int $precision = 0, bool $format_string = false ) /* : mixed */ {
-		if ( ! $from ) {
-			$from++;
-			$to++;
-		} // Stop division by `0`.
-
-		$precision  = max( 0, $precision );
-		$percentage = ( $to - $from ) / $from * 100;
-
-		if ( $precision ) {
-			$percentage = (float) number_format( $percentage, $precision, '.', '' );
-		} else {
-			$percentage = (int) $percentage;
-		}
-		if ( $format_string ) { // Format for humans.
-			if ( $percentage > 0 ) {
-				$percentage = '+' . $percentage . '%';
-			} elseif ( $percentage < 0 ) {
-				$percentage = $percentage . '%';
-			} else {
-				$percentage .= '%';
-			}
-		}
-		return $percentage;
-	}
 }

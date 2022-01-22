@@ -40,5 +40,5 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Math\Utilities\Foo_Property;
+	use U\Traits\Math\Utilities\Percentage_Change_Members;
 }
