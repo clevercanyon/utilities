@@ -42,9 +42,10 @@ trait Members {
 	 */
 	use U\Traits\A6t\Offsets\Magic\Constructable_Members;
 	use U\Traits\A6t\Offsets\Utilities\Property_Members;
-	use U\Traits\A6t\Offsets\Utilities\Utility_Members;
 
 	use U\Traits\A6t\Offsets\I7e\Countable_Members;
 	use U\Traits\A6t\Offsets\I7e\ArrayAccess_Members;
 	use U\Traits\A6t\Offsets\I7e\IteratorAggregate_Members;
+
+	use U\Traits\A6t\Offsets\Utilities\Utility_Members;
 }

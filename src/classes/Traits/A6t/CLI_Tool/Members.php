@@ -42,10 +42,13 @@ trait Members {
 	 */
 	use U\Traits\A6t\CLI_Tool\Magic\Constructable_Members;
 	use U\Traits\A6t\CLI_Tool\Utilities\Property_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Routing_Members;
+
 	use U\Traits\A6t\CLI_Tool\Utilities\Getter_Members;
 	use U\Traits\A6t\CLI_Tool\Utilities\Setter_Members;
+
 	use U\Traits\A6t\CLI_Tool\Utilities\Builder_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Validation_Members;
+	use U\Traits\A6t\CLI_Tool\Utilities\Routing_Members;
+
 	use U\Traits\A6t\CLI_Tool\Utilities\Utility_Members;
+	use U\Traits\A6t\CLI_Tool\Utilities\Validation_Members;
 }

@@ -42,7 +42,9 @@ trait Members {
 	 */
 	use U\Traits\A6t\Error\Magic\Constructable_Members;
 	use U\Traits\A6t\Error\Utilities\Property_Members;
+
 	use U\Traits\A6t\Error\Utilities\Getter_Members;
 	use U\Traits\A6t\Error\Utilities\Setter_Members;
+
 	use U\Traits\A6t\Error\Utilities\Utility_Members;
 }
