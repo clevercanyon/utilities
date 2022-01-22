@@ -40,5 +40,5 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\User\Utilities\Foo_Property;
+	use U\Traits\User\Utilities\IP_Members;
 }

@@ -34,11 +34,35 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Obj
  */
-trait Foo_Property {
+trait Get_Prop_Members {
 	/**
-	 * Foo property.
+	 * Property accessor, by path.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param object $obj       Object to query.
+	 * @param string $path      Path to query object for.
+	 * @param string $delimiter Delimiter used in path. Defaults to `.`.
+	 *
+	 * @return mixed Value, else `null` on failure to locate.
+	 *
+	 * @see   U\Ctn::get_prop_key()
 	 */
-	protected static string $foo = 'foo';
+	public static function get_prop( object $obj, string $path, string $delimiter = '.' ) /* : mixed */ {
+		if ( '' === $path || '' === $delimiter ) {
+			return null; // Not possible.
+		}
+		return array_reduce( explode( $delimiter, $path ), function ( $ctn, $var ) {
+			$is_object_ctn = is_object( $ctn );
+			$is_array_ctn  = ! $is_object_ctn && is_array( $ctn );
+
+			if ( $is_object_ctn && isset( $ctn->{$var} ) ) {
+				return $ctn->{$var};
+			} elseif ( $is_array_ctn && isset( $ctn[ $var ] ) ) {
+				return $ctn[ $var ];
+			} else {
+				return null;
+			}
+		}, $obj );
+	}
 }

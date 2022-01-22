@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\User\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Obj\Utilities;
 
 /**
  * Utilities.
@@ -32,13 +32,19 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\User
+ * @see   U\Obj
  */
-trait Foo_Property {
+trait Conditional_Members {
 	/**
-	 * Foo property.
+	 * Object is empty?
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-16
+	 *
+	 * @param object $obj Value to check.
+	 *
+	 * @return bool True if object is empty.
 	 */
-	protected static string $foo = 'foo';
+	public static function empty( object $obj ) : bool {
+		return empty( U\Obj::props( $obj ) );
+	}
 }
