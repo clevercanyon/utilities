@@ -34,6 +34,13 @@ use Clever_Canyon\{Utilities as U};
  */
 final class Arr extends U\A6t\Stc_Utilities {
 	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\Arr\Members;
+
+	/**
 	 * Gets first value from array.
 	 *
 	 * @since 2021-12-23

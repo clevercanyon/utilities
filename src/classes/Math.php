@@ -34,6 +34,13 @@ use Clever_Canyon\{Utilities as U};
  */
 final class Math extends U\A6t\Stc_Utilities {
 	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\Math\Members;
+
+	/**
 	 * Calculates percentage change.
 	 *
 	 * @param int|float $from          Calculate from (i.e., value then).

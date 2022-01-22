@@ -34,6 +34,13 @@ use Clever_Canyon\{Utilities as U};
  */
 final class Crypto extends U\A6t\Stc_Utilities {
 	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\Crypto\Members;
+
+	/**
 	 * Hash at requested length, always beginning with an `x`.
 	 *
 	 * @since 2022-01-05

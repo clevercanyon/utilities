@@ -180,6 +180,27 @@ final class Str_Tests extends UT\A6t\Tests {
 	}
 
 	/**
+	 * @covers ::normalize_ip()
+	 */
+	public function test_normalize_ip() : void {
+		$this->assertSame( '104.21.93.186', U\Str::normalize_ip( '104.21.93.186' ), $this->message() );
+		$this->assertSame( '::ffff:104.21.93.186', U\Str::normalize_ip( '::ffff:6815:5dba' ), $this->message() );
+		$this->assertSame( '::ffff:104.21.93.186', U\Str::normalize_ip( '0:0:0:0:0:ffff:6815:5dba' ), $this->message() );
+		$this->assertSame( '::ffff:104.21.93.186', U\Str::normalize_ip( '0000:0000:0000:0000:0000:ffff:6815:5dba' ), $this->message() );
+
+		$this->assertSame( '172.67.213.254', U\Str::normalize_ip( '172.67.213.254' ), $this->message() );
+		$this->assertSame( '::ffff:172.67.213.254', U\Str::normalize_ip( '::ffff:ac43:d5fe' ), $this->message() );
+		$this->assertSame( '::ffff:172.67.213.254', U\Str::normalize_ip( '0:0:0:0:0:ffff:ac43:d5fe' ), $this->message() );
+		$this->assertSame( '::ffff:172.67.213.254', U\Str::normalize_ip( '0000:0000:0000:0000:0000:ffff:ac43:d5fe' ), $this->message() );
+
+		$this->assertSame( '::1', U\Str::normalize_ip( '::1' ), $this->message() );
+		$this->assertSame( '127.0.0.1', U\Str::normalize_ip( '127.0.0.1' ), $this->message() );
+		$this->assertSame( '::ffff:127.0.0.1', U\Str::normalize_ip( '::ffff:7f00:0001' ), $this->message() );
+		$this->assertSame( '::ffff:127.0.0.1', U\Str::normalize_ip( '0:0:0:0:0:ffff:7f00:0001' ), $this->message() );
+		$this->assertSame( '::ffff:127.0.0.1', U\Str::normalize_ip( '0000:0000:0000:0000:0000:ffff:7f00:0001' ), $this->message() );
+	}
+
+	/**
 	 * @covers ::normalize_eols()
 	 */
 	public function test_normalize_eols() : void {

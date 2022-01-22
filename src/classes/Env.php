@@ -34,6 +34,13 @@ use Clever_Canyon\{Utilities as U};
  */
 final class Env extends U\A6t\Stc_Utilities {
 	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\Env\Members;
+
+	/**
 	 * Static vars.
 	 *
 	 * @since 2022-01-16
@@ -254,6 +261,12 @@ final class Env extends U\A6t\Stc_Utilities {
 				$value = $value ?: getenv( $var ) // POSIX: Unix/Linux, macOS, Windows.
 					?: getenv( 'TEMP' ) ?: getenv( 'TMP' ); // Unix/Linux, macOS.
 				$value = U\Fs::normalize( (string) $value, [ 'cache' => [ __METHOD__, $var ] ] );
+				break;
+
+			case 'REMOTE_ADDR': // Remote IP address.
+				// {@see https://o5p.me/VfrDPz} for details.
+				$value = ! empty( $_d[ 'bypass:U\\User::ip' ] ) ? '' : U\User::ip();
+				$value = mb_strtolower( $value ?: getenv( $var ) );
 				break;
 
 			case 'PHP_SELF': // ↓ Normalize.

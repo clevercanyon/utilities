@@ -11,12 +11,22 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-15
+ *
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpStaticAsDynamicMethodCallInspection
+ * phpcs:disable Generic.Commenting.DocComment.MissingShort
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities__Tests\Tests;
 
 /**
  * Utilities.
@@ -24,61 +34,21 @@ namespace Clever_Canyon\Utilities;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
+use Clever_Canyon\{Utilities__Tests as UT};
 
 // </editor-fold>
 
 /**
- * Callback utilities.
+ * Test case.
  *
  * @since 2021-12-15
+ * @coversDefaultClass \Clever_Canyon\Utilities\Flt
  */
-final class Cb extends U\A6t\Stc_Utilities {
+final class Flt_Tests extends UT\A6t\Tests {
 	/**
-	 * Traits.
-	 *
-	 * @since 2021-12-15
+	 * // @covers ::foo()
 	 */
-	use U\Traits\Cb\Members;
-
-	/**
-	 * Returns nothing.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return void Nothing.
-	 */
-	public static function noop() : void {}
-
-	/**
-	 * Returns `null`.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return null Null.
-	 */
-	public static function noop_null() /* : null */ {
-		return null;
-	}
-
-	/**
-	 * Returns `true`.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return bool True.
-	 */
-	public static function noop_true() : bool {
-		return true;
-	}
-
-	/**
-	 * Returns `false`.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return bool False.
-	 */
-	public static function noop_false() : bool {
-		return false;
+	public function test_foo() : void {
+		$this->assertSame( '', '', $this->message() );
 	}
 }

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Crypto;
 
 /**
  * Utilities.
@@ -28,57 +28,17 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Callback utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Crypto
  */
-final class Cb extends U\A6t\Stc_Utilities {
+trait Members {
 	/**
 	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Cb\Members;
-
-	/**
-	 * Returns nothing.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return void Nothing.
-	 */
-	public static function noop() : void {}
-
-	/**
-	 * Returns `null`.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return null Null.
-	 */
-	public static function noop_null() /* : null */ {
-		return null;
-	}
-
-	/**
-	 * Returns `true`.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return bool True.
-	 */
-	public static function noop_true() : bool {
-		return true;
-	}
-
-	/**
-	 * Returns `false`.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return bool False.
-	 */
-	public static function noop_false() : bool {
-		return false;
-	}
+	use U\Traits\Crypto\Utilities\Foo_Property;
 }

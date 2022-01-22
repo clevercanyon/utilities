@@ -34,6 +34,13 @@ use Clever_Canyon\{Utilities as U};
  */
 final class Obj extends U\A6t\Stc_Utilities {
 	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\Obj\Members;
+
+	/**
 	 * Object is empty?
 	 *
 	 * @since 2021-12-16

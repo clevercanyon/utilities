@@ -259,6 +259,26 @@ final class Str extends U\A6t\Stc_Utilities {
 	}
 
 	/**
+	 * Normalizes IPv4 and IPv6 addresses.
+	 *
+	 * @since 2022-01-21
+	 *
+	 * @param string $ip IPv4 or IPv6 address.
+	 *
+	 * @return string Normalized IPv4 or IPv6 address.
+	 */
+	public static function normalize_ip( string $ip ) : string {
+		if ( '' === $ip ) {
+			return ''; // Nothing.
+		}
+		$bin = inet_pton( $ip );
+		$ip  = false !== $bin ? inet_ntop( $bin ) : '';
+		$ip  = '' !== $ip ? mb_strtolower( $ip ) : '';
+
+		return $ip;
+	}
+
+	/**
 	 * Normalizes line breaks.
 	 *
 	 * @since 2022-01-08
@@ -352,7 +372,7 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @note  Max overall length is 253 bytes, not counting final `.`, which is optional.
 	 */
 	public static function is_hostname( string $str ) : bool {
-		return is_string( filter_var( $str, FILTER_VALIDATE_DOMAIN, [ 'flags' => FILTER_FLAG_HOSTNAME ] ) );
+		return false !== filter_var( $str, FILTER_VALIDATE_DOMAIN, [ 'flags' => FILTER_FLAG_HOSTNAME ] );
 	}
 
 	/**
@@ -372,7 +392,7 @@ final class Str extends U\A6t\Stc_Utilities {
 	 *        e.g., `mailto:`, `news:`, `file:`.
 	 */
 	public static function is_url( string $str ) : bool {
-		return is_string( filter_var( $str, FILTER_VALIDATE_URL ) );
+		return false !== filter_var( $str, FILTER_VALIDATE_URL );
 	}
 
 	/**
@@ -392,7 +412,7 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @note  Query string must come before an optional `#fragment`.
 	 */
 	public static function is_url_query( string $str ) : bool {
-		return is_string( filter_var( $str, FILTER_VALIDATE_URL, [ 'flags' => FILTER_FLAG_QUERY_REQUIRED ] ) );
+		return false !== filter_var( $str, FILTER_VALIDATE_URL, [ 'flags' => FILTER_FLAG_QUERY_REQUIRED ] );
 	}
 
 	/**
@@ -412,7 +432,7 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @note  A user@local address is not allowed by this validator.
 	 */
 	public static function is_email( string $str ) : bool {
-		return is_string( filter_var( $str, FILTER_VALIDATE_EMAIL, [ 'flags' => FILTER_FLAG_EMAIL_UNICODE ] ) );
+		return false !== filter_var( $str, FILTER_VALIDATE_EMAIL, [ 'flags' => FILTER_FLAG_EMAIL_UNICODE ] );
 	}
 
 	/**
@@ -429,7 +449,7 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @note  See also the tests for function.
 	 */
 	public static function is_mac( string $str ) : bool {
-		return is_string( filter_var( $str, FILTER_VALIDATE_MAC ) );
+		return false !== filter_var( $str, FILTER_VALIDATE_MAC );
 	}
 
 	/**
@@ -446,7 +466,7 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @note  See also the tests for function.
 	 */
 	public static function is_ip( string $str ) : bool {
-		return is_string( filter_var( $str, FILTER_VALIDATE_IP ) );
+		return false !== filter_var( $str, FILTER_VALIDATE_IP );
 	}
 
 	/**
@@ -462,7 +482,7 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @note  See also the tests for function.
 	 */
 	public static function is_ipv4( string $str ) : bool {
-		return is_string( filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_IPV4 ] ) );
+		return false !== filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_IPV4 ] );
 	}
 
 	/**
@@ -478,7 +498,73 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @note  See also the tests for function.
 	 */
 	public static function is_ipv6( string $str ) : bool {
-		return is_string( filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_IPV6 ] ) );
+		return false !== filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_IPV6 ] );
+	}
+
+	/**
+	 * Checks public IP address validity.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid public IP address.
+	 *
+	 * @see   https://o5p.me/9JSgKk
+	 * @note  See also the tests for function.
+	 */
+	public static function is_public_ip( string $str ) : bool {
+		return false !== filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_NO_PRIV_RANGE ] );
+	}
+
+	/**
+	 * Checks user/public IP address validity.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid user/public IP address.
+	 *
+	 * @see   https://o5p.me/9JSgKk
+	 * @note  See also the tests for function.
+	 */
+	public static function is_user_public_ip( string $str ) : bool {
+		return false !== filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ] );
+	}
+
+	/**
+	 * Checks private IP address validity.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid private IP address.
+	 *
+	 * @see   https://o5p.me/9JSgKk
+	 * @note  See also the tests for function.
+	 */
+	public static function is_private_ip( string $str ) : bool {
+		return false !== filter_var( $str, FILTER_VALIDATE_IP )
+			&& false === filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_NO_PRIV_RANGE ] );
+	}
+
+	/**
+	 * Checks reserved IP address validity.
+	 *
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid reserved IP address.
+	 *
+	 * @see   https://o5p.me/9JSgKk
+	 * @note  See also the tests for function.
+	 */
+	public static function is_reserved_ip( string $str ) : bool {
+		return false !== filter_var( $str, FILTER_VALIDATE_IP )
+			&& false === filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_NO_RES_RANGE ] );
 	}
 
 	/**

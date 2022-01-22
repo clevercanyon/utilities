@@ -84,6 +84,23 @@ trait Utility_Members {
 	}
 
 	/**
+	 * Checks if a value is an error.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param mixed $value  Value to check.
+	 * @param bool  $strict Default is `false`, which checks for compatible error variants.
+	 *                      The default behavior (i.e., not strict) is to consider {@see \WP_Error} an error also.
+	 *                      If `true`, error must be an instance of {@see U\I7e\Error}, without exception.
+	 *
+	 * @return bool True if it's an error.
+	 */
+	public static function is( /* mixed */ $value, bool $strict = false ) : bool {
+		return $value instanceof U\I7e\Error
+			|| ( U\Env::is_wordpress() && $value instanceof \WP_Error );
+	}
+
+	/**
 	 * Copies errors from one error instance to another error instance.
 	 *
 	 * @since 2021-12-15

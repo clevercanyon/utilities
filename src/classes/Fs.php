@@ -38,7 +38,7 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Fs\Utilities\Path_Wrapper_Properties;
+	use U\Traits\Fs\Members;
 
 	/**
 	 * Resolves and normalizes path (symlinks *not* resolved).

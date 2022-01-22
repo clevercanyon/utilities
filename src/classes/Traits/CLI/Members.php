@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\CLI;
 
 /**
  * Utilities.
@@ -28,22 +28,17 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Error utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\CLI
  */
-final class Err extends U\A6t\Stc_Utilities {
+trait Members {
 	/**
-	 * Checks if a value is an error.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
-	 *
-	 * @param mixed $value Value to check.
-	 *
-	 * @return bool True if it's an error.
 	 */
-	public static function is( /* mixed */ $value ) : bool {
-		return $value instanceof Error
-			|| ( U\Env::is_wordpress() && $value instanceof \WP_Error );
-	}
+	use U\Traits\CLI\Utilities\Foo_Property;
 }

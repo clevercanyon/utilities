@@ -34,6 +34,13 @@ use Clever_Canyon\{Utilities as U};
  */
 final class Dir extends U\A6t\Stc_Utilities {
 	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\Dir\Members;
+
+	/**
 	 * Joins paths.
 	 *
 	 * @since 2021-12-19
