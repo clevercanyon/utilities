@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic;
 
 /**
  * Utilities.
@@ -34,33 +34,23 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Unreadable_Members {
+trait Uncallable_Members {
 	/**
-	 * Tests inaccessible properties.
+	 * Invokes inaccessible methods.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $prop Property name.
-	 *
-	 * @return bool True if property exists.
-	 */
-	public function __isset( string $prop ) : bool {
-		return false; // Inaccessible.
-	}
-
-	/**
-	 * Gets inaccessible properties.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param string $prop Property name.
+	 * @param string $method Method name.
+	 * @param array  $args   Invocation args.
 	 *
 	 * @throws U\Fatal_Exception If called in any way.
-	 * @return mixed Property value.
+	 * @return mixed Invocation's return value.
+	 *
+	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */
-	public function __get( string $prop ) /* : mixed */ {
+	public function __call( string $method, array $args ) /* : mixed */ {
 		throw new U\Fatal_Exception(
-			'Any attempt to read inaccessible properties of `' . get_class( $this ) . '`' .
+			'Any attempt to invoke inaccessible methods|properties of `' . get_class( $this ) . '`' .
 			' is potentially dangerous and therefore not allowed at this time.'
 		);
 	}

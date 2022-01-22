@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Utilities;
 
 /**
  * Utilities.
@@ -34,24 +34,30 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Uninvokable_Members {
+trait Equals_Members {
 	/**
-	 * Handles class invocation.
+	 * Checks equality with another instance.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-27
 	 *
-	 * @param array ...$args Invocation args.
+	 * @param U\I7e\Base $other Instance to compare `$this` to.
 	 *
-	 * @throws U\Fatal_Exception If called in any way.
-	 * @return mixed Invocation's return value.
-	 *
-	 * @note  This function is called when invoking an object as a function.
-	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.invoke
+	 * @return bool True if objects are practically equal to each other,
+	 *              based on return value of {@see U\Traits\A6t\Base\Utilities\Equals_Members::to_eq_string()}.
 	 */
-	public function __invoke( ...$args ) /* : mixed */ {
-		throw new U\Fatal_Exception(
-			'Any attempt to invoke `' . get_class( $this ) . '`' .
-			' is currently unsupported and therefore not allowed at this time.'
-		);
+	final public function equals( U\I7e\Base $other ) : bool {
+		return $this->to_eq_string() === $other->to_eq_string();
+	}
+
+	/**
+	 * Defines string representation used for equality tests.
+	 *
+	 * @since 2021-12-27
+	 *
+	 * @return string String representation used for equality tests.
+	 *                {@see U\Traits\A6t\Base\Utilities\Property_Members::props()} for further details.
+	 */
+	final public function to_eq_string() : string {
+		return U\Str::dump( $this, true, false );
 	}
 }

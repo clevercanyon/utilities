@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic;
 
 /**
  * Utilities.
@@ -34,28 +34,17 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Members {
+trait Debuggable_Members {
 	/**
-	 * Traits.
+	 * Tells {@see var_dump()} what to show.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-27
+	 *
+	 * @return array {@see U\Traits\A6t\Base\Utilities\Property_Members::props()} for further details.
+	 *
+	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.debuginfo
 	 */
-	use U\Traits\Stc_Base\Members;
-
-	use U\Traits\Base\Magic\Constructable_Members;
-	use U\Traits\Base\Magic\Destructable_Members;
-
-	use U\Traits\Base\Magic\Cloneable_Members;
-	use U\Traits\Base\Magic\Debuggable_Members;
-	use U\Traits\Base\Magic\Stringable_Members;
-	use U\Traits\Base\Magic\Unreadable_Members;
-	use U\Traits\Base\Magic\Unwritable_Members;
-	use U\Traits\Base\Magic\Uncallable_Members;
-	use U\Traits\Base\Magic\Uninvokable_Members;
-	use U\Traits\Base\Magic\Unserializable_Members;
-	use U\Traits\Base\I7e\JsonSerializable_Members;
-
-	use U\Traits\Base\Utilities\Property_Members;
-	use U\Traits\Base\Utilities\Equals_Members;
-	use U\Traits\Base\Utilities\Obj_Cache_Members;
+	public function __debugInfo() : array {
+		return $this->props( 'debug' );
+	}
 }

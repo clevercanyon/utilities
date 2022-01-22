@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic;
 
 /**
  * Utilities.
@@ -34,17 +34,26 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Debuggable_Members {
+trait Destructable_Members {
 	/**
-	 * Tells {@see var_dump()} what to show.
+	 * Handles shutdown on object destruction.
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @return array {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Property_Members::props()} for further details.
+	 * @note  The destructor method will be called as soon as there are no other references
+	 *        to a particular object, or in any order during the shutdown sequence.
 	 *
-	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.debuginfo
+	 * @note  The destructor will be called even if script execution is stopped using {@see exit()}.
+	 *        Calling {@see exit()} in a destructor will prevent the remaining shutdown routines from executing.
+	 *
+	 * @note  Destructors called during the script shutdown have HTTP headers already sent.
+	 *        The working directory in the script shutdown phase can be different with some SAPIs (e.g. Apache).
+	 *
+	 * @note  Attempting to throw an exception from a destructor (called at time of script termination) causes a fatal error.
+	 *
+	 * @see   https://www.php.net/manual/en/language.oop5.decon.php
 	 */
-	public function __debugInfo() : array {
-		return $this->props( 'debug' );
+	public function __destruct() /* : void */ {
+		// Nothing at this time.
 	}
 }

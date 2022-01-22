@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic\Finals;
 
 /**
  * Utilities.
@@ -34,38 +34,33 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Unwritable_Members {
+trait Unreadable_Members {
 	/**
-	 * Sets inaccessible properties.
+	 * Tests inaccessible properties.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $prop  Property name.
-	 * @param mixed  $value Property value.
+	 * @param string $prop Property name.
 	 *
-	 * @throws U\Fatal_Exception If called in any way.
-	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
+	 * @return bool True if property exists.
 	 */
-	public function __set( string $prop, /* mixed */ $value ) : void {
-		throw new U\Fatal_Exception(
-			'Any attempt to set inaccessible properties of `' . get_class( $this ) . '`' .
-			' is potentially dangerous and therefore not allowed at this time.'
-		);
+	final public function __isset( string $prop ) : bool {
+		return false; // Inaccessible.
 	}
 
 	/**
-	 * Unsets inaccessible properties.
+	 * Gets inaccessible properties.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $prop Property name.
 	 *
 	 * @throws U\Fatal_Exception If called in any way.
-	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
+	 * @return mixed Property value.
 	 */
-	public function __unset( string $prop ) : void {
+	final public function __get( string $prop ) /* : mixed */ {
 		throw new U\Fatal_Exception(
-			'Any attempt to unset inaccessible properties of `' . get_class( $this ) . '`' .
+			'Any attempt to read inaccessible properties of `' . get_class( $this ) . '`' .
 			' is potentially dangerous and therefore not allowed at this time.'
 		);
 	}

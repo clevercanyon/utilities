@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since 2021-12-15
+ *
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\I7e;
 
 /**
  * Utilities.
@@ -34,18 +42,17 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Property_Members {
+trait JsonSerializable_Members {
 	/**
-	 * Gets non-static properties, by value.
+	 * Defines what to JSON encode.
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @param string|null $filter Optional filter. Default is `null`.
-	 *                            {@see U\Obj::props()} for further details.
+	 * @return array {@see U\Traits\A6t\Base\Utilities\Property_Members::props()} for further details.
 	 *
-	 * @return array Non-static properties using the given `$filter`.
+	 * @see   https://www.php.net/manual/en/jsonserializable.jsonserialize.php
 	 */
-	final public function props( /* string|null */ ?string $filter = null ) : array {
-		return U\Obj::props( $this, $filter );
+	public function jsonSerialize() : array {
+		return $this->props();
 	}
 }

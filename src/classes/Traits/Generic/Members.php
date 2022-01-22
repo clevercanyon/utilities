@@ -41,8 +41,8 @@ trait Members {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Generic\Magic\Constructable_Members;
-	use U\Traits\Base\Magic\Readable_Members;
-	use U\Traits\Base\Magic\Writable_Members;
-	use U\Traits\Base\Magic\Callable_Members;
+	use U\Traits\A6t\Base\Magic\Readable_Members;
+	use U\Traits\A6t\Base\Magic\Writable_Members;
+	use U\Traits\A6t\Base\Magic\Callable_Members;
 	use U\Traits\Stc_Base\Magic\Callable_Members;
 }

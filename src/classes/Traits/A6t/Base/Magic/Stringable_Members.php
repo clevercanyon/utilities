@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since 2021-12-15
+ *
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic\Finals;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic;
 
 /**
  * Utilities.
@@ -34,31 +42,18 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Readable_Members {
+trait Stringable_Members {
 	/**
-	 * Tests inaccessible properties.
+	 * Defines string representation of object.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-27
 	 *
-	 * @param string $prop Property name.
+	 * @return string {@see U\Traits\A6t\Base\Utilities\Property_Members::props()} for further details.
 	 *
-	 * @return bool True if property exists.
+	 * @see   https://www.php.net/manual/en/class.stringable.php
 	 */
-	final public function __isset( string $prop ) : bool {
-		return property_exists( $this, $prop )
-			&& null !== $this->{$prop};
-	}
-
-	/**
-	 * Gets inaccessible properties.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param string $prop Property name.
-	 *
-	 * @return mixed Property value.
-	 */
-	final public function __get( string $prop ) /* : mixed */ {
-		return $this->{$prop} ?? null;
+	public function __toString() : string {
+		return get_class( $this ) . "\n" .
+			U\Str::json_encode( $this->props() );
 	}
 }

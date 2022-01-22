@@ -38,5 +38,5 @@ abstract class Base implements U\I7e\Base {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Base\Members;
+	use U\Traits\A6t\Base\Members;
 }

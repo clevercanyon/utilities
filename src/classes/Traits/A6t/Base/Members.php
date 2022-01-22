@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic\Finals;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base;
 
 /**
  * Utilities.
@@ -34,34 +34,28 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Unreadable_Members {
+trait Members {
 	/**
-	 * Tests inaccessible properties.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
-	 *
-	 * @param string $prop Property name.
-	 *
-	 * @return bool True if property exists.
 	 */
-	final public function __isset( string $prop ) : bool {
-		return false; // Inaccessible.
-	}
+	use U\Traits\Stc_Base\Members;
 
-	/**
-	 * Gets inaccessible properties.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param string $prop Property name.
-	 *
-	 * @throws U\Fatal_Exception If called in any way.
-	 * @return mixed Property value.
-	 */
-	final public function __get( string $prop ) /* : mixed */ {
-		throw new U\Fatal_Exception(
-			'Any attempt to read inaccessible properties of `' . get_class( $this ) . '`' .
-			' is potentially dangerous and therefore not allowed at this time.'
-		);
-	}
+	use U\Traits\A6t\Base\Magic\Constructable_Members;
+	use U\Traits\A6t\Base\Magic\Destructable_Members;
+
+	use U\Traits\A6t\Base\Magic\Cloneable_Members;
+	use U\Traits\A6t\Base\Magic\Debuggable_Members;
+	use U\Traits\A6t\Base\Magic\Stringable_Members;
+	use U\Traits\A6t\Base\Magic\Unreadable_Members;
+	use U\Traits\A6t\Base\Magic\Unwritable_Members;
+	use U\Traits\A6t\Base\Magic\Uncallable_Members;
+	use U\Traits\A6t\Base\Magic\Uninvokable_Members;
+	use U\Traits\A6t\Base\Magic\Unserializable_Members;
+	use U\Traits\A6t\Base\I7e\JsonSerializable_Members;
+
+	use U\Traits\A6t\Base\Utilities\Property_Members;
+	use U\Traits\A6t\Base\Utilities\Equals_Members;
+	use U\Traits\A6t\Base\Utilities\Obj_Cache_Members;
 }

@@ -11,20 +11,12 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Lint configuration.
- *
- * @since 2021-12-15
- *
- * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
- */
-
-/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\I7e;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic;
 
 /**
  * Utilities.
@@ -42,17 +34,29 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait JsonSerializable_Members {
+trait Callable_Members {
 	/**
-	 * Defines what to JSON encode.
+	 * Invokes inaccessible methods.
 	 *
-	 * @since 2021-12-27
+	 * @since 2021-12-15
 	 *
-	 * @return array {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Property_Members::props()} for further details.
+	 * @param string $method Method name.
+	 * @param array  $args   Invocation args.
 	 *
-	 * @see   https://www.php.net/manual/en/jsonserializable.jsonserialize.php
+	 * @throws U\Fatal_Exception If method is uncallable.
+	 * @return mixed If callable, invocation return value.
+	 *
+	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */
-	public function jsonSerialize() : array {
-		return $this->props();
+	public function __call( string $method, array $args ) /* : mixed */ {
+		$callable = $this->{$method} ?? null;
+
+		if ( $callable && is_callable( $callable ) ) {
+			return $callable( $args );
+		}
+		throw new U\Fatal_Exception(
+			'Attempt to call `' . get_class( $this ) . '->' . $method . '()` failed.' .
+			' The method|property either does not exist or is not callable.'
+		);
 	}
 }

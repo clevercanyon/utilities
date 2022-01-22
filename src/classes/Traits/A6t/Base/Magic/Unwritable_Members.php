@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic;
 
 /**
  * Utilities.
@@ -34,36 +34,38 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Unserializable_Members {
+trait Unwritable_Members {
 	/**
-	 * Defines what to serialize.
+	 * Sets inaccessible properties.
 	 *
-	 * @since 2021-12-27
+	 * @since 2021-12-15
 	 *
-	 * @return array {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Property_Members::props()} for further details.
+	 * @param string $prop  Property name.
+	 * @param mixed  $value Property value.
 	 *
-	 * @see   https://www.php.net/manual/en/class.serializable.php
+	 * @throws U\Fatal_Exception If called in any way.
+	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */
-	public function __serialize() : array {
-		return $this->props( 'public...private' );
+	public function __set( string $prop, /* mixed */ $value ) : void {
+		throw new U\Fatal_Exception(
+			'Any attempt to set inaccessible properties of `' . get_class( $this ) . '`' .
+			' is potentially dangerous and therefore not allowed at this time.'
+		);
 	}
 
 	/**
-	 * Handles unserialization.
+	 * Unsets inaccessible properties.
 	 *
-	 * This fires instead of constructor when unserializing.
-	 * i.e., {@see unserialize()} fires this function when unserializing.
+	 * @since 2021-12-15
 	 *
-	 * @since 2021-12-27
-	 *
-	 * @param array $props Incoming properties; i.e., desired state.
+	 * @param string $prop Property name.
 	 *
 	 * @throws U\Fatal_Exception If called in any way.
-	 * @see   https://www.php.net/manual/en/class.serializable.php
+	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */
-	public function __unserialize( array $props ) : void {
+	public function __unset( string $prop ) : void {
 		throw new U\Fatal_Exception(
-			'Any attempt to unserialize `' . get_class( $this ) . '`' .
+			'Any attempt to unset inaccessible properties of `' . get_class( $this ) . '`' .
 			' is potentially dangerous and therefore not allowed at this time.'
 		);
 	}

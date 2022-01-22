@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic;
 
 /**
  * Utilities.
@@ -34,26 +34,34 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Destructable_Members {
+trait Unreadable_Members {
 	/**
-	 * Handles shutdown on object destruction.
+	 * Tests inaccessible properties.
 	 *
-	 * @since 2021-12-27
+	 * @since 2021-12-15
 	 *
-	 * @note  The destructor method will be called as soon as there are no other references
-	 *        to a particular object, or in any order during the shutdown sequence.
+	 * @param string $prop Property name.
 	 *
-	 * @note  The destructor will be called even if script execution is stopped using {@see exit()}.
-	 *        Calling {@see exit()} in a destructor will prevent the remaining shutdown routines from executing.
-	 *
-	 * @note  Destructors called during the script shutdown have HTTP headers already sent.
-	 *        The working directory in the script shutdown phase can be different with some SAPIs (e.g. Apache).
-	 *
-	 * @note  Attempting to throw an exception from a destructor (called at time of script termination) causes a fatal error.
-	 *
-	 * @see   https://www.php.net/manual/en/language.oop5.decon.php
+	 * @return bool True if property exists.
 	 */
-	public function __destruct() /* : void */ {
-		// Nothing at this time.
+	public function __isset( string $prop ) : bool {
+		return false; // Inaccessible.
+	}
+
+	/**
+	 * Gets inaccessible properties.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string $prop Property name.
+	 *
+	 * @throws U\Fatal_Exception If called in any way.
+	 * @return mixed Property value.
+	 */
+	public function __get( string $prop ) /* : mixed */ {
+		throw new U\Fatal_Exception(
+			'Any attempt to read inaccessible properties of `' . get_class( $this ) . '`' .
+			' is potentially dangerous and therefore not allowed at this time.'
+		);
 	}
 }

@@ -11,20 +11,12 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Lint configuration.
- *
- * @since 2021-12-15
- *
- * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
- */
-
-/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic;
 
 /**
  * Utilities.
@@ -42,18 +34,13 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Stringable_Members {
+trait Constructable_Members {
 	/**
-	 * Defines string representation of object.
+	 * Constructor.
 	 *
-	 * @since 2021-12-27
-	 *
-	 * @return string {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Property_Members::props()} for further details.
-	 *
-	 * @see   https://www.php.net/manual/en/class.stringable.php
+	 * @since 2021-12-15
 	 */
-	public function __toString() : string {
-		return get_class( $this ) . "\n" .
-			U\Str::json_encode( $this->props() );
+	public function __construct() {
+		// Establishes a parent constructor for all child classes.
 	}
 }

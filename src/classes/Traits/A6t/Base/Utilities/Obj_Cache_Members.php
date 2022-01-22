@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Utilities;
 
 /**
  * Utilities.
@@ -34,29 +34,49 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Callable_Members {
+trait Obj_Cache_Members {
 	/**
-	 * Invokes inaccessible methods.
+	 * Object cache.
+	 *
+	 * @since 2021-12-15
+	 */
+	private array $obj_cache = [];
+
+	/**
+	 * Gets|sets object cache.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $method Method name.
-	 * @param array  $args   Invocation args.
+	 * @param string|array $key   Cache key part(s) to get or set.
+	 * @param mixed        $value Cache value, when setting cache.
 	 *
-	 * @throws U\Fatal_Exception If method is uncallable.
-	 * @return mixed If callable, invocation return value.
-	 *
-	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
+	 * @return mixed Cached value, by reference. Defaults to `null`.
 	 */
-	public function __call( string $method, array $args ) /* : mixed */ {
-		$callable = $this->{$method} ?? null;
+	final protected function &obj_cache(
+		/* string|array */ $key,
+		/* mixed */ $value = null
+	) /* : mixed */ {
+		assert( is_string( $key ) || is_array( $key ) );
 
-		if ( $callable && is_callable( $callable ) ) {
-			return $callable( $args );
+		if ( is_array( $key ) ) {
+			$key = serialize( $key ); // phpcs:ignore.
 		}
-		throw new U\Fatal_Exception(
-			'Attempt to call `' . get_class( $this ) . '->' . $method . '()` failed.' .
-			' The method|property either does not exist or is not callable.'
-		);
+		$key = sha1( $key ); // Convert to SHA-1 hash.
+
+		if ( func_num_args() >= 2 ) {
+			$this->obj_cache[ $key ] = $value;
+		} else {
+			$this->obj_cache[ $key ] ??= null;
+		}
+		return $this->obj_cache[ $key ];
+	}
+
+	/**
+	 * Clears object cache.
+	 *
+	 * @since 2021-12-15
+	 */
+	final protected function obj_cache_clear() : void {
+		$this->obj_cache = [];
 	}
 }

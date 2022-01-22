@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Utilities;
 
 /**
  * Utilities.
@@ -34,31 +34,18 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Readable_Members {
+trait Property_Members {
 	/**
-	 * Tests inaccessible properties.
+	 * Gets non-static properties, by value.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-27
 	 *
-	 * @param string $prop Property name.
+	 * @param string|null $filter Optional filter. Default is `null`.
+	 *                            {@see U\Obj::props()} for further details.
 	 *
-	 * @return bool True if property exists.
+	 * @return array Non-static properties using the given `$filter`.
 	 */
-	public function __isset( string $prop ) : bool {
-		return property_exists( $this, $prop )
-			&& null !== $this->{$prop};
-	}
-
-	/**
-	 * Gets inaccessible properties.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param string $prop Property name.
-	 *
-	 * @return mixed Property value.
-	 */
-	public function __get( string $prop ) /* : mixed */ {
-		return $this->{$prop} ?? null;
+	final public function props( /* string|null */ ?string $filter = null ) : array {
+		return U\Obj::props( $this, $filter );
 	}
 }

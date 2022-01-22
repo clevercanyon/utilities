@@ -70,7 +70,7 @@ final class Project extends U\A6t\Base {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Base\Magic\Readable_Members;
+	use U\Traits\A6t\Base\Magic\Readable_Members;
 
 	/**
 	 * Directory.

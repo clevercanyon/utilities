@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Base\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic;
 
 /**
  * Utilities.
@@ -34,30 +34,37 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Base
  */
-trait Equals_Members {
+trait Unserializable_Members {
 	/**
-	 * Checks equality with another instance.
+	 * Defines what to serialize.
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @param U\I7e\Base $other Instance to compare `$this` to.
+	 * @return array {@see U\Traits\A6t\Base\Utilities\Property_Members::props()} for further details.
 	 *
-	 * @return bool True if objects are practically equal to each other,
-	 *              based on return value of {@see U\Traits\Base\Utilities\Equals_Members::to_eq_string()}.
+	 * @see   https://www.php.net/manual/en/class.serializable.php
 	 */
-	final public function equals( U\I7e\Base $other ) : bool {
-		return $this->to_eq_string() === $other->to_eq_string();
+	public function __serialize() : array {
+		return $this->props( 'public...private' );
 	}
 
 	/**
-	 * Defines string representation used for equality tests.
+	 * Handles unserialization.
+	 *
+	 * This fires instead of constructor when unserializing.
+	 * i.e., {@see unserialize()} fires this function when unserializing.
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @return string String representation used for equality tests.
-	 *                {@see \Clever_Canyon\Utilities\Traits\Base\Utilities\Property_Members::props()} for further details.
+	 * @param array $props Incoming properties; i.e., desired state.
+	 *
+	 * @throws U\Fatal_Exception If called in any way.
+	 * @see   https://www.php.net/manual/en/class.serializable.php
 	 */
-	final public function to_eq_string() : string {
-		return U\Str::dump( $this, true, false );
+	public function __unserialize( array $props ) : void {
+		throw new U\Fatal_Exception(
+			'Any attempt to unserialize `' . get_class( $this ) . '`' .
+			' is potentially dangerous and therefore not allowed at this time.'
+		);
 	}
 }
