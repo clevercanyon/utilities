@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\CLI_Tool\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Utilities;
 
 /**
  * Utilities.
@@ -24,13 +24,13 @@ namespace Clever_Canyon\Utilities\Traits\CLI_Tool\Utilities;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
+use GetOpt\{Command};
 
 /**
  * File-specific.
  *
  * @since 2021-12-15
  */
-use GetOpt\{GetOpt as Parser, Option, Operand, Command};
 
 // </editor-fold>
 
@@ -50,7 +50,7 @@ trait Setter_Members {
 	 * @param array $commands Command configurations.
 	 *
 	 * @throws U\Fatal_Exception On invalid arguments.
-	 * @return self For easy chaining with {@see U\Traits\CLI_Tool\Utilities\Routing_Members::route_request()}.
+	 * @return self For easy chaining with {@see U\Traits\A6t\CLI_Tool\Utilities\Routing_Members::route_request()}.
 	 */
 	protected function add_commands( array $commands ) : self {
 		try {
@@ -86,7 +86,7 @@ trait Setter_Members {
 	 * @param array $options Option configurations.
 	 *
 	 * @throws U\Fatal_Exception On invalid arguments.
-	 * @return self For easy chaining with {@see U\Traits\CLI_Tool\Utilities\Routing_Members::route_request()}.
+	 * @return self For easy chaining with {@see U\Traits\A6t\CLI_Tool\Utilities\Routing_Members::route_request()}.
 	 */
 	protected function add_options( array $options ) : self {
 		try {
@@ -105,7 +105,7 @@ trait Setter_Members {
 	 * @param array $operands Operand configurations.
 	 *
 	 * @throws U\Fatal_Exception On invalid arguments.
-	 * @return self For easy chaining with {@see U\Traits\CLI_Tool\Utilities\Routing_Members::route_request()}.
+	 * @return self For easy chaining with {@see U\Traits\A6t\CLI_Tool\Utilities\Routing_Members::route_request()}.
 	 */
 	protected function add_operands( array $operands ) : self {
 		try {

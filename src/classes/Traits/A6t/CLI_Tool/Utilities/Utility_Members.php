@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\CLI_Tool\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Utilities;
 
 /**
  * Utilities.
@@ -30,7 +30,6 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-use GetOpt\{GetOpt as Parser, Option, Operand, Command};
 
 // </editor-fold>
 
@@ -41,20 +40,34 @@ use GetOpt\{GetOpt as Parser, Option, Operand, Command};
  *
  * @see   U\I7e\CLI_Tool
  */
-trait Property_Members {
+trait Utility_Members {
 	/**
-	 * Parser.
+	 * Maybe process help request.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @return bool True if processed.
 	 */
-	protected Parser $parser;
+	protected function maybe_process_help_request() : bool {
+		if ( $this->parser->getOption( 'help' ) ) {
+			U\CLI::output( $this->parser->getHelpText(), 'blue' );
+			return true;
+		}
+		return false;
+	}
 
 	/**
-	 * Parser args.
+	 * Maybe process version request.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @var string|array|null
+	 * @return bool True if processed.
 	 */
-	protected $args_to_parse; /* string|array|null */
+	protected function maybe_process_version_request() : bool {
+		if ( $this->parser->getOption( 'version' ) ) {
+			U\CLI::output( sprintf( '%s: %s', $this::NAME, $this::VERSION ), 'blue' );
+			return true;
+		}
+		return false;
+	}
 }

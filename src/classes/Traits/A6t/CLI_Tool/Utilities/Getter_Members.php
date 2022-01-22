@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\CLI_Tool\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Utilities;
 
 /**
  * Utilities.
@@ -30,7 +30,6 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-use GetOpt\{GetOpt as Parser, Option, Operand, Command};
 
 // </editor-fold>
 
@@ -41,33 +40,52 @@ use GetOpt\{GetOpt as Parser, Option, Operand, Command};
  *
  * @see   U\I7e\CLI_Tool
  */
-trait Constructable_Members {
+trait Getter_Members {
 	/**
-	 * Constructor.
+	 * Gets an option.
 	 *
-	 * @since        2021-12-15
+	 * @since 2021-12-15
 	 *
-	 * @param string|array|null $args_to_parse Custom args to parse?
-	 *                                         If not given, defaults internally to `$_SERVER['argv']`.
+	 * @param string $option Option name.
 	 *
-	 * @see          http://getopt-php.github.io/getopt-php/
-	 * @noinspection PhpMultipleClassDeclarationsInspection
+	 * @return mixed Option value.
 	 */
-	public function __construct( /* string|array|null */ $args_to_parse = null ) {
-		parent::__construct();
+	protected function get_option( string $option ) /* : mixed */ {
+		return $this->parser->getOption( $option );
+	}
 
-		$this->args_to_parse = $args_to_parse;
+	/**
+	 * Gets all options.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return array All options.
+	 */
+	protected function get_options() : array {
+		return $this->parser->getOptions();
+	}
 
-		if ( isset( $this->args_to_parse ) && ! is_array( $this->args_to_parse ) ) {
-			$this->args_to_parse = (string) $this->args_to_parse;
-		}
-		$this->parser = new Parser( null, [
-			Parser::SETTING_STRICT_OPTIONS  => true,
-			Parser::SETTING_STRICT_OPERANDS => true,
-		] );
-		$this->add_options( [
-			'help'    => [ 'description' => 'Get help.' ],
-			'version' => [ 'description' => 'Show version.' ],
-		] );
+	/**
+	 * Gets an operand.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string $operand Operand name.
+	 *
+	 * @return mixed Operand value.
+	 */
+	protected function get_operand( string $operand ) /* : mixed */ {
+		return $this->parser->getOperand( $operand );
+	}
+
+	/**
+	 * Gets all operands.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return array All operands.
+	 */
+	protected function get_operands() : array {
+		return $this->parser->getOperands();
 	}
 }

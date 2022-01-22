@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\CLI_Tool\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Utilities;
 
 /**
  * Utilities.
@@ -30,7 +30,6 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-use GetOpt\{GetOpt as Parser, Option, Operand, Command};
 
 // </editor-fold>
 

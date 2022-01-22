@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\CLI_Tool;
+namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool;
 
 /**
  * Utilities.
@@ -40,12 +40,12 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\CLI_Tool\Magic\Constructable_Members;
-	use U\Traits\CLI_Tool\Utilities\Property_Members;
-	use U\Traits\CLI_Tool\Utilities\Routing_Members;
-	use U\Traits\CLI_Tool\Utilities\Getter_Members;
-	use U\Traits\CLI_Tool\Utilities\Setter_Members;
-	use U\Traits\CLI_Tool\Utilities\Builder_Members;
-	use U\Traits\CLI_Tool\Utilities\Validation_Members;
-	use U\Traits\CLI_Tool\Utilities\Utility_Members;
+	use U\Traits\A6t\CLI_Tool\Magic\Constructable_Members;
+	use U\Traits\A6t\CLI_Tool\Utilities\Property_Members;
+	use U\Traits\A6t\CLI_Tool\Utilities\Routing_Members;
+	use U\Traits\A6t\CLI_Tool\Utilities\Getter_Members;
+	use U\Traits\A6t\CLI_Tool\Utilities\Setter_Members;
+	use U\Traits\A6t\CLI_Tool\Utilities\Builder_Members;
+	use U\Traits\A6t\CLI_Tool\Utilities\Validation_Members;
+	use U\Traits\A6t\CLI_Tool\Utilities\Utility_Members;
 }

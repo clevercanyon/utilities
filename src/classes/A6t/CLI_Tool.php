@@ -52,5 +52,5 @@ abstract class CLI_Tool extends U\A6t\Base implements U\I7e\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\CLI_Tool\Members;
+	use U\Traits\A6t\CLI_Tool\Members;
 }
