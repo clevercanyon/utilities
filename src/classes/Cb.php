@@ -39,46 +39,4 @@ final class Cb extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Cb\Members;
-
-	/**
-	 * Returns nothing.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return void Nothing.
-	 */
-	public static function noop() : void {}
-
-	/**
-	 * Returns `null`.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return null Null.
-	 */
-	public static function noop_null() /* : null */ {
-		return null;
-	}
-
-	/**
-	 * Returns `true`.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return bool True.
-	 */
-	public static function noop_true() : bool {
-		return true;
-	}
-
-	/**
-	 * Returns `false`.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @return bool False.
-	 */
-	public static function noop_false() : bool {
-		return false;
-	}
 }

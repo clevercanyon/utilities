@@ -34,11 +34,46 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Cb
  */
-trait Foo_Property {
+trait Noop_Members {
 	/**
-	 * Foo property.
+	 * Returns nothing.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @return void Nothing.
 	 */
-	protected static string $foo = 'foo';
+	public static function noop() : void {}
+
+	/**
+	 * Returns `null`.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return null Null.
+	 */
+	public static function noop_null() /* : null */ {
+		return null;
+	}
+
+	/**
+	 * Returns `true`.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return bool True.
+	 */
+	public static function noop_true() : bool {
+		return true;
+	}
+
+	/**
+	 * Returns `false`.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return bool False.
+	 */
+	public static function noop_false() : bool {
+		return false;
+	}
 }
