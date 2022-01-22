@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Arr;
+namespace Clever_Canyon\Utilities\Traits\Arr\Utilities;
 
 /**
  * Utilities.
@@ -34,17 +34,35 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Arr
  */
-trait Members {
+trait Get_Key_Members {
 	/**
-	 * Traits.
+	 * Key accessor, by path.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param array  $arr       Array to query.
+	 * @param string $path      Path to query array for.
+	 * @param string $delimiter Delimiter used in path. Defaults to `.`.
+	 *
+	 * @return mixed Value, else `null` on failure to locate.
+	 *
+	 * @see   U\Ctn::get_prop_key() For collection use.
 	 */
-	use U\Traits\Arr\Utilities\Conditional_Members;
-	use U\Traits\Arr\Utilities\Flatten_Members;
-	use U\Traits\Arr\Utilities\Get_Key_Members;
-	use U\Traits\Arr\Utilities\Hash_Members;
-	use U\Traits\Arr\Utilities\Maybe_Prefix_Key_Members;
-	use U\Traits\Arr\Utilities\Sort_Members;
-	use U\Traits\Arr\Utilities\Value_First_Last_Members;
+	public static function get_key( array $arr, string $path, string $delimiter = '.' ) /* : mixed */ {
+		if ( ! $arr || '' === $path || '' === $delimiter ) {
+			return null; // Not possible.
+		}
+		return array_reduce( explode( $delimiter, $path ), function ( $ctn, $var ) {
+			$is_array_ctn  = is_array( $ctn );
+			$is_object_ctn = ! $is_array_ctn && is_object( $ctn );
+
+			if ( $is_array_ctn && isset( $ctn[ $var ] ) ) {
+				return $ctn[ $var ];
+			} elseif ( $is_object_ctn && isset( $ctn->{$var} ) ) {
+				return $ctn->{$var};
+			} else {
+				return null;
+			}
+		}, $arr );
+	}
 }

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Arr;
+namespace Clever_Canyon\Utilities\Traits\Arr\Utilities;
 
 /**
  * Utilities.
@@ -34,17 +34,17 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Arr
  */
-trait Members {
+trait Conditional_Members {
 	/**
-	 * Traits.
+	 * Checks if an array is associative.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-26
+	 *
+	 * @param array $arr Array to check.
+	 *
+	 * @return bool True if array is associative.
 	 */
-	use U\Traits\Arr\Utilities\Conditional_Members;
-	use U\Traits\Arr\Utilities\Flatten_Members;
-	use U\Traits\Arr\Utilities\Get_Key_Members;
-	use U\Traits\Arr\Utilities\Hash_Members;
-	use U\Traits\Arr\Utilities\Maybe_Prefix_Key_Members;
-	use U\Traits\Arr\Utilities\Sort_Members;
-	use U\Traits\Arr\Utilities\Value_First_Last_Members;
+	public static function is_assoc( array $arr ) : bool {
+		return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
+	}
 }

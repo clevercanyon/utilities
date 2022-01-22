@@ -34,11 +34,34 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Arr
  */
-trait Foo_Property {
+trait Value_First_Last_Members {
 	/**
-	 * Foo property.
+	 * Gets first value from array.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-23
+	 *
+	 * @param array $arr Array to query.
+	 *
+	 * @return mixed First value, else `null` if array is empty.
+	 *
+	 * @see   Compliments the built-in {@see array_key_first()} function.
 	 */
-	protected static string $foo = 'foo';
+	public static function value_first( array $arr ) /* : mixed */ {
+		return $arr ? ( $arr[ array_key_first( $arr ) ] ?? null ) : null;
+	}
+
+	/**
+	 * Gets last value from array.
+	 *
+	 * @since 2021-12-23
+	 *
+	 * @param array $arr Array to query.
+	 *
+	 * @return mixed Last value, else `null` if array is empty.
+	 *
+	 * @see   Compliments the built-in {@see array_key_last()} function.
+	 */
+	public static function value_last( array $arr ) /* : mixed */ {
+		return $arr ? ( $arr[ array_key_last( $arr ) ] ?? null ) : null;
+	}
 }

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Arr;
+namespace Clever_Canyon\Utilities\Traits\Arr\Utilities;
 
 /**
  * Utilities.
@@ -34,17 +34,27 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Arr
  */
-trait Members {
+trait Flatten_Members {
 	/**
-	 * Traits.
+	 * Flattens a multidimensional array.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-09
+	 *
+	 * @param array $arr           Input array to flatten.
+	 * @param bool  $preserve_keys Should keys be preserved? Default is `false`.
+	 *
+	 * @return array Flattened array.
 	 */
-	use U\Traits\Arr\Utilities\Conditional_Members;
-	use U\Traits\Arr\Utilities\Flatten_Members;
-	use U\Traits\Arr\Utilities\Get_Key_Members;
-	use U\Traits\Arr\Utilities\Hash_Members;
-	use U\Traits\Arr\Utilities\Maybe_Prefix_Key_Members;
-	use U\Traits\Arr\Utilities\Sort_Members;
-	use U\Traits\Arr\Utilities\Value_First_Last_Members;
+	public static function flatten( array $arr, bool $preserve_keys = false ) : array {
+		$flat = []; // Initialize.
+
+		array_walk_recursive( $arr, function ( $value, $key ) use ( &$flat, $preserve_keys ) {
+			if ( $preserve_keys ) {
+				$flat[ $key ] = $value;
+			} else {
+				$flat[] = $value;
+			}
+		} );
+		return $flat; // Flattened array.
+	}
 }
