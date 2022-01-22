@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\CLI;
+namespace Clever_Canyon\Utilities\Traits\CLI\Utilities;
 
 /**
  * Utilities.
@@ -34,17 +34,15 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\CLI
  */
-trait Members {
+trait Exit_Status_Members {
 	/**
-	 * Traits.
+	 * Exit with status code.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param int $status Status code. Default is `1`.
 	 */
-	use U\Traits\CLI\Utilities\Chalk_Members;
-	use U\Traits\CLI\Utilities\Exit_Status_Members;
-	use U\Traits\CLI\Utilities\Last_CMD_Members;
-	use U\Traits\CLI\Utilities\Output_Members;
-	use U\Traits\CLI\Utilities\Prepare_CMD_Members;
-	use U\Traits\CLI\Utilities\Run_Exec_Members;
-	use U\Traits\CLI\Utilities\Std_In_Out_Err_Members;
+	public static function exit_status( int $status = 0 ) : void {
+		exit( $status ); // phpcs:ignore -- output ok.
+	}
 }

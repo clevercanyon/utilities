@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\CLI;
+namespace Clever_Canyon\Utilities\Traits\CLI\Utilities;
 
 /**
  * Utilities.
@@ -34,17 +34,26 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\CLI
  */
-trait Members {
+trait Prepare_CMD_Members {
 	/**
-	 * Traits.
+	 * Prepares CMD string.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-09
+	 *
+	 * @param array       $args Command arguments (unquoted/unescaped).
+	 *                          This array can have multiple dimensions, which will be flattened here.
+	 *
+	 * @param string|null $dir  Current working directory. Defaults to `null` value.
+	 *
+	 * @return string Escaped/quoted command string.
 	 */
-	use U\Traits\CLI\Utilities\Chalk_Members;
-	use U\Traits\CLI\Utilities\Exit_Status_Members;
-	use U\Traits\CLI\Utilities\Last_CMD_Members;
-	use U\Traits\CLI\Utilities\Output_Members;
-	use U\Traits\CLI\Utilities\Prepare_CMD_Members;
-	use U\Traits\CLI\Utilities\Run_Exec_Members;
-	use U\Traits\CLI\Utilities\Std_In_Out_Err_Members;
+	public static function prepare_cmd( array $args, /* string|null */ ?string $dir = null ) : string {
+		$args = U\Arr::flatten( $args );
+		$args = array_map( 'strval', $args );
+
+		$cmd = $dir ? 'cd ' . U\Str::esc_shell_arg( $dir ) . ' && ' : '';
+		$cmd .= implode( ' ', array_map( [ U\Str::class, 'esc_shell_arg' ], $args ) );
+
+		return $cmd;
+	}
 }

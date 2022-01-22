@@ -34,11 +34,22 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\CLI
  */
-trait Foo_Property {
+trait Last_CMD_Members {
 	/**
-	 * Foo property.
+	 * Last command.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-09
 	 */
-	protected static string $foo = 'foo';
+	protected static string $last_cmd = '';
+
+	/**
+	 * Gets {@see $last_cmd} string.
+	 *
+	 * @since 2022-01-09
+	 *
+	 * @return string Last CMD string.
+	 */
+	public static function last_cmd() : string {
+		return U\CLI::$last_cmd;
+	}
 }
