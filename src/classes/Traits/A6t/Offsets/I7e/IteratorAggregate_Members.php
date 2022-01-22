@@ -24,7 +24,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Offsets\I7e;
+namespace Clever_Canyon\Utilities\Traits\A6t\Offsets\I7e;
 
 /**
  * Utilities.
@@ -54,7 +54,7 @@ trait IteratorAggregate_Members {
 	 * @see   https://www.php.net/manual/en/class.arrayiterator.php
 	 *
 	 * @note  Intentionally not iterating offsets here.
-	 *        To iterate offsets {@see \Clever_Canyon\Utilities\Traits\Offsets\Utilities\Utility_Members::offsets()}.
+	 *        To iterate offsets {@see U\Traits\A6t\Offsets\Utilities\Utility_Members::offsets()}.
 	 */
 	final public function getIterator() : \Generator {
 		yield from $this->props( 'public' );

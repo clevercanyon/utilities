@@ -38,5 +38,5 @@ abstract class Offsets extends U\A6t\Base implements U\I7e\Offsets {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Offsets\Members;
+	use U\Traits\A6t\Offsets\Members;
 }

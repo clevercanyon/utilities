@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Offsets\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Offsets\Magic;
 
 /**
  * Utilities.
