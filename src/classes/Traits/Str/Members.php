@@ -62,5 +62,5 @@ trait Members {
 	use U\Traits\Str\Utilities\Replace_Members;
 	use U\Traits\Str\Utilities\Stringify_Members;
 	use U\Traits\Str\Utilities\To_ASCII_Members;
-	use U\Traits\Str\Utilities\UTF8_BOM_Property;
+	use U\Traits\Str\Utilities\UTF8_BOM_Members;
 }

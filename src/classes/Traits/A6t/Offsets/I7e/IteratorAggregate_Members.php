@@ -54,7 +54,7 @@ trait IteratorAggregate_Members {
 	 * @see   https://www.php.net/manual/en/class.arrayiterator.php
 	 *
 	 * @note  Intentionally not iterating offsets here.
-	 *        To iterate offsets {@see U\Traits\A6t\Offsets\Utilities\Utility_Members::offsets()}.
+	 *        To iterate offsets {@see U\A6t\Offsets::offsets()}.
 	 */
 	final public function getIterator() : \Generator {
 		yield from $this->props( 'public' );

@@ -60,7 +60,7 @@ trait IP_Members {
 		foreach ( $env_vars as $_var ) {
 			$_ips = U\Env::var( $_var, [ 'bypass:U\\User::ip' => true ] );
 			if ( $_ips && ( $_ip = U\User::ip_user_public_helper( $_ips ) ) ) {
-				return $_ip; // IPv4 or IPv6 address.
+				return $_ip; // Normalized IPv4 or IPv6 address.
 			}
 		}
 		return ''; // Nothing.
@@ -80,8 +80,8 @@ trait IP_Members {
 		$ips = preg_split( '/[\s;,]+/u', $ips, -1, PREG_SPLIT_NO_EMPTY );
 
 		foreach ( $ips as $_ip ) {
-			if ( U\Str::is_user_public_ip( $_ip ) ) {
-				return U\Str::normalize_ip( $_ip );
+			if ( U\Str::is_user_public_ip( $_ip ) && ( $_ip = U\Str::normalize_ip( $_ip ) ) ) {
+				return $_ip; // Normalized IPv4 or IPv6 address.
 			}
 		}
 		return ''; // Nothing.

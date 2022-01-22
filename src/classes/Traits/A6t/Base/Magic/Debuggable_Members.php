@@ -40,7 +40,7 @@ trait Debuggable_Members {
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @return array {@see U\Traits\A6t\Base\Utilities\Property_Members::props()} for further details.
+	 * @return array {@see U\A6t\Base::props()} for further details.
 	 *
 	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.debuginfo
 	 */

@@ -34,11 +34,22 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Str
  */
-trait UTF8_BOM_Property {
+trait UTF8_BOM_Members {
 	/**
 	 * UTF-8 byte-order marker.
 	 *
 	 * @since 2021-12-15
 	 */
 	protected static string $utf8_bom = "\xEF\xBB\xBF";
+
+	/**
+	 * Returns UTF-8 BOM (byte-order marker).
+	 *
+	 * @since 2022-01-22
+	 *
+	 * @return string UTF-8 BOM (byte-order marker).
+	 */
+	public static function utf8_bom() : string {
+		return U\Str::$utf8_bom;
+	}
 }

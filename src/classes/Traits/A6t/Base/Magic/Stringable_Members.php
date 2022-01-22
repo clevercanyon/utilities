@@ -48,7 +48,7 @@ trait Stringable_Members {
 	 *
 	 * @since 2021-12-27
 	 *
-	 * @return string {@see U\Traits\A6t\Base\Utilities\Property_Members::props()} for further details.
+	 * @return string {@see U\A6t\Base::props()} for further details.
 	 *
 	 * @see   https://www.php.net/manual/en/class.stringable.php
 	 */

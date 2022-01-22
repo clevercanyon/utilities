@@ -48,7 +48,7 @@ trait Constructable_Members {
 	 *               It remains 100% interchangeable with WordPress errors as of 2021-12-15.
 	 *
 	 * @note         Though the class is constructed with a single error code and  message, multiple codes can be added
-	 *               using the {@see U\Traits\A6t\Error\Utilities\Setter_Members::add()} method.
+	 *               using the {@see U\A6t\Error::add()} method.
 	 *
 	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */

@@ -61,7 +61,7 @@ trait Obj_Cache_Members {
 		if ( is_array( $key ) ) {
 			$key = serialize( $key ); // phpcs:ignore.
 		}
-		$key = sha1( $key ); // Convert to SHA-1 hash.
+		$key = sha1( $key ); // Convert key(s) to SHA-1 hash.
 
 		if ( func_num_args() >= 2 ) {
 			$this->obj_cache[ $key ] = $value;
