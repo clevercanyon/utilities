@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,33 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * File utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Env
  */
-final class File extends U\A6t\Stc_Utilities {
+trait Is_CLI_Members {
 	/**
-	 * Traits.
+	 * Is CLI?
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-18
+	 *
+	 * @return bool True if CLI.
 	 */
-	use U\Traits\File\Members;
+	public static function is_cli() : bool {
+		return 'cli' === PHP_SAPI;
+	}
+
+	/**
+	 * Is CLI w/ 250-color support?
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @return bool True if CLI w/ 250-color support.
+	 */
+	public static function is_cli_256c() : bool {
+		return 'cli' === PHP_SAPI
+			&& false !== mb_strpos( U\Env::var( 'TERM' ), '256color' );
+	}
 }

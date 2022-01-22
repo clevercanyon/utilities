@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\File;
+namespace Clever_Canyon\Utilities\Traits\File\Utilities;
 
 /**
  * Utilities.
@@ -34,16 +34,31 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\File
  */
-trait Members {
+trait MIME_Type_Members {
 	/**
-	 * Traits.
+	 * Gets a file's MIME type.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-19
+	 *
+	 * @param string      $file    File path.
+	 * @param string|null $default Default MIME type, if unable to determine.
+	 *                             Default for this is: `null`, indicating `application/octet-stream`.
+	 *
+	 * @return string MIME type; e.g., text/html, image/svg+xml, etc.
 	 */
-	use U\Traits\File\Utilities\Content_Type_Members;
-	use U\Traits\File\Utilities\Ext_Members;
-	use U\Traits\File\Utilities\MIME_Type_Members;
-	use U\Traits\File\Utilities\MIME_Types_Property;
-	use U\Traits\File\Utilities\Make_Members;
-	use U\Traits\File\Utilities\Size_Abbr_Members;
+	public static function mime_type( string $file, /* string|null */ ?string $default = null ) : string {
+		$default   ??= 'application/octet-stream';
+		$mime_type = $default; // Maybe redefine below.
+		$ext       = U\File::ext( $file );
+
+		foreach ( U\File::$mime_types as $_mime_types ) {
+			foreach ( $_mime_types as $_exts => $_mime_type ) {
+				if ( in_array( $ext, explode( '|', $_exts ), true ) ) {
+					$mime_type = $_mime_type;
+					break 2; // Done.
+				}
+			}
+		}
+		return $mime_type;
+	}
 }

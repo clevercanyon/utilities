@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,21 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * File utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Env
  */
-final class File extends U\A6t\Stc_Utilities {
+trait Is_WordPress_Members {
 	/**
-	 * Traits.
+	 * Is WordPress?
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-18
+	 *
+	 * @return bool True if WordPress.
 	 */
-	use U\Traits\File\Members;
+	public static function is_wordpress() : bool {
+		return defined( 'WPINC' );
+	}
 }

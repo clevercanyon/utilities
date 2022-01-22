@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,28 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * File utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Env
  */
-final class File extends U\A6t\Stc_Utilities {
+trait Close_Session_Members {
 	/**
-	 * Traits.
+	 * Closes an open session.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @return bool True if no session open, or closed successfully.
 	 */
-	use U\Traits\File\Members;
+	public static function close_session() : bool {
+		if ( ! extension_loaded( 'session' ) ) {
+			return false; // Not possible.
+		}
+		if ( ! U\Env::can_use_function( 'session_status', 'session_write_close' ) ) {
+			return false; // Not possible.
+		}
+		return ! headers_sent() // Headers must not have been sent yet.
+			&& ( PHP_SESSION_ACTIVE !== session_status() || session_write_close() );
+	}
 }

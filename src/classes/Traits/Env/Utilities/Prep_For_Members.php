@@ -34,11 +34,31 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Env
  */
-trait Foo_Property {
+trait Prep_For_Members {
 	/**
-	 * Foo property.
+	 * Prepares for special output via PHP.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @return bool True if everything prepped successfully.
 	 */
-	protected static string $foo = 'foo';
+	public static function prep_for_special_output() : bool {
+		return U\Env::disable_gzip()
+			&& U\Env::close_session()
+			&& U\Env::end_output_buffering();
+	}
+
+	/**
+	 * Prepares for a file download via PHP.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return bool True if everything prepped successfully.
+	 */
+	public static function prep_for_file_download() : bool {
+		return U\Env::prep_for_special_output()
+			&& U\Env::set_time_limit( 900 )
+			&& U\Env::disable_caching()
+			&& U\Env::disable_robots();
+	}
 }

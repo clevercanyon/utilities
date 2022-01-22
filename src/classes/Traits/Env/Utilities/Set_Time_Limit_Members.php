@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,31 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * File utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Env
  */
-final class File extends U\A6t\Stc_Utilities {
+trait Set_Time_Limit_Members {
 	/**
-	 * Traits.
+	 * Sets time limit for script execution.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param int $limit Time limit in seconds. `0` = no time limit.
+	 *
+	 * @return bool True if time limit set successfully.
+	 *
+	 * @see   https://www.php.net/manual/en/function.set-time-limit.php
+	 * @see   https://www.php.net/manual/en/info.configuration.php#ini.max-execution-time
 	 */
-	use U\Traits\File\Members;
+	public static function set_time_limit( int $limit ) : bool {
+		if ( ! U\Env::can_use_function( 'set_time_limit' ) ) {
+			return false; // Not possible.
+		}
+		set_time_limit( $limit );      // phpcs:ignore.
+		return true;                   // NOTE: `set_time_limit()`'s return value is unreliable.
+		// In recent tests on macOS `set_time_limit()` consistently returned `false`, yet was consistently effective.
+	}
 }

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,43 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * File utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Env
  */
-final class File extends U\A6t\Stc_Utilities {
+trait Is_OS_Members {
 	/**
-	 * Traits.
+	 * Is OS Linux?
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-18
+	 *
+	 * @return bool True if OS is Linux.
 	 */
-	use U\Traits\File\Members;
+	public static function is_linux() : bool {
+		return 'Linux' === PHP_OS_FAMILY;
+	}
+
+	/**
+	 * Is OS Windows?
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @return bool True if OS is Windows.
+	 */
+	public static function is_windows() : bool {
+		return 'Windows' === PHP_OS_FAMILY;
+	}
+
+	/**
+	 * Is OS Unix-based?
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @return bool True if OS is based on Unix.
+	 */
+	public static function is_unix_based() : bool {
+		return in_array( PHP_OS_FAMILY, [ 'BSD', 'Darwin', 'Solaris', 'Linux' ], true );
+	}
 }

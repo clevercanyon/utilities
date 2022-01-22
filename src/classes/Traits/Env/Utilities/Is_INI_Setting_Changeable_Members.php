@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,34 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * File utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Env
  */
-final class File extends U\A6t\Stc_Utilities {
+trait Is_INI_Setting_Changeable_Members {
 	/**
-	 * Traits.
+	 * Checks if an INI setting is changeable.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-02
+	 *
+	 * @param string $setting INI setting to check.
+	 *
+	 * @return bool True if `$setting` is changeable.
 	 */
-	use U\Traits\File\Members;
+	public static function is_ini_setting_changeable( string $setting ) : bool {
+		if ( null === ( $cache = &static::cache( [ __FUNCTION__, 'ini_all' ] ) ) ) {
+			if ( U\Env::can_use_function( 'ini_get_all' ) ) {
+				$cache = ini_get_all();
+			}
+			$cache = is_array( $cache ) ? $cache : false;
+		}
+		if ( ! is_array( $cache ) ) {
+			return true; // Unable to read all, assume `true`.
+		}
+		return isset( $cache[ $setting ][ 'access' ] )
+			&& ( INI_ALL === ( $cache[ $setting ][ 'access' ] & INI_ALL )
+				|| INI_USER === ( $cache[ $setting ][ 'access' ] & INI_ALL ) );
+	}
 }

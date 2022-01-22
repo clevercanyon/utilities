@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,28 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * File utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Env
  */
-final class File extends U\A6t\Stc_Utilities {
+trait Maybe_Define_Members {
 	/**
-	 * Traits.
+	 * Defines a constant, if not defined already.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param string                     $name  Name.
+	 * @param int|float|string|bool|null $value Value.
+	 *
+	 * @return bool True if already defined and already set to `$value`.
+	 *              Otherwise, `true` if a new constant is defined successfully.
 	 */
-	use U\Traits\File\Members;
+	public static function maybe_define( string $name, /* int|float|string|bool|null */ $value ) : bool {
+		if ( defined( $name ) ) {
+			return constant( $name ) === $value;
+		}
+		return define( $name, $value );
+	}
 }
