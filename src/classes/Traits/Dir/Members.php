@@ -40,5 +40,11 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Dir\Utilities\Foo_Property;
+	use U\Traits\Dir\Utilities\Iterator_Members;
+	use U\Traits\Dir\Utilities\Join_Members;
+	use U\Traits\Dir\Utilities\Make_Members;
+	use U\Traits\Dir\Utilities\Name_Members;
+	use U\Traits\Dir\Utilities\Prune_Members;
+	use U\Traits\Dir\Utilities\Subpath_Members;
+	use U\Traits\Dir\Utilities\Sys_Temp_Members;
 }
