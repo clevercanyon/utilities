@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,38 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * String utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Str
  */
-final class Str extends U\A6t\Stc_Utilities {
+trait Contains_Members {
 	/**
-	 * Traits.
+	 * Checks if string contains needle.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-08
+	 *
+	 * @param string $haystack Haystack string.
+	 * @param string $needle   Needle string to search for.
+	 *
+	 * @return bool True if `$needle` is at end of `$haystack`.
 	 */
-	use U\Traits\Str\Members;
+	public static function contains( string $haystack, string $needle ) : bool {
+		return false !== mb_strpos( $haystack, $needle );
+	}
+
+	/**
+	 * Checks if string contains needle (caSe-insensitive).
+	 *
+	 * @since 2022-01-08
+	 *
+	 * @param string $haystack Haystack string.
+	 * @param string $needle   Needle string to search for.
+	 *
+	 * @return bool True if `$needle` is at end of `$haystack`.
+	 */
+	public static function icontains( string $haystack, string $needle ) : bool {
+		return false !== mb_stripos( $haystack, $needle );
+	}
 }

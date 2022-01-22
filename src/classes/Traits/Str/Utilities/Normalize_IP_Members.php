@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,30 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * String utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Str
  */
-final class Str extends U\A6t\Stc_Utilities {
+trait Normalize_IP_Members {
 	/**
-	 * Traits.
+	 * Normalizes IPv4 and IPv6 addresses.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-21
+	 *
+	 * @param string $ip IPv4 or IPv6 address.
+	 *
+	 * @return string Normalized IPv4 or IPv6 address.
 	 */
-	use U\Traits\Str\Members;
+	public static function normalize_ip( string $ip ) : string {
+		if ( '' === $ip ) {
+			return ''; // Nothing.
+		}
+		$bin = inet_pton( $ip );
+		$ip  = false !== $bin ? inet_ntop( $bin ) : '';
+		$ip  = '' !== $ip ? mb_strtolower( $ip ) : '';
+
+		return $ip;
+	}
 }

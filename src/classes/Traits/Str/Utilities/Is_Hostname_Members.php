@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,30 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * String utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Str
  */
-final class Str extends U\A6t\Stc_Utilities {
+trait Is_Hostname_Members {
 	/**
-	 * Traits.
+	 * Checks hostname validity; e.g., `127.0.0.1`, `localhost`, `example.com`.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid hostname.
+	 *
+	 * @see   https://o5p.me/d3ayZ8
+	 * @note  See also the tests for function.
+	 *
+	 * @note  A trailing dot is allowed. Recommend trimming.
+	 * @note  Max length of each dotted label is `63` bytes.
+	 * @note  Max overall length is 253 bytes, not counting final `.`, which is optional.
 	 */
-	use U\Traits\Str\Members;
+	public static function is_hostname( string $str ) : bool {
+		return false !== filter_var( $str, FILTER_VALIDATE_DOMAIN, [ 'flags' => FILTER_FLAG_HOSTNAME ] );
+	}
 }

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,33 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * String utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Str
  */
-final class Str extends U\A6t\Stc_Utilities {
+trait Stringify_Members {
 	/**
-	 * Traits.
+	 * Stringifies data.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param mixed     $data         Data to stringify.
+	 * @param bool|null $pretty_print Pretty print? {@see U\Str::json_encode()} for details.
+	 *
+	 * @return string String representation.
+	 *
+	 * @note  This is NOT purely a JSON-encoder.
+	 *        For example, null, scalar, and resource values are simply converted to strings.
+	 *        They are not converted to JSON. Instead, {@see U\Str::json_encode()}.
+	 *
+	 * @see   U\Ctn::stringify()
 	 */
-	use U\Traits\Str\Members;
+	public static function stringify( /* mixed */ $data, /* bool|null */ ?bool $pretty_print = null ) : string {
+		if ( is_null( $data ) || is_scalar( $data ) || is_resource( $data ) ) {
+			return (string) $data; // Cannot be decoded as JSON.
+		}
+		return U\Str::json_encode( $data, $pretty_print );
+	}
 }

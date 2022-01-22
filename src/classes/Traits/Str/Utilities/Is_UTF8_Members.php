@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,26 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * String utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Str
  */
-final class Str extends U\A6t\Stc_Utilities {
+trait Is_UTF8_Members {
 	/**
-	 * Traits.
+	 * Is valid UTF-8?
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-26
+	 *
+	 * @param string $str Input string.
+	 *
+	 * @return bool True if valid UTF-8.
 	 */
-	use U\Traits\Str\Members;
+	public static function is_utf8( string $str ) : bool {
+		if ( ! isset( $str[ 0 ] ) ) {
+			return true; // Nothing to do.
+		}
+		return (bool) preg_match( '/^./us', $str );
+	}
 }

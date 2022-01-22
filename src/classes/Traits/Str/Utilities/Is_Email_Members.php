@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,30 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * String utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Str
  */
-final class Str extends U\A6t\Stc_Utilities {
+trait Is_Email_Members {
 	/**
-	 * Traits.
+	 * Checks email validity; e.g., `user@example.com`.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid email address.
+	 *
+	 * @see   https://o5p.me/cZpuIh
+	 * @note  See also the tests for function.
+	 *
+	 * @note  Maximum length is 320 characters, not bytes.
+	 * @note  A trailing dot is not allowed in email address hostnames.
+	 * @note  A user@local address is not allowed by this validator.
 	 */
-	use U\Traits\Str\Members;
+	public static function is_email( string $str ) : bool {
+		return false !== filter_var( $str, FILTER_VALIDATE_EMAIL, [ 'flags' => FILTER_FLAG_EMAIL_UNICODE ] );
+	}
 }

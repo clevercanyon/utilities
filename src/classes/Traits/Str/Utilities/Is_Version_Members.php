@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,23 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * String utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Str
  */
-final class Str extends U\A6t\Stc_Utilities {
+trait Is_Version_Members {
 	/**
-	 * Traits.
+	 * Checks version validity; e.g., `1.0.0`.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid version.
 	 */
-	use U\Traits\Str\Members;
+	public static function is_version( string $str ) : bool {
+		return U\Str::is_valid_helper( $str, 1, 100, '/^[0-9]+(?:\.[0-9]+)*(?:\.(?:dev|alpha|beta|rc)\.[0-9](?:\.[0-9]+)*)?$/u' );
+	}
 }

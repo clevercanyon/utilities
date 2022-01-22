@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,27 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * String utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Str
  */
-final class Str extends U\A6t\Stc_Utilities {
+trait Is_MAC_Members {
 	/**
-	 * Traits.
+	 * Checks MAC address validity; e.g., `00:0C:F1:56:98:AD`.
+	 * Also in these formats: `00-0C-F1-56-98-AD`, `000C.F156.98AD`.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-26
+	 *
+	 * @param string $str String to check.
+	 *
+	 * @return bool True if it's a valid MAC address.
+	 *
+	 * @see   https://o5p.me/q7tGiP
+	 * @note  See also the tests for function.
 	 */
-	use U\Traits\Str\Members;
+	public static function is_mac( string $str ) : bool {
+		return false !== filter_var( $str, FILTER_VALIDATE_MAC );
+	}
 }
