@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Error\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\Error;
 
 /**
  * Utilities.
@@ -34,25 +34,15 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Error
  */
-trait Property_Members {
+trait Members {
 	/**
-	 * Stores the list of errors.
+	 * Traits.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-28
 	 */
-	protected array $errors = [];
-
-	/**
-	 * Stores the most recently added error data for each error code.
-	 *
-	 * @since 2021-12-15
-	 */
-	protected array $error_data = [];
-
-	/**
-	 * Stores previously added data for error codes, oldest-to-newest by error code.
-	 *
-	 * @since 2021-12-15
-	 */
-	protected array $additional_data = [];
+	use U\Traits\A6t\Error\Magic\Constructable_Members;
+	use U\Traits\A6t\Error\Utilities\Property_Members;
+	use U\Traits\A6t\Error\Utilities\Getter_Members;
+	use U\Traits\A6t\Error\Utilities\Setter_Members;
+	use U\Traits\A6t\Error\Utilities\Utility_Members;
 }

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Error\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Error\Magic;
 
 /**
  * Utilities.
@@ -47,8 +47,8 @@ trait Constructable_Members {
 	 * @note         This is a slightly modified clone of {@see \WP_Error}.
 	 *               It remains 100% interchangeable with WordPress errors as of 2021-12-15.
 	 *
-	 * @note         Though the class is constructed with a single error code and
-	 *               message, multiple codes can be added using the {@see U\Traits\Error\Utilities\Setter_Members::add()} method.
+	 * @note         Though the class is constructed with a single error code and  message, multiple codes can be added
+	 *               using the {@see U\Traits\A6t\Error\Utilities\Setter_Members::add()} method.
 	 *
 	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */

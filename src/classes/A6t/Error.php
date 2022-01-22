@@ -38,5 +38,5 @@ abstract class Error extends U\A6t\Base implements U\I7e\Error {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Error\Members;
+	use U\Traits\A6t\Error\Members;
 }
