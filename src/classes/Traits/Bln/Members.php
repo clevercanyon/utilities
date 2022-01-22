@@ -40,5 +40,5 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Bln\Utilities\Foo_Property;
+	use U\Traits\Bln\Utilities\Validate_Members;
 }
