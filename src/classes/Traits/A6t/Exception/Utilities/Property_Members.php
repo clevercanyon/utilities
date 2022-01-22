@@ -27,7 +27,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Exception;
+namespace Clever_Canyon\Utilities\Traits\A6t\Exception\Utilities;
 
 /**
  * Utilities.
@@ -45,13 +45,18 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Exception
  */
-trait Members {
+trait Property_Members {
 	/**
-	 * Traits.
+	 * Exception code.
 	 *
-	 * @since 2021-12-28
+	 * @since 2021-12-15
 	 */
-	use U\Traits\Exception\Magic\Constructable_Members;
-	use U\Traits\Exception\Utilities\Property_Members;
-	use U\Traits\Exception\Utilities\Getter_Members;
+	protected string $___code;
+
+	/**
+	 * Exception data.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected object $___data;
 }

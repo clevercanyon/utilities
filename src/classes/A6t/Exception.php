@@ -38,5 +38,5 @@ abstract class Exception extends \Exception implements U\I7e\Exception {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Exception\Members;
+	use U\Traits\A6t\Exception\Members;
 }
