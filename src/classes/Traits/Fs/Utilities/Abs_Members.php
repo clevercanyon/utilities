@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Fs\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,29 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Filesystem utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Fs
  */
-final class Fs extends U\A6t\Stc_Utilities {
+trait Abs_Members {
 	/**
-	 * Traits.
+	 * Resolves and normalizes path (symlinks *not* resolved).
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-15
+	 *
+	 * @param string $path Path to parse.
+	 *
+	 * @throws U\Fatal_Exception On failure; {@see U\Fs::normalize()}.
+	 * @return string Absolute path normalized (symlinks *not* resolved).
+	 *
+	 * @note  This expands to absolute path. It is CWD-aware, but not filesystem-aware.
+	 *        Therefore, the absolute path it returns may or may not *actually* exist.
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::abs()
 	 */
-	use U\Traits\Fs\Members;
+	public static function abs( string $path ) : string {
+		return U\Fs::normalize( $path, [ 'resolve:relative-path' => true ] );
+	}
 }

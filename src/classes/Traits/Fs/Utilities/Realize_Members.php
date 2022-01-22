@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Fs\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,29 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Filesystem utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Fs
  */
-final class Fs extends U\A6t\Stc_Utilities {
+trait Realize_Members {
 	/**
-	 * Traits.
+	 * Resolves, realizes (symlinks resolved), normalizes path.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-15
+	 *
+	 * @param string $path Path to parse.
+	 *
+	 * @return string Realized (symlinks resolved) canonical path normalized.
+	 *                This returns an empty string on failure to realize.
+	 *
+	 * @note  This expands/resolves everything, and it is filesystem-aware.
+	 *        All symbolic links are resolved; {@see realpath()}.
+	 *
+	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::realize()
 	 */
-	use U\Traits\Fs\Members;
+	public static function realize( string $path ) : string {
+		return false !== ( $rp = realpath( $path ) ) ? U\Fs::normalize( $rp ) : '';
+	}
 }

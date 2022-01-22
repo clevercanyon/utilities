@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Fs\Utilities;
 
 /**
  * Utilities.
@@ -28,15 +28,29 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Filesystem utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Fs
  */
-final class Fs extends U\A6t\Stc_Utilities {
+trait Perms_Members {
 	/**
-	 * Traits.
+	 * Gets a path's permissions.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param string $path  Path.
+	 * @param bool   $octal Return octal representation? Default is `false`.
+	 *
+	 * @return int|string Permissions.
 	 */
-	use U\Traits\Fs\Members;
+	public static function perms( string $path, bool $octal = false ) /* : int|string */ {
+		$perms = 0; // Initialize.
+
+		if ( U\Fs::really_exists( $path ) ) {
+			$perms = fileperms( $path );
+		}
+		return $octal ? mb_substr( sprintf( '%o', $perms ), -4 ) : $perms;
+	}
 }

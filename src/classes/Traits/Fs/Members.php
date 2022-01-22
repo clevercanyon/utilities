@@ -40,5 +40,17 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
+	use U\Traits\Fs\Utilities\Abs_Members;
+	use U\Traits\Fs\Utilities\Copy_Members;
+	use U\Traits\Fs\Utilities\Delete_Members;
+	use U\Traits\Fs\Utilities\Exists_Members;
+	use U\Traits\Fs\Utilities\Git_Ignore_Members;
+	use U\Traits\Fs\Utilities\Make_Members;
+	use U\Traits\Fs\Utilities\Normalize_Members;
 	use U\Traits\Fs\Utilities\Path_Wrapper_Properties;
+	use U\Traits\Fs\Utilities\Perms_Members;
+	use U\Traits\Fs\Utilities\Realize_Members;
+	use U\Traits\Fs\Utilities\Type_Members;
+	use U\Traits\Fs\Utilities\Wrapper_Members;
+	use U\Traits\Fs\Utilities\Zip_Members;
 }
