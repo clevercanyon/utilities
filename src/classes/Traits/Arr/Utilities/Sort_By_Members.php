@@ -34,7 +34,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Arr
  */
-trait Sort_Members {
+trait Sort_By_Members {
 	/**
 	 * Sorts an array.
 	 *

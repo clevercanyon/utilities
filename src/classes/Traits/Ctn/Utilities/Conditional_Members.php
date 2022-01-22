@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Ctn;
+namespace Clever_Canyon\Utilities\Traits\Ctn\Utilities;
 
 /**
  * Utilities.
@@ -34,19 +34,32 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Ctn
  */
-trait Members {
+trait Conditional_Members {
 	/**
-	 * Traits.
+	 * A collection?
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-16
+	 *
+	 * @param mixed $value Value to check.
+	 *
+	 * @return bool True if `$value` is a collection.
 	 */
-	use U\Traits\Ctn\Utilities\Clone_Deep_Members;
-	use U\Traits\Ctn\Utilities\Conditional_Members;
-	use U\Traits\Ctn\Utilities\Get_Prop_Key_Members;
-	use U\Traits\Ctn\Utilities\Map_Members;
-	use U\Traits\Ctn\Utilities\Merge_Members;
-	use U\Traits\Ctn\Utilities\Resolve_Env_Vars_Members;
-	use U\Traits\Ctn\Utilities\Sort_By_Members;
-	use U\Traits\Ctn\Utilities\Stringify_Members;
-	use U\Traits\Ctn\Utilities\Super_Merge_Members;
+	public static function is( /* mixed */ $value ) : bool {
+		return is_object( $value ) || is_array( $value );
+	}
+
+	/**
+	 * Collection is empty?
+	 *
+	 * @since 2021-12-16
+	 *
+	 * @param object|array $ctn Collection to check.
+	 *
+	 * @return bool True if collection is empty.
+	 */
+	public static function empty( /* object|array */ $ctn ) : bool {
+		assert( U\Ctn::is( $ctn ) );
+
+		return is_object( $ctn ) ? U\Obj::empty( $ctn ) : empty( $ctn );
+	}
 }

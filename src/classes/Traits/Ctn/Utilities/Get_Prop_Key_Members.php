@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Ctn;
+namespace Clever_Canyon\Utilities\Traits\Ctn\Utilities;
 
 /**
  * Utilities.
@@ -34,19 +34,26 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Ctn
  */
-trait Members {
+trait Get_Prop_Key_Members {
 	/**
-	 * Traits.
+	 * Property/key accessor, by path.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param object|array $ctn       Collection to query.
+	 * @param string       $path      Path to query object for.
+	 * @param string       $delimiter Delimiter used in path. Defaults to `.`.
+	 *
+	 * @return mixed Value, else `null` on failure to locate.
+	 *
+	 * @see   U\Obj::get_prop()
+	 * @see   U\Arr::get_key()
 	 */
-	use U\Traits\Ctn\Utilities\Clone_Deep_Members;
-	use U\Traits\Ctn\Utilities\Conditional_Members;
-	use U\Traits\Ctn\Utilities\Get_Prop_Key_Members;
-	use U\Traits\Ctn\Utilities\Map_Members;
-	use U\Traits\Ctn\Utilities\Merge_Members;
-	use U\Traits\Ctn\Utilities\Resolve_Env_Vars_Members;
-	use U\Traits\Ctn\Utilities\Sort_By_Members;
-	use U\Traits\Ctn\Utilities\Stringify_Members;
-	use U\Traits\Ctn\Utilities\Super_Merge_Members;
+	public static function get_prop_key( /* object|array */ $ctn, string $path, string $delimiter = '.' ) /* : mixed */ {
+		assert( U\Ctn::is( $ctn ) );
+
+		return is_object( $ctn )
+			? U\Obj::get_prop( $ctn, $path, $delimiter )
+			: U\Arr::get_key( $ctn, $path, $delimiter );
+	}
 }

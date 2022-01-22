@@ -45,6 +45,6 @@ trait Members {
 	use U\Traits\Arr\Utilities\Get_Key_Members;
 	use U\Traits\Arr\Utilities\Hash_Members;
 	use U\Traits\Arr\Utilities\Maybe_Prefix_Key_Members;
-	use U\Traits\Arr\Utilities\Sort_Members;
+	use U\Traits\Arr\Utilities\Sort_By_Members;
 	use U\Traits\Arr\Utilities\Value_First_Last_Members;
 }
