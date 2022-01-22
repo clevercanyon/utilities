@@ -40,7 +40,7 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Stc_Base\Members;
+	use U\Traits\A6t\Stc_Base\Members;
 
 	use U\Traits\A6t\Base\Magic\Constructable_Members;
 	use U\Traits\A6t\Base\Magic\Destructable_Members;

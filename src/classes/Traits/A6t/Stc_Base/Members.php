@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Stc_Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Stc_Base;
 
 /**
  * Utilities.
@@ -34,29 +34,13 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Stc_Base
  */
-trait Callable_Members {
+trait Members {
 	/**
-	 * Invokes inaccessible methods.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
-	 *
-	 * @param string $method Method name.
-	 * @param array  $args   Invocation args.
-	 *
-	 * @throws U\Fatal_Exception If method is uncallable.
-	 * @return mixed If callable, invocation return value.
-	 *
-	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */
-	public static function __callStatic( string $method, array $args ) /* : mixed */ {
-		$callable = static::${$method} ?? null;
-
-		if ( $callable && is_callable( $callable ) ) {
-			return $callable( $args );
-		}
-		throw new U\Fatal_Exception(
-			'Attempt to call `' . get_called_class() . '::' . $method . '()` failed.' .
-			' The method|property either does not exist or is not callable.'
-		);
-	}
+	use U\Traits\A6t\Stc_Base\Utilities\Cache_Members;
+	use U\Traits\A6t\Stc_Base\Magic\Uncallable_Members;
+	use U\Traits\A6t\Stc_Base\Magic\Unimportable_Members;
 }

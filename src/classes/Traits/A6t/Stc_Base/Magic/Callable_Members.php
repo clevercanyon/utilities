@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Stc_Base\Magic\Finals;
+namespace Clever_Canyon\Utilities\Traits\A6t\Stc_Base\Magic;
 
 /**
  * Utilities.
@@ -34,18 +34,29 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Stc_Base
  */
-trait Unconstructable_Members {
+trait Callable_Members {
 	/**
-	 * Constructor.
+	 * Invokes inaccessible methods.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Exception If class instantiation occurs.
+	 * @param string $method Method name.
+	 * @param array  $args   Invocation args.
+	 *
+	 * @throws U\Fatal_Exception If method is uncallable.
+	 * @return mixed If callable, invocation return value.
+	 *
+	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */
-	final public function __construct() {
-		throw new U\Exception(
-			'Any attempt to instantiate `' . get_class( $this ) . '` is entirely pointless.' .
-			' The class contains only static members. Instantiation is not allowed at this time.'
+	public static function __callStatic( string $method, array $args ) /* : mixed */ {
+		$callable = static::${$method} ?? null;
+
+		if ( $callable && is_callable( $callable ) ) {
+			return $callable( $args );
+		}
+		throw new U\Fatal_Exception(
+			'Attempt to call `' . get_called_class() . '::' . $method . '()` failed.' .
+			' The method|property either does not exist or is not callable.'
 		);
 	}
 }

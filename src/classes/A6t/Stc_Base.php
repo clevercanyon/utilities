@@ -38,6 +38,6 @@ abstract class Stc_Base implements U\I7e\Stc_Base {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Stc_Base\Members;
-	use U\Traits\Stc_Base\Magic\Unconstructable_Members;
+	use U\Traits\A6t\Stc_Base\Members;
+	use U\Traits\A6t\Stc_Base\Magic\Unconstructable_Members;
 }

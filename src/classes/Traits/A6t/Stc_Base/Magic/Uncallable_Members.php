@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Stc_Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\A6t\Stc_Base\Magic;
 
 /**
  * Utilities.
@@ -34,26 +34,23 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Stc_Base
  */
-trait Unimportable_Members {
+trait Uncallable_Members {
 	/**
-	 * Instantiates object w/ requested state.
+	 * Invokes inaccessible methods.
 	 *
-	 * @since 2021-12-27
+	 * @since 2021-12-15
 	 *
-	 * @param array $props Properties; i.e., desired state.
+	 * @param string $method Method name.
+	 * @param array  $args   Invocation args.
 	 *
 	 * @throws U\Fatal_Exception If called in any way.
-	 * @returns object A newly instantiated instance.
+	 * @return mixed Invocation's return value.
 	 *
-	 * @see   https://www.php.net/manual/en/function.var-export.php
-	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.set-state
-	 *
-	 * @note  PHP's {@see var_export()} produces code that attempts to call this function.
-	 *        For further details {@see https://www.php.net/manual/en/function.var-export.php}.
+	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */
-	public static function __set_state( array $props ) : object {
+	public static function __callStatic( string $method, array $args ) /* : mixed */ {
 		throw new U\Fatal_Exception(
-			'Any attempt to import the state of `' . get_called_class() . '`' .
+			'Any attempt to invoke inaccessible static methods of `' . get_called_class() . '`' .
 			' is potentially dangerous and therefore not allowed at this time.'
 		);
 	}

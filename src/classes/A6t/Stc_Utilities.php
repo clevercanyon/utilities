@@ -39,5 +39,5 @@ abstract class Stc_Utilities extends U\A6t\Stc_Base {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Stc_Utilities\Members;
-	use U\Traits\Stc_Base\Magic\Finals\Unconstructable_Members;
+	use U\Traits\A6t\Stc_Base\Magic\Finals\Unconstructable_Members;
 }
