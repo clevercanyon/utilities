@@ -46,7 +46,7 @@ trait Sys_Temp_Members {
 	 * @see   U\Env::var() When modifying this function.
 	 */
 	public static function sys_temp() : string {
-		if ( null !== ( $cache = &static::cache( __FUNCTION__ ) ) ) {
+		if ( null !== ( $cache = &static::cls_cache( __FUNCTION__ ) ) ) {
 			return $cache; // Cached already.
 		}
 		$haystack = []; // Initialize.

@@ -96,11 +96,11 @@ final class Composer extends U\A6t\Stc_Utilities {
 		if ( ! $is_recursive ) {
 			$_r->dir = $dir; // Top-level project dir.
 		}
-		// Checks STC cache.
+		// Checks static CLS cache.
 
 		if ( ! $is_recursive ) {
 			if ( // A few cache keys here.
-				null !== ( $cache = &static::cache( [
+				null !== ( $cache = &static::cls_cache( [
 					__FUNCTION__,
 					$dir,
 					$extra_namespace,

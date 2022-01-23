@@ -59,7 +59,7 @@ final class Dev extends U\A6t\Stc_Utilities {
 		$file = U\Dir::join( $dir, '/.dev.json' );
 
 		if ( // A few cache keys here.
-			null !== ( $cache = &static::cache( [
+			null !== ( $cache = &static::cls_cache( [
 				__FUNCTION__,
 				$dir,
 				$namespace,

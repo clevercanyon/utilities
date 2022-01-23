@@ -64,7 +64,7 @@ trait Sort_By_Members {
 
 			case 'value':
 				foreach ( $obj as $_value ) {
-					if ( ! is_null( $_value ) && ! is_scalar( $_value ) ) {
+					if ( null !== $_value && ! is_scalar( $_value ) ) {
 						throw new U\Exception( 'All values must be null|scalar.' );
 					}
 				}

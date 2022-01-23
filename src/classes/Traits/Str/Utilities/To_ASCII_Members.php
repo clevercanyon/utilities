@@ -56,7 +56,10 @@ trait To_ASCII_Members {
 	 * @noinspection PhpComposerExtensionStubsInspection
 	 */
 	public static function to_ascii_er( string $str ) /* : string|false */ {
-		if ( ! U\Env::can_use_extension( 'intl' ) ) {
+		static $can_use_extension; // Remember.
+		$can_use_extension ??= U\Env::can_use_extension( 'intl' );
+
+		if ( ! $can_use_extension ) {
 			throw new U\Fatal_Exception( 'Missing PHP `intl` extension.' );
 		}
 		return transliterator_transliterate( 'Any-Latin; Latin-ASCII', $str );

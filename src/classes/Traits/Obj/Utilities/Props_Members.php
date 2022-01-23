@@ -57,7 +57,7 @@ trait Props_Members {
 	 *  - `protected...private` returns protected and private non-static properties.
 	 *
 	 *  - `debug` returns public, protected, and private non-static properties. Same as `public...private`.
-	 *  - `debug+` Includes some internals like `obj_cache`, which is not returned otherwise.
+	 *  - `debug+` Includes some internals like `ins_cache`, which is not returned otherwise.
 	 *
 	 * @return array All accessible non-static properties using the given `$filter`.
 	 *
@@ -138,8 +138,8 @@ trait Props_Members {
 				break;
 		}
 		if ( 'debug+' !== $filter ) {
-			// Remove `obj_cache` (uninteresting and super noisy).
-			unset( $props[ "\0" . U\A6t\Base::class . "\0" . 'obj_cache' ] );
+			// Remove `ins_cache` (uninteresting and super noisy).
+			unset( $props[ "\0" . U\A6t\Base::class . "\0" . 'ins_cache' ] );
 		}
 		return $props;
 	}

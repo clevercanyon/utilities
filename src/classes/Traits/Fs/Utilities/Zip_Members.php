@@ -38,7 +38,7 @@ trait Zip_Members {
 	/**
 	 * Zip one path into another path (`zip` extension required).
 	 *
-	 * @since        2021-12-15
+	 * @since         2021-12-15
 	 *
 	 * @param string      $from_path         Path to zip.
 	 * @param string      $to_path           Destination path.
@@ -66,7 +66,10 @@ trait Zip_Members {
 	 *
 	 * @return bool True if zipped successfully.
 	 *
-	 * @noinspection PhpComposerExtensionStubsInspection
+	 * @future-review PHP 8+ brought some changes to the zip extensin.
+	 *                {@see https://o5p.me/7wQthu}.
+	 *
+	 * @noinspection  PhpComposerExtensionStubsInspection
 	 */
 	public static function zip_er(
 		string $from_path,
@@ -84,7 +87,10 @@ trait Zip_Members {
 
 		// Dependency check.
 
-		if ( ! $is_recursive && ! U\Env::can_use_extension( 'zip' ) ) {
+		static $can_use_extension; // Remember.
+		$can_use_extension ??= U\Env::can_use_extension( 'zip' );
+
+		if ( ! $is_recursive && ! $can_use_extension ) {
 			throw new U\Fatal_Exception( 'Missing PHP `zip` extension.' );
 		}
 		// Recursive class initialization.

@@ -45,13 +45,13 @@ trait Is_INI_Setting_Changeable_Members {
 	 * @return bool True if `$setting` is changeable.
 	 */
 	public static function is_ini_setting_changeable( string $setting ) : bool {
-		if ( null === ( $cache = &static::cache( [ __FUNCTION__, 'ini_all' ] ) ) ) {
+		if ( null === ( $cache = &static::cls_cache( __FUNCTION__ ) ) ) {
 			if ( U\Env::can_use_function( 'ini_get_all' ) ) {
 				$cache = ini_get_all();
 			}
 			$cache = is_array( $cache ) ? $cache : false;
 		}
-		if ( ! is_array( $cache ) ) {
+		if ( false === $cache ) {
 			return true; // Unable to read all, assume `true`.
 		}
 		return isset( $cache[ $setting ][ 'access' ] )

@@ -34,7 +34,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Str
  */
-trait Esc_Members {
+trait Escape_Members {
 	/**
 	 * Escapes single quotes.
 	 *

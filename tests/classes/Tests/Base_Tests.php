@@ -119,7 +119,7 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $public_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $public_props, $this->message() );
 
-		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'obj_cache', $public_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $public_props, $this->message() );
 
 		// `public+` (default) tests.
 
@@ -134,7 +134,7 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayHasKey( "\0" . '+' . "\0" . 'offsets', $public_plus_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $public_plus_props, $this->message() );
 
-		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'obj_cache', $public_plus_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $public_plus_props, $this->message() );
 
 		// `protected` tests.
 
@@ -149,7 +149,7 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $protected_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $protected_props, $this->message() );
 
-		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'obj_cache', $protected_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $protected_props, $this->message() );
 
 		// `private` tests.
 
@@ -164,7 +164,7 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $private_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $private_props, $this->message() );
 
-		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'obj_cache', $private_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $private_props, $this->message() );
 
 		// `public...protected` tests.
 
@@ -179,7 +179,7 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $public__protected_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $public__protected_props, $this->message() );
 
-		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'obj_cache', $public__protected_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $public__protected_props, $this->message() );
 
 		// `public...private` tests.
 
@@ -194,7 +194,7 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $public__private_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $public__private_props, $this->message() );
 
-		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'obj_cache', $public__private_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $public__private_props, $this->message() );
 
 		// `protected...private` tests.
 
@@ -209,7 +209,7 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $protected__private_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $protected__private_props, $this->message() );
 
-		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'obj_cache', $protected__private_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $protected__private_props, $this->message() );
 
 		// `debug` tests.
 
@@ -224,7 +224,7 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $debug_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $debug_props, $this->message() );
 
-		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'obj_cache', $debug_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $debug_props, $this->message() );
 
 		// `debug+` tests.
 
@@ -239,6 +239,6 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $debug_plus_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $debug_plus_props, $this->message() );
 
-		$this->assertArrayHasKey( "\0" . U\A6t\Base::class . "\0" . 'obj_cache', $debug_plus_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $debug_plus_props, $this->message() );
 	}
 }

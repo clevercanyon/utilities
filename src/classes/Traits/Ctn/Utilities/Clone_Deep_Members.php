@@ -99,10 +99,6 @@ trait Clone_Deep_Members {
 	 *
 	 * @return object Deep clone of object.
 	 *
-	 * @future-review As of PHP 7.4 ... 8.1 it is not possible to break references that exist in
-	 *                protected/private properties of internal/built-in PHP classes (see code for details).
-	 *                This should be a definite edge-case, but it's important to be aware of the limitation.
-	 *
 	 * @note          In PHP, a class is cloneable if this expression is true.
 	 *        ```
 	 *        ! method_exists( $obj, '__clone' ) || is_callable( [ $obj, '__clone' ] )
@@ -119,6 +115,13 @@ trait Clone_Deep_Members {
 	 * @see           https://www.php.net/manual/en/reflectionclass.iscloneable.php
 	 * @see           https://github.com/ZeroConfig/clone/blob/master/src/Cloner.php
 	 * @see           https://github.com/myclabs/DeepCopy/blob/1.x/src/DeepCopy/DeepCopy.php
+	 *
+	 * @future-review As of PHP 7.4 ... 8.1 it is not possible to break references that exist in
+	 *                protected/private properties of internal/built-in PHP classes (see code for details).
+	 *                This should be a definite edge-case, but it's important to be aware of the limitation.
+	 *
+	 * @todo          Can our binding of the reference-breaking closure be simplified?
+	 *                {@see https://o5p.me/12j3Sd}.
 	 */
 	protected static function clone_deep_obj_helper( object $obj, \SplObjectStorage $map ) : object {
 		if ( isset( $map[ $obj ] ) ) {

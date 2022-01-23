@@ -70,7 +70,7 @@ trait Normalize_Members {
 	 */
 	public static function normalize( string $path, array $_d = [] ) : string {
 		if ( ! empty( $_d[ 'cache' ] ) // Enable caching?
-			&& null !== ( $cache = &static::cache( [ __FUNCTION__, $path, $_d ] ) ) ) {
+			&& null !== ( $cache = &static::cls_cache( [ __FUNCTION__, $path, $_d ] ) ) ) {
 			return $cache; // Already cached; saves a little time.
 		}
 		// Normalize type of slashes.

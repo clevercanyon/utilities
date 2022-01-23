@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Base;
+namespace Clever_Canyon\Utilities\Traits\Mem;
 
 /**
  * Utilities.
@@ -28,11 +28,11 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Interface members.
+ * Utility members.
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Base
+ * @see   U\Mem
  */
 trait Members {
 	/**
@@ -40,25 +40,17 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\A6t\Stc_Base\Members;
+	use U\Traits\Mem\Magic\Constructable_Members;
+	use U\Traits\Mem\Utilities\Property_Members;
+	use U\Traits\Mem\Utilities\Instance_Members;
 
-	use U\Traits\A6t\Base\Magic\Constructable_Members;
-	use U\Traits\A6t\Base\Magic\Destructable_Members;
-	use U\Traits\A6t\Base\Magic\Cloneable_Members;
+	use U\Traits\Mem\Utilities\Key_Members;
+	use U\Traits\Mem\Utilities\Server_Members;
 
-	use U\Traits\A6t\Base\Magic\Unreadable_Members;
-	use U\Traits\A6t\Base\Magic\Unwritable_Members;
+	use U\Traits\Mem\Utilities\Getter_Members;
+	use U\Traits\Mem\Utilities\Setter_Members;
 
-	use U\Traits\A6t\Base\Magic\Uncallable_Members;
-	use U\Traits\A6t\Base\Magic\Uninvokable_Members;
-
-	use U\Traits\A6t\Base\Magic\Debuggable_Members;
-	use U\Traits\A6t\Base\Magic\Stringable_Members;
-
-	use U\Traits\A6t\Base\Magic\Unserializable_Members;
-	use U\Traits\A6t\Base\I7e\JsonSerializable_Members;
-
-	use U\Traits\A6t\Base\Utilities\Equals_Members;
-	use U\Traits\A6t\Base\Utilities\Property_Members;
-	use U\Traits\A6t\Base\Utilities\INS_Cache_Members;
+	use U\Traits\Mem\Utilities\Clear_Members;
+	use U\Traits\Mem\Utilities\Touch_Members;
+	use U\Traits\Mem\Utilities\Utility_Members;
 }

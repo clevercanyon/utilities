@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Brand;
 
 /**
  * Utilities.
@@ -28,15 +28,17 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Float utilities.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Brand
  */
-final class Flt extends U\A6t\Stc_Utilities {
+trait Members {
 	/**
 	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Flt\Members;
+	use U\Traits\Brand\Utilities\Name_Slug_Var_Members;
 }

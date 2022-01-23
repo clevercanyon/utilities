@@ -70,7 +70,7 @@ trait Charset_Members {
 	 *        - In a WordPress environment it is safe to use `mb_*` functions w/o explicitly defining a charset.
 	 *        - In a WordPress environment, {@see htmlentities()}, {@see htmlspecialchars()}, and {@see html_entity_decode()};
 	 *          must be explicitly told which charset to use for encoding, given that it doesn't modify the `default_charset` value.
-	 *            - WordPress does. This codebase must do the same!
+	 *            - WordPress does, and this codebase *must* do the same!
 	 *
 	 *        - Outside of WordPress, PHP's default behavior is to use `default_charset` for all `mb_*` and `html*` functions.
 	 *          Thus, outside of WordPress it is generally safe to use `mb_*` and `html*` functions w/o explicitly defining a charset.
@@ -86,8 +86,8 @@ trait Charset_Members {
 		$is_wordpress = U\Env::is_wordpress();
 
 		$charset = $is_wordpress ? get_option( 'blog_charset' ) : ini_get( 'default_charset' );
-		$charset = $is_wordpress && ( 'utf8' === $charset || 'UTF8' === $charset ) ? 'utf-8' : $charset;
 		$charset = mb_strtolower( (string) $charset ?: 'utf-8' );
+		$charset = 'utf8' === $charset ? 'utf-8' : $charset;
 
 		return $charset;
 	}

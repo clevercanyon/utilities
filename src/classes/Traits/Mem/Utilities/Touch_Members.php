@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-25
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Base;
+namespace Clever_Canyon\Utilities\Traits\Mem\Utilities;
 
 /**
  * Utilities.
@@ -28,37 +36,31 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Interface members.
+ * Utility members.
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Base
+ * @see   U\Mem
  */
-trait Members {
+trait Touch_Members {
 	/**
-	 * Traits.
+	 * Touch a cache key (i.e., new expiration).
 	 *
-	 * @since 2021-12-15
+	 * @since 2020-11-19
+	 *
+	 * @param string $primary_key Primary key.
+	 * @param string $sub_key     Sub-key to touch.
+	 * @param int    $expires_in  Expires (in seconds).
+	 *
+	 * @return bool True on success.
 	 */
-	use U\Traits\A6t\Stc_Base\Members;
+	public function touch( string $primary_key, string $sub_key, int $expires_in ) : bool {
+		$expires_in = max( 0, $expires_in );
+		$expires    = $expires_in ? time() + $expires_in : 0;
 
-	use U\Traits\A6t\Base\Magic\Constructable_Members;
-	use U\Traits\A6t\Base\Magic\Destructable_Members;
-	use U\Traits\A6t\Base\Magic\Cloneable_Members;
-
-	use U\Traits\A6t\Base\Magic\Unreadable_Members;
-	use U\Traits\A6t\Base\Magic\Unwritable_Members;
-
-	use U\Traits\A6t\Base\Magic\Uncallable_Members;
-	use U\Traits\A6t\Base\Magic\Uninvokable_Members;
-
-	use U\Traits\A6t\Base\Magic\Debuggable_Members;
-	use U\Traits\A6t\Base\Magic\Stringable_Members;
-
-	use U\Traits\A6t\Base\Magic\Unserializable_Members;
-	use U\Traits\A6t\Base\I7e\JsonSerializable_Members;
-
-	use U\Traits\A6t\Base\Utilities\Equals_Members;
-	use U\Traits\A6t\Base\Utilities\Property_Members;
-	use U\Traits\A6t\Base\Utilities\INS_Cache_Members;
+		if ( ! ( $key = $this->key( $primary_key, $sub_key ) ) ) {
+			return false; // Failure.
+		}
+		return $this->memcached->touch( $key, $expires );
+	}
 }

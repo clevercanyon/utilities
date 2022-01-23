@@ -57,13 +57,13 @@ trait Validation_Members {
 	 */
 	protected function v6e_abs_path( /* mixed */ $path, /* string|array|null */ $req_path_types = null ) : string {
 		assert( is_string( $req_path_types ) || is_array( $req_path_types ) || is_null( $req_path_types ) );
-		$req_path_types = isset( $req_path_types ) ? (array) $req_path_types : null;
+		$req_path_types = null !== $req_path_types ? (array) $req_path_types : null;
 
 		if ( is_string( $path ) && '' !== $path ) {
 			$abs_path         = U\Fs::abs( $path );
 			$is_req_path_type = null; // Initialize.
 
-			if ( $abs_path && isset( $req_path_types ) ) {
+			if ( $abs_path && null !== $req_path_types ) {
 				$is_req_path_type = in_array( U\Fs::real_type( $abs_path ), $req_path_types, true );
 			}
 			if ( $abs_path && false !== $is_req_path_type ) {

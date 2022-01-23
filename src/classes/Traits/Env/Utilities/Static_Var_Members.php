@@ -50,14 +50,14 @@ trait Static_Var_Members {
 	 * @since 2021-12-22
 	 *
 	 * @param string $name  Static environment variable name.
-	 * @param mixed  $value Static environment variable value, if setting.
-	 *                      If not passed, this simply operates as a getter.
-	 *                      If passed explicitly as `null`, variable is {@see unset()}.
+	 * @param mixed  $value Static environment variable value; i.e., when setting|updating.
+	 *                      Passing `null` explicitly will {@see unset()} variable.
+	 *                      If not passed, this function simply operates as a getter.
 	 *
-	 * @return mixed Value of the static environment variable, else `null`.
+	 * @return mixed Value of static environment variable, else `null`.
 	 */
 	public static function static_var( string $name, /* mixed */ $value = null ) /* : mixed */ {
-		if ( func_num_args() >= 2 ) {
+		if ( null !== $value || func_num_args() >= 2 ) {
 			if ( null === $value ) {
 				unset( static::$vars[ $name ] );
 			} else {

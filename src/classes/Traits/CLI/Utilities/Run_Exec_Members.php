@@ -70,7 +70,7 @@ trait Run_Exec_Members {
 	/**
 	 * Executes a shell command (does not display output).
 	 *
-	 * @since 2021-12-15
+	 * @since         2021-12-15
 	 *
 	 * @param array       $args         Command arguments (unquoted/unescaped).
 	 * @param string|null $dir          Current working directory. Defaults to `null` value.
@@ -81,6 +81,11 @@ trait Run_Exec_Members {
 	 *                         On non-zero exit status code or other issue.
 	 *
 	 * @return object Object with properties `{}->status|stdout|stderr`.
+	 *
+	 * @todo          Review these changes to see if we can leverage any of them.
+	 *                {@see https://o5p.me/YJvL3s}.
+	 *
+	 * @future-review Also changes in PHP 8+; {@see https://o5p.me/rUnbCC}.
 	 */
 	public static function exec(
 		array $args,

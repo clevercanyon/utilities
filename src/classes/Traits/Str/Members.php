@@ -44,7 +44,7 @@ trait Members {
 	use U\Traits\Str\Utilities\Contains_Members;
 	use U\Traits\Str\Utilities\Dump_Members;
 	use U\Traits\Str\Utilities\Ends_With_Members;
-	use U\Traits\Str\Utilities\Esc_Members;
+	use U\Traits\Str\Utilities\Escape_Members;
 	use U\Traits\Str\Utilities\Is_Email_Members;
 	use U\Traits\Str\Utilities\Is_Hostname_Members;
 	use U\Traits\Str\Utilities\Is_IP_Members;

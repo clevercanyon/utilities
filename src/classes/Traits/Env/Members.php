@@ -50,6 +50,7 @@ trait Members {
 	use U\Traits\Env\Utilities\Disable_Caching_Members;
 	use U\Traits\Env\Utilities\Disable_GZIP_Members;
 	use U\Traits\Env\Utilities\End_Output_Buffering_Members;
+	use U\Traits\Env\Utilities\Host_Members;
 	use U\Traits\Env\Utilities\Is_CLI_Members;
 	use U\Traits\Env\Utilities\Is_INI_Setting_Changeable_Members;
 	use U\Traits\Env\Utilities\Is_OS_Members;

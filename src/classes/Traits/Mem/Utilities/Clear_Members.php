@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-25
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Flt;
+namespace Clever_Canyon\Utilities\Traits\Mem\Utilities;
 
 /**
  * Utilities.
@@ -32,13 +40,26 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\Flt
+ * @see   U\Mem
  */
-trait Members {
+trait Clear_Members {
 	/**
-	 * Traits.
+	 * Clears cache.
 	 *
-	 * @since 2021-12-15
+	 * @since 2020-11-19
+	 *
+	 * @param string      $primary_key Primary key.
+	 * @param string|null $sub_key     Sub-key to clear. Default is `null` (all sub-keys).
+	 *                                 When `null` (default), all sub-keys are cleared from cache.
+	 *
+	 * @return bool True on success.
 	 */
-	use U\Traits\Flt\Utilities\Foo_Property;
+	public function clear( string $primary_key, /* string|null */ ?string $sub_key = null ) : bool {
+		if ( null === $sub_key ) {
+			$key = $this->nsp_key( $primary_key );
+		} else {
+			$key = $this->key( $primary_key, $sub_key );
+		}
+		return $key && $this->memcached->delete( $key );
+	}
 }

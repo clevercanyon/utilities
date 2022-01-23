@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Flt\Utilities;
+namespace Clever_Canyon\Utilities;
 
 /**
  * Utilities.
@@ -28,17 +28,21 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Returns `$value` iff `$v7r` validates; else `$default` value.
  *
  * @since 2021-12-15
  *
- * @see   U\Flt
+ * @param mixed    $value   Value to check and potentially return.
+ *
+ * @param callable $v7r     Validator; e.g., type check, or some other callback.
+ *                          e.g., `is_int`, `is_float`, `is_string`, `is_bool`, `is_array`, `is_object`, `is_resource`.
+ *                          e.g., `fn( $v ) => ( is_float( $v ) || is_int( $v ) ) && $v > 0`.
+ *
+ * @param mixed    $default Value to return on failure. Default is `null`.
+ *
+ * @return mixed If `$value` validates, returns `$value`.
+ *               Otherwise, returns `$default` value.
  */
-trait Foo_Property {
-	/**
-	 * Foo property.
-	 *
-	 * @since 2021-12-15
-	 */
-	protected static string $foo = 'foo';
+function iff( /* mixed */ $value, callable $v7r, /* mixed */ $default = null ) /* : mixed */ {
+	return $v7r( $value ) ? $value : $default;
 }

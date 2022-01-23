@@ -288,7 +288,7 @@ final class Project extends U\A6t\Base {
 		// Validate package name properties.
 
 		$this->pkg_name      = strval( $this->json->name );
-		$this->pkg_name_hash = U\Crypto::x_sha( $this->pkg_name, 12 );
+		$this->pkg_name_hash = U\Crypto::x_sha( $this->pkg_name );
 
 		if ( ! $this->pkg_name || ! preg_match( U\Dev\Composer::PACKAGE_NAME_REGEXP, $this->pkg_name ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_name`.' );
@@ -466,7 +466,7 @@ final class Project extends U\A6t\Base {
 	 * @see   \WP_Groove\Framework\A6t\Plugin
 	 */
 	public function wp_plugin_data() /* : object|false */ {
-		if ( null !== ( $cache = &$this->obj_cache( __FUNCTION__ ) ) ) {
+		if ( null !== ( $cache = &$this->ins_cache( __FUNCTION__ ) ) ) {
 			return $cache; // Cached already.
 		}
 		if ( ! $this->is_wp_plugin() ) {
@@ -575,7 +575,7 @@ final class Project extends U\A6t\Base {
 	 * @see   \WP_Groove\Framework\A6t\Theme
 	 */
 	public function wp_theme_data() /* : object|false */ {
-		if ( null !== ( $cache = &$this->obj_cache( __FUNCTION__ ) ) ) {
+		if ( null !== ( $cache = &$this->ins_cache( __FUNCTION__ ) ) ) {
 			return $cache; // Cached already.
 		}
 		if ( ! $this->is_wp_theme() ) {

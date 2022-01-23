@@ -36,6 +36,46 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Var_Members {
 	/**
+	 * Gets environment variables.
+	 *
+	 * @since 2021-12-21
+	 *
+	 * @param string[] $others Any other custom environment variables. Default is `[]`.
+	 *                         These will override any existing environment variables with same names.
+	 *
+	 * @return string[] Environment variables.
+	 *
+	 * @see   U\Env::var() Before modifying this function.
+	 * @see   https://en.wikipedia.org/wiki/Environment_variable
+	 */
+	public static function vars( array $others = [] ) : array {
+		$vars = []; // Initialize.
+
+		foreach ( [ // {@see var()} below.
+			'USER',
+			'HOME',
+			'CWD', // Aliased as `PWD` below.
+			'TMPDIR',
+			'PHP_SELF',
+			'SCRIPT_NAME',
+			'DOCUMENT_ROOT',
+			'SCRIPT_FILENAME',
+		] as $_var
+		) {
+			$vars[ $_var ] = U\Env::var( $_var );
+
+			if ( 'CWD' === $_var ) {
+				$vars[ 'PWD' ] = &$vars[ $_var ];
+			}
+		}
+		$vars += getenv() + $_SERVER;
+		$vars = $others + $vars; // Gives `$others` precedence.
+		$vars = U\Ctn::stringify( $vars, true, 1 );
+
+		return $vars;
+	}
+
+	/**
 	 * Gets environment variable.
 	 *
 	 * @since 2021-12-21
@@ -50,98 +90,68 @@ trait Var_Members {
 	 * @note  Absence of {@see U\Fs::realize()} here. Callers should handle that as necessary.
 	 *        One exception is `TMPDIR` via {@see U\Dir::sys_temp()}, which does use {@see U\Fs::realize()}.
 	 *
-	 * @see   U\Env::vars() Before modifying this function
+	 * @see   U\Env::vars() Before modifying this function.
 	 * @see   U\Env::sys_temp() Before modifying.
+	 * @see   U\User::ip() Before modifying.
 	 */
 	public static function var( string $var, array $_d = [] ) : string {
+		$is_windows  = U\Env::is_windows();
+		$fsn_d_cache = [ 'cache' => [ __METHOD__, $var ] ];
+
 		switch ( $var ) {
-			case 'USER': // Current user's username.
-				$value = getenv( $var ) // POSIX: Unix/Linux, macOS.
-					?: getenv( 'USERNAME' ); // Windows.
-				break;
+			case 'USER':
+				if ( $is_windows ) {
+					$value = getenv( 'USERNAME' );
+				} else {
+					$value = getenv( 'USER' );
+				}
+				return (string) $value;
 
-			case 'HOME': // Current user's home directory.
-				// {@see https://en.wikipedia.org/wiki/Home_directory}.
-				$value = getenv( $var ) // POSIX: Unix/Linux, macOS.
-					?: getenv( 'USERPROFILE' ) // Windows; easier than drive+path.
-						?: ( getenv( 'HOMEDRIVE' ) . getenv( 'HOMEPATH' ) ); // Windows.
-				$value = U\Fs::normalize( (string) $value, [ 'cache' => [ __METHOD__, $var ] ] );
-				break;
+			case 'HOME':
+				if ( $is_windows ) {
+					if ( ! $value = getenv( 'USERPROFILE' ) ) {
+						$_homedrive = getenv( 'HOMEDRIVE' );
+						$_homepath  = getenv( 'HOMEPATH' );
 
-			case 'CWD': // Current working directory.
-			case 'PWD': // Kinda weird POSIX-compliant name.
-				// {@see https://en.wikipedia.org/wiki/Pwd} for details.
-				// Preference is `CWD`, but `PWD` is standards compliant, so it's here also.
-				$value = getcwd() // PHP: Unix/Linux, macOS, Windows.
-					?: getenv( 'PWD' ) // POSIX: Unix/Linux, macOS.
-						?: getenv( 'CD' ); // Windows.
-				$value = U\Fs::normalize( (string) $value, [ 'cache' => [ __METHOD__, $var ] ] );
-				break;
+						if ( $_homedrive && $_homepath ) {
+							$value = $_homedrive . $_homedrive;
+						}
+					}
+				} else {
+					$value = getenv( 'HOME' );
+				}
+				return U\Fs::normalize( (string) $value, $fsn_d_cache );
 
-			case 'TMPDIR': // Temporary directory.
-				// {@see https://en.wikipedia.org/wiki/TMPDIR}.
-				$value = ! empty( $_d[ 'bypass:U\\Dir::sys_temp' ] ) ? '' : U\Dir::sys_temp();
-				$value = $value ?: getenv( $var ) // POSIX: Unix/Linux, macOS, Windows.
-					?: getenv( 'TEMP' ) ?: getenv( 'TMP' ); // Unix/Linux, macOS.
-				$value = U\Fs::normalize( (string) $value, [ 'cache' => [ __METHOD__, $var ] ] );
-				break;
+			case 'CWD': // Preferred approach.
+			case 'PWD': // Weird POSIX-compliant name.
+				if ( $is_windows ) {
+					$value = getcwd() ?: getenv( 'PWD' ) ?: getenv( 'CD' );
+				} else {
+					$value = getcwd() ?: getenv( 'PWD' );
+				}
+				return U\Fs::normalize( (string) $value, $fsn_d_cache );
 
-			case 'REMOTE_ADDR': // Remote IP address.
-				// {@see https://o5p.me/VfrDPz} for details.
-				$value = ! empty( $_d[ 'bypass:U\\User::ip' ] ) ? '' : U\User::ip();
-				$value = mb_strtolower( $value ?: getenv( $var ) );
-				break;
+			case 'TMPDIR':
+				if ( empty( $_d[ 'bypass:U\\Dir::sys_temp' ] ) ) {
+					return U\Dir::sys_temp();
+				}
+				$value = getenv( 'TMPDIR' ) ?: getenv( 'TEMP' ) ?: getenv( 'TMP' );
+				return U\Fs::normalize( (string) $value, $fsn_d_cache );
+
+			case 'REMOTE_ADDR':
+				if ( empty( $_d[ 'bypass:U\\User::ip' ] ) ) {
+					return U\User::ip(); // Handles delimitation, normalization, etc.
+				}
+				return (string) getenv( 'REMOTE_ADDR' ); // Possibly a delimited string of IPs.
 
 			case 'PHP_SELF': // ↓ Normalize.
 			case 'SCRIPT_NAME':
 			case 'DOCUMENT_ROOT':
 			case 'SCRIPT_FILENAME':
-				$value = getenv( $var );
-				$value = U\Fs::normalize( (string) $value, [ 'cache' => [ __METHOD__, $var ] ] );
-				break;
+				return U\Fs::normalize( (string) getenv( $var ), $fsn_d_cache );
 
-			default: // If `$var` is not empty.
-				$value = $var ? getenv( $var ) : '';
+			default:
+				return $var ? (string) getenv( $var ) : '';
 		}
-		return (string) $value;
-	}
-
-	/**
-	 * Gets environment variables.
-	 *
-	 * @since 2021-12-21
-	 *
-	 * @param string[] $others Any other custom environment vars. Default is `[]`.
-	 *                         These will override any existing environment vars with same name.
-	 *
-	 * @return string[] Environment variables.
-	 *
-	 * @see   U\Env::var() When modifying.
-	 * @see   https://en.wikipedia.org/wiki/Environment_variable
-	 */
-	public static function vars( array $others = [] ) : array {
-		$vars = []; // Initialize.
-
-		foreach ( [ // {@see var()} below.
-			'USER',
-			'HOME',
-			'CWD',
-			'TMPDIR',
-			'PHP_SELF',
-			'SCRIPT_NAME',
-			'DOCUMENT_ROOT',
-			'SCRIPT_FILENAME',
-		] as $_var
-		) {
-			$vars[ $_var ] = U\Env::var( $_var );
-			if ( 'CWD' === $_var ) {
-				$vars[ 'PWD' ] = &$vars[ $_var ];
-			}
-		}
-		$vars += getenv() + $_SERVER;
-		$vars = $others + $vars; // Gives `$others` precedence.
-		$vars = U\Ctn::stringify( $vars, true, 1 );
-
-		return $vars;
 	}
 }

@@ -51,7 +51,7 @@ trait Can_Use_Function_Members {
 		if ( ! $functions ) {
 			return true; // Nothing to check.
 		}
-		if ( null === ( $cache = &static::cache( __FUNCTION__ ) ) ) {
+		if ( null === ( $cache = &static::cls_cache( __FUNCTION__ ) ) ) {
 			$cache                    = (object) [ 'can' => [] ];
 			$cache->disable_functions = mb_strtolower( (string) ini_get( 'disable_functions' ) );
 			$cache->disable_functions = preg_split( '/[\s,]+/u', $cache->disable_functions, -1, PREG_SPLIT_NO_EMPTY );
@@ -60,18 +60,19 @@ trait Can_Use_Function_Members {
 			// `function_exists()` returns `false`, but we return `true` here.
 			$cache->language_constructs = [
 				'__halt_compiler',
+				'assert',
 				'die',
 				'echo',
 				'empty',
 				'eval',
 				'exit',
-				'include_once',
 				'include',
+				'include_once',
 				'isset',
 				'list',
 				'print',
-				'require_once',
 				'require',
+				'require_once',
 				'return',
 				'unset',
 			];

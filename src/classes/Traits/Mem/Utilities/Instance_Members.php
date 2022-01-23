@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-25
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Base;
+namespace Clever_Canyon\Utilities\Traits\Mem\Utilities;
 
 /**
  * Utilities.
@@ -28,37 +36,33 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Interface members.
+ * Utility members.
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Base
+ * @see   U\Mem
  */
-trait Members {
+trait Instance_Members {
 	/**
-	 * Traits.
+	 * Static instance.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-22
 	 */
-	use U\Traits\A6t\Stc_Base\Members;
+	protected static U\Mem $instance;
 
-	use U\Traits\A6t\Base\Magic\Constructable_Members;
-	use U\Traits\A6t\Base\Magic\Destructable_Members;
-	use U\Traits\A6t\Base\Magic\Cloneable_Members;
-
-	use U\Traits\A6t\Base\Magic\Unreadable_Members;
-	use U\Traits\A6t\Base\Magic\Unwritable_Members;
-
-	use U\Traits\A6t\Base\Magic\Uncallable_Members;
-	use U\Traits\A6t\Base\Magic\Uninvokable_Members;
-
-	use U\Traits\A6t\Base\Magic\Debuggable_Members;
-	use U\Traits\A6t\Base\Magic\Stringable_Members;
-
-	use U\Traits\A6t\Base\Magic\Unserializable_Members;
-	use U\Traits\A6t\Base\I7e\JsonSerializable_Members;
-
-	use U\Traits\A6t\Base\Utilities\Equals_Members;
-	use U\Traits\A6t\Base\Utilities\Property_Members;
-	use U\Traits\A6t\Base\Utilities\INS_Cache_Members;
+	/**
+	 * Gets instance (`memcached` extension required).
+	 *
+	 * @since 2022-01-22
+	 *
+	 * @param mixed ...$args {@see U\Mem::__construct()}.
+	 *
+	 * @return U\Mem Instance of {@see U\Mem}.
+	 */
+	public static function instance_er( /* mixed */ ...$args ) : U\Mem {
+		if ( ! isset( U\Mem::$instance ) ) {
+			U\Mem::$instance = new U\Mem( ...$args );
+		}
+		return U\Mem::$instance;
+	}
 }

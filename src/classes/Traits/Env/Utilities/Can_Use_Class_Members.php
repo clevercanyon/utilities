@@ -50,7 +50,7 @@ trait Can_Use_Class_Members {
 		if ( ! $classes ) {
 			return true; // Nothing to check.
 		}
-		if ( null === ( $cache = &static::cache( __FUNCTION__ ) ) ) {
+		if ( null === ( $cache = &static::cls_cache( __FUNCTION__ ) ) ) {
 			$cache                  = (object) [ 'can' => [] ];
 			$cache->disable_classes = mb_strtolower( (string) ini_get( 'disable_classes' ) );
 			$cache->disable_classes = preg_split( '/[\s,]+/u', $cache->disable_classes, -1, PREG_SPLIT_NO_EMPTY );

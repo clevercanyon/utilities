@@ -28,12 +28,14 @@
 	"suggest"           : {
 		"ext-zip"             : "*",
 		"ext-intl"            : "*",
+		"ext-memcached"       : "*",
 		"ulrichsg/getopt-php" : "^4.0"
 	},
 	"autoload"          : {
 		"psr-4" : {
 			"Clever_Canyon\\Utilities\\" : "./src/classes"
-		}
+		},
+		"files" : [ "./src/functions/load.php" ]
 	},
 	"require-dev"       : {
 		"clevercanyon/php-js-utilities-dev" : "dev-main"

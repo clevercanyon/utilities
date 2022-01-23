@@ -51,7 +51,7 @@ trait Can_Use_Extension_Members {
 		if ( ! $extensions ) {
 			return true; // Nothing to check.
 		}
-		if ( null === ( $cache = &static::cache( __FUNCTION__ ) ) ) {
+		if ( null === ( $cache = &static::cls_cache( __FUNCTION__ ) ) ) {
 			$cache                    = (object) [ 'can' => [] ];
 			$cache->loaded_extensions = array_merge( get_loaded_extensions( true ), get_loaded_extensions( false ) );
 			$cache->loaded_extensions = array_map( 'mb_strtolower', array_unique( $cache->loaded_extensions ) );
