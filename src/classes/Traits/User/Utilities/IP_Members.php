@@ -35,6 +35,7 @@ use Clever_Canyon\{Utilities as U};
  * @see   U\User
  */
 trait IP_Members {
+	// @todo Add utilities.
 	/**
 	 * Gets current user's IP address.
 	 *

@@ -47,4 +47,5 @@ trait Conditional_Members {
 	public static function is_assoc( array $arr ) : bool {
 		return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
 	}
+	// @todo Add is_list()? https://www.php.net/manual/en/function.array-is-list.php
 }

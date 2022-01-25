@@ -57,7 +57,7 @@ trait Preg_Match_In_Members {
 		/* array|null */ ?array &$matches = null,
 		...$args // e.g., $flags, $offset, etc.
 	) /* : int|false */ {
-		assert( U\Ctn::is( $patterns ) );
+		assert( U\Bundle::is( $patterns ) );
 
 		foreach ( $patterns as $_pattern ) {
 			if ( $_preg_match = preg_match( $_pattern, $str, $matches, ...$args ) ) {

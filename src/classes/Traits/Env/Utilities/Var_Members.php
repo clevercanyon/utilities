@@ -73,7 +73,7 @@ trait Var_Members {
 		}
 		$vars += getenv() + $_SERVER;
 		$vars = $others + $vars; // Gives `$others` precedence.
-		$vars = U\Ctn::stringify( $vars, true, 1 );
+		$vars = U\Bundle::stringify( $vars, true, 1 );
 
 		return $vars;
 	}

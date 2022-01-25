@@ -51,7 +51,7 @@ trait Sort_By_Members {
 	 *
 	 * @return array Sorted array.
 	 *
-	 * @see   U\Ctn::sort_by() For collection use.
+	 * @see   U\Bundle::sort_by() For bundle use.
 	 * @see   https://www.php.net/manual/en/array.sorting.php
 	 */
 	public static function sort_by( string $by, array $arr, int $flags = SORT_NATURAL ) : array {

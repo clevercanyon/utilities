@@ -39,4 +39,39 @@ final class File extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\File\Members;
+
+	/**
+	 * 1kb in bytes.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const KB_IN_BYTES = 1024;
+
+	/**
+	 * 1MB in bytes.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const MB_IN_BYTES = 1024 * U\File::KB_IN_BYTES;
+
+	/**
+	 * 1GB in bytes.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const GB_IN_BYTES = 1024 * U\File::MB_IN_BYTES;
+
+	/**
+	 * 1TB in bytes.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const TB_IN_BYTES = 1024 * U\File::GB_IN_BYTES;
+
+	/**
+	 * 1PB in bytes.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const PB_IN_BYTES = 1024 * U\File::TB_IN_BYTES;
 }

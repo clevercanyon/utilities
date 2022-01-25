@@ -81,8 +81,8 @@ final class Dev extends U\A6t\Stc_Utilities {
 		}
 		if ( $namespace ) {
 			$json->{$namespace} = is_object( $json->{$namespace} ?? null ) ? $json->{$namespace} : (object) [];
-			$json->{$namespace} = U\Ctn::super_merge( $json->{$namespace} );
-			$json->{$namespace} = U\Ctn::resolve_env_vars( $json->{$namespace} );
+			$json->{$namespace} = U\Bundle::super_merge( $json->{$namespace} );
+			$json->{$namespace} = U\Bundle::resolve_env_vars( $json->{$namespace} );
 
 			if ( $extract_namespace ) {
 				$json = $json->{$namespace};

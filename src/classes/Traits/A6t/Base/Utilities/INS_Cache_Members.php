@@ -73,7 +73,7 @@ trait INS_Cache_Members {
 	 */
 	final protected function &ins_cache(
 		/* string|array */ $key_parts,
-		/* mixed */ $value = U\FUNC_PARAM_DEFAULT_NULL_STR
+		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL
 	) /* : mixed */ {
 		assert( is_string( $key_parts ) || is_array( $key_parts ) );
 
@@ -81,7 +81,7 @@ trait INS_Cache_Members {
 			? U\Arr::hash( $key_parts )
 			: sha1( $key_parts );
 
-		if ( U\FUNC_PARAM_DEFAULT_NULL_STR !== $value ) {
+		if ( U\Func::PARAM_DEFAULT_NULL !== $value ) {
 			if ( null === $value ) {
 				unset( $this->ins_cache[ $key ] );
 				$_null = null; // Null variable.

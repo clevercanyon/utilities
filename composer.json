@@ -35,10 +35,7 @@
 		"psr-4" : {
 			"Clever_Canyon\\Utilities\\" : "./src/classes"
 		},
-		"files" : [
-			"./src/constants/load.php",
-			"./src/functions/load.php"
-		]
+		"files" : [ "./src/functions/load.php" ]
 	},
 	"require-dev"       : {
 		"clevercanyon/php-js-utilities-dev" : "dev-main"

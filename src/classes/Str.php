@@ -39,4 +39,11 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Str\Members;
+
+	/**
+	 * UTF-8 byte-order marker.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const UTF8_BOM = "\xEF\xBB\xBF";
 }

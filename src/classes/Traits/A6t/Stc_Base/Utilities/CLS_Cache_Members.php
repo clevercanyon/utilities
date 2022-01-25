@@ -73,7 +73,7 @@ trait CLS_Cache_Members {
 	 */
 	final protected static function &cls_cache(
 		/* string|array */ $key_parts,
-		/* mixed */ $value = U\FUNC_PARAM_DEFAULT_NULL_STR
+		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL
 	) /* : mixed */ {
 		assert( is_string( $key_parts ) || is_array( $key_parts ) );
 
@@ -83,7 +83,7 @@ trait CLS_Cache_Members {
 
 		static::$cls_cache[ static::class ] ??= [];
 
-		if ( U\FUNC_PARAM_DEFAULT_NULL_STR !== $value ) {
+		if ( U\Func::PARAM_DEFAULT_NULL !== $value ) {
 			if ( null === $value ) {
 				unset( static::$cls_cache[ static::class ][ $key ] );
 				$_null = null; // Null variable.

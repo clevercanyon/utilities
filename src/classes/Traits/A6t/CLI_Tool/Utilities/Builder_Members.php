@@ -73,7 +73,7 @@ trait Builder_Members {
 			}
 			$options[ $_option ] = Option::create( $_short, $_long ?? $_option, $_mode );
 			$options[ $_option ]->setDescription( $_description ?? '' );
-			$options[ $_option ]->setValidation( $_validator ?? [ U\Cb::class, 'noop_true' ] );
+			$options[ $_option ]->setValidation( $_validator ?? [ U\Func::class, 'noop_true' ] );
 
 			if ( ( $_required || false === $_optional ) && isset( $_default ) ) {
 				$options[ $_option ]->setDefaultValue( $_default );
@@ -110,7 +110,7 @@ trait Builder_Members {
 				$_mode = Operand::OPTIONAL;
 			}
 			$operands[ $_operand ] = Operand::create( $_operand, $_mode );
-			$operands[ $_operand ]->setValidation( $_validator ?: [ U\Cb::class, 'noop_true' ] );
+			$operands[ $_operand ]->setValidation( $_validator ?: [ U\Func::class, 'noop_true' ] );
 
 			if ( $_multiple && ! isset( $_default ) ) {
 				$_default = ''; // Avoids a bug in GetOpt class.

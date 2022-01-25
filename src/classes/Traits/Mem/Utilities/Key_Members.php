@@ -69,9 +69,9 @@ trait Key_Members {
 			$attempts++;     // Counts attempts.
 
 			if ( $attempts > 2 ) {
-				usleep( U\SECOND_IN_MICROSECONDS / 100 ); // One hundredth of a second pause.
+				usleep( U\Time::SECOND_IN_MICROSECONDS / 100 ); // One hundredth of a second pause.
 			}
-			if ( ( $existing_namespaced_primary_key_uuid_v4 = u\if_string( $this->memcached->get( $namespaced_primary_key ) ) ) ) {
+			if ( $existing_namespaced_primary_key_uuid_v4 = $this->memcached->get( $namespaced_primary_key ) ) {
 				$namespaced_primary_key_uuid_v4 = $existing_namespaced_primary_key_uuid_v4;
 				break; // All good; stop here.
 			}

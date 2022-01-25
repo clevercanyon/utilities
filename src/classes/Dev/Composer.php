@@ -165,13 +165,13 @@ final class Composer extends U\A6t\Stc_Utilities {
 				$_package_json = U\Dev\Composer::json( $_package_dir, $extra_namespace, $extract_extra_namespace, $_r );
 
 				if ( is_object( $_package_json->extra ?? null ) && is_object( $_package_json->extra->{$extra_namespace} ?? null ) ) {
-					$_extends_json_extra_namespace = U\Ctn::super_merge( $_extends_json_extra_namespace, $_package_json->extra->{$extra_namespace} );
+					$_extends_json_extra_namespace = U\Bundle::super_merge( $_extends_json_extra_namespace, $_package_json->extra->{$extra_namespace} );
 				}
 			}
 			// Merge into everything we're extending.
 
 			if ( $_extends_json_extra_namespace ) {
-				$json->extra->{$extra_namespace} = U\Ctn::super_merge( $_extends_json_extra_namespace, $json->extra->{$extra_namespace} );
+				$json->extra->{$extra_namespace} = U\Bundle::super_merge( $_extends_json_extra_namespace, $json->extra->{$extra_namespace} );
 			}
 			// Drop the `$extends-packages` directive now.
 
@@ -186,8 +186,8 @@ final class Composer extends U\A6t\Stc_Utilities {
 			];
 			$extra_env_vars = array_map( 'strval', $extra_env_vars );
 
-			$json->extra->{$extra_namespace} = U\Ctn::super_merge( $json->extra->{$extra_namespace} );
-			$json->extra->{$extra_namespace} = U\Ctn::resolve_env_vars( $json->extra->{$extra_namespace}, $extra_env_vars );
+			$json->extra->{$extra_namespace} = U\Bundle::super_merge( $json->extra->{$extra_namespace} );
+			$json->extra->{$extra_namespace} = U\Bundle::resolve_env_vars( $json->extra->{$extra_namespace}, $extra_env_vars );
 
 			if ( $extract_extra_namespace ) {
 				$json->extra = $json->extra->{$extra_namespace};

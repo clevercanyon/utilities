@@ -34,4 +34,6 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Time
  */
-trait Foo_Members { }
+trait Foo_Members {
+	// @todo Add utilities.
+}

@@ -49,7 +49,7 @@ trait Stringify_Members {
 	 *        For example, null, scalar, and resource values are simply converted to strings.
 	 *        They are not converted to JSON. Instead, {@see U\Str::json_encode()}.
 	 *
-	 * @see   U\Ctn::stringify()
+	 * @see   U\Bundle::stringify()
 	 */
 	public static function stringify( /* mixed */ $data, /* bool|null */ ?bool $pretty_print = null ) : string {
 		if ( is_null( $data ) || is_scalar( $data ) || is_resource( $data ) ) {

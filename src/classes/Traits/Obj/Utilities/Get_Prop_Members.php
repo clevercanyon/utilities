@@ -46,20 +46,20 @@ trait Get_Prop_Members {
 	 *
 	 * @return mixed Value, else `null` on failure to locate.
 	 *
-	 * @see   U\Ctn::get_prop_key()
+	 * @see   U\Bundle::get_prop_key()
 	 */
 	public static function get_prop( object $obj, string $path, string $delimiter = '.' ) /* : mixed */ {
 		if ( '' === $path || '' === $delimiter ) {
 			return null; // Not possible.
 		}
-		return array_reduce( explode( $delimiter, $path ), function ( $ctn, $var ) {
-			$is_object_ctn = is_object( $ctn );
-			$is_array_ctn  = ! $is_object_ctn && is_array( $ctn );
+		return array_reduce( explode( $delimiter, $path ), function ( $bundle, $var ) {
+			$is_object_bundle = is_object( $bundle );
+			$is_array_bundle  = ! $is_object_bundle && is_array( $bundle );
 
-			if ( $is_object_ctn && isset( $ctn->{$var} ) ) {
-				return $ctn->{$var};
-			} elseif ( $is_array_ctn && isset( $ctn[ $var ] ) ) {
-				return $ctn[ $var ];
+			if ( $is_object_bundle && isset( $bundle->{$var} ) ) {
+				return $bundle->{$var};
+			} elseif ( $is_array_bundle && isset( $bundle[ $var ] ) ) {
+				return $bundle[ $var ];
 			} else {
 				return null;
 			}

@@ -47,7 +47,7 @@ trait Constructable_Members {
 	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */
 	public function __construct( /* array|object */ $offsets = [] ) {
-		assert( U\Ctn::is( $offsets ) );
+		assert( U\Bundle::is( $offsets ) );
 		parent::__construct();
 
 		foreach ( $offsets as $_offset => $_value ) {

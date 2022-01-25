@@ -39,4 +39,62 @@ final class Time extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Time\Members;
+
+	/**
+	 * 1 minute in seconds.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const MINUTE_IN_SECONDS = 60;
+
+	/**
+	 * 1 hour in seconds.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const HOUR_IN_SECONDS = 60 * U\Time::MINUTE_IN_SECONDS;
+
+	/**
+	 * 1 day in seconds.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const DAY_IN_SECONDS = 24 * U\Time::HOUR_IN_SECONDS;
+
+	/**
+	 * 1 week in seconds.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const WEEK_IN_SECONDS = 7 * U\Time::DAY_IN_SECONDS;
+
+	/**
+	 * 1 month in seconds.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const MONTH_IN_SECONDS = 30 * U\Time::DAY_IN_SECONDS;
+
+	/**
+	 * 1 year in seconds.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const YEAR_IN_SECONDS = 365 * U\Time::DAY_IN_SECONDS;
+
+	/**
+	 * 1 second in milliseconds.
+	 * A millisecond is one thousandth of a second.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const SECOND_IN_MILLISECONDS = 1000;
+
+	/**
+	 * 1 second in microseconds.
+	 * A microsecond is one millionth of a second.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const SECOND_IN_MICROSECONDS = 1000 * U\Time::SECOND_IN_MILLISECONDS;
 }

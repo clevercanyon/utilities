@@ -51,7 +51,7 @@ trait Sort_By_Members {
 	 *
 	 * @return object Sorted object, converted to {@see \stdClass}.
 	 *
-	 * @see   U\Ctn::sort_by()
+	 * @see   U\Bundle::sort_by()
 	 * @see   https://www.php.net/manual/en/array.sorting.php
 	 */
 	public static function sort_by( string $by, object $obj, int $flags = SORT_NATURAL ) : object {

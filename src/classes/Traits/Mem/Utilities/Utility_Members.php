@@ -79,7 +79,7 @@ trait Utility_Members {
 	public static function cache(
 		/* string|array */ $primary_key_parts,
 		/* string|array */ $sub_key_parts,
-		/* mixed */ $value = U\FUNC_PARAM_DEFAULT_NULL_STR,
+		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL,
 		int $expires_in = 0
 	) /* : mixed */ {
 		assert( is_string( $primary_key_parts ) || is_array( $primary_key_parts ) );
@@ -88,7 +88,7 @@ trait Utility_Members {
 		static $can_use_mem_extension, $mem; // Remember.
 		$can_use_mem_extension ??= U\Env::can_use_extension( 'memcached' );
 
-		$is_write_op          = U\FUNC_PARAM_DEFAULT_NULL_STR !== $value;
+		$is_write_op          = U\Func::PARAM_DEFAULT_NULL !== $value;
 		$static_cls_key_parts = [ __FUNCTION__, $primary_key_parts, $sub_key_parts ];
 
 		if ( ! $can_use_mem_extension ) {
@@ -102,7 +102,7 @@ trait Utility_Members {
 		$primary_key = is_array( $primary_key_parts ) ? U\Arr::hash( $primary_key_parts ) : sha1( $primary_key_parts );
 		$sub_key     = is_array( $sub_key_parts ) ? U\Arr::hash( $sub_key_parts ) : sha1( $sub_key_parts );
 
-		$mem ??= U\Mem::instance_er();
+		$mem ??= U\Mem::instance_er(); // @todo Add method that can check if Memcache is running, catch exceptions, etc.
 
 		if ( $is_write_op ) {
 			if ( $mem->set( $primary_key, $sub_key, $value, $expires_in ) ) {

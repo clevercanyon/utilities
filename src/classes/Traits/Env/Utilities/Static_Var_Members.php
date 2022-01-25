@@ -59,9 +59,9 @@ trait Static_Var_Members {
 	 */
 	public static function static_var(
 		string $name,
-		/* mixed */ $value = U\FUNC_PARAM_DEFAULT_NULL_STR
+		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL
 	) /* : mixed */ {
-		if ( U\FUNC_PARAM_DEFAULT_NULL_STR !== $value ) {
+		if ( U\Func::PARAM_DEFAULT_NULL !== $value ) {
 			if ( null === $value ) {
 				unset( static::$vars[ $name ] );
 			} else {
