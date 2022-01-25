@@ -45,19 +45,23 @@ trait Static_Var_Members {
 	protected static array $vars = [];
 
 	/**
-	 * Gets/sets static environment variables.
+	 * Gets|sets static environment variables.
 	 *
 	 * @since 2021-12-22
 	 *
 	 * @param string $name  Static environment variable name.
+	 *
 	 * @param mixed  $value Static environment variable value; i.e., when setting|updating.
-	 *                      Passing `null` explicitly will {@see unset()} variable.
+	 *                      Passing `null` explicitly will {@see unset()} the environment variable.
 	 *                      If not passed, this function simply operates as a getter.
 	 *
 	 * @return mixed Value of static environment variable, else `null`.
 	 */
-	public static function static_var( string $name, /* mixed */ $value = null ) /* : mixed */ {
-		if ( null !== $value || func_num_args() >= 2 ) {
+	public static function static_var(
+		string $name,
+		/* mixed */ $value = U\FUNC_PARAM_DEFAULT_NULL_STR
+	) /* : mixed */ {
+		if ( U\FUNC_PARAM_DEFAULT_NULL_STR !== $value ) {
 			if ( null === $value ) {
 				unset( static::$vars[ $name ] );
 			} else {

@@ -11,12 +11,22 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-15
+ *
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpStaticAsDynamicMethodCallInspection
+ * phpcs:disable Generic.Commenting.DocComment.MissingShort
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Mem;
+namespace Clever_Canyon\Utilities__Tests\Tests;
 
 /**
  * Utilities.
@@ -24,32 +34,29 @@ namespace Clever_Canyon\Utilities\Traits\Mem;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
+use Clever_Canyon\{Utilities__Tests as UT};
 
 // </editor-fold>
 
 /**
- * Utility members.
+ * Test case.
  *
  * @since 2021-12-15
- *
- * @see   U\Mem
+ * @coversDefaultClass \Clever_Canyon\Utilities\Mem
  */
-trait Members {
+final class Mem_Tests extends UT\A6t\Tests {
 	/**
-	 * Traits.
-	 *
-	 * @since 2021-12-15
+	 * @covers ::cache()
 	 */
-	use U\Traits\Mem\Magic\Constructable_Members;
-	use U\Traits\Mem\Utilities\Property_Members;
-	use U\Traits\Mem\Utilities\Instance_Members;
+	public function test_cache() : void {
+		$this->assertSame( null, U\Mem::cache( 'primary_key', 'sub_key_' . U\Crypto::uuid_v4() ), $this->message() );
+	}
 
-	use U\Traits\Mem\Utilities\Key_Members;
-	use U\Traits\Mem\Utilities\Server_Members;
-
-	use U\Traits\Mem\Utilities\Getter_Members;
-	use U\Traits\Mem\Utilities\Setter_Members;
-
-	use U\Traits\Mem\Utilities\Clear_Members;
-	use U\Traits\Mem\Utilities\Utility_Members;
+	/**
+	 * @covers ::__construct()
+	 */
+	public function test_down_server() : void {
+		$mc = new U\Mem( 'localhost', __NAMESPACE__, [ [ 'host' => 'foo.bar' ] ] );
+		$this->assertSame( null, $mc->get( 'primary_key', 'sub_key_' . U\Crypto::uuid_v4() ), $this->message() );
+	}
 }

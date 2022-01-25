@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Mem;
+namespace Clever_Canyon\Utilities\Traits\URL;
 
 /**
  * Utilities.
@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\Mem
+ * @see   U\URL
  */
 trait Members {
 	/**
@@ -40,16 +40,5 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Mem\Magic\Constructable_Members;
-	use U\Traits\Mem\Utilities\Property_Members;
-	use U\Traits\Mem\Utilities\Instance_Members;
-
-	use U\Traits\Mem\Utilities\Key_Members;
-	use U\Traits\Mem\Utilities\Server_Members;
-
-	use U\Traits\Mem\Utilities\Getter_Members;
-	use U\Traits\Mem\Utilities\Setter_Members;
-
-	use U\Traits\Mem\Utilities\Clear_Members;
-	use U\Traits\Mem\Utilities\Utility_Members;
+	use U\Traits\URL\Utilities\Noop_Members;
 }

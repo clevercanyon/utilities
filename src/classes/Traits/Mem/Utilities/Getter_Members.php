@@ -44,6 +44,17 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Getter_Members {
 	/**
+	 * Gets {@see \Memcached} instance.
+	 *
+	 * @since 2022-01-22
+	 *
+	 * @return \Memcached Memcached instance.
+	 */
+	public function memcached() : \Memcached {
+		return $this->memcached;
+	}
+
+	/**
 	 * Gets cache value.
 	 *
 	 * @since 2020-11-19

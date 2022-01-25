@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Mem;
+namespace Clever_Canyon\Utilities;
 
 /**
  * Utilities.
@@ -28,28 +28,25 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Constants loader.
  *
  * @since 2021-12-15
- *
- * @see   U\Mem
  */
-trait Members {
+if ( ! defined( __NAMESPACE__ . '\\CONSTANTS_LOADED' ) ) {
 	/**
-	 * Traits.
+	 * Flag as loaded now.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Mem\Magic\Constructable_Members;
-	use U\Traits\Mem\Utilities\Property_Members;
-	use U\Traits\Mem\Utilities\Instance_Members;
+	define( __NAMESPACE__ . '\\CONSTANTS_LOADED', true );
 
-	use U\Traits\Mem\Utilities\Key_Members;
-	use U\Traits\Mem\Utilities\Server_Members;
-
-	use U\Traits\Mem\Utilities\Getter_Members;
-	use U\Traits\Mem\Utilities\Setter_Members;
-
-	use U\Traits\Mem\Utilities\Clear_Members;
-	use U\Traits\Mem\Utilities\Utility_Members;
+	/**
+	 * Loads constants.
+	 *
+	 * @since 2021-12-15
+	 */
+	foreach ( glob( __DIR__ . '/*/*.php' ) as ${__FILE__} ) {
+		require_once ${__FILE__};
+	}
+	unset( ${__FILE__} ); // Housekeeping.
 }

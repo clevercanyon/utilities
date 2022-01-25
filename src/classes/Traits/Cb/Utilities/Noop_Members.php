@@ -45,6 +45,19 @@ trait Noop_Members {
 	public static function noop() : void {}
 
 	/**
+	 * Reverberates.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param mixed $v Value.
+	 *
+	 * @return mixed Reverberates.
+	 */
+	public static function noop_rev( $v ) /* : mixed */ {
+		return $v;
+	}
+
+	/**
 	 * Returns `null`.
 	 *
 	 * @since 2021-12-15

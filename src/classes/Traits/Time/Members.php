@@ -11,20 +11,12 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Lint configuration.
- *
- * @since        2021-12-25
- *
- * @noinspection PhpComposerExtensionStubsInspection
- */
-
-/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Mem\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Time;
 
 /**
  * Utilities.
@@ -40,27 +32,13 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\Mem
+ * @see   U\Time
  */
-trait Touch_Members {
+trait Members {
 	/**
-	 * Touch a cache key (i.e., new expiration).
+	 * Traits.
 	 *
-	 * @since 2020-11-19
-	 *
-	 * @param string $primary_key Primary key.
-	 * @param string $sub_key     Sub-key to touch.
-	 * @param int    $expires_in  Expires (in seconds).
-	 *
-	 * @return bool True on success.
+	 * @since 2021-12-15
 	 */
-	public function touch( string $primary_key, string $sub_key, int $expires_in ) : bool {
-		$expires_in = max( 0, $expires_in );
-		$expires    = $expires_in ? time() + $expires_in : 0;
-
-		if ( ! ( $key = $this->key( $primary_key, $sub_key ) ) ) {
-			return false; // Failure.
-		}
-		return $this->memcached->touch( $key, $expires );
-	}
+	use U\Traits\Time\Utilities\Foo_Members;
 }

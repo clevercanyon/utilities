@@ -33,6 +33,15 @@ namespace Clever_Canyon\Utilities\Traits\Mem\Utilities;
  */
 use Clever_Canyon\{Utilities as U};
 
+/**
+ * File-specific.
+ *
+ * @since 2021-12-15
+ *
+ * @note  `Memcached` as `Mc` = shorter alias for options.
+ */
+use Memcached as Mc;
+
 // </editor-fold>
 
 /**
@@ -44,53 +53,86 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Server_Members {
 	/**
-	 * Servers differ?
-	 *
-	 * @since 2020-11-19
-	 *
-	 * @return bool True if servers differ.
-	 */
-	protected function servers_differ() : bool {
-		foreach ( $this->memcached->getServerList() as $_s ) {
-			print_r( $_s );
-			$active_servers[ $_s[ 'host' ] . ':' . $_s[ 'port' ] ] = [ $_s[ 'host' ], $_s[ 'port' ], $_s[ 'weight' ] ];
-		} // Very important to assemble this in the same way as `$this->servers` for comparison.
-
-		$active_servers ??= []; // In case no active servers.
-		$active_servers = U\Arr::sort_by( 'key', $active_servers );
-
-		return $active_servers === $this->servers;
-	}
-
-	/**
 	 * Maybe add server connections.
 	 *
 	 * @since 2020-11-19
+	 *
+	 * @throws U\Fatal_Exception On failure to add servers.
+	 *
+	 * @see   https://o5p.me/xXgmzk
+	 * @see   https://code.launchpad.net/libmemcached
+	 * @see   https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz
+	 *
+	 * @note  Don't forget to change {@see U\Mem::$connection_id_version} when there are substantial changes to this class.
+	 *        Particularly in {@see U\Mem::__construct()} and {@see U\Mem::maybe_add_server_connections()}.
+	 *
+	 * @note  A pristine connection is one that is either not persistent (i.e., exists per-process).
+	 *        Or, a it's a brand new (first time) persistent connection, based on persistent connection ID.
 	 */
 	protected function maybe_add_server_connections() {
-		if ( ! $this->servers_differ() ) {
-			return; // Nothing to do.
+		if ( ! $this->memcached->isPristine() ) {
+			return; // Existing connection.
 		}
+		// First, let's quit and reset the pool of servers.
+		// The goal here is to avoid leaking server connections.
+
 		$this->memcached->quit();
 		$this->memcached->resetServerList();
 
-		$this->memcached->setOption( \Memcached::OPT_PREFIX_KEY, '' );
-		$this->memcached->setOption( \Memcached::OPT_NO_BLOCK, true );
-		$this->memcached->setOption( \Memcached::OPT_BUFFER_WRITES, true );
-		$this->memcached->setOption( \Memcached::OPT_CACHE_LOOKUPS, true );
-		$this->memcached->setOption( \Memcached::OPT_LIBKETAMA_COMPATIBLE, true );
-		$this->memcached->setOption( \Memcached::OPT_SERVER_FAILURE_LIMIT, 1000 );
+		// Configure options for the pool of servers added below.
+		// Goal is for things to run smoothly in different environments.
 
-		if ( \Memcached::HAVE_IGBINARY ) { // Size and speed gains.
-			// $this->memcached->setOption( \Memcached::OPT_BINARY_PROTOCOL, true ); ...
-			$this->memcached->setOption( \Memcached::OPT_SERIALIZER, \Memcached::SERIALIZER_IGBINARY );
+		// Note: `OPT_CORK` is a deprecated option — do not use.
+		// Note: `OPT_USER_DATA` is a deprecated option — do not use.
+		// Note: `OPT_CACHE_LOOKUPS` is a deprecated option — do not use.
+		// Note: `OPT_AUTO_EJECT_HOSTS` is a deprecated option — do not use.
+		// Note: `OPT_SERVER_FAILURE_LIMIT` is a deprecated option — do not use.
+		// Note: `OPT_DEAD_TIMEOUT` is an undocumented option — probably should not use.
+		// Note: `OPT_TCP_KEEPIDLE` is only available on Linux — probably should not use.
+		// Note: `OPT_PREFIX_KEY` we are not using, but if we were, it has an upper limit of 128 bytes.
+		// Note: `OPT_SUPPORT_CAS` not set here; it's enabled on-demand JIT, as it incurs a light performance penalty.
+
+		$this->memcached->setOption( Mc::OPT_PREFIX_KEY, '' );               // No, this class does its own prefixing.
+		$this->memcached->setOption( Mc::OPT_BINARY_PROTOCOL, true );        // Yes, let's operate in binary mode for UTF-8.
+
+		$this->memcached->setOption( Mc::OPT_NO_BLOCK, true );               // Yes, let's operate in non-blocking mode.
+		$this->memcached->setOption( Mc::OPT_NOREPLY, false );               // No, we do want a reply when writing to the cache.
+		$this->memcached->setOption( Mc::OPT_BUFFER_WRITES, false );         // No, not compatible w/ our primary UUID key approach.
+
+		$this->memcached->setOption( Mc::OPT_USE_UDP, false );               // No, unnecessary (TCP-only); {@see https://o5p.me/bzQvnt}.
+		$this->memcached->setOption( Mc::OPT_TCP_NODELAY, true );            // Yes, let's not delay anything when connecting to TCP servers.
+		$this->memcached->setOption( Mc::OPT_TCP_KEEPALIVE, true );          // Yes, let's keep TCP connections alive by pinging them.
+
+		$this->memcached->setOption( Mc::OPT_SORT_HOSTS, false );            // No, it defeats consistent hashing distribution.
+		$this->memcached->setOption( Mc::OPT_HASH, Mc::HASH_MD5 );           // MD5; matching what libketama compatible mode uses.
+		$this->memcached->setOption( Mc::OPT_DISTRIBUTION, Mc::DISTRIBUTION_CONSISTENT /* Yes, use consistent hashing distribution. */ );
+		$this->memcached->setOption( Mc::OPT_LIBKETAMA_HASH, Mc::HASH_MD5 ); // MD5; matching what libketama compatible mode uses.
+		$this->memcached->setOption( Mc::OPT_LIBKETAMA_COMPATIBLE, true );   // Yes, let's use consistent hashing distribution.
+
+		$this->memcached->setOption( Mc::OPT_COMPRESSION, true );            // Yes, enable on-the-fly compression & decompression.
+		$this->memcached->setOption( Mc::OPT_COMPRESSION_TYPE, Mc::COMPRESSION_FASTLZ /* Better performance. */ );
+
+		$can_use_igbinary = Mc::HAVE_IGBINARY && U\Env::can_use_extension( 'igbinary' ); // Better size and performance.
+		$this->memcached->setOption( Mc::OPT_SERIALIZER, $can_use_igbinary ? Mc::SERIALIZER_IGBINARY : Mc::SERIALIZER_PHP );
+
+		// Note: The lifecycle associated with these retry/timeout settings is per-process.
+		// Unless connection is persistent (requires PHP-FPM), in which case lifecycle is of the PHP-FPM process.
+		// {@see https://github.com/php-memcached-dev/php-memcached/issues/388#issuecomment-379685339}.
+
+		$this->memcached->setOption( Mc::OPT_CONNECT_TIMEOUT, 1000 );        // Milliseconds; 1000 = 1 second (default).
+		$this->memcached->setOption( Mc::OPT_POLL_TIMEOUT, 1000 );           // Milliseconds; 1000 = 1 second (default).
+
+		$this->memcached->setOption( Mc::OPT_RETRY_TIMEOUT, 1 );             // Seconds before retrying problematic servers.
+		$this->memcached->setOption( Mc::OPT_REMOVE_FAILED_SERVERS, true );  // Yes, remove problematic servers after retrying.
+
+		$this->memcached->setOption( Mc::OPT_SEND_TIMEOUT, 5000000 );        // Microseconds; 5000000 = 5 seconds. Blocking mode only.
+		$this->memcached->setOption( Mc::OPT_RECV_TIMEOUT, 5000000 );        // Microseconds; 5000000 = 5 seconds. Blocking mode only.
+
+		// OK, let's add a pool of servers.
+		// Note: No connections to the servers occur here.
+
+		if ( ! $this->servers || ! $this->memcached->addServers( $this->servers ) ) {
+			throw new U\Fatal_Exception( 'Failed to configure & add Memcached servers.' );
 		}
-		$this->memcached->setOption( \Memcached::OPT_RETRY_TIMEOUT, 1 );      // Seconds.
-		$this->memcached->setOption( \Memcached::OPT_CONNECT_TIMEOUT, 1000 ); // Milliseconds.
-		$this->memcached->setOption( \Memcached::OPT_POLL_TIMEOUT, 1000 );    // Milliseconds.
-		$this->memcached->setOption( \Memcached::OPT_SEND_TIMEOUT, 1000000 ); // Microseconds.
-		$this->memcached->setOption( \Memcached::OPT_RECV_TIMEOUT, 1000000 ); // Microseconds.
-
-		$this->memcached->addServers( $this->servers );
 	}
 }

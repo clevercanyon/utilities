@@ -54,9 +54,17 @@ trait Constructable_Members {
 	 *
 	 * @throws U\Fatal_Exception If missing `memcached` extension.
 	 * @throws U\Fatal_Exception If unable to establish `connection_id`, `namespace`, and `servers`.
+	 * @throws U\Fatal_Exception If there's a server passed in that's missing required elements.
+	 *
+	 * @see          https://o5p.me/xXgmzk
+	 * @see          https://code.launchpad.net/libmemcached
+	 * @see          https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz
 	 *
 	 * @note         There can easily be multiple instances with multiple connections.
 	 *               {@see https://github.com/memcached/memcached/wiki/ConfiguringServer#connection-limit}.
+	 *
+	 * @note         Don't forget to change {@see U\Mem::$connection_id_version} when there are substantial changes to this class.
+	 *               Particularly in {@see U\Mem::__construct()} and {@see U\Mem::maybe_add_server_connections()}.
 	 *
 	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */
@@ -69,24 +77,26 @@ trait Constructable_Members {
 		if ( ! $can_use_extension ) {
 			throw new U\Fatal_Exception( 'Missing PHP `memcached` extension.' );
 		}
-		if ( U\Env::is_wordpress() ) {
-			$this->connection_id = $connection_id
-				?: U\Env::static_var( 'MEMCACHED_CONNECTION_ID' )
-					?: U\Fs::normalize( ABSPATH );
-		} else {
-			$this->connection_id = $connection_id
-				?: U\Env::static_var( 'MEMCACHED_CONNECTION_ID' )
-					?: U\Env::var( 'DOCUMENT_ROOT' );
-		}
-		$this->connection_id .= '/' . U\Env::hostname();
-		$this->connection_id .= '/' . U\Brand::get( '&', 'slug' );
-		$this->connection_id .= '/v1.0.0'; // Connection version.
+		// Establish persistent connection ID.
+
+		$is_wordpress = U\Env::is_wordpress();
+
+		$this->connection_id = U\Env::hostname();
+		$this->connection_id .= '\\' . U\Brand::get( '&', 'slug' );
+		$this->connection_id .= '\\v1.0.0'; // Connection version.
+		$this->connection_id .= $connection_id ?: U\Env::static_var( 'MEMCACHED_CONNECTION_ID' ) ?: '';
+		$this->connection_id .= $is_wordpress ? '\\' . U\Fs::normalize( ABSPATH ) : '';
+		$this->connection_id .= ! $is_wordpress ? '\\' . ( U\Env::var( 'DOCUMENT_ROOT' ) ?: U\Fs::normalize( __FILE__ ) ) : '';
 		$this->connection_id = U\Crypto::x_sha( $this->connection_id );
+
+		// Establish namespace for cache keys.
 
 		$this->namespace = $namespace ?: U\Env::static_var( 'MEMCACHED_NAMESPACE' ) ?: __NAMESPACE__;
 		$this->namespace = U\Crypto::x_sha( $this->namespace );
 
-		$this->servers = $servers
+		// Establish a pool of Memcached servers.
+
+		$_servers      = $servers
 			?: U\Env::static_var( 'MEMCACHED_SERVERS' )
 				?: [
 					[
@@ -95,24 +105,30 @@ trait Constructable_Members {
 						'weight' => 0,
 					],
 				];
+		$this->servers = []; // Rewrite below.
+
+		foreach ( $_servers as $_key => $_server ) {
+			if ( ! is_array( $_server ) || ! is_string( $_server[ 'host' ] ?? null ) ) {
+				throw new U\Fatal_Exception( 'Invalid Memcached server, in key: `' . $_key . '`.' );
+			}
+			$_host   = $_server[ 'host' ];
+			$_port   = (int) ( $_server[ 'port' ] ?? 11211 );
+			$_weight = (int) ( $_server[ 'weight' ] ?? 0 );
+
+			$this->servers[ $_host . ':' . $_port ]             = [];
+			$this->servers[ $_host . ':' . $_port ][ 'host' ]   = $_host;
+			$this->servers[ $_host . ':' . $_port ][ 'port' ]   = $_port;
+			$this->servers[ $_host . ':' . $_port ][ 'weight' ] = $_weight;
+		}
+		// Sanity checks; validate each of these.
+
 		if ( ! $this->connection_id || ! $this->namespace || ! $this->servers ) {
 			throw new U\Fatal_Exception( 'Missing `connection_id`, `namespace`, and/or `servers`.' );
 		}
-		$_servers      = $this->servers;
-		$this->servers = []; // Rewrite below.
+		// Note: Persistent connections require PHP-FPM.
+		// Otherwise, the connection lifecycle is per-process.
 
-		foreach ( $_servers as $_server ) {
-			if ( ! is_array( $_server ) || empty( $_server[ 'host' ] ) ) {
-				continue; // Unexpected server.
-			}
-			$_host                                  = $_server[ 'host' ];
-			$_port                                  = $_server[ 'port' ] ?? 11211;
-			$_weight                                = $_server[ 'weight' ] ?? 0;
-			$this->servers[ $_host . ':' . $_port ] = [ $_host, $_port, $_weight ];
-		}
-		$this->servers   = U\Arr::sort_by( 'key', $this->servers );
 		$this->memcached = new \Memcached( $this->connection_id );
-
 		$this->maybe_add_server_connections();
 	}
 }

@@ -49,9 +49,9 @@ trait Utility_Members {
 	 * @since 2021-12-15
 	 *
 	 * @param string|array $primary_key_parts A single string part, or an array containing multiple parts.
-	 *                                        These are key part(s) used to formulate an actual key of what to get|set.
+	 *                                        These are key part(s) used to formulate an actual cache key identifier.
 	 *
-	 *                                        Whatever you pass, it will be hashed; i.e., converted to a key.
+	 *                                        Whatever you pass, it will be hashed; i.e., converted to a string key.
 	 *                                        Passing `__METHOD__` as one part is a highly recommended best practice.
 	 *
 	 *                                        Embedding objects or resources in a key parts array is not recommended.
@@ -61,23 +61,25 @@ trait Utility_Members {
 	 *                                        It is recommended that you pass a string for best performance.
 	 *                                        When passing an array, try to keep it simple for best performance.
 	 *
-	 * @param string|array $sub_key_parts     Sub-key parts. Note that `$primary_key_parts` establish a cache group.
-	 *                                        Within that group cache sub-keys are used to cache specific items in that group.
+	 * @param string|array $sub_key_parts     Sub-key parts. Note: `$primary_key_parts` are used to establish a cache group;
+	 *                                        while `$sub_key_parts` are used to identify specific items within that primary group.
 	 *
-	 *                                        The format for sub-keys is the same as for `$primary_key_parts`.
-	 *                                        See `$primary_key_parts` description for details about string|array formats.
-	 *                                        Passing `__METHOD__` is *not* a recommended best practice for sub-key parts.
+	 *                                        The format and options for `$sub_key_parts` is exactly the same as for `$primary_key_parts`.
+	 *                                        However, passing `__METHOD__` is generally *not* a recommended best practice for `$sub_key_parts`.
 	 *
-	 * @param mixed        $value             Cache value, when setting cache.
+	 * @param mixed        $value             Value to cache; i.e., when setting|updating the cache.
+	 *                                        If not passed, this function simply operates as a getter.
+	 *                                        Passing `null` explicitly will {@see unset()} a given cache key.
 	 *
 	 * @param int          $expires_in        Default is `0`. {@see U\Mem::set()} for further details.
 	 *
-	 * @return mixed Cached value, by reference. Defaults to `null`.
+	 * @return mixed If `$value` is given it's a write operation returning `true` on success, `false` on failure.
+	 *               If `$value` is not given, it's a read operation. Returns mixed cache value — default value being `null`.
 	 */
-	protected static function cache(
+	public static function cache(
 		/* string|array */ $primary_key_parts,
 		/* string|array */ $sub_key_parts,
-		/* mixed */ $value = null,
+		/* mixed */ $value = U\FUNC_PARAM_DEFAULT_NULL_STR,
 		int $expires_in = 0
 	) /* : mixed */ {
 		assert( is_string( $primary_key_parts ) || is_array( $primary_key_parts ) );
@@ -86,7 +88,7 @@ trait Utility_Members {
 		static $can_use_mem_extension, $mem; // Remember.
 		$can_use_mem_extension ??= U\Env::can_use_extension( 'memcached' );
 
-		$is_write_op          = null !== $value || func_num_args() >= 2;
+		$is_write_op          = U\FUNC_PARAM_DEFAULT_NULL_STR !== $value;
 		$static_cls_key_parts = [ __FUNCTION__, $primary_key_parts, $sub_key_parts ];
 
 		if ( ! $can_use_mem_extension ) {
@@ -97,34 +99,25 @@ trait Utility_Members {
 				return static::cls_cache( $static_cls_key_parts );
 			}
 		}
-		$primary_key = is_array( $primary_key_parts )
-			? U\Arr::hash( $primary_key_parts )
-			: sha1( $primary_key_parts );
+		$primary_key = is_array( $primary_key_parts ) ? U\Arr::hash( $primary_key_parts ) : sha1( $primary_key_parts );
+		$sub_key     = is_array( $sub_key_parts ) ? U\Arr::hash( $sub_key_parts ) : sha1( $sub_key_parts );
 
-		$sub_key = is_array( $sub_key_parts )
-			? U\Arr::hash( $sub_key_parts )
-			: sha1( $sub_key_parts );
+		$mem ??= U\Mem::instance_er();
 
-		try {
-			$mem ??= U\Mem::instance_er();
-
-			if ( $is_write_op ) {
-				if ( $mem->set( $primary_key, $sub_key, $value, $expires_in ) ) {
-					static::cls_cache( $static_cls_key_parts, null );   // Clear any prior failures from static CLS cache.
-					return true;                                        // Indicates in-memory cache success.
-				} else {
-					static::cls_cache( $static_cls_key_parts, $value ); // Fall back on static CLS cache.
-					return false;                                       // Indicates in-memory cache failure.
-				}
+		if ( $is_write_op ) {
+			if ( $mem->set( $primary_key, $sub_key, $value, $expires_in ) ) {
+				static::cls_cache( $static_cls_key_parts, null );   // Clear any prior failures from static CLS cache.
+				return true;                                        // Indicates in-memory cache success.
 			} else {
-				if ( null !== ( $mem_value = $mem->get( $primary_key, $sub_key ) ) ) {
-					return $mem_value; // Success; return in-memory cache value.
-				} else {
-					return static::cls_cache( $static_cls_key_parts );  // Fall back on static CLS cache.
-				}
+				static::cls_cache( $static_cls_key_parts, $value ); // Fall back on static CLS cache.
+				return false;                                       // Indicates in-memory cache failure.
 			}
-		} catch ( \Exception $exception ) {
-			throw $exception; // Re-throw exception.
+		} else {
+			if ( null !== ( $mem_value = $mem->get( $primary_key, $sub_key ) ) ) {
+				return $mem_value; // Success; return in-memory cache value.
+			} else {
+				return static::cls_cache( $static_cls_key_parts );  // Fall back on static CLS cache.
+			}
 		}
 	}
 }

@@ -40,17 +40,17 @@ trait CLS_Cache_Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	private static array $cache = [];
+	private static array $cls_cache = [];
 
 	/**
 	 * Gets|sets static CLS cache.
 	 *
-	 * @since 2021-12-15
+	 * @since         2021-12-15
 	 *
 	 * @param string|array $key_parts A single string part, or an array containing multiple parts.
-	 *                                These are key part(s) used to formulate an actual key of what to get|set.
+	 *                                These are key part(s) used to formulate an actual cache key identifier.
 	 *
-	 *                                Whatever you pass, it will be hashed; i.e., converted to a key.
+	 *                                Whatever you pass, it will be hashed; i.e., converted to a string key.
 	 *                                Passing `__FUNCTION__` as one part is a highly recommended best practice.
 	 *
 	 *                                Embedding objects or resources in a key parts array is not recommended.
@@ -60,25 +60,41 @@ trait CLS_Cache_Members {
 	 *                                It is recommended that you pass a string for best performance.
 	 *                                When passing an array, try to keep it simple for best performance.
 	 *
-	 * @param mixed        $value     Cache value, when setting cache.
+	 * @param mixed        $value     Value to cache; i.e., when setting|updating the cache.
+	 *                                If not passed, this function simply operates as a getter.
 	 *
-	 * @return mixed Cached value, by reference. Defaults to `null`.
+	 *                                Passing `null` explicitly will {@see unset()} a given cache key.
+	 *                                Whenever you set `$value` to `null` explicitly (i.e., to {@see unset()}),
+	 *                                you'll get back a useless dummy reference instead of a real cache reference.
+	 *
+	 * @return mixed Cached `$value`, by reference. Default `$value` is `null`.
+	 *               If you set `$value` to `null` explicitly (i.e., to {@see unset()}),
+	 *               you'll get back a useless dummy reference instead of a real cache reference.
 	 */
-	final protected static function &cls_cache( /* string|array */ $key_parts, /* mixed */ $value = null ) /* : mixed */ {
+	final protected static function &cls_cache(
+		/* string|array */ $key_parts,
+		/* mixed */ $value = U\FUNC_PARAM_DEFAULT_NULL_STR
+	) /* : mixed */ {
 		assert( is_string( $key_parts ) || is_array( $key_parts ) );
 
 		$key = is_array( $key_parts )
 			? U\Arr::hash( $key_parts )
 			: sha1( $key_parts );
 
-		static::$cache[ static::class ] ??= [];
+		static::$cls_cache[ static::class ] ??= [];
 
-		if ( null !== $value || func_num_args() >= 2 ) {
-			static::$cache[ static::class ][ $key ] = $value;
+		if ( U\FUNC_PARAM_DEFAULT_NULL_STR !== $value ) {
+			if ( null === $value ) {
+				unset( static::$cls_cache[ static::class ][ $key ] );
+				$_null = null; // Null variable.
+				return $_null; // Return by reference.
+			} else {
+				static::$cls_cache[ static::class ][ $key ] = $value;
+			}
 		} else {
-			static::$cache[ static::class ][ $key ] ??= null;
+			static::$cls_cache[ static::class ][ $key ] ??= null;
 		}
-		return static::$cache[ static::class ][ $key ];
+		return static::$cls_cache[ static::class ][ $key ];
 	}
 
 	/**
@@ -87,6 +103,6 @@ trait CLS_Cache_Members {
 	 * @since 2021-12-15
 	 */
 	final protected static function cls_cache_clear() : void {
-		static::$cache[ static::class ] = [];
+		static::$cls_cache[ static::class ] = [];
 	}
 }

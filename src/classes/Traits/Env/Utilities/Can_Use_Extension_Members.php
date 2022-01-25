@@ -46,6 +46,8 @@ trait Can_Use_Extension_Members {
 	 *
 	 * @see   https://www.php.net/manual/en/extensions.membership.php
 	 * @see   https://www.php.net/manual/en/function.get-loaded-extensions.php
+	 *
+	 * @todo  This function should also check ini settings to see if they're enabled, also.
 	 */
 	public static function can_use_extension( string ...$extensions ) : bool {
 		if ( ! $extensions ) {

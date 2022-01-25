@@ -95,6 +95,8 @@ trait Setter_Members {
 			$ext = $this->memcached->get( $key, null, \Memcached::GET_EXTENDED );
 			$cas = \Memcached::GET_ERROR_RETURN_VALUE !== $ext && isset( $ext[ 'cas' ] ) ? $ext[ 'cas' ] : $cas;
 
+			// @todo Look for error indicating data is too large.
+
 			if ( \Memcached::RES_NOTFOUND === $this->memcached->getResultCode() ) {
 				if ( $this->memcached->add( $key, $value, $expires ) ) {
 					return true; // All good; stop here.

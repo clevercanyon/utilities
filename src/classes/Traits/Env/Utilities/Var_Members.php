@@ -47,6 +47,9 @@ trait Var_Members {
 	 *
 	 * @see   U\Env::var() Before modifying this function.
 	 * @see   https://en.wikipedia.org/wiki/Environment_variable
+	 *
+	 * @note  SECURITY: Please keep in mind that environment variables may contain sensitive information.
+	 *        A server's environment variables should not be passed and/or exposed either directly or indirectly to a user.
 	 */
 	public static function vars( array $others = [] ) : array {
 		$vars = []; // Initialize.
@@ -93,6 +96,9 @@ trait Var_Members {
 	 * @see   U\Env::vars() Before modifying this function.
 	 * @see   U\Env::sys_temp() Before modifying.
 	 * @see   U\User::ip() Before modifying.
+	 *
+	 * @note  SECURITY: Please keep in mind that environment variables may contain sensitive information.
+	 *        A server's environment variables should not be passed and/or exposed either directly or indirectly to a user.
 	 */
 	public static function var( string $var, array $_d = [] ) : string {
 		$is_windows  = U\Env::is_windows();
@@ -111,7 +117,7 @@ trait Var_Members {
 				if ( $is_windows ) {
 					if ( ! $value = getenv( 'USERPROFILE' ) ) {
 						$_homedrive = getenv( 'HOMEDRIVE' );
-						$_homepath  = getenv( 'HOMEPATH' );
+						$_homepath  = $_homedrive ? getenv( 'HOMEPATH' ) : '';
 
 						if ( $_homedrive && $_homepath ) {
 							$value = $_homedrive . $_homedrive;

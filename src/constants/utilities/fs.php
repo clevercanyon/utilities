@@ -11,12 +11,12 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Declarations & namespace.
+ * Declarations.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Mem;
+namespace Clever_Canyon\Utilities;
 
 /**
  * Utilities.
@@ -28,28 +28,36 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * 1kb in bytes.
  *
  * @since 2021-12-15
- *
- * @see   U\Mem
  */
-trait Members {
-	/**
-	 * Traits.
-	 *
-	 * @since 2021-12-15
-	 */
-	use U\Traits\Mem\Magic\Constructable_Members;
-	use U\Traits\Mem\Utilities\Property_Members;
-	use U\Traits\Mem\Utilities\Instance_Members;
+const KB_IN_BYTES = 1024;
 
-	use U\Traits\Mem\Utilities\Key_Members;
-	use U\Traits\Mem\Utilities\Server_Members;
+/**
+ * 1MB in bytes.
+ *
+ * @since 2021-12-15
+ */
+const MB_IN_BYTES = 1024 * KB_IN_BYTES;
 
-	use U\Traits\Mem\Utilities\Getter_Members;
-	use U\Traits\Mem\Utilities\Setter_Members;
+/**
+ * 1GB in bytes.
+ *
+ * @since 2021-12-15
+ */
+const GB_IN_BYTES = 1024 * MB_IN_BYTES;
 
-	use U\Traits\Mem\Utilities\Clear_Members;
-	use U\Traits\Mem\Utilities\Utility_Members;
-}
+/**
+ * 1TB in bytes.
+ *
+ * @since 2021-12-15
+ */
+const TB_IN_BYTES = 1024 * GB_IN_BYTES;
+
+/**
+ * 1PB in bytes.
+ *
+ * @since 2021-12-15
+ */
+const PB_IN_BYTES = 1024 * TB_IN_BYTES;

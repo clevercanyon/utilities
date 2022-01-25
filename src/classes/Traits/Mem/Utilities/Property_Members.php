@@ -76,5 +76,12 @@ trait Property_Members {
 	 *
 	 * @since 2020-11-19
 	 */
-	protected static int $max_write_attempts = 5;
+	protected static int $max_write_attempts = 4;
+
+	/**
+	 * Connection ID version.
+	 *
+	 * @since 2022-01-24
+	 */
+	protected static string $connection_id_version = '1.0.0';
 }

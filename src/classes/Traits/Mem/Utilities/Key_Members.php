@@ -55,6 +55,8 @@ trait Key_Members {
 	 * @throws U\Fatal_Exception If the full UUIDv4-prefixed key exceeds 250 bytes in length.
 	 *
 	 * @return string Full UUIDv4-prefixed key; i.e., `[UUIDv4]\[sub-key]`.
+	 *
+	 * @note  Max key length is `250` bytes. It's a hard limit in Memcached; {@see https://o5p.me/eufcIR}.
 	 */
 	protected function key( string $primary_key, string $sub_key ) : string {
 		if ( ! ( $namespaced_primary_key = $this->nsp_key( $primary_key ) ) ) {
@@ -66,7 +68,10 @@ trait Key_Members {
 			$attempts ??= 0; // Initialize attempts.
 			$attempts++;     // Counts attempts.
 
-			if ( ( $existing_namespaced_primary_key_uuid_v4 = (string) $this->memcached->get( $namespaced_primary_key ) ) ) {
+			if ( $attempts > 2 ) {
+				usleep( U\SECOND_IN_MICROSECONDS / 100 ); // One hundredth of a second pause.
+			}
+			if ( ( $existing_namespaced_primary_key_uuid_v4 = u\if_string( $this->memcached->get( $namespaced_primary_key ) ) ) ) {
 				$namespaced_primary_key_uuid_v4 = $existing_namespaced_primary_key_uuid_v4;
 				break; // All good; stop here.
 			}
