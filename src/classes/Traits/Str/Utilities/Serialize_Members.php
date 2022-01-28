@@ -37,6 +37,13 @@ namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
  */
 use Clever_Canyon\{Utilities as U};
 
+/**
+ * File-specific.
+ *
+ * @since 2021-12-15
+ */
+use Opis\Closure\SerializableClosure;
+
 // </editor-fold>
 
 /**
@@ -69,6 +76,9 @@ trait Serialize_Members {
 	public static function serialize( /* mixed */ $value, bool $sign = true ) : string {
 		assert( ! is_resource( $value ) ); // Bad practice.
 
+		if ( $value instanceof \Closure ) {
+			$value = new SerializableClosure( $value );
+		}
 		if ( ! $sign ) {
 			return serialize( $value );
 		}
@@ -124,8 +134,15 @@ trait Serialize_Members {
 		if ( $serialized_false === $value ) {
 			return false; // Explicit `false` return value.
 		}
-		$unserialize_options = [ 'allowed_classes' => [ \stdClass::class, U\Generic::class ] ];
-		$value               = @unserialize( $value, $unserialize_options );
+		$options = [
+			'allowed_classes' => [
+				\stdClass::class,
+				U\Generic::class,
+				SerializableClosure::class,
+			],
+		];
+		$value   = @unserialize( $value, $options );
+		$value   = $value instanceof SerializableClosure ? $value->getClosure() : $value;
 
 		return false === $value ? null : $value;
 	}
