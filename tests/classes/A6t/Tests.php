@@ -130,11 +130,11 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 *
 	 * @throws \PHPUnit\Framework\ExpectationFailedException On assertion failure.
 	 *
-	 * @see   U\I7e\Base::to_eq_string() for further details.
+	 * @see   U\I7e\Base::to_equals_string() for further details.
 	 * @see   https://phpunit.readthedocs.io/en/9.5/assertions.html#assertobjectequals
 	 */
 	protected function assertObjEquals( U\I7e\Base $expected, U\I7e\Base $actual, string $message = '' ) : void {
-		$this->assertSame( $expected->to_eq_string(), $actual->to_eq_string(), $message );
+		$this->assertSame( $expected->to_equals_string(), $actual->to_equals_string(), $message );
 	}
 
 	/**
@@ -148,11 +148,11 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 *
 	 * @throws \PHPUnit\Framework\ExpectationFailedException On assertion failure.
 	 *
-	 * @see   U\I7e\Base::to_eq_string() for further details.
+	 * @see   U\I7e\Base::to_equals_string() for further details.
 	 * @see   https://phpunit.readthedocs.io/en/9.5/assertions.html#assertobjectequals
 	 */
 	protected function assertObjNotEquals( U\I7e\Base $expected, U\I7e\Base $actual, string $message = '' ) : void {
-		$this->assertNotSame( $expected->to_eq_string(), $actual->to_eq_string(), $message );
+		$this->assertNotSame( $expected->to_equals_string(), $actual->to_equals_string(), $message );
 	}
 
 	/**

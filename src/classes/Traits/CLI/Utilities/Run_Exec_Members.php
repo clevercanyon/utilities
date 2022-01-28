@@ -82,10 +82,10 @@ trait Run_Exec_Members {
 	 *
 	 * @return object Object with properties `{}->status|stdout|stderr`.
 	 *
-	 * @todo          Review these changes to see if we can leverage any of them.
-	 *                {@see https://o5p.me/YJvL3s}.
+	 * @note          Output redirection is also supported, which could be implemented in the future.
+	 *                {@see https://o5p.me/YJvL3s} for further details.
 	 *
-	 * @future-review Also changes in PHP 8+; {@see https://o5p.me/rUnbCC}.
+	 * @future-review Review Windows changes in PHP 8+; {@see https://o5p.me/rUnbCC}.
 	 */
 	public static function exec(
 		array $args,
@@ -113,8 +113,11 @@ trait Run_Exec_Members {
 		$cmd             = U\CLI::prepare_cmd( $args, $dir );
 		U\CLI::$last_cmd = $cmd; // Record last CMD string.
 
-		$process = proc_open( $cmd_no_dir, $config, $pipes, $dir );
-
+		if ( U\Env::is_windows() ) {
+			$process = proc_open( $cmd_no_dir, $config, $pipes, $dir, [], [ 'bypass_shell' => true ] );
+		} else {
+			$process = proc_open( $cmd_no_dir, $config, $pipes, $dir, [], [] );
+		}
 		if ( ! is_resource( $process ) ) {
 			if ( $check_status ) {
 				throw new U\Fatal_Exception( 'Unexpected `proc_open()` failure when running `' . $cmd . '`.' );

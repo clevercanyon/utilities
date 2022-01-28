@@ -42,24 +42,20 @@ trait Members {
 	 */
 	use U\Traits\Str\Utilities\Begins_With_Members;
 	use U\Traits\Str\Utilities\Contains_Members;
-	use U\Traits\Str\Utilities\Dump_Members;
 	use U\Traits\Str\Utilities\Ends_With_Members;
 	use U\Traits\Str\Utilities\Escape_Members;
-	use U\Traits\Str\Utilities\Is_Email_Members;
-	use U\Traits\Str\Utilities\Is_Hostname_Members;
-	use U\Traits\Str\Utilities\Is_IP_Members;
-	use U\Traits\Str\Utilities\Is_MAC_Members;
 	use U\Traits\Str\Utilities\Is_Name_Slug_Var_Members;
 	use U\Traits\Str\Utilities\Is_Regexp_Members;
-	use U\Traits\Str\Utilities\Is_URL_Members;
 	use U\Traits\Str\Utilities\Is_UTF8_Members;
 	use U\Traits\Str\Utilities\Is_Valid_Helper_Members;
 	use U\Traits\Str\Utilities\Is_Version_Members;
-	use U\Traits\Str\Utilities\JSON_Encode_Decode_Members;
+	use U\Traits\Str\Utilities\JSON_Members;
+	use U\Traits\Str\Utilities\Multibyte_Members;
+	use U\Traits\Str\Utilities\No_WP_Serialize_Members;
 	use U\Traits\Str\Utilities\Normalize_EOL_Members;
-	use U\Traits\Str\Utilities\Normalize_IP_Members;
 	use U\Traits\Str\Utilities\Preg_Match_In_Members;
 	use U\Traits\Str\Utilities\Replace_Members;
+	use U\Traits\Str\Utilities\Serialize_Members;
 	use U\Traits\Str\Utilities\Stringify_Members;
 	use U\Traits\Str\Utilities\To_ASCII_Members;
 }

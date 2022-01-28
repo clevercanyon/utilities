@@ -37,6 +37,8 @@ namespace Clever_Canyon\Utilities__Tests\Tests;
 use Clever_Canyon\{Utilities as U};
 use Clever_Canyon\{Utilities__Tests as UT};
 
+// </editor-fold>
+
 /**
  * No direct access.
  *
@@ -45,8 +47,6 @@ use Clever_Canyon\{Utilities__Tests as UT};
 if ( ! U\Env::static_var( 'TESTING' ) ) {
 	exit(); // No direct access.
 }
-
-// </editor-fold>
 
 return new class extends U\A6t\Generic {
 	/**

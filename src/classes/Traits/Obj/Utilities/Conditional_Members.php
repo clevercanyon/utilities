@@ -38,13 +38,19 @@ trait Conditional_Members {
 	/**
 	 * Object is empty?
 	 *
-	 * @since 2021-12-16
+	 * @since        2021-12-16
 	 *
 	 * @param object $obj Value to check.
 	 *
 	 * @return bool True if object is empty.
+	 *
+	 * @noinspection PhpLoopNeverIteratesInspection
+	 * @noinspection PhpUnusedLocalVariableInspection
 	 */
 	public static function empty( object $obj ) : bool {
+		foreach ( is_iterable( $obj ) ? $obj : [] as $_v ) {
+			return false; // Not empty.
+		}
 		return empty( U\Obj::props( $obj ) );
 	}
 }

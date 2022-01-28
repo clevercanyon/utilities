@@ -111,7 +111,7 @@ trait Var_Members {
 				} else {
 					$value = getenv( 'USER' );
 				}
-				return (string) $value;
+				return (string) $value; // No caSe transform.
 
 			case 'HOME':
 				if ( $is_windows ) {

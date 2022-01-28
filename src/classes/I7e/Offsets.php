@@ -34,13 +34,16 @@ use Clever_Canyon\{Utilities as U};
  */
 interface Offsets extends U\I7e\Base, \ArrayAccess, \IteratorAggregate, \Countable {
 	/**
-	 * Access to offsets.
+	 * Read/write access to offsets.
 	 *
 	 * @since 2021-12-28
 	 *
+	 * @param array|null $offsets New offsets? Optional. Default is `null`.
+	 *                            This provides a way to update current offsets array.
+	 *
 	 * @return array Offsets, by value.
 	 */
-	public function offsets() : array;
+	public function offsets( /* array|null */ ?array $offsets = null ) : array;
 
 	/**
 	 * Computes offset key.

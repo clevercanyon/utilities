@@ -44,79 +44,190 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Utility_Members {
 	/**
-	 * Gets|sets in-memory cache.
+	 * Static instance.
+	 *
+	 * @since 2022-01-22
+	 */
+	protected static U\Mem $instance;
+
+	/**
+	 * Gets alive instance (`memcached` extension required).
+	 *
+	 * @since 2022-01-22
+	 *
+	 * @param bool $check_ext Check extension exists? Default is `false`.
+	 *
+	 *                        The reason for a `false` default is that by convention (i.e., `_er` = extension required)
+	 *                        a caller is expected to have already worked this out and considered other alternatives
+	 *                        in case the extension is unavailable. That is the recommended best practice.
+	 *
+	 *                        Therefore, when the extension is unavailable, it's desirable that an exception
+	 *                        be thrown due to bad practice instead of hiding the issue here. That said, this flag exists
+	 *                        for easier testing and for cases when a caller wants to enable explicitly.
+	 *
+	 * @return U\Mem|null Instance of {@see U\Mem}, else `null` on failure.
+	 */
+	public static function instance_alive_er( bool $check_ext = false ) /* : U\Mem|null */ : ?U\Mem {
+		if ( $check_ext && ! U\Env::can_use_extension( 'memcached' ) ) {
+			return null; // Not possible.
+		}
+		if ( ! isset( U\Mem::$instance ) ) {
+			U\Mem::$instance = new U\Mem();
+		}
+		return U\Mem::$instance->is_alive() ? U\Mem::$instance : null;
+	}
+
+	/**
+	 * Gets|sets in-memory (ideally-persistent) cache.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string|array $primary_key_parts A single string part, or an array containing multiple parts.
-	 *                                        These are key part(s) used to formulate an actual cache key identifier.
+	 * @param string|array $primary_key_parts A single key part or a bundle containing multiple key parts.
+	 *                                        These are key parts used to formulate an actual cache key identifier.
 	 *
-	 *                                        Whatever you pass, it will be hashed; i.e., converted to a string key.
-	 *                                        Passing `__METHOD__` as one part is a highly recommended best practice.
+	 *                                        Whatever you pass, it will be serialized & hashed; i.e., converted to a string key.
+	 *                                        Passing `__METHOD__` or a group identifier is a highly recommended best practice.
+	 *                                        By default, the cache is very broad in scope; i.e., not pkg|object-specific.
 	 *
-	 *                                        Embedding objects or resources in a key parts array is not recommended.
-	 *                                        It works, just know they'll be identified by ID via {@see U\Arr::hash()}.
+	 *                                        In WordPress, it may often be desirable to pass a plugin slug and/or blog ID as one of the parts.
+	 *                                        Cached values are stored in a network-wide bucket in WordPress. For example, if there's anything
+	 *                                        blog-specific about what is being cached, a blog ID should be given as one of the parts.
 	 *
 	 *                                        * The more parts you pass, the longer it will take to hash.
-	 *                                        It is recommended that you pass a string for best performance.
-	 *                                        When passing an array, try to keep it simple for best performance.
+	 *                                          When passing a bundle, try to keep it simple for best performance.
+	 *
+	 *                                        * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
+	 *                                          Do not pass resource values as a key part; either directly or indirectly.
+	 *                                          Future versions of PHP will likely disallow altogether.
 	 *
 	 * @param string|array $sub_key_parts     Sub-key parts. Note: `$primary_key_parts` are used to establish a cache group;
 	 *                                        while `$sub_key_parts` are used to identify specific items within that primary group.
 	 *
 	 *                                        The format and options for `$sub_key_parts` is exactly the same as for `$primary_key_parts`.
-	 *                                        However, passing `__METHOD__` is generally *not* a recommended best practice for `$sub_key_parts`.
+	 *                                        However, passing `__METHOD__` or a group identifier is *not* a best practice for `$sub_key_parts`.
 	 *
 	 * @param mixed        $value             Value to cache; i.e., when setting|updating the cache.
 	 *                                        If not passed, this function simply operates as a getter.
-	 *                                        Passing `null` explicitly will {@see unset()} a given cache key.
 	 *
-	 * @param int          $expires_in        Default is `0`. {@see U\Mem::set()} for further details.
+	 *                                        * Passing `null` explicitly will {@see unset()} a given cache key.
 	 *
-	 * @return mixed If `$value` is given it's a write operation returning `true` on success, `false` on failure.
-	 *               If `$value` is not given, it's a read operation. Returns mixed cache value — default value being `null`.
+	 *                                        * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
+	 *                                          Do not attempt to cache resource values here; either directly or indirectly.
+	 *                                          Future versions of PHP will likely disallow altogether.
+	 *
+	 *                                        * The `igbinary` extension will issue a notice on resources and serialize as `null`.
+	 *                                          Do not attempt to cache resource values here; either directly or indirectly.
+	 *                                          Future versions of PHP will likely disallow altogether.
+	 *
+	 *                                        * If you must cache a resource, consider {@see U\A6t\Base::cls_cache()}.
+	 *
+	 * @param int          $expires_in        Default is {@see U\Time::HOUR_IN_SECONDS} (one hour).
+	 *                                        Must be `> 0`, else it reverts to default {@see U\Time::HOUR_IN_SECONDS}.
+	 *
+	 * @return mixed Two different operation modes:
+	 *               1. If `$value` is given, it's a write operation returning `true` on success; else `false` on failure.
+	 *               2. If `$value` is not given, it's a read operation returning cached value, else `null` on miss or failure.
 	 */
 	public static function cache(
 		/* string|array */ $primary_key_parts,
 		/* string|array */ $sub_key_parts,
 		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL,
-		int $expires_in = 0
+		int $expires_in = U\Time::HOUR_IN_SECONDS
 	) /* : mixed */ {
-		assert( is_string( $primary_key_parts ) || is_array( $primary_key_parts ) );
-		assert( is_string( $sub_key_parts ) || is_array( $sub_key_parts ) );
+		assert( ! is_resource( $primary_key_parts ) ); // Very bad practice.
+		assert( ! is_resource( $sub_key_parts ) );     // Very bad practice.
+		assert( ! is_resource( $value ) );             // Very bad practice.
+		assert( $expires_in > 0 );                     // Enforced (bad practice).
 
-		static $can_use_mem_extension, $mem; // Remember.
-		$can_use_mem_extension ??= U\Env::can_use_extension( 'memcached' );
+		static $is_wordpress; // Memoize.
+		$is_wordpress ??= U\Env::is_wordpress();
 
-		$is_write_op          = U\Func::PARAM_DEFAULT_NULL !== $value;
-		$static_cls_key_parts = [ __FUNCTION__, $primary_key_parts, $sub_key_parts ];
+		$is_write_op = U\Func::PARAM_DEFAULT_NULL !== $value;
+		$expires_in  = $expires_in <= 0 ? U\Time::HOUR_IN_SECONDS : $expires_in;
 
-		if ( ! $can_use_mem_extension ) {
-			if ( $is_write_op ) {
-				static::cls_cache( $static_cls_key_parts, $value );
-				return false; // Indicates in-memory cache failure.
+		// WordPress API compatibility.
+
+		if ( $is_wordpress ) {
+			static $is_multisite; // Memoize.
+			$is_multisite ??= is_multisite();
+
+			// Max total key length = 172 characters; {@see set_transient()}.
+			// Max total key length = 167 characters; {@see set_site_transient()}.
+			// - `$namespace_prefix` = 13 characters.
+			// - `$primary_key_prefix` = 41 characters.
+			// - `$sub_key` = 40 characters.
+			// Total length = 94 characters (well within limits).
+
+			static $namespace_prefix; // Memoize.
+			if ( null === $namespace_prefix ) {
+				$namespace_prefix = U\Brand::get( '&', 'slug' );
+				$namespace_prefix .= '\\' . U\Env::static_var( 'MEMCACHED_NAMESPACE' );
+				$namespace_prefix = U\Crypto::x_sha( $namespace_prefix ) . '_';
+			}
+			$primary_key_prefix = sha1( U\Str::serialize( $primary_key_parts, false ) ) . '_';
+			$sub_key            = sha1( U\Str::serialize( $sub_key_parts, false ) );
+			$transient_key      = $namespace_prefix . $primary_key_prefix . $sub_key;
+
+			// Context is current 'site' (network) in multisite mode; else current blog.
+			// In WordPress, 'site' refers to current network. There can be multiple networks.
+
+			if ( $is_multisite ) {
+				if ( $is_write_op ) {
+					if ( null === $value ) {
+						delete_site_transient( $transient_key );
+						return true; // Indicate success even if it doesn't exist — it's gone.
+					} else {
+						set_site_transient( $transient_key, U\Str::serialize_no_wp( $value ), $expires_in );
+						return true; // Indicate success even if value didn't change — it's up-to-date.
+					}
+				} else {
+					return U\Str::maybe_unserialize_no_wp( get_site_transient( $transient_key ) );
+				}
 			} else {
-				return static::cls_cache( $static_cls_key_parts );
+				if ( $is_write_op ) {
+					if ( null === $value ) {
+						delete_transient( $transient_key );
+						return true; // Indicate success even if it doesn't exist — it's gone.
+					} else {
+						set_transient( $transient_key, U\Str::serialize_no_wp( $value ), $expires_in );
+						return true; // Indicate success even if value didn't change — it's up-to-date.
+					}
+				} else {
+					return U\Str::maybe_unserialize_no_wp( get_transient( $transient_key ) );
+				}
 			}
 		}
-		$primary_key = is_array( $primary_key_parts ) ? U\Arr::hash( $primary_key_parts ) : sha1( $primary_key_parts );
-		$sub_key     = is_array( $sub_key_parts ) ? U\Arr::hash( $sub_key_parts ) : sha1( $sub_key_parts );
+		// Memcached API compatibility w/ static CLS cache fallback.
 
-		$mem ??= U\Mem::instance_er(); // @todo Add method that can check if Memcache is running, catch exceptions, etc.
+		static $can_use_mem_extension, $mem; // Memoize.
+		$can_use_mem_extension ??= U\Env::can_use_extension( 'memcached' );
+		$mem                   ??= $can_use_mem_extension ? ( U\Mem::instance_alive_er() ?: false ) : false;
+
+		if ( $mem ) { // No reason to calculate if Memcached not alive.
+
+			// Default max primary key length = 237 bytes; {@see U\Mem::set()}.
+			// Default max sub-key length = 217 bytes; {@see U\Mem::set()}.
+			// - `$primary_key` = 40 bytes (well within limit).
+			// - `$sub_key` = 40 bytes (well within limit).
+
+			$primary_key = sha1( U\Str::serialize( $primary_key_parts, false ) );
+			$sub_key     = sha1( U\Str::serialize( $sub_key_parts, false ) );
+		}
+		$static_cls_cache_key_parts = [ __FUNCTION__, $primary_key_parts, $sub_key_parts ];
 
 		if ( $is_write_op ) {
-			if ( $mem->set( $primary_key, $sub_key, $value, $expires_in ) ) {
-				static::cls_cache( $static_cls_key_parts, null );   // Clear any prior failures from static CLS cache.
-				return true;                                        // Indicates in-memory cache success.
+			if ( $mem && $mem->set( $primary_key, $sub_key, $value, $expires_in ) ) {
+				static::cls_cache( $static_cls_cache_key_parts, null );   // Clears any prior failures.
+				return true;                                              // Indicates in-memory cache success.
 			} else {
-				static::cls_cache( $static_cls_key_parts, $value ); // Fall back on static CLS cache.
-				return false;                                       // Indicates in-memory cache failure.
+				static::cls_cache( $static_cls_cache_key_parts, $value ); // Falls back on static CLS cache.
+				return true;                                              // Indicates in-memory cache success.
 			}
 		} else {
-			if ( null !== ( $mem_value = $mem->get( $primary_key, $sub_key ) ) ) {
-				return $mem_value; // Success; return in-memory cache value.
+			if ( $mem && null !== ( $rtn_value = $mem->get( $primary_key, $sub_key ) ) ) {
+				return $rtn_value; // Success; return in-memory cache value.
 			} else {
-				return static::cls_cache( $static_cls_key_parts );  // Fall back on static CLS cache.
+				return static::cls_cache( $static_cls_cache_key_parts );  // Falls back on static CLS cache.
 			}
 		}
 	}

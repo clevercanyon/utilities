@@ -46,6 +46,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @property-read $pkg_name
  * @property-read $pkg_name_hash
+ * @property-read $pkg_namespace_scope
  *
  * @property-read $brand_name
  * @property-read $brand_slug
@@ -141,6 +142,13 @@ final class Project extends U\A6t\Base {
 	 * @since 2021-12-15
 	 */
 	protected string $pkg_name_hash;
+
+	/**
+	 * Pkg namespace scope; e.g., `Xj9ier8xr3oa`
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $pkg_namespace_scope;
 
 	/**
 	 * Brand name; e.g., `My Brand`.
@@ -287,14 +295,18 @@ final class Project extends U\A6t\Base {
 		}
 		// Validate package name properties.
 
-		$this->pkg_name      = strval( $this->json->name );
-		$this->pkg_name_hash = U\Crypto::x_sha( $this->pkg_name );
+		$this->pkg_name            = strval( $this->json->name );
+		$this->pkg_name_hash       = U\Crypto::x_sha( $this->pkg_name );
+		$this->pkg_namespace_scope = U\Str::uc_first( $this->pkg_name_hash );
 
 		if ( ! $this->pkg_name || ! preg_match( U\Dev\Composer::PACKAGE_NAME_REGEXP, $this->pkg_name ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_name`.' );
 		}
-		if ( ! $this->pkg_name_hash || 12 !== strlen( $this->pkg_name_hash ) ) {
+		if ( ! $this->pkg_name_hash || 12 !== mb_strlen( $this->pkg_name_hash ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_name_hash`.' );
+		}
+		if ( ! $this->pkg_namespace_scope || 12 !== mb_strlen( $this->pkg_namespace_scope ) ) {
+			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_namespace_scope`.' );
 		}
 		// Validate brand properties.
 

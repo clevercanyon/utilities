@@ -11,6 +11,14 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-15
+ *
+ * @noinspection PhpUndefinedMethodInspection
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
@@ -52,7 +60,7 @@ trait Unserializable_Members {
 	 * Handles unserialization.
 	 *
 	 * This fires instead of constructor when unserializing.
-	 * i.e., {@see unserialize()} fires this function when unserializing.
+	 * {@see unserialize()} for further details.
 	 *
 	 * @since 2021-12-27
 	 *

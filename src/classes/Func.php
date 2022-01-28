@@ -41,10 +41,18 @@ final class Func extends U\A6t\Stc_Utilities {
 	use U\Traits\Func\Members;
 
 	/**
+	 * Pseudo `false` value, which aids in cases where we want to store `false` using a function that also returns `false`.
+	 * This is most helpful in caching. There are functions across various APIs that return `false` instead of a `null` value.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const PSEUDO_FALSE = "::func-pseudo-\0false\0::";
+
+	/**
 	 * Aids functions that accept `null` in a parameter value; where `null` is also the default value.
 	 * And, when they also want to avoid the performance hit that comes from depending on {@see func_num_args()}.
 	 *
 	 * @since 2021-12-15
 	 */
-	public const PARAM_DEFAULT_NULL = "func-param-default-\0null\0";
+	public const PARAM_DEFAULT_NULL = "::func-param-default-\0null\0::";
 }

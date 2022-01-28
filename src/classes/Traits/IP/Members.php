@@ -40,5 +40,6 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\IP\Utilities\Noop_Members;
+	use U\Traits\IP\Utilities\Normalize_Members;
+	use U\Traits\IP\Utilities\Conditional_Members;
 }

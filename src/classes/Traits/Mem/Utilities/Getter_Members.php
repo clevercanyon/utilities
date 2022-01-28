@@ -44,35 +44,32 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Getter_Members {
 	/**
-	 * Gets {@see \Memcached} instance.
-	 *
-	 * @since 2022-01-22
-	 *
-	 * @return \Memcached Memcached instance.
-	 */
-	public function memcached() : \Memcached {
-		return $this->memcached;
-	}
-
-	/**
 	 * Gets cache value.
 	 *
 	 * @since 2020-11-19
 	 *
-	 * @param string $primary_key Primary key.
-	 * @param string $sub_key     Sub-key to get.
+	 * @param string $primary_key Primary key, which will be namespaced by {@see U\Mem::namespaced_primary_key()}.
+	 *                            The default namespace prefix + `\` is 13 bytes, so default max length is 237 bytes.
+	 *
+	 * @param string $sub_key     Sub-key to get. The sub-key is auto-prefixed with primary-key's UUIDv4 entry.
+	 *                            The default sub-key prefix + `\` is 33 bytes in length, so default max length is 217 bytes.
 	 *
 	 * @return mixed|null Cache value, else `null` on miss or failure.
+	 *                    This function can also return `null` when retrieving a `null` value.
+	 *
+	 *                    In general, it is a best practice not to cache `null` values.
+	 *                    In fact, {@see U\Mem::set()} treats `null` as a request to unset a cache key.
+	 *                    Therefore, under expected circumstances, this should only return `null` on miss or failure.
 	 */
 	public function get( string $primary_key, string $sub_key ) /* : mixed */ {
 		if ( ! ( $key = $this->key( $primary_key, $sub_key ) ) ) {
-			return null; // Fail; e.g., race condition.
+			return null; // Fail; e.g., down server or unexpected error.
 		}
 		$value = $this->memcached->get( $key );
 
 		if ( \Memcached::RES_SUCCESS === $this->memcached->getResultCode() ) {
 			return $value; // Cached value.
 		}
-		return null; // Failure.
+		return null; // Fail; e.g., down server or unexpected error.
 	}
 }

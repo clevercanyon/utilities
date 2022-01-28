@@ -43,39 +43,40 @@ trait Clone_Deep_Members {
 	 * @param object|array $bundle Bundle to clone.
 	 *
 	 * @param string|null  $method Default is `null` indicating this method can decide.
-	 *                             The possible values are: `serialize`, `json`, or `reflection`.
+	 *                             The possible values are: `reflection`, `json`, or `serialize`.
 	 *                             If left as `null`, the current default approach is to use `reflection`.
-	 *                             Reflection is chosen because it offers the best compatibility with `__clone()` magic,
-	 *                             more granular control over how deep cloning is to be conducted, and reference-breaking.
 	 *
-	 *                             Please note that {@see unserialize()} can be very dangerous on untrusted data.
-	 *                             That said, this method expects an object, so we aren't operating on untrusted data here.
-	 *                             Another gotcha with `serialize` is that it can only serialize what `__serialize()` allows,
-	 *                             which in some cases could be assessible properties only vs. `reflection` which clones *everything*.
+	 *                             * `reflection`: Reflection offers the best compatibility with `__clone()` magic,
+	 *                               more granular control over deep cloning, and it makes reference-breaking possible.
 	 *
-	 *                             JSON comes with some gotchas, too. For example, JSON-encoding will not preserve any internal distinction
-	 *                             between associative arrays and objects, causing associative arrays to be converted to objects when cloning.
-	 *                             If the objects you're cloning contain nested objects or arrays it is important to be aware when specifying
-	 *                             the `json` approach. Another gotcha with `json` is that it can only clone what `jsonSerialize()` allows,
-	 *                             which in some cases could be assessible properties only vs. `reflection` which clones *everything*.
+	 *                             * `json`: JSON-encoding breaks referencs, but it will not preserve a distinction between
+	 *                               associative arrays and objects, causing associative arrays to be converted to objects when cloning.
+	 *                               If the objects you're cloning contain nested objects or arrays it is important to be aware when specifying
+	 *                               the `json` approach. Another gotcha with `json` is that it can only clone what `jsonSerialize()` allows,
+	 *                               which in some cases could be assessible properties only vs. `reflection` which clones *everything*.
+	 *
+	 *                             * `serialize`: Please note that {@see unserialize()} can be very dangerous on untrusted data.
+	 *                               That said, this method expects an object|array to be cloned; i.e., this isn't operating on untrusted data.
+	 *                               A gotcha with `serialize` is that it can only serialize what `__serialize()` allows, which in some cases
+	 *                               could be assessible properties only vs. `reflection` which clones *everything*.
+	 *
+	 *                               * {@see U\Str::serialize()}, {@see U\Str::unserialize()} are used for serialization.
+	 *                                 {@see U\Str::unserialize()} allows a very limited subset of classes to be unserialized.
 	 *
 	 * @return object|array Deep clone of bundle.
 	 */
-	public static function clone_deep(
-		/* object|array */ $bundle,
-		/* string|null */ ?string $method = null
-	) /* : object|array */ {
+	public static function clone_deep( /* object|array */ $bundle, /* string|null */ ?string $method = null ) /* : object|array */ {
 		assert( U\Bundle::is( $bundle ) );
 
 		switch ( $method ) {
-			case 'serialize':
-				return unserialize( serialize( $bundle ) ); // phpcs:ignore.
-
 			case 'json':
 				return U\Str::json_decode( U\Str::json_encode( $bundle, false ) );
 
+			case 'serialize':
+				return U\Str::unserialize( U\Str::serialize( $bundle, false ), false );
+
 			case 'reflection':
-			default: // Default approach.
+			default:
 				if ( is_object( $bundle ) ) {
 					return U\Bundle::clone_deep_obj_helper( $bundle, new \SplObjectStorage() );
 				} else {

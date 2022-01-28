@@ -46,4 +46,25 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	public const UTF8_BOM = "\xEF\xBB\xBF";
+
+	/**
+	 * Serialize (no WP) prefix.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const SERIALIZE_NO_WP_PREFIX = '[|{:s!wp:}|]';
+
+	/**
+	 * Serialize signature separator.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const SERIALIZE_SIGNATURE_SEPARATOR = '[|{:sSs:}|]';
+
+	/**
+	 * Serialize signature key.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const SERIALIZE_SIGNATURE_KEY = 'rnrttmPHHt4bwferoTKTrKhzN2XTPzrrWK6gvpqALDisGtWhiwtmPPoFGGs3sELs';
 }

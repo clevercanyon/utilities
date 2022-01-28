@@ -48,8 +48,11 @@ trait Key_Members {
 	 *
 	 * @since 2020-11-19
 	 *
-	 * @param string $primary_key Primary key.
-	 * @param string $sub_key     Sub-key.
+	 * @param string $primary_key Primary key, which will be namespaced by {@see U\Mem::namespaced_primary_key()}.
+	 *                            The default namespace prefix + `\` is 13 bytes, so default max length is 237 bytes.
+	 *
+	 * @param string $sub_key     Sub-key. The sub-key is auto-prefixed with primary-key's UUIDv4 entry.
+	 *                            The default sub-key prefix + `\` is 33 bytes in length, so default max length is 217 bytes.
 	 *
 	 * @throws U\Fatal_Exception If unable to acquire namespaced primary key’s UUIDv4.
 	 * @throws U\Fatal_Exception If the full UUIDv4-prefixed key exceeds 250 bytes in length.
@@ -59,17 +62,16 @@ trait Key_Members {
 	 * @note  Max key length is `250` bytes. It's a hard limit in Memcached; {@see https://o5p.me/eufcIR}.
 	 */
 	protected function key( string $primary_key, string $sub_key ) : string {
-		if ( ! ( $namespaced_primary_key = $this->nsp_key( $primary_key ) ) ) {
+		if ( ! ( $namespaced_primary_key = $this->namespaced_primary_key( $primary_key ) ) ) {
 			return ''; // Not possible; e.g., empty key.
 		}
 		$namespaced_primary_key_uuid_v4 = ''; // Initialize.
-
-		do {                 // Avoid race issues.
+		do {
 			$attempts ??= 0; // Initialize attempts.
 			$attempts++;     // Counts attempts.
 
 			if ( $attempts > 2 ) {
-				usleep( U\Time::SECOND_IN_MICROSECONDS / 100 ); // One hundredth of a second pause.
+				usleep( U\Time::SECOND_IN_MICROSECONDS / 100 );
 			}
 			if ( $existing_namespaced_primary_key_uuid_v4 = $this->memcached->get( $namespaced_primary_key ) ) {
 				$namespaced_primary_key_uuid_v4 = $existing_namespaced_primary_key_uuid_v4;
@@ -84,10 +86,15 @@ trait Key_Members {
 			}
 			$result_code = $this->memcached->getResultCode();
 
+			if ( \Memcached::RES_KEY_TOO_BIG === $result_code ) {
+				throw new U\Fatal_Exception( 'Cache key is too large.' );
+			} elseif ( \Memcached::RES_E2BIG === $result_code ) {
+				throw new U\Fatal_Exception( 'Data is too large for a single cache key.' );
+			}
 		} while ( $attempts < U\Mem::$max_write_attempts && \Memcached::RES_NOTSTORED === $result_code );
 
 		if ( ! $namespaced_primary_key_uuid_v4 ) {
-			throw new U\Fatal_Exception( 'Unable get namespaced primary key UUIDv4.' );
+			return ''; // Fail; e.g., down server or unexpected error.
 		}
 		$namespaced_primary_key_uuid_v4_prefix = $namespaced_primary_key_uuid_v4 . '\\';
 		$uuid_v4_prefixed_key                  = $namespaced_primary_key_uuid_v4_prefix . $sub_key;
@@ -99,17 +106,18 @@ trait Key_Members {
 	}
 
 	/**
-	 * Gets namespaced primary key.
+	 * Gets a namespace-prefixed primary key.
 	 *
 	 * @since 2020-11-19
 	 *
-	 * @param string $primary_key Primary key to namespace.
+	 * @param string $primary_key Primary key to add namespace prefix to.
+	 *                            The default namespace prefix + `\` is 13 bytes, so default max length is 237 bytes.
 	 *
 	 * @throws U\Fatal_Exception When the namespaced primary key exceeds 250 bytes in length.
 	 *
 	 * @return string Namespaced primary key; i.e., `[namespace]\[primary key]`.
 	 */
-	protected function nsp_key( string $primary_key ) : string {
+	protected function namespaced_primary_key( string $primary_key ) : string {
 		if ( ! isset( $primary_key[ 0 ] ) ) {
 			return ''; // Not possible.
 		}

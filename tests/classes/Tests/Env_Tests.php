@@ -191,72 +191,6 @@ final class Env_Tests extends UT\A6t\Tests {
 
 	/**
 	 * @runInSeparateProcess
-	 * @covers ::config_robots()
-	 *
-	 * @note Runs in separate process to avoid headers having already been sent by PHPUnit.
-	 *       Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
-	 */
-	public function test_config_robots() : void {
-		$this->assertSame( false, headers_sent(), $this->message() );
-		$this->assertSame( true, U\Env::config_robots( [ '20ec8dee2e364f5d903fd2508d814f9f' => true ] ), $this->message() );
-		$this->assertSame( [ '20ec8dee2e364f5d903fd2508d814f9f' ], U\Env::static_var( 'ROBOTS' ), $this->message() );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 * @covers ::disable_caching()
-	 *
-	 * @note Runs in separate process to avoid headers having already been sent by PHPUnit.
-	 *       Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
-	 */
-	public function test_disable_robots() : void {
-		$this->assertSame( false, headers_sent(), $this->message() );
-		$this->assertSame( true, U\Env::disable_robots(), $this->message() );
-		$this->assertSame( [ 'none', 'noindex', 'nofollow' ], U\Env::static_var( 'ROBOTS' ), $this->message() );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 * @covers ::disable_caching()
-	 *
-	 * @note Runs in separate process to avoid headers having already been sent by PHPUnit.
-	 *       Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
-	 */
-	public function test_disable_caching() : void {
-		$this->assertSame( false, headers_sent(), $this->message() );
-		$this->assertSame( true, U\Env::disable_caching(), $this->message() );
-		$this->assertSame( false, U\Env::static_var( 'CACHE' ), $this->message() );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 * @covers ::disable_gzip()
-	 *
-	 * @note Runs in separate process to avoid headers having already been sent by PHPUnit.
-	 *       Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
-	 */
-	public function test_disable_gzip() : void {
-		$this->assertSame( false, headers_sent(), $this->message() );
-		$this->assertSame( true, U\Env::disable_gzip(), $this->message() );
-		$this->assertSame( true, 'off' === ini_get( 'zlib.output_compression' ), $this->message() );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 * @covers ::close_session()
-	 *
-	 * @note Runs in separate process to avoid headers having already been sent by PHPUnit.
-	 *       Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
-	 */
-	public function test_close_session() : void {
-		$this->assertSame( false, headers_sent(), $this->message() );
-		$this->assertSame( true, session_start(), $this->message() );
-		$this->assertSame( true, U\Env::close_session(), $this->message() );
-		$this->assertSame( true, PHP_SESSION_ACTIVE !== session_status(), $this->message() );
-	}
-
-	/**
-	 * @runInSeparateProcess
 	 * @covers ::end_output_buffering()
 	 *
 	 * @note By default, this function tries to close all out output buffers, which is problematic.
@@ -266,37 +200,5 @@ final class Env_Tests extends UT\A6t\Tests {
 	public function test_end_output_buffering() : void {
 		$this->assertSame( true, U\Env::end_output_buffering(), $this->message() );
 		$this->assertSame( true, 1 === ob_get_level(), $this->message() );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 * @covers ::prep_for_special_output()
-	 *
-	 * @note By default, this function tries to close all out output buffers, which is problematic.
-	 *       e.g., PHPUnit complains: 'Test code or tested code did not (only) close its own output buffers.'.
-	 *       For that reason, {@see U\Env::end_output_buffering()} will leave OB level `1` intact when testing.
-	 */
-	public function test_prep_for_special_output() : void {
-		$this->assertSame( true, U\Env::prep_for_special_output(), $this->message() );
-		$this->assertSame( true, 'off' === ini_get( 'zlib.output_compression' ), $this->message() );
-		$this->assertSame( true, PHP_SESSION_ACTIVE !== session_status(), $this->message() );
-		$this->assertSame( true, 1 === ob_get_level(), $this->message() );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 * @covers ::prep_for_file_download()
-	 *
-	 * @note By default, this function tries to close all out output buffers, which is problematic.
-	 *       e.g., PHPUnit complains: 'Test code or tested code did not (only) close its own output buffers.'.
-	 *       For that reason, {@see U\Env::end_output_buffering()} will leave OB level `1` intact when testing.
-	 */
-	public function test_prep_for_file_download() : void {
-		$this->assertSame( true, U\Env::prep_for_file_download(), $this->message() );
-		$this->assertSame( true, 'off' === ini_get( 'zlib.output_compression' ), $this->message() );
-		$this->assertSame( true, PHP_SESSION_ACTIVE !== session_status(), $this->message() );
-		$this->assertSame( true, 1 === ob_get_level(), $this->message() );
-		$this->assertSame( false, U\Env::static_var( 'CACHE' ), $this->message() );
-		$this->assertSame( [ 'none', 'noindex', 'nofollow' ], U\Env::static_var( 'ROBOTS' ), $this->message() );
 	}
 }

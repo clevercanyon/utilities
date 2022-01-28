@@ -474,7 +474,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			[ $scoper_bin_script, 'scope' ],
 			[ '--project-dir', $this->project->dir ],
 			[ '--work-dir', $comp_dir ],
-			[ '--prefix', ucfirst( $this->project->pkg_name_hash ) ],
+			[ '--prefix', $this->project->pkg_namespace_scope ],
 			[ '--output-dir', $distro_dir ],
 			[ '--output-project-dir', $distro_dir ],
 		] );

@@ -46,17 +46,72 @@ use Clever_Canyon\{Utilities__Tests as UT};
  */
 final class Mem_Tests extends UT\A6t\Tests {
 	/**
-	 * @covers ::cache()
+	 * @covers ::__construct()
+	 * @covers ::set()
+	 * @covers ::get()
+	 * @covers ::clear()
 	 */
-	public function test_cache() : void {
-		$this->assertSame( null, U\Mem::cache( 'primary_key', 'sub_key_' . U\Crypto::uuid_v4() ), $this->message() );
+	public function test_dead() : void {
+		if ( ! U\Env::can_use_extension( 'memcached' ) ) {
+			$this->assertSame( false, U\Env::can_use_extension( 'memcached' ) );
+			return; // Not possible.
+		}
+		$connection_id_salt = U\Crypto::uuid_v4();
+		$namespace_salt     = U\Crypto::uuid_v4();
+		$servers            = [ [ 'host' => 'dead.foo.bar' ] ];
+
+		$primary_key = U\Crypto::uuid_v4();
+		$sub_key     = U\Crypto::uuid_v4();
+
+		$mem = new U\Mem( $connection_id_salt, $namespace_salt, $servers );
+		$this->assertSame( false, $mem->is_alive(), $this->message() );
+
+		$this->assertSame( null, $mem->get( $primary_key, $sub_key ), $this->message() );         // Gets.
+		$this->assertSame( false, $mem->set( $primary_key, $sub_key, 'foo' ), $this->message() ); // Sets.
+		$this->assertSame( null, $mem->get( $primary_key, $sub_key ), $this->message() );         // Gets.
+		$this->assertSame( false, $mem->clear( $primary_key, $sub_key ), $this->message() );      // Clears.
 	}
 
 	/**
-	 * @covers ::__construct()
+	 * @covers ::instance_alive_er()
+	 * @covers ::set()
+	 * @covers ::get()
+	 * @covers ::clear()
 	 */
-	public function test_down_server() : void {
-		$mc = new U\Mem( 'localhost', __NAMESPACE__, [ [ 'host' => 'foo.bar' ] ] );
-		$this->assertSame( null, $mc->get( 'primary_key', 'sub_key_' . U\Crypto::uuid_v4() ), $this->message() );
+	public function test_set_get() : void {
+		if ( ! $mem = U\Mem::instance_alive_er( true ) ) {
+			$this->assertSame( null, $mem );
+			return; // Not possible.
+		}
+		$primary_key = U\Crypto::uuid_v4();
+		$sub_key     = U\Crypto::uuid_v4();
+
+		$this->assertSame( null, $mem->get( $primary_key, $sub_key ), $this->message() );        // Gets.
+		$this->assertSame( true, $mem->set( $primary_key, $sub_key, 'foo' ), $this->message() ); // Sets.
+		$this->assertSame( 'foo', $mem->get( $primary_key, $sub_key ), $this->message() );       // Gets.
+		$this->assertSame( true, $mem->clear( $primary_key, $sub_key ), $this->message() );      // Clears.
+	}
+
+	/**
+	 * @covers ::cache()
+	 */
+	public function test_cache() : void {
+		$primary_key = U\Crypto::uuid_v4();
+		$sub_key     = U\Crypto::uuid_v4();
+
+		$this->assertSame( null, U\Mem::cache( $primary_key, $sub_key ), $this->message() );        // Gets.
+		$this->assertSame( true, U\Mem::cache( $primary_key, $sub_key, 'foo' ), $this->message() ); // Sets.
+		$this->assertSame( 'foo', U\Mem::cache( $primary_key, $sub_key ), $this->message() );       // Gets.
+		$this->assertSame( true, U\Mem::cache( $primary_key, $sub_key, null ), $this->message() );  // Unsets.
+		$this->assertSame( null, U\Mem::cache( $primary_key, $sub_key ), $this->message() );        // Gets.
+
+		$primary_key = [ U\Crypto::uuid_v4(), U\Crypto::uuid_v4(), [ $primary_key ] ];
+		$sub_key     = [ U\Crypto::uuid_v4(), U\Crypto::uuid_v4(), [ $sub_key ] ];
+
+		$this->assertSame( null, U\Mem::cache( $primary_key, $sub_key ), $this->message() );        // Gets.
+		$this->assertSame( true, U\Mem::cache( $primary_key, $sub_key, 'foo' ), $this->message() ); // Sets.
+		$this->assertSame( 'foo', U\Mem::cache( $primary_key, $sub_key ), $this->message() );       // Gets.
+		$this->assertSame( true, U\Mem::cache( $primary_key, $sub_key, null ), $this->message() );  // Unsets.
+		$this->assertSame( null, U\Mem::cache( $primary_key, $sub_key ), $this->message() );        // Gets.
 	}
 }

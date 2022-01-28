@@ -31,5 +31,8 @@ use Clever_Canyon\{Utilities as U};
  * Generic class.
  *
  * @since 2021-12-15
+ *
+ * @note  This class is serializable; {@see U\Str::unserialize()}.
+ *        Do *not* remove `final` keyword here w/o careful consideration.
  */
 final class Generic extends U\A6t\Generic { }

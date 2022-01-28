@@ -11,6 +11,14 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-25
+ *
+ * @noinspection PhpUndefinedMethodInspection
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25

@@ -48,67 +48,81 @@ trait Setter_Members {
 	 *
 	 * @since 2020-11-19
 	 *
-	 * @param string $primary_key Primary key.
-	 * @param string $sub_key     Sub-key to set|update.
+	 * @param string $primary_key Primary key, which will be namespaced by {@see U\Mem::namespaced_primary_key()}.
+	 *                            The default namespace prefix + `\` is 13 bytes, so default max length is 237 bytes.
+	 *
+	 * @param string $sub_key     Sub-key to set|update. The sub-key is auto-prefixed with primary-key's UUIDv4 entry.
+	 *                            The default sub-key prefix + `\` is 33 bytes in length, so default max length is 217 bytes.
 	 *
 	 * @param mixed  $value       Value to cache (1MB max).
-	 *                            Cannot be a resource. An exception is thrown.
-	 *                            `null` is the same as {@see U\Mem::clear()}.
 	 *
-	 * @param int    $expires_in  Expires (in seconds). Default is `0`.
-	 *                            If `$expires_in` is set to `0` (default), then the item never expires;
+	 *                            * Passing `null` explicitly will {@see U\Mem::clear()} a given cache key.
+	 *
+	 *                            * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
+	 *                              Do not attempt to cache resource values here; either directly or indirectly.
+	 *                              Future versions of PHP will likely disallow altogether.
+	 *
+	 *                            * The `igbinary` extension will issue a notice on resources and serialize as `null`.
+	 *                              Do not attempt to cache resource values here; either directly or indirectly.
+	 *                              Future versions of PHP will likely disallow altogether.
+	 *
+	 *                            * If you must cache a resource, consider {@see U\A6t\Base::cls_cache()}.
+	 *
+	 * @param int    $expires_in  Expires (in seconds). Default is {@see U\Time::HOUR_IN_SECONDS}.
+	 *                            If `$expires_in` is set to `0`, then the item never really expires,
 	 *                            although it may be deleted from the server to make space for other items.
 	 *
 	 *                            {@see https://www.php.net/manual/en/memcached.expiration.php}.
-	 *                            `$expires_in` is converted to `$expires` (i.e., actual timestamp) in the code below.
+	 *                            `$expires_in` is converted to `$expires` (i.e., actual timestamp) in code.
 	 *                            Therefore, the 30-day limit that's noted at PHP.net is not applicable — there's no hard limit here.
 	 *
-	 * @throws U\Fatal_Exception When `$value` has an incompatible data type; i.e., cannot be a resource.
-	 * @throws U\Fatal_Exception When `$value` is scalar and it's string representation is larger than 1MB.
+	 * @throws U\Fatal_Exception When a derived cache key is too large according to Memcached response code.
+	 * @throws U\Fatal_Exception When `$value` is too large according to Memcached response code.
 	 *
 	 * @return bool True on success.
 	 */
-	public function set( string $primary_key, string $sub_key, /* mixed */ $value, int $expires_in = 0 ) : bool {
+	public function set( string $primary_key, string $sub_key, /* mixed */ $value, int $expires_in = U\Time::HOUR_IN_SECONDS ) : bool {
+		assert( ! is_resource( $value ) );  // Very bad practice.
+
 		if ( null === $value ) {
 			return $this->clear( $primary_key, $sub_key );
 		}
 		$expires_in = max( 0, $expires_in );
 		$expires    = $expires_in ? time() + $expires_in : 0;
 
-		$is_scalar   = is_scalar( $value );
-		$is_resource = ! $is_scalar && is_resource( $value );
-
 		if ( ! ( $key = $this->key( $primary_key, $sub_key ) ) ) {
-			return false; // Fail; e.g., race condition.
+			return false; // Fail; e.g., down server or unexpected error.
 		}
-		if ( $is_scalar && strlen( (string) $value ) > 1024 * 1024 ) {
-			throw new U\Fatal_Exception( 'Too much data for a single key. 1MB max.' );
-		}
-		if ( $is_resource ) { // Alert developer. This is very wrong.
-			throw new U\Fatal_Exception( 'Incompatible data type. Cannot be a resource.' );
-		}
-		do { // Avoid race issues.
-			$cas      = $cas ?? 0;
-			$attempts = $attempts ?? 0;
-			++$attempts; // Counter.
+		do {                 // Avoid race issues.
+			$attempts ??= 0; // Initialize attempts.
+			$attempts++;     // Counts attempts.
 
+			if ( $attempts > 2 ) {
+				usleep( U\Time::SECOND_IN_MICROSECONDS / 100 );
+			}
 			$ext = $this->memcached->get( $key, null, \Memcached::GET_EXTENDED );
-			$cas = \Memcached::GET_ERROR_RETURN_VALUE !== $ext && isset( $ext[ 'cas' ] ) ? $ext[ 'cas' ] : $cas;
-
-			// @todo Look for error indicating data is too large.
+			$cas = \Memcached::GET_ERROR_RETURN_VALUE !== $ext && isset( $ext[ 'cas' ] ) ? $ext[ 'cas' ] : 0.0;
 
 			if ( \Memcached::RES_NOTFOUND === $this->memcached->getResultCode() ) {
 				if ( $this->memcached->add( $key, $value, $expires ) ) {
 					return true; // All good; stop here.
 				}
+			} elseif ( ! $cas ) {
+				return false; // Fail; e.g., down server or unexpected error.
+
 			} elseif ( $this->memcached->cas( $cas, $key, $value, $expires ) ) {
 				return true; // All good; stop here.
 			}
 			$result_code = $this->memcached->getResultCode();
 
+			if ( \Memcached::RES_KEY_TOO_BIG === $result_code ) {
+				throw new U\Fatal_Exception( 'Cache key is too large.' );
+			} elseif ( \Memcached::RES_E2BIG === $result_code ) {
+				throw new U\Fatal_Exception( 'Data is too large for a single cache key.' );
+			}
 		} while ( $attempts < U\Mem::$max_write_attempts // Give up after X attempts.
 		&& ( \Memcached::RES_NOTSTORED === $result_code || \Memcached::RES_DATA_EXISTS === $result_code ) );
 
-		return false; // Fail; e.g., race condition or unexpected error.
+		return false; // Fail; e.g., down server or unexpected error.
 	}
 }

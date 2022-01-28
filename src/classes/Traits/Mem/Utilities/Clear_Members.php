@@ -49,6 +49,7 @@ trait Clear_Members {
 	 * @since 2020-11-19
 	 *
 	 * @param string      $primary_key Primary key.
+	 *
 	 * @param string|null $sub_key     Sub-key to clear. Default is `null` (all sub-keys).
 	 *                                 When `null` (default), all sub-keys are cleared from cache.
 	 *
@@ -56,10 +57,14 @@ trait Clear_Members {
 	 */
 	public function clear( string $primary_key, /* string|null */ ?string $sub_key = null ) : bool {
 		if ( null === $sub_key ) {
-			$key = $this->nsp_key( $primary_key );
+			$key = $this->namespaced_primary_key( $primary_key );
 		} else {
 			$key = $this->key( $primary_key, $sub_key );
 		}
-		return $key && $this->memcached->delete( $key );
+		if ( ! $key ) {   // Can happen for a number of reasons; e.g., a key is empty?
+			return false; // Fail; e.g., down server or unexpected error.
+		}
+		return $this->memcached->delete( $key )
+			|| \Memcached::RES_NOTFOUND === $this->memcached->getResultCode();
 	}
 }

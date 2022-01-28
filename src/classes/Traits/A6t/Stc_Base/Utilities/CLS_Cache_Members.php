@@ -47,41 +47,40 @@ trait CLS_Cache_Members {
 	 *
 	 * @since         2021-12-15
 	 *
-	 * @param string|array $key_parts A single string part, or an array containing multiple parts.
-	 *                                These are key part(s) used to formulate an actual cache key identifier.
+	 * @param mixed $key_parts A single key part or a bundle containing multiple key parts.
+	 *                         These are key parts used to formulate an actual cache key identifier.
 	 *
-	 *                                Whatever you pass, it will be hashed; i.e., converted to a string key.
-	 *                                Passing `__FUNCTION__` as one part is a highly recommended best practice.
+	 *                         Whatever you pass, it will be serialized & hashed; i.e., converted to a string key.
+	 *                         Passing a `__FUNCTION__` name as one part is a highly recommended best practice.
 	 *
-	 *                                Embedding objects or resources in a key parts array is not recommended.
-	 *                                It works, just know they'll be identified by ID via {@see U\Arr::hash()}.
+	 *                         * The more parts you pass, the longer it will take to hash.
+	 *                           When passing a bundle, try to keep it simple for best performance.
 	 *
-	 *                                * The more parts you pass, the longer it will take to hash.
-	 *                                It is recommended that you pass a string for best performance.
-	 *                                When passing an array, try to keep it simple for best performance.
+	 *                         * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
+	 *                           Do not pass resource values as a key part; either directly or indirectly.
+	 *                           Future versions of PHP will likely disallow altogether.
 	 *
-	 * @param mixed        $value     Value to cache; i.e., when setting|updating the cache.
-	 *                                If not passed, this function simply operates as a getter.
+	 * @param mixed $value     Value to cache; i.e., when setting|updating the cache.
+	 *                         If not passed, this function simply operates as a getter.
 	 *
-	 *                                Passing `null` explicitly will {@see unset()} a given cache key.
-	 *                                Whenever you set `$value` to `null` explicitly (i.e., to {@see unset()}),
-	 *                                you'll get back a useless dummy reference instead of a real cache reference.
+	 *                         * Passing `null` explicitly will {@see unset()} a given cache key.
+	 *                           Whenever you set `$value` to `null` explicitly (i.e., to {@see unset()}),
+	 *                           you'll get back a useless dummy reference instead of a real cache reference.
+	 *
+	 *                         * Passing a resource value is acceptable.
 	 *
 	 * @return mixed Cached `$value`, by reference. Default `$value` is `null`.
 	 *               If you set `$value` to `null` explicitly (i.e., to {@see unset()}),
 	 *               you'll get back a useless dummy reference instead of a real cache reference.
 	 */
 	final protected static function &cls_cache(
-		/* string|array */ $key_parts,
+		/* mixed */ $key_parts,
 		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL
 	) /* : mixed */ {
-		assert( is_string( $key_parts ) || is_array( $key_parts ) );
+		assert( ! is_resource( $key_parts ) );  // Bad practice.
+		$key = sha1( U\Str::serialize( $key_parts, false ) );
 
-		$key = is_array( $key_parts )
-			? U\Arr::hash( $key_parts )
-			: sha1( $key_parts );
-
-		static::$cls_cache[ static::class ] ??= [];
+		static::$cls_cache[ static::class ] ??= [];  // Initialize.
 
 		if ( U\Func::PARAM_DEFAULT_NULL !== $value ) {
 			if ( null === $value ) {

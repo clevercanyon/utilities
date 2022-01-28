@@ -43,7 +43,7 @@ trait Members {
 	use U\Traits\Arr\Utilities\Conditional_Members;
 	use U\Traits\Arr\Utilities\Flatten_Members;
 	use U\Traits\Arr\Utilities\Get_Key_Members;
-	use U\Traits\Arr\Utilities\Hash_Members;
+	use U\Traits\Arr\Utilities\Hash_ID_Members;
 	use U\Traits\Arr\Utilities\Maybe_Prefix_Key_Members;
 	use U\Traits\Arr\Utilities\Sort_By_Members;
 	use U\Traits\Arr\Utilities\Value_First_Last_Members;

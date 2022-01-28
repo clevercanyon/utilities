@@ -214,7 +214,7 @@ interface Base extends U\I7e\Stc_Base, \JsonSerializable {
 	 *        Use of this method is preferred in concert with PHPUnit's `assertSame()`.
 	 *        Reason is this approach supports a comparative diff in IDEs like PhpStorm.
 	 */
-	public function to_eq_string() : string;
+	public function to_equals_string() : string;
 
 	/**
 	 * Checks equality with another instance.
@@ -224,12 +224,12 @@ interface Base extends U\I7e\Stc_Base, \JsonSerializable {
 	 * @param U\I7e\Base $other Instance to compare `$this` to.
 	 *
 	 * @return bool True if objects are practically equal to each other.
-	 *              Must be based on the return value of {@see U\I7e\Base::to_eq_string()}.
+	 *              Must be based on the return value of {@see U\I7e\Base::to_equals_string()}.
 	 *
 	 * @note  This can be very helpful when PHPUnit testing.
 	 * @see   https://phpunit.readthedocs.io/en/9.5/assertions.html#assertobjectequals
 	 */
-	public function equals( U\I7e\Base $other ) : bool;
+	public function is_equals_string_to( U\I7e\Base $other ) : bool;
 
 	/**
 	 * Gets non-static properties, by value.

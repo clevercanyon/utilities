@@ -72,6 +72,15 @@ trait Property_Members {
 	protected \Memcached $memcached;
 
 	/**
+	 * Alive? Default is `null`.
+	 *
+	 * @since 2020-11-19
+	 *
+	 * @var bool|null Default is `null`.
+	 */
+	protected ?bool $is_memcached_alive;
+
+	/**
 	 * Max attempts.
 	 *
 	 * @since 2020-11-19

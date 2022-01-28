@@ -36,17 +36,42 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Config_Mode_Members {
 	/**
+	 * In testing mode?
+	 *
+	 * @since 2022-01-2
+	 *
+	 * @return bool `true` if in testing mode.
+	 */
+	public static function in_testing_mode() : bool {
+		return ! empty( U\Env::static_var( 'TESTING' ) );
+	}
+
+	/**
+	 * In debugging mode?
+	 *
+	 * @since 2022-01-2
+	 *
+	 * @return bool `true` if in debugging mode.
+	 */
+	public static function in_debugging_mode() : bool {
+		return ! empty( U\Env::static_var( 'DEBUGGING' ) );
+	}
+
+	/**
 	 * Configures testing mode.
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string $type Optional testing tool or framework.
-	 *                     e.g., `phpunit`. Default is `unknown`.
+	 * @param string|null $type Optional testing tool or framework; e.g., `phpunit`.
+	 *                          Default is `null`, indicating `uknown`.
 	 *
 	 * @return bool True if testing mode configured successfully.
 	 */
-	public static function config_testing_mode( string $type = '' ) : bool {
-		return (bool) U\Env::static_var( 'TESTING', $type ?: 'unknown' );
+	public static function config_testing_mode( /* string|null */ ?string $type = null ) : bool {
+		$type ??= 'unknown';
+		$type = $type ?: 'unknown';
+
+		return (bool) U\Env::static_var( 'TESTING', $type );
 	}
 
 	/**
@@ -54,8 +79,8 @@ trait Config_Mode_Members {
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string|null $type Optional debugging tool or framework.
-	 *                          e.g., `xdebug`. Default is `null`, indicating `uknown`.
+	 * @param string|null $type Optional debugging tool or framework; e.g., `xdebug`.
+	 *                          Default is `null`, indicating `uknown`.
 	 *
 	 * @return bool True if debugging mode configured successfully.
 	 */

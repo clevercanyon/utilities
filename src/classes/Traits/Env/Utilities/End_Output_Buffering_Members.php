@@ -49,7 +49,7 @@ trait End_Output_Buffering_Members {
 	 * @see   https://www.php.net/manual/en/function.ob-end-clean.php
 	 */
 	public static function end_output_buffering( /* int|null */ ?int $keep_ob_level = null ) : bool {
-		$keep_ob_level ??= ( 'phpunit' === U\Env::static_var( 'TESTING' ) ? 1 : 0 );
+		$keep_ob_level ??= 'phpunit' === U\Env::static_var( 'TESTING' ) ? 1 : 0;
 		$keep_ob_level = max( 0, $keep_ob_level ); // Guard against infinite loop.
 
 		while ( ob_get_level() !== $keep_ob_level ) {

@@ -42,7 +42,8 @@ trait Name_Slug_Var_Members {
 	 */
 	protected static array $by_idx = [
 		'&'   => [
-			'name' => 'CLEVER CANYON',
+			'name'      => 'CLEVER CANYON',
+			'namespace' => 'Clever_Canyon',
 
 			'slug' => 'clevercanyon',
 			'var'  => 'clevercanyon',
@@ -51,7 +52,8 @@ trait Name_Slug_Var_Members {
 			'var_prefix'  => 'clevercanyon_',
 		],
 		'w6e' => [
-			'name' => 'WP Groove',
+			'name'      => 'WP Groove',
+			'namespace' => 'WP_Groove',
 
 			'slug' => 'wpgroove',
 			'var'  => 'wpgroove',
@@ -60,6 +62,17 @@ trait Name_Slug_Var_Members {
 			'var_prefix'  => 'wpgroove_',
 		],
 	];
+
+	/**
+	 * Brands by IDx.
+	 *
+	 * @since 2022-01-27
+	 *
+	 * @return array Brands by IDx.
+	 */
+	public static function by_idx() : array {
+		return U\Brand::$by_idx;
+	}
 
 	/**
 	 * Gets brand info, by IDx.

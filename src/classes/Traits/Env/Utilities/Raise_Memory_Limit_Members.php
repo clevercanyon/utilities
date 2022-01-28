@@ -55,7 +55,7 @@ trait Raise_Memory_Limit_Members {
 	 */
 	public static function raise_memory_limit( string $context = 'admin', string $limit = '' ) : bool {
 		if ( U\Env::is_wordpress() ) {
-			return false !== \wp_raise_memory_limit( $context );
+			return false !== wp_raise_memory_limit( $context );
 		} else {
 			if ( false === U\Env::is_ini_setting_changeable( 'memory_limit' ) ) {
 				return false; // Not possible.

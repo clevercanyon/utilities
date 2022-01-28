@@ -38,14 +38,15 @@ trait Conditional_Members {
 	/**
 	 * Checks if an array is associative.
 	 *
-	 * @since 2021-12-26
+	 * @since         2021-12-26
 	 *
 	 * @param array $arr Array to check.
 	 *
 	 * @return bool True if array is associative.
+	 *
+	 * @future-review In PHP 8+ {@see https://www.php.net/manual/en/function.array-is-list.php}.
 	 */
 	public static function is_assoc( array $arr ) : bool {
 		return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
 	}
-	// @todo Add is_list()? https://www.php.net/manual/en/function.array-is-list.php
 }

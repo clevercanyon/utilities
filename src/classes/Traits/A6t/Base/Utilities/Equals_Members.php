@@ -43,10 +43,10 @@ trait Equals_Members {
 	 * @param U\I7e\Base $other Instance to compare `$this` to.
 	 *
 	 * @return bool True if objects are practically equal to each other,
-	 *              based on return value of {@see U\A6t\Base::to_eq_string()}.
+	 *              based on return value of {@see U\A6t\Base::to_equals_string()}.
 	 */
-	final public function equals( U\I7e\Base $other ) : bool {
-		return $this->to_eq_string() === $other->to_eq_string();
+	final public function is_equals_string_to( U\I7e\Base $other ) : bool {
+		return $this->to_equals_string() === $other->to_equals_string();
 	}
 
 	/**
@@ -57,7 +57,7 @@ trait Equals_Members {
 	 * @return string String representation used for equality tests.
 	 *                {@see U\A6t\Base::props()} for further details.
 	 */
-	final public function to_eq_string() : string {
-		return U\Str::dump( $this, true, false );
+	final public function to_equals_string() : string {
+		return U\Debug::dump( $this, true, false );
 	}
 }

@@ -42,14 +42,14 @@ trait Members {
 	 */
 	use U\Traits\Mem\Magic\Constructable_Members;
 	use U\Traits\Mem\Utilities\Property_Members;
-	use U\Traits\Mem\Utilities\Instance_Members;
 
 	use U\Traits\Mem\Utilities\Key_Members;
 	use U\Traits\Mem\Utilities\Server_Members;
+	use U\Traits\Mem\Utilities\Alive_Members;
 
 	use U\Traits\Mem\Utilities\Getter_Members;
 	use U\Traits\Mem\Utilities\Setter_Members;
-
 	use U\Traits\Mem\Utilities\Clear_Members;
+
 	use U\Traits\Mem\Utilities\Utility_Members;
 }

@@ -13,8 +13,9 @@
 /**
  * Lint configuration.
  *
- * @since 2021-12-15
+ * @since        2021-12-15
  *
+ * @noinspection PhpUndefinedMethodInspection
  * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
  */
 
