@@ -115,11 +115,12 @@ final class URL_Tests extends UT\A6t\Tests {
 	 * @covers ::is_with_query()
 	 */
 	public function test_is_with_query() : void {
-		$this->assertSame( true, U\URL::is_with_query( 'https://localhost?' ), $this->message() );
+		$this->assertSame( true, U\URL::is_with_query( 'https://localhost?v' ), $this->message() );
 		$this->assertSame( true, U\URL::is_with_query( 'https://foo-bar-example?v=1' ), $this->message() );
 		$this->assertSame( true, U\URL::is_with_query( 'https://foo-bar-example.?v=1' ), $this->message() );
 		$this->assertSame( true, U\URL::is_with_query( 'https://foo-bar-example?v=1#foo' ), $this->message() );
 
+		$this->assertSame( false, U\URL::is_with_query( 'https://localhost' ), $this->message() );
 		$this->assertSame( false, U\URL::is_with_query( 'https://localhost..?' ), $this->message() );
 		$this->assertSame( false, U\URL::is_with_query( 'https://foo-bar-example..?v=1' ), $this->message() );
 		$this->assertSame( false, U\URL::is_with_query( 'https://foo-bar-example.&v=1' ), $this->message() );

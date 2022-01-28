@@ -137,11 +137,11 @@ trait Chalk_Members {
 				continue; // No chalk.
 			}
 			switch ( $_key ) {
-				case 0:
+				case ( 0 === $_key ):
 					$esc_sequences[] = U\CLI::fg_color_esc_seq( $_chalk );
 					$res_sequences[] = U\CLI::fg_color_esc_seq( 'none' );
 					break;
-				case 1:
+				case ( 1 === $_key ):
 					$esc_sequences[] = U\CLI::bg_color_esc_seq( $_chalk );
 					$res_sequences[] = U\CLI::bg_color_esc_seq( 'none' );
 					break;

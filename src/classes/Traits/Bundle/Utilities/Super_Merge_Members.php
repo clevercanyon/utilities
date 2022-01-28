@@ -124,7 +124,7 @@ trait Super_Merge_Members {
 				$_value_is_array       = ! $_value_is_object && is_array( $_value );
 				$_value_is_assoc_array = $_value_is_array && U\Arr::is_assoc( $_value );
 
-				switch ( $_prop_key ) {
+				switch ( $_prop_key ?: '' ) { // Avoid `0` loose comparison!
 					case '$set':
 					case '$unset':
 					case '$leave':
