@@ -235,12 +235,12 @@ final class Scoper extends U\A6t\CLI_Tool {
 	/**
 	 * Fixes autoloader; aligns with PHP Scoper autoloader.
 	 *
+	 * Regarding use of `--no-plugins` in Composer calls below.
+	 * {@see https://github.com/humbug/php-scoper#composer-plugins}.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @throws U\Exception On any failure.
-	 *
-	 * @note  Regarding use of `--no-plugins` in Composer calls below.
-	 *       {@see https://github.com/humbug/php-scoper#composer-plugins}.
 	 */
 	protected function fix_autoloader() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Fixing autoloader ...' );
@@ -307,8 +307,9 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 *
 	 * @param string $str PHP file contents.
 	 *
-	 * @throws U\Exception On any failure.
 	 * @return string Modified PHP file contents.
+	 *
+	 * @throws U\Exception On any failure.
 	 */
 	protected function fix_comments_process_string( string $str ) : string {
 		return $this->fix_comments_process_tokens( token_get_all( U\Str::normalize_eols( $str ) ) );
@@ -321,8 +322,9 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 *
 	 * @param array $tokens PHP file tokens.
 	 *
-	 * @throws U\Exception On any failure.
 	 * @return string Modified PHP file contents (tokens converted to string).
+	 *
+	 * @throws U\Exception On any failure.
 	 */
 	protected function fix_comments_process_tokens( array $tokens ) : string {
 		if ( version_compare( PHP_VERSION, '8.0', '<' ) ) {

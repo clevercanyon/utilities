@@ -46,18 +46,18 @@ trait Destructable_Members {
 	/**
 	 * Handles shutdown on object destruction.
 	 *
+	 * The destructor method will be called as soon as there are no other references
+	 * to a particular object, or in any order during the shutdown sequence.
+	 *
+	 * The destructor will be called even if script execution is stopped using {@see exit()}.
+	 * Calling {@see exit()} in a destructor will prevent the remaining shutdown routines from executing.
+	 *
+	 * Destructors called during the script shutdown have HTTP headers already sent.
+	 * The working directory in the script shutdown phase can be different with some SAPIs (e.g. Apache).
+	 *
+	 * Attempting to throw an exception from a destructor (called at time of script termination) causes a fatal error.
+	 *
 	 * @since 2021-12-27
-	 *
-	 * @note  The destructor method will be called as soon as there are no other references
-	 *        to a particular object, or in any order during the shutdown sequence.
-	 *
-	 * @note  The destructor will be called even if script execution is stopped using {@see exit()}.
-	 *        Calling {@see exit()} in a destructor will prevent the remaining shutdown routines from executing.
-	 *
-	 * @note  Destructors called during the script shutdown have HTTP headers already sent.
-	 *        The working directory in the script shutdown phase can be different with some SAPIs (e.g. Apache).
-	 *
-	 * @note  Attempting to throw an exception from a destructor (called at time of script termination) causes a fatal error.
 	 *
 	 * @see   https://www.php.net/manual/en/language.oop5.decon.php
 	 */

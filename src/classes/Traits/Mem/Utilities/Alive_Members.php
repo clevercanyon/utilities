@@ -33,15 +33,6 @@ namespace Clever_Canyon\Utilities\Traits\Mem\Utilities;
  */
 use Clever_Canyon\{Utilities as U};
 
-/**
- * File-specific.
- *
- * @since 2021-12-15
- *
- * @note  `Memcached` as `Mc` = shorter alias for options.
- */
-use Memcached as Mc;
-
 // </editor-fold>
 
 /**
@@ -59,9 +50,9 @@ trait Alive_Members {
 	 *
 	 * @param bool|null $refresh Force a refresh? Default is `null`, indicating no.
 	 *
-	 * @throws U\Fatal_Exception On failure (in debugging mode).
-	 *
 	 * @return bool True if Memcached is alive.
+	 *
+	 * @throws U\Fatal_Exception On failure (in debugging mode).
 	 */
 	public function is_alive( /* bool|null */ ?bool $refresh = null ) : bool {
 		if ( isset( $this->is_memcached_alive ) && ! $refresh ) {

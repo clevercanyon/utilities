@@ -64,15 +64,16 @@ final class Fs {
 	/**
 	 * Resolves and normalizes path (symlinks *not* resolved).
 	 *
+	 * This expands to absolute path. It is CWD-aware, but not filesystem-aware.
+	 * Therefore, the absolute path it returns may or may not *actually* exist.
+	 *
 	 * @since  2022-01-15
 	 *
 	 * @param string $path Path to parse.
 	 *
-	 * @throws D\Fatal_Exception On failure; {@see D\Fs::normalize()}.
 	 * @return string Absolute path normalized (symlinks *not* resolved).
 	 *
-	 * @note   This expands to absolute path. It is CWD-aware, but not filesystem-aware.
-	 *         Therefore, the absolute path it returns may or may not *actually* exist.
+	 * @throws D\Fatal_Exception On failure; {@see D\Fs::normalize()}.
 	 *
 	 * @see    \Clever_Canyon\Utilities\Fs::abs()
 	 */
@@ -83,15 +84,15 @@ final class Fs {
 	/**
 	 * Resolves, realizes (symlinks resolved), normalizes path.
 	 *
+	 * This expands/resolves everything, and it is filesystem-aware.
+	 * All symbolic links are resolved; {@see realpath()}.
+	 *
 	 * @since 2022-01-15
 	 *
 	 * @param string $path Path to parse.
 	 *
 	 * @return string Realized (symlinks resolved) canonical path normalized.
 	 *                This returns an empty string on failure to realize.
-	 *
-	 * @note  This expands/resolves everything, and it is filesystem-aware.
-	 *        All symbolic links are resolved; {@see realpath()}.
 	 *
 	 * @see   \Clever_Canyon\Utilities\Fs::realize()
 	 */
@@ -102,20 +103,21 @@ final class Fs {
 	/**
 	 * Normalizes a path.
 	 *
+	 * This function takes a number of internal directives that have an impact on behavior.
+	 * However, none of the directives are part of a public API. Other utilities are available.
+	 *
+	 * This function is not URL scheme-safe. That's another set of concerns.
+	 * While this function is scheme-agnostic, using it with (e.g., `http://`, `data://`) is not recommended.
+	 * Recommendation is not to use it with any arbitrary schemes that aren't officially known|registered PHP stream wrappers.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $path Path to normalize.
 	 * @param array  $_d   Internal use only — do not pass.
 	 *
-	 * @throws D\Fatal_Exception On failure to resolve a relative path.
 	 * @return string Normalized path, with wrappers considered and preserved.
 	 *
-	 * @note  This function takes a number of internal directives that have an impact on behavior.
-	 *        However, none of the directives are part of a public API. Other utilities are available.
-	 *
-	 * @note  This function is not URL scheme-safe. That's another set of concerns.
-	 *        While this function is scheme-agnostic, using it with (e.g., `http://`, `data://`) is not recommended.
-	 *        In fact, recommend not using with any arbitrary schemes not officially known|registered as PHP stream wrappers.
+	 * @throws D\Fatal_Exception On failure to resolve a relative path.
 	 *
 	 * @see   D\Fs::abs()
 	 * @see   D\Fs::realize()
@@ -294,6 +296,9 @@ final class Fs {
 	/**
 	 * Gets a path's wrappers.
 	 *
+	 * This function is not URL scheme-safe. That's another set of concerns.
+	 * Therefore, don't use with `http://`, `data://` or other remote protocols.
+	 *
 	 * @since 2021-12-19
 	 *
 	 * @param string $path     Path to parse.
@@ -305,9 +310,6 @@ final class Fs {
 	 * @param array  $_d       Internal use only — do not pass.
 	 *
 	 * @return string|array Wrappers. Empty string|array = no wrappers.
-	 *
-	 * @note  This function is not URL scheme-safe. That's another set of concerns.
-	 *        Therefore, don't use with `http://`, `data://` or other remote protocols.
 	 *
 	 * @see   D\Fs::normalize()
 	 * @see   D\Fs::split_wrappers()

@@ -96,6 +96,9 @@ trait Utility_Members {
 	 *                                        * The more parts you pass, the longer it will take to hash.
 	 *                                          When passing a bundle, try to keep it simple for best performance.
 	 *
+	 *                                        * PHP does not allow a {@see \Closure} to be serialized whatsoever.
+	 *                                          Do not pass closures as a key part; either directly or indirectly.
+	 *
 	 *                                        * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
 	 *                                          Do not pass resource values as a key part; either directly or indirectly.
 	 *                                          Future versions of PHP will likely disallow altogether.
@@ -111,6 +114,10 @@ trait Utility_Members {
 	 *
 	 *                                        * Passing `null` explicitly will {@see unset()} a given cache key.
 	 *
+	 *                                        * PHP does not allow a {@see \Closure} to be serialized whatsoever.
+	 *                                          Do not attempt to cache closures here; either directly or indirectly.
+	 *                                          The `igbinary` extension is no exception. It throws an exception if you try.
+	 *
 	 *                                        * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
 	 *                                          Do not attempt to cache resource values here; either directly or indirectly.
 	 *                                          Future versions of PHP will likely disallow altogether.
@@ -119,6 +126,7 @@ trait Utility_Members {
 	 *                                          Do not attempt to cache resource values here; either directly or indirectly.
 	 *                                          Future versions of PHP will likely disallow altogether.
 	 *
+	 *                                        * If you must cache a closure, consider {@see U\A6t\Base::cls_cache()}.
 	 *                                        * If you must cache a resource, consider {@see U\A6t\Base::cls_cache()}.
 	 *
 	 * @param int          $expires_in        Default is {@see U\Time::HOUR_IN_SECONDS} (one hour).
@@ -134,10 +142,16 @@ trait Utility_Members {
 		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL,
 		int $expires_in = U\Time::HOUR_IN_SECONDS
 	) /* : mixed */ {
-		assert( ! is_resource( $primary_key_parts ) ); // Very bad practice.
-		assert( ! is_resource( $sub_key_parts ) );     // Very bad practice.
-		assert( ! is_resource( $value ) );             // Very bad practice.
-		assert( $expires_in > 0 );                     // Enforced (bad practice).
+		assert( ! is_resource( $primary_key_parts ) );
+		assert( ! $primary_key_parts instanceof \Closure );
+
+		assert( ! is_resource( $sub_key_parts ) );
+		assert( ! $sub_key_parts instanceof \Closure );
+
+		assert( ! is_resource( $value ) );
+		assert( ! $value instanceof \Closure );
+
+		assert( $expires_in > 0 );
 
 		static $is_wordpress; // Memoize.
 		$is_wordpress ??= U\Env::is_wordpress();

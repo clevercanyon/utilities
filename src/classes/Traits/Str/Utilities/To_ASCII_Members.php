@@ -38,20 +38,21 @@ trait To_ASCII_Members {
 	/**
 	 * Converts to ASCII-range equivalents (`intl` extension required).
 	 *
+	 * From the docs on `Any-Latin; Latin-ASCII`. Here are the relevant details:
+	 * `Latin-ASCII` converts non-ASCII-range punctuation, symbols, and letters to an approximate ASCII-range equiv.
+	 * For example: © → ‘(C)’, Æ → AE. When combined with `Any-Latin` you get a transform that converts as
+	 * much as possible to an ASCII-range representation; i.e., `Any-Latin; Latin-ASCII`.
+	 *
 	 * @since        2022-01-08
 	 *
 	 * @param string $str Input string.
 	 *
-	 * @throws U\Fatal_Exception If missing `intl` extension.
 	 * @return string|false ASCII-range string, else `false` on failure.
+	 *
+	 * @throws U\Fatal_Exception If missing `intl` extension.
 	 *
 	 * @see          https://www.php.net/manual/en/transliterator.transliterate.php
 	 * @see          https://unicode-org.github.io/icu/userguide/transforms/general/
-	 *
-	 * @note         From the docs on `Any-Latin; Latin-ASCII`. Here are the relevant details.
-	 *               `Latin-ASCII` converts non-ASCII-range punctuation, symbols, and letters to an approximate ASCII-range equiv.
-	 *               For example: © → ‘(C)’, Æ → AE. When combined with `Any-Latin` you get a transform that converts as
-	 *               much as possible to an ASCII-range representation; i.e., `Any-Latin; Latin-ASCII`.
 	 *
 	 * @noinspection PhpComposerExtensionStubsInspection
 	 */

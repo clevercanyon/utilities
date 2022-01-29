@@ -49,8 +49,8 @@ final class HTTP_Tests extends UT\A6t\Tests {
 	 * @runInSeparateProcess
 	 * @covers ::config_robots()
 	 *
-	 * @note Runs in separate process to avoid headers having already been sent by PHPUnit.
-	 *       Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
+	 * Runs in separate process to avoid headers having already been sent by PHPUnit.
+	 * Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
 	 */
 	public function test_config_robots() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
@@ -62,8 +62,8 @@ final class HTTP_Tests extends UT\A6t\Tests {
 	 * @runInSeparateProcess
 	 * @covers ::disable_caching()
 	 *
-	 * @note Runs in separate process to avoid headers having already been sent by PHPUnit.
-	 *       Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
+	 * Runs in separate process to avoid headers having already been sent by PHPUnit.
+	 * Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
 	 */
 	public function test_disable_robots() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
@@ -75,8 +75,8 @@ final class HTTP_Tests extends UT\A6t\Tests {
 	 * @runInSeparateProcess
 	 * @covers ::disable_caching()
 	 *
-	 * @note Runs in separate process to avoid headers having already been sent by PHPUnit.
-	 *       Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
+	 * Runs in separate process to avoid headers having already been sent by PHPUnit.
+	 * Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
 	 */
 	public function test_disable_caching() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
@@ -88,8 +88,8 @@ final class HTTP_Tests extends UT\A6t\Tests {
 	 * @runInSeparateProcess
 	 * @covers ::disable_gzip()
 	 *
-	 * @note Runs in separate process to avoid headers having already been sent by PHPUnit.
-	 *       Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
+	 * Runs in separate process to avoid headers having already been sent by PHPUnit.
+	 * Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
 	 */
 	public function test_disable_gzip() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
@@ -101,8 +101,8 @@ final class HTTP_Tests extends UT\A6t\Tests {
 	 * @runInSeparateProcess
 	 * @covers ::close_session()
 	 *
-	 * @note Runs in separate process to avoid headers having already been sent by PHPUnit.
-	 *       Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
+	 * Runs in separate process to avoid headers having already been sent by PHPUnit.
+	 * Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
 	 */
 	public function test_close_session() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
@@ -115,9 +115,9 @@ final class HTTP_Tests extends UT\A6t\Tests {
 	 * @runInSeparateProcess
 	 * @covers ::prep_for_special_output()
 	 *
-	 * @note By default, this function tries to close all out output buffers, which is problematic.
-	 *       e.g., PHPUnit complains: 'Test code or tested code did not (only) close its own output buffers.'.
-	 *       For that reason, {@see U\Env::end_output_buffering()} will leave OB level `1` intact when testing.
+	 * By default, this function tries to close all out output buffers, which is problematic.
+	 * e.g., PHPUnit complains: 'Test code or tested code did not (only) close its own output buffers.'.
+	 * For that reason, {@see U\Env::end_output_buffering()} will leave OB level `1` intact when testing.
 	 */
 	public function test_prep_for_special_output() : void {
 		$this->assertSame( true, U\HTTP::prep_for_special_output(), $this->message() );
@@ -130,9 +130,9 @@ final class HTTP_Tests extends UT\A6t\Tests {
 	 * @runInSeparateProcess
 	 * @covers ::prep_for_file_download()
 	 *
-	 * @note By default, this function tries to close all out output buffers, which is problematic.
-	 *       e.g., PHPUnit complains: 'Test code or tested code did not (only) close its own output buffers.'.
-	 *       For that reason, {@see U\Env::end_output_buffering()} will leave OB level `1` intact when testing.
+	 * By default, this function tries to close all out output buffers, which is problematic.
+	 * e.g., PHPUnit complains: 'Test code or tested code did not (only) close its own output buffers.'.
+	 * For that reason, {@see U\Env::end_output_buffering()} will leave OB level `1` intact when testing.
 	 */
 	public function test_prep_for_file_download() : void {
 		$this->assertSame( true, U\HTTP::prep_for_file_download(), $this->message() );

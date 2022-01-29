@@ -46,11 +46,11 @@ trait Subpath_Members {
 	 * @param bool   $throw_on_failure Throw on failure? Default is `true`.
 	 *                                 If set to `false`, function returns `false` on failure.
 	 *
-	 * @throws U\Fatal_Exception On failure to strip the given base path.
-	 *                           Change by setting `$throw_on_failure` to `false`.
-	 *
 	 * @return string|false Subpath; i.e., `$path` with `$base_path` stripped away.
 	 *                      If `$throw_on_failure` is `false`, returns `false` on failure.
+	 *
+	 * @throws U\Fatal_Exception On failure to strip the given base path.
+	 *                           Change by setting `$throw_on_failure` to `false`.
 	 *
 	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Dir::subpath()
 	 */

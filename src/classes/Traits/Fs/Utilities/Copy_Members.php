@@ -61,10 +61,10 @@ trait Copy_Members {
 	 *
 	 * @param object|null $_r                Internal use only — do not pass.
 	 *
+	 * @return bool True if copied successfully.
+	 *
 	 * @throws U\Fatal_Exception If attempting to copy into self, leading to an infinite loop.
 	 * @throws U\Fatal_Exception If a circular symlink is detected, leading to an infinite loop.
-	 *
-	 * @return bool True if copied successfully.
 	 */
 	public static function copy(
 		string $from_path,

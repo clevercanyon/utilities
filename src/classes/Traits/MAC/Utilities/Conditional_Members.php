@@ -46,7 +46,6 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid MAC address.
 	 *
 	 * @see   https://o5p.me/q7tGiP
-	 * @note  See also the tests for function.
 	 */
 	public static function is( /* mixed */ $value ) : bool {
 		return false !== filter_var( $value, FILTER_VALIDATE_MAC );

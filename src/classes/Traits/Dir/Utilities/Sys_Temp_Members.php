@@ -40,8 +40,9 @@ trait Sys_Temp_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Fatal_Exception On failure to locate temporary directory.
 	 * @return string Absolute path to a readable & writable temporary directory.
+	 *
+	 * @throws U\Fatal_Exception On failure to locate temporary directory.
 	 *
 	 * @see   U\Env::var() When modifying this function.
 	 */

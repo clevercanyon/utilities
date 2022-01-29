@@ -53,15 +53,17 @@ trait Clone_Deep_Members {
 	 *                               associative arrays and objects, causing associative arrays to be converted to objects when cloning.
 	 *                               If the objects you're cloning contain nested objects or arrays it is important to be aware when specifying
 	 *                               the `json` approach. Another gotcha with `json` is that it can only clone what `jsonSerialize()` allows,
-	 *                               which in some cases could be assessible properties only vs. `reflection` which clones *everything*.
+	 *                               which in some cases could be assessible properties only vs. `reflection` which clones everything.
 	 *
 	 *                             * `serialize`: Please note that {@see unserialize()} can be very dangerous on untrusted data.
-	 *                               That said, this method expects an object|array to be cloned; i.e., this isn't operating on untrusted data.
-	 *                               A gotcha with `serialize` is that it can only serialize what `__serialize()` allows, which in some cases
-	 *                               could be assessible properties only vs. `reflection` which clones *everything*.
+	 *                               That said, this method expects an object|array to be cloned; i.e., this isn't working w/ untrusted data.
 	 *
-	 *                               * {@see U\Str::serialize()}, {@see U\Str::unserialize()} are used for serialization.
-	 *                                 {@see U\Str::unserialize()} allows a very limited subset of classes to be unserialized.
+	 *                               * A gotcha with `serialize` is that it can only serialize what `__serialize()` allows, which in some cases
+	 *                                 could be assessible properties only vs. `reflection` which clones everything. Also, many internal classes
+	 *                                 cannot be serialized. Attempts may throw an error; e.g., a {@see \Closure} cannot be serialized whatsoever.
+	 *
+	 *                               * For added security, {@see U\Str::serialize()}, {@see U\Str::unserialize()} are used for serialization.
+	 *                                 You'll find that {@see U\Str::unserialize()} will only unserialize a very limited subset of known classes.
 	 *
 	 * @return object|array Deep clone of bundle.
 	 */
@@ -88,29 +90,17 @@ trait Clone_Deep_Members {
 	/**
 	 * Helps clone deeply (handles objects).
 	 *
-	 * @since         2021-12-28
+	 * In PHP, a class is cloneable if this expression is true:
+	 * ```
+	 * ! method_exists( $obj, '__clone' ) || is_callable( [ $obj, '__clone' ] )
+	 * ```
+	 * Throwing an exception from inside `__clone()` may have unexpected/unintended side effects.
+	 * e.g., If the `clone` keyword is used, PHP calls `__clone()` method, triggering an exception.
+	 * The same is true if `__clone()` method visibility is set to something other than `public`.
 	 *
-	 * @param object            $obj Object to clone.
-	 * @param \SplObjectStorage $map Object storage map.
-	 *
-	 * @return object Deep clone of object.
-	 *
-	 * @note          In PHP, a class is cloneable if this expression is true.
-	 *                ```
-	 *                ! method_exists( $obj, '__clone' ) || is_callable( [ $obj, '__clone' ] )
-	 *                ```
-	 * @note          Throwing an exception from inside `__clone()` magic may have unexpected/unintended side effects.
-	 *                e.g., If the `clone` keyword is used PHP will call the `__clone()` magic method, triggering an exception.
-	 *                The same is true if `__clone()` magic method visibility is set to something other than `public`.
-	 *
-	 * @note          So there really is no great way to effectively disable object cloning in specific classes.
-	 *                The only approach that sort of works is to set visibility to `protected` or `private`, and just hope
-	 *                that whomever (or whatever library) is doing the proper sanity checks before attempting to clone.
-	 *
-	 * @see           https://www.php.net/manual/en/language.oop5.cloning.php
-	 * @see           https://www.php.net/manual/en/reflectionclass.iscloneable.php
-	 * @see           https://github.com/ZeroConfig/clone/blob/master/src/Cloner.php
-	 * @see           https://github.com/myclabs/DeepCopy/blob/1.x/src/DeepCopy/DeepCopy.php
+	 * So there's really no great way to effectively disable object cloning in specific classes.
+	 * What sort of works is to set visibility to `protected` or `private`, and just hope
+	 * that libraries are doing the proper sanity checks before attempting to clone.
 	 *
 	 * @future-review As of PHP 7.4 ... 8.1 it is not possible to break references that exist in
 	 *                protected/private properties of internal/built-in PHP classes (see code for details).
@@ -119,6 +109,20 @@ trait Clone_Deep_Members {
 	 * @future-review As of PHP 8.1+, readonly properties cannot be modified in any way, including in clones.
 	 *                This will be less of an edge case, and something we should take a closer look at soon.
 	 *                {@see https://o5p.me/XZ0fGY} for some thoughts. Currently waiting for next PHP release.
+	 *
+	 * @since         2021-12-28
+	 *
+	 * @param object            $obj Object to clone.
+	 * @param \SplObjectStorage $map Object storage map.
+	 *
+	 * @return object Deep clone of object.
+	 *
+	 * @throws U\Fatal_Exception In debug mode when forced to fall back on `json` to clone deeply.
+	 *
+	 * @see           https://www.php.net/manual/en/language.oop5.cloning.php
+	 * @see           https://www.php.net/manual/en/reflectionclass.iscloneable.php
+	 * @see           https://github.com/ZeroConfig/clone/blob/master/src/Cloner.php
+	 * @see           https://github.com/myclabs/DeepCopy/blob/1.x/src/DeepCopy/DeepCopy.php
 	 *
 	 * @noinspection  PhpElementIsNotAvailableInCurrentPhpVersionInspection
 	 */
@@ -133,6 +137,10 @@ trait Clone_Deep_Members {
 				$obj_clone = clone $obj;
 			} catch ( \Throwable $throwable ) {
 				$obj_clone = U\Bundle::clone_deep( $obj, 'json' );
+
+				if ( U\Env::in_debug_mode() ) {
+					throw new U\Fatal_Exception( $throwable->getMessage() );
+				}
 			}
 		} else { // ↑ Falls back on JSON approach.
 			$obj_clone = U\Bundle::clone_deep( $obj, 'json' );

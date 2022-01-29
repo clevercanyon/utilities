@@ -333,10 +333,6 @@ final class Str_Tests extends UT\A6t\Tests {
 
 		$obj = new U\Generic( [ 0 => 0, 'foo' => 'foo', 'bar' => [ 'bar' ], 'baz' => (object) 123 ], [ 1, 2, 3 ] );
 		$this->assertObjEquals( $obj, U\Str::unserialize( U\Str::serialize( $obj ) ), $this->message() );
-
-		$this->assertSame( true, is_callable( U\Str::unserialize( U\Str::serialize( fn() => 'foo' ) ) ), $this->message() );
-		$this->assertSame( 'foo', U\Str::unserialize( U\Str::serialize( fn() => 'foo' ) )(), $this->message() );
-		$this->assertSame( 123, U\Str::unserialize( U\Str::serialize( fn( $v ) => $v ) )( 123 ), $this->message() );
 	}
 
 	/**

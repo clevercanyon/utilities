@@ -115,8 +115,9 @@ final class Bench extends U\A6t\Stc_Utilities {
 	 *
 	 * @param int|null   $iterations Times to fire `$callables`. See {@link run()}.
 	 *
-	 * @throws U\Exception If fewer than 2 callables are given.
 	 * @return object Details including `summary` of comparison.
+	 *
+	 * @throws U\Exception If fewer than 2 callables are given.
 	 */
 	public static function compare( array $callables, /* int|null */ ?int $iterations = null ) : object {
 		$number_of_callables = count( $callables );

@@ -15,9 +15,8 @@
  *
  * @since 2021-12-15
  *
- * @note  Leading underscores in this file help us guard against collisions with PHP core in the future.
- *        Using `snake_case()` method names to guard against collisions also. PHP core uses `camelCase()`.
- *
+ * Leading underscores in this file help us guard against collisions with PHP core in the future.
+ * Using `snake_case()` method names to guard against collisions also. PHP core uses `camelCase()`.
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 

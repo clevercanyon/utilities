@@ -38,6 +38,9 @@ trait Var_Members {
 	/**
 	 * Gets environment variables.
 	 *
+	 * SECURITY: Please keep in mind that environment variables may contain sensitive information.
+	 * A server's environment variables should not be passed and/or exposed either directly or indirectly to a user.
+	 *
 	 * @since 2021-12-21
 	 *
 	 * @param string[] $others Any other custom environment variables. Default is `[]`.
@@ -47,9 +50,6 @@ trait Var_Members {
 	 *
 	 * @see   U\Env::var() Before modifying this function.
 	 * @see   https://en.wikipedia.org/wiki/Environment_variable
-	 *
-	 * @note  SECURITY: Please keep in mind that environment variables may contain sensitive information.
-	 *        A server's environment variables should not be passed and/or exposed either directly or indirectly to a user.
 	 */
 	public static function vars( array $others = [] ) : array {
 		$vars = []; // Initialize.
@@ -81,6 +81,12 @@ trait Var_Members {
 	/**
 	 * Gets environment variable.
 	 *
+	 * Note the absence of {@see U\Fs::realize()} here. Callers should handle that as necessary.
+	 * One exception is `TMPDIR` via {@see U\Dir::sys_temp()}, which does use {@see U\Fs::realize()}.
+	 *
+	 * SECURITY: Please keep in mind that environment variables may contain sensitive information.
+	 * A server's environment variables should not be passed and/or exposed either directly or indirectly to a user.
+	 *
 	 * @since 2021-12-21
 	 *
 	 * @param string $var Variable.
@@ -90,15 +96,9 @@ trait Var_Members {
 	 *
 	 * @see   https://en.wikipedia.org/wiki/Environment_variable
 	 *
-	 * @note  Absence of {@see U\Fs::realize()} here. Callers should handle that as necessary.
-	 *        One exception is `TMPDIR` via {@see U\Dir::sys_temp()}, which does use {@see U\Fs::realize()}.
-	 *
 	 * @see   U\Env::vars() Before modifying this function.
 	 * @see   U\Env::sys_temp() Before modifying.
 	 * @see   U\User::ip() Before modifying.
-	 *
-	 * @note  SECURITY: Please keep in mind that environment variables may contain sensitive information.
-	 *        A server's environment variables should not be passed and/or exposed either directly or indirectly to a user.
 	 */
 	public static function var( string $var, array $_d = [] ) : string {
 		$is_windows  = U\Env::is_windows();

@@ -38,6 +38,9 @@ trait Make_Members {
 	/**
 	 * Makes a symbolic link.
 	 *
+	 * On Windows and possibly other systems, it's not possible to create a link pointing to a
+	 * symbolic and/or nonexitent path. That's the reason for {@see U\Fs::realize()} expansion below.
+	 *
 	 * @since 2022-01-21
 	 *
 	 * @param string $target_path Link target path.
@@ -50,9 +53,6 @@ trait Make_Members {
 	 * @param bool   $recursively Make directories recursively? Default is `true`.
 	 *
 	 * @return bool True if link created successfully.
-	 *
-	 * @note  On Windows and possibly other systems, it's not possible to create a link pointing to a
-	 *        symbolic and/or nonexitent path. That's the reason for {@see U\Fs::realize()} expansion below.
 	 */
 	public static function make_link( string $target_path, string $link_path, array $perms = [ 0700, 0600 ], bool $recursively = true ) : bool {
 		$link_path_dir    = U\Dir::name( $link_path );

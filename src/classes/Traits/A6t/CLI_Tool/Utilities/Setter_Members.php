@@ -49,8 +49,9 @@ trait Setter_Members {
 	 *
 	 * @param array $commands Command configurations.
 	 *
-	 * @throws U\Fatal_Exception On invalid arguments.
 	 * @return self For easy chaining with {@see U\A6t\CLI_Tool::route_request()}.
+	 *
+	 * @throws U\Fatal_Exception On invalid arguments.
 	 */
 	protected function add_commands( array $commands ) : self {
 		try {
@@ -85,8 +86,9 @@ trait Setter_Members {
 	 *
 	 * @param array $options Option configurations.
 	 *
-	 * @throws U\Fatal_Exception On invalid arguments.
 	 * @return self For easy chaining with {@see U\A6t\CLI_Tool::route_request()}.
+	 *
+	 * @throws U\Fatal_Exception On invalid arguments.
 	 */
 	protected function add_options( array $options ) : self {
 		try {
@@ -104,8 +106,9 @@ trait Setter_Members {
 	 *
 	 * @param array $operands Operand configurations.
 	 *
-	 * @throws U\Fatal_Exception On invalid arguments.
 	 * @return self For easy chaining with {@see U\A6t\CLI_Tool::route_request()}.
+	 *
+	 * @throws U\Fatal_Exception On invalid arguments.
 	 */
 	protected function add_operands( array $operands ) : self {
 		try {

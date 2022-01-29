@@ -46,10 +46,10 @@ trait Sort_By_Members {
 	 * @param array  $arr   Input array to be sorted.
 	 * @param int    $flags Optional flags. Defaults to `SORT_NATURAL`.
 	 *
-	 * @throws U\Fatal_Exception If attempting to sort by non-scalar values.
-	 * @throws U\Fatal_Exception If attempting to sort by an unexpected directive.
-	 *
 	 * @return array Sorted array.
+	 *
+	 * @throws U\Fatal_Exception If attempting to sort by an unexpected directive.
+	 * @throws U\Fatal_Exception If attempting to sort by non-scalar values.
 	 *
 	 * @see   U\Bundle::sort_by() For bundle use.
 	 * @see   https://www.php.net/manual/en/array.sorting.php

@@ -44,32 +44,32 @@ trait Props_Members {
 	 *
 	 * @param string|null $filter Optional filter. Default is `public+`.
 	 *
-	 *  - `public+` (default behavior) returns publicly-accessible non-static properties.
-	 *    Plus it returns pseudo-properties like `+offsets`, which is technically a private property,
-	 *    but offsets are publicly-accessible through `[]` syntax in supporting implementations of {@see U\I7e\Offsets}.
+	 *                            * `public+` (default behavior) returns publicly-accessible non-static properties.
+	 *                              Plus it returns pseudo-properties like `+offsets`, which is technically a private property,
+	 *                              but offsets are publicly-accessible through `[]` syntax in supporting implementations of {@see U\I7e\Offsets}.
 	 *
-	 *  - `public` returns publicly-accessible non-static properties only.
-	 *  - `protected` returns protected non-static properties only.
-	 *  - `private` returns private non-static properties only.
+	 *                            * `public` returns publicly-accessible non-static properties only.
+	 *                            * `protected` returns protected non-static properties only.
+	 *                            * `private` returns private non-static properties only.
 	 *
-	 *  - `public...protected` returns public and protected non-static properties.
-	 *  - `public...private` returns public, protected, and private non-static properties.
-	 *  - `protected...private` returns protected and private non-static properties.
+	 *                            * `public...protected` returns public and protected non-static properties.
+	 *                            * `public...private` returns public, protected, and private non-static properties.
+	 *                            * `protected...private` returns protected and private non-static properties.
 	 *
-	 *  - `debug` returns public, protected, and private non-static properties. Same as `public...private`.
-	 *  - `debug+` Includes some internals like `ins_cache`, which is not returned otherwise.
+	 *                            * `debug` returns public, protected, and private non-static properties. Same as `public...private`.
+	 *                            * `debug+` Includes some internals like `ins_cache`, which is not returned otherwise.
 	 *
 	 * @return array All accessible non-static properties using the given `$filter`.
 	 *
-	 * @note  Protected properties are always prefixed with `"\0"*"\0"`, just like {@see get_mangled_object_vars()}.
-	 * @note  Private properties are always prefixed with `"\0"[class]"\0"`, just like {@see get_mangled_object_vars()}.
+	 *               * Protected properties are always prefixed with `"\0"*"\0"`, just like {@see get_mangled_object_vars()}.
+	 *               * Private properties are always prefixed with `"\0"[class]"\0"`, just like {@see get_mangled_object_vars()}.
 	 *
-	 * @note  Pseudo-properties are always prefixed with `"\0"+"\0"`, which is a behavior unique to this function.
-	 *        For example, `public+` returns `"\0"+"\0"offsets` for implementations of {@see U\I7e\Offsets}.
+	 *               * Pseudo-properties are always prefixed with `"\0"+"\0"`, which is a behavior unique to this function.
+	 *                 For example, `public+` returns `"\0"+"\0"offsets` for implementations of {@see U\I7e\Offsets}.
 	 *
-	 * @note  Pseudo-properties are only returned when using the default `public+` filter.
-	 *        For example, if you ask for `public...private` you will get offsets, but under a different key;
-	 *        e.g., `"\0"[class]"\0"offsets` instead of the pseudo `"\0"+"\0"offsets` key.
+	 *               * Pseudo-properties are only returned when using the default `public+` filter.
+	 *                 For example, if you ask for `public...private` you will get offsets, but under a different key;
+	 *                 e.g., `"\0"[class]"\0"offsets` instead of the pseudo `"\0"+"\0"offsets` key.
 	 */
 	public static function props( object $obj, /* string|null */ ?string $filter = null ) : array {
 		$props  = [];          // Initialize.

@@ -46,8 +46,9 @@ final class Dev extends U\A6t\Stc_Utilities {
 	 * @param bool        $extract_namespace Optional. Default is `true`. If a trusted top-level `$namespace` is given, it is
 	 *                                       extracted, thus the object returned will consist of only the `$namespace` properties.
 	 *
-	 * @throws U\Fatal_Exception On any failure, except if file does not exist, that's ok.
 	 * @return object Object with `~/.dev.json` properties from the given `$dir` parameter.
+	 *
+	 * @throws U\Fatal_Exception On any failure, except if file does not exist, that's ok.
 	 */
 	public static function json(
 		/* string|null */ ?string $dir = null,

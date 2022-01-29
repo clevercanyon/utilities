@@ -38,20 +38,21 @@ trait Normalize_Members {
 	/**
 	 * Normalizes a path.
 	 *
+	 * This function takes a number of internal directives that have an impact on behavior.
+	 * However, none of the directives are part of a public API. Other utilities are available.
+	 *
+	 * This function is not URL scheme-safe. That's another set of concerns.
+	 * While this function is scheme-agnostic, using it with (e.g., `http://`, `data://`) is not recommended.
+	 * Recommendation is not to use it with any arbitrary schemes that aren't officially known|registered PHP stream wrappers.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $path Path to normalize.
 	 * @param array  $_d   Internal use only — do not pass.
 	 *
-	 * @throws U\Fatal_Exception On failure to resolve a relative path.
 	 * @return string Normalized path, with wrappers considered and preserved.
 	 *
-	 * @note  This function takes a number of internal directives that have an impact on behavior.
-	 *        However, none of the directives are part of a public API. Other utilities are available.
-	 *
-	 * @note  This function is not URL scheme-safe. That's another set of concerns.
-	 *        While this function is scheme-agnostic, using it with (e.g., `http://`, `data://`) is not recommended.
-	 *        In fact, recommend not using with any arbitrary schemes not officially known|registered as PHP stream wrappers.
+	 * @throws U\Fatal_Exception On failure to resolve a relative path.
 	 *
 	 * @see   U\Fs::abs()
 	 * @see   U\Fs::realize()

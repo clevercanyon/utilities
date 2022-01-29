@@ -46,7 +46,6 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid IP address.
 	 *
 	 * @see   https://o5p.me/9JSgKk
-	 * @note  See also the tests for function.
 	 */
 	public static function is( /* mixed */ $value ) : bool {
 		return false !== filter_var( $value, FILTER_VALIDATE_IP );
@@ -62,7 +61,6 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid IPv4 address.
 	 *
 	 * @see   https://o5p.me/yxPYQG
-	 * @note  See also the tests for function.
 	 */
 	public static function is_v4( string $str ) : bool {
 		return false !== filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_IPV4 ] );
@@ -78,7 +76,6 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid IPv6 address.
 	 *
 	 * @see   https://o5p.me/XsExYc
-	 * @note  See also the tests for function.
 	 */
 	public static function is_v6( string $str ) : bool {
 		return false !== filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_IPV6 ] );
@@ -94,7 +91,6 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid public IP address.
 	 *
 	 * @see   https://o5p.me/9JSgKk
-	 * @note  See also the tests for function.
 	 */
 	public static function is_public( string $str ) : bool {
 		return false !== filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_NO_PRIV_RANGE ] );
@@ -110,7 +106,6 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid user/public IP address.
 	 *
 	 * @see   https://o5p.me/9JSgKk
-	 * @note  See also the tests for function.
 	 */
 	public static function is_public_user( string $str ) : bool {
 		return false !== filter_var( $str, FILTER_VALIDATE_IP, [ 'flags' => FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ] );
@@ -126,7 +121,6 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid private IP address.
 	 *
 	 * @see   https://o5p.me/9JSgKk
-	 * @note  See also the tests for function.
 	 */
 	public static function is_private( string $str ) : bool {
 		return false !== filter_var( $str, FILTER_VALIDATE_IP )
@@ -143,7 +137,6 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid reserved IP address.
 	 *
 	 * @see   https://o5p.me/9JSgKk
-	 * @note  See also the tests for function.
 	 */
 	public static function is_reserved( string $str ) : bool {
 		return false !== filter_var( $str, FILTER_VALIDATE_IP )

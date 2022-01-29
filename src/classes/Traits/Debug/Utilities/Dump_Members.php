@@ -38,6 +38,10 @@ trait Dump_Members {
 	/**
 	 * A better {@see var_dump()}, typically for debugging.
 	 *
+	 * Unlike {@see var_dump()} this takes just one value to dump at a time.
+	 * i.e., Favoring configurable options over the ability to pass multiple values.
+	 * If you need to dump multiple values, recommendaton is to pass an associative array.
+	 *
 	 * @param mixed       $value       Value or expression to dump.
 	 * @param bool        $rtn         Return? Default is `false`, like {@see var_dump()}.
 	 * @param bool        $show_ids    Show `object`, `array`, and `resource` IDs?
@@ -54,10 +58,6 @@ trait Dump_Members {
 	 * @param object|null $_r          Internal use only — do not pass.
 	 *
 	 * @return string A dump of the input `$var` (always in string format).
-	 *
-	 * @note Unlike {@see var_dump()} this takes just one value to dump at a time.
-	 *       i.e., Favoring configurable options over the ability to pass multiple values.
-	 *       If you need to dump multiple values, recommendaton is to pass an associative array.
 	 */
 	public static function dump(
 		/* mixed */ $value,

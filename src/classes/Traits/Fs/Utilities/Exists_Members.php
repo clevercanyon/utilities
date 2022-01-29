@@ -38,6 +38,12 @@ trait Exists_Members {
 	/**
 	 * Filesystem path exists?
 	 *
+	 * {@see file_exists()} returns `false` for symlinks pointing to nonexistent paths, so must check if {@see is_link()}.
+	 * That's why this function returns `true` if it exists in any way, even if it's a broken symlink.
+	 *
+	 * On Windows, {@see file_exists()} already returns `true` for symlinks pointing to nonexistent paths.
+	 * Windows behavior doesn't cause a conflict, just good to be aware; {@see U\Fs::really_exists()}.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $path Path to check.
@@ -45,11 +51,6 @@ trait Exists_Members {
 	 * @return bool True if filesystem path exists.
 	 *
 	 * @see   https://www.php.net/manual/en/function.file-exists.php
-	 * @note  {@see file_exists()} returns `false` for symlinks pointing to nonexistent paths, so must check if {@see is_link()}.
-	 *        That's why this function returns `true` if it exists in any way, even if it's a broken symlink.
-	 *
-	 * @note  On Windows, {@see file_exists()} already returns `true` for symlinks pointing to nonexistent paths.
-	 *        Windows behavior doesn't cause a conflict, just good to be aware; {@see U\Fs::really_exists()}.
 	 */
 	public static function exists( string $path ) : bool {
 		return file_exists( $path ) || is_link( $path );
@@ -57,6 +58,10 @@ trait Exists_Members {
 
 	/**
 	 * Filesystem path really exists?
+	 *
+	 * {@see file_exists()} already returns `false` for symlinks pointing to nonexistent paths.
+	 * However, on Windows, {@see file_exists()} returns `true` for symlinks pointing to nonexistent paths.
+	 * This function resolves the conflicting behavior, such it returns consistently on Windows.
 	 *
 	 * @since 2021-12-15
 	 *
@@ -66,10 +71,6 @@ trait Exists_Members {
 	 *
 	 * @see   https://www.php.net/manual/en/function.file-exists.php
 	 * @see   https://www.php.net/manual/en/function.stat.php
-	 *
-	 * @note  {@see file_exists()} already returns `false` for symlinks pointing to nonexistent paths.
-	 * @note  However, on Windows, {@see file_exists()} returns `true` for symlinks pointing to nonexistent paths.
-	 *        This function resolves the conflicting behavior, such it returns consistently on Windows.
 	 */
 	public static function really_exists( string $path ) : bool {
 		if ( U\Env::is_windows() ) {

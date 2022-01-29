@@ -42,6 +42,9 @@ trait Hash_Members {
 	 *
 	 * @param object|array $bundle Bundle to hash.
 	 *
+	 *                     * PHP does not allow a {@see \Closure} to be serialized whatsoever.
+	 *                       Do not pass values containing a closure; either directly or indirectly.
+	 *
 	 *                     * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
 	 *                       Do not pass resource values, either directly or indirectly.
 	 *                       Future versions of PHP will likely disallow altogether.

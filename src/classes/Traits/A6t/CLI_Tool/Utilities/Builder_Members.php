@@ -89,8 +89,9 @@ trait Builder_Members {
 	 *
 	 * @param array $_operands Operand configurations.
 	 *
-	 * @throws \InvalidArgumentException On invalid args.
 	 * @return Operand[] An array of operand instances, else empty array.
+	 *
+	 * @throws \InvalidArgumentException On invalid args.
 	 */
 	protected function build_operands( array $_operands ) : array {
 		foreach ( $_operands as $_operand => $_config ) {

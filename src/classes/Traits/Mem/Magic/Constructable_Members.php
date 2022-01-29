@@ -46,6 +46,12 @@ trait Constructable_Members {
 	/**
 	 * Constructor (`memcached` extension required).
 	 *
+	 * There can easily be multiple instances with multiple connections.
+	 * {@see https://github.com/memcached/memcached/wiki/ConfiguringServer#connection-limit}.
+	 *
+	 * Change {@see U\Mem::$connection_id_version} when there are substantial changes to this class.
+	 * Particularly in {@see U\Mem::__construct()} and {@see U\Mem::maybe_add_server_connections()}.
+	 *
 	 * @since        2020-11-19
 	 *
 	 * @param string $connection_id_salt Persistent connection ID salt. Default is static env variable: `MEMCACHED_CONNECTION_ID_SALT`.
@@ -71,12 +77,6 @@ trait Constructable_Members {
 	 * @see          https://o5p.me/xXgmzk
 	 * @see          https://code.launchpad.net/libmemcached
 	 * @see          https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz
-	 *
-	 * @note         There can easily be multiple instances with multiple connections.
-	 *               {@see https://github.com/memcached/memcached/wiki/ConfiguringServer#connection-limit}.
-	 *
-	 * @note         Change {@see U\Mem::$connection_id_version} when there are substantial changes to this class.
-	 *               Particularly in {@see U\Mem::__construct()} and {@see U\Mem::maybe_add_server_connections()}.
 	 *
 	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */
@@ -144,10 +144,10 @@ trait Constructable_Members {
 		 *   2. A `$namespace_salt` passed to constructor; else static env variable `MEMCACHED_NAMESPACE_SALT`.
 		 *      This allows new instances of this class to be given very different namespaces if desirable.
 		 *
-		 * @note The namespace defined here is intentionally, by default, very broad in scope.
-		 *       The rationale is to make it easy for consumers of this class to narrow scope on their own;
-		 *       vs. fighting with a set of defaults when trying to widen the scope, which is often desirable.
-		 *       A recommendation is to think less about the namespace and more about primary cache keys.
+		 * The namespace defined here is intentionally, by default, very broad in scope.
+		 * The rationale is to make it easy for consumers of this class to narrow scope on their own;
+		 * vs. fighting with a set of defaults when trying to widen the scope, which is often desirable.
+		 * A recommendation is to think less about the namespace and more about primary cache keys.
 		 */
 		$this->namespace = $org_brand_slug;
 		$this->namespace .= '\\' . $namespace_salt;

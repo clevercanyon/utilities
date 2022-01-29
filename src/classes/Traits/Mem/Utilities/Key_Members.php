@@ -46,6 +46,8 @@ trait Key_Members {
 	/**
 	 * Gets a UUIDv4-prefixed key.
 	 *
+	 * Max key length is `250` bytes. It's a hard limit in Memcached; {@see https://o5p.me/eufcIR}.
+	 *
 	 * @since 2020-11-19
 	 *
 	 * @param string $primary_key Primary key, which will be namespaced by {@see U\Mem::namespaced_primary_key()}.
@@ -54,12 +56,10 @@ trait Key_Members {
 	 * @param string $sub_key     Sub-key. The sub-key is auto-prefixed with primary-key's UUIDv4 entry.
 	 *                            The default sub-key prefix + `\` is 33 bytes in length, so default max length is 217 bytes.
 	 *
-	 * @throws U\Fatal_Exception If unable to acquire namespaced primary key’s UUIDv4.
-	 * @throws U\Fatal_Exception If the full UUIDv4-prefixed key exceeds 250 bytes in length.
-	 *
 	 * @return string Full UUIDv4-prefixed key; i.e., `[UUIDv4]\[sub-key]`.
 	 *
-	 * @note  Max key length is `250` bytes. It's a hard limit in Memcached; {@see https://o5p.me/eufcIR}.
+	 * @throws U\Fatal_Exception If the full UUIDv4-prefixed key exceeds 250 bytes in length.
+	 * @throws U\Fatal_Exception If unable to acquire namespaced primary key’s UUIDv4.
 	 */
 	protected function key( string $primary_key, string $sub_key ) : string {
 		if ( ! ( $namespaced_primary_key = $this->namespaced_primary_key( $primary_key ) ) ) {
@@ -113,9 +113,9 @@ trait Key_Members {
 	 * @param string $primary_key Primary key to add namespace prefix to.
 	 *                            The default namespace prefix + `\` is 13 bytes, so default max length is 237 bytes.
 	 *
-	 * @throws U\Fatal_Exception When the namespaced primary key exceeds 250 bytes in length.
-	 *
 	 * @return string Namespaced primary key; i.e., `[namespace]\[primary key]`.
+	 *
+	 * @throws U\Fatal_Exception When the namespaced primary key exceeds 250 bytes in length.
 	 */
 	protected function namespaced_primary_key( string $primary_key ) : string {
 		if ( ! isset( $primary_key[ 0 ] ) ) {

@@ -43,8 +43,9 @@ trait Callable_Members {
 	 * @param string $method Method name.
 	 * @param array  $args   Invocation args.
 	 *
-	 * @throws U\Fatal_Exception If method is uncallable.
 	 * @return mixed If callable, invocation return value.
+	 *
+	 * @throws U\Fatal_Exception If method is uncallable.
 	 *
 	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */

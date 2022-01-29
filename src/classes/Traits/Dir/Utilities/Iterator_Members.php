@@ -52,11 +52,11 @@ trait Iterator_Members {
 	 *
 	 * @param bool        $follow_symlinks Default is `false`.
 	 *
+	 * @return \Generator|\RecursiveDirectoryIterator[] Recursive directory iterator.
+	 *
 	 * @throws U\Exception If either of the input parameters are empty.
 	 * @throws U\Exception If `$path` is not a readable/iterable directory.
 	 * @throws U\Exception On failure to construct iterator.
-	 *
-	 * @return \Generator|\RecursiveDirectoryIterator[] Recursive directory iterator.
 	 *
 	 * @see   U\Fs::gitignore_regexp_lookahead() — please review carefully.
 	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php

@@ -38,9 +38,10 @@ final class CLI {
 	 *
 	 * @since 2022-01-16
 	 *
-	 * @throws D\Fatal_Exception On any failure.
 	 * @return string Real project directory resolved using `project-dir` CLI option.
 	 *                If no CLI option given, locates nearest project directory to CLI script file.
+	 *
+	 * @throws D\Fatal_Exception On any failure.
 	 */
 	public static function project_dir() : string {
 		$options = getopt( '', [ 'project-dir::' ] );
@@ -59,19 +60,20 @@ final class CLI {
 	/**
 	 * Locatest nearest project directory to CLI script file.
 	 *
+	 * The trick here is to start from the current CLI script file path (as it was called),
+	 * convert that path, which is likely relative, to an absolute path. Then look up the directory tree
+	 * in search of a project directory; i.e., containing `/composer.json` and `vendor/autoload.php`.
+	 *
+	 * Additionally, this skips over project directories that are symlinks,
+	 * as those are considered inner dependencies; i.e., not top-level project directories.
+	 * To clarify further. Symlinks are bypassed because we use them locally for development.
+	 * e.g., `[project-dir]/vendor/clevercanyon/[project-dir-symlink]/composer.json`.
+	 *
 	 * @since 2022-01-16
 	 *
-	 * @throws D\Fatal_Exception On any failure.
 	 * @return string Nearest project directory to CLI script file.
 	 *
-	 * @note  The trick here is to start from the current CLI script file path (as it was called),
-	 *        convert that path, which is likely relative, to an absolute path. Then look up the directory tree
-	 *        in search of a project directory; i.e., containing `/composer.json` and `vendor/autoload.php`.
-	 *
-	 * @note  Additionally, this skips over project directories that are symlinks,
-	 *        as those are considered inner dependencies; not top-level project directories.
-	 *        To clarify further. Symlinks are bypassed because we use them locally for development.
-	 *        e.g., `[project-dir]/vendor/clevercanyon/[project-dir-symlink]/composer.json`.
+	 * @throws D\Fatal_Exception On any failure.
 	 */
 	protected static function locate_nearest_project_dir() : string {
 		// `$argv[ 0 ]` is likely relative.

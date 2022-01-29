@@ -80,8 +80,9 @@ trait Make_Members {
 	 *
 	 * @param bool   $recursively Make directories recursively? Default is `true`.
 	 *
-	 * @throws U\Fatal_Exception  On any failure.
 	 * @return string Absolute path to temporary file.
+	 *
+	 * @throws U\Fatal_Exception  On any failure.
 	 */
 	public static function make_temp( string $ext = '', string $dir = '', array $perms = [ 0700, 0600 ], bool $recursively = true ) : string {
 		$file = U\File::make_unique_path( $ext, $dir );

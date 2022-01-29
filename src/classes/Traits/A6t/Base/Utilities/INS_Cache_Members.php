@@ -56,6 +56,9 @@ trait INS_Cache_Members {
 	 *                         * The more parts you pass, the longer it will take to hash.
 	 *                           When passing a bundle, try to keep it simple for best performance.
 	 *
+	 *                         * PHP does not allow a {@see \Closure} to be serialized whatsoever.
+	 *                           Do not pass closures as a key part; either directly or indirectly.
+	 *
 	 *                         * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
 	 *                           Do not pass resource values as a key part; either directly or indirectly.
 	 *                           Future versions of PHP will likely disallow altogether.
@@ -77,7 +80,9 @@ trait INS_Cache_Members {
 		/* mixed */ $key_parts,
 		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL
 	) /* : mixed */ {
-		assert( ! is_resource( $key_parts ) );  // Bad practice.
+		assert( ! is_resource( $key_parts ) );
+		assert( ! $key_parts instanceof \Closure );
+
 		$key = sha1( U\Str::serialize( $key_parts, false ) );
 
 		if ( U\Func::PARAM_DEFAULT_NULL !== $value ) {

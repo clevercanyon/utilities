@@ -30,10 +30,10 @@ use Clever_Canyon\{Utilities as U};
 /**
  * Error interface.
  *
- * @since 2021-12-15
+ * This is a slightly modified clone of {@see \WP_Error}.
+ * It has the same interface as WordPress errors. Last confirmed: 2021-12-15.
  *
- * @note  This is a slightly modified clone of {@see \WP_Error}.
- *        It has the same interface as WordPress errors. Last confirmed: 2021-12-15.
+ * @since 2021-12-15
  */
 interface Error {
 	/**

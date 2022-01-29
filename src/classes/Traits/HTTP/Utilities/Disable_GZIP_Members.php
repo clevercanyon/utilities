@@ -38,12 +38,12 @@ trait Disable_GZIP_Members {
 	/**
 	 * Disables GZIP compression.
 	 *
+	 * You may need to set `content-encoding`, `transfer-encoding`, or `content-transfer-encoding`
+	 * headers after calling this method. They are all forced to default values here.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @return bool True if GZIP disabled successfully.
-	 *
-	 * @note  You may need to set `content-encoding`, `transfer-encoding`, or `content-transfer-encoding`
-	 *        headers after calling this method. They are all forced to default values here.
 	 *
 	 * @see   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
 	 * @see   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding

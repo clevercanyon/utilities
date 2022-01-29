@@ -38,15 +38,16 @@ trait Abs_Members {
 	/**
 	 * Resolves and normalizes path (symlinks *not* resolved).
 	 *
+	 * This expands to absolute path. It is CWD-aware, but not filesystem-aware.
+	 * Therefore, the absolute path it returns may or may not *actually* exist.
+	 *
 	 * @since 2022-01-15
 	 *
 	 * @param string $path Path to parse.
 	 *
-	 * @throws U\Fatal_Exception On failure; {@see U\Fs::normalize()}.
 	 * @return string Absolute path normalized (symlinks *not* resolved).
 	 *
-	 * @note  This expands to absolute path. It is CWD-aware, but not filesystem-aware.
-	 *        Therefore, the absolute path it returns may or may not *actually* exist.
+	 * @throws U\Fatal_Exception On failure; {@see U\Fs::normalize()}.
 	 *
 	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::abs()
 	 */

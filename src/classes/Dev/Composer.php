@@ -43,10 +43,10 @@ final class Composer extends U\A6t\Stc_Utilities {
 	/**
 	 * Composer package name max bytes.
 	 *
-	 * @since 2021-12-15
+	 * Composer seemingly doesn't have or document a limit.
+	 * We'll use the same limit as NPM does, which is 214 characters.
 	 *
-	 * @note  Composer seemingly doesn't have or document a limit.
-	 *        We'll use the same limit as NPM does, which is 214 characters.
+	 * @since 2021-12-15
 	 */
 	public const PACKAGE_NAME_MAX_BYTES = 214;
 
@@ -74,10 +74,11 @@ final class Composer extends U\A6t\Stc_Utilities {
 	 *
 	 * @param object|null $_r                      Internal use only — do not pass.
 	 *
-	 * @throws U\Fatal_Exception On any failure, except if file does not exist. That's ok ... unless the file is associated with an `$extends-packages`
-	 *                         directive, in which case an exception *will* be thrown, as that would be unexpected behavior and likely problematic.
-	 *
 	 * @return object Object with `composer.json` properties from the given `$dir` parameter.
+	 *
+	 * @throws U\Fatal_Exception On any failure, except if file does not exist. That's ok ... unless the file is
+	 *                           associated with an `$extends-packages` directive, in which case an exception *will* be thrown,
+	 *                           as that would be unexpected behavior and likely problematic.
 	 */
 	public static function json(
 		string $dir,

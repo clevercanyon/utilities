@@ -43,13 +43,14 @@ trait Validate_Members {
 	 * @param mixed $value Value to validate as a boolean.
 	 *
 	 * @param bool  $strict Operate in strict mode? Default is `false`.
+	 *
 	 *                      If `true`, only returns `false` for: `0.0`, `0`, `'0'`, `false`, `'false'`, `'off'`, `'no'`, and `''`.
 	 *                      Otherwise, `null` is returned for all non-boolean values, changing the return type of this function.
 	 *
+	 *                      * None of the string values are caSe-sensitive. Any caSe will do.
+	 *
 	 * @return bool|null Returns `true` for: `1.0`, `1`, `'1'`, `true`, `'true'`, `'on'`, `'yes'`. Returns `false` otherwise.
 	 *                   See also: `$strict` mode for `null` return on all non-boolean values.
-	 *
-	 * @note          None of the string values are caSe-sensitive. Any caSe will do.
 	 *
 	 * @future-review In PHP 8+, {@see FILTER_VALIDATE_BOOL} is the preferred constant.
 	 */

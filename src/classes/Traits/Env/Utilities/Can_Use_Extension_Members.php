@@ -38,18 +38,18 @@ trait Can_Use_Extension_Members {
 	/**
 	 * Can use extension(s)?
 	 *
-	 * @since 2021-12-18
+	 * @since         2021-12-18
 	 *
 	 * @param string ...$extensions Extension(s).
 	 *
 	 * @return bool True if all extensions are useable.
 	 *
-	 * @see   https://www.php.net/manual/en/extensions.membership.php
-	 * @see   https://www.php.net/manual/en/function.get-loaded-extensions.php
+	 * @see           https://www.php.net/manual/en/extensions.membership.php
+	 * @see           https://www.php.net/manual/en/function.get-loaded-extensions.php
 	 *
-	 * @note  This function should also check INI settings to see if they've disabled an extension.
-	 *        Thus far, `zip`, `igbinary`, and `memcached` do not have an INI setting that disables them.
-	 *        So not all extensions require the additional check. Recommend checking on a case-by-case basis.
+	 * @future-review This function should also check INI settings to see if they've disabled an extension.
+	 *                Thus far, `zip`, `igbinary`, and `memcached` do not have an INI setting that disables them.
+	 *                So not all extensions require the additional check. Recommend checking on a case-by-case basis.
 	 */
 	public static function can_use_extension( string ...$extensions ) : bool {
 		if ( ! $extensions ) {

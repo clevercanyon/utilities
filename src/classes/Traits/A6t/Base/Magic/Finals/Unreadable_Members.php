@@ -63,8 +63,9 @@ trait Unreadable_Members {
 	 *
 	 * @param string $prop Property name.
 	 *
-	 * @throws U\Fatal_Exception If called in any way.
 	 * @return mixed Property value.
+	 *
+	 * @throws U\Fatal_Exception If called in any way.
 	 */
 	final public function __get( string $prop ) /* : mixed */ {
 		throw new U\Fatal_Exception(

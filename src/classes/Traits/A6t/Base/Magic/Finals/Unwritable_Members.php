@@ -52,6 +52,7 @@ trait Unwritable_Members {
 	 * @param mixed  $value Property value.
 	 *
 	 * @throws U\Fatal_Exception If called in any way.
+	 *
 	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */
 	final public function __set( string $prop, /* mixed */ $value ) : void {
@@ -69,6 +70,7 @@ trait Unwritable_Members {
 	 * @param string $prop Property name.
 	 *
 	 * @throws U\Fatal_Exception If called in any way.
+	 *
 	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */
 	final public function __unset( string $prop ) : void {

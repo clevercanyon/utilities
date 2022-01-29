@@ -58,6 +58,10 @@ trait Setter_Members {
 	 *
 	 *                            * Passing `null` explicitly will {@see U\Mem::clear()} a given cache key.
 	 *
+	 *                            * PHP does not allow a {@see \Closure} to be serialized whatsoever.
+	 *                              Do not attempt to cache closures here; either directly or indirectly.
+	 *                              The `igbinary` extension is no exception. It throws an exception if you try.
+	 *
 	 *                            * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
 	 *                              Do not attempt to cache resource values here; either directly or indirectly.
 	 *                              Future versions of PHP will likely disallow altogether.
@@ -66,6 +70,7 @@ trait Setter_Members {
 	 *                              Do not attempt to cache resource values here; either directly or indirectly.
 	 *                              Future versions of PHP will likely disallow altogether.
 	 *
+	 *                            * If you must cache a closure, consider {@see U\A6t\Base::cls_cache()}.
 	 *                            * If you must cache a resource, consider {@see U\A6t\Base::cls_cache()}.
 	 *
 	 * @param int    $expires_in  Expires (in seconds). Default is {@see U\Time::HOUR_IN_SECONDS}.
@@ -76,13 +81,14 @@ trait Setter_Members {
 	 *                            `$expires_in` is converted to `$expires` (i.e., actual timestamp) in code.
 	 *                            Therefore, the 30-day limit that's noted at PHP.net is not applicable — there's no hard limit here.
 	 *
-	 * @throws U\Fatal_Exception When a derived cache key is too large according to Memcached response code.
-	 * @throws U\Fatal_Exception When `$value` is too large according to Memcached response code.
-	 *
 	 * @return bool True on success.
+	 *
+	 * @throws U\Fatal_Exception When `$value` is too large according to Memcached response code.
+	 * @throws U\Fatal_Exception When a derived cache key is too large according to Memcached response code.
 	 */
 	public function set( string $primary_key, string $sub_key, /* mixed */ $value, int $expires_in = U\Time::HOUR_IN_SECONDS ) : bool {
-		assert( ! is_resource( $value ) );  // Very bad practice.
+		assert( ! is_resource( $value ) );
+		assert( ! $value instanceof \Closure );
 
 		if ( null === $value ) {
 			return $this->clear( $primary_key, $sub_key );

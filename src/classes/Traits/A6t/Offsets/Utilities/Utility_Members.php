@@ -59,8 +59,9 @@ trait Utility_Members {
 	 *
 	 * @param mixed $offset Raw offset key.
 	 *
-	 * @throws U\Fatal_Exception On unexpected condition.
 	 * @return string|int Computed offset key, based on data type.
+	 *
+	 * @throws U\Fatal_Exception On unexpected condition.
 	 */
 	final public function offset_key( /* mixed */ $offset ) /* : string|int */ {
 		if ( is_string( $offset ) || is_int( $offset ) ) {

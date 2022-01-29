@@ -67,8 +67,8 @@ trait Join_Members {
 	 *
 	 * @return string New path formed by the joins.
 	 *
-	 * @note  A trailing slash will never be added to a single `/` root path.
-	 *        A trailing slash will never be added to what is nothing but wrappers; e.g., `foo://bar://baz://`.
+	 *                * A trailing slash will never be added to a single `/` root path.
+	 *                * A trailing slash will never be added to what is nothing but wrappers; e.g., `foo://bar://baz://`.
 	 *
 	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Dir::join_ets()
 	 */

@@ -38,18 +38,19 @@ trait Unimportable_Members {
 	/**
 	 * Instantiates object w/ requested state.
 	 *
+	 * PHP's {@see var_export()} produces code that attempts to call this function.
+	 * For further details {@see https://www.php.net/manual/en/function.var-export.php}.
+	 *
 	 * @since 2021-12-27
 	 *
 	 * @param array $props Properties; i.e., desired state.
 	 *
-	 * @throws U\Fatal_Exception If called in any way.
 	 * @returns object A newly instantiated instance.
+	 *
+	 * @throws U\Fatal_Exception If called in any way.
 	 *
 	 * @see   https://www.php.net/manual/en/function.var-export.php
 	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.set-state
-	 *
-	 * @note  PHP's {@see var_export()} produces code that attempts to call this function.
-	 *        For further details {@see https://www.php.net/manual/en/function.var-export.php}.
 	 */
 	public static function __set_state( array $props ) : object {
 		throw new U\Fatal_Exception(

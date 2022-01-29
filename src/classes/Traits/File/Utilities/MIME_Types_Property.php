@@ -38,20 +38,19 @@ trait MIME_Types_Property {
 	/**
 	 * MIME types by file extension.
 	 *
+	 * Definitely not an exhaustive list, but this covers everything that's
+	 * used by WordPress, by CMS's in general, by CLEVER CANYON LLC, by WP Groove,
+	 * in web design, and by the programming languages typically used in web design.
+	 *   ... Plus a few other things.
+	 *
+	 * Level 1 array keys are MIME type descriptions.
+	 * Level 2 array keys are pipe-delimited extensions.
+	 * Level 2 array values are MIME types.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @see   https://o5p.me/Sr7Yjz
 	 * @see   https://o5p.me/R9zN3r
-	 *
-	 * @note  Definitely not an exhaustive list, but this covers everything that's
-	 *        used by WordPress, by CMS's in general, by CLEVER CANYON LLC, by WP Groove,
-	 *        in web design, and by the programming languages typically used in web design.
-	 *
-	 *        ... Plus a few other things.
-	 *
-	 * @note  Level 1 array keys are MIME type descriptions.
-	 *        Level 2 array keys are pipe-delimited extensions.
-	 *        Level 2 array values are MIME types.
 	 */
 	protected static array $mime_types = [
 		// Image formats.

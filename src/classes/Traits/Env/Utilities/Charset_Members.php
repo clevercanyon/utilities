@@ -49,38 +49,40 @@ trait Charset_Members {
 	/**
 	 * Gets environment charset code.
 	 *
+	 * In WordPress, {@see mb_internal_encoding()} is set to the `blog_charset` option value.
+	 * That option value defaults to `utf-8`, but it could potentially be set to something other than `utf-8`.
+	 *
+	 * WordPress doesn't alter `default_charset`. Rather, it takes the approach of using {@see mb_internal_encoding()}.
+	 * Then it uses the `mb_*` functions w/o specifying a charset, since it has already defined an internal encoding.
+	 *
+	 * In the case of {@see htmlentities()}, {@see htmlspecialchars()}, and {@see html_entity_decode()};
+	 * WordPress passes the charset explictly. It has to, given that it doesn't modify the `default_charset` value.
+	 *
+	 * Conclusions and guidance based on the above and other research:
+	 *
+	 *  - In a WordPress environment it is safe to use `mb_*` functions w/o explicitly defining a charset.
+	 *
+	 *    - In a WordPress environment, {@see htmlentities()}, {@see htmlspecialchars()}, and {@see html_entity_decode()};
+	 *      must be explicitly told which charset to use for encoding, given that it doesn't modify the `default_charset` value.
+	 *
+	 *        - WordPress does, and this codebase *must* do the same!
+	 *
+	 *    - Outside of WordPress, PHP's default behavior is to use `default_charset` for all `mb_*` and `html*` functions.
+	 *      Thus, outside of WordPress it is generally safe to use `mb_*` and `html*` functions w/o explicitly defining a charset.
+	 *
+	 *    - If a charset is explicitly defined anywhere, it should be taken from the `blog_charset` option in a WordPress environment.
+	 *      Or, from some other application-level config. Otherwise, use `default_charset`, or whatever is required in a specific case.
+	 *
+	 *    - It is not safe to assume that `utf-8` is the charset this codebase is working in.
+	 *      If a string manipulation function must work with `utf-8`, or would like to inject `utf-8`,
+	 *      then it must first look at the current charset by reading this function's return value.
+	 *
 	 * @since 2022-01-20
 	 *
 	 * @return string Current charset code.
 	 *
 	 * @see   https://o5p.me/kdiIi5
 	 * @see   https://www.php.net/manual/en/ini.core.php#ini.default-charset
-	 *
-	 * @note  In WordPress, {@see mb_internal_encoding()} is set to the `blog_charset` option value.
-	 *        That option value defaults to `utf-8`, but it could potentially be set to something other than `utf-8`.
-	 *
-	 * @note  WordPress doesn't alter `default_charset`. Rather, it takes the approach of using {@see mb_internal_encoding()}.
-	 *        Then it uses the `mb_*` functions w/o specifying a charset, since it has already defined an internal encoding.
-	 *
-	 * @note  In the case of {@see htmlentities()}, {@see htmlspecialchars()}, and {@see html_entity_decode()};
-	 *        WordPress passes the charset explictly. It has to, given that it doesn't modify the `default_charset` value.
-	 *
-	 * @note  Conclusions and guidance based on the above and other research:
-	 *
-	 *        - In a WordPress environment it is safe to use `mb_*` functions w/o explicitly defining a charset.
-	 *        - In a WordPress environment, {@see htmlentities()}, {@see htmlspecialchars()}, and {@see html_entity_decode()};
-	 *          must be explicitly told which charset to use for encoding, given that it doesn't modify the `default_charset` value.
-	 *            - WordPress does, and this codebase *must* do the same!
-	 *
-	 *        - Outside of WordPress, PHP's default behavior is to use `default_charset` for all `mb_*` and `html*` functions.
-	 *          Thus, outside of WordPress it is generally safe to use `mb_*` and `html*` functions w/o explicitly defining a charset.
-	 *
-	 *        - If a charset is explicitly defined anywhere, it should be taken from the `blog_charset` option in a WordPress environment.
-	 *          Or, from some other application-level config. Otherwise, use `default_charset`, or whatever is required in a specific case.
-	 *
-	 *        - It is not safe to assume that `utf-8` is the charset this codebase is working in.
-	 *          If a string manipulation function must work with `utf-8`, or would like to inject `utf-8`,
-	 *          then it must first look at the current charset by reading this function's return value.
 	 */
 	public static function charset() : string {
 		$is_wordpress = U\Env::is_wordpress();

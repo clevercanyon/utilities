@@ -46,8 +46,9 @@ trait Replace_Members {
 	 * @param int          $limit   {@see replace()}.
 	 * @param int|null     $count   {@see replace()}.
 	 *
-	 * @throws U\Exception {@see replace()}.
 	 * @return array|string {@see replace()}.
+	 *
+	 * @throws U\Exception {@see replace()}.
 	 */
 	public static function ireplace(
 		/* string|array */ $search,
@@ -61,7 +62,10 @@ trait Replace_Members {
 
 	/**
 	 * Performs search & replace operation.
+	 *
 	 * This is a clone {@see str_replace()} that supports a `$limit` param.
+	 * This function is caSe-sensitive. Use {@see ireplace()} for caSe-insensitive replace.
+	 * This function is binary safe; i.e., multibyte-safe.
 	 *
 	 * @since 2021-12-25
 	 *
@@ -80,13 +84,10 @@ trait Replace_Members {
 	 *
 	 * @param array        $_d      Internal use only — do not pass.
 	 *
-	 * @throws U\Exception When `$replace` is passed as an array, but `$search` is passed as a string. Makes no sense.
-	 *                   Throwing an exception matches the behavior of {@see str_replace()} in PHP 8.0+.
-	 *
 	 * @return string|array {@see str_replace()}. Same behavior here.
 	 *
-	 * @note  This function is caSe-sensitive. Use {@see ireplace()} for caSe-insensitive replace.
-	 * @note  This function is binary safe; i.e., multibyte-safe.
+	 * @throws U\Exception When `$replace` is passed as an array, but `$search` is passed as a string. Makes no sense.
+	 *                   Throwing an exception matches the behavior of {@see str_replace()} in PHP 8.0+.
 	 */
 	public static function replace(
 		/* string|array */ $search,

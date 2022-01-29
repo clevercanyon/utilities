@@ -46,14 +46,16 @@ trait Uninvokable_Members {
 	/**
 	 * Handles class invocation.
 	 *
+	 * This function is called when invoking an object as a function.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param array ...$args Invocation args.
 	 *
-	 * @throws U\Fatal_Exception If called in any way.
 	 * @return mixed Invocation's return value.
 	 *
-	 * @note  This function is called when invoking an object as a function.
+	 * @throws U\Fatal_Exception If called in any way.
+	 *
 	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.invoke
 	 */
 	public function __invoke( ...$args ) /* : mixed */ {

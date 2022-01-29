@@ -60,11 +60,11 @@ trait Zip_Members {
 	 *
 	 * @param object|null $_r                Internal use only — do not pass.
 	 *
+	 * @return bool True if zipped successfully.
+	 *
 	 * @throws U\Fatal_Exception If `ZipArchive` extension is missing.
 	 * @throws U\Fatal_Exception If attempting to zip into self, leading to an infinite loop.
 	 * @throws U\Fatal_Exception If a circular symlink is detected, leading to an infinite loop.
-	 *
-	 * @return bool True if zipped successfully.
 	 *
 	 * @future-review PHP 8+ brought some changes to the zip extensin.
 	 *                {@see https://o5p.me/7wQthu}.

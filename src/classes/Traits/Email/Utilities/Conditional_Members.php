@@ -38,6 +38,10 @@ trait Conditional_Members {
 	/**
 	 * Checks email validity; e.g., `user@example.com`.
 	 *
+	 * Maximum length is 320 characters, not bytes.
+	 * A trailing dot is not allowed in email address hostnames.
+	 * A user@local address is not allowed by this validator.
+	 *
 	 * @since 2021-12-26
 	 *
 	 * @param mixed $value Value to check.
@@ -45,11 +49,6 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid email address.
 	 *
 	 * @see   https://o5p.me/cZpuIh
-	 * @note  See also the tests for function.
-	 *
-	 * @note  Maximum length is 320 characters, not bytes.
-	 * @note  A trailing dot is not allowed in email address hostnames.
-	 * @note  A user@local address is not allowed by this validator.
 	 */
 	public static function is( /* mixed */ $value ) : bool {
 		return false !== filter_var( $value, FILTER_VALIDATE_EMAIL, [ 'flags' => FILTER_FLAG_EMAIL_UNICODE ] );

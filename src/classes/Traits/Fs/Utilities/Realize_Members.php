@@ -38,15 +38,15 @@ trait Realize_Members {
 	/**
 	 * Resolves, realizes (symlinks resolved), normalizes path.
 	 *
+	 * This expands/resolves everything, and it is filesystem-aware.
+	 * All symbolic links are resolved; {@see realpath()}.
+	 *
 	 * @since 2022-01-15
 	 *
 	 * @param string $path Path to parse.
 	 *
 	 * @return string Realized (symlinks resolved) canonical path normalized.
 	 *                This returns an empty string on failure to realize.
-	 *
-	 * @note  This expands/resolves everything, and it is filesystem-aware.
-	 *        All symbolic links are resolved; {@see realpath()}.
 	 *
 	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::realize()
 	 */

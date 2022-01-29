@@ -402,12 +402,12 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	/**
 	 * Maybe compile project’s distro directory.
 	 *
+	 * Regarding use of `--no-plugins` in Composer calls below.
+	 * {@see https://github.com/humbug/php-scoper#composer-plugins}.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @throws U\Exception On any failure.
-	 *
-	 * @note  Regarding use of `--no-plugins` in Composer calls below.
-	 *       {@see https://github.com/humbug/php-scoper#composer-plugins}.
 	 */
 	protected function maybe_compile_distro_lib_dir() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Maybe; looking ...' );

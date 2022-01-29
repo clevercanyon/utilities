@@ -472,8 +472,9 @@ final class Project extends U\A6t\Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @throws U\Fatal_Exception On any failure.
 	 * @return object|false Plugin data.
+	 *
+	 * @throws U\Fatal_Exception On any failure.
 	 *
 	 * @see   \WP_Groove\Framework\A6t\Plugin
 	 */
@@ -514,8 +515,9 @@ final class Project extends U\A6t\Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @throws U\Fatal_Exception On any failure.
 	 * @return object|null Plugin file headers.
+	 *
+	 * @throws U\Fatal_Exception On any failure.
 	 *
 	 * @see   https://developer.wordpress.org/reference/functions/get_plugin_data/
 	 */
@@ -581,8 +583,9 @@ final class Project extends U\A6t\Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @throws U\Fatal_Exception On any failure.
 	 * @return object|false Theme data.
+	 *
+	 * @throws U\Fatal_Exception On any failure.
 	 *
 	 * @see   \WP_Groove\Framework\A6t\Theme
 	 */
@@ -631,8 +634,9 @@ final class Project extends U\A6t\Base {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @throws U\Fatal_Exception On any failure.
 	 * @return object|null Theme file headers.
+	 *
+	 * @throws U\Fatal_Exception On any failure.
 	 *
 	 * @see   https://developer.wordpress.org/reference/classes/wp_theme/
 	 */
@@ -701,8 +705,9 @@ final class Project extends U\A6t\Base {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Fatal_Exception On any failure.
 	 * @return string AWS S3 bucket name.
+	 *
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	public function s3_bucket() : string {
 		$bucket_prop = '&.brand.aws.s3.bucket';
@@ -718,8 +723,9 @@ final class Project extends U\A6t\Base {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Fatal_Exception On any failure.
 	 * @return array Bucket config suitable for {@see \Aws\S3\S3Client}.
+	 *
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	public function s3_bucket_config() : array {
 		$access_key_prop = $this->brand_var . '.aws.credentials.access_key';
@@ -751,8 +757,9 @@ final class Project extends U\A6t\Base {
 	 *
 	 * @param string $string String to hash.
 	 *
-	 * @throws U\Fatal_Exception On any failure.
 	 * @return string HMAC SHA256 keyed hash. 64 bytes in length.
+	 *
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	public function s3_hash_hmac_sha256( string $string ) : string {
 		$hash_hmac_key_prop = $this->brand_var . '.aws.s3.hash_hmac_key';
@@ -788,8 +795,9 @@ final class Project extends U\A6t\Base {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Fatal_Exception When it fails in unexpected ways; e.g., unreadable file.
 	 * @return string Local WordPress version, else empty string if not available in `.dev.json`.
+	 *
+	 * @throws U\Fatal_Exception When it fails in unexpected ways; e.g., unreadable file.
 	 */
 	public function local_wp_version() : string {
 		$public_html_dir = $this->local_wp_public_html_dir();

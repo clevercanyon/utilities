@@ -37,8 +37,6 @@ use Clever_Canyon\{Utilities as U};
  * File-specific.
  *
  * @since 2021-12-15
- *
- * @note  `Memcached` as `Mc` = shorter alias for options.
  */
 use Memcached as Mc;
 
@@ -55,6 +53,12 @@ trait Server_Members {
 	/**
 	 * Maybe add server connections.
 	 *
+	 * Don't forget to change {@see U\Mem::$connection_id_version} when there are substantial changes to this class.
+	 * Particularly in {@see U\Mem::__construct()} and {@see U\Mem::maybe_add_server_connections()}.
+	 *
+	 * A pristine connection is one that is either not persistent (i.e., exists per-process).
+	 * Or, a it's a brand new (first time) persistent connection, based on persistent connection ID.
+	 *
 	 * @since 2020-11-19
 	 *
 	 * @throws U\Fatal_Exception On failure (in debugging mode).
@@ -62,12 +66,6 @@ trait Server_Members {
 	 * @see   https://o5p.me/xXgmzk
 	 * @see   https://code.launchpad.net/libmemcached
 	 * @see   https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz
-	 *
-	 * @note  Don't forget to change {@see U\Mem::$connection_id_version} when there are substantial changes to this class.
-	 *        Particularly in {@see U\Mem::__construct()} and {@see U\Mem::maybe_add_server_connections()}.
-	 *
-	 * @note  A pristine connection is one that is either not persistent (i.e., exists per-process).
-	 *        Or, a it's a brand new (first time) persistent connection, based on persistent connection ID.
 	 */
 	protected function maybe_add_server_connections() : void {
 		try { // If any issues, catch & flag as not alive.

@@ -38,6 +38,8 @@ trait Percentage_Change_Members {
 	/**
 	 * Calculates percentage change.
 	 *
+	 * Relative Change = `(Final Value – Initial Value) / Initial Value * 100`.
+	 *
 	 * @param int|float $from          Calculate from (i.e., value then).
 	 * @param int|float $to            Calculate to (i.e., the value now).
 	 * @param int       $precision     Defaults to `0`; i.e., no decimal place.
@@ -47,7 +49,6 @@ trait Percentage_Change_Members {
 	 *                          If `$format_string`, converted to string format: `+|-[percent]%`.
 	 *
 	 * @see  https://o5p.me/NPtmpS
-	 * @note Relative Change = `(Final value – Initial value) / Initial value * 100`
 	 */
 	public static function percentage_change( float $from, float $to, int $precision = 0, bool $format_string = false ) /* : mixed */ {
 		if ( ! $from ) {

@@ -42,10 +42,10 @@ trait Run_Exec_Members {
 	 * @param string|null $dir          Current working directory. Defaults to `null` value.
 	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
 	 *
+	 * @return int Status code.
+	 *
 	 * @throws U\Fatal_Exception If environment is lacking CLI functions.
 	 *                           On non-zero exit status code or other issue.
-	 *
-	 * @return int Status code.
 	 */
 	public static function run( array $args, /* string|null */ ?string $dir = null, bool $check_status = true ) : int {
 		if ( ! U\Env::can_use_function( 'escapeshellarg', 'passthru' ) ) {
@@ -77,15 +77,14 @@ trait Run_Exec_Members {
 	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
 	 * @param string|null $stdin        Stdin to send to command. Defaults to `null` value.
 	 *
+	 * @return object Object with properties `{}->status|stdout|stderr`.
+	 *
 	 * @throws U\Fatal_Exception If environment is lacking CLI functions.
 	 *                         On non-zero exit status code or other issue.
 	 *
-	 * @return object Object with properties `{}->status|stdout|stderr`.
-	 *
-	 * @note          Output redirection is also supported, which could be implemented in the future.
-	 *                {@see https://o5p.me/YJvL3s} for further details.
-	 *
 	 * @future-review Review Windows changes in PHP 8+; {@see https://o5p.me/rUnbCC}.
+	 * @future-review Output redirection is also supported, which could be implemented in the future.
+	 *                {@see https://o5p.me/YJvL3s} for further details.
 	 */
 	public static function exec(
 		array $args,

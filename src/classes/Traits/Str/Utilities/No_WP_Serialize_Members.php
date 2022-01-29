@@ -46,6 +46,9 @@ trait No_WP_Serialize_Members {
 	 *
 	 * @param mixed $value Value to serialize.
 	 *
+	 *                     * PHP does not allow a {@see \Closure} to be serialized whatsoever.
+	 *                       Do not serialize values containing a closure; either directly or indirectly.
+	 *
 	 *                     * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
 	 *                       Do not serialize resource values; either directly or indirectly.
 	 *                       Future versions of PHP will likely disallow altogether.
@@ -57,7 +60,8 @@ trait No_WP_Serialize_Members {
 	 * @see   U\Str::maybe_unserialize_no_wp()
 	 */
 	public static function serialize_no_wp( /* mixed */ $value ) : string {
-		assert( ! is_resource( $value ) ); // Bad practice.
+		assert( ! is_resource( $value ) );
+		assert( ! $value instanceof \Closure );
 
 		return U\Str::SERIALIZE_NO_WP_PREFIX .
 			U\Str::serialize( $value );

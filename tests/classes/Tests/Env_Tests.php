@@ -77,8 +77,8 @@ final class Env_Tests extends UT\A6t\Tests {
 	 * @covers ::charset()
 	 * @covers ::is_charset_utf8()
 	 *
-	 * @note Can be tested with PHPUnit in other charsets by passing:
-	 *       e.g., `-d default_charset=iso-8859-1` to `phpunit` from command line.
+	 * Can be tested with PHPUnit in other charsets by passing:
+	 * e.g., `-d default_charset=iso-8859-1` to `phpunit` from command line.
 	 */
 	public function test_charset() : void {
 		$this->assertSame( true, ! empty( U\Env::charset() ), $this->message() );
@@ -179,8 +179,8 @@ final class Env_Tests extends UT\A6t\Tests {
 	 * @runInSeparateProcess
 	 * @covers ::set_time_limit()
 	 *
-	 * @note Runs in a separate process so we don't allow the larger body of tests
-	 *       to run forever by granting unlimited execution time for all tests.
+	 * Runs in a separate process so we don't allow the larger body of tests
+	 * to run forever by granting unlimited execution time for all tests.
 	 */
 	public function test_set_time_limit() : void {
 		$this->assertSame( true, U\Env::set_time_limit( 0 ), $this->message() );
@@ -207,9 +207,9 @@ final class Env_Tests extends UT\A6t\Tests {
 	 * @runInSeparateProcess
 	 * @covers ::end_output_buffering()
 	 *
-	 * @note By default, this function tries to close all out output buffers, which is problematic.
-	 *       e.g., PHPUnit complains: "Test code or tested code did not (only) close its own output buffers.".
-	 *       For that reason, {@see U\Env::end_output_buffering()} will leave OB level `1` intact when testing.
+	 * By default, this function tries to close all out output buffers, which is problematic.
+	 * e.g., PHPUnit complains: "Test code or tested code did not (only) close its own output buffers.".
+	 * For that reason, {@see U\Env::end_output_buffering()} will leave OB level `1` intact when testing.
 	 */
 	public function test_end_output_buffering() : void {
 		$this->assertSame( true, U\Env::end_output_buffering(), $this->message() );

@@ -38,14 +38,14 @@ trait Type_Members {
 	/**
 	 * Gets path type.
 	 *
+	 * A `link` may or may not point to a location that exists.
+	 * i.e., A link can exist, but be broken; {@see U\Fs::real_type()}.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $path Path to check.
 	 *
 	 * @return string One of `link`, `dir`, `file`, or `` (nonexistent).
-	 *
-	 * @note  A `link` may or may not point to a location that exists.
-	 *       i.e., A link can exist, but be broken; {@see U\Fs::real_type()}.
 	 */
 	public static function type( string $path ) : string {
 		if ( is_link( $path ) ) {
@@ -63,15 +63,15 @@ trait Type_Members {
 	/**
 	 * Gets real path type.
 	 *
+	 * The difference here is the order of the filesystem checks.
+	 * Instead of checking {@see is_link()} first, check if: {@see is_dir()} || {@see is_file()}.
+	 * Then, in the case of it being a link, we know that it's actually a `broken-link`.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $path Path to check.
 	 *
 	 * @return string One of `dir`, `file`, `broken-link`, or `` (nonexistent).
-	 *
-	 * @note  The difference here is the order of the filesystem checks.
-	 *        Instead of checking {@see is_link()} first, check if: {@see is_dir()} || {@see is_file()}.
-	 *        Then, in the case of it being a link, we know that it's actually a `broken-link`.
 	 */
 	public static function real_type( string $path ) : string {
 		if ( is_dir( $path ) ) {

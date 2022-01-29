@@ -44,9 +44,9 @@ trait JSON_Members {
 	 * @param bool|null $pretty_print Pretty print? Default is `null`, which equates to `true`. Let's make JSON editing easy.
 	 *                                This enables `JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT`.
 	 *
-	 * @throws U\Fatal_Exception When `$value` is a resource.
-	 *
 	 * @return string JSON-encoded string.
+	 *
+	 * @throws U\Fatal_Exception When `$value` is a resource.
 	 *
 	 * @see   U\Str::json_decode()
 	 */

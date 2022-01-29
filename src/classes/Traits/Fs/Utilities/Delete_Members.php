@@ -38,6 +38,13 @@ trait Delete_Members {
 	/**
 	 * Deletes a path recursively (by default).
 	 *
+	 * This intentionally does not follow symlinks. It deletes them.
+	 * A link is just a link. This does not recurse into symlinked directories.
+	 *
+	 * After reviewing PHP source code, {@see unlink()} and {@see rmdir()}
+	 * both fire {@see clearstatcache()} whenever a directory and/or file is deleted.
+	 * Therefore, it's not necessary to do that here.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param string      $path           Path to delete.
@@ -49,13 +56,6 @@ trait Delete_Members {
 	 * @param object|null $_r             Internal use only — do not pass.
 	 *
 	 * @return bool True if deleted successfully.
-	 *
-	 * @note  This intentionally does not follow symlinks. It deletes them.
-	 *        A link is just a link. This does not recurse into symlinked directories.
-	 *
-	 * @note  After reviewing PHP source code, confirming {@see unlink()} and {@see rmdir()}
-	 *        both fire {@see clearstatcache()} whenever a directory and/or file is deleted.
-	 *        So not necessary to do that here.
 	 */
 	public static function delete(
 		string $path,

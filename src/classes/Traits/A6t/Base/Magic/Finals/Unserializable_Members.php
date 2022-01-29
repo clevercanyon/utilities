@@ -67,6 +67,7 @@ trait Unserializable_Members {
 	 * @param array $props Incoming properties; i.e., desired state.
 	 *
 	 * @throws U\Fatal_Exception If called in any way.
+	 *
 	 * @see   https://www.php.net/manual/en/class.serializable.php
 	 */
 	final public function __unserialize( array $props ) : void {

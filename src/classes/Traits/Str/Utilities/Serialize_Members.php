@@ -37,14 +37,6 @@ namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
  */
 use Clever_Canyon\{Utilities as U};
 
-/**
- * File-specific.
- *
- * @since 2021-12-15
- */
-use Laravel\SerializableClosure\{SerializableClosure as Serializable_Closure};
-use Laravel\SerializableClosure\Serializers\{Native as Serialized_Closure};
-
 // </editor-fold>
 
 /**
@@ -62,6 +54,9 @@ trait Serialize_Members {
 	 *
 	 * @param mixed $value Value to serialize.
 	 *
+	 *                     * PHP does not allow a {@see \Closure} to be serialized whatsoever.
+	 *                       Do not serialize values containing a closure; either directly or indirectly.
+	 *
 	 *                     * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
 	 *                       Do not serialize resource values; either directly or indirectly.
 	 *                       Future versions of PHP will likely disallow altogether.
@@ -70,18 +65,14 @@ trait Serialize_Members {
 	 *                     Recommended best practice is to set as `false` for performance gains in certain cases.
 	 *                     For example, when serializing values that'll never be unserialized or will never be untrusted.
 	 *
-	 * @throws U\Fatal_Exception On failure to serialize a {@see \Closure} (in debugging mode).
-	 *
 	 * @return string Serialized string representation.
 	 *
 	 * @see   \serialize()
 	 */
 	public static function serialize( /* mixed */ $value, bool $sign = true ) : string {
-		assert( ! is_resource( $value ) ); // Bad practice.
+		assert( ! is_resource( $value ) );
+		assert( ! $value instanceof \Closure );
 
-		if ( $value instanceof \Closure ) {
-			$value = new SerializableClosure( $value );
-		}
 		if ( ! $sign ) {
 			return serialize( $value );
 		}
@@ -105,8 +96,6 @@ trait Serialize_Members {
 	 *
 	 *                      * If `false`, a signature must not be present, and therefore will not be considered.
 	 *                        Care should be taken before setting this to `false`. It's potentially dangerous.
-	 *
-	 * @throws U\Fatal_Exception On failure to unserialize a {@see \Closure} (in debugging mode).
 	 *
 	 * @return mixed Unserialized original value; else `null` on failure.
 	 *
@@ -143,7 +132,6 @@ trait Serialize_Members {
 			'allowed_classes' => [
 				\stdClass::class,
 				U\Generic::class,
-				SerializableClosure::class,
 			],
 		];
 		$value   = @unserialize( $value, $options );

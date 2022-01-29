@@ -67,8 +67,9 @@ trait Make_Members {
 	 * @param int    $perms       Permissions. Default is `0700`.
 	 * @param bool   $recursively Recursively? Default is `true`.
 	 *
-	 * @throws U\Fatal_Exception On any failure.
 	 * @return string Absolute path to temporary directory.
+	 *
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	public static function make_temp( string $dir = '', int $perms = 0700, bool $recursively = true ) : string {
 		$dir = U\Dir::make_unique_path( $dir );

@@ -38,6 +38,10 @@ trait Stringify_Members {
 	/**
 	 * Stringifies a bundle.
 	 *
+	 * This is *not* purely a JSON-encoder (do not use it that way).
+	 * For example, null, scalar, and resource values are simply converted to strings.
+	 * To actually JSON-encode a bundle use {@see U\Str::json_encode()}.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param object|array $bundle       Bundle to stringify.
@@ -56,10 +60,6 @@ trait Stringify_Members {
 	 * @return object|array|string Stringified bundle.
 	 *
 	 * @see   U\Str::stringify()
-	 *
-	 * @note  This is NOT purely a JSON-encoder.
-	 *        For example, null, scalar, and resource values are simply converted to strings.
-	 *        To actually JSON-encode a bundle use {@see U\Str::json_encode()}.
 	 */
 	public static function stringify(
 		/* object|array */ $bundle,

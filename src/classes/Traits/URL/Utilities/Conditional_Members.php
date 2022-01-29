@@ -38,6 +38,8 @@ trait Conditional_Members {
 	/**
 	 * Checks URL validity; e.g., `https://example.com`, `https://[::ffff:2d4f:713]`.
 	 *
+	 * Additional schemes are allowed and some do not require a hostname; e.g., `mailto:`, `news:`, `file:`.
+	 *
 	 * @since 2021-12-26
 	 *
 	 * @param mixed $value Value to check.
@@ -45,11 +47,8 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid URL containing scheme & hostname.
 	 *
 	 * @see   https://o5p.me/kEENZa
-	 * @note  See also the tests for function.
 	 *
 	 * @see   U\URL::is_hostname() for inherited validations for hostname.
-	 * @note  Additional schemes are allowed and some do not require a hostname;
-	 *        e.g., `mailto:`, `news:`, `file:`.
 	 */
 	public static function is( /* mixed */ $value ) : bool {
 		return false !== filter_var( $value, FILTER_VALIDATE_URL );
@@ -57,6 +56,8 @@ trait Conditional_Members {
 
 	/**
 	 * Checks URL validity; e.g., `https://example.com/?v=1`.
+	 *
+	 * Query string must come before an optional `#fragment`.
 	 *
 	 * @since 2021-12-26
 	 *
@@ -66,10 +67,7 @@ trait Conditional_Members {
 	 *              {@see U\URL::is()} for inherited validations.
 	 *
 	 * @see   https://o5p.me/kEENZa
-	 * @note  See also the tests for function.
-	 *
 	 * @see   U\URL::is() for inherited validations.
-	 * @note  Query string must come before an optional `#fragment`.
 	 */
 	public static function is_with_query( /* mixed */ $value ) : bool {
 		return false !== filter_var( $value, FILTER_VALIDATE_URL, [ 'flags' => FILTER_FLAG_QUERY_REQUIRED ] );
@@ -78,6 +76,11 @@ trait Conditional_Members {
 	/**
 	 * Checks hostname validity; e.g., `127.0.0.1`, `localhost`, `example.com`.
 	 *
+	 * A trailing dot is allowed. {@see trim()} is recommended.
+	 *
+	 * Max length of each dotted label is `63` bytes.
+	 * Max overall length is 253 bytes, not counting final `.`, which is optional.
+	 *
 	 * @since 2021-12-26
 	 *
 	 * @param mixed $value Value to check.
@@ -85,11 +88,6 @@ trait Conditional_Members {
 	 * @return bool True if it's a valid hostname.
 	 *
 	 * @see   https://o5p.me/d3ayZ8
-	 * @note  See also the tests for function.
-	 *
-	 * @note  A trailing dot is allowed. Recommend trimming.
-	 * @note  Max length of each dotted label is `63` bytes.
-	 * @note  Max overall length is 253 bytes, not counting final `.`, which is optional.
 	 */
 	public static function is_hostname( /* mixed */ $value ) : bool {
 		return false !== filter_var( $value, FILTER_VALIDATE_DOMAIN, [ 'flags' => FILTER_FLAG_HOSTNAME ] );

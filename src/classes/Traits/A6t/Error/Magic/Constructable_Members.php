@@ -38,17 +38,17 @@ trait Constructable_Members {
 	/**
 	 * Initializes the error.
 	 *
+	 * This is a slightly modified clone of {@see \WP_Error}.
+	 * It remains 100% interchangeable with WordPress errors as of 2021-12-15.
+	 *
+	 * Though the class is constructed with a single error code and message,
+	 * multiple codes can be added using the {@see U\A6t\Error::add()} method.
+	 *
 	 * @since        2021-12-15
 	 *
 	 * @param string|int $code    Error code. If error `$code` is empty, other parameters are ignored; i.e., no error added on instantiation.
 	 * @param string     $message Error message. When error `$code` is not empty, `$message` will be used even if message is empty.
 	 * @param mixed      $data    Optional error data. The error `$data` parameter will be used only if it is not empty.
-	 *
-	 * @note         This is a slightly modified clone of {@see \WP_Error}.
-	 *               It remains 100% interchangeable with WordPress errors as of 2021-12-15.
-	 *
-	 * @note         Though the class is constructed with a single error code and  message, multiple codes can be added
-	 *               using the {@see U\A6t\Error::add()} method.
 	 *
 	 * @noinspection PhpMultipleClassDeclarationsInspection
 	 */

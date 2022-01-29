@@ -46,20 +46,21 @@ trait Writable_Members {
 	/**
 	 * Sets inaccessible properties.
 	 *
+	 * If a property already exists that means we're only here because it's inaccessible.
+	 * For that reason we will not override existing properties; i.e., they are *not* accessible.
+	 *
+	 * Keep in mind this is only fired for nonexistent and/or inaccessible properties.
+	 * The implication is that once we set the property this won't be fired again so long as
+	 * the property is accessible — and it will be, since we refuse to set inaccessible properties.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $prop  Property name.
 	 * @param mixed  $value Property value.
 	 *
 	 * @throws U\Fatal_Exception If attempting to set a reserved property.
+	 *
 	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
-	 *
-	 * @note  If a property already exists that means we're only here because it's inaccessible.
-	 *        For that reason we will not override existing properties; i.e., they are *not* accessible.
-	 *
-	 * @note  Keep in mind this is only fired for nonexistent and/or inaccessible properties.
-	 *        The implication is that once we set the property this won't be fired again so long as
-	 *        the property is accessible. It will be, since we refuse to set inaccessible properties.
 	 */
 	final public function __set( string $prop, /* mixed */ $value ) : void {
 		if ( property_exists( $this, $prop ) ) {
@@ -73,15 +74,16 @@ trait Writable_Members {
 	/**
 	 * Unsets inaccessible properties.
 	 *
+	 * If a property already exists that means we're only here because it's inaccessible.
+	 * For that reason we will not destroy existing properties; i.e., they are *not* accessible.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param string $prop Property name.
 	 *
 	 * @throws U\Fatal_Exception If attempting to unset a reserved property.
-	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 *
-	 * @note  If a property already exists that means we're only here because it's inaccessible.
-	 *        For that reason we will not destroy existing properties; i.e., they are *not* accessible.
+	 * @see   https://www.php.net/manual/en/language.oop5.overloading.php
 	 */
 	final public function __unset( string $prop ) : void {
 		if ( property_exists( $this, $prop ) ) {

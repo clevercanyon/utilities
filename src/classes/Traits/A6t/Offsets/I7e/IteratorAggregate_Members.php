@@ -46,15 +46,15 @@ trait IteratorAggregate_Members {
 	/**
 	 * Accessible non-static props iterator, from outside scope.
 	 *
+	 * Intentionally not iterating offsets here.
+	 * To iterate offsets {@see U\A6t\Offsets::offsets()}.
+	 *
 	 * @since 2021-12-28
 	 *
 	 * @return \Generator Accessible non-static props iterator, from outside scope.
 	 *
 	 * @see   https://www.php.net/manual/en/class.iteratoraggregate.php
 	 * @see   https://www.php.net/manual/en/class.arrayiterator.php
-	 *
-	 * @note  Intentionally not iterating offsets here.
-	 *        To iterate offsets {@see U\A6t\Offsets::offsets()}.
 	 */
 	final public function getIterator() : \Generator {
 		yield from $this->props( 'public' );

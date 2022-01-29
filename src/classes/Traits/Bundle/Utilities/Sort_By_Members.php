@@ -44,10 +44,10 @@ trait Sort_By_Members {
 	 * @param object|array $bundle Input bundle to be sorted.
 	 * @param int          $flags  Optional flags. Defaults to `SORT_NATURAL`.
 	 *
-	 * @throws U\Exception If attempting to sort by non-scalar values.
-	 * @throws U\Exception If attempting to sort by an unexpected directive.
-	 *
 	 * @return object|array Sorted bundle.
+	 *
+	 * @throws U\Exception If attempting to sort by an unexpected directive.
+	 * @throws U\Exception If attempting to sort by non-scalar values.
 	 *
 	 * @see   U\Obj::sort_by()
 	 * @see   U\Arr::sort_by()

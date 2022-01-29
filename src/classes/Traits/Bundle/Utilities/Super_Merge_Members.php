@@ -38,6 +38,10 @@ trait Super_Merge_Members {
 	/**
 	 * Merges bundles recursively (deep clones) w/ declarative OPs.
 	 *
+	 * Declarative operations are supported by this variant of {@see U\Bundle::merge()}.
+	 * Declarative operations work almost exactly like {@see https://github.com/clevercanyon/js-object-mc}.
+	 * Only difference is that props/keys by path are not fully supported yet; e.g., `a.0.c.*`).
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param object|array ...$bundles Bundles to merge.
@@ -45,10 +49,6 @@ trait Super_Merge_Members {
 	 *
 	 * @return object|array Deep clone of the base, merged with deep clone of bundles, recursively.
 	 *                      Numerically indexed arrays will always replace the original arrays entirely.
-	 *
-	 * @note  Declarative operations are supported by this variant of {@see U\Bundle::merge()}.
-	 *        Declarative operations work almost exactly like {@see https://github.com/clevercanyon/js-object-mc}.
-	 *        Only difference is that props/keys by path are not fully supported yet; e.g., `a.0.c.*`).
 	 */
 	public static function super_merge( /* object|array */ ...$bundles ) /* : object|array */ {
 		return U\Bundle::super_merge_helper( $bundles );

@@ -38,6 +38,10 @@ trait Stringify_Members {
 	/**
 	 * Stringifies data.
 	 *
+	 * This is NOT purely a JSON-encoder (don't use it that way).
+	 * For example, null, scalar, and resource values are simply converted to strings.
+	 * Instead, {@see U\Str::json_encode()} for real JSON encoding.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param mixed     $data         Data to stringify.
@@ -45,14 +49,10 @@ trait Stringify_Members {
 	 *
 	 * @return string String representation.
 	 *
-	 * @note  This is NOT purely a JSON-encoder.
-	 *        For example, null, scalar, and resource values are simply converted to strings.
-	 *        They are not converted to JSON. Instead, {@see U\Str::json_encode()}.
-	 *
 	 * @see   U\Bundle::stringify()
 	 */
 	public static function stringify( /* mixed */ $data, /* bool|null */ ?bool $pretty_print = null ) : string {
-		if ( is_null( $data ) || is_scalar( $data ) || is_resource( $data ) ) {
+		if ( null === $data || is_scalar( $data ) || is_resource( $data ) ) {
 			return (string) $data; // Cannot be decoded as JSON.
 		}
 		return U\Str::json_encode( $data, $pretty_print );

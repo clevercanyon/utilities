@@ -117,6 +117,17 @@ trait Git_Ignore_Members {
 	/**
 	 * Regexp with `.gitignore` exclusions as a positive lookahead pattern, for PHPCS/PHPCBF tools.
 	 *
+	 * Regarding PHPCS/PHPCBF tools. {@see https://git.io/J9nrw}.
+	 *
+	 * In PHPCS/PHPCBF, `*` is auto-expanded into `.*` at runtime.
+	 * Unescaped commas are pattern delimiters. To get a real comma, must escape: `\\,`.
+	 *
+	 * Directory separators, on Windows, are replaced with `\\` on-the-fly at runtime, so use only `/` here.
+	 * The regular expression pattern is encapsulated by `backticks`i at runtime and uses an `i` modifier only.
+	 *
+	 * Patterns that end with `/*` are tested against both directories and files. Otherwise, files only.
+	 * A `/*` on the end of the pattern is replaced by `(?=/|$)` at runtime.
+	 *
 	 * @since 2021-12-18
 	 *
 	 * @param string $base_path The PHPCS/PHPCBF tools treat `--ignore=` patterns as absolute path checks.
@@ -134,17 +145,6 @@ trait Git_Ignore_Members {
 	 *
 	 * @return string Final regexp with `.gitignore` exclusions as a positive lookahead.
 	 *                The pattern is a non-capturing positive lookahead for greatest flexibility.
-	 *
-	 * @note  Regarding PHPCS/PHPCBF tools. {@see https://git.io/J9nrw}.
-	 *
-	 *        In PHPCS/PHPCBF, `*` is auto-expanded into `.*` at runtime.
-	 *        Unescaped commas are pattern delimiters. To get a real comma, must escape: `\\,`.
-	 *
-	 *        Directory separators, on Windows, are replaced with `\\` on-the-fly at runtime, so use only `/` here.
-	 *        The regular expression pattern is encapsulated by `backticks`i at runtime and uses an `i` modifier only.
-	 *
-	 *        Patterns that end with `/*` are tested against both directories and files. Otherwise, files only.
-	 *        A `/*` on the end of the pattern is replaced by `(?=/|$)` at runtime.
 	 */
 	public static function gitignore_phpcs_regexp_lookahead_positive( string $base_path, array $args = [] ) : string {
 		$lookahead       = 'positive';

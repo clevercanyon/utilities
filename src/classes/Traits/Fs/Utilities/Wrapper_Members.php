@@ -57,6 +57,9 @@ trait Wrapper_Members {
 	/**
 	 * Gets a path's wrappers.
 	 *
+	 * This function is not URL scheme-safe. That's another set of concerns.
+	 * Therefore, don't use with `http://`, `data://` or other remote protocols.
+	 *
 	 * @since 2021-12-19
 	 *
 	 * @param string $path     Path to parse.
@@ -68,9 +71,6 @@ trait Wrapper_Members {
 	 * @param array  $_d       Internal use only — do not pass.
 	 *
 	 * @return string|array Wrappers. Empty string|array = no wrappers.
-	 *
-	 * @note  This function is not URL scheme-safe. That's another set of concerns.
-	 *        Therefore, don't use with `http://`, `data://` or other remote protocols.
 	 *
 	 * @see   U\Fs::normalize()
 	 * @see   U\Fs::split_wrappers()

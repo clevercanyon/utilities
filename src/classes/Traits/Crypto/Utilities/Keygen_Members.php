@@ -51,9 +51,9 @@ trait Keygen_Members {
 	 * @param bool $exclude_similar_chars   Default is `true`. `iIlL|1oO0` characters are not used (too similar).
 	 * @param bool $exclude_ambiguous_chars Default is `true`. `$`~()[]{}<>\/.,;:'"` characters are not used (ambiguous).
 	 *
-	 * @throws U\Fatal_Exception If parameters exclude everything there is nothing to randomize.
-	 *
 	 * @return string Random key at requested length.
+	 *
+	 * @throws U\Fatal_Exception If parameters exclude everything there is nothing to randomize.
 	 */
 	public static function keygen(
 		int $bytes = 32,

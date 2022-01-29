@@ -30,31 +30,31 @@ use Clever_Canyon\{Utilities as U};
 /**
  * Base class interface.
  *
+ * {@see \Stringable} interface implicit. {@see https://o5p.me/SGdNMV}
+ * Starting with PHP 8+ we should add it to our classes to be explicit.
+ *
+ * Signature compatibility rules should considered carefully.
+ * {@see https://www.php.net/manual/en/language.oop5.basic.php#language.oop.lsp}.
+ *
  * @since 2021-12-15
- *
- * @note  {@see \Stringable} interface implicit. {@see https://o5p.me/SGdNMV}
- *        Starting with PHP 8+ we should add it to our classes to be explicit.
- *
- * @note  Signature compatibility rules should considered carefully.
- *        {@see https://www.php.net/manual/en/language.oop5.basic.php#language.oop.lsp}.
  */
 interface Base extends U\I7e\Stc_Base, \JsonSerializable {
 	/**
 	 * Tells a new object clone what to do on instantiation.
 	 *
+	 * In PHP, a class is cloneable if this expression is true.
+	 * ```
+	 * ! method_exists( $obj, '__clone' ) || is_callable( [ $obj, '__clone' ] )
+	 * ```
+	 * Throwing an exception from inside this function may have unexpected/unintended side effects.
+	 * e.g., If the `clone` keyword is used PHP will call this method, triggering an exception.
+	 * The same is true if this method's visibility is set to something other than `public`.
+	 *
+	 * So there really is no great way to effectively disable object cloning in specific classes.
+	 * The only approach that sort of works is to set visibility to `protected` or `private`, and just hope
+	 * that whomever (or whatever library) will be doing the proper sanity checks before attempting to clone.
+	 *
 	 * @since 2021-12-27
-	 *
-	 * @note  In PHP, a class is cloneable if this expression is true.
-	 *        ```
-	 *        ! method_exists( $obj, '__clone' ) || is_callable( [ $obj, '__clone' ] )
-	 *        ```
-	 * @note  Throwing an exception from inside this function may have unexpected/unintended side effects.
-	 *        e.g., If the `clone` keyword is used PHP will call this method, triggering an exception.
-	 *        The same is true if this method's visibility is set to something other than `public`.
-	 *
-	 * @note  So there really is no great way to effectively disable object cloning in specific classes.
-	 *        The only approach that sort of works is to set visibility to `protected` or `private`, and just hope
-	 *        that whomever (or whatever library) will be doing the proper sanity checks before attempting to clone.
 	 *
 	 * @see   https://www.php.net/manual/en/language.oop5.cloning.php
 	 * @see   https://www.php.net/manual/en/reflectionclass.iscloneable.php
@@ -112,13 +112,14 @@ interface Base extends U\I7e\Stc_Base, \JsonSerializable {
 	/**
 	 * Handles class invocation.
 	 *
+	 * This function is called when invoking an object as a function.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param array ...$args Invocation args.
 	 *
 	 * @return mixed Invocation's return value.
 	 *
-	 * @note  This function is called when invoking an object as a function.
 	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.invoke
 	 */
 	public function __invoke( ...$args ); /* : mixed */
@@ -185,18 +186,18 @@ interface Base extends U\I7e\Stc_Base, \JsonSerializable {
 	/**
 	 * Handles shutdown on object destruction.
 	 *
+	 * The destructor method will be called as soon as there are no other references
+	 * to a particular object, or in any order during the shutdown sequence.
+	 *
+	 * The destructor will be called even if script execution is stopped using {@see exit()}.
+	 * Calling {@see exit()} in a destructor will prevent the remaining shutdown routines from executing.
+	 *
+	 * Destructors called during the script shutdown have HTTP headers already sent.
+	 * The working directory in the script shutdown phase can be different with some SAPIs (e.g. Apache).
+	 *
+	 * Attempting to throw an exception from a destructor (called at time of script termination) causes a fatal error.
+	 *
 	 * @since 2021-12-27
-	 *
-	 * @note  The destructor method will be called as soon as there are no other references
-	 *        to a particular object, or in any order during the shutdown sequence.
-	 *
-	 * @note  The destructor will be called even if script execution is stopped using {@see exit()}.
-	 *        Calling {@see exit()} in a destructor will prevent the remaining shutdown routines from executing.
-	 *
-	 * @note  Destructors called during the script shutdown have HTTP headers already sent.
-	 *        The working directory in the script shutdown phase can be different with some SAPIs (e.g. Apache).
-	 *
-	 * @note  Attempting to throw an exception from a destructor (called at time of script termination) causes a fatal error.
 	 *
 	 * @see   https://www.php.net/manual/en/language.oop5.decon.php
 	 */
@@ -209,10 +210,6 @@ interface Base extends U\I7e\Stc_Base, \JsonSerializable {
 	 *
 	 * @return string String representation used for equality tests.
 	 *                Implementations should make use of {@see U\I7e\Base::props()}.
-	 *
-	 * @note  This can be very helpful when PHPUnit testing.
-	 *        Use of this method is preferred in concert with PHPUnit's `assertSame()`.
-	 *        Reason is this approach supports a comparative diff in IDEs like PhpStorm.
 	 */
 	public function to_equals_string() : string;
 
@@ -226,7 +223,6 @@ interface Base extends U\I7e\Stc_Base, \JsonSerializable {
 	 * @return bool True if objects are practically equal to each other.
 	 *              Must be based on the return value of {@see U\I7e\Base::to_equals_string()}.
 	 *
-	 * @note  This can be very helpful when PHPUnit testing.
 	 * @see   https://phpunit.readthedocs.io/en/9.5/assertions.html#assertobjectequals
 	 */
 	public function is_equals_string_to( U\I7e\Base $other ) : bool;
@@ -243,9 +239,6 @@ interface Base extends U\I7e\Stc_Base, \JsonSerializable {
 	 *                            that {@see U\Obj::props()} supports. You can support additional filters also.
 	 *
 	 * @return array Non-static properties using the given `$filter`.
-	 *
-	 * @note  This can be very helpful when PHPUnit testing.
-	 *        It's a much cleaner way of converting an object to an array.
 	 */
 	public function props( /* string|null */ ?string $filter = null ) : array;
 }

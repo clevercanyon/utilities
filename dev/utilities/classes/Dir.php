@@ -65,8 +65,8 @@ final class Dir {
 	 *
 	 * @return string New path formed by the joins.
 	 *
-	 * @note  A trailing slash will never be added to a single `/` root path.
-	 *        A trailing slash will never be added to what is nothing but wrappers; e.g., `foo://bar://baz://`.
+	 *                * A trailing slash will never be added to a single `/` root path.
+	 *                * A trailing slash will never be added to what is nothing but wrappers; e.g., `foo://bar://baz://`.
 	 *
 	 * @see   \Clever_Canyon\Utilities\Dir::join_ets()
 	 */
@@ -128,11 +128,11 @@ final class Dir {
 	 * @param bool   $throw_on_failure Throw on failure? Default is `true`.
 	 *                                 If set to `false`, function returns `false` on failure.
 	 *
-	 * @throws D\Fatal_Exception On failure to strip the given base path.
-	 *                           Change by setting `$throw_on_failure` to `false`.
-	 *
 	 * @return string|false Subpath; i.e., `$path` with `$base_path` stripped away.
 	 *                      If `$throw_on_failure` is `false`, returns `false` on failure.
+	 *
+	 * @throws D\Fatal_Exception On failure to strip the given base path.
+	 *                           Change by setting `$throw_on_failure` to `false`.
 	 *
 	 * @see   \Clever_Canyon\Utilities\Dir::subpath()
 	 */
