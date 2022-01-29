@@ -34,67 +34,81 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Env
  */
-trait Config_Mode_Members {
+trait Mode_Members {
 	/**
-	 * In testing mode?
+	 * In test mode?
 	 *
 	 * @since 2022-01-2
 	 *
-	 * @return bool `true` if in testing mode.
+	 * @param string|null $type Optional testing tool or framework; e.g., `phpunit`.
+	 *                          Default is `null`, indicating *any*.
+	 *
+	 * @return bool True if in test mode.
 	 */
-	public static function in_testing_mode() : bool {
-		return ! empty( U\Env::static_var( 'TESTING' ) );
+	public static function in_test_mode( /* string|null */ ?string $type = null ) : bool {
+		$test_mode = U\Env::static_var( 'TEST_MODE' );
+		return $test_mode && ( null === $type || $type === $test_mode );
 	}
 
 	/**
-	 * In debugging mode?
+	 * In debug mode?
 	 *
 	 * @since 2022-01-2
 	 *
-	 * @return bool `true` if in debugging mode.
+	 * @param string|null $type Optional debugging tool or framework; e.g., `xdebug`.
+	 *                          Default is `null`, indicating *any*.
+	 *
+	 * @return bool True if in debug mode.
 	 */
-	public static function in_debugging_mode() : bool {
-		return ! empty( U\Env::static_var( 'DEBUGGING' ) );
+	public static function in_debug_mode( /* string|null */ ?string $type = null ) : bool {
+		$debug_mode = U\Env::static_var( 'DEBUG_MODE' );
+		return $debug_mode && ( null === $type || $type === $debug_mode );
 	}
 
 	/**
-	 * Configures testing mode.
+	 * Puts environment into test mode.
 	 *
 	 * @since 2021-12-19
 	 *
 	 * @param string|null $type Optional testing tool or framework; e.g., `phpunit`.
 	 *                          Default is `null`, indicating `uknown`.
 	 *
-	 * @return bool True if testing mode configured successfully.
+	 * @return bool True if test mode set successfully.
 	 */
-	public static function config_testing_mode( /* string|null */ ?string $type = null ) : bool {
+	public static function set_test_mode( /* string|null */ ?string $type = null ) : bool {
 		$type ??= 'unknown';
 		$type = $type ?: 'unknown';
 
-		return (bool) U\Env::static_var( 'TESTING', $type );
+		if ( $test_mode = U\Env::static_var( 'TEST_MODE' ) ) {
+			return $type === $test_mode;
+		}
+		return (bool) U\Env::static_var( 'TEST_MODE', $type );
 	}
 
 	/**
-	 * Configures debugging mode.
+	 * Puts environment into debug mode.
 	 *
 	 * @since 2021-12-19
 	 *
 	 * @param string|null $type Optional debugging tool or framework; e.g., `xdebug`.
 	 *                          Default is `null`, indicating `uknown`.
 	 *
-	 * @return bool True if debugging mode configured successfully.
+	 * @return bool True if debug mode set successfully.
 	 */
-	public static function config_debugging_mode( /* string|null */ ?string $type = null ) : bool {
+	public static function set_debug_mode( /* string|null */ ?string $type = null ) : bool {
 		$type ??= 'unknown';
 		$type = $type ?: 'unknown';
 
+		if ( $debug_mode = U\Env::static_var( 'DEBUG_MODE' ) ) {
+			return $type === $debug_mode;
+		}
 		if ( U\Env::is_wordpress() ) {
 			return U\Env::maybe_define( 'WP_DEBUG', true )
 				&& U\Env::maybe_define( 'WP_DEBUG_LOG', true )
 				&& U\Env::maybe_define( 'WP_DEBUG_DISPLAY', true )
 				&& false !== ini_set( 'zend.assertions', '1' )  // phpcs:ignore.
 				&& false !== ini_set( 'assert.exception', '1' ) // phpcs:ignore.
-				&& U\Env::static_var( 'DEBUGGING', $type );
+				&& U\Env::static_var( 'DEBUG_MODE', $type );
 		} else {
 			error_reporting( E_ALL );
 
@@ -115,7 +129,7 @@ trait Config_Mode_Members {
 				&& false !== ini_set( 'display_errors', '1' )    // phpcs:ignore.
 				&& false !== ini_set( 'zend.assertions', '1' )   // phpcs:ignore.
 				&& false !== ini_set( 'assert.exception', '1' )  // phpcs:ignore.
-				&& U\Env::static_var( 'DEBUGGING', $type );
+				&& U\Env::static_var( 'DEBUG_MODE', $type );
 		}
 	}
 }

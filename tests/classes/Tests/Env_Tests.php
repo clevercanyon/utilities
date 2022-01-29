@@ -124,6 +124,14 @@ final class Env_Tests extends UT\A6t\Tests {
 	}
 
 	/**
+	 * @covers ::can_use_extension()
+	 */
+	public function test_can_use_extension() : void {
+		$this->assertSame( true, U\Env::can_use_extension( 'mbstring' ), $this->message() );
+		$this->assertSame( false, U\Env::can_use_extension( 'foo' ), $this->message() );
+	}
+
+	/**
 	 * @covers ::can_use_class()
 	 */
 	public function test_can_use_class() : void {
@@ -168,7 +176,11 @@ final class Env_Tests extends UT\A6t\Tests {
 	}
 
 	/**
+	 * @runInSeparateProcess
 	 * @covers ::set_time_limit()
+	 *
+	 * @note Runs in a separate process so we don't allow the larger body of tests
+	 *       to run forever by granting unlimited execution time for all tests.
 	 */
 	public function test_set_time_limit() : void {
 		$this->assertSame( true, U\Env::set_time_limit( 0 ), $this->message() );
@@ -176,17 +188,19 @@ final class Env_Tests extends UT\A6t\Tests {
 	}
 
 	/**
-	 * @covers ::config_testing_mode()
+	 * @covers ::in_test_mode()
 	 */
-	public function test_config_testing_mode() : void {
-		$this->assertSame( true, (bool) U\Env::static_var( 'TESTING' ), $this->message() );
+	public function test_in_test_mode() : void {
+		$this->assertSame( true, U\Env::in_test_mode(), $this->message() );
+		$this->assertSame( true, U\Env::in_test_mode( 'phpunit' ), $this->message() );
 	}
 
 	/**
-	 * @covers ::config_debugging_mode()
+	 * @covers ::in_debug_mode()
 	 */
-	public function test_config_debugging_mode() : void {
-		$this->assertSame( true, (bool) U\Env::static_var( 'DEBUGGING' ), $this->message() );
+	public function test_in_debug_mode() : void {
+		$this->assertSame( true, U\Env::in_debug_mode(), $this->message() );
+		$this->assertSame( true, U\Env::in_debug_mode( 'phpunit' ), $this->message() );
 	}
 
 	/**

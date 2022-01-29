@@ -43,9 +43,9 @@ trait Prep_For_Members {
 	 * @return bool True if everything prepped successfully.
 	 */
 	public static function prep_for_special_output() : bool {
-		return U\Env::end_output_buffering()
+		return U\HTTP::close_session()
 			&& U\HTTP::disable_gzip()
-			&& U\HTTP::close_session();
+			&& U\Env::end_output_buffering();
 	}
 
 	/**
@@ -57,8 +57,10 @@ trait Prep_For_Members {
 	 */
 	public static function prep_for_file_download() : bool {
 		return U\Env::set_time_limit( 900 )
-			&& U\HTTP::prep_for_special_output()
 			&& U\HTTP::disable_caching()
-			&& U\HTTP::disable_robots();
+			&& U\HTTP::close_session()
+			&& U\HTTP::disable_gzip()
+			&& U\HTTP::disable_robots()
+			&& U\Env::end_output_buffering();
 	}
 }

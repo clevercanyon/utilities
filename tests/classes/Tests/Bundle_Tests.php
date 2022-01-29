@@ -328,7 +328,7 @@ final class Bundle_Tests extends UT\A6t\Tests {
 			protected function __clone() {}
 		};
 		if ( version_compare( PHP_VERSION, '8.1.0', '>=' ) ) {
-			$readonly_property_obj = require __DIR__ . '/fixtures/php-gte-8.1/readonly-property-obj.php';
+			$readonly_property_obj = require U\Dir::name( __FILE__, 3 ) . '/includes/php-gte-8.1/readonly-property-obj.php';
 		}
 		/**
 		 * @var U\I7e\Base $obj1_cln

@@ -57,10 +57,7 @@ trait Static_Var_Members {
 	 *
 	 * @return mixed Value of static environment variable, else `null`.
 	 */
-	public static function static_var(
-		string $name,
-		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL
-	) /* : mixed */ {
+	public static function static_var( string $name, /* mixed */ $value = U\Func::PARAM_DEFAULT_NULL ) /* : mixed */ {
 		if ( U\Func::PARAM_DEFAULT_NULL !== $value ) {
 			if ( null === $value ) {
 				unset( static::$vars[ $name ] );

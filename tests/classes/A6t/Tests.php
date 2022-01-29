@@ -42,27 +42,6 @@ use Clever_Canyon\{Utilities as U};
  */
 abstract class Tests extends \PHPUnit\Framework\TestCase {
 	/**
-	 * Fires before the first method is run.
-	 *
-	 * @since 2021-12-15
-	 */
-	public static function setUpBeforeClass() : void {
-		parent::setUpBeforeClass();
-
-		U\Env::config_testing_mode( 'phpunit' );
-		U\Env::config_debugging_mode( 'phpunit' );
-	}
-
-	/**
-	 * Fires after the last method is run.
-	 *
-	 * @since 2021-12-15
-	 */
-	public static function tearDownAfterClass() : void {
-		parent::tearDownAfterClass();
-	}
-
-	/**
 	 * Counter.
 	 *
 	 * @since 2021-12-15
@@ -89,6 +68,18 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 * @since 2021-12-15
 	 */
 	protected array $temp_links;
+
+	/**
+	 * Fires before the first method is run.
+	 *
+	 * @since 2021-12-15
+	 */
+	public static function setUpBeforeClass() : void {
+		parent::setUpBeforeClass();
+
+		U\Env::set_test_mode( 'phpunit' );
+		U\Env::set_debug_mode( 'phpunit' );
+	}
 
 	/**
 	 * Fires before each method is run.
@@ -120,6 +111,15 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Fires after the last method is run.
+	 *
+	 * @since 2021-12-15
+	 */
+	public static function tearDownAfterClass() : void {
+		parent::tearDownAfterClass();
+	}
+
+	/**
 	 * Assert objects are equal.
 	 *
 	 * @since 2021-12-28
@@ -130,7 +130,7 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 *
 	 * @throws \PHPUnit\Framework\ExpectationFailedException On assertion failure.
 	 *
-	 * @see   U\I7e\Base::to_equals_string() for further details.
+	 * @see   U\A6t\Base::to_equals_string() for further details.
 	 * @see   https://phpunit.readthedocs.io/en/9.5/assertions.html#assertobjectequals
 	 */
 	protected function assertObjEquals( U\I7e\Base $expected, U\I7e\Base $actual, string $message = '' ) : void {
@@ -148,7 +148,7 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 *
 	 * @throws \PHPUnit\Framework\ExpectationFailedException On assertion failure.
 	 *
-	 * @see   U\I7e\Base::to_equals_string() for further details.
+	 * @see   U\A6t\Base::to_equals_string() for further details.
 	 * @see   https://phpunit.readthedocs.io/en/9.5/assertions.html#assertobjectequals
 	 */
 	protected function assertObjNotEquals( U\I7e\Base $expected, U\I7e\Base $actual, string $message = '' ) : void {

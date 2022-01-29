@@ -40,14 +40,10 @@ use Clever_Canyon\{Utilities__Tests as UT};
 // </editor-fold>
 
 /**
- * No direct access.
+ * Class with readonly property.
  *
  * @since 2021-12-15
  */
-if ( ! U\Env::static_var( 'TESTING' ) ) {
-	exit(); // No direct access.
-}
-
 return new class extends U\A6t\Generic {
 	/**
 	 * Public readonly foo property.

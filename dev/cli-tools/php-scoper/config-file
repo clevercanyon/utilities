@@ -57,7 +57,7 @@ require_once D\Dir::join( D\CLI::project_dir(), '/vendor/autoload.php' );
  *
  * @since 2021-12-15
  */
-U\Env::config_debugging_mode();
+U\Env::set_debug_mode();
 
 /**
  * CLI tool instance.

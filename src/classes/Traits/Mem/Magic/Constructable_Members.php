@@ -186,7 +186,7 @@ trait Constructable_Members {
 		} catch ( \Throwable $throwable ) {
 			$this->is_memcached_alive = false;
 
-			if ( U\Env::in_debugging_mode() ) {
+			if ( U\Env::in_debug_mode() ) {
 				throw new U\Fatal_Exception( $throwable->getMessage() );
 			}
 		}

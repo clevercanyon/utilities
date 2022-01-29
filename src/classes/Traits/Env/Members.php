@@ -44,7 +44,6 @@ trait Members {
 	use U\Traits\Env\Utilities\Can_Use_Extension_Members;
 	use U\Traits\Env\Utilities\Can_Use_Function_Members;
 	use U\Traits\Env\Utilities\Charset_Members;
-	use U\Traits\Env\Utilities\Config_Mode_Members;
 	use U\Traits\Env\Utilities\End_Output_Buffering_Members;
 	use U\Traits\Env\Utilities\Hostname_Members;
 	use U\Traits\Env\Utilities\Is_CLI_Members;
@@ -53,6 +52,7 @@ trait Members {
 	use U\Traits\Env\Utilities\Is_OS_Members;
 	use U\Traits\Env\Utilities\Is_WordPress_Members;
 	use U\Traits\Env\Utilities\Maybe_Define_Members;
+	use U\Traits\Env\Utilities\Mode_Members;
 	use U\Traits\Env\Utilities\Raise_Memory_Limit_Members;
 	use U\Traits\Env\Utilities\Set_Time_Limit_Members;
 	use U\Traits\Env\Utilities\Static_Var_Members;
