@@ -44,6 +44,7 @@ use Clever_Canyon\{Utilities as U};
  */
 //use Laravel\SerializableClosure\{SerializableClosure as Serializable_Closure};
 //use Laravel\SerializableClosure\Serializers\{Native as Serialized_Closure};
+use Opis\Closure\SerializableClosure;
 
 // </editor-fold>
 

@@ -21,10 +21,10 @@
 		}
 	},
 	"require"           : {
-		"php-64bit"                    : "^7.4 || ^8.0 || ^8.1",
-		"ext-json"                     : "*",
-		"ext-mbstring"                 : "*",
-		"laravel/serializable-closure" : "^1.0.5"
+		"php-64bit"    : "^7.4 || ^8.0 || ^8.1",
+		"ext-json"     : "*",
+		"ext-mbstring" : "*",
+		"opis/closure" : "^3.0"
 	},
 	"suggest"           : {
 		"ext-zip"             : "*",
