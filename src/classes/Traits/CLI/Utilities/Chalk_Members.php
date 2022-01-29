@@ -128,7 +128,7 @@ trait Chalk_Members {
 		$esc_sequences = [];
 		$res_sequences = [];
 
-		$chalk = (array) ( $chalk ?: 'none' );
+		$chalk = (array) ( $chalk ?: null );
 		$chalk = array_values( $chalk ); // Re-key.
 		assert( array_map( 'strval', $chalk ) === $chalk );
 
@@ -136,7 +136,7 @@ trait Chalk_Members {
 			if ( 'none' === $_chalk ) {
 				continue; // No chalk.
 			}
-			switch ( $_key ) {
+			switch ( true ) {
 				case ( 0 === $_key ):
 					$esc_sequences[] = U\CLI::fg_color_esc_seq( $_chalk );
 					$res_sequences[] = U\CLI::fg_color_esc_seq( 'none' );
