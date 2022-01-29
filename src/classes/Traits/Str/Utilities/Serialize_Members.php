@@ -42,9 +42,8 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-//use Laravel\SerializableClosure\{SerializableClosure as Serializable_Closure};
-//use Laravel\SerializableClosure\Serializers\{Native as Serialized_Closure};
-use Opis\Closure\SerializableClosure;
+use Laravel\SerializableClosure\{SerializableClosure as Serializable_Closure};
+use Laravel\SerializableClosure\Serializers\{Native as Serialized_Closure};
 
 // </editor-fold>
 
@@ -80,6 +79,9 @@ trait Serialize_Members {
 	public static function serialize( /* mixed */ $value, bool $sign = true ) : string {
 		assert( ! is_resource( $value ) ); // Bad practice.
 
+		if ( $value instanceof \Closure ) {
+			$value = new SerializableClosure( $value );
+		}
 		if ( ! $sign ) {
 			return serialize( $value );
 		}
@@ -141,6 +143,7 @@ trait Serialize_Members {
 			'allowed_classes' => [
 				\stdClass::class,
 				U\Generic::class,
+				SerializableClosure::class,
 			],
 		];
 		$value   = @unserialize( $value, $options );
