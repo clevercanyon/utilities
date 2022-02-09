@@ -38,6 +38,30 @@ trait Keygen_Members {
 	/**
 	 * Random key generator.
 	 *
+	 * Full alphabet is 94 bytes, assuming all parameters would be enabled.
+	 * 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`~!@#$%^&*+-=_()[]{}<>|\/?.,;:'"
+	 *
+	 *   94^32 (32 bytes) = 1380674536088650126365233338290905239051505147118049339937652736 possibilities.
+	 *   94^24 (24 bytes) = 226500146052898041878222437726567560344026218496 possibilities.
+	 *   94^12 (12 bytes) = 475920314814253376475136 possibilities.
+	 *   94^8   (8 bytes) = 6095689385410816 possibilities.
+	 *
+	 * Default alphabet given the default parameters is 66 bytes.
+	 * 23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ!@#%^&*+-=_?
+	 *
+	 *   66^32 (32 bytes) = 16803739386732805588924132780810339299166149216244183597056 possibilities.
+	 *   66^24 (24 bytes) = 46671789498503428939167356055479642316865536 possibilities.
+	 *   66^12 (12 bytes) = 6831675453247426400256 possibilities.
+	 *   66^8   (8 bytes) = 360040606269696 possibilities.
+	 *
+	 * URL-safe alphabet given the default parameters is 56 bytes.
+	 * 23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ-_
+	 *
+	 *   56^32 (32 bytes) = 87501775260248338795649138639242377629452267851964481536 possibilities.
+	 *   56^24 (24 bytes) = 904716785818481122446300007835278136836096 possibilities.
+	 *   56^12 (12 bytes) = 951166013805414055936 possibilities.
+	 *   56^8   (8 bytes) = 96717311574016 possibilities.
+	 *
 	 * @since 2021-12-15
 	 *
 	 * @param int  $bytes                   Byte length. Default is `32`.

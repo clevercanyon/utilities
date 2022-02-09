@@ -50,6 +50,7 @@ trait Members {
 	use U\Traits\Fs\Utilities\Path_Wrapper_Properties;
 	use U\Traits\Fs\Utilities\Perms_Members;
 	use U\Traits\Fs\Utilities\Realize_Members;
+	use U\Traits\Fs\Utilities\Stat_Members;
 	use U\Traits\Fs\Utilities\Type_Members;
 	use U\Traits\Fs\Utilities\Wrapper_Members;
 	use U\Traits\Fs\Utilities\Zip_Members;

@@ -83,7 +83,7 @@ trait INS_Cache_Members {
 		assert( ! is_resource( $key_parts ) );
 		assert( ! $key_parts instanceof \Closure );
 
-		$key = sha1( U\Str::serialize( $key_parts, false ) );
+		$key = U\Crypto::sha1_key( $key_parts );
 
 		if ( U\Func::PARAM_DEFAULT_NULL !== $value ) {
 			if ( null === $value ) {

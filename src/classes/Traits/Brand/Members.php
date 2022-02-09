@@ -40,5 +40,6 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Brand\Utilities\Name_Slug_Var_Members;
+	use U\Traits\Brand\Utilities\N7M_Members;
+	use U\Traits\Brand\Utilities\Formatting_Members;
 }

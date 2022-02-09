@@ -55,19 +55,19 @@ final class Dev extends U\A6t\Stc_Utilities {
 		/* string|null */ ?string $namespace = null,
 		bool $extract_namespace = true
 	) : object {
-		$dir  ??= U\Env::var( 'HOME' );
-		$dir  = U\Fs::normalize( $dir );
+		if ( null !== $dir ) {
+			$dir = U\Fs::normalize( $dir );
+		} else {
+			$dir = U\Env::var( 'HOME' );
+		}
+		$cache_key_parts = [ __FUNCTION__, $dir, $namespace, $extract_namespace ];
+		$cache           = &static::cls_cache( $cache_key_parts );
+
+		if ( null !== $cache ) {
+			return $cache; // Saves time.
+		}
 		$file = U\Dir::join( $dir, '/.dev.json' );
 
-		if ( // A few cache keys here.
-			null !== ( $cache = &static::cls_cache( [
-				__FUNCTION__,
-				$dir,
-				$namespace,
-				$extract_namespace,
-			] ) ) ) {
-			return $cache;
-		}
 		if ( ! $dir || ! $file ) {
 			throw new U\Fatal_Exception( 'Missing dir: `' . $dir . '` or file: `' . $file . '`.' );
 		}
@@ -77,7 +77,7 @@ final class Dev extends U\A6t\Stc_Utilities {
 		if ( ! is_readable( $file ) ) {
 			throw new U\Fatal_Exception( 'Unable to read file: `' . $file . '`.' );
 		}
-		if ( ! is_object( $json = U\Str::json_decode( file_get_contents( $file ) ) ) ) {
+		if ( ! is_object( $json = U\Str::json_decode( U\File::read( $file, false ) ) ) ) {
 			throw new U\Fatal_Exception( 'Unable to decode file: `' . $file . '`.' );
 		}
 		if ( $namespace ) {

@@ -279,7 +279,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			throw new U\Exception( 'Missing readable file: `' . $dotfiles_file . '`.' );
 		}
 		$dotfiles_iterator = U\Dir::iterator( $dotfiles_dir );
-		$dotfiles_json     = U\Str::json_decode( file_get_contents( $dotfiles_file ) );
+		$dotfiles_json     = U\Str::json_decode( U\File::read( $dotfiles_file, false ) );
 
 		if ( ! is_object( $dotfiles_json ) || ! is_array( $dotfiles_json->manifest ?? null ) ) {
 			throw new U\Exception( 'Failed to parse `manifest` in `' . $dotfiles_json . '`.' );
@@ -306,8 +306,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 					if ( is_file( $_to_path ) ) {
 						// Parse JSON objects.
 
-						$_from_path_json = U\Str::json_decode( file_get_contents( $_from_path ) );
-						$_to_path_json   = U\Str::json_decode( file_get_contents( $_to_path ) );
+						$_from_path_json = U\Str::json_decode( U\File::read( $_from_path, false ) );
+						$_to_path_json   = U\Str::json_decode( U\File::read( $_to_path, false ) );
 
 						// Validate `$_from_path_json`.
 
@@ -355,7 +355,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 						$_to_path_json->devDependencies      = U\Obj::sort_by( 'prop', $_to_path_json->devDependencies );
 						$_to_path_json->config->clevercanyon = U\Bundle::merge( $_to_path_json->config->clevercanyon, $_from_path_json->config->clevercanyon );
 
-						if ( false === file_put_contents( $_to_path, U\Str::json_encode( $_to_path_json, true ) ) ) {
+						if ( ! U\File::write( $_to_path, U\Str::json_encode( $_to_path_json, true ), false ) ) {
 							throw new U\Exception( 'Failed to update `devDependencies` in: `' . $_to_path . '`.' );
 						}
 						U\CLI::log( '[' . __FUNCTION__ . '()]: Updated: `' . $_to_path . '`.' );
@@ -465,16 +465,16 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		// PHP Scoper ignores files based on Finders in the `.scoper.cfg.php` file.
 		// We're not using that functionality, though, as we have already pruned the directory.
 
-		if ( 'clevercanyon/php-js-utilities' === $this->project->pkg_name ) {
+		if ( 'clevercanyon/utilities' === $this->project->pkg_name ) {
 			$scoper_bin_script = U\Dir::join( $this->project->dir, '/dev/cli-tools/php-scoper/scoper' );
 		} else {
-			$scoper_bin_script = U\Dir::join( $this->project->dir, '/vendor/clevercanyon/php-js-utilities/dev/cli-tools/php-scoper/scoper' );
+			$scoper_bin_script = U\Dir::join( $this->project->dir, '/vendor/clevercanyon/utilities/dev/cli-tools/php-scoper/scoper' );
 		}
 		U\CLI::run( [
 			[ $scoper_bin_script, 'scope' ],
 			[ '--project-dir', $this->project->dir ],
 			[ '--work-dir', $comp_dir ],
-			[ '--prefix', $this->project->pkg_namespace_scope ],
+			[ '--prefix', $this->project->namespace_scope ],
 			[ '--output-dir', $distro_dir ],
 			[ '--output-project-dir', $distro_dir ],
 		] );

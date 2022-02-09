@@ -43,6 +43,11 @@ trait Is_WordPress_Members {
 	 * @return bool True if WordPress.
 	 */
 	public static function is_wordpress() : bool {
-		return defined( 'WPINC' );
+		static $is; // Memoize.
+
+		if ( null !== $is ) {
+			return $is; // Saves time.
+		}
+		return $is = defined( 'WPINC' );
 	}
 }

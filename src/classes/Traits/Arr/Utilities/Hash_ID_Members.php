@@ -45,7 +45,7 @@ trait Hash_ID_Members {
 	 * @return string The array's hash ID. 40 bytes in length.
 	 */
 	public static function hash_id( array $arr ) : string {
-		return sha1( U\Str::serialize( U\Arr::hash_id_helper( $arr ), false ) );
+		return U\Crypto::sha1_key( U\Arr::hash_id_helper( $arr ) );
 	}
 
 	/**

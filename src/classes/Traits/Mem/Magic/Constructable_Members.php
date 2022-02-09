@@ -70,12 +70,13 @@ trait Constructable_Members {
 	 *                                   When there is a replica and a server goes offline temporarily, the replica will kick-in as a backup.
 	 *
 	 * @throws U\Fatal_Exception If missing `memcached` extension (not loaded).
-	 * @throws U\Fatal_Exception If unable to establish `connection_id`, `namespace`, and/or `servers`.
+	 * @throws U\Fatal_Exception If unable to establish properties: `connection_id`, `namespace`, or `servers`.
 	 * @throws U\Fatal_Exception If there's a server passed in that's missing required element: `host`.
 	 * @throws U\Fatal_Exception On any server configuration failures (in debugging mode).
 	 *
 	 * @see          https://o5p.me/xXgmzk
 	 * @see          https://code.launchpad.net/libmemcached
+	 * @see          https://ilia.ws/files/tnphp_memcached.pdf
 	 * @see          https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz
 	 *
 	 * @noinspection PhpMultipleClassDeclarationsInspection
@@ -93,73 +94,67 @@ trait Constructable_Members {
 		}
 		// Configure a few variables.
 
-		$org_brand_slug     = U\Brand::get( '&', 'slug' );
 		$connection_id_salt = $connection_id_salt ?: U\Env::static_var( 'MEMCACHED_CONNECTION_ID_SALT' ) ?: '';
 		$namespace_salt     = $namespace_salt ?: U\Env::static_var( 'MEMCACHED_NAMESPACE_SALT' ) ?: '';
 		$servers            = $servers ?: U\Env::static_var( 'MEMCACHED_SERVERS' )
 			?: [ [ 'host' => '127.0.0.1', 'port' => 11211, 'weight' => 0 ] ];
 
 		/**
-		 * A possibly-persistent connection ID is a hash of (6) considerations:
+		 * A possibly-persistent connection ID is a 32-byte {@see U\Crypto::x_sha()} of (6) considerations:
 		 *
 		 *   1. Current system's hostname so there are unique connection IDs when running a server cluster.
-		 *      Assuming each server in a cluster has a different hostname; which is a recommended best practice.
+		 *      Assuming each server in a cluster has a different hostname, which is a recommended best practice.
 		 *
-		 *   2. CLEVER CANYON's brand slug via {@see U\Brand::get()}, which identifies this library.
+		 *   2. The current server API; i.e., {@see U\Env::server_api()} to ensure dynamic adjustments can be made to
+		 *      connection settings depending on the server API vs. inadvertently reusing one from a different server API.
 		 *
-		 *   3. Connection ID version, which is subject to change when there are substantive code modifications.
-		 *      Taken from {@see U\Mem::$connection_id_version}. Please update when there are substantive code changes.
+		 *   3. CLEVER CANYON's namespace crux via {@see U\Pkg::namespace_crux()}; identifying this library.
+		 *   4. CLEVER CANYON's data context based on {@see U\Pkg::data_context()}; e.g., `wps`, `web`, `uid`, etc.
 		 *
-		 *   4. A `$connection_id_salt` passed to constructor; else static env variable `MEMCACHED_CONNECTION_ID_SALT`.
+		 *   5. A `$connection_id_salt` passed to constructor; else static env variable `MEMCACHED_CONNECTION_ID_SALT`.
 		 *      This allows new instances of this class to be given very different connection IDs if desirable.
 		 *
-		 *   5. The current server API; i.e., {@see PHP_SAPI}. This is to ensure there can be dynamic adjustments made to
-		 *      connection settings depending on the server API vs. inadvertently reusing an existing persistent connection ID.
+		 *   6. Connection ID version, which is subject to change when there are substantive code modifications.
+		 *      Taken from {@see U\Mem::$connection_id_version}. Please update when there are substantive code changes.
 		 *
-		 *   6. Finally, a *context* based on the current protocol|{@see PHP_SAPI} (e.g., HTTP, CLI, etc):
-		 *     - For HTTP requests, all applications under `DOCUMENT_ROOT` using this class will share the same connection ID.
-		 *     - For CLI (command-line) requests, all applications conducted by the same `USER` will share the same connection ID.
-		 *     - If `DOCUMENT_ROOT` and/or `USER` are unavailable, all applications using this `__FILE__` will share the same connection.
+		 * NOTE: If any of this changes, please update {@see U\Mem::cache()} also.
 		 */
-		$this->connection_id = U\Env::hostname();
-		$this->connection_id .= '\\' . $org_brand_slug;
-		$this->connection_id .= '\\v' . U\Mem::$connection_id_version;
-		$this->connection_id .= PHP_SAPI; // {@see https://o5p.me/hLU7Pj}.
-
-		if ( U\Env::is_http() && ( $_doc_root = U\Env::var( 'DOCUMENT_ROOT' ) ) ) {
-			$this->connection_id .= '\\' . $_doc_root;
-		} elseif ( U\Env::is_cli() && ( $_user = U\Env::var( 'USER' ) ) ) {
-			$this->connection_id .= '\\' . mb_strtolower( $_user );
-		} else {
-			$this->connection_id .= '\\' . U\Fs::normalize( __FILE__ );
-		}
+		$this->connection_id = U\Env::sys_name();
+		$this->connection_id .= '\\' . U\Env::server_api();
+		$this->connection_id .= '\\' . U\Pkg::namespace_crux();
+		$this->connection_id .= '\\' . U\Pkg::data_context();
 		$this->connection_id .= '\\' . $connection_id_salt;
-		$this->connection_id = U\Crypto::x_sha( $this->connection_id );
+		$this->connection_id .= '\\' . U\Mem::$connection_id_version;
+		$this->connection_id = U\Crypto::x_sha( $this->connection_id, 32 );
 
 		/**
-		 * A namespace is a hash of just (2) considerations:
+		 * A namespace is a 32-byte {@see U\Crypto::x_sha()} of (3) considerations:
 		 *
-		 *   1. CLEVER CANYON's brand slug via {@see U\Brand::get()}, which identifies this library.
+		 *   1. CLEVER CANYON's namespace crux via {@see U\Pkg::namespace_crux()}; identifying this library.
+		 *   2. CLEVER CANYON's data context based on {@see U\Pkg::data_context()}; e.g., `wps`, `web`, `uid`, etc.
 		 *
-		 *   2. A `$namespace_salt` passed to constructor; else static env variable `MEMCACHED_NAMESPACE_SALT`.
+		 *   3. A `$namespace_salt` passed to constructor; else static env variable `MEMCACHED_NAMESPACE_SALT`.
 		 *      This allows new instances of this class to be given very different namespaces if desirable.
 		 *
 		 * The namespace defined here is intentionally, by default, very broad in scope.
 		 * The rationale is to make it easy for consumers of this class to narrow scope on their own;
 		 * vs. fighting with a set of defaults when trying to widen the scope, which is often desirable.
 		 * A recommendation is to think less about the namespace and more about primary cache keys.
+		 *
+		 * NOTE: If any of this changes, please update {@see U\Mem::cache()} also.
 		 */
-		$this->namespace = $org_brand_slug;
+		$this->namespace = U\Pkg::namespace_crux();
+		$this->namespace .= '\\' . U\Pkg::data_context();
 		$this->namespace .= '\\' . $namespace_salt;
-		$this->namespace = U\Crypto::x_sha( $this->namespace );
+		$this->namespace = U\Crypto::x_sha( $this->namespace, 32 );
 
 		// Establish a pool of Memcached servers.
 
 		$this->servers = []; // Initialize pool of servers.
 
 		foreach ( $servers as $_key => $_server ) {
-			if ( ! is_array( $_server ) || ! is_string( $_server[ 'host' ] ?? null ) ) {
-				throw new U\Fatal_Exception( 'Invalid Memcached server; in key: `' . $_key . '`.' );
+			if ( ! is_array( $_server ) || empty( $_server[ 'host' ] ) || ! is_string( $_server[ 'host' ] ) ) {
+				throw new U\Fatal_Exception( 'Invalid Memcached server. Missing `host` in key: `' . $_key . '`.' );
 			}
 			$_host   = $_server[ 'host' ];
 			$_port   = (int) ( $_server[ 'port' ] ?? 11211 );

@@ -40,12 +40,21 @@ trait Ext_Members {
 	 *
 	 * @since 2021-12-26
 	 *
-	 * @param string $file File path.
+	 * @param string $file      File path.
+	 * @param bool   $lowercase Force lowercase? Default is `false`.
 	 *
-	 * @return string File extension, else empty string.
+	 * @return string File extension; else empty string.
+	 *
+	 *                * Keep in mind that {@see basename()} requires argument two (file extension)
+	 *                  to match the original caSe. Failing to match caSe leads to unexpected outcomes.
 	 */
-	public static function ext( string $file ) : string {
-		return mb_strtolower( mb_substr( mb_strrchr( $file, '.' ) ?: '', 1 ) );
+	public static function ext( string $file, bool $lowercase = false ) : string {
+		$ext = mb_substr( mb_strrchr( $file, '.' ) ?: '', 1 );
+
+		if ( '' !== $ext && $lowercase ) {
+			$ext = mb_strtolower( $ext );
+		}
+		return $ext; // e.g., `md`, `txt`, `php`, etc.
 	}
 
 	/**
@@ -61,7 +70,7 @@ trait Ext_Members {
 	 */
 	public static function ext_type( string $file, string $default = 'File' ) : string {
 		$ext_type = $default;
-		$ext      = U\File::ext( $file );
+		$ext      = U\File::ext( $file, true );
 
 		foreach ( U\File::$mime_types as $_ext_type => $_mime_types ) {
 			foreach ( $_mime_types as $_exts => $_mime_type ) {

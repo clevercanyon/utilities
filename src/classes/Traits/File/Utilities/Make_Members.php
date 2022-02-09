@@ -40,21 +40,22 @@ trait Make_Members {
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string $file        File path to make.
+	 * @param string              $file        File path to make.
 	 *
-	 * @param array  $perms       Permissions. Default is `[ 0700, 0600 ]`.
-	 *                            Key `0` is for any directories, key `1` for the file.
+	 * @param array|int[]|array[] $perms       Permissions. Default is `[ [ 0700, 0700 ], 0600 ]`.
+	 *                                         Key `0` is for any directories, key `1` for the file.
+	 *                                         {@see U\Dir::make()} for directory permission details.
 	 *
-	 * @param bool   $recursively Make directories recursively? Default is `true`.
+	 * @param bool                $recursively Make directories recursively? Default is `true`.
 	 *
 	 * @return bool True if all directories and file made successfully.
 	 */
-	public static function make( string $file, array $perms = [ 0700, 0600 ], bool $recursively = true ) : bool {
-		$dir   = U\Dir::name( $file );
-		$perms = array_map( 'intval', $perms );
+	public static function make( string $file, array $perms = [ [ 0700, 0700 ], 0600 ], bool $recursively = true ) : bool {
+		$dir = U\Dir::name( $file );
 
-		$perms[ 0 ] ??= 0700; // Directory permissions.
-		$perms[ 1 ] ??= 0600; // File permissions.
+		$perms[ 0 ] ??= [ 0700, 0700 ]; // Directory permissions.
+		$perms[ 1 ] ??= 0600;           // File permissions.
+		assert( is_array( $perms[ 0 ] ) && is_int( $perms[ 1 ] ) );
 
 		return '' !== $dir
 			&& '' !== $file
@@ -70,21 +71,22 @@ trait Make_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $ext         File extension. Default is ``.
+	 * @param string              $ext         File extension. Default is ``.
 	 *
-	 * @param string $dir         Directory to make file in.
-	 *                            Defaults to {@see U\Dir::sys_temp()}.
+	 * @param string              $dir         Directory to make file in.
+	 *                                         Defaults to {@see U\Dir::sys_temp()}.
 	 *
-	 * @param array  $perms       Permissions. Default is `[ 0700, 0600 ]`.
-	 *                            Key `0` is for any directories, key `1` for the file.
+	 * @param array|int[]|array[] $perms       Permissions. Default is `[ [ 0700, 0700 ], 0600 ]`.
+	 *                                         Key `0` is for any directories, key `1` for the file.
+	 *                                         {@see U\Dir::make()} for directory permission details.
 	 *
-	 * @param bool   $recursively Make directories recursively? Default is `true`.
+	 * @param bool                $recursively Make directories recursively? Default is `true`.
 	 *
 	 * @return string Absolute path to temporary file.
 	 *
 	 * @throws U\Fatal_Exception  On any failure.
 	 */
-	public static function make_temp( string $ext = '', string $dir = '', array $perms = [ 0700, 0600 ], bool $recursively = true ) : string {
+	public static function make_temp( string $ext = '', string $dir = '', array $perms = [ [ 0700, 0700 ], 0600 ], bool $recursively = true ) : string {
 		$file = U\File::make_unique_path( $ext, $dir );
 
 		if ( ! U\File::make( $file, $perms, $recursively ) ) {

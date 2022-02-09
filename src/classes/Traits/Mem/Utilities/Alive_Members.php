@@ -60,7 +60,7 @@ trait Alive_Members {
 		}
 		try { // If any issues, catch & flag as not alive.
 
-			$set_response = $this->set( sha1( __METHOD__ ), 'alive', true );
+			$set_response = $this->set( U\Crypto::sha1_key( __METHOD__ ), 'alive', true );
 			return $this->is_memcached_alive = $set_response;
 
 		} catch ( \Throwable $throwable ) {

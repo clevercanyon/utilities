@@ -60,6 +60,15 @@ final class Composer extends U\A6t\Stc_Utilities {
 	public const PACKAGE_NAME_REGEXP = '/^([a-z0-9](?:[_.-]?[a-z0-9]+)*)\/([a-z0-9](?:(?:[_.]?|-{0,2})[a-z0-9]+)*)$/u';
 
 	/**
+	 * Composer package hash regexp.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @see   U\Crypto::x_sha()
+	 */
+	public const PACKAGE_NAME_HASH_REGEXP = '/^x[0-9a-f]{15}$/u';
+
+	/**
 	 * Parses a `composer.json` file.
 	 *
 	 * @since 2021-12-15
@@ -91,8 +100,7 @@ final class Composer extends U\A6t\Stc_Utilities {
 		$is_recursive = isset( $_r );
 		$_r           ??= (object) [];
 
-		$dir  = U\Fs::normalize( $dir );
-		$file = U\Dir::join( $dir, '/composer.json' );
+		$dir = U\Fs::normalize( $dir );
 
 		if ( ! $is_recursive ) {
 			$_r->dir = $dir; // Top-level project dir.
@@ -100,17 +108,16 @@ final class Composer extends U\A6t\Stc_Utilities {
 		// Checks static CLS cache.
 
 		if ( ! $is_recursive ) {
-			if ( // A few cache keys here.
-				null !== ( $cache = &static::cls_cache( [
-					__FUNCTION__,
-					$dir,
-					$extra_namespace,
-					$extract_extra_namespace,
-				] ) ) ) {
-				return $cache;
+			$cache_key_parts = [ __FUNCTION__, $dir, $extra_namespace, $extract_extra_namespace ];
+			$cache           = &static::cls_cache( $cache_key_parts );
+
+			if ( null !== $cache ) {
+				return $cache; // Saves time.
 			}
 		}
 		// Validate, setup, early returns.
+
+		$file = U\Dir::join( $dir, '/composer.json' );
 
 		if ( ! $dir || ! $file ) {
 			throw new U\Fatal_Exception( 'Missing dir: `' . $dir . '` or file: `' . $file . '`.' );
@@ -121,7 +128,7 @@ final class Composer extends U\A6t\Stc_Utilities {
 		if ( ! is_readable( $file ) ) {
 			throw new U\Fatal_Exception( 'Unable to read file: `' . $file . '`.' );
 		}
-		if ( ! is_object( $json = U\Str::json_decode( file_get_contents( $file ) ) ) ) {
+		if ( ! is_object( $json = U\Str::json_decode( U\File::read( $file, false ) ) ) ) {
 			throw new U\Fatal_Exception( 'Unable to decode file: `' . $file . '`.' );
 		}
 		if ( ! is_object( $json->extra ?? null ) ) {
@@ -130,7 +137,7 @@ final class Composer extends U\A6t\Stc_Utilities {
 		if ( $extra_namespace && ! is_object( $json->extra->{$extra_namespace} ?? null ) ) {
 			$json->extra->{$extra_namespace} = (object) [];
 		}
-		// Maybe handles `$extends-packages` directive(s) recursively.
+		// Maybe handle `$extends-packages` directive(s) recursively.
 
 		if ( $extra_namespace && property_exists( $json->extra->{$extra_namespace}, '$extends-packages' ) ) {
 			// Validate `$extends-packages` directive.

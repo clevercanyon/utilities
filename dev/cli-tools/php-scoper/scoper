@@ -53,7 +53,7 @@ require_once dirname( __FILE__, 3 ) . '/utilities/load.php';
 require_once D\Dir::join( D\CLI::project_dir(), '/vendor/autoload.php' );
 
 /**
- * Enables debugging mode.
+ * Sets debug mode.
  *
  * @since 2021-12-15
  */

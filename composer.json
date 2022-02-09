@@ -1,6 +1,6 @@
 {
 	"license"           : "GPL-2.0-or-later",
-	"name"              : "clevercanyon/php-js-utilities",
+	"name"              : "clevercanyon/utilities",
 	"description"       : "CLEVER CANYON’s utilities for PHP/JS applications.",
 	"authors"           : [
 		{
@@ -22,13 +22,16 @@
 	},
 	"require"           : {
 		"php-64bit"    : "^7.4 || ^8.0 || ^8.1",
-		"ext-json"     : "*",
-		"ext-mbstring" : "*"
+		"ext-mbstring" : "*",
+		"ext-json"     : "*"
 	},
 	"suggest"           : {
-		"ext-zip"             : "*",
+		"ext-fileinfo"        : "*",
 		"ext-intl"            : "*",
 		"ext-memcached"       : "*",
+		"ext-posix"           : "*",
+		"ext-session"         : "*",
+		"ext-zip"             : "*",
 		"ulrichsg/getopt-php" : "^4.0"
 	},
 	"autoload"          : {
@@ -38,7 +41,7 @@
 		"files" : [ "./src/functions/load.php" ]
 	},
 	"require-dev"       : {
-		"clevercanyon/php-js-utilities-dev" : "dev-main"
+		"clevercanyon/utilities-dev" : "dev-main"
 	},
 	"autoload-dev"      : {
 		"psr-4" : {
@@ -55,24 +58,23 @@
 	"extra"             : {
 		"clevercanyon" : {
 			"&" : {
-				"project"                 : {
-					"data" : {
-						"version"    : "1.0.0",
-						"stable_tag" : "1.0.0",
-						"layout"     : "distro-lib",
-						"name"       : "CLEVER CANYON: PHP/JS Utilities"
-					}
-				},
 				"brand"                   : {
 					"data" : {
-						"name" : "CLEVER CANYON",
-						"slug" : "clevercanyon"
+						"n7m" : "c10n"
 					},
 					"aws"  : {
 						"s3" : {
 							"bucket"     : "clevercanyon",
 							"cdn_domain" : "cdn.clevercanyon.com"
 						}
+					}
+				},
+				"project"                 : {
+					"data" : {
+						"version"    : "1.0.0",
+						"stable_tag" : "1.0.0",
+						"layout"     : "distro-lib",
+						"name"       : "CLEVER CANYON: PHP/JS Utilities"
 					}
 				},
 				"php_scoper"              : {
@@ -85,13 +87,13 @@
 				"post_update_cmd_handler" : {
 					"symlink_local_packages" : {
 						"vendor"       : [
-							"clevercanyon/php-js-standards",
-							"clevercanyon/php-js-utilities",
-							"clevercanyon/php-js-utilities-dev",
-							"clevercanyon/php-js-utilities-dev-npm"
+							"clevercanyon/standards",
+							"clevercanyon/utilities",
+							"clevercanyon/utilities-dev",
+							"clevercanyon/utilities-dev-npm"
 						],
 						"node_modules" : [
-							"@clevercanyon/php-js-utilities-dev-npm"
+							"@clevercanyon/utilities-dev-npm"
 						]
 					}
 				}

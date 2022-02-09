@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Bundle\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
 
 /**
  * Utilities.
@@ -32,27 +32,33 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\Bundle
+ * @see   U\Str
  */
-trait Hash_Members {
+trait Base64_Members {
 	/**
-	 * Gets a bundle's hash.
+	 * Produces a URL-safe base-64 encoded string.
 	 *
-	 * @since 2022-01-15
+	 * @since 2022-02-02
 	 *
-	 * @param object|array $bundle Bundle to hash.
+	 * @param string $str String to encode.
 	 *
-	 *                     * PHP does not allow a {@see \Closure} to be serialized whatsoever.
-	 *                       Do not pass values containing a closure; either directly or indirectly.
-	 *
-	 *                     * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
-	 *                       Do not pass resource values, either directly or indirectly.
-	 *                       Future versions of PHP will likely disallow altogether.
-	 *
-	 * @return string The bundle's hash. 40 bytes in length.
+	 * @return string URL-safe base-64 encoded string.
 	 */
-	public static function hash( /* object|array */ $bundle ) : string {
-		assert( U\Bundle::is( $bundle ) );
-		return sha1( U\Str::serialize( $bundle, false ) );
+	public static function base64_encode( string $str ) : string {
+		return str_replace( [ '+', '/', '=' ], [ '-', '_', '' ], base64_encode( $str ) );
+	}
+
+	/**
+	 * Decodes a URL-safe base-64 encoded string.
+	 *
+	 * @since 2022-02-02
+	 *
+	 * @param string $str String to decode.
+	 *
+	 * @return string|null Decoded string; else `null` on failure.
+	 */
+	public static function base64_decode( string $str ) : ?string {
+		$decoded = base64_decode( str_replace( [ '-', '_' ], [ '+', '/' ], $str ) );
+		return false === $decoded ? null : $decoded;
 	}
 }

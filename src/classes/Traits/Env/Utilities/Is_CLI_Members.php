@@ -43,18 +43,28 @@ trait Is_CLI_Members {
 	 * @return bool True if CLI.
 	 */
 	public static function is_cli() : bool {
-		return 'cli' === PHP_SAPI;
+		static $is; // Memoize.
+
+		if ( null !== $is ) {
+			return $is; // Saves time.
+		}
+		return $is = 'cli' === U\Env::server_api();
 	}
 
 	/**
-	 * Is CLI w/ 250-color support?
+	 * Is CLI w/ 256-color support?
 	 *
 	 * @since 2021-12-18
 	 *
-	 * @return bool True if CLI w/ 250-color support.
+	 * @return bool True if CLI w/ 256-color support.
 	 */
 	public static function is_cli_256c() : bool {
-		return 'cli' === PHP_SAPI
-			&& false !== mb_strpos( U\Env::var( 'TERM' ), '256color' );
+		static $is; // Memoize.
+
+		if ( null !== $is ) {
+			return $is; // Saves time.
+		}
+		return $is = U\Env::is_cli()
+			&& preg_match( '/256[_\-]?color/ui', U\Env::var( 'TERM' ) );
 	}
 }

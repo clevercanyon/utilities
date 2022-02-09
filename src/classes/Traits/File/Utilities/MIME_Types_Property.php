@@ -43,9 +43,9 @@ trait MIME_Types_Property {
 	 * in web design, and by the programming languages typically used in web design.
 	 *   ... Plus a few other things.
 	 *
-	 * Level 1 array keys are MIME type descriptions.
-	 * Level 2 array keys are pipe-delimited extensions.
-	 * Level 2 array values are MIME types.
+	 * Level 1 array keys are MIME ext. type titles; {@see U\File::ext_type()}.
+	 * Level 2 array keys are pipe-delimited extensions; {@see U\File::ext()}.
+	 * Level 2 array values are MIME types; {@see U\File::mime_type()}, {@see U\File::content_type()}.
 	 *
 	 * @since 2021-12-15
 	 *

@@ -41,16 +41,24 @@ trait Realize_Members {
 	 * This expands/resolves everything, and it is filesystem-aware.
 	 * All symbolic links are resolved; {@see realpath()}.
 	 *
-	 * @since 2022-01-15
+	 * @since        2022-01-15
 	 *
 	 * @param string $path Path to parse.
 	 *
 	 * @return string Realized (symlinks resolved) canonical path normalized.
 	 *                This returns an empty string on failure to realize.
 	 *
-	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::realize()
+	 * @see          \Clever_Canyon\Utilities\Dev\Utilities\Fs::realize()
 	 */
 	public static function realize( string $path ) : string {
-		return false !== ( $rp = realpath( $path ) ) ? U\Fs::normalize( $rp ) : '';
+		if ( '' !== $path ) {
+			$real_path = @realpath( $path ); // phpcs:ignore.
+		} else {
+			$real_path = false;
+		}
+		if ( false !== $real_path && '' !== $real_path ) {
+			return U\Fs::normalize( $real_path );
+		}
+		return ''; // Failure.
 	}
 }

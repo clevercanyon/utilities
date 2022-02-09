@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Time\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\Stream\Utilities;
 
 /**
  * Utilities.
@@ -28,12 +28,30 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\Time
+ * @see   U\I7e\Stream
  */
-trait Foo_Members {
-	// @todo Add utilities.
+trait Read_Members {
+	/**
+	 * Reads from stream.
+	 *
+	 * @param int $bytes Bytes.
+	 *
+	 * @return string|false Data; else `false` on failure.
+	 *
+	 * @see https://www.php.net/manual/en/streamwrapper.stream-read.php
+	 */
+	public function stream_read( int $bytes ) /* : string|false */ {
+		if ( $this->stream_eof() ) {
+			return ''; // End of stream.
+		}
+		$bytes    = max( 0, $bytes );
+		$rtn_data = substr( $this->content, $this->byte_pos, $bytes );
+
+		$this->byte_pos += false === $rtn_data ? 0 : strlen( $rtn_data );
+		return $rtn_data; // Possibly `false`.
+	}
 }

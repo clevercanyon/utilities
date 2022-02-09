@@ -87,17 +87,25 @@ final class Fs {
 	 * This expands/resolves everything, and it is filesystem-aware.
 	 * All symbolic links are resolved; {@see realpath()}.
 	 *
-	 * @since 2022-01-15
+	 * @since        2022-01-15
 	 *
 	 * @param string $path Path to parse.
 	 *
 	 * @return string Realized (symlinks resolved) canonical path normalized.
 	 *                This returns an empty string on failure to realize.
 	 *
-	 * @see   \Clever_Canyon\Utilities\Fs::realize()
+	 * @see          \Clever_Canyon\Utilities\Fs::realize()
 	 */
 	public static function realize( string $path ) : string {
-		return false !== ( $rp = realpath( $path ) ) ? D\Fs::normalize( $rp ) : '';
+		if ( '' !== $path ) {
+			$real_path = @realpath( $path ); // phpcs:ignore.
+		} else {
+			$real_path = false;
+		}
+		if ( false !== $real_path && '' !== $real_path ) {
+			return D\Fs::normalize( $real_path );
+		}
+		return ''; // Failure.
 	}
 
 	/**
@@ -105,6 +113,7 @@ final class Fs {
 	 *
 	 * This function takes a number of internal directives that have an impact on behavior.
 	 * However, none of the directives are part of a public API. Other utilities are available.
+	 * Please *do not* use any of the directives unless you're working on the internals of this library.
 	 *
 	 * This function is not URL scheme-safe. That's another set of concerns.
 	 * While this function is scheme-agnostic, using it with (e.g., `http://`, `data://`) is not recommended.
@@ -163,7 +172,7 @@ final class Fs {
 		$path = preg_replace( '/\/+/u', '/', $path );
 
 		// Maybe resolve relative filesystem path to absolute path, by directive.
-		// Only if no `$wrappers`, or when `file://`, `//`, `[a-z]:` is `$last_wrapper`.
+		// Only if no `$wrappers`, or when `//`, `[a-z]:`, or `file://` is `$last_wrapper`.
 		// For Windows, please carefully review {@see https://o5p.me/z52z8j} for further details.
 
 		if ( ! empty( $_d[ 'resolve:relative-path' ] ) && '' !== $path && '/' !== $path[ 0 ] ) {
@@ -207,7 +216,7 @@ final class Fs {
 				$_no_wrappers_to_no_cwd_wrappers               // Don't need to worry about wrappers.
 				|| $_last_wrapper_to_matching_cwd_wrappers     // Use the already-compatible `$last_wrapper`.
 				|| $_last_wrapper_file_to_no_cwd_wrappers      // Use the already-compatible `$last_wrapper`.
-				|| $_last_wrapper_file_to_wdl_cwd_wrappers  // Use `$last_wrapper` + CWD inner wrapper.
+				|| $_last_wrapper_file_to_wdl_cwd_wrappers     // Use `$last_wrapper` + CWD inner wrapper.
 				|| $_no_wrappers_to_compat_cwd_wrappers;       // Use `$cwd_wrappers` and renormalize.
 
 			if ( ! $_have_compatible_cwd_path_parts || ! $_have_compatible_wrappers_to_cwd_wrappers ) {

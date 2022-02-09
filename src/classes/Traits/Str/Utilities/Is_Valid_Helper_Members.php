@@ -76,7 +76,7 @@ trait Is_Valid_Helper_Members {
 			return false;
 		}
 		if ( '' !== $prefix ) {
-			$unprefixed_str       = preg_replace( '/^' . U\Str::esc_reg( $prefix ) . '/u', '', $str );
+			$unprefixed_str       = mb_substr( $str, mb_strlen( $prefix ) );
 			$unprefixed_str_chars = mb_strlen( $unprefixed_str );
 
 			if ( $unprefixed_str === $str ) {
@@ -90,7 +90,7 @@ trait Is_Valid_Helper_Members {
 			}
 		}
 		if ( '' !== $suffix ) {
-			$unsuffixed_str       = preg_replace( '/' . U\Str::esc_reg( $suffix ) . '$/u', '', $str );
+			$unsuffixed_str       = mb_substr( $str, 0, -mb_strlen( $suffix ) );
 			$unsuffixed_str_chars = mb_strlen( $unsuffixed_str );
 
 			if ( $unsuffixed_str === $str ) {

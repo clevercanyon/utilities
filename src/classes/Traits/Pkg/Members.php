@@ -40,5 +40,7 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Pkg\Utilities\Namespace_Scope_Members;
+	use U\Traits\Pkg\Utilities\Context_Members;
+	use U\Traits\Pkg\Utilities\Namespace_Members;
+	use U\Traits\Pkg\Utilities\Formatting_Members;
 }

@@ -46,21 +46,23 @@ trait Make_Members {
 	 * @param string $target_path Link target path.
 	 * @param string $link_path   Link path (symbolic).
 	 *
-	 * @param array  $perms       Permissions. Default is `[ 0700, 0600 ]`.
+	 * @param array  $perms       Permissions. Default is `[ [ 0700, 0700 ], 0600 ]`.
 	 *                            Key `0` is for any directories, key `1` for the link.
-	 *                            Permissions for the link are not applicable at this time.
+	 *                            {@see U\Dir::make()} for directory permission details.
+	 *
+	 *                            * Permissions for the link are not applicable at this time.
+	 *                              However, please continue to pass, as it might be possible in the future.
 	 *
 	 * @param bool   $recursively Make directories recursively? Default is `true`.
 	 *
 	 * @return bool True if link created successfully.
 	 */
-	public static function make_link( string $target_path, string $link_path, array $perms = [ 0700, 0600 ], bool $recursively = true ) : bool {
+	public static function make_link( string $target_path, string $link_path, array $perms = [ [ 0700, 0700 ], 0600 ], bool $recursively = true ) : bool {
 		$link_path_dir    = U\Dir::name( $link_path );
 		$real_target_path = U\Fs::realize( $target_path );
-		$perms            = array_map( 'intval', $perms );
 
-		$perms[ 0 ] ??= 0700; // Directory permissions.
-		$perms[ 1 ] ??= 0600; // Link permissions (n/a at this time).
+		$perms[ 0 ] ??= [ 0700, 0700 ]; // Directory permissions.
+		$perms[ 1 ] ??= 0600;           // Link permissions (n/a at this time).
 
 		return '' !== $target_path
 			&& '' !== $real_target_path

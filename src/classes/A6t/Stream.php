@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Pkg\Utilities;
+namespace Clever_Canyon\Utilities\A6t;
 
 /**
  * Utilities.
@@ -28,29 +28,15 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Base stream class.
  *
  * @since 2021-12-15
- *
- * @see   U\Pkg
  */
-trait Namespace_Scope_Members {
+abstract class Stream extends U\A6t\Base implements U\I7e\Stream {
 	/**
-	 * Gets current package namespace scope.
+	 * Traits.
 	 *
-	 * @since 2022-01-27
-	 *
-	 * @return string Most of our packages are compiled with PHP Scoper using a specific namespace scope.
-	 *                This returns that scope; e.g., `Xj9ier8xr3oa`; else an empty string.
-	 *                {@see U\Dev\Project::$pkg_namespace_scope} for details.
+	 * @since 2021-12-15
 	 */
-	public static function namespace_scope() : string {
-		static $scope; // Memoize.
-
-		if ( ! isset( $scope ) ) {
-			$scope = explode( '\\', __NAMESPACE__ )[ 0 ];
-			$scope = 12 === mb_strlen( $scope ) && 'X' === $scope[ 0 ] ? $scope : '';
-		}
-		return $scope;
-	}
+	use U\Traits\A6t\Stream\Members;
 }

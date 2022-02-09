@@ -48,6 +48,13 @@ final class Str extends U\A6t\Stc_Utilities {
 	public const UTF8_BOM = "\xEF\xBB\xBF";
 
 	/**
+	 * Chars removed by {@see trim()}.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const TRIM_CHARS = " \n\r\t\v\x00";
+
+	/**
 	 * Serialize (no WP) prefix.
 	 *
 	 * @since 2021-12-15
@@ -60,11 +67,4 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	public const SERIALIZE_SIGNATURE_SEPARATOR = '[|{:sSs:}|]';
-
-	/**
-	 * Serialize signature key.
-	 *
-	 * @since 2021-12-15
-	 */
-	public const SERIALIZE_SIGNATURE_KEY = 'rnrttmPHHt4bwferoTKTrKhzN2XTPzrrWK6gvpqALDisGtWhiwtmPPoFGGs3sELs';
 }

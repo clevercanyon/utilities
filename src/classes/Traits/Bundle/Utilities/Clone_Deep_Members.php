@@ -75,7 +75,7 @@ trait Clone_Deep_Members {
 				return U\Str::json_decode( U\Str::json_encode( $bundle, false ) );
 
 			case 'serialize':
-				return U\Str::unserialize( U\Str::serialize( $bundle, false ), false );
+				return U\Str::unserialize( U\Str::serialize( $bundle ) );
 
 			case 'reflection':
 			default:

@@ -39,4 +39,27 @@ final class Env extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Env\Members;
+
+	/**
+	 * Robotic users that web servers commonly run as.
+	 *
+	 * Always run two pattern variants:
+	 * 1. Without a leading `_` underscore.
+	 * 2. With a leading `_` underscore (very common).
+	 *
+	 * @since 2021-12-15
+	 */
+	public const ROBOTIC_WEB_SERVER_USERS = [
+		'apache',
+		'apache2',
+		'daemon',
+		'httpd',
+		'iis',
+		'lightspeed',
+		'lighttpd',
+		'nginx',
+		'nobody',
+		'www',
+		'www-data',
+	];
 }

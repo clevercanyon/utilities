@@ -48,10 +48,12 @@ trait Can_Use_Function_Members {
 	 * @see   https://php.watch/versions/8.0/disable_functions-redeclare
 	 */
 	public static function can_use_function( string ...$functions ) : bool {
+		static $cache; // Memoize.
+
 		if ( ! $functions ) {
 			return true; // Nothing to check.
 		}
-		if ( null === ( $cache = &static::cls_cache( __FUNCTION__ ) ) ) {
+		if ( null === $cache ) { // Initialize.
 			$cache                    = (object) [ 'can' => [] ];
 			$cache->disable_functions = mb_strtolower( (string) ini_get( 'disable_functions' ) );
 			$cache->disable_functions = preg_split( '/[\s,]+/u', $cache->disable_functions, -1, PREG_SPLIT_NO_EMPTY );
@@ -75,6 +77,7 @@ trait Can_Use_Function_Members {
 				'require_once',
 				'return',
 				'unset',
+				'use',
 			];
 		}
 		foreach ( array_map( 'mb_strtolower', $functions ) as $_function ) {
@@ -84,17 +87,16 @@ trait Can_Use_Function_Members {
 			if ( isset( $cache->can[ $_function ] ) ) {
 				if ( false === $cache->can[ $_function ] ) {
 					return $cache->can[ $_function ];
+				} else {
+					continue; // Cached already.
 				}
-				continue; // Cached already.
 			}
-			if ( in_array( $_function, $cache->language_constructs, true ) ) {
-				$cache->can[ $_function ] = true;
-				continue; // Construct ok.
-			}
-			if ( ! function_exists( $_function ) || in_array( $_function, $cache->disable_functions, true ) ) {
+			if ( ! in_array( $_function, $cache->language_constructs, true )
+				&& ( ! function_exists( $_function ) || in_array( $_function, $cache->disable_functions, true ) ) ) {
 				return $cache->can[ $_function ] = false;
+			} else {
+				$cache->can[ $_function ] = true;
 			}
-			$cache->can[ $_function ] = true;
 		}
 		return true;
 	}

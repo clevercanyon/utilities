@@ -35,7 +35,6 @@ use Clever_Canyon\{Utilities as U};
  * @see   U\User
  */
 trait IP_Members {
-	// @todo Add utilities.
 	/**
 	 * Gets current user's IP address.
 	 *
@@ -49,18 +48,20 @@ trait IP_Members {
 		}
 		$env_vars = [
 			'HTTP_CF_CONNECTING_IP',
+			'HTTP_X_REAL_IP',
 			'HTTP_CLIENT_IP',
+			'HTTP_X_CLUSTER_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_FORWARDED',
-			'HTTP_X_CLUSTER_CLIENT_IP',
 			'HTTP_FORWARDED_FOR',
 			'HTTP_FORWARDED',
 			'HTTP_VIA',
 			'REMOTE_ADDR',
 		];
 		foreach ( $env_vars as $_var ) {
-			$_ips = U\Env::var( $_var, [ 'bypass:U\\User::ip' => true ] );
-			if ( $_ips && ( $_ip = U\User::ip_public_user_helper( $_ips ) ) ) {
+			$_ips = U\Env::var( $_var );
+
+			if ( $_ips && ( $_ip = U\User::ip_helper( $_ips ) ) ) {
 				return $_ip; // Normalized IPv4 or IPv6 address.
 			}
 		}
@@ -76,7 +77,7 @@ trait IP_Members {
 	 *
 	 * @return string Valid user/public IP address; else an empty string.
 	 */
-	protected static function ip_public_user_helper( string $ips ) : string {
+	protected static function ip_helper( string $ips ) : string {
 		$ips = mb_strtolower( trim( $ips ) );
 		$ips = preg_split( '/[\s;,]+/u', $ips, -1, PREG_SPLIT_NO_EMPTY );
 

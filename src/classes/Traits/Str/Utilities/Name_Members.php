@@ -34,13 +34,14 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Str
  */
-trait Is_Name_Slug_Var_Members {
+trait Name_Members {
 	/**
 	 * Checks name validity; e.g., `My Name`.
 	 *
 	 * @since 2021-12-26
 	 *
 	 * @param string $str    String to check.
+	 *
 	 * @param string $prefix Require it to have a prefix?
 	 *                       Default is ``, no required prefix.
 	 *
@@ -51,32 +52,45 @@ trait Is_Name_Slug_Var_Members {
 	}
 
 	/**
-	 * Checks slug validity; e.g., `my-slug`.
+	 * Converts string to name.
 	 *
 	 * @since 2021-12-26
 	 *
-	 * @param string $str    String to check.
-	 * @param string $prefix Require it to have a prefix?
-	 *                       Default is ``, no required prefix.
+	 * @param string $str String to convert to name.
 	 *
-	 * @return bool True if it's a valid slug.
+	 * @return string String converted to name.
+	 *
+	 * @see   U\Str::to_slug()
+	 * @see   U\Str::to_var()
 	 */
-	public static function is_slug( string $str, string $prefix = '' ) : bool {
-		return U\Str::is_valid_helper( $str, 2, 128, '/^[a-z](?:-{0,2}[a-z0-9])+$/u', $prefix );
+	public static function to_name( string $str ) : string {
+		if ( '' === $str ) {
+			return $str; // Don't modify.
+		}
+		$name = $str; // Working copy.
+
+		$name = U\Str::strip_clean_name_helper( $name );
+		$name = preg_replace( '/[^\p{L}\p{N}]+/u', ' ', $name );
+		$name = U\Str::uc_words( $name );
+		$name = trim( $name );
+
+		return $name;
 	}
 
 	/**
-	 * Checks var validity; e.g., `my_var`.
+	 * Strips name encapsulation, prefixes, and suffixes.
 	 *
 	 * @since 2021-12-26
 	 *
-	 * @param string $str    String to check.
-	 * @param string $prefix Require it to have a prefix?
-	 *                       Default is ``, no required prefix.
+	 * @param string $name Name to strip clean.
 	 *
-	 * @return bool True if it's a valid var.
+	 * @return string Name w/o encapsulation, prefixes, or suffixes.
 	 */
-	public static function is_var( string $str, string $prefix = '' ) : bool {
-		return U\Str::is_valid_helper( $str, 2, 128, '/^[a-z](?:_{0,2}[a-z0-9])+$/u', $prefix );
+	protected static function strip_clean_name_helper( string $name ) : string {
+		$name = trim( $name, U\Str::TRIM_CHARS . '"' . "'" );
+		$name = preg_replace( '/^(?:Mr\.?|Mrs\.?|Ms\.?|Dr\.?)\s+/ui', '', $name );
+		$name = preg_replace( '/\s+(?:Sr\.?|Jr\.?|IV|I{2,})$/ui', '', $name );
+		$name = preg_replace( '/\s+/u', ' ', $name );
+		return $name; // Clean name.
 	}
 }

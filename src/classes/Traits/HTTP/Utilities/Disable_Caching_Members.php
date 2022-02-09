@@ -38,33 +38,53 @@ trait Disable_Caching_Members {
 	/**
 	 * Disables caching w/ WordPress compat.
 	 *
-	 * @since 2021-12-15
+	 * @since        2021-12-15
 	 *
 	 * @return bool True if caching disabled successfully.
+	 *
+	 * @noinspection PhpUndefinedFunctionInspection
 	 */
 	public static function disable_caching() : bool {
 		if ( U\Env::is_wordpress() ) {
-			$defined_constants = U\Env::maybe_define( 'DONOTCACHEPAGE', true )
-				&& U\Env::maybe_define( 'DONOTCACHEOBJECT', true )
-				&& U\Env::maybe_define( 'DONOTCACHEDB', true );
+			$set_do_not_cache_page_constant   = U\Env::maybe_define( 'DONOTCACHEPAGE', true );
+			$set_do_not_cache_object_constant = U\Env::maybe_define( 'DONOTCACHEOBJECT', true );
+			$set_do_not_cache_db_constant     = U\Env::maybe_define( 'DONOTCACHEDB', true );
 
-			$set_headers = null; // Initialize.
+			$defined_constants = // All set?
+				$set_do_not_cache_page_constant
+				&& $set_do_not_cache_object_constant
+				&& $set_do_not_cache_db_constant;
 
-			if ( ! headers_sent() ) {
-				$set_headers = 'nill' !== nocache_headers();
+			if ( $set_headers = ! headers_sent() ) {
+				nocache_headers(); // Headers produced by WP.
 			}
-			return $defined_constants && $set_headers
-				&& false === U\Env::static_var( 'HTTP_CACHE', false );
-		} else {
-			$set_headers = null; // Initialize.
+			if ( U\Env::is_apache() && U\Env::can_use_function( 'apache_setenv' ) ) {
+				$apache_setenv_no_cache = apache_setenv( 'no-cache', '1' ); // phpcs:ignore.
+			} else {
+				$apache_setenv_no_cache = null; // Not applicable.
+			}
+			$set_static_var = null !== U\Env::static_var( 'HTTP_CACHE', false );
 
-			if ( ! headers_sent() ) {
-				$set_headers = true;
+			return $defined_constants
+				&& $set_headers
+				&& false !== $apache_setenv_no_cache
+				&& $set_static_var;
+		} else {
+			if ( $set_headers = ! headers_sent() ) {
 				header_remove( 'last-modified' );
 				header( 'expires: Wed, 11 Jan 1984 05:00:00 GMT' );
 				header( 'cache-control: no-cache, must-revalidate, max-age=0' );
 			}
-			return $set_headers && false === U\Env::static_var( 'HTTP_CACHE', false );
+			if ( U\Env::is_apache() && U\Env::can_use_function( 'apache_setenv' ) ) {
+				$apache_setenv_no_cache = apache_setenv( 'no-cache', '1' ); // phpcs:ignore.
+			} else {
+				$apache_setenv_no_cache = null; // Not applicable.
+			}
+			$set_static_var = null !== U\Env::static_var( 'HTTP_CACHE', false );
+
+			return $set_headers
+				&& false !== $apache_setenv_no_cache
+				&& $set_static_var;
 		}
 	}
 }

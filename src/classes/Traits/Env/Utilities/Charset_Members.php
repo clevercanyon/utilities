@@ -36,14 +36,19 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Charset_Members {
 	/**
-	 * Current charset is `utf-8`?
+	 * Charset is `utf-8`?
 	 *
 	 * @since 2022-01-20
 	 *
-	 * @return bool True if current charset is `utf-8`.
+	 * @return bool True if charset is `utf-8`.
 	 */
 	public static function is_charset_utf8() : bool {
-		return 'utf-8' === U\Env::charset();
+		static $is; // Memoize.
+
+		if ( null !== $is ) {
+			return $is; // Saves time.
+		}
+		return $is = 'utf-8' === U\Env::charset();
 	}
 
 	/**
@@ -85,9 +90,14 @@ trait Charset_Members {
 	 * @see   https://www.php.net/manual/en/ini.core.php#ini.default-charset
 	 */
 	public static function charset() : string {
-		$is_wordpress = U\Env::is_wordpress();
+		static $charset; // Memoize.
 
-		$charset = $is_wordpress ? get_option( 'blog_charset' ) : ini_get( 'default_charset' );
+		if ( null !== $charset ) {
+			return $charset; // Saves time.
+		}
+		$charset = U\Env::is_wordpress() ? get_option( 'blog_charset' )
+			: ( mb_internal_encoding() ?: ini_get( 'default_charset' ) );
+
 		$charset = mb_strtolower( (string) $charset ?: 'utf-8' );
 		$charset = 'utf8' === $charset ? 'utf-8' : $charset;
 

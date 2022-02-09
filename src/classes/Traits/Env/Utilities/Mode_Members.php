@@ -76,7 +76,6 @@ trait Mode_Members {
 	 * @return bool True if test mode set successfully.
 	 */
 	public static function set_test_mode( /* string|null */ ?string $type = null ) : bool {
-		$type ??= 'unknown';
 		$type = $type ?: 'unknown';
 
 		if ( $test_mode = U\Env::static_var( 'TEST_MODE' ) ) {
@@ -96,40 +95,52 @@ trait Mode_Members {
 	 * @return bool True if debug mode set successfully.
 	 */
 	public static function set_debug_mode( /* string|null */ ?string $type = null ) : bool {
-		$type ??= 'unknown';
 		$type = $type ?: 'unknown';
 
 		if ( $debug_mode = U\Env::static_var( 'DEBUG_MODE' ) ) {
 			return $type === $debug_mode;
 		}
 		if ( U\Env::is_wordpress() ) {
-			return U\Env::maybe_define( 'WP_DEBUG', true )
-				&& U\Env::maybe_define( 'WP_DEBUG_LOG', true )
-				&& U\Env::maybe_define( 'WP_DEBUG_DISPLAY', true )
-				&& false !== ini_set( 'zend.assertions', '1' )  // phpcs:ignore.
-				&& false !== ini_set( 'assert.exception', '1' ) // phpcs:ignore.
-				&& U\Env::static_var( 'DEBUG_MODE', $type );
-		} else {
-			error_reporting( E_ALL );
+			$defined_wp_debug_constant         = U\Env::maybe_define( 'WP_DEBUG', true );
+			$defined_wp_debug_log_constant     = U\Env::maybe_define( 'WP_DEBUG_LOG', true );
+			$defined_wp_debug_display_constant = U\Env::maybe_define( 'WP_DEBUG_DISPLAY', true );
 
-			$php_errors_file = '/tmp/php-errors.log';
-			$php_errors_dir  = U\Dir::name( $php_errors_file );
+			$defined_constants = // All set?
+				$defined_wp_debug_constant
+				&& $defined_wp_debug_log_constant
+				&& $defined_wp_debug_display_constant;
 
-			if ( is_dir( $php_errors_dir ) // Ideal location is possible?
-				&& (
-					( is_file( $php_errors_file ) && is_writable( $php_errors_file ) )
-					|| ( ! U\Fs::exists( $php_errors_file ) && is_writable( $php_errors_dir ) )
-				) ) {
-				$error_log = $php_errors_file; // Use ideal location.
-			} else {
-				$error_log = U\Dir::join( U\Dir::sys_temp(), '/' . basename( $php_errors_file ) );
-			}
-			return false !== ini_set( 'error_log', $error_log )  // phpcs:ignore.
-				&& false !== ini_set( 'log_errors', '1' )        // phpcs:ignore.
-				&& false !== ini_set( 'display_errors', '1' )    // phpcs:ignore.
+			$enabled_assertions = U\Env::can_use_function( 'ini_set' )
 				&& false !== ini_set( 'zend.assertions', '1' )   // phpcs:ignore.
-				&& false !== ini_set( 'assert.exception', '1' )  // phpcs:ignore.
-				&& U\Env::static_var( 'DEBUG_MODE', $type );
+				&& false !== ini_set( 'assert.exception', '1' ); // phpcs:ignore.
+
+			$set_static_var = null !== U\Env::static_var( 'DEBUG_MODE', $type );
+
+			return $defined_constants
+				&& $enabled_assertions
+				&& $set_static_var;
+		} else {
+			$can_use_ini_set_function = U\Env::can_use_function( 'ini_set' );
+			$error_log                = U\Dir::join( U\Dir::sys_temp(), '/php-errors.log' );
+
+			if ( $enabled_error_reporting = U\Env::can_use_function( 'error_reporting' ) ) {
+				$enabled_error_reporting = null !== error_reporting( E_ALL );
+			}
+			$enabled_errors = $can_use_ini_set_function
+				&& false !== ini_set( 'error_log', $error_log )  // phpcs:ignore.
+				&& false !== ini_set( 'log_errors', '1' )        // phpcs:ignore.
+				&& false !== ini_set( 'display_errors', '1' );   // phpcs:ignore.
+
+			$enabled_assertions = $can_use_ini_set_function
+				&& false !== ini_set( 'zend.assertions', '1' )   // phpcs:ignore.
+				&& false !== ini_set( 'assert.exception', '1' ); // phpcs:ignore.
+
+			$set_static_var = null !== U\Env::static_var( 'DEBUG_MODE', $type );
+
+			return $enabled_error_reporting
+				&& $enabled_errors
+				&& $enabled_assertions
+				&& $set_static_var;
 		}
 	}
 }

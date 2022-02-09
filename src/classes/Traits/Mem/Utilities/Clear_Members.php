@@ -48,10 +48,14 @@ trait Clear_Members {
 	 *
 	 * @since 2020-11-19
 	 *
-	 * @param string      $primary_key Primary key.
+	 * @param string      $primary_key Primary key, which will be namespaced by {@see U\Mem::namespaced_primary_key()}.
+	 *                                 The default namespace prefix + `\` is 33 bytes, so default max length is 217 bytes.
 	 *
 	 * @param string|null $sub_key     Sub-key to clear. Default is `null` (all sub-keys).
 	 *                                 When `null` (default), all sub-keys are cleared from cache.
+	 *
+	 *                                 The sub-key is auto-prefixed with primary-key's UUIDv4 entry.
+	 *                                 The default sub-key prefix + `\` is 33 bytes in length, so default max length is 217 bytes.
 	 *
 	 * @return bool True on success.
 	 */

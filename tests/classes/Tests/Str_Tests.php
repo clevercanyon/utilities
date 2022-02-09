@@ -214,7 +214,19 @@ final class Str_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, U\Str::is_name( 'John Smith' ), $this->message() );
 		$this->assertSame( true, U\Str::is_name( str_repeat( 'x', 128 ) ), $this->message() );
 
+		$this->assertSame( false, U\Str::is_name( '' ), $this->message() );
 		$this->assertSame( false, U\Str::is_name( str_repeat( 'x', 129 ) ), $this->message() );
+	}
+
+	/**
+	 * @covers ::to_name()
+	 */
+	public function test_to_name() : void {
+		$this->assertSame( '', U\Str::to_name( '' ), $this->message() );
+		$this->assertSame( 'John Smith', U\Str::to_name( '"John smith"' ), $this->message() );
+		$this->assertSame( 'John Smith', U\Str::to_name( "'mr. John smith sr.'" ), $this->message() );
+		$this->assertSame( 'Acme Broadcasting', U\Str::to_name( 'acme broadcasting' ), $this->message() );
+		$this->assertSame( 'Acme Broadcasting', U\Str::to_name( '"- acme™™   broadcasting "' ), $this->message() );
 	}
 
 	/**
@@ -226,10 +238,34 @@ final class Str_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, U\Str::is_slug( 'john-smith' ), $this->message() );
 		$this->assertSame( true, U\Str::is_slug( str_repeat( 'x', 128 ) ), $this->message() );
 
+		$this->assertSame( false, U\Str::is_slug( '' ), $this->message() );
 		$this->assertSame( false, U\Str::is_slug( 'a' ), $this->message() );
 		$this->assertSame( false, U\Str::is_slug( 'acme™' ), $this->message() );
 		$this->assertSame( false, U\Str::is_slug( 'john_smith' ), $this->message() );
 		$this->assertSame( false, U\Str::is_slug( str_repeat( 'x', 129 ) ), $this->message() );
+	}
+
+	/**
+	 * @covers ::to_slug()
+	 */
+	public function test_to_slug() : void {
+		$this->assertSame( 'john-smith', U\Str::to_slug( 'John smith' ), $this->message() );
+		$this->assertSame( 'john-smith', U\Str::to_slug( 'John smith' ), $this->message() );
+		$this->assertSame( 'acme-broadcasting', U\Str::to_slug( 'acme  broadcasting' ), $this->message() );
+		$this->assertSame( 'acme-broadcasting', U\Str::to_slug( '- acme™™   broadcasting ' ), $this->message() );
+
+		$this->assertSame( '', U\Str::to_slug( '' ), $this->message() );
+		$this->assertSame( 'x0', U\Str::to_slug( '0' ), $this->message() );
+		$this->assertSame( 'x1', U\Str::to_slug( '1' ), $this->message() );
+		$this->assertSame( 'x1-0', U\Str::to_slug( '1.0' ), $this->message() );
+		$this->assertSame( 'jx', U\Str::to_slug( 'J' ), $this->message() );
+		$this->assertSame( 'jx', U\Str::to_slug( 'J' ), $this->message() );
+
+		if ( U\Env::can_use_extension( 'intl' ) ) {
+			$this->assertSame( 'john-smith-aceeiioouu', U\Str::to_slug( 'John smith àçéèíïóòúü' ), $this->message() );
+		} else {
+			$this->assertSame( 'john-smith-xxxxxxxxxx', U\Str::to_slug( 'John smith àçéèíïóòúü' ), $this->message() );
+		}
 	}
 
 	/**
@@ -241,10 +277,34 @@ final class Str_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, U\Str::is_var( 'john_smith' ), $this->message() );
 		$this->assertSame( true, U\Str::is_var( str_repeat( 'x', 128 ) ), $this->message() );
 
+		$this->assertSame( false, U\Str::is_var( '' ), $this->message() );
 		$this->assertSame( false, U\Str::is_var( 'a' ), $this->message() );
 		$this->assertSame( false, U\Str::is_var( 'acme™' ), $this->message() );
 		$this->assertSame( false, U\Str::is_var( 'john-smith' ), $this->message() );
 		$this->assertSame( false, U\Str::is_var( str_repeat( 'x', 129 ) ), $this->message() );
+	}
+
+	/**
+	 * @covers ::to_var()
+	 */
+	public function test_to_var() : void {
+		$this->assertSame( 'john_smith', U\Str::to_var( 'John smith' ), $this->message() );
+		$this->assertSame( 'john_smith', U\Str::to_var( 'John smith' ), $this->message() );
+		$this->assertSame( 'acme_broadcasting', U\Str::to_var( 'acme  broadcasting' ), $this->message() );
+		$this->assertSame( 'acme_broadcasting', U\Str::to_var( '- acme™™   broadcasting ' ), $this->message() );
+
+		$this->assertSame( '', U\Str::to_var( '' ), $this->message() );
+		$this->assertSame( 'x0', U\Str::to_var( '0' ), $this->message() );
+		$this->assertSame( 'x1', U\Str::to_var( '1' ), $this->message() );
+		$this->assertSame( 'x1_0', U\Str::to_var( '1.0' ), $this->message() );
+		$this->assertSame( 'jx', U\Str::to_var( 'J' ), $this->message() );
+		$this->assertSame( 'jx', U\Str::to_var( 'J' ), $this->message() );
+
+		if ( U\Env::can_use_extension( 'intl' ) ) {
+			$this->assertSame( 'john_smith_aceeiioouu', U\Str::to_var( 'John smith àçéèíïóòúü' ), $this->message() );
+		} else {
+			$this->assertSame( 'john_smith_xxxxxxxxxx', U\Str::to_var( 'John smith àçéèíïóòúü' ), $this->message() );
+		}
 	}
 
 	/**
@@ -260,6 +320,7 @@ final class Str_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, U\Str::is_version( '1.0.0.beta.1' ), $this->message() );
 		$this->assertSame( true, U\Str::is_version( '1.0.0.rc.1' ), $this->message() );
 
+		$this->assertSame( false, U\Str::is_version( '' ), $this->message() );
 		$this->assertSame( false, U\Str::is_version( '.0' ), $this->message() );
 		$this->assertSame( false, U\Str::is_version( '.0.0' ), $this->message() );
 		$this->assertSame( false, U\Str::is_version( '1.0.0-dev.1' ), $this->message() );

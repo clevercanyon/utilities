@@ -49,6 +49,8 @@ trait Resolve_Env_Vars_Members {
 	 * @param object|null  $_r       Internal use only — do not pass.
 	 *
 	 * @return object|array The bundle after having resolved environment vars recursively.
+	 *
+	 * @see   U\Env::vars()
 	 */
 	public static function resolve_env_vars(
 		/* object|array */ $bundle,
@@ -56,15 +58,16 @@ trait Resolve_Env_Vars_Members {
 		/* object|null */ ?object $_r = null
 	) /* : object|array */ {
 		assert( U\Bundle::is( $bundle ) );
-		$_r ??= (object) [ 'env_vars' => (object) U\Env::vars( $env_vars ) ];
+		$_r ??= (object) [ 'env_vars' => U\Env::vars( $env_vars ) ];
 
 		foreach ( $bundle as &$_value ) {
 			if ( is_string( $_value ) ) {
 				foreach ( $_r->env_vars as $_env_var => $_env_var_value ) {
 					$_value = str_replace( '${' . $_env_var . '}', $_env_var_value, $_value );
 				}
-				$_value = preg_replace( '/^~\//u', U\Dir::join_ets( $_r->env_vars->HOME, '/' ), $_value );
+				$_value = preg_replace( '/^~\//u', U\Dir::join_ets( $_r->env_vars[ 'HOME' ], '/' ), $_value );
 				$_value = preg_replace( '/\$\{[a-z0-9_\-]+\}/ui', '', $_value );
+
 			} elseif ( U\Bundle::is( $_value ) ) {
 				$_value = U\Bundle::resolve_env_vars( $_value, [], $_r );
 			}

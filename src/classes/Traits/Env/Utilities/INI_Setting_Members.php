@@ -34,28 +34,37 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Env
  */
-trait Is_INI_Setting_Changeable_Members {
+trait INI_Setting_Members {
 	/**
 	 * Checks if an INI setting is changeable.
+	 *
+	 * The reasoning for this function is that some hosts
+	 * may find creative ways to disable certain INI settings.
+	 * `memory_limit` being a good example; {@see https://o5p.me/UAy5Mv}.
 	 *
 	 * @since 2022-01-02
 	 *
 	 * @param string $setting INI setting to check.
 	 *
 	 * @return bool True if `$setting` is changeable.
+	 *
+	 * @see   wp_is_ini_value_changeable()
 	 */
 	public static function is_ini_setting_changeable( string $setting ) : bool {
-		if ( null === ( $cache = &static::cls_cache( __FUNCTION__ ) ) ) {
+		static $ini_get_all; // Memoize.
+
+		if ( null === $ini_get_all ) {
 			if ( U\Env::can_use_function( 'ini_get_all' ) ) {
-				$cache = ini_get_all();
+				$ini_get_all = ini_get_all();
 			}
-			$cache = is_array( $cache ) ? $cache : false;
+			$ini_get_all = $ini_get_all ?: false;
 		}
-		if ( false === $cache ) {
-			return true; // Unable to read all, assume `true`.
+		if ( false === $ini_get_all ) {
+			return U\Env::can_use_function( 'ini_set' );
 		}
 		return isset( $cache[ $setting ][ 'access' ] )
 			&& ( INI_ALL === ( $cache[ $setting ][ 'access' ] & INI_ALL )
-				|| INI_USER === ( $cache[ $setting ][ 'access' ] & INI_ALL ) );
+				|| INI_USER === ( $cache[ $setting ][ 'access' ] & INI_ALL ) )
+			&& U\Env::can_use_function( 'ini_set' );
 	}
 }

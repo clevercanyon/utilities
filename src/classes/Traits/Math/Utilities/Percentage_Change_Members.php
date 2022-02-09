@@ -46,7 +46,8 @@ trait Percentage_Change_Members {
 	 * @param bool      $format_string If true, formatted as `+|-[percent]%`.
 	 *
 	 * @return int|float|string A float if `$precision` is passed, else an integer (default behavior).
-	 *                          If `$format_string`, converted to string format: `+|-[percent]%`.
+	 *                          If `$format_string`, converted to string format: `+|-[percent]%`,
+	 *                          and the format is subject to translation via {@see gettext()}.
 	 *
 	 * @see  https://o5p.me/NPtmpS
 	 */
@@ -66,11 +67,14 @@ trait Percentage_Change_Members {
 		}
 		if ( $format_string ) { // Format for humans.
 			if ( $percentage > 0 ) {
-				$percentage = '+' . $percentage . '%';
+				// translators: `%1$s` is a percentage value. `%%` is a literal percent sign.
+				$percentage = sprintf( _x( '+%1$s%%', 'math-percentage-change' ), $percentage );
 			} elseif ( $percentage < 0 ) {
-				$percentage = $percentage . '%';
+				// translators: `%1$s` is a percentage value. `%%` is a literal percent sign.
+				$percentage = sprintf( _x( '-%1$s%%', 'math-percentage-change' ), abs( $percentage ) );
 			} else {
-				$percentage .= '%';
+				// translators: `%1$s` is a percentage value. `%%` is a literal percent sign.
+				$percentage = sprintf( _x( '%1$s%%', 'math-percentage-change' ), $percentage );
 			}
 		}
 		return $percentage;

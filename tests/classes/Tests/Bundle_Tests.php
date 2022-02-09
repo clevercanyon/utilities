@@ -956,7 +956,7 @@ final class Bundle_Tests extends UT\A6t\Tests {
 	 */
 	public function test_map() : void {
 		$obj = (object) [
-			0      => ' a89aaefb30524d2e8a9cbe50e0e9adb2 ',
+			0      => [ 0, 1, 2, ' 3 ' ],
 			1      => ' dffc962e13bd4cccb7f81ac846453095 ',
 			'foo'  => ' ff81613a790e449a82c7a789f9dc94b2 ',
 			'bar'  => ' c250dbfbbec943558e37a8bbaeab8660 ',
@@ -988,8 +988,8 @@ final class Bundle_Tests extends UT\A6t\Tests {
 		$arr = (array) $obj; // Copy of object, as an array.
 
 		foreach ( [ $obj, $arr ] as $_bundle ) {
-			$_expect_array = [
-				0      => 'a89aaefb30524d2e8a9cbe50e0e9adb2',
+			$_expect_array   = [
+				0      => [ '0', '1', '2', '3' ],
 				1      => 'dffc962e13bd4cccb7f81ac846453095',
 				'foo'  => 'ff81613a790e449a82c7a789f9dc94b2',
 				'bar'  => 'c250dbfbbec943558e37a8bbaeab8660',
@@ -1018,13 +1018,44 @@ final class Bundle_Tests extends UT\A6t\Tests {
 					],
 				],
 			];
-			$this->assertSame( $_expect_array, (array) U\Bundle::map( 'trim', $_bundle ), $this->message() );
-			$this->assertSame(
-				[ $_expect_array, $_expect_array ],
-				array_map( function ( $bundle ) {
-					return (array) $bundle;
-				}, U\Bundle::map( 'trim', $_bundle, $_bundle ) ), $this->message()
-			);
+			$_strings_bundle = U\Bundle::map( 'strval', $_bundle );
+			$this->assertSame( $_expect_array, (array) U\Bundle::map( 'trim', $_strings_bundle ), $this->message() );
+
+			$_strings_bundle = U\Bundle::map( [ 'strval' ], $_bundle, [ 'int', 'string' ] );
+			$this->assertSame( $_expect_array, (array) U\Bundle::map( 'trim', $_strings_bundle, 'string' ), $this->message() );
+
+			$_expect_array = [
+				0      => [ 0, 1, 2, '3' ],
+				1      => 'dffc962e13bd4cccb7f81ac846453095',
+				'foo'  => 'ff81613a790e449a82c7a789f9dc94b2',
+				'bar'  => 'c250dbfbbec943558e37a8bbaeab8660',
+				'baz'  => [
+					'foo' => [
+						'bar' => '36c6ddacba814242b456be32767be34d',
+						0     => [
+							'003873769fb2491c8786c12b19c6f852',
+							'c3f654020fed477698619b13d6d61a19',
+							'dffdc66465fd4887ad1fdf1abf30de01',
+							'506b2426b18945379d609586f1b4dabf',
+							'8e232a14c3a741408e14945ad6f45464',
+						],
+					],
+				],
+				'foo1' => [
+					'foo' => [
+						'bar' => '2b22ec9e8b184fc5ab4e16ae634c1a98',
+						0     => [
+							'22554d4ac1f04155b158975261ae5703',
+							'31f5e21280fe4a4b9959d62262390998',
+							'd5390badb5e9424196680bc1c530a33d',
+							'5893a357f40b447289c3130442167f9c',
+							'daefb98b0d2a460482ad2c0072bf8eb5',
+						],
+					],
+				],
+			];
+			$this->assertSame( $_expect_array, (array) U\Bundle::map( [ 'intval' ], $_bundle, [ 'int' ] ), $this->message() );
+			$this->assertSame( $_expect_array, (array) U\Bundle::map( [ 'trim', 'stripslashes' ], $_bundle, [ 'string' ] ), $this->message() );
 		}
 	}
 }

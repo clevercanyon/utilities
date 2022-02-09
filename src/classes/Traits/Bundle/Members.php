@@ -43,7 +43,6 @@ trait Members {
 	use U\Traits\Bundle\Utilities\Clone_Deep_Members;
 	use U\Traits\Bundle\Utilities\Conditional_Members;
 	use U\Traits\Bundle\Utilities\Get_Prop_Key_Members;
-	use U\Traits\Bundle\Utilities\Hash_Members;
 	use U\Traits\Bundle\Utilities\Map_Members;
 	use U\Traits\Bundle\Utilities\Merge_Members;
 	use U\Traits\Bundle\Utilities\Resolve_Env_Vars_Members;

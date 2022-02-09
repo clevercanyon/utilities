@@ -39,4 +39,49 @@ final class Fs extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Fs\Members;
+
+	/**
+	 * Reserved FSCs (filesystem components).
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @see   https://en.wikipedia.org/wiki/Filename
+	 */
+	public const RESERVED_FSCS = [
+		'$',
+		'$attrdef',
+		'$badclus',
+		'$bitmap',
+		'$boot',
+		'$extend',
+		'$extend/$objid',
+		'$extend/$quota',
+		'$extend/$reparse',
+		'$idle$',
+		'$logfile',
+		'$mft',
+		'$mftmirr',
+		'$secure',
+		'$upcase',
+		'$volume',
+		'aux',
+		'clock$',
+		'com1',
+		'com2',
+		'com3',
+		'com4',
+		'config$',
+		'keybd$',
+		'lpt1',
+		'lpt2',
+		'lpt3',
+		'lpt4',
+		'lst',
+		'nul',
+		'prn',
+		'screen$',
+		'con',
+		'null',
+		'pagefile.sys',
+	];
 }

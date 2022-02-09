@@ -54,7 +54,7 @@ trait Zip_Members {
 	 *                                       to hold the place of what would otherwise have been followed and copied into the zip archive.
 	 *                                       Thus, it is recommended to always leave this as `true` unless there is a very special case.
 	 *
-	 * @param int         $to_path_dir_perms Defaults to `0700`.
+	 * @param array|int[] $to_path_dir_perms Defaults to `[ 0700, 0700 ]`. {@see U\Dir::make()} for permission details.
 	 *                                       If `$to_path`'s parent directory does not exist, it will be created automatically.
 	 *                                       This establishes the permissions for that newly created directory, when/if applicable.
 	 *
@@ -66,10 +66,8 @@ trait Zip_Members {
 	 * @throws U\Fatal_Exception If attempting to zip into self, leading to an infinite loop.
 	 * @throws U\Fatal_Exception If a circular symlink is detected, leading to an infinite loop.
 	 *
-	 * @future-review PHP 8+ brought some changes to the zip extensin.
+	 * @future-review PHP 8+ brought some changes to the zip extension.
 	 *                {@see https://o5p.me/7wQthu}.
-	 *
-	 * @noinspection  PhpComposerExtensionStubsInspection
 	 */
 	public static function zip_er(
 		string $from_path,
@@ -78,7 +76,7 @@ trait Zip_Members {
 		array $exceptions = [],
 		/* string|null */ ?string $base_path = null,
 		bool $follow_symlinks = true,
-		int $to_path_dir_perms = 0700,
+		array $to_path_dir_perms = [ 0700, 0700 ],
 		/* object|null */ ?object $_r = null
 	) : bool {
 		// Recursive check.
@@ -168,7 +166,7 @@ trait Zip_Members {
 			return false; // Not possible.
 		}
 		if ( ! $is_recursive ) {
-			if ( 'zip' !== U\File::ext( $to_path ) ) {
+			if ( 'zip' !== U\File::ext( $to_path, true ) ) {
 				$_r->maybe_close_zip( $is_recursive );
 				return false; // Not possible.
 			}
@@ -240,7 +238,10 @@ trait Zip_Members {
 		// Zip archive.
 
 		if ( ! $is_recursive ) {
-			$_r->zip = new \ZipArchive();
+			/** @noinspection PhpComposerExtensionStubsInspection */ // phpcs:ignore.
+			$_r->zip = new \ZipArchive();                            // `zip` extension.
+
+			/** @noinspection PhpComposerExtensionStubsInspection */ // phpcs:ignore.
 			if ( true !== $_r->zip->open( $to_path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE ) ) {
 				return false; // Not possible.
 			}

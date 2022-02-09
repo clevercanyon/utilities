@@ -271,8 +271,8 @@ final class Scoper extends U\A6t\CLI_Tool {
 			if (
 				! is_readable( $output_project_dir_entry_file )
 				|| ! is_writable( $output_project_dir_entry_file )
-				|| ! ( $_f15s = file_get_contents( $output_project_dir_entry_file ) )
-				|| false === file_put_contents( $output_project_dir_entry_file, str_replace( '/autoload.php', '/scoper-autoload.php', $_f15s ) )
+				|| ! ( $_f15s = U\File::read( $output_project_dir_entry_file, false ) )
+				|| ! U\File::write( $output_project_dir_entry_file, str_replace( '/autoload.php', '/scoper-autoload.php', $_f15s ), false )
 			) {
 				throw new U\Exception( 'Failed to change `/autoload.php` to `/scoper-autoload.php` in `' . $output_project_dir_entry_file . '`.' );
 			}
@@ -295,7 +295,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 		if ( ! $file || ! is_readable( $file ) || ! is_writable( $file ) ) {
 			throw new U\Exception( 'Unable to process file: `' . $file . '`. Is it readable and writable?' );
 		}
-		if ( false === file_put_contents( $file, $this->fix_comments_process_string( file_get_contents( $file ) ) ) ) {
+		if ( ! U\File::write( $file, $this->fix_comments_process_string( U\File::read( $file ) ), false ) ) {
 			throw new U\Exception( 'Failed processing file: `' . $file . '`. Is the file readable and writable?' );
 		}
 	}

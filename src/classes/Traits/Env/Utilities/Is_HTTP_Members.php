@@ -43,11 +43,14 @@ trait Is_HTTP_Members {
 	 * @return bool True if HTTP.
 	 */
 	public static function is_http() : bool {
-		static $is; // Cache.
-		if ( isset( $is ) ) {
-			return $is; // Cached already.
+		static $is; // Memoize.
+
+		if ( null !== $is ) {
+			return $is; // Saves time.
 		}
-		$proto = U\Env::var( 'SERVER_PROTOCOL' );
-		return $is = ! U\Env::is_cli() && 0 === mb_stripos( $proto, 'http/' );
+		return $is = ! U\Env::is_cli()
+			&& ( 0 === mb_stripos( U\Env::var( 'SERVER_PROTOCOL' ), 'http/' )
+				|| false !== mb_stripos( U\Env::var( 'REQUEST_SCHEME' ), 'http' )
+			);
 	}
 }

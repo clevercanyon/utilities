@@ -44,7 +44,7 @@ use Clever_Canyon\{Utilities__Tests as UT};
  * @since 2021-12-15
  * @coversDefaultClass \Clever_Canyon\Utilities\Func
  */
-final class Cbl_Tests extends UT\A6t\Tests {
+final class Func_Tests extends UT\A6t\Tests {
 	/**
 	 * @covers ::noop()
 	 */

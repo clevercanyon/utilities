@@ -45,6 +45,14 @@ trait CLS_Cache_Members {
 	/**
 	 * Gets|sets static CLS cache.
 	 *
+	 * It is faster not to use this. Instead, use in-function static variables.
+	 * Using static variables inside a function reduces the number of function calls
+	 * needed to generate cache keys and extract cached values.
+	 *
+	 * That said; the static CLS cache is highly recommended for more complex caching.
+	 * Generally, when there is more than a single dimension to consider, it is better to use
+	 * the static CLS cache. It handles the added complexity and reduces the chance of error.
+	 *
 	 * @since         2021-12-15
 	 *
 	 * @param mixed $key_parts A single key part or a bundle containing multiple key parts.
@@ -83,7 +91,7 @@ trait CLS_Cache_Members {
 		assert( ! is_resource( $key_parts ) );
 		assert( ! $key_parts instanceof \Closure );
 
-		$key = sha1( U\Str::serialize( $key_parts, false ) );
+		$key = U\Crypto::sha1_key( $key_parts );
 
 		static::$cls_cache[ static::class ] ??= [];  // Initialize.
 

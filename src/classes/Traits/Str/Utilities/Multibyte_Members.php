@@ -36,7 +36,7 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Multibyte_Members {
 	/**
-	 * Lowercase first character (multibyte compatible).
+	 * Lowercases first character (multibyte compatible).
 	 *
 	 * @since 2022-01-27
 	 *
@@ -49,7 +49,7 @@ trait Multibyte_Members {
 	}
 
 	/**
-	 * Uppercase first character (multibyte compatible).
+	 * Uppercases first character (multibyte compatible).
 	 *
 	 * @since 2022-01-27
 	 *
@@ -59,5 +59,33 @@ trait Multibyte_Members {
 	 */
 	public static function uc_first( string $str ) : string {
 		return $str ? mb_strtoupper( $str[ 0 ] ) . mb_substr( $str, 1 ) : $str;
+	}
+
+	/**
+	 * Uppercases first character in words (multibyte compatible).
+	 *
+	 * @since 2022-01-27
+	 *
+	 * @param string $str        String value.
+	 * @param string $separators Word separators.
+	 *
+	 * @return string String with first character in words uppercased.
+	 */
+	public static function uc_words( string $str, string $separators = " \t\r\n\f\v" ) : string {
+		if ( ! $str ) {
+			return $str; // Not applicable.
+		}
+		$parts      = []; // Initialize.
+		$separators = " \t\r\n\f\v" !== $separators
+			? U\Str::esc_reg( $separators )
+			: $separators;
+
+		foreach ( preg_split( '/([' . $separators . ']+)/u', $str, -1, PREG_SPLIT_DELIM_CAPTURE ) as $_part ) {
+			if ( trim( $_part ) ) {
+				$_part = U\Str::uc_first( $_part );
+			}
+			$parts[] = $_part;
+		}
+		return implode( $parts );
 	}
 }

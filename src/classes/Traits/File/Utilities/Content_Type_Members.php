@@ -43,16 +43,19 @@ trait Content_Type_Members {
 	 * @param string      $file    File path.
 	 * @param string|null $default {@see U\File::mime_type()} for details.
 	 *
-	 * @param string|null $charset Optional and specific charset code to use in a `content-type` header. Default is `null`.
-	 *                             If `null`, this is applied only to text/, +xml, JS/JSON, and a few other specifics,
-	 *                             using current environment charset code, as returned by {@see U\Env::charset()}.
+	 * @param string|null $charset Optional charset code to use in `content-type` header. Default is `null`.
 	 *
-	 *                             One should generally pass this explicitly based on what is being served to a user,
-	 *                             and based on the charset used by the file. The current charset may or may not be accurate.
+	 *                             * If `null` (default), charset applies only to text/, +xml, JS/JSON, and a few others;
+	 *                               using the current environment charset code returned by {@see U\Env::charset()}.
 	 *
-	 *                             * To explicitly force no charset to be added, simply set this to an empty string.
+	 *                             * You should generally pass this explicitly based on what is being served to a user,
+	 *                               and based on the charset used by the file. The current charset may or may not be accurate.
 	 *
-	 * @return string MIME type + charset, suitable for `content-type:` header.
+	 *                             * To explicitly force no charset to be added, set this to an empty string.
+	 *
+	 * @return string MIME type + charset; suitable for `content-type:` header.
+	 *
+	 * @todo  Write unit tests for this.
 	 */
 	public static function content_type(
 		string $file,
@@ -62,23 +65,23 @@ trait Content_Type_Members {
 		$charset      ??= null; // See below.
 		$content_type = U\File::mime_type( $file, $default );
 
-		switch ( $content_type ) {
-			case ( isset( $charset ) ):
-				if ( '' !== $charset ) {
-					$content_type .= '; charset=' . $charset;
-				} // Empty string indicates no charset explicitly.
-				break; // Given explicitly.
-
-			case 'application/hta':
-			case 'application/xml-dtd':
-			case 'application/json':
-			case 'application/javascript':
-			case 'application/x-php-source':
-			case ( U\Str::begins_with( $content_type, 'text/' ) ):
-			case ( U\Str::ends_with( $content_type, '+xml' ) ):
-			case ( U\Str::ends_with( $content_type, '+json' ) ):
-				$content_type .= '; charset=' . U\Env::charset();
-				break; // Added automatically.
+		if ( null !== $charset ) {
+			if ( '' !== $charset ) {
+				$content_type .= '; charset=' . $charset;
+			} // Empty indicates no charset explicitly.
+		} else {
+			switch ( true ) {
+				case ( 'application/hta' === $content_type ):
+				case ( 'application/xml-dtd' === $content_type ):
+				case ( 'application/json' === $content_type ):
+				case ( 'application/javascript' === $content_type ):
+				case ( 'application/x-php-source' === $content_type ):
+				case ( U\Str::begins_with( $content_type, 'text/' ) ):
+				case ( U\Str::ends_with( $content_type, '+xml' ) ):
+				case ( U\Str::ends_with( $content_type, '+json' ) ):
+					$content_type .= '; charset=' . U\Env::charset();
+					break; // Added automatically.
+			}
 		}
 		return $content_type;
 	}

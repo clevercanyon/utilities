@@ -44,11 +44,8 @@ trait Close_Session_Members {
 	 */
 	public static function close_session() : bool {
 		if ( ! U\Env::can_use_extension( 'session' ) ) {
-			return false; // Not possible.
-		} elseif ( ! U\Env::can_use_function( 'session_status', 'session_write_close' ) ) {
-			return false; // Not possible.
+			return true; // Not active; so not open.
 		}
-		return ! headers_sent() // Headers must not have been sent yet.
-			&& ( PHP_SESSION_ACTIVE !== session_status() || session_write_close() );
+		return PHP_SESSION_ACTIVE !== session_status() || session_write_close();
 	}
 }

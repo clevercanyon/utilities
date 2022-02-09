@@ -63,8 +63,7 @@ trait No_WP_Serialize_Members {
 		assert( ! is_resource( $value ) );
 		assert( ! $value instanceof \Closure );
 
-		return U\Str::SERIALIZE_NO_WP_PREFIX .
-			U\Str::serialize( $value );
+		return U\Str::SERIALIZE_NO_WP_PREFIX . U\Str::serialize( $value );
 	}
 
 	/**

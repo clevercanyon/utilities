@@ -39,4 +39,25 @@ final class Pkg extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Pkg\Members;
+
+	/**
+	 * Namespace scope regexp.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const NAMESPACE_SCOPE_REGEXP = '/^X[0-9a-f]{15}$/u';
+
+	/**
+	 * Namespace crux regexp.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const NAMESPACE_CRUX_REGEXP = '/^(?!X[0-9a-f]{15}\\\)[A-Z](?:(?:_[A-Z])?[a-zA-Z0-9])*[a-zA-Z0-9]\\\[A-Z](?:(?:_[A-Z])?[a-zA-Z0-9])*[a-zA-Z0-9]$/u';
+
+	/**
+	 * FQN crux regexp; {@see https://www.php.net/manual/en/functions.user-defined.php}.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const FQN_CRUX_REGEXP = '/^(?!X[0-9a-f]{15}\\\)[A-Z](?:(?:_[A-Z])?[a-zA-Z0-9])*[a-zA-Z0-9](?:\\\[A-Z](?:(?:_[A-Z])?[a-zA-Z0-9])*[a-zA-Z0-9])+(?:(?:\\\|\:{2}|-\>)[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)?$/u';
 }

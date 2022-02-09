@@ -38,41 +38,52 @@ trait Can_Use_Class_Members {
 	/**
 	 * Can use class(es)?
 	 *
+	 * This also checks all parent classes.
+	 *
 	 * @since 2021-12-18
 	 *
 	 * @param string ...$classes Class(es).
 	 *
-	 * @return bool True if all classes are useable.
+	 * @return bool True if all classes (including parents) are useable.
 	 *
 	 * @see   https://www.php.net/manual/en/ini.core.php#ini.disable-classes
 	 */
 	public static function can_use_class( string ...$classes ) : bool {
+		static $cache; // Memoize.
+
 		if ( ! $classes ) {
 			return true; // Nothing to check.
 		}
-		if ( null === ( $cache = &static::cls_cache( __FUNCTION__ ) ) ) {
+		if ( null === $cache ) { // Initialize.
 			$cache                  = (object) [ 'can' => [] ];
 			$cache->disable_classes = mb_strtolower( (string) ini_get( 'disable_classes' ) );
 			$cache->disable_classes = preg_split( '/[\s,]+/u', $cache->disable_classes, -1, PREG_SPLIT_NO_EMPTY );
 		}
-		foreach ( array_map( 'mb_strtolower', $classes ) as $_class ) {
+		foreach ( array_map( 'mb_strtolower', $classes ) as $_class_key => $_class ) {
 			if ( ! $_class ) {
 				continue; // Nothing to check.
 			}
 			if ( isset( $cache->can[ $_class ] ) ) {
 				if ( false === $cache->can[ $_class ] ) {
 					return $cache->can[ $_class ];
+				} else {
+					continue; // Cached already.
 				}
-				continue; // Cached already.
 			}
-			if ( ! class_exists( $_class ) || in_array( $_class, $cache->disable_classes, true ) ) {
+			$_class_in_case = $classes[ $_class_key ]; // CaSe.
+			// Using class in caSe so this doesn't confuse autoloaders.
+
+			if ( ! class_exists( $_class_in_case ) || in_array( $_class, $cache->disable_classes, true ) ) {
 				return $cache->can[ $_class ] = false;
 			}
-			$_parent_classes = class_parents( $_class );
-			$_parent_classes = array_map( 'mb_strtolower', $_parent_classes );
+			$_parent_classes = // Let's look at parents also.
+				class_parents( $_class_in_case );
 
-			foreach ( $_parent_classes as $_parent_class ) {
-				if ( ! class_exists( $_parent_class ) || in_array( $_parent_class, $cache->disable_classes, true ) ) {
+			foreach ( array_map( 'mb_strtolower', $_parent_classes ) as $_parent_class_key => $_parent_class ) {
+				$_parent_class_in_case = // CaSe.
+					$_parent_classes[ $_parent_class_key ];
+
+				if ( ! class_exists( $_parent_class_in_case ) || in_array( $_parent_class, $cache->disable_classes, true ) ) {
 					return $cache->can[ $_class ] = false;
 				}
 			}

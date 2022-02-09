@@ -36,23 +36,50 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Run_Exec_Members {
 	/**
-	 * Runs a shell command (displays output).
+	 * Tries to run a shell command; displaying output as it runs.
 	 *
-	 * @param array       $args         Command arguments (unquoted/unescaped).
-	 * @param string|null $dir          Current working directory. Defaults to `null` value.
-	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
+	 * @param array       $args         {@see U\CLI::run()} for details.
+	 * @param string|null $dir          {@see U\CLI::run()} for details.
+	 * @param bool        $check_status {@see U\CLI::run()} for details.
+	 *
+	 * @return int Status code; {@see U\CLI::run()} for details.
+	 */
+	public static function try_run(
+		array $args, /* string|null */
+		?string $dir = null,
+		bool $check_status = true
+	) : int {
+		return U\CLI::run( $args, $dir, $check_status, false );
+	}
+
+	/**
+	 * Runs a shell command; displaying output as it runs.
+	 *
+	 * @param array       $args             Command arguments (unquoted/unescaped).
+	 * @param string|null $dir              Current working directory. Defaults to `null` value.
+	 * @param bool        $check_status     Check status and throw exception on failure? Defaults to `true`.
+	 * @param bool        $throw_on_failure Throw exectpion on failure? Default is `true`.
 	 *
 	 * @return int Status code.
 	 *
 	 * @throws U\Fatal_Exception If environment is lacking CLI functions.
 	 *                           On non-zero exit status code or other issue.
+	 *                           * Does not throw exceptions is `$throw_on_failure` is `false`.
 	 */
-	public static function run( array $args, /* string|null */ ?string $dir = null, bool $check_status = true ) : int {
+	public static function run(
+		array $args, /* string|null */
+		?string $dir = null,
+		bool $check_status = true,
+		bool $throw_on_failure = true
+	) : int {
 		if ( ! U\Env::can_use_function( 'escapeshellarg', 'passthru' ) ) {
-			throw new U\Fatal_Exception(
-				'Unable to use PHP’s `escapeshellarg()` and/or `passthru()` functions.' .
-				' Have one or both of these PHP functions been disabled by your hosting company?'
-			);
+			if ( $throw_on_failure ) {
+				throw new U\Fatal_Exception(
+					'Unable to use PHP’s `escapeshellarg()` and/or `passthru()` functions.' .
+					' Have one or both of these PHP functions been disabled by your hosting company?'
+				);
+			}         // Else; not throwing.
+			return 1; // Indicate run failure.
 		}
 		$cmd             = U\CLI::prepare_cmd( $args, $dir );
 		U\CLI::$last_cmd = $cmd; // Records last CMD string.
@@ -60,27 +87,52 @@ trait Run_Exec_Members {
 		passthru( $cmd, $status );
 
 		if ( $check_status && 0 !== $status ) {
-			throw new U\Fatal_Exception(
-				'Unexpected non-zero status `' . $status . '` when running `' . $cmd . '`.'
-			);
+			if ( $throw_on_failure ) {
+				throw new U\Fatal_Exception(
+					'Unexpected non-zero status `' . $status . '` when running `' . $cmd . '`.'
+				);
+			} // Else; not throwing.
 		}
 		return $status;
 	}
 
 	/**
-	 * Executes a shell command (does not display output).
+	 * Tries to execute a shell command; returns object.
 	 *
 	 * @since         2021-12-15
 	 *
-	 * @param array       $args         Command arguments (unquoted/unescaped).
-	 * @param string|null $dir          Current working directory. Defaults to `null` value.
-	 * @param bool        $check_status Check status and throw exception on failure? Defaults to `true`.
-	 * @param string|null $stdin        Stdin to send to command. Defaults to `null` value.
+	 * @param array       $args         {@see U\CLI::exec()} for details.
+	 * @param string|null $dir          {@see U\CLI::exec()} for details.
+	 * @param bool        $check_status {@see U\CLI::exec()} for details.
+	 * @param string|null $stdin        {@see U\CLI::exec()} for details.
+	 *
+	 * @return object Object with properties `{}->status|stdout|stderr`.
+	 */
+	public static function try_exec(
+		array $args,
+		/* string|null */ ?string $dir = null,
+		bool $check_status = true,
+		/* string|null */ ?string $stdin = null
+	) : object {
+		return U\CLI::exec( $args, $dir, $check_status, false, $stdin );
+	}
+
+	/**
+	 * Executes a shell command; returns object.
+	 *
+	 * @since         2021-12-15
+	 *
+	 * @param array       $args             Command arguments (unquoted/unescaped).
+	 * @param string|null $dir              Current working directory. Defaults to `null` value.
+	 * @param bool        $check_status     Check status and throw exception on failure? Defaults to `true`.
+	 * @param bool        $throw_on_failure Throw exectpion on failure? Default is `true`.
+	 * @param string|null $stdin            Stdin to send to command. Defaults to `null` value.
 	 *
 	 * @return object Object with properties `{}->status|stdout|stderr`.
 	 *
 	 * @throws U\Fatal_Exception If environment is lacking CLI functions.
-	 *                         On non-zero exit status code or other issue.
+	 *                           On non-zero exit status code or other issue.
+	 *                           * Does not throw exceptions is `$throw_on_failure` is `false`.
 	 *
 	 * @future-review Review Windows changes in PHP 8+; {@see https://o5p.me/rUnbCC}.
 	 * @future-review Output redirection is also supported, which could be implemented in the future.
@@ -90,26 +142,30 @@ trait Run_Exec_Members {
 		array $args,
 		/* string|null */ ?string $dir = null,
 		bool $check_status = true,
+		bool $throw_on_failure = true,
 		/* string|null */ ?string $stdin = null
 	) : object {
-		if ( ! U\Env::can_use_function( 'escapeshellarg', 'proc_open', 'proc_get_status', 'proc_close' ) ) {
-			throw new U\Fatal_Exception(
-				'Unable to use PHP’s `escapeshellarg()`, `proc_open()`, `proc_get_status()`, and/or `proc_close()` functions.' .
-				' Have one or more of these PHP functions been disabled by your hosting company?'
-			);
-		}
-		$response        = (object) [
+		$response = (object) [
 			'status' => 0,
 			'stdout' => '',
 			'stderr' => '',
 		];
-		$config          = [
+		$config   = [
 			0 => [ 'pipe', 'r' ], // stdin.
 			1 => [ 'pipe', 'w' ], // stdout.
 			2 => [ 'pipe', 'w' ], // stderr.
 		];
+		if ( ! U\Env::can_use_function( 'escapeshellarg', 'proc_open', 'proc_get_status', 'proc_close' ) ) {
+			if ( $throw_on_failure ) {
+				throw new U\Fatal_Exception(
+					'Unable to use PHP’s `escapeshellarg()`, `proc_open()`, `proc_get_status()`, and/or `proc_close()` functions.' .
+					' Have one or more of these PHP functions been disabled by your hosting company?'
+				);
+			}
+			return $response;
+		}
 		$cmd_no_dir      = U\CLI::prepare_cmd( $args );
-		$cmd             = U\CLI::prepare_cmd( $args, $dir );
+		$cmd             = null === $dir ? $cmd_no_dir : U\CLI::prepare_cmd( $args, $dir );
 		U\CLI::$last_cmd = $cmd; // Record last CMD string.
 
 		if ( U\Env::is_windows() ) {
@@ -118,7 +174,7 @@ trait Run_Exec_Members {
 			$process = proc_open( $cmd_no_dir, $config, $pipes, $dir, [], [] );
 		}
 		if ( ! is_resource( $process ) ) {
-			if ( $check_status ) {
+			if ( $throw_on_failure ) {
 				throw new U\Fatal_Exception( 'Unexpected `proc_open()` failure when running `' . $cmd . '`.' );
 			}
 			return $response;
@@ -141,10 +197,13 @@ trait Run_Exec_Members {
 		proc_close( $process );
 
 		if ( $check_status && 0 !== $response->status ) {
-			throw new U\Fatal_Exception(
-				'Unexpected non-zero status `' . $response->status . '` when running `' . $cmd . '`.' .
-				' ' . ( $response->stderr ?: $response->stdout )
-			);
+			if ( $throw_on_failure ) {
+				throw new U\Fatal_Exception(
+					'Unexpected non-zero status `' . $response->status . '` when running `' . $cmd . '`.' .
+					' ' . ( $response->stderr ?: $response->stdout )
+				);
+			}                       // Else; not throwing.
+			$response->stdout = ''; // Ensure empty on failure.
 		}
 		return $response;
 	}

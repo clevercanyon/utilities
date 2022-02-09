@@ -88,22 +88,22 @@ final class File_Tests extends UT\A6t\Tests {
 	public function test_size_abbr() : void {
 		$temp_file = $this->temp_file();
 
-		file_put_contents( $temp_file, str_repeat( 'x', 1 ) );
+		U\File::write( $temp_file, str_repeat( 'x', 1 ) );
 		$this->assertSame( '1 byte', U\File::size_abbr( $temp_file ), $this->message() );
 
-		file_put_contents( $temp_file, str_repeat( 'x', 2 ) );
+		U\File::write( $temp_file, str_repeat( 'x', 2 ) );
 		clearstatcache( true, $temp_file );
 		$this->assertSame( '2 bytes', U\File::size_abbr( $temp_file ), $this->message() );
 
-		file_put_contents( $temp_file, str_repeat( 'x', 1024 ) );
+		U\File::write( $temp_file, str_repeat( 'x', 1024 ) );
 		clearstatcache( true, $temp_file );
 		$this->assertSame( '1 kb', U\File::size_abbr( $temp_file ), $this->message() );
 
-		file_put_contents( $temp_file, str_repeat( 'x', 1024 * 2 ) );
+		U\File::write( $temp_file, str_repeat( 'x', 1024 * 2 ) );
 		clearstatcache( true, $temp_file );
 		$this->assertSame( '2 kbs', U\File::size_abbr( $temp_file ), $this->message() );
 
-		file_put_contents( $temp_file, str_repeat( 'x', 1024 * 1024 ) );
+		U\File::write( $temp_file, str_repeat( 'x', 1024 * 1024 ) );
 		clearstatcache( true, $temp_file );
 		$this->assertSame( '1 MB', U\File::size_abbr( $temp_file ), $this->message() );
 	}

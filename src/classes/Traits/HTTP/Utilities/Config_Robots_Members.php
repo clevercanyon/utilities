@@ -81,27 +81,27 @@ trait Config_Robots_Members {
 			}
 		}
 		if ( U\Env::is_wordpress() ) {
-			$set_headers = null; // Initialize.
-
-			if ( ! headers_sent() ) {
-				$set_headers = true;
+			if ( $set_headers = ! headers_sent() ) {
 				header( 'x-robots-tag: ' . implode( ', ', $directives ) );
 			}
-			$added_filter = add_filter(
-				'wp_robots', // {@see https://o5p.me/oFOH8v}
+			$added_filter   = add_filter(
+				'wp_robots', // {@see https://o5p.me/oFOH8v}.
 				fn( array $wp_robots ) => array_merge( $wp_robots, $config ),
 				12 // Hook priority.
 			);
-			return $set_headers && $added_filter
-				&& U\Env::static_var( 'HTTP_ROBOTS', $directives );
-		} else {
-			$set_headers = null; // Initialize.
+			$set_static_var = null !== U\Env::static_var( 'HTTP_ROBOTS', $directives );
 
-			if ( ! headers_sent() ) {
-				$set_headers = true;
+			return $set_headers
+				&& $added_filter
+				&& $set_static_var;
+		} else {
+			if ( $set_headers = ! headers_sent() ) {
 				header( 'x-robots-tag: ' . implode( ', ', $directives ) );
 			}
-			return $set_headers && U\Env::static_var( 'HTTP_ROBOTS', $directives );
+			$set_static_var = null !== U\Env::static_var( 'HTTP_ROBOTS', $directives );
+
+			return $set_headers
+				&& $set_static_var;
 		}
 	}
 }

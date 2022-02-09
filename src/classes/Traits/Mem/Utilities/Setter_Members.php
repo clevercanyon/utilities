@@ -49,7 +49,7 @@ trait Setter_Members {
 	 * @since 2020-11-19
 	 *
 	 * @param string $primary_key Primary key, which will be namespaced by {@see U\Mem::namespaced_primary_key()}.
-	 *                            The default namespace prefix + `\` is 13 bytes, so default max length is 237 bytes.
+	 *                            The default namespace prefix + `\` is 33 bytes, so default max length is 217 bytes.
 	 *
 	 * @param string $sub_key     Sub-key to set|update. The sub-key is auto-prefixed with primary-key's UUIDv4 entry.
 	 *                            The default sub-key prefix + `\` is 33 bytes in length, so default max length is 217 bytes.

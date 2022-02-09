@@ -40,5 +40,5 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Time\Utilities\Foo_Members;
+	use U\Traits\Time\Utilities\Diff_Members;
 }

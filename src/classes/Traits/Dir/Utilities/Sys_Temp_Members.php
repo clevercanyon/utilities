@@ -36,52 +36,101 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Sys_Temp_Members {
 	/**
-	 * Gets a readable & writable temporary directory.
+	 * Gets system temp directory.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @return string Absolute path to a readable & writable temporary directory.
+	 * @param string|null $nsc_fqn Namespace crux or FQN. Default is this package's `__NAMESPACE__`.
+	 *                             Pass a `__NAMESPACE__`, `__CLASS__`, `::class`, `__TRAIT__`, `__METHOD__`,
+	 *                             or `__FUNCTION__` (outside of a class). Or anything else that is a FQN.
 	 *
-	 * @throws U\Fatal_Exception On failure to locate temporary directory.
+	 * @return string System temp directory.
 	 *
-	 * @see   U\Env::var() When modifying this function.
+	 * @throws U\Fatal_Exception On failure to locate.
+	 *
+	 * @see   U\Dir::sys_dir_helper()
+	 * @see   U\Dir::sys_temp_generator()
 	 */
-	public static function sys_temp() : string {
-		if ( null !== ( $cache = &static::cls_cache( __FUNCTION__ ) ) ) {
-			return $cache; // Cached already.
-		}
-		$haystack = []; // Initialize.
+	public static function sys_temp( /*string|null */ ?string $nsc_fqn = null ) : string {
+		$this_fqn_crux  = U\Pkg::fqn_crux( __METHOD__ );
+		$namespace_crux = U\Pkg::namespace_crux( $nsc_fqn );
 
-		if ( U\Env::is_wordpress() && defined( 'WP_TEMP_DIR' ) ) {
-			$haystack[] = WP_TEMP_DIR; // Given explicitly.
-		}
-		$haystack[] = sys_get_temp_dir();
+		$basename                = 'temp'; // Systems directory basename.
+		$mem_cache_key_part_args = [ $this_fqn_crux, [ $namespace_crux, $basename ] ];
+		$mem_cache               = U\Mem::cache( ...$mem_cache_key_part_args );
 
-		if ( $_needle = U\Env::var( 'TMPDIR', [ 'bypass:U\\Dir::sys_temp' => true ] ) ) {
-			$haystack[] = $_needle; // {@see U\Env::var()} for further details.
+		if ( null !== $mem_cache && is_dir( $mem_cache ) ) {
+			return $mem_cache; // Saves time.
+		}
+		foreach ( U\Dir::sys_temp_generator() as $_base_dir ) {
+			if ( $_dir = U\Dir::sys_dir_helper( $_base_dir, $nsc_fqn, $basename ) ) {
+				U\Mem::cache( ...$mem_cache_key_part_args, ...[ $_dir ] );
+				return $_dir;
+			}
+		}
+		if ( U\Env::is_wordpress() ) {
+			throw new U\Fatal_Exception( U\Dir::sys_temp_dir_exception_message_helper_for_wp() );
+		} else {
+			throw new U\Fatal_Exception( U\Dir::sys_temp_dir_exception_message_helper_default() );
+		}
+	}
+
+	/**
+	 * System base temp directory generator.
+	 *
+	 * @since 2022-02-03
+	 *
+	 * @return \Generator|string[]|array[] Potential base directories for a system temp sub-directory.
+	 *                                     To clarify further. Directories returned by this generator will serve
+	 *                                     as a potential base directory for a system temp sub-directory
+	 *                                     — to be created by {@see U\Dir::sys_dir_helper()}.
+	 *
+	 * @see   U\Dir::sys_temp()
+	 * @see   U\Dir::sys_dir_helper()
+	 *
+	 * @see   https://o5p.me/E3reZU
+	 * @see   https://o5p.me/sfzt3E
+	 * @see   https://o5p.me/jjnWAP
+	 * @see   https://o5p.me/9xkfQD
+	 * @see   https://o5p.me/1Rgbqa
+	 * @see   https://wiki.archlinux.org/title/XDG_Base_Directory
+	 * @see   https://www.gnu.org/prep/standards/html_node/Directory-Variables.html
+	 */
+	public static function sys_temp_generator() : \Generator {
+		if ( $_this_dir = U\Env::static_var( 'SYS_TEMP_DIR' ) ) {
+			yield [ $_this_dir, 'autocreate' => true ];
+		}
+		if ( defined( 'C10N_SYS_TEMP_DIR' ) && ( $_this_dir = C10N_SYS_TEMP_DIR ) ) {
+			yield [ $_this_dir, 'autocreate' => true ];
+		}
+		if ( U\Env::can_use_function( 'get_cfg_var' ) && ( $_this_dir = get_cfg_var( 'c10n.sys_temp_dir' ) ) ) {
+			yield [ $_this_dir, 'autocreate' => true ];
+		}
+		if ( U\Env::is_wordpress() && defined( 'WP_TEMP_DIR' ) && ( $_this_dir = WP_TEMP_DIR ) ) {
+			yield [ $_this_dir, 'autocreate' => true ];
+		}
+		if ( U\Env::can_use_function( 'sys_get_temp_dir' ) ) {
+			yield sys_get_temp_dir(); // {@see https://o5p.me/sfzt3E}.
+		}
+		if ( $_this_dir = U\Env::var( 'TMPDIR' ) ) {
+			yield $_this_dir; // {@see https://o5p.me/jjnWAP}.
+		}
+		if ( $_this_dir = ini_get( 'upload_tmp_dir' ) ) {
+			yield $_this_dir; // {@see https://o5p.me/9xkfQD}.
 		}
 		if ( U\Env::is_windows() ) {
-			$haystack[] = 'c:/Temp';
-		} elseif ( U\Env::is_unix_based() ) {
-			$haystack[] = '/tmp';
-		}
-		$haystack[] = ini_get( 'upload_tmp_dir' );
-
-		foreach ( array_unique( $haystack ) as $_dir ) {
-			$_dir = U\Fs::realize( $_dir );
-
-			if ( ! $_dir || ! is_dir( $_dir )
-				|| ! is_readable( $_dir )
-				|| ! is_writable( $_dir ) ) {
-				continue; // Not going to work.
+			if ( $home_drive ??= U\Env::var( 'HOMEDRIVE' ) ) {
+				yield $home_drive . '/Temp';
 			}
-			$__dir = U\Dir::join( $_dir, '/clevercanyon/.tmp' );
-
-			if ( is_dir( $__dir ) || U\Dir::make( $__dir ) ) {
-				return $cache = $__dir;
-			}
+			yield 'c:/Temp';
 		}
-		$cache = ''; // Empty string and exception on failure.
-		throw new U\Fatal_Exception( 'Unable to locate system temp directory. None of the usual locations are writable.' );
+		yield '/tmp'; // Try across all platforms.
+
+		if ( U\Env::is_wordpress() && ( $_this_dir = U\Dir::join( WP_CONTENT_DIR, '/temp' ) ) ) {
+			yield [ $_this_dir, 'autocreate' => true ];
+		}
+		if ( U\Env::is_web() && ! U\Env::is_wordpress() && ( $_this_dir = U\Env::var( 'DOCUMENT_ROOT' ) ) ) {
+			yield [ U\Dir::join( $_this_dir, '/temp' ), 'autocreate' => true ];
+		}
 	}
 }

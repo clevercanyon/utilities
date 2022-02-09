@@ -53,8 +53,6 @@ trait To_ASCII_Members {
 	 *
 	 * @see          https://www.php.net/manual/en/transliterator.transliterate.php
 	 * @see          https://unicode-org.github.io/icu/userguide/transforms/general/
-	 *
-	 * @noinspection PhpComposerExtensionStubsInspection
 	 */
 	public static function to_ascii_er( string $str ) /* : string|false */ {
 		static $can_use_extension; // Remember.
@@ -63,6 +61,7 @@ trait To_ASCII_Members {
 		if ( ! $can_use_extension ) {
 			throw new U\Fatal_Exception( 'Missing PHP `intl` extension.' );
 		}
+		/** @noinspection PhpComposerExtensionStubsInspection */ // phpcs:ignore.
 		return transliterator_transliterate( 'Any-Latin; Latin-ASCII', $str );
 	}
 }

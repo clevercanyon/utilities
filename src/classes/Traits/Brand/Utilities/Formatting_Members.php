@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Brand\Utilities;
 
 /**
  * Utilities.
@@ -32,19 +32,34 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\Env
+ * @see   U\Brand
  */
-trait Hostname_Members {
+trait Formatting_Members {
 	/**
-	 * System hostname.
+	 * Formats brand strings.
 	 *
-	 * @since 2021-12-18
+	 * @since 2022-01-30
 	 *
-	 * @return string System hostname.
+	 * @param string $str    String to format.
+	 * @param string $format One of: `sha1`, `x_sha`.
+	 *
+	 * @return string String with desired formatting applied.
+	 *
+	 * @throws U\Fatal_Exception If `$format` is an unexpected value.
 	 */
-	public static function hostname() : string {
-		static $hostname; // Memoize.
-		$hostname ??= mb_strtolower( gethostname() ?: 'localhost' );
-		return $hostname; // Computed once only.
+	protected static function format_str_helper( string $str, string $format ) : string {
+		if ( '' === $str ) {
+			return ''; // Not applicable.
+		}
+		switch ( $format ) {
+			case 'sha1':
+				return sha1( mb_strtolower( $str ) );
+
+			case 'x_sha':
+				return U\Crypto::x_sha( mb_strtolower( $str ) );
+
+			default: // Trigger fatal exception.
+				throw new U\Fatal_Exception( 'Unexpected format: `' . $format . '`.' );
+		}
 	}
 }

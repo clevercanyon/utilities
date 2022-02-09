@@ -87,7 +87,7 @@ trait Replace_Members {
 	 * @return string|array {@see str_replace()}. Same behavior here.
 	 *
 	 * @throws U\Exception When `$replace` is passed as an array, but `$search` is passed as a string. Makes no sense.
-	 *                   Throwing an exception matches the behavior of {@see str_replace()} in PHP 8.0+.
+	 *                     Throwing an exception matches the behavior of {@see str_replace()} in PHP 8.0+.
 	 */
 	public static function replace(
 		/* string|array */ $search,

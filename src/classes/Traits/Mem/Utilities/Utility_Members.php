@@ -162,75 +162,88 @@ trait Utility_Members {
 		// WordPress API compatibility.
 
 		if ( $is_wordpress ) {
-			static $is_multisite; // Memoize.
-			$is_multisite ??= is_multisite();
+			static $wp_is_multisite; // Memoize.
+			$wp_is_multisite ??= is_multisite();
 
-			// Max total key length = 172 characters; {@see set_transient()}.
-			// Max total key length = 167 characters; {@see set_site_transient()}.
-			// - `$namespace_prefix` = 13 characters.
-			// - `$primary_key_prefix` = 41 characters.
-			// - `$sub_key` = 40 characters.
-			// Total length = 94 characters (well within limits).
+			// Max total key length     = 172 characters; {@see set_transient()}.
+			// Max total key length     = 167 characters; {@see set_site_transient()}.
 
-			static $namespace_prefix; // Memoize.
-			if ( null === $namespace_prefix ) {
-				$namespace_prefix = U\Brand::get( '&', 'slug' );
-				$namespace_prefix .= '\\' . U\Env::static_var( 'MEMCACHED_NAMESPACE' );
-				$namespace_prefix = U\Crypto::x_sha( $namespace_prefix ) . '_';
+			// `$wp_namespace_prefix`   = 33 characters.
+			// `$wp_primary_key_prefix` = 41 characters.
+			// `$wp_sub_key`            = 40 characters.
+			// Total length             = 114 characters (well within limits).
+
+			static $wp_namespace_prefix; // Memoize.
+
+			if ( null === $wp_namespace_prefix ) {
+				/** Must match {@see U\Mem::$namespace}. */
+				$wp_namespace_prefix = U\Pkg::namespace_crux();
+				$wp_namespace_prefix .= '\\' . U\Pkg::data_context();
+				$wp_namespace_prefix .= '\\' . U\Env::static_var( 'MEMCACHED_NAMESPACE_SALT' );
+				$wp_namespace_prefix = U\Crypto::x_sha( $wp_namespace_prefix, 32 ) . '_';
 			}
-			$primary_key_prefix = sha1( U\Str::serialize( $primary_key_parts, false ) ) . '_';
-			$sub_key            = sha1( U\Str::serialize( $sub_key_parts, false ) );
-			$transient_key      = $namespace_prefix . $primary_key_prefix . $sub_key;
+			$wp_primary_key_prefix = U\Crypto::sha1_key( $primary_key_parts ) . '_';
+			$wp_sub_key            = U\Crypto::sha1_key( $sub_key_parts );
+			$wp_transient_key      = $wp_namespace_prefix . $wp_primary_key_prefix . $wp_sub_key;
 
-			// Context is current 'site' (network) in multisite mode; else current blog.
-			// In WordPress, 'site' refers to current network. There can be multiple networks.
-
-			if ( $is_multisite ) {
+			if ( $wp_is_multisite ) {
 				if ( $is_write_op ) {
 					if ( null === $value ) {
-						delete_site_transient( $transient_key );
+						delete_site_transient( $wp_transient_key );
 						return true; // Indicate success even if it doesn't exist — it's gone.
 					} else {
-						set_site_transient( $transient_key, U\Str::serialize_no_wp( $value ), $expires_in );
+						set_site_transient( $wp_transient_key, U\Str::serialize_no_wp( $value ), $expires_in );
 						return true; // Indicate success even if value didn't change — it's up-to-date.
 					}
 				} else {
-					return U\Str::maybe_unserialize_no_wp( get_site_transient( $transient_key ) );
+					return U\Str::maybe_unserialize_no_wp( get_site_transient( $wp_transient_key ) );
 				}
 			} else {
 				if ( $is_write_op ) {
 					if ( null === $value ) {
-						delete_transient( $transient_key );
+						delete_transient( $wp_transient_key );
 						return true; // Indicate success even if it doesn't exist — it's gone.
 					} else {
-						set_transient( $transient_key, U\Str::serialize_no_wp( $value ), $expires_in );
+						set_transient( $wp_transient_key, U\Str::serialize_no_wp( $value ), $expires_in );
 						return true; // Indicate success even if value didn't change — it's up-to-date.
 					}
 				} else {
-					return U\Str::maybe_unserialize_no_wp( get_transient( $transient_key ) );
+					return U\Str::maybe_unserialize_no_wp( get_transient( $wp_transient_key ) );
 				}
 			}
 		}
 		// Memcached API compatibility w/ static CLS cache fallback.
 
 		static $can_use_mem_extension, $mem; // Memoize.
-		$can_use_mem_extension ??= U\Env::can_use_extension( 'memcached' );
-		$mem                   ??= $can_use_mem_extension ? ( U\Mem::instance_alive_er() ?: false ) : false;
+		static $static_cls_namespace;        // Memoize.
 
+		if ( null === $can_use_mem_extension || null === $mem ) {
+			$can_use_mem_extension ??= U\Env::can_use_extension( 'memcached' );
+			$mem                   ??= $can_use_mem_extension ? ( U\Mem::instance_alive_er() ?: false ) : false;
+		}
+		if ( null === $static_cls_namespace ) {
+			/** Must match {@see U\Mem::$namespace}. */
+			$static_cls_namespace = U\Pkg::namespace_crux();
+			$static_cls_namespace .= '\\' . U\Pkg::data_context();
+			$static_cls_namespace .= '\\' . U\Env::static_var( 'MEMCACHED_NAMESPACE_SALT' );
+			$static_cls_namespace .= '\\' . __FUNCTION__;
+			$static_cls_namespace = U\Crypto::x_sha( $static_cls_namespace, 32 );
+		}
 		if ( $mem ) { // No reason to calculate if Memcached not alive.
 
-			// Default max primary key length = 237 bytes; {@see U\Mem::set()}.
-			// Default max sub-key length = 217 bytes; {@see U\Mem::set()}.
-			// - `$primary_key` = 40 bytes (well within limit).
-			// - `$sub_key` = 40 bytes (well within limit).
+			// Default max primary key length = 217 bytes; {@see U\Mem::set()}.
+			// Default max sub-key length     = 217 bytes; {@see U\Mem::set()}.
 
-			$primary_key = sha1( U\Str::serialize( $primary_key_parts, false ) );
-			$sub_key     = sha1( U\Str::serialize( $sub_key_parts, false ) );
+			// `$primary_key`                 = 40 bytes (well within limit).
+			// `$sub_key`                     = 40 bytes (well within limit).
+
+			$primary_key = U\Crypto::sha1_key( $primary_key_parts );
+			$wp_sub_key  = U\Crypto::sha1_key( $sub_key_parts );
 		}
-		$static_cls_cache_key_parts = [ __FUNCTION__, $primary_key_parts, $sub_key_parts ];
+		$static_cls_cache_key_parts = [ $static_cls_namespace, $primary_key_parts, $sub_key_parts ];
 
 		if ( $is_write_op ) {
-			if ( $mem && $mem->set( $primary_key, $sub_key, $value, $expires_in ) ) {
+			if ( $mem && $mem->set( $primary_key, $wp_sub_key, $value, $expires_in ) ) {
 				static::cls_cache( $static_cls_cache_key_parts, null );   // Clears any prior failures.
 				return true;                                              // Indicates in-memory cache success.
 			} else {
@@ -238,7 +251,7 @@ trait Utility_Members {
 				return true;                                              // Indicates in-memory cache success.
 			}
 		} else {
-			if ( $mem && null !== ( $rtn_value = $mem->get( $primary_key, $sub_key ) ) ) {
+			if ( $mem && null !== ( $rtn_value = $mem->get( $primary_key, $wp_sub_key ) ) ) {
 				return $rtn_value; // Success; return in-memory cache value.
 			} else {
 				return static::cls_cache( $static_cls_cache_key_parts );  // Falls back on static CLS cache.

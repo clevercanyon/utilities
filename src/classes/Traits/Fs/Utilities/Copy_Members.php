@@ -55,7 +55,7 @@ trait Copy_Members {
 	 *
 	 * @param bool        $follow_symlinks   Follow symlinks? Default is `true`.
 	 *
-	 * @param int         $to_path_dir_perms Defaults to `0700`.
+	 * @param array|int[] $to_path_dir_perms Defaults to `[ 0700, 0700 ]`. {@see U\Dir::make()} for permission details.
 	 *                                       If `$to_path`'s parent directories do not exist, they'll be created automatically.
 	 *                                       This establishes the permissions for those newly created directories, when/if applicable.
 	 *
@@ -73,7 +73,7 @@ trait Copy_Members {
 		array $exceptions = [],
 		/* string|null */ ?string $base_path = null,
 		bool $follow_symlinks = true,
-		int $to_path_dir_perms = 0700,
+		array $to_path_dir_perms = [ 0700, 0700 ],
 		/* object|null */ ?object $_r = null
 	) : bool {
 		// Check recursion.
@@ -252,7 +252,7 @@ trait Copy_Members {
 	 *
 	 * @param bool        $follow_symlinks   Follow symlinks? Default is `true`.
 	 *
-	 * @param int         $to_path_dir_perms Defaults to `0700`.
+	 * @param array|int[] $to_path_dir_perms Defaults to `[ 0700, 0700 ]`. {@see U\Dir::make()} for permission details.
 	 *                                       If `$to_path`'s parent directories do not exist, they'll be created automatically.
 	 *                                       This establishes the permissions for those newly created directories, when/if applicable.
 	 *
@@ -265,7 +265,7 @@ trait Copy_Members {
 		array $exceptions = [],
 		/* string|null */ ?string $base_path = null,
 		bool $follow_symlinks = true,
-		int $to_path_dir_perms = 0700
+		array $to_path_dir_perms = [ 0700, 0700 ]
 	) : bool {
 		// `$from_path` validation.
 

@@ -36,14 +36,14 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Is_OS_Members {
 	/**
-	 * Is OS Linux?
+	 * Is OS Mac/Darwin?
 	 *
 	 * @since 2021-12-18
 	 *
-	 * @return bool True if OS is Linux.
+	 * @return bool True if OS is Mac/Darwin.
 	 */
-	public static function is_linux() : bool {
-		return 'Linux' === PHP_OS_FAMILY;
+	public static function is_mac() : bool {
+		return 'Darwin' === PHP_OS_FAMILY;
 	}
 
 	/**
@@ -58,6 +58,17 @@ trait Is_OS_Members {
 	}
 
 	/**
+	 * Is OS Linux?
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @return bool True if OS is Linux.
+	 */
+	public static function is_linux() : bool {
+		return 'Linux' === PHP_OS_FAMILY;
+	}
+
+	/**
 	 * Is OS Unix-based?
 	 *
 	 * @since 2021-12-18
@@ -65,6 +76,22 @@ trait Is_OS_Members {
 	 * @return bool True if OS is based on Unix.
 	 */
 	public static function is_unix_based() : bool {
-		return in_array( PHP_OS_FAMILY, [ 'BSD', 'Darwin', 'Solaris', 'Linux' ], true );
+		static $is; // Memoize.
+
+		if ( null !== $is ) {
+			return $is; // Saves time.
+		}
+		return $is = in_array( PHP_OS_FAMILY, [ 'BSD', 'Darwin', 'Solaris', 'Linux' ], true );
+	}
+
+	/**
+	 * Is OS unknown?
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @return bool True if OS is unknown.
+	 */
+	public static function is_unknown_os() : bool {
+		return 'Unknown' === PHP_OS_FAMILY;
 	}
 }

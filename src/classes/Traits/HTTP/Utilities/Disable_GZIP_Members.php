@@ -41,35 +41,43 @@ trait Disable_GZIP_Members {
 	 * You may need to set `content-encoding`, `transfer-encoding`, or `content-transfer-encoding`
 	 * headers after calling this method. They are all forced to default values here.
 	 *
-	 * @since 2021-12-15
+	 * @since        2021-12-15
 	 *
 	 * @return bool True if GZIP disabled successfully.
 	 *
-	 * @see   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
-	 * @see   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding
-	 * @see   https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
+	 * @see          https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
+	 * @see          https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding
+	 * @see          https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
 	 *
-	 * @see   https://stackoverflow.com/a/11664307/1219741
-	 * @see   https://www.php.net/manual/en/function.headers-sent.php
-	 * @see   https://www.php.net/manual/en/function.apache-setenv.php
-	 * @see   https://www.php.net/manual/en/zlib.configuration.php#ini.zlib.output-compression
+	 * @see          https://stackoverflow.com/a/11664307/1219741
+	 * @see          https://www.php.net/manual/en/function.headers-sent.php
+	 * @see          https://www.php.net/manual/en/function.apache-setenv.php
+	 * @see          https://www.php.net/manual/en/zlib.configuration.php#ini.zlib.output-compression
+	 *
+	 * @noinspection PhpUndefinedFunctionInspection
 	 */
 	public static function disable_gzip() : bool {
-		$apache_setenv_response = null;
-		$set_headers            = null;
+		if ( $set_headers = ! headers_sent() ) {
+			header( 'content-encoding: none' );
+			header( 'transfer-encoding: binary' );
+			header( 'content-transfer-encoding: binary' );
 
-		if ( ! headers_sent() ) {
-			$set_headers // If all of these are true.
-				= 'nill' !== header( 'content-encoding: none' )
-				&& 'nill' !== header( 'transfer-encoding: binary' )
-				&& 'nill' !== header( 'content-transfer-encoding: binary' )
-				// This also requires that headers not be sent yet, else it triggers a warning.
+			// Also requires headers not be sent yet; else throws warning.
+			$zlib_output_compression_off = U\Env::can_use_function( 'ini_set' )
 				&& false !== ini_set( 'zlib.output_compression', 'off' ); // phpcs:ignore.
+		} else {
+			$zlib_output_compression_off = false; // Not possible.
 		}
-		if ( U\Env::can_use_function( 'apache_setenv' ) ) {
-			/** @noinspection PhpUndefinedFunctionInspection */        // phpcs:ignore.
-			$apache_setenv_response = apache_setenv( 'no-gzip', '1' ); // phpcs:ignore.
+		if ( U\Env::is_apache() && U\Env::can_use_function( 'apache_setenv' ) ) {
+			$apache_setenv_no_gzip = apache_setenv( 'no-gzip', '1' ); // phpcs:ignore.
+		} else {
+			$apache_setenv_no_gzip = null; // Not applicable.
 		}
-		return $set_headers && false !== $apache_setenv_response;
+		$set_static_var = null !== U\Env::static_var( 'HTTP_GZIP', false );
+
+		return $set_headers
+			&& $zlib_output_compression_off
+			&& false !== $apache_setenv_no_gzip
+			&& $set_static_var;
 	}
 }

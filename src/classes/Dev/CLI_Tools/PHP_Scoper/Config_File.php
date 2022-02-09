@@ -132,7 +132,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 
 		$cfg_file = U\Dir::name( __FILE__, 6, '/dev/libraries/dotfiles/.scoper.cfg.php' );
 
-		if ( false === file_put_contents( $cfg_file, $this->generate_config_file_contents() ) ) {
+		if ( ! U\File::write( $cfg_file, $this->generate_config_file_contents(), false ) ) {
 			throw new U\Fatal_Exception( 'Failed to update PHP Scoper config file: `' . $cfg_file . '`.' );
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Updated: `' . $cfg_file . '`.' );
@@ -153,7 +153,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 		sort( $names->classes, SORT_NATURAL );
 		sort( $names->functions, SORT_NATURAL );
 
-		$headers = <<<'HEADERS'
+		$headers = <<<'ooo'
 		<?php
 		/**
 		 * PHP Scoper config file.
@@ -198,11 +198,11 @@ final class Config_File extends U\A6t\CLI_Tool {
 		 */
 		declare( strict_types = 1 );
 		namespace Clever_Canyon\PHP_Scoper\Config_File;
-		HEADERS;
+		ooo;
 
 		$body = ''; // Initialize.
 
-		$body .= <<<'BODY'
+		$body .= <<<'ooo'
 		/**
 		 * CLI check.
 		 *
@@ -211,10 +211,10 @@ final class Config_File extends U\A6t\CLI_Tool {
 		if ( 'cli' !== PHP_SAPI ) {
 			exit( 1 ); // CLI mode only.
 		}
-		BODY;
+		ooo;
 		$body .= "\n\n";
 
-		$body .= <<<'BODY'
+		$body .= <<<'ooo'
 		/**
 		 * Configuration.
 		 *
@@ -222,7 +222,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 		 *
 		 * @see https://o5p.me/DsVI6o
 		 */
-		BODY;
+		ooo;
 		$body .= "\n";
 
 		$body .= '$cfg = ' .
@@ -236,7 +236,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 				'exclude-functions' => $names->functions,
 			], true ) . ';' . "\n";
 
-		$body .= <<<'BODY'
+		$body .= <<<'ooo'
 		if ( is_file( __DIR__ . '/composer.json' ) ) {
 			$prj_cfg = file_get_contents( __DIR__ . '/composer.json' );
 			$prj_cfg = is_array( $prj_cfg = json_decode( $prj_cfg, true ) ) ? $prj_cfg : [];
@@ -256,7 +256,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 			] );
 		}
 		return $cfg;
-		BODY;
+		ooo;
 
 		return $headers . "\n\n" . $body;
 	}
@@ -417,7 +417,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 * @return string WordPress global stubs.
 	 */
 	protected function php_stubs_wordpress_globals() : string {
-		return file_get_contents( U\Dir::name( __FILE__, 6, '/vendor/php-stubs/wordpress-globals/wordpress-globals.php' ) );
+		return U\File::read( U\Dir::name( __FILE__, 6, '/vendor/php-stubs/wordpress-globals/wordpress-globals.php' ) );
 	}
 
 	/**
@@ -432,7 +432,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 *                {@see Config_File::php_parser_node_visitor()} also, where `x_stubfix_readonly` conversion occurs.
 	 */
 	protected function php_stubs_wordpress_stubs() : string {
-		$stubs = file_get_contents( U\Dir::name( __FILE__, 6, '/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php' ) );
+		$stubs = U\File::read( U\Dir::name( __FILE__, 6, '/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php' ) );
 		return str_replace( 'function readonly(', 'function x_stubfix_readonly(', $stubs );
 	}
 
@@ -444,7 +444,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 * @return string WooCommerce stubs.
 	 */
 	protected function php_stubs_woocommerce_stubs() : string {
-		return file_get_contents( U\Dir::name( __FILE__, 6, '/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php' ) );
+		return U\File::read( U\Dir::name( __FILE__, 6, '/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php' ) );
 	}
 
 	/**
@@ -455,6 +455,6 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 * @return string WooCommerce packages stubs.
 	 */
 	protected function php_stubs_woocommerce_packages_stubs() : string {
-		return file_get_contents( U\Dir::name( __FILE__, 6, '/vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php' ) );
+		return U\File::read( U\Dir::name( __FILE__, 6, '/vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php' ) );
 	}
 }

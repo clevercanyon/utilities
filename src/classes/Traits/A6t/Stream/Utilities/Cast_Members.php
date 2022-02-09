@@ -11,22 +11,12 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Lint configuration.
- *
- * @since        2021-12-15
- *
- * @noinspection PhpUnhandledExceptionInspection
- * @noinspection PhpStaticAsDynamicMethodCallInspection
- * phpcs:disable Generic.Commenting.DocComment.MissingShort
- */
-
-/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities__Tests\Tests;
+namespace Clever_Canyon\Utilities\Traits\A6t\Stream\Utilities;
 
 /**
  * Utilities.
@@ -34,21 +24,31 @@ namespace Clever_Canyon\Utilities__Tests\Tests;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use Clever_Canyon\{Utilities__Tests as UT};
 
 // </editor-fold>
 
 /**
- * Test case.
+ * Interface members.
  *
  * @since 2021-12-15
- * @coversDefaultClass \Clever_Canyon\Utilities\Flt
+ *
+ * @see   U\I7e\Stream
  */
-final class Flt_Tests extends UT\A6t\Tests {
+trait Cast_Members {
 	/**
-	 * // @covers ::foo()
+	 * Gets underlying resource.
+	 *
+	 * @since        2022-01-29
+	 *
+	 * @param int $cast_as Cast directive.
+	 *
+	 * @return resource|false Resource on success.
+	 *
+	 * @see          https://www.php.net/manual/en/streamwrapper.stream-cast.php
+	 *
+	 * @noinspection PhpMissingReturnTypeInspection
 	 */
-	public function test_foo() : void {
-		$this->assertSame( '', '', $this->message() );
+	public function stream_cast( int $cast_as ) /* : resource|false */ {
+		return false; // Not applicable.
 	}
 }

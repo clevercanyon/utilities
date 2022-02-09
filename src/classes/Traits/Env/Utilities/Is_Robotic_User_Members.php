@@ -34,29 +34,24 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Env
  */
-trait End_Output_Buffering_Members {
+trait Is_Robotic_User_Members {
 	/**
-	 * Ends output buffering.
+	 * A robotic web server user?
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-18
 	 *
-	 * @param int|null $keep_ob_level Base output buffering level. Default is `0` (i.e., end all output buffers).
-	 *                                Set to something higher (e.g., `1`) to end output buffers up to,
-	 *                                but excluding, a different level, which you'd like to keep.
-	 *
-	 * @return bool True if output buffering ended successfully.
-	 *
-	 * @see   https://www.php.net/manual/en/function.ob-end-clean.php
+	 * @return bool True if a robotic web server user.
 	 */
-	public static function end_output_buffering( /* int|null */ ?int $keep_ob_level = null ) : bool {
-		$keep_ob_level ??= U\Env::in_test_mode( 'phpunit' ) ? 1 : 0;
-		$keep_ob_level = max( 0, $keep_ob_level ); // Guard against infinite loop.
+	public static function is_robotic_web_server_user() : bool {
+		static $is; // Memoize.
 
-		while ( ob_get_level() !== $keep_ob_level ) {
-			if ( ! ob_end_clean() ) {
-				return false; // Special buffers do exist!
-			}
+		if ( null !== $is ) {
+			return $is; // Saves time.
 		}
-		return true;
+		$user = trim( U\Env::var( 'USER_LC' ), '_' );
+
+		return $is = '' !== $user // Checks two variants.
+			&& ( in_array( $user, U\Env::ROBOTIC_WEB_SERVER_USERS, true )
+				|| in_array( '_' . $user, U\Env::ROBOTIC_WEB_SERVER_USERS, true ) );
 	}
 }

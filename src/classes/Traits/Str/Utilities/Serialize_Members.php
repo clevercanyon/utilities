@@ -48,7 +48,7 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Serialize_Members {
 	/**
-	 * Serializes a value with additional security considerations.
+	 * Serializes a value.
 	 *
 	 * @since 2021-12-15
 	 *
@@ -61,27 +61,27 @@ trait Serialize_Members {
 	 *                       Do not serialize resource values; either directly or indirectly.
 	 *                       Future versions of PHP will likely disallow altogether.
 	 *
-	 * @param bool  $sign  Sign the serialized string? Default is `true` (more secure).
-	 *                     Recommended best practice is to set as `false` for performance gains in certain cases.
-	 *                     For example, when serializing values that'll never be unserialized or will never be untrusted.
+	 * @param bool  $sign  Sign the serialized string? Default is `false`.
+	 *                     Recommend setting as `true` when serializing sensitive data.
+	 *                     e.g., When data could potentially be exposed to untrusted parties.
 	 *
-	 * @return string Serialized string representation.
+	 * @return string Serialized value; i.e., a string.
+	 *                * If `$sign` is `true` it will start with a 64-byte signature,
+	 *                  followed by a separator; {@see U\Str::SERIALIZE_SIGNATURE_SEPARATOR}.
 	 *
 	 * @see   \serialize()
 	 */
-	public static function serialize( /* mixed */ $value, bool $sign = true ) : string {
+	public static function serialize( /* mixed */ $value, bool $sign = false ) : string {
 		assert( ! is_resource( $value ) );
 		assert( ! $value instanceof \Closure );
 
 		if ( ! $sign ) {
 			return serialize( $value );
 		}
-		$serialized_value = serialize( $value );
-		$signature        = U\Str::serialized_signature_helper( $serialized_value );
+		$s8d_value = serialize( $value );
+		$signature = hash_hmac( 'sha256', $s8d_value, U\Crypto::salt() );
 
-		return $signature .
-			U\Str::SERIALIZE_SIGNATURE_SEPARATOR .
-			$serialized_value;
+		return $signature . U\Str::SERIALIZE_SIGNATURE_SEPARATOR . $s8d_value;
 	}
 
 	/**
@@ -89,13 +89,11 @@ trait Serialize_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param mixed $value  Value to unserialize.
+	 * @param mixed $s8d_value Serialized value to be unserialized.
 	 *
-	 * @param bool  $signed Input string is signed? Default is absolutely `true` (more secure).
-	 *                      When `true`, a signature must be present, and it must be a valid signature.
-	 *
-	 *                      * If `false`, a signature must not be present, and therefore will not be considered.
-	 *                        Care should be taken before setting this to `false`. It's potentially dangerous.
+	 * @param bool  $signed    Serialized value is signed? Default is `false`.
+	 *                         When `false` (default) a signature must not be present.
+	 *                         When `true`, a signature must be present and pass validation.
 	 *
 	 * @return mixed Unserialized original value; else `null` on failure.
 	 *
@@ -107,51 +105,39 @@ trait Serialize_Members {
 	 *
 	 * @see   \unserialize()
 	 */
-	public static function unserialize( /* mixed */ $value, bool $signed = true ) /* : mixed */ {
-		if ( '' === $value || ! is_string( $value ) ) {
+	public static function unserialize( /* mixed */ $s8d_value, bool $signed = false ) /* : mixed */ {
+		if ( ! is_string( $s8d_value ) || '' === $s8d_value ) {
 			return null; // Failure.
 		}
 		if ( $signed ) { // Must be present, and it must be a valid signature.
-			if ( 12 !== mb_strpos( $value, U\Str::SERIALIZE_SIGNATURE_SEPARATOR ) ) {
+			if ( 64 !== mb_strpos( $s8d_value, U\Str::SERIALIZE_SIGNATURE_SEPARATOR ) ) {
 				return null; // Failure to locate signature separator.
 			}
-			[ $signature, $value ] = explode( U\Str::SERIALIZE_SIGNATURE_SEPARATOR, $value, 2 );
-			$valid_signature = U\Str::serialized_signature_helper( $value );
+			[ $signature, $s8d_value ] = explode( U\Str::SERIALIZE_SIGNATURE_SEPARATOR, $s8d_value, 2 );
+			$valid_signature = hash_hmac( 'sha256', $s8d_value, U\Crypto::salt() );
 
 			if ( ! hash_equals( $valid_signature, $signature ) ) {
 				return null; // Signature mismatch.
 			}
 		}
-		static $serialized_false; // Memoize.
-		$serialized_false ??= serialize( false );
+		static $s8d_false; // Memoize.
+		$s8d_false ??= serialize( false );
 
-		if ( $serialized_false === $value ) {
-			return false; // Explicit `false` return value.
+		if ( ':' !== ( $s8d_value[ 1 ] ?? '' ) ) {
+			return null; // Not a serialized value.
 		}
-		$options = [
-			'allowed_classes' => [
-				\stdClass::class,
-				U\Generic::class,
-			],
-		];
-		$value   = @unserialize( $value, $options );
-
+		if ( $s8d_false === $s8d_value ) {
+			return false; // Explicit `false`.
+		}
+		$value = @unserialize(
+			$s8d_value,
+			[
+				'allowed_classes' => [
+					\stdClass::class,
+					U\Generic::class,
+				],
+			]
+		);
 		return false === $value ? null : $value;
-	}
-
-	/**
-	 * Calculates serialized value's signature.
-	 *
-	 * @since 2022-01-28
-	 *
-	 * @param string $serialized_value Serialized value.
-	 *
-	 * @return string Serialized value's signature.
-	 */
-	protected static function serialized_signature_helper( string $serialized_value ) : string {
-		$signature = hash_hmac( 'sha1', $serialized_value, U\Str::SERIALIZE_SIGNATURE_KEY );
-		$signature = mb_substr( $signature, 0, 12 ); // Keeps it reasonable.
-
-		return $signature;
 	}
 }

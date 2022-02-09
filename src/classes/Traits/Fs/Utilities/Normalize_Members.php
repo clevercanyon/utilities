@@ -40,6 +40,7 @@ trait Normalize_Members {
 	 *
 	 * This function takes a number of internal directives that have an impact on behavior.
 	 * However, none of the directives are part of a public API. Other utilities are available.
+	 * Please *do not* use any of the directives unless you're working on the internals of this library.
 	 *
 	 * This function is not URL scheme-safe. That's another set of concerns.
 	 * While this function is scheme-agnostic, using it with (e.g., `http://`, `data://`) is not recommended.
@@ -70,10 +71,6 @@ trait Normalize_Members {
 	 * @see   \Clever_Canyon\Utilities\Dev\Utilities\Fs::normalize()
 	 */
 	public static function normalize( string $path, array $_d = [] ) : string {
-		if ( ! empty( $_d[ 'cache' ] ) // Enable caching?
-			&& null !== ( $cache = &static::cls_cache( [ __FUNCTION__, $path, $_d ] ) ) ) {
-			return $cache; // Already cached; saves a little time.
-		}
 		// Normalize type of slashes.
 
 		$path = str_replace( '\\', '/', $path );
@@ -102,7 +99,7 @@ trait Normalize_Members {
 		$path = preg_replace( '/\/+/u', '/', $path );
 
 		// Maybe resolve relative filesystem path to absolute path, by directive.
-		// Only if no `$wrappers`, or when `file://`, `//`, `[a-z]:` is `$last_wrapper`.
+		// Only if no `$wrappers`, or when `//`, `[a-z]:`, or `file://` is `$last_wrapper`.
 		// For Windows, please carefully review {@see https://o5p.me/z52z8j} for further details.
 
 		if ( ! empty( $_d[ 'resolve:relative-path' ] ) && '' !== $path && '/' !== $path[ 0 ] ) {
@@ -146,7 +143,7 @@ trait Normalize_Members {
 				$_no_wrappers_to_no_cwd_wrappers               // Don't need to worry about wrappers.
 				|| $_last_wrapper_to_matching_cwd_wrappers     // Use the already-compatible `$last_wrapper`.
 				|| $_last_wrapper_file_to_no_cwd_wrappers      // Use the already-compatible `$last_wrapper`.
-				|| $_last_wrapper_file_to_wdl_cwd_wrappers  // Use `$last_wrapper` + CWD inner wrapper.
+				|| $_last_wrapper_file_to_wdl_cwd_wrappers     // Use `$last_wrapper` + CWD inner wrapper.
 				|| $_no_wrappers_to_compat_cwd_wrappers;       // Use `$cwd_wrappers` and renormalize.
 
 			if ( ! $_have_compatible_cwd_path_parts || ! $_have_compatible_wrappers_to_cwd_wrappers ) {
@@ -176,10 +173,10 @@ trait Normalize_Members {
 			$path = implode( '/', $_abs_path_parts ); // Absolute path now.
 
 			if ( $_last_wrapper_file_to_wdl_cwd_wrappers ) { // Got Windows drive-letter `$cwd_wrappers`, must renormalize.
-				return $cache = U\Fs::normalize( $wrappers . '/' . $cwd_wrappers . $path, array_intersect_key( $_d, [ 'append:trailing-slash' => 0 ] ) );
+				return U\Fs::normalize( $wrappers . '/' . $cwd_wrappers . $path, array_intersect_key( $_d, [ 'append:trailing-slash' => 0 ] ) );
 			}
 			if ( $_no_wrappers_to_compat_cwd_wrappers ) { // Got new `$cwd_wrappers`, must renormalize.
-				return $cache = U\Fs::normalize( $cwd_wrappers . $path, array_intersect_key( $_d, [ 'append:trailing-slash' => 0 ] ) );
+				return U\Fs::normalize( $cwd_wrappers . $path, array_intersect_key( $_d, [ 'append:trailing-slash' => 0 ] ) );
 			}
 		}
 		// If there are `$wrappers` and a `$path`, fix any obvious problems with `$path`,
@@ -204,12 +201,12 @@ trait Normalize_Members {
 			}
 		} // Complete `$path` normalization and return now.
 
-		if ( '/' === $path ) {                 // Nothing more to do here.
-			return $cache = $wrappers . $path; // `$wrappers` + normalized `$path`.
+		if ( '/' === $path ) {        // Nothing more to do here.
+			return $wrappers . $path; // `$wrappers` + normalized `$path`.
 		}
 		$path = rtrim( $path, '/' );  // ← This completes normalization.
 
-		return $cache = $wrappers . $path . // `$wrappers` + normalized `$path` (+ possible trailing slash).
+		return $wrappers . $path . // `$wrappers` + normalized `$path` (+ possible trailing slash).
 			( ! empty( $_d[ 'append:trailing-slash' ] ) && ( ! $wrappers || '' !== $path ) ? '/' : '' );
 	}
 }

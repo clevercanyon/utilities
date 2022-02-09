@@ -46,9 +46,13 @@ use Clever_Canyon\{Utilities as U};
  *
  * @property-read $pkg_name
  * @property-read $pkg_name_hash
- * @property-read $pkg_namespace_scope
  *
+ * @property-read $namespace_scope
+ * @property-read $namespace_crux
+ *
+ * @property-read $brand_n7m
  * @property-read $brand_name
+ *
  * @property-read $brand_slug
  * @property-read $brand_var
  *
@@ -130,25 +134,39 @@ final class Project extends U\A6t\Base {
 	protected string $stable_tag;
 
 	/**
-	 * Pkg name; e.g., `clevercanyon/my-brand-my-thing`.
+	 * Pkg name; e.g., `clevercanyon/my-brand-my-project`.
 	 *
 	 * @since 2021-12-15
 	 */
 	protected string $pkg_name;
 
 	/**
-	 * Pkg name hash; e.g., `xj9ier8xr3oa`
+	 * Pkg name hash; e.g., `xae3c7c368fe2e3c`
 	 *
 	 * @since 2021-12-15
 	 */
 	protected string $pkg_name_hash;
 
 	/**
-	 * Pkg namespace scope; e.g., `Xj9ier8xr3oa`
+	 * Namespace scope; e.g., `Xae3c7c368fe2e3c`
 	 *
 	 * @since 2021-12-15
 	 */
-	protected string $pkg_namespace_scope;
+	protected string $namespace_scope;
+
+	/**
+	 * Namespace crux; e.g., `My_Brand\My_Product`
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $namespace_crux;
+
+	/**
+	 * Brand n7m; e.g., `m5d`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $brand_n7m;
 
 	/**
 	 * Brand name; e.g., `My Brand`.
@@ -186,49 +204,49 @@ final class Project extends U\A6t\Base {
 	protected string $brand_var_prefix;
 
 	/**
-	 * Name; e.g., `My Thing`.
+	 * Name; e.g., `My Project`.
 	 *
 	 * @since 2021-12-15
 	 */
 	protected string $name;
 
 	/**
-	 * Slug; e.g., `my-brand-my-thing`.
+	 * Slug; e.g., `my-brand-my-project`.
 	 *
 	 * @since 2021-12-15
 	 */
 	protected string $slug;
 
 	/**
-	 * Var; e.g., `my_brand_my_thing`.
+	 * Var; e.g., `my_brand_my_project`.
 	 *
 	 * @since 2021-12-15
 	 */
 	protected string $var;
 
 	/**
-	 * Slug prefix (e.g., my-brand-my-thing--).
+	 * Slug prefix (e.g., my-brand-my-project-x-).
 	 *
 	 * @since 2021-12-15
 	 */
 	protected string $slug_prefix;
 
 	/**
-	 * Var prefix (e.g., my_brand_my_thing__).
+	 * Var prefix (e.g., my_brand_my_project_x_).
 	 *
 	 * @since 2021-12-15
 	 */
 	protected string $var_prefix;
 
 	/**
-	 * Unbranded slug; e.g., `my-thing`.
+	 * Unbranded slug; e.g., `my-project`.
 	 *
 	 * @since 2021-12-15
 	 */
 	protected string $unbranded_slug;
 
 	/**
-	 * Unbranded var; e.g., `my_thing`.
+	 * Unbranded var; e.g., `my_project`.
 	 *
 	 * @since 2021-12-15
 	 */
@@ -265,7 +283,8 @@ final class Project extends U\A6t\Base {
 		if ( ! isset( $this->json->name, $this->json->extra ) ) {
 			throw new U\Fatal_Exception( 'Missing or extremely incomplete `Project->json` file.' );
 		}
-		if ( ! $this->json->name || ! is_string( $this->json->name ) ) {
+		if ( ! $this->json->name || ! is_string( $this->json->name )
+			|| ! preg_match( U\Dev\Composer::PACKAGE_NAME_REGEXP, $this->json->name ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid data type for `Project->json->name`.' );
 		}
 		if ( ! $this->json->extra || ! is_object( $this->json->extra ) ) {
@@ -273,8 +292,8 @@ final class Project extends U\A6t\Base {
 		}
 		// Validate type and layout properties.
 
-		$this->type   = strval( $this->json->type ?? '' ) ?: 'library';
-		$this->layout = strval( $this->extra_json_prop( '&.project.data.layout' ) ) ?: 'library';
+		$this->type   = u\if_string_ne( $this->json->type ?? '', 'library' );
+		$this->layout = u\if_string_ne( $this->extra_json_prop( '&.project.data.layout' ), 'library' );
 
 		if ( ! $this->type || ! U\Str::is_slug( $this->type ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->type`.' );
@@ -284,8 +303,8 @@ final class Project extends U\A6t\Base {
 		}
 		// Validate version and stable tag properties.
 
-		$this->version    = strval( $this->extra_json_prop( '&.project.data.version' ) );
-		$this->stable_tag = strval( $this->extra_json_prop( '&.project.data.stable_tag' ) );
+		$this->version    = u\if_string( $this->extra_json_prop( '&.project.data.version' ), '' );
+		$this->stable_tag = u\if_string( $this->extra_json_prop( '&.project.data.stable_tag' ), '' );
 
 		if ( ! $this->version || ! U\Str::is_version( $this->version ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->version`.' );
@@ -295,66 +314,131 @@ final class Project extends U\A6t\Base {
 		}
 		// Validate package name properties.
 
-		$this->pkg_name            = strval( $this->json->name );
-		$this->pkg_name_hash       = U\Crypto::x_sha( $this->pkg_name );
-		$this->pkg_namespace_scope = U\Str::uc_first( $this->pkg_name_hash );
+		$this->pkg_name      = $this->json->name;
+		$this->pkg_name_hash = U\Crypto::x_sha( $this->pkg_name );
 
+		$this->namespace_scope = U\Str::uc_first( $this->pkg_name_hash );
+		$this->namespace_crux  = ''; // Initialize; worked out below.
+
+		if ( is_object( $this->json->autoload ?? null )
+			&& is_object( $this->json->autoload->{'psr-4'} ?? null ) ) {
+			$this->namespace_crux = array_key_first( (array) $this->json->autoload->{'psr-4'} );
+			$this->namespace_crux = trim( u\if_string( $this->namespace_crux, '' ), '\\' );
+		}
 		if ( ! $this->pkg_name || ! preg_match( U\Dev\Composer::PACKAGE_NAME_REGEXP, $this->pkg_name ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_name`.' );
 		}
-		if ( ! $this->pkg_name_hash || 12 !== mb_strlen( $this->pkg_name_hash ) ) {
+		if ( ! $this->pkg_name_hash || ! preg_match( U\Dev\Composer::PACKAGE_NAME_HASH_REGEXP, $this->pkg_name_hash ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_name_hash`.' );
 		}
-		if ( ! $this->pkg_namespace_scope || 12 !== mb_strlen( $this->pkg_namespace_scope ) ) {
+		if ( ! $this->namespace_scope || ! preg_match( U\Pkg::NAMESPACE_SCOPE_REGEXP, $this->namespace_scope ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_namespace_scope`.' );
+		}
+		if ( ! $this->namespace_crux || ! preg_match( U\Pkg::NAMESPACE_CRUX_REGEXP, $this->namespace_crux ) ) {
+			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_namespace_crux`.' );
 		}
 		// Validate brand properties.
 
-		$this->brand_name = strval( $this->extra_json_prop( '&.brand.data.name' ) );
-		$this->brand_slug = strval( $this->extra_json_prop( '&.brand.data.slug' ) );
-		$this->brand_var  = str_replace( '-', '_', $this->brand_slug );
+		// @todo Update utilities and remove the `php-js-` prefix.
 
-		$this->brand_slug_prefix = $this->brand_slug . '-';
-		$this->brand_var_prefix  = $this->brand_var . '_';
+		$this->brand_n7m // Numeronym; e.g., `m5d`, `c10n`.
+			= u\if_string( $this->extra_json_prop( '&.brand.data.n7m' ), '' );
 
+		$this->brand_name = U\Brand::get( $this->brand_n7m, 'name' );
+		$this->brand_slug = U\Brand::get( $this->brand_n7m, 'slug' );
+		$this->brand_var  = U\Brand::get( $this->brand_n7m, 'var' );
+
+		$this->brand_slug_prefix = U\Brand::get( $this->brand_n7m, 'slug_prefix' );
+		$this->brand_var_prefix  = U\Brand::get( $this->brand_n7m, 'var_prefix' );
+
+		if ( ! $this->brand_n7m || ! U\Str::is_n7m( $this->brand_n7m ) ) {
+			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->brand_n7m`.' );
+		}
 		if ( ! $this->brand_name || ! U\Str::is_name( $this->brand_name ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->brand_name`.' );
 		}
-		if ( ! $this->brand_slug || ! U\Str::is_slug( $this->brand_slug ) ) {
+		if ( ! $this->brand_slug || ! U\Str::is_brand_slug( $this->brand_slug ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->brand_slug`.' );
 		}
-		if ( ! $this->brand_var || ! U\Str::is_var( $this->brand_var ) ) {
+		if ( ! $this->brand_var || ! U\Str::is_brand_var( $this->brand_var ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->brand_var`.' );
 		}
-		// Validate project name, slug, and var properties.
+		if ( ! $this->brand_slug_prefix || ! U\Str::is_brand_slug_prefix( $this->brand_slug_prefix, $this->brand_slug ) ) {
+			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->brand_slug_prefix`.' );
+		}
+		if ( ! $this->brand_var_prefix || ! U\Str::is_brand_var_prefix( $this->brand_var_prefix, $this->brand_var ) ) {
+			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->brand_var_prefix`.' );
+		}
+		if ( U\Str::to_brand_slug( $this->brand_var ) !== $this->brand_slug ) {
+			throw new U\Fatal_Exception( '`Project->brand_var` (as a brand slug) doesn’t match `Project->brand_slug`.' );
+		}
+		if ( U\Str::to_brand_slug( $this->brand_var ) !== U\Str::to_brand_slug( $this->brand_slug ) ) {
+			throw new U\Fatal_Exception( '`Project->brand_var` and `Project->brand_slug` (as brand slugs) do not match.' );
+		}
+		if ( U\Str::to_brand_slug_prefix( $this->brand_var_prefix ) !== $this->brand_slug_prefix ) {
+			throw new U\Fatal_Exception( '`Project->brand_var_prefix` (as a brand slug prefix) doesn’t match `Project->brand_slug_prefix`.' );
+		}
+		if ( U\Str::to_brand_slug_prefix( $this->brand_var_prefix ) !== U\Str::to_brand_slug_prefix( $this->brand_slug_prefix ) ) {
+			throw new U\Fatal_Exception( '`Project->brand_var_prefix` and `Project->brand_slug_prefix` (as brand slug prefixes) do not match.' );
+		}
+		// Now, let's validate project name, slug, and var properties.
 
-		$this->name = strval( $this->extra_json_prop( '&.project.data.name' ) );
-		$this->slug = basename( $this->pkg_name ); // Project slug can easily be derived from Composer package name.
-		$this->slug = ! U\Str::begins_with( $this->slug, $this->brand_slug_prefix ) ? $this->brand_slug_prefix . $this->slug : $this->slug;
-		$this->var  = str_replace( '-', '_', $this->slug );
+		$this->name = u\if_string( $this->extra_json_prop( '&.project.data.name' ), '' );
+		$this->slug = basename( $this->pkg_name ); // Derived from Composer package name.
+		$this->slug = // Fall back on full package name. See `README.md` in this directory.
+			! U\Str::is_lede_slug( $this->slug, $this->brand_slug_prefix )
+				? U\Str::to_lede_slug( $this->pkg_name ) : $this->slug;
+		$this->var  = U\Str::to_lede_var( $this->slug );
 
-		$this->slug_prefix = $this->slug . '--';
-		$this->var_prefix  = $this->var . '__';
+		$this->slug_prefix = U\Str::to_lede_slug_prefix( $this->slug );
+		$this->var_prefix  = U\Str::to_lede_var_prefix( $this->var );
 
 		if ( ! $this->name || ! U\Str::is_name( $this->name ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->name`.' );
 		}
-		if ( ! $this->slug || ! U\Str::is_slug( $this->slug, $this->brand_slug_prefix ) ) {
+		if ( ! $this->slug || ! U\Str::is_lede_slug( $this->slug, $this->brand_slug_prefix ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->slug`.' );
 		}
-		if ( ! $this->var || ! U\Str::is_var( $this->var, $this->brand_var_prefix ) ) {
+		if ( ! $this->var || ! U\Str::is_lede_var( $this->var, $this->brand_var_prefix ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->var`.' );
+		}
+		if ( ! $this->slug_prefix || ! U\Str::is_lede_slug_prefix( $this->slug_prefix, $this->brand_slug_prefix ) ) {
+			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->slug_prefix`.' );
+		}
+		if ( ! $this->var_prefix || ! U\Str::is_lede_var_prefix( $this->var_prefix, $this->brand_var_prefix ) ) {
+			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->var_prefix`.' );
+		}
+		if ( U\Str::to_lede_slug( $this->var ) !== $this->slug ) {
+			throw new U\Fatal_Exception( '`Project->var` (as a lede slug) doesn’t match `Project->slug`.' );
+		}
+		if ( U\Str::to_lede_slug( $this->var ) !== U\Str::to_lede_slug( $this->slug ) ) {
+			throw new U\Fatal_Exception( '`Project->var` and `Project->slug` (as lede slugs) do not match.' );
+		}
+		if ( U\Str::to_lede_slug( $this->namespace_crux ) !== $this->slug || U\Str::to_lede_var( $this->namespace_crux ) !== $this->var ) {
+			throw new U\Fatal_Exception( '`Project->namespace_crux` (as a lede slug|var) doesn’t match `Project->slug|var`.' );
+		}
+		if ( U\Str::to_lede_slug_prefix( $this->var_prefix ) !== $this->slug_prefix ) {
+			throw new U\Fatal_Exception( '`Project->var_prefix` (as a lede slug prefix) doesn’t match `Project->slug_prefix`.' );
+		}
+		if ( U\Str::to_lede_slug_prefix( $this->var_prefix ) !== U\Str::to_lede_slug_prefix( $this->slug_prefix ) ) {
+			throw new U\Fatal_Exception( '`Project->var_prefix` and `Project->slug_prefix` (as lede slug prefixes) do not match.' );
 		}
 		// Validate unbranded slug & var properties.
 
-		$this->unbranded_slug = preg_replace( '/^' . U\Str::esc_reg( $this->brand_slug_prefix ) . '/ui', '', $this->slug );
-		$this->unbranded_var  = str_replace( '-', '_', $this->unbranded_slug );
+		$this->unbranded_slug = mb_substr( $this->slug, mb_strlen( $this->brand_slug_prefix ) );
+		$this->unbranded_var  = mb_substr( $this->var, mb_strlen( $this->brand_var_prefix ) );
 
-		if ( ! $this->unbranded_slug || ! U\Str::is_slug( $this->unbranded_slug ) ) {
+		if ( ! $this->unbranded_slug || ! U\Str::is_lede_slug( $this->unbranded_slug ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->unbranded_slug`.' );
 		}
-		if ( ! $this->unbranded_var || ! U\Str::is_var( $this->unbranded_var ) ) {
+		if ( ! $this->unbranded_var || ! U\Str::is_lede_var( $this->unbranded_var ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->unbranded_var`.' );
+		}
+		if ( U\Str::to_lede_slug( $this->unbranded_var ) !== $this->unbranded_slug ) {
+			throw new U\Fatal_Exception( '`Project->unbranded_var` (as a slug) doesn’t match `Project->unbranded_slug`.' );
+		}
+		if ( U\Str::to_lede_slug( $this->unbranded_var ) !== U\Str::to_lede_slug( $this->unbranded_slug ) ) {
+			throw new U\Fatal_Exception( '`Project->unbranded_var` and `Project->unbranded_slug` (as lede slugs) do not match.' );
 		}
 		// Validate WordPress plugin & theme data.
 
@@ -562,7 +646,7 @@ final class Project extends U\A6t\Base {
 		];
 		$file = U\Dir::join( $this->dir, '/trunk/plugin.php' );
 
-		$first_8kbs = file_get_contents( $file, false, null, 0, 8192 );
+		$first_8kbs = U\File::read( $file, true, 8192 );
 		$first_8kbs = str_replace( "\r", "\n", $first_8kbs );
 
 		foreach ( $data->_map as $_prop => $_header ) {
@@ -684,7 +768,7 @@ final class Project extends U\A6t\Base {
 		];
 		$file = U\Dir::join( $this->dir, '/trunk/theme.php' );
 
-		$first_8kbs = file_get_contents( $file, false, null, 0, 8192 );
+		$first_8kbs = U\File::read( $file, true, 8192 );
 		$first_8kbs = str_replace( "\r", "\n", $first_8kbs );
 
 		foreach ( $data->_map as $_prop => $_header ) {

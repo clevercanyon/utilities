@@ -47,10 +47,12 @@ trait MIME_Type_Members {
 	 * @return string MIME type; e.g., text/html, image/svg+xml, etc.
 	 */
 	public static function mime_type( string $file, /* string|null */ ?string $default = null ) : string {
+		$mime_type = null; // Initialize.
 		$default   ??= 'application/octet-stream';
-		$mime_type = $default; // Maybe redefine below.
-		$ext       = U\File::ext( $file );
 
+		if ( ! $ext = U\File::ext( $file, true ) ) {
+			return $default; // Not possible.
+		}
 		foreach ( U\File::$mime_types as $_mime_types ) {
 			foreach ( $_mime_types as $_exts => $_mime_type ) {
 				if ( in_array( $ext, explode( '|', $_exts ), true ) ) {
@@ -59,6 +61,13 @@ trait MIME_Type_Members {
 				}
 			}
 		}
-		return $mime_type;
+		if ( ! $mime_type
+			&& U\Env::can_use_extension( 'fileinfo' )
+			&& U\Env::can_use_function( 'mime_content_type' )
+		) {
+			/** @noinspection PhpComposerExtensionStubsInspection */ // phpcs:ignore.
+			$mime_type = @mime_content_type( $file ) ?: '';          // phpcs:ignore.
+		}
+		return $mime_type ?: $default;
 	}
 }

@@ -56,8 +56,8 @@ trait Server_Members {
 	 * Don't forget to change {@see U\Mem::$connection_id_version} when there are substantial changes to this class.
 	 * Particularly in {@see U\Mem::__construct()} and {@see U\Mem::maybe_add_server_connections()}.
 	 *
-	 * A pristine connection is one that is either not persistent (i.e., exists per-process).
-	 * Or, a it's a brand new (first time) persistent connection, based on persistent connection ID.
+	 * A pristine connection is one that is either not persistent; i.e., exists per-process;
+	 * or a it's a brand new (first time) persistent connection, based on persistent connection ID.
 	 *
 	 * @since 2020-11-19
 	 *
@@ -65,6 +65,7 @@ trait Server_Members {
 	 *
 	 * @see   https://o5p.me/xXgmzk
 	 * @see   https://code.launchpad.net/libmemcached
+	 * @see   https://ilia.ws/files/tnphp_memcached.pdf
 	 * @see   https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz
 	 */
 	protected function maybe_add_server_connections() : void {
