@@ -282,12 +282,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/utilities-dev.git",
-                "reference": "c356d2363ab31f065dde211b47f64f57c1438af5"
+                "reference": "4f719547a2fac01651dd53f9b39dc1c2f24e3b31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/utilities-dev/zipball/c356d2363ab31f065dde211b47f64f57c1438af5",
-                "reference": "c356d2363ab31f065dde211b47f64f57c1438af5",
+                "url": "https://api.github.com/repos/clevercanyon/utilities-dev/zipball/4f719547a2fac01651dd53f9b39dc1c2f24e3b31",
+                "reference": "4f719547a2fac01651dd53f9b39dc1c2f24e3b31",
                 "shasum": ""
             },
             "require": {
@@ -329,7 +329,7 @@
                 "issues": "https://github.com/clevercanyon/utilities-dev/issues",
                 "source": "https://github.com/clevercanyon/utilities-dev/tree/main"
             },
-            "time": "2022-02-09T17:10:58+00:00"
+            "time": "2022-02-09T17:15:56+00:00"
         },
         {
             "name": "clevercanyon/utilities-dev-npm",
@@ -337,12 +337,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/utilities-dev-npm.git",
-                "reference": "3c735a9b379d92051776cef5e65197d000d1236f"
+                "reference": "3fcebae606e0ed313c6d201ca34a80a1c0852f0f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/utilities-dev-npm/zipball/3c735a9b379d92051776cef5e65197d000d1236f",
-                "reference": "3c735a9b379d92051776cef5e65197d000d1236f",
+                "url": "https://api.github.com/repos/clevercanyon/utilities-dev-npm/zipball/3fcebae606e0ed313c6d201ca34a80a1c0852f0f",
+                "reference": "3fcebae606e0ed313c6d201ca34a80a1c0852f0f",
                 "shasum": ""
             },
             "default-branch": true,
@@ -363,7 +363,7 @@
                 "issues": "https://github.com/clevercanyon/utilities-dev-npm/issues",
                 "source": "https://github.com/clevercanyon/utilities-dev-npm/tree/main"
             },
-            "time": "2022-02-09T16:53:40+00:00"
+            "time": "2022-02-09T17:15:42+00:00"
         },
         {
             "name": "composer/package-versions-deprecated",
