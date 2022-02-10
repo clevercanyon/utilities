@@ -43,35 +43,55 @@ trait Make_Members {
 	 *
 	 * @since 2022-01-21
 	 *
-	 * @param string $target_path Link target path.
-	 * @param string $link_path   Link path (symbolic).
+	 * @param string $target_path      Link target path.
+	 * @param string $link_path        Link path (symbolic).
 	 *
-	 * @param array  $perms       Permissions. Default is `[ [ 0700, 0700 ], 0600 ]`.
-	 *                            Key `0` is for any directories, key `1` for the link.
-	 *                            {@see U\Dir::make()} for directory permission details.
+	 * @param array  $perms            Permissions. Default is `[ [ 0700, 0700 ], 0600 ]`.
+	 *                                 Key `0` is for any directories, key `1` for the link.
+	 *                                 {@see U\Dir::make()} for directory permission details.
 	 *
-	 *                            * Permissions for the link are not applicable at this time.
-	 *                              However, please continue to pass, as it might be possible in the future.
+	 *                                 * Permissions for the link are not applicable at this time.
+	 *                                   However, please continue to pass, as they might be in the future.
 	 *
-	 * @param bool   $recursively Make directories recursively? Default is `true`.
+	 * @param bool   $recursively      Make directories recursively? Default is `true`.
+	 * @param bool   $throw_on_failure Throw exception on failure? Default is `true`.
 	 *
 	 * @return bool True if link created successfully.
+	 *
+	 * @throws U\Fatal_Exception On any failure; if `$throw_on_failure` is `true`.
 	 */
-	public static function make_link( string $target_path, string $link_path, array $perms = [ [ 0700, 0700 ], 0600 ], bool $recursively = true ) : bool {
+	public static function make_link(
+		string $target_path,
+		string $link_path,
+		array $perms = [ [ 0700, 0700 ], 0600 ],
+		bool $recursively = true,
+		bool $throw_on_failure = true
+	) : bool {
 		$link_path_dir    = U\Dir::name( $link_path );
 		$real_target_path = U\Fs::realize( $target_path );
 
 		$perms[ 0 ] ??= [ 0700, 0700 ]; // Directory permissions.
 		$perms[ 1 ] ??= 0600;           // Link permissions (n/a at this time).
 
-		return '' !== $target_path
+		if ( '' !== $target_path
 			&& '' !== $real_target_path
 			&& '' !== $link_path
 			&& '' !== $link_path_dir
 			&& U\Fs::really_exists( $real_target_path )
 			&& ! U\Fs::really_exists( $link_path )
 			&& ( ! is_link( $link_path ) || U\Fs::delete( $link_path ) )
-			&& ( is_dir( $link_path_dir ) || U\Dir::make( $link_path_dir, $perms[ 0 ], $recursively ) )
-			&& symlink( $real_target_path, $link_path );
+			&& ( is_dir( $link_path_dir ) || U\Dir::make( $link_path_dir, $perms[ 0 ], $recursively, false ) )
+			&& symlink( $real_target_path, $link_path )
+		) {
+			U\Fs::clear_stat_cache( $link_path );
+			return true; // Success.
+		}
+		if ( $throw_on_failure ) {
+			throw new U\Fatal_Exception(
+				'Failed to make link: `' . $link_path . '` → `' . $target_path . '`.' .
+				' Have filesystem permissions changed?'
+			);
+		}
+		return false;
 	}
 }

@@ -79,11 +79,11 @@ trait Sys_Helper_Members {
 		if ( null !== $is_dir_autocreate_cache ) {
 			return $is_dir_autocreate_cache; // Saves time across callers.
 		}
-		if ( ! is_dir( $base_dir ) && ( ! $autocreate || ! U\Dir::make( $base_dir ) ) ) {
+		if ( ! is_dir( $base_dir ) && ( ! $autocreate || ! U\Dir::make( $base_dir, [], true, false ) ) ) {
 			return $is_dir_autocreate_cache = ''; // Failure.
 		}
 		// Try to acquire private directory now.
-		// {@see U\Dir::private()} has its own cache.
+		/** {@see U\Dir::private()} has its own cache. */
 
 		return U\Dir::private( $base_dir, $nsc_fqn, $basename );
 	}

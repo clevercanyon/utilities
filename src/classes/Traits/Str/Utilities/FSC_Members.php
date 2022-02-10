@@ -197,7 +197,7 @@ trait FSC_Members {
 
 		if ( ( $bytes = strlen( $fsc ) ) < 1 ) {
 			$fsc .= 'x'; // e.g., `x`, `.x`.
-		} elseif ( ( $is_dotfile ? 1 : 0 ) + $bytes > $strict ? 128 : 255 ) {
+		} elseif ( ( ( $is_dotfile ? 1 : 0 ) + $bytes ) > ( $strict ? 128 : 255 ) ) {
 			$fsc = U\Crypto::x_sha( trim( $str ), $is_dotfile ? 63 : 64 ); // Hash the original string.
 		}
 		// Restore a possible leading `.`.

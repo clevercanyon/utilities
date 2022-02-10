@@ -41,6 +41,7 @@ trait Members {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Pkg\Utilities\Context_Members;
-	use U\Traits\Pkg\Utilities\Namespace_Members;
+	use U\Traits\Pkg\Utilities\FQN_Members;
 	use U\Traits\Pkg\Utilities\Formatting_Members;
+	use U\Traits\Pkg\Utilities\Namespace_Members;
 }

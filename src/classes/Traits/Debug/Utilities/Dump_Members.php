@@ -215,7 +215,6 @@ trait Dump_Members {
 				$dump = '(int) ' . $dump_value;
 				break; // Break switch.
 
-			case 'real':
 			case 'double':
 			case 'float':
 				$dump = '(float) ' . $dump_value;
@@ -231,7 +230,8 @@ trait Dump_Members {
 				break; // Break switch.
 
 			case 'resource': // Similar to an object. It has a type and an ID.
-				$dump = '(resource) \\' . get_resource_type( $dump_value ) . // @future-review: {@see get_resource_id()} is PHP 8+.
+			case 'resource (closed)': // Similar to an object. It has a type and an ID.
+				$dump = '(' . $dump_type . ') \\' . get_resource_type( $dump_value ) . // @future-review: {@see get_resource_id()} is PHP 8+.
 					( $show_ids ? ' #' . ( function_exists( 'get_resource_id' ) ? get_resource_id( $dump_value ) : (int) $dump_value ) : '' );
 				break; // Break switch.
 

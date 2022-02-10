@@ -46,6 +46,7 @@ trait Members {
 	use U\Traits\Str\Utilities\Ends_With_Members;
 	use U\Traits\Str\Utilities\Escape_Members;
 	use U\Traits\Str\Utilities\FSC_Members;
+	use U\Traits\Str\Utilities\Is_Namespace_Members;
 	use U\Traits\Str\Utilities\Is_Regexp_Members;
 	use U\Traits\Str\Utilities\Is_UTF8_Members;
 	use U\Traits\Str\Utilities\Is_Valid_Helper_Members;

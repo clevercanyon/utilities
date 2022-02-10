@@ -26,7 +26,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities__Tests\Tests;
+namespace Clever_Canyon\Utilities\Tests\Tests;
 
 /**
  * Utilities.
@@ -34,7 +34,7 @@ namespace Clever_Canyon\Utilities__Tests\Tests;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use Clever_Canyon\{Utilities__Tests as UT};
+use Clever_Canyon\Utilities\{Tests as UT};
 
 // </editor-fold>
 
@@ -377,7 +377,7 @@ final class Dir_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, U\Dir::make( U\Dir::join( $temp_dir, U\Crypto::uuid_v4(), U\Crypto::uuid_v4() ) ), $this->message() );
 
 		$this->assertSame( true, U\Dir::make( U\Dir::join( $temp_dir, '/foo/bar' ) ), $this->message() );
-		$this->assertSame( false, U\Dir::make( U\Dir::join( $temp_dir, '/foo/bar' ) ), $this->message() );
+		$this->assertSame( false, U\Dir::make( U\Dir::join( $temp_dir, '/foo/bar' ), [], true, false ), $this->message() );
 	}
 
 	/**

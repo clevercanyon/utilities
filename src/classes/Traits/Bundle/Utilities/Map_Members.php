@@ -94,9 +94,11 @@ trait Map_Members {
 					throw new U\Fatal_Exception( 'Array key `' . $_key . '` is not callable.' );
 				}
 			}
-			foreach ( $_r->types as $_key => $_type ) {
+			foreach ( $_r->types as $_key => &$_type ) {
 				if ( ! $_type || ! is_string( $_type ) ) {
 					throw new U\Fatal_Exception( 'Array key `' . $_key . '` is not a data type.' );
+				} else {
+					$_type = U\Debug::match_gettype( $_type );
 				}
 			}
 			$_r->callables = array_reverse( $_r->callables );                    // See method comments.

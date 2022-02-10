@@ -24,7 +24,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities__Tests\A6t;
+namespace Clever_Canyon\Utilities\Tests\A6t;
 
 /**
  * Utilities.

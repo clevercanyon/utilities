@@ -49,7 +49,17 @@ trait Var_Members {
 	 * @see   U\Str::is_brand_slug()
 	 */
 	public static function is_brand_var( string $str, string $starting_with = '' ) : bool {
-		return U\Str::is_valid_helper( $str, 2, 32, '/^(?!^x_|.*_x_|.*_x$)[a-z](?:_?[a-z0-9])+$/u', $starting_with );
+		$is = U\Str::is_valid_helper( $str, 2, 32, '/^(?!^x_|.*_x_|.*_x$)[a-z](?:_?[a-z0-9])+$/u', $starting_with );
+
+		if ( ! $is ) {
+			return false; // Saves time.
+		}
+		foreach ( U\Brand::by_n7m() as $_brand ) {
+			if ( $str === $_brand->var ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -66,7 +76,17 @@ trait Var_Members {
 	 * @see   U\Str::is_brand_slug_prefix()
 	 */
 	public static function is_brand_var_prefix( string $str, string $starting_with = '' ) : bool {
-		return U\Str::is_valid_helper( $str, 2, 33, '/^(?!^x_|.*_x_|.*_x$)[a-z](?:_?[a-z0-9])+_$/u', $starting_with );
+		$is = U\Str::is_valid_helper( $str, 2, 33, '/^(?!^x_|.*_x_|.*_x$)[a-z](?:_?[a-z0-9])+_$/u', $starting_with );
+
+		if ( ! $is ) {
+			return false; // Saves time.
+		}
+		foreach ( U\Brand::by_n7m() as $_brand ) {
+			if ( $str === $_brand->var_prefix ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

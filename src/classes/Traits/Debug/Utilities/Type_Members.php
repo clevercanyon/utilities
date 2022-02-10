@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Debug;
+namespace Clever_Canyon\Utilities\Traits\Debug\Utilities;
 
 /**
  * Utilities.
@@ -34,12 +34,41 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Debug
  */
-trait Members {
+trait Type_Members {
 	/**
-	 * Traits.
+	 * Gets a string matching {@see gettype()}.
+	 *
+	 * The goal here is to work out obscure differences between
+	 * what is generally thought of as proper in the minds of developers
+	 * vs. what {@see gettype()} actually returns at runtime.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param string $type Data type.
+	 *
+	 * @return string String matching {@see gettype()}.
+	 *
+	 * @see   https://www.php.net/manual/en/function.gettype.php
 	 */
-	use U\Traits\Debug\Utilities\Dump_Members;
-	use U\Traits\Debug\Utilities\Type_Members;
+	public static function match_gettype( string $type ) : string {
+		switch ( $type ) {
+			case 'bool':
+				return 'boolean';
+
+			case 'int':
+				return 'integer';
+
+			case 'float':
+				return 'double';
+
+			case 'null':
+				return 'NULL';
+
+			case 'unknown':
+				return 'unknown type';
+
+			default:
+				return $type;
+		}
+	}
 }

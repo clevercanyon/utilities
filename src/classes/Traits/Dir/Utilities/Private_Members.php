@@ -196,7 +196,7 @@ trait Private_Members {
 
 		$c10n_dir = U\Dir::join( $base_dir, '/.c10n' );
 
-		if ( ! is_dir( $c10n_dir ) && ! U\Dir::make( $c10n_dir, [], false ) ) {
+		if ( ! is_dir( $c10n_dir ) && ! U\Dir::make( $c10n_dir, [], false, false ) ) {
 			return ''; // Failure; e.g., permissions issue.
 		}
 		// Maybe create `/.c10n/index.{php,htm,html}` files.
@@ -207,7 +207,7 @@ trait Private_Members {
 
 		foreach ( [ $index_php_file, $index_htm_file, $index_html_file ] as $_index_file ) {
 			if ( ! is_file( $_index_file )
-				&& ( ! U\File::make( $_index_file, [ null, 0644 ], false )
+				&& ( ! U\File::make( $_index_file, [ null, 0644 ], false, false )
 					|| ! U\File::write( $_index_file, 'Silence is golden.', false ) )
 			) {
 				U\Fs::delete( $_index_file ); // Fresh start next time.
@@ -222,7 +222,7 @@ trait Private_Members {
 		$htaccess_file = U\Dir::join( $c10n_dir, '/.htaccess' );
 
 		if ( ! is_file( $htaccess_file ) ) {
-			if ( ! U\File::make( $htaccess_file, [ null, 0644 ], false ) ) {
+			if ( ! U\File::make( $htaccess_file, [ null, 0644 ], false, false ) ) {
 				U\Fs::delete( $htaccess_file ); // Fresh start next time.
 				throw new U\Fatal_Exception(
 					'Failed to create `' . $htaccess_file . '` file.' .
@@ -240,25 +240,25 @@ trait Private_Members {
 			$htaccess_marker        = U\Pkg::namespace_crux( $nsc_fqn, 'x_sha' );
 			$htaccess_file_contents = <<<ooo
 				# <$htaccess_marker::deny-public-access>
-					<IfModule authz_core_module>
-						Require all denied
+				<IfModule authz_core_module>
+					Require all denied
+				</IfModule>
+				<IfModule !authz_core_module>
+					<IfModule mod_authz_host.c>
+						Order Deny,Allow
+						Deny from all
 					</IfModule>
-					<IfModule !authz_core_module>
-						<IfModule mod_authz_host.c>
-							Order Deny,Allow
-							Deny from all
-						</IfModule>
-					</IfModule>
-					<IfModule rewrite_module>
+				</IfModule>
+				<IfModule rewrite_module>
+					RewriteEngine on
+					RewriteRule .* - [F,L]
+				</IfModule>
+				<IfModule !rewrite_module>
+					<IfModule mod_rewrite.c>
 						RewriteEngine on
 						RewriteRule .* - [F,L]
 					</IfModule>
-					<IfModule !rewrite_module>
-						<IfModule mod_rewrite.c>
-							RewriteEngine on
-							RewriteRule .* - [F,L]
-						</IfModule>
-					</IfModule>
+				</IfModule>
 				# </$htaccess_marker>
 				ooo;
 			if ( ! U\File::write( $htaccess_file, $htaccess_file_contents, false ) ) {
@@ -274,7 +274,7 @@ trait Private_Members {
 		$web_config_file = U\Dir::join( $c10n_dir, '/web.config' );
 
 		if ( ! is_file( $web_config_file ) ) {
-			if ( ! U\File::make( $web_config_file, [ null, 0644 ], false ) ) {
+			if ( ! U\File::make( $web_config_file, [ null, 0644 ], false, false ) ) {
 				U\Fs::delete( $web_config_file ); // Fresh start next time.
 				throw new U\Fatal_Exception(
 					'Failed to create `' . $web_config_file . '` file.' .
@@ -291,13 +291,13 @@ trait Private_Members {
 			$web_config_file_contents = <<<ooo
 				<?xml version="1.0" encoding="utf-8" ?>
 				<!-- $web_config_marker::deny-public-access -->
-					<configuration>
-						<system.web>
-							<authorization>
-								<deny users="*"/>
-							</authorization>
-						</system.web>
-					</configuration>
+				<configuration>
+					<system.web>
+						<authorization>
+							<deny users="*"/>
+						</authorization>
+					</system.web>
+				</configuration>
 				<!-- /$web_config_marker -->
 				ooo;
 			if ( ! U\File::write( $web_config_file, $web_config_file_contents, false ) ) {
@@ -326,10 +326,10 @@ trait Private_Members {
 					$salt = ''; // Failure.
 				}
 			} else {
-				$file_salt = U\Crypto::keygen( U\Env::is_windows() ? 32 : 64 );
+				$file_salt = U\Crypto::keygen( U\Env::is_windows() ? 32 : 64, false, true, true, true, false, false, false );
 				$salt_file = U\Dir::join( $c10n_dir, '/.' . $file_salt . '.salt.php' );
 
-				if ( U\File::make( $salt_file, [], false ) ) {
+				if ( U\File::make( $salt_file, [], false, false ) ) {
 					$salt                     = U\Crypto::keygen( 128 );
 					$salt_file_contents_value = var_export( $salt, true );
 					$salt_file_contents       = <<<ooo
@@ -358,7 +358,7 @@ trait Private_Members {
 
 		$dir = U\Dir::join( $c10n_dir, '/' . $x_sha_hmac . '/' . $context . '/' . $basename );
 
-		if ( ! is_dir( $dir ) && ! U\Dir::make( $dir, [], true ) ) {
+		if ( ! is_dir( $dir ) && ! U\Dir::make( $dir, [], true, false ) ) {
 			U\Fs::delete( $dir ); // Fresh start next time.
 			throw new U\Fatal_Exception(
 				'Failed to create `' . $c10n_dir . '/` ... `' . $context . '/' . $basename . '`.' .

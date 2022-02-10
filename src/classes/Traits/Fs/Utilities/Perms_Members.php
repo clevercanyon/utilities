@@ -40,17 +40,22 @@ trait Perms_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $path  Path.
-	 * @param bool   $octal Return octal representation? Default is `false`.
+	 * @param string $path      Path.
 	 *
-	 * @return int|string Permissions.
+	 * @param bool   $octal_str Return octal string? Default is `false`.
+	 *
+	 *                          * The return value of {@see fileperms()} is fairly complex.
+	 *                            An octal string representation is helpful when trying
+	 *                            to do simpler comparisons; e.g., `'0700'`, `'0755'`, etc.
+	 *
+	 * @return int|string Permissions; {@see fileperms()}.
 	 */
-	public static function perms( string $path, bool $octal = false ) /* : int|string */ {
+	public static function perms( string $path, bool $octal_str = false ) /* : int|string */ {
 		$perms = 0; // Initialize.
 
 		if ( U\Fs::really_exists( $path ) ) {
 			$perms = fileperms( $path );
 		}
-		return $octal ? mb_substr( sprintf( '%o', $perms ), -4 ) : $perms;
+		return $octal_str ? mb_substr( sprintf( '%o', $perms ), -4 ) : $perms;
 	}
 }

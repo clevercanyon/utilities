@@ -249,7 +249,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 					if ( ! U\Fs::delete( $_package_dir ) ) {
 						throw new U\Exception( 'Prior to symlink creation, failed to delete: `' . $_package_dir . '`.' );
 					}
-					if ( ! U\Fs::make_link( $_local_repo_dir, $_package_dir ) ) {
+					if ( ! U\Fs::make_link( $_local_repo_dir, $_package_dir, [], false, false ) ) {
 						throw new U\Exception( 'Failed to symlink: `' . $_package_dir . '`.' );
 					}
 					U\CLI::log( '[' . __FUNCTION__ . '()]: Symlinked: `' . $_package_dir . '`' . "\n" . ' →  `' . $_local_repo_dir . '`.' );
@@ -279,7 +279,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			throw new U\Exception( 'Missing readable file: `' . $dotfiles_file . '`.' );
 		}
 		$dotfiles_iterator = U\Dir::iterator( $dotfiles_dir );
-		$dotfiles_json     = U\Str::json_decode( U\File::read( $dotfiles_file, false ) );
+		$dotfiles_json     = U\File::read_json( $dotfiles_file, false );
 
 		if ( ! is_object( $dotfiles_json ) || ! is_array( $dotfiles_json->manifest ?? null ) ) {
 			throw new U\Exception( 'Failed to parse `manifest` in `' . $dotfiles_json . '`.' );
@@ -306,8 +306,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 					if ( is_file( $_to_path ) ) {
 						// Parse JSON objects.
 
-						$_from_path_json = U\Str::json_decode( U\File::read( $_from_path, false ) );
-						$_to_path_json   = U\Str::json_decode( U\File::read( $_to_path, false ) );
+						$_from_path_json = U\File::read_json( $_from_path, false );
+						$_to_path_json   = U\File::read_json( $_to_path, false );
 
 						// Validate `$_from_path_json`.
 

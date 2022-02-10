@@ -128,7 +128,7 @@ final class Composer extends U\A6t\Stc_Utilities {
 		if ( ! is_readable( $file ) ) {
 			throw new U\Fatal_Exception( 'Unable to read file: `' . $file . '`.' );
 		}
-		if ( ! is_object( $json = U\Str::json_decode( U\File::read( $file, false ) ) ) ) {
+		if ( ! is_object( $json = U\File::read_json( $file, false ) ) ) {
 			throw new U\Fatal_Exception( 'Unable to decode file: `' . $file . '`.' );
 		}
 		if ( ! is_object( $json->extra ?? null ) ) {

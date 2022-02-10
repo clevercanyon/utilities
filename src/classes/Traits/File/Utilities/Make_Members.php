@@ -40,30 +40,49 @@ trait Make_Members {
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string              $file        File path to make.
+	 * @param string              $file             File path to make.
 	 *
-	 * @param array|int[]|array[] $perms       Permissions. Default is `[ [ 0700, 0700 ], 0600 ]`.
-	 *                                         Key `0` is for any directories, key `1` for the file.
-	 *                                         {@see U\Dir::make()} for directory permission details.
+	 * @param array|int[]|array[] $perms            Permissions. Default is `[ [ 0700, 0700 ], 0600 ]`.
+	 *                                              Key `0` is for any directories, key `1` for the file.
+	 *                                              {@see U\Dir::make()} for directory permission details.
 	 *
-	 * @param bool                $recursively Make directories recursively? Default is `true`.
+	 * @param bool                $recursively      Make directories recursively? Default is `true`.
+	 * @param bool                $throw_on_failure Throw exception on failure? Default is `true`.
 	 *
 	 * @return bool True if all directories and file made successfully.
+	 *
+	 * @throws U\Fatal_Exception On any failure; if `$throw_on_failure` is `true`.
 	 */
-	public static function make( string $file, array $perms = [ [ 0700, 0700 ], 0600 ], bool $recursively = true ) : bool {
+	public static function make(
+		string $file,
+		array $perms = [ [ 0700, 0700 ], 0600 ],
+		bool $recursively = true,
+		bool $throw_on_failure = true
+	) : bool {
 		$dir = U\Dir::name( $file );
 
 		$perms[ 0 ] ??= [ 0700, 0700 ]; // Directory permissions.
 		$perms[ 1 ] ??= 0600;           // File permissions.
 		assert( is_array( $perms[ 0 ] ) && is_int( $perms[ 1 ] ) );
 
-		return '' !== $dir
+		if ( '' !== $dir
 			&& '' !== $file
 			&& ! U\Fs::really_exists( $file )
 			&& ( ! is_link( $file ) || U\Fs::delete( $file ) )
-			&& ( is_dir( $dir ) || U\Dir::make( $dir, $perms[ 0 ], $recursively ) )
+			&& ( is_dir( $dir ) || U\Dir::make( $dir, $perms[ 0 ], $recursively, false ) )
 			&& touch( $file )
-			&& chmod( $file, $perms[ 1 ] );
+			&& chmod( $file, $perms[ 1 ] )
+		) {
+			U\Fs::clear_stat_cache( $file );
+			return true; // Success.
+		}
+		if ( $throw_on_failure ) {
+			throw new U\Fatal_Exception(
+				'Failed to make file: `' . $file . '`.' .
+				' Have filesystem permissions changed?'
+			);
+		}
+		return false;
 	}
 
 	/**
@@ -86,11 +105,19 @@ trait Make_Members {
 	 *
 	 * @throws U\Fatal_Exception  On any failure.
 	 */
-	public static function make_temp( string $ext = '', string $dir = '', array $perms = [ [ 0700, 0700 ], 0600 ], bool $recursively = true ) : string {
+	public static function make_temp(
+		string $ext = '',
+		string $dir = '',
+		array $perms = [ [ 0700, 0700 ], 0600 ],
+		bool $recursively = true
+	) : string {
 		$file = U\File::make_unique_path( $ext, $dir );
 
-		if ( ! U\File::make( $file, $perms, $recursively ) ) {
-			throw new U\Fatal_Exception( 'Unable to create temp file: `' . $file . '`.' );
+		if ( ! U\File::make( $file, $perms, $recursively, false ) ) {
+			throw new U\Fatal_Exception(
+				'Failed to make temp file: `' . $file . '`.' .
+				' Have filesystem permissions changed?'
+			);
 		}
 		return $file;
 	}
@@ -106,16 +133,13 @@ trait Make_Members {
 	 *                    Default is {@see U\Dir::sys_temp()}.
 	 *
 	 * @return string Absolute unique file path only; i.e., does not exist.
+	 *
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	public static function make_unique_path( string $ext = '', string $dir = '' ) : string {
-		$ext = trim( $ext, '.' );
-
-		$dir = $dir ?: U\Dir::sys_temp();
-		$dir = U\Fs::normalize( $dir );
-
+		$ext  = trim( $ext, '.' );
+		$dir  = $dir ?: U\Dir::sys_temp();
 		$file = U\Dir::join( $dir, '/' . U\Crypto::uuid_v4() );
-		$file = '' !== $ext ? $file . '.' . $ext : $file;
-
-		return $file;
+		return '' !== $ext ? $file . '.' . $ext : $file;
 	}
 }

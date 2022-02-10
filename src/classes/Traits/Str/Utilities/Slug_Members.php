@@ -49,7 +49,17 @@ trait Slug_Members {
 	 * @see   U\Str::is_brand_var()
 	 */
 	public static function is_brand_slug( string $str, string $starting_with = '' ) : bool {
-		return U\Str::is_valid_helper( $str, 2, 32, '/^(?!^x-|.*-x-|.*-x$)[a-z](?:-?[a-z0-9])+$/u', $starting_with );
+		$is = U\Str::is_valid_helper( $str, 2, 32, '/^(?!^x-|.*-x-|.*-x$)[a-z](?:-?[a-z0-9])+$/u', $starting_with );
+
+		if ( ! $is ) {
+			return false; // Saves time.
+		}
+		foreach ( U\Brand::by_n7m() as $_brand ) {
+			if ( $str === $_brand->slug ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -66,7 +76,17 @@ trait Slug_Members {
 	 * @see   U\Str::is_brand_var_prefix()
 	 */
 	public static function is_brand_slug_prefix( string $str, string $starting_with = '' ) : bool {
-		return U\Str::is_valid_helper( $str, 2, 33, '/^(?!^x-|.*-x-|.*-x$)[a-z](?:-?[a-z0-9])+-$/u', $starting_with );
+		$is = U\Str::is_valid_helper( $str, 2, 33, '/^(?!^x-|.*-x-|.*-x$)[a-z](?:-?[a-z0-9])+-$/u', $starting_with );
+
+		if ( ! $is ) {
+			return false; // Saves time.
+		}
+		foreach ( U\Brand::by_n7m() as $_brand ) {
+			if ( $str === $_brand->slug_prefix ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -313,13 +333,13 @@ trait Slug_Members {
 			}
 			if ( ( $bytes = strlen( $slug ) ) < 2 ) {
 				$slug .= str_repeat( 'x', 2 - $bytes );
-			} elseif ( $bytes > $for_brand ? 32 : ( $for_lede ? 64 : ( $for_prefix ? 128 - 3 - 40 : 128 ) ) ) {
+			} elseif ( $bytes > ( $for_brand ? 32 : ( $for_lede ? 64 : ( $for_prefix ? 128 - 3 - 40 : 128 ) ) ) ) {
 				$slug = U\Crypto::x_sha( trim( $str ), 64 ); // Hash the original string.
 			}
 		} else {
 			if ( ( $bytes = strlen( $slug ) ) < 2 ) {
 				$slug .= str_repeat( 'x', 2 - $bytes );
-			} elseif ( $bytes > $for_brand ? 32 : ( $for_lede ? 64 : ( $for_prefix ? 255 - 3 - 40 : 255 ) ) ) {
+			} elseif ( $bytes > ( $for_brand ? 32 : ( $for_lede ? 64 : ( $for_prefix ? 255 - 3 - 40 : 255 ) ) ) ) {
 				$slug = U\Crypto::x_sha( trim( $str ), 64 ); // Hash the original string.
 			}
 		}

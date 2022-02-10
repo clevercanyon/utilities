@@ -52,6 +52,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @property-read $brand_n7m
  * @property-read $brand_name
+ * @property-read $brand_namespace
  *
  * @property-read $brand_slug
  * @property-read $brand_var
@@ -174,6 +175,13 @@ final class Project extends U\A6t\Base {
 	 * @since 2021-12-15
 	 */
 	protected string $brand_name;
+
+	/**
+	 * Brand namespace; e.g., `My_Brand`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $brand_namespace;
 
 	/**
 	 * Brand slug; e.g., `my-brand`.
@@ -312,39 +320,34 @@ final class Project extends U\A6t\Base {
 		if ( ! $this->stable_tag || ! U\Str::is_version( $this->stable_tag ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->stable_tag`.' );
 		}
-		// Validate package name properties.
+		// Validate name properties.
 
 		$this->pkg_name      = $this->json->name;
 		$this->pkg_name_hash = U\Crypto::x_sha( $this->pkg_name );
 
-		$this->namespace_scope = U\Str::uc_first( $this->pkg_name_hash );
-		$this->namespace_crux  = ''; // Initialize; worked out below.
+		$this->namespace_crux  = u\if_string( $this->extra_json_prop( '&.project.data.namespace_crux' ), '' );
+		$this->namespace_scope = U\Str::uc_first( U\Crypto::x_sha( $this->namespace_crux, 16 ) );
 
-		if ( is_object( $this->json->autoload ?? null )
-			&& is_object( $this->json->autoload->{'psr-4'} ?? null ) ) {
-			$this->namespace_crux = array_key_first( (array) $this->json->autoload->{'psr-4'} );
-			$this->namespace_crux = trim( u\if_string( $this->namespace_crux, '' ), '\\' );
-		}
 		if ( ! $this->pkg_name || ! preg_match( U\Dev\Composer::PACKAGE_NAME_REGEXP, $this->pkg_name ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_name`.' );
 		}
 		if ( ! $this->pkg_name_hash || ! preg_match( U\Dev\Composer::PACKAGE_NAME_HASH_REGEXP, $this->pkg_name_hash ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_name_hash`.' );
 		}
-		if ( ! $this->namespace_scope || ! preg_match( U\Pkg::NAMESPACE_SCOPE_REGEXP, $this->namespace_scope ) ) {
-			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_namespace_scope`.' );
+		if ( ! $this->namespace_scope || ! U\Str::is_namespace_scope( $this->namespace_scope ) ) {
+			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->namespace_scope`.' );
 		}
-		if ( ! $this->namespace_crux || ! preg_match( U\Pkg::NAMESPACE_CRUX_REGEXP, $this->namespace_crux ) ) {
-			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->pkg_namespace_crux`.' );
+		if ( ! $this->namespace_crux || ! U\Str::is_namespace_crux( $this->namespace_crux ) ) {
+			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->namespace_crux`.' );
 		}
 		// Validate brand properties.
 
-		// @todo Update utilities and remove the `php-js-` prefix.
-
-		$this->brand_n7m // Numeronym; e.g., `m5d`, `c10n`.
+		$this->brand_n7m // Numeronym; e.g., `c10n`.
 			= u\if_string( $this->extra_json_prop( '&.brand.data.n7m' ), '' );
 
-		$this->brand_name = U\Brand::get( $this->brand_n7m, 'name' );
+		$this->brand_name      = U\Brand::get( $this->brand_n7m, 'name' );
+		$this->brand_namespace = U\Brand::get( $this->brand_n7m, 'namespace' );
+
 		$this->brand_slug = U\Brand::get( $this->brand_n7m, 'slug' );
 		$this->brand_var  = U\Brand::get( $this->brand_n7m, 'var' );
 
@@ -356,6 +359,9 @@ final class Project extends U\A6t\Base {
 		}
 		if ( ! $this->brand_name || ! U\Str::is_name( $this->brand_name ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->brand_name`.' );
+		}
+		if ( ! $this->brand_namespace || ! U\Str::is_brand_namespace( $this->brand_namespace ) ) {
+			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->brand_namespace`.' );
 		}
 		if ( ! $this->brand_slug || ! U\Str::is_brand_slug( $this->brand_slug ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->brand_slug`.' );
@@ -372,23 +378,28 @@ final class Project extends U\A6t\Base {
 		if ( U\Str::to_brand_slug( $this->brand_var ) !== $this->brand_slug ) {
 			throw new U\Fatal_Exception( '`Project->brand_var` (as a brand slug) doesn’t match `Project->brand_slug`.' );
 		}
-		if ( U\Str::to_brand_slug( $this->brand_var ) !== U\Str::to_brand_slug( $this->brand_slug ) ) {
-			throw new U\Fatal_Exception( '`Project->brand_var` and `Project->brand_slug` (as brand slugs) do not match.' );
+		if ( U\Str::to_brand_var( $this->brand_slug ) !== $this->brand_var ) {
+			throw new U\Fatal_Exception( '`Project->brand_slug` (as a brand var) doesn’t match `Project->brand_var`.' );
 		}
 		if ( U\Str::to_brand_slug_prefix( $this->brand_var_prefix ) !== $this->brand_slug_prefix ) {
 			throw new U\Fatal_Exception( '`Project->brand_var_prefix` (as a brand slug prefix) doesn’t match `Project->brand_slug_prefix`.' );
 		}
-		if ( U\Str::to_brand_slug_prefix( $this->brand_var_prefix ) !== U\Str::to_brand_slug_prefix( $this->brand_slug_prefix ) ) {
-			throw new U\Fatal_Exception( '`Project->brand_var_prefix` and `Project->brand_slug_prefix` (as brand slug prefixes) do not match.' );
+		if ( U\Str::to_brand_var_prefix( $this->brand_slug_prefix ) !== $this->brand_var_prefix ) {
+			throw new U\Fatal_Exception( '`Project->brand_slug_prefix` (as a brand var prefix) doesn’t match `Project->brand_var_prefix`.' );
+		}
+		if ( ! U\Str::is_namespace_crux( $this->namespace_crux, $this->brand_n7m ) ) {
+			throw new U\Fatal_Exception( 'Missing, invalid, or mismatched L1 brand namespace in `Project->namespace_crux`.' );
 		}
 		// Now, let's validate project name, slug, and var properties.
 
 		$this->name = u\if_string( $this->extra_json_prop( '&.project.data.name' ), '' );
-		$this->slug = basename( $this->pkg_name ); // Derived from Composer package name.
-		$this->slug = // Fall back on full package name. See `README.md` in this directory.
+		$this->slug = basename( $this->pkg_name ); // Always derive from package name.
+
+		$this->slug = // Fall back on full package name; e.g., org-level packages.
 			! U\Str::is_lede_slug( $this->slug, $this->brand_slug_prefix )
 				? U\Str::to_lede_slug( $this->pkg_name ) : $this->slug;
-		$this->var  = U\Str::to_lede_var( $this->slug );
+
+		$this->var = U\Str::to_lede_var( $this->slug );
 
 		$this->slug_prefix = U\Str::to_lede_slug_prefix( $this->slug );
 		$this->var_prefix  = U\Str::to_lede_var_prefix( $this->var );
@@ -411,17 +422,14 @@ final class Project extends U\A6t\Base {
 		if ( U\Str::to_lede_slug( $this->var ) !== $this->slug ) {
 			throw new U\Fatal_Exception( '`Project->var` (as a lede slug) doesn’t match `Project->slug`.' );
 		}
-		if ( U\Str::to_lede_slug( $this->var ) !== U\Str::to_lede_slug( $this->slug ) ) {
-			throw new U\Fatal_Exception( '`Project->var` and `Project->slug` (as lede slugs) do not match.' );
-		}
-		if ( U\Str::to_lede_slug( $this->namespace_crux ) !== $this->slug || U\Str::to_lede_var( $this->namespace_crux ) !== $this->var ) {
-			throw new U\Fatal_Exception( '`Project->namespace_crux` (as a lede slug|var) doesn’t match `Project->slug|var`.' );
+		if ( U\Str::to_lede_var( $this->slug ) !== $this->var ) {
+			throw new U\Fatal_Exception( '`Project->slug` (as a lede var) doesn’t match `Project->var`.' );
 		}
 		if ( U\Str::to_lede_slug_prefix( $this->var_prefix ) !== $this->slug_prefix ) {
 			throw new U\Fatal_Exception( '`Project->var_prefix` (as a lede slug prefix) doesn’t match `Project->slug_prefix`.' );
 		}
-		if ( U\Str::to_lede_slug_prefix( $this->var_prefix ) !== U\Str::to_lede_slug_prefix( $this->slug_prefix ) ) {
-			throw new U\Fatal_Exception( '`Project->var_prefix` and `Project->slug_prefix` (as lede slug prefixes) do not match.' );
+		if ( U\Str::to_lede_var_prefix( $this->slug_prefix ) !== $this->var_prefix ) {
+			throw new U\Fatal_Exception( '`Project->slug_prefix` (as a lede var prefix) doesn’t match `Project->var_prefix`.' );
 		}
 		// Validate unbranded slug & var properties.
 
@@ -435,10 +443,13 @@ final class Project extends U\A6t\Base {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->unbranded_var`.' );
 		}
 		if ( U\Str::to_lede_slug( $this->unbranded_var ) !== $this->unbranded_slug ) {
-			throw new U\Fatal_Exception( '`Project->unbranded_var` (as a slug) doesn’t match `Project->unbranded_slug`.' );
+			throw new U\Fatal_Exception( '`Project->unbranded_var` (as a lede slug) doesn’t match `Project->unbranded_slug`.' );
 		}
-		if ( U\Str::to_lede_slug( $this->unbranded_var ) !== U\Str::to_lede_slug( $this->unbranded_slug ) ) {
-			throw new U\Fatal_Exception( '`Project->unbranded_var` and `Project->unbranded_slug` (as lede slugs) do not match.' );
+		if ( U\Str::to_lede_var( $this->unbranded_slug ) !== $this->unbranded_var ) {
+			throw new U\Fatal_Exception( '`Project->unbranded_slug` (as a lede var) doesn’t match `Project->unbranded_var`.' );
+		}
+		if ( ! U\Str::is_namespace_crux( $this->namespace_crux, $this->brand_n7m, $this->unbranded_slug ) ) {
+			throw new U\Fatal_Exception( 'Missing, invalid, or mismatched L2 basename in `Project->namespace_crux`.' );
 		}
 		// Validate WordPress plugin & theme data.
 
@@ -646,7 +657,7 @@ final class Project extends U\A6t\Base {
 		];
 		$file = U\Dir::join( $this->dir, '/trunk/plugin.php' );
 
-		$first_8kbs = U\File::read( $file, true, 8192 );
+		$first_8kbs = U\File::read_bytes( $file, U\File::KB_IN_BYTES * 8 );
 		$first_8kbs = str_replace( "\r", "\n", $first_8kbs );
 
 		foreach ( $data->_map as $_prop => $_header ) {
@@ -768,7 +779,7 @@ final class Project extends U\A6t\Base {
 		];
 		$file = U\Dir::join( $this->dir, '/trunk/theme.php' );
 
-		$first_8kbs = U\File::read( $file, true, 8192 );
+		$first_8kbs = U\File::read_bytes( $file, U\File::KB_IN_BYTES * 8 );
 		$first_8kbs = str_replace( "\r", "\n", $first_8kbs );
 
 		foreach ( $data->_map as $_prop => $_header ) {

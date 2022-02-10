@@ -271,7 +271,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 			if (
 				! is_readable( $output_project_dir_entry_file )
 				|| ! is_writable( $output_project_dir_entry_file )
-				|| ! ( $_f15s = U\File::read( $output_project_dir_entry_file, false ) )
+				|| null === ( $_f15s = U\File::read( $output_project_dir_entry_file, false ) )
 				|| ! U\File::write( $output_project_dir_entry_file, str_replace( '/autoload.php', '/scoper-autoload.php', $_f15s ), false )
 			) {
 				throw new U\Exception( 'Failed to change `/autoload.php` to `/scoper-autoload.php` in `' . $output_project_dir_entry_file . '`.' );

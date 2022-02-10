@@ -26,7 +26,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities__Tests\Tests;
+namespace Clever_Canyon\Utilities\Tests\Tests;
 
 /**
  * Utilities.
@@ -34,7 +34,7 @@ namespace Clever_Canyon\Utilities__Tests\Tests;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use Clever_Canyon\{Utilities__Tests as UT};
+use Clever_Canyon\Utilities\{Tests as UT};
 
 // </editor-fold>
 
@@ -89,22 +89,19 @@ final class File_Tests extends UT\A6t\Tests {
 		$temp_file = $this->temp_file();
 
 		U\File::write( $temp_file, str_repeat( 'x', 1 ) );
+		$this->assertSame( 1, filesize( $temp_file ), $this->message() );
 		$this->assertSame( '1 byte', U\File::size_abbr( $temp_file ), $this->message() );
 
 		U\File::write( $temp_file, str_repeat( 'x', 2 ) );
-		clearstatcache( true, $temp_file );
 		$this->assertSame( '2 bytes', U\File::size_abbr( $temp_file ), $this->message() );
 
 		U\File::write( $temp_file, str_repeat( 'x', 1024 ) );
-		clearstatcache( true, $temp_file );
 		$this->assertSame( '1 kb', U\File::size_abbr( $temp_file ), $this->message() );
 
 		U\File::write( $temp_file, str_repeat( 'x', 1024 * 2 ) );
-		clearstatcache( true, $temp_file );
 		$this->assertSame( '2 kbs', U\File::size_abbr( $temp_file ), $this->message() );
 
 		U\File::write( $temp_file, str_repeat( 'x', 1024 * 1024 ) );
-		clearstatcache( true, $temp_file );
 		$this->assertSame( '1 MB', U\File::size_abbr( $temp_file ), $this->message() );
 	}
 

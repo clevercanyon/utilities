@@ -132,6 +132,9 @@ final class Config_File extends U\A6t\CLI_Tool {
 
 		$cfg_file = U\Dir::name( __FILE__, 6, '/dev/libraries/dotfiles/.scoper.cfg.php' );
 
+		if ( ! is_file( $cfg_file ) && ! U\File::make( $cfg_file, [ [ 0755, 0755 ], 0644 ], false, false ) ) {
+			throw new U\Fatal_Exception( 'Failed to create PHP Scoper config file: `' . $cfg_file . '`.' );
+		}
 		if ( ! U\File::write( $cfg_file, $this->generate_config_file_contents(), false ) ) {
 			throw new U\Fatal_Exception( 'Failed to update PHP Scoper config file: `' . $cfg_file . '`.' );
 		}

@@ -38,40 +38,12 @@ trait N7M_Members {
 	/**
 	 * Brands by n7m.
 	 *
-	 * @since 2021-12-15
-	 */
-	protected static array $by_n7m = [
-		'c10n' => [
-			'n7m'  => 'c10n',
-			'name' => 'CLEVER CANYON',
-
-			'slug' => 'clevercanyon',
-			'var'  => 'clevercanyon',
-
-			'slug_prefix' => 'clevercanyon-',
-			'var_prefix'  => 'clevercanyon_',
-		],
-		'w6e'  => [
-			'n7m'  => 'w6e',
-			'name' => 'WP Groove',
-
-			'slug' => 'wpgroove',
-			'var'  => 'wpgroove',
-
-			'slug_prefix' => 'wpgroove-',
-			'var_prefix'  => 'wpgroove_',
-		],
-	];
-
-	/**
-	 * Brands by n7m.
-	 *
 	 * @since 2022-01-27
 	 *
 	 * @return \Generator|object[] Brands by n7m.
 	 */
 	public static function by_n7m() : \Generator {
-		foreach ( U\Brand::$by_n7m as $_n7m => $_brand ) {
+		foreach ( U\Brand::BY_N7M as $_n7m => $_brand ) {
 			yield $_n7m => (object) $_brand;
 		}
 	}
@@ -82,7 +54,7 @@ trait N7M_Members {
 	 * @since         2022-01-19
 	 *
 	 * @param string      $n7m    A brand's n7m (numeronym) to get info for.
-	 *                            {@see U\Brand::$by_n7m} for a list of n7m keys.
+	 *                            {@see U\Brand::BY_N7M} for a list of n7m keys.
 	 *                            {@see https://en.wikipedia.org/wiki/Numeronym}.
 	 *
 	 *                            e.g., CLEVER CANYON = `c10n` (or `&` self-reference).
@@ -90,7 +62,7 @@ trait N7M_Members {
 	 *                            e.g., Hostery       = `h5y`.
 	 *
 	 * @param string|null $key    Default is `null` indicating a return object with all keys.
-	 *                            Optionally pass an n7m info key to get; {@see U\Brand::$by_n7m}.
+	 *                            Optionally pass an n7m info key to get; {@see U\Brand::BY_N7M}.
 	 *
 	 * @param string|null $format Optional format. Default is `null` (raw).
 	 *                            This is only applicable when `$key` is not `null`.
@@ -103,9 +75,9 @@ trait N7M_Members {
 		$n7m    = '&' === $n7m ? 'c10n' : $n7m;
 		$format = $format ?: 'raw'; // Default is `raw`.
 
-		if ( ! $n7m || ! isset( U\Brand::$by_n7m[ $n7m ] ) ) {
+		if ( ! $n7m || ! isset( U\Brand::BY_N7M[ $n7m ] ) ) {
 			return null; // Not available.
-		} elseif ( null !== $key && ! isset( U\Brand::$by_n7m[ $n7m ][ $key ] ) ) {
+		} elseif ( null !== $key && ! isset( U\Brand::BY_N7M[ $n7m ][ $key ] ) ) {
 			return null; // Not available.
 		}
 		$value = &static::cls_cache( [ __FUNCTION__, $n7m, $key, $format ] );
@@ -114,12 +86,12 @@ trait N7M_Members {
 			return $value; // Saves time.
 		}
 		if ( null !== $key ) {
-			$value = U\Brand::$by_n7m[ $n7m ][ $key ];
+			$value = U\Brand::BY_N7M[ $n7m ][ $key ];
 			if ( 'raw' !== $format && is_string( $value ) ) {
 				$value = U\Brand::format_str_helper( $value, $format );
 			}
 		} else {
-			$value = (object) U\Brand::$by_n7m[ $n7m ];
+			$value = (object) U\Brand::BY_N7M[ $n7m ];
 		}
 		return $value;
 	}

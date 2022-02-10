@@ -212,7 +212,10 @@ trait Zip_Members {
 		// From: /foo/bar/foo, to: /foo/bar/foo/bar[/foo.zip]     (invalid: /foo/bar/foo ...includes /foo/bar/foo/bar).
 		// From: /foo, to: /foo/bar[/foo.zip]                     (invalid: /foo ...includes /foo/bar).
 
-		if ( ! $_r->will_ignore_rtps && preg_match( '/^' . U\Str::esc_reg( $real_from_path ) . '(?:$|\/)/u', $real_to_path ) ) {
+		if ( ! $_r->will_ignore_rtps
+			&& ( preg_match( '/^' . U\Str::esc_reg( $from_path ) . '(?:$|\/)/u', $to_path )
+				|| preg_match( '/^' . U\Str::esc_reg( $real_from_path ) . '(?:$|\/)/u', $real_to_path ) )
+		) {
 			$_r->maybe_close_zip( $is_recursive );
 			throw new U\Fatal_Exception(
 				'Attempting to zip into self. Cannot continue as this results in an infinite loop.' .
@@ -230,7 +233,7 @@ trait Zip_Members {
 		// `$to_path_dir` directory creation.
 
 		if ( ! $is_recursive ) {
-			if ( ! $to_path_dir_type && ! U\Dir::make( $to_path_dir, $to_path_dir_perms, true ) ) {
+			if ( ! $to_path_dir_type && ! U\Dir::make( $to_path_dir, $to_path_dir_perms, true, false ) ) {
 				$_r->maybe_close_zip( $is_recursive );
 				return false; // Not possible.
 			}

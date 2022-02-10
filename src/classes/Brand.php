@@ -39,4 +39,34 @@ final class Brand extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Brand\Members;
+
+	/**
+	 * Brands by n7m.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const BY_N7M = [
+		'c10n' => [
+			'n7m'       => 'c10n',
+			'name'      => 'CLEVER CANYON',
+			'namespace' => 'Clever_Canyon',
+
+			'slug' => 'clevercanyon',
+			'var'  => 'clevercanyon',
+
+			'slug_prefix' => 'clevercanyon-',
+			'var_prefix'  => 'clevercanyon_',
+		],
+		'w6e'  => [
+			'n7m'       => 'w6e',
+			'name'      => 'WP Groove',
+			'namespace' => 'WP_Groove',
+
+			'slug' => 'wpgroove',
+			'var'  => 'wpgroove',
+
+			'slug_prefix' => 'wpgroove-',
+			'var_prefix'  => 'wpgroove_',
+		],
+	];
 }

@@ -26,7 +26,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities__Tests\Tests;
+namespace Clever_Canyon\Utilities\Tests\Tests;
 
 /**
  * Utilities.
@@ -34,7 +34,7 @@ namespace Clever_Canyon\Utilities__Tests\Tests;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use Clever_Canyon\{Utilities__Tests as UT};
+use Clever_Canyon\Utilities\{Tests as UT};
 
 // </editor-fold>
 
@@ -513,6 +513,17 @@ final class Fs_Tests extends UT\A6t\Tests {
 	 * @covers ::copy_dir_contents_helper()
 	 */
 	public function test_copy_into_self() : void {
+		try {
+			$dir = $this->temp_dir( true );
+			U\Fs::copy( $dir, $dir . '/foo' );
+			$this->fail( $this->message( 'Exception should have been thrown.' ) );
+		} catch ( U\Fatal_Exception $exception ) {
+			$this->assertStringContainsString(
+				'Attempting to copy into self.',
+				$exception->get_message(),
+				$this->message()
+			);
+		}
 		try {
 			$dir = $this->temp_dir( true );
 			U\Fs::copy( $dir . '/dir-1', $dir );

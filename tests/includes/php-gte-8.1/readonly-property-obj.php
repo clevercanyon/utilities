@@ -27,7 +27,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities__Tests\Tests;
+namespace Clever_Canyon\Utilities\Tests;
 
 /**
  * Utilities.
@@ -35,7 +35,7 @@ namespace Clever_Canyon\Utilities__Tests\Tests;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use Clever_Canyon\{Utilities__Tests as UT};
+use Clever_Canyon\Utilities\{Tests as UT};
 
 // </editor-fold>
 

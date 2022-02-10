@@ -74,6 +74,7 @@ trait Salt_Members {
 				if ( is_file( $salt_file ) ) {
 					$salt[ $type ] = U\File::read( $salt_file );
 				} else {
+					U\File::make( $salt_file );
 					$salt[ $type ] = U\Crypto::keygen( 128 );
 					U\File::write( $salt_file, $salt[ $type ] );
 				}

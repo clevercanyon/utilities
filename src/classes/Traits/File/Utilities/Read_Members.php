@@ -40,22 +40,32 @@ trait Read_Members {
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string   $file             File path to read from.
-	 * @param bool     $throw_on_failure Throw exceptions on failure? Default is `true`.
-	 * @param int|null $bytes            Max bytes. Default is `null` (read entire file).
+	 * @param string $file             File path to read from.
+	 * @param bool   $throw_on_failure Throw exceptions on failure? Default is `true`.
+	 * @param array  $_d               Internal use only — do not pass.
 	 *
-	 * @return string File contents; else empty string.
+	 * @return string|null File contents; else `null` on failure.
 	 *
-	 * @throws U\Fatal_Exception On read failure; if `$throw_on_failure` is `true`.
+	 *                     * If `$throw_on_failure` is `true` (default), always returns a string.
+	 *                     * If `$throw_on_failure` is `false`, `null` is returned on failure.
+	 *
+	 *                     * A string return value is {@see trim()}'d up automtically.
+	 *                       However, if {@see U\File::read_bytes()} is used, no trimming occurs.
+	 *
+	 * @throws U\Fatal_Exception On any failure; if `$throw_on_failure` is `true`.
 	 */
-	public static function read( string $file, bool $throw_on_failure = true, /* int|null */ ?int $bytes = null ) : string {
-		if ( '' === $file ) {
-			return ''; // Not possible.
-		}
-		if ( is_file( $file ) && is_readable( $file ) ) {
-			if ( null !== $bytes ) {
-				if ( false !== ( $contents = file_get_contents( $file, false, null, 0, $bytes ) ) ) {
-					return trim( $contents );
+	public static function read( string $file, bool $throw_on_failure = true, array $_d = [] ) : ?string {
+		if ( '' !== $file && is_file( $file ) && is_readable( $file ) ) {
+			if ( isset( $_d[ 'bytes' ] ) ) {
+				if ( is_array( $_d[ 'bytes' ] ) ) {
+					$offset = $_d[ 'bytes' ][ 0 ] ?? 0;
+					$length = $_d[ 'bytes' ][ 1 ] ?? 0;
+				} else {
+					$offset = 0; // N/A.
+					$length = $_d[ 'bytes' ];
+				}
+				if ( false !== ( $contents = file_get_contents( $file, false, null, $offset, $length ) ) ) {
+					return $contents; // Don't trim when reading bytes; leave it to the caller.
 				}
 			} else {
 				if ( false !== ( $contents = file_get_contents( $file ) ) ) {
@@ -69,6 +79,58 @@ trait Read_Members {
 				' Have filesystem permissions changed?'
 			);
 		}
-		return '';
+		return null;
+	}
+
+	/**
+	 * Reads a specific number of bytes from of file.
+	 *
+	 * @since 2021-12-19
+	 *
+	 * @param string    $file             File path to read from.
+	 *
+	 * @param int|array $bytes            Max bytes to read; or offset array.
+	 *                                    If you pass an `int`, it indicates max bytes to read, from beginning of file.
+	 *                                    If you pass an `array`, key `0` is offset position to read from,
+	 *                                    and key `1` is bytes to read from the offset position.
+	 *
+	 * @param bool      $throw_on_failure Throw exceptions on failure? Default is `true`.
+	 *
+	 * @return string|null File contents; else `null` on failure; {@see U\File::read()}.
+	 *                     * There's no automatic {@see trim()} when reading bytes.
+	 *
+	 * @throws U\Fatal_Exception On any failure; if `$throw_on_failure` is `true`.
+	 */
+	public static function read_bytes( string $file, /* int|array */ $bytes, bool $throw_on_failure = true ) : ?string {
+		assert( is_int( $bytes ) || is_array( $bytes ) );
+		return U\File::read( $file, $throw_on_failure, [ 'bytes' => $bytes ] );
+	}
+
+	/**
+	 * Reads and decodes a JSON file.
+	 *
+	 * @since 2021-12-19
+	 *
+	 * @param string $file             File path to read from.
+	 * @param bool   $throw_on_failure Throw exceptions on failure? Default is `true`.
+	 *
+	 * @return mixed Decoded JSON value in a PHP data type; else `null` on failure.
+	 *
+	 *               * It's also possible for a JSON-decoded value to itself be a `null` value.
+	 *                 Unfortunately, there really is no way of detecting the difference at this time.
+	 *                 It's generally not a good idea to JSON-encode `null`. This is one of the reasons.
+	 *
+	 * @throws U\Fatal_Exception On read failure; if `$throw_on_failure` is `true`.
+	 *
+	 *                           * An exception will *not* be thrown if JSON decoding fails.
+	 *                             Callers should handle a `null` return value appropriately.
+	 */
+	public static function read_json( string $file, bool $throw_on_failure = true ) /* : mixed */ {
+		$contents = U\File::read( $file, $throw_on_failure );
+
+		if ( null === $contents ) {
+			return null; // Not possible.
+		}
+		return json_decode( $contents ); // `null` on failure.
 	}
 }

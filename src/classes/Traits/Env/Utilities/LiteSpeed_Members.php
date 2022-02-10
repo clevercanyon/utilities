@@ -87,8 +87,8 @@ trait LiteSpeed_Members {
 			 *   Additionally, access to this file might not be possible in some hosting environments.
 			 */
 			$version_file         = '/usr/local/lsws/VERSION';
-			$version_file_1st_64b = U\File::read( $version_file, false, 64 );
-			$version_file_1st_64b = trim( $version_file_1st_64b );
+			$version_file_1st_64b = U\File::read_bytes( $version_file, 64, false );
+			$version_file_1st_64b = trim( (string) $version_file_1st_64b );
 
 			preg_match( '/^([0-9][0-9a-z._\-]*)/ui', $version_file_1st_64b, $_m );
 			$version = trim( $_m[ 1 ] ?? '', '._-' ); // Version string.

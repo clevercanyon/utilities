@@ -40,26 +40,31 @@ trait Write_Members {
 	 *
 	 * @since 2021-12-19
 	 *
-	 * @param string $file             File path to write to.
+	 * @param string $file             An existing file path to write to.
+	 *
+	 *                                 * Unlike {@see file_put_contents()}, the file must exist already.
+	 *                                   Please use {@see U\File::make()} to create files. The goal is to make
+	 *                                   sure new files are always created explicitly, and that permissions
+	 *                                   on those new files are configured properly by {@see U\File::make()}.
+	 *
 	 * @param string $contents         New contents of the file.
+	 *
 	 * @param bool   $throw_on_failure Throw exceptions on failure? Default is `true`.
 	 *
 	 * @return bool True if contents written successfully.
 	 *
-	 * @throws U\Fatal_Exception On write failure; if `$throw_on_failure` is `true`.
+	 * @throws U\Fatal_Exception On any failure; if `$throw_on_failure` is `true`.
 	 */
 	public static function write( string $file, string $contents, bool $throw_on_failure = true ) : bool {
-		if ( '' === $file ) {
-			return false; // Not possible.
-		}
-		if ( is_file( $file ) && is_writable( $file ) ) {
+		if ( '' !== $file && is_file( $file ) && is_writable( $file ) ) {
 			if ( false !== file_put_contents( $file, $contents ) ) {
-				return true;
+				U\Fs::clear_stat_cache( $file );
+				return true; // Success.
 			}
 		}
 		if ( $throw_on_failure ) {
 			throw new U\Fatal_Exception(
-				'Failed to write contents to: `' . basename( $file ) . '`.' .
+				'Failed to write contents to: `' . $file . '`.' .
 				' Have filesystem permissions changed?'
 			);
 		}

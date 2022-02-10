@@ -45,8 +45,8 @@ trait Run_Exec_Members {
 	 * @return int Status code; {@see U\CLI::run()} for details.
 	 */
 	public static function try_run(
-		array $args, /* string|null */
-		?string $dir = null,
+		array $args,
+		/* string|null */ ?string $dir = null,
 		bool $check_status = true
 	) : int {
 		return U\CLI::run( $args, $dir, $check_status, false );
@@ -64,11 +64,11 @@ trait Run_Exec_Members {
 	 *
 	 * @throws U\Fatal_Exception If environment is lacking CLI functions.
 	 *                           On non-zero exit status code or other issue.
-	 *                           * Does not throw exceptions is `$throw_on_failure` is `false`.
+	 *                           * Does not throw exceptions if `$throw_on_failure` is `false`.
 	 */
 	public static function run(
-		array $args, /* string|null */
-		?string $dir = null,
+		array $args,
+		/* string|null */ ?string $dir = null,
 		bool $check_status = true,
 		bool $throw_on_failure = true
 	) : int {
@@ -132,7 +132,7 @@ trait Run_Exec_Members {
 	 *
 	 * @throws U\Fatal_Exception If environment is lacking CLI functions.
 	 *                           On non-zero exit status code or other issue.
-	 *                           * Does not throw exceptions is `$throw_on_failure` is `false`.
+	 *                           * Does not throw exceptions if `$throw_on_failure` is `false`.
 	 *
 	 * @future-review Review Windows changes in PHP 8+; {@see https://o5p.me/rUnbCC}.
 	 * @future-review Output redirection is also supported, which could be implemented in the future.
