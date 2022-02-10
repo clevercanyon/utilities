@@ -1,3 +1,3 @@
-# CLEVER CANYON: PHP/JS Utilities
+# Clever Canyon: PHP/JS Utilities
 
-CLEVER CANYON’s utilities for PHP/JS applications.
+Clever Canyon’s utilities for PHP/JS applications.

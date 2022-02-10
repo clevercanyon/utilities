@@ -1,6 +1,6 @@
 <?php
 /**
- * CLEVER CANYON™ {@see https://clevercanyon.com}
+ * Clever Canyon™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
@@ -39,7 +39,7 @@ trait MIME_Types_Property {
 	 * MIME types by file extension.
 	 *
 	 * Definitely not an exhaustive list, but this covers everything that's
-	 * used by WordPress, by CMS's in general, by CLEVER CANYON LLC, by WP Groove,
+	 * used by WordPress, by CMS's in general, by Clever Canyon LLC, by WP Groove,
 	 * in web design, and by the programming languages typically used in web design.
 	 *   ... Plus a few other things.
 	 *

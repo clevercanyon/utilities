@@ -1,6 +1,6 @@
 <?php
 /**
- * CLEVER CANYON™ {@see https://clevercanyon.com}
+ * Clever Canyon™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
@@ -53,7 +53,8 @@ trait Open_Members {
 	 */
 	public function stream_open( string $path, string $mode, int $options, /* string|null */ ?string &$opened_path = null ) : bool {
 		$report_errors = $options & STREAM_REPORT_ERRORS;
-		$code          = rtrim( mb_substr( $path, mb_strlen( $this->wrapper ) ), ';' );
+		$code          = mb_substr( $path, mb_strlen( $this->wrapper ) );
+		$code          = trim( $code ); // Trim whitespace.
 
 		if ( '' === $code ) {
 			if ( $report_errors ) {
@@ -67,13 +68,7 @@ trait Open_Members {
 			}
 			return false; // Failure.
 		}
-		if ( 0 === mb_stripos( $code, 'return ' ) ) {
-			if ( $report_errors ) {
-				throw new U\Fatal_Exception( 'Code must not begin with `return`.' );
-			}
-			return false; // Failure.
-		}
-		$this->content = '<?php' . "\n" . 'return ' . $code . ';';
+		$this->content = '<?php' . "\n" . $code;
 		$this->bytes   = strlen( $this->content );
 
 		return parent::stream_open( $path, $mode, $options, $opened_path );

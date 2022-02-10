@@ -1,6 +1,6 @@
 <?php
 /**
- * CLEVER CANYON™ {@see https://clevercanyon.com}
+ * Clever Canyon™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
@@ -108,8 +108,8 @@ trait Constructable_Members {
 		 *   2. The current server API; i.e., {@see U\Env::server_api()} to ensure dynamic adjustments can be made to
 		 *      connection settings depending on the server API vs. inadvertently reusing one from a different server API.
 		 *
-		 *   3. CLEVER CANYON's namespace crux via {@see U\Pkg::namespace_crux()}; identifying this library.
-		 *   4. CLEVER CANYON's data context based on {@see U\Pkg::data_context()}; e.g., `wps`, `web`, `uid`, etc.
+		 *   3. Clever Canyon's namespace crux via {@see U\Pkg::namespace_crux()}; identifying this library.
+		 *   4. Clever Canyon's data context based on {@see U\Pkg::data_context()}; e.g., `wps`, `web`, `uid`, etc.
 		 *
 		 *   5. A `$connection_id_salt` passed to constructor; else static env variable `MEMCACHED_CONNECTION_ID_SALT`.
 		 *      This allows new instances of this class to be given very different connection IDs if desirable.
@@ -130,8 +130,8 @@ trait Constructable_Members {
 		/**
 		 * A namespace is a 32-byte {@see U\Crypto::x_sha()} of (3) considerations:
 		 *
-		 *   1. CLEVER CANYON's namespace crux via {@see U\Pkg::namespace_crux()}; identifying this library.
-		 *   2. CLEVER CANYON's data context based on {@see U\Pkg::data_context()}; e.g., `wps`, `web`, `uid`, etc.
+		 *   1. Clever Canyon's namespace crux via {@see U\Pkg::namespace_crux()}; identifying this library.
+		 *   2. Clever Canyon's data context based on {@see U\Pkg::data_context()}; e.g., `wps`, `web`, `uid`, etc.
 		 *
 		 *   3. A `$namespace_salt` passed to constructor; else static env variable `MEMCACHED_NAMESPACE_SALT`.
 		 *      This allows new instances of this class to be given very different namespaces if desirable.

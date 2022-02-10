@@ -12,15 +12,15 @@ we create lives under a GitHub Organization with the name `clevercanyon`. Curren
 Organization for all software, which again, is `clevercanyon` on GitHub. We may expand to other
 GitHub Organizations in the future.
 
-From more of a business perspective, our top-level parent Organization is CLEVER CANYON LLC.
+From more of a business perspective, our top-level parent Organization is Clever Canyon LLC.
 
 ### Brands
 
 Within an Organization there are Brands, and under those Brands there are Products. A Brand can also
-be an Organization itself; e.g., CLEVER CANYON is both a Brand and an Organization.
+be an Organization itself; e.g., Clever Canyon is both a Brand and an Organization.
 
 Some of our Products may decide to rebrand; e.g., move to a different Brand, or to a new
-Sub-Organization under CLEVER CANYON; or whatever makes sense.
+Sub-Organization under Clever Canyon; or whatever makes sense.
 
 ### Products
 
@@ -29,7 +29,7 @@ describing something that is produced by an Organization under a given Brand. Ev
 created under a specific Brand, and every Brand is under a specific Organization. Here's a quick
 look at this structure.
 
-- CLEVER CANYON LLC
+- Clever Canyon LLC
 	- Brand
 		- Product
 		- Product
@@ -99,7 +99,7 @@ typically shipped to other developers.
 ### Web-Based Software, WP Themes, and WP Plugins
 
 These are examples of different types of Apps. There are lot of terms to throw around. The ones
-listed above are the most important ones at CLEVER CANYON.
+listed above are the most important ones at Clever Canyon.
 
 ---
 

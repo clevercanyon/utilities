@@ -3,7 +3,7 @@
 	"license"         : "GPL-2.0-or-later",
 	"name"            : "package",
 	"author"          : {
-		"name" : "CLEVER CANYON",
+		"name" : "Clever Canyon",
 		"url"  : "https://clevercanyon.com"
 	},
 	"devDependencies" : {

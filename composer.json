@@ -1,10 +1,10 @@
 {
 	"license"           : "GPL-2.0-or-later",
 	"name"              : "clevercanyon/utilities",
-	"description"       : "CLEVER CANYON’s utilities for PHP/JS applications.",
+	"description"       : "Clever Canyon’s utilities for PHP/JS applications.",
 	"authors"           : [
 		{
-			"name"     : "CLEVER CANYON",
+			"name"     : "Clever Canyon",
 			"homepage" : "https://clevercanyon.com",
 			"role"     : "organization"
 		}
@@ -77,7 +77,7 @@
 
 						"layout"         : "distro-lib",
 						"namespace_crux" : "Clever_Canyon\\Utilities",
-						"name"           : "CLEVER CANYON: PHP/JS Utilities"
+						"name"           : "Clever Canyon: PHP/JS Utilities"
 					}
 				},
 				"php_scoper"              : {

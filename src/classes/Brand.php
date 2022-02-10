@@ -1,6 +1,6 @@
 <?php
 /**
- * CLEVER CANYON™ {@see https://clevercanyon.com}
+ * Clever Canyon™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
@@ -48,7 +48,7 @@ final class Brand extends U\A6t\Stc_Utilities {
 	public const BY_N7M = [
 		'c10n' => [
 			'n7m'       => 'c10n',
-			'name'      => 'CLEVER CANYON',
+			'name'      => 'Clever Canyon',
 			'namespace' => 'Clever_Canyon',
 
 			'slug' => 'clevercanyon',

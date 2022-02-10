@@ -1,6 +1,6 @@
 <?php
 /**
- * CLEVER CANYON™ {@see https://clevercanyon.com}
+ * Clever Canyon™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN

@@ -1,6 +1,6 @@
 <?php
 /**
- * CLEVER CANYON™ {@see https://clevercanyon.com}
+ * Clever Canyon™ {@see https://clevercanyon.com}
  *
  *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
  * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
@@ -57,7 +57,7 @@ trait N7M_Members {
 	 *                            {@see U\Brand::BY_N7M} for a list of n7m keys.
 	 *                            {@see https://en.wikipedia.org/wiki/Numeronym}.
 	 *
-	 *                            e.g., CLEVER CANYON = `c10n` (or `&` self-reference).
+	 *                            e.g., Clever Canyon = `c10n` (or `&` self-reference).
 	 *                            e.g., WP Groove     = `w6e`.
 	 *                            e.g., Hostery       = `h5y`.
 	 *
