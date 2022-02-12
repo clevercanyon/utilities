@@ -238,7 +238,10 @@ interface Base extends U\I7e\Stc_Base, \JsonSerializable {
 	 *                            Classes implementing this interface must support the same filters
 	 *                            that {@see U\Obj::props()} supports. You can support additional filters also.
 	 *
+	 * @param bool        $clean  Clean property names? Default is `false`.
+	 *                            {@see U\Obj::props()} for further details.
+	 *
 	 * @return array Non-static properties using the given `$filter`.
 	 */
-	public function props( /* string|null */ ?string $filter = null ) : array;
+	public function props( /* string|null */ ?string $filter = null, bool $clean = false ) : array;
 }

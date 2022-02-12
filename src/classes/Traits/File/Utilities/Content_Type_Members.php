@@ -54,8 +54,6 @@ trait Content_Type_Members {
 	 *                             * To explicitly force no charset to be added, set this to an empty string.
 	 *
 	 * @return string MIME type + charset; suitable for `content-type:` header.
-	 *
-	 * @todo  Write unit tests for this.
 	 */
 	public static function content_type(
 		string $file,

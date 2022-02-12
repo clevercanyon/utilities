@@ -42,7 +42,7 @@ trait Diff_Members {
 	 *
 	 * @param int         $from   From time.
 	 *
-	 * @param int|null    $to     Default is {@see time()}.
+	 * @param int|null    $to     Default is {@see U\Time::utc()}.
 	 *
 	 * @param string|null $format Formatting. Default is `null`, indicating `default`.
 	 *
@@ -53,7 +53,7 @@ trait Diff_Members {
 	 * @return string Human time difference w/ requested formatting.
 	 */
 	public static function human_diff( int $from, /* int|null */ ?int $to = null, /* null|string */ ?string $format = null ) : string {
-		$to   = $to ?? time();
+		$to   = $to ?? U\Time::utc();
 		$diff = abs( $to - $from );
 
 		if ( 'abbr' !== $format && 'default' !== $format ) {

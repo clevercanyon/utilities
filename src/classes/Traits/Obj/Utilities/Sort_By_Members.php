@@ -48,8 +48,8 @@ trait Sort_By_Members {
 	 *
 	 * @return object Sorted object, converted to {@see \stdClass}.
 	 *
-	 * @throws U\Exception If attempting to sort by an unexpected directive.
-	 * @throws U\Exception If attempting to sort by non-scalar values.
+	 * @throws U\Fatal_Exception If attempting to sort by an unexpected directive.
+	 * @throws U\Fatal_Exception If attempting to sort by non-scalar values.
 	 *
 	 * @see   U\Bundle::sort_by()
 	 * @see   https://www.php.net/manual/en/array.sorting.php
@@ -65,14 +65,14 @@ trait Sort_By_Members {
 			case 'value':
 				foreach ( $obj as $_value ) {
 					if ( null !== $_value && ! is_scalar( $_value ) ) {
-						throw new U\Exception( 'All values must be null|scalar.' );
+						throw new U\Fatal_Exception( 'All values must be null|scalar.' );
 					}
 				}
 				sort( $obj, $flags );
 				break;
 
 			default:
-				throw new U\Exception( 'Unexpected sort by directive: `' . $by . '`.' );
+				throw new U\Fatal_Exception( 'Unexpected sort by directive: `' . $by . '`.' );
 		}
 		return (object) $obj;
 	}

@@ -385,7 +385,6 @@ final class Dir_Tests extends UT\A6t\Tests {
 	 */
 	public function test_make_temp() : void {
 		$temp_dir = $this->temp_dir();
-
 		$this->assertSame( true, is_dir( U\Dir::make_temp( $temp_dir ) ), $this->message() );
 	}
 
@@ -394,7 +393,6 @@ final class Dir_Tests extends UT\A6t\Tests {
 	 */
 	public function test_make_unique_path() : void {
 		$temp_dir = $this->temp_dir();
-
 		$this->assertSame( true, ! empty( U\Dir::make_unique_path( $temp_dir ) ), $this->message() );
 	}
 
@@ -403,6 +401,27 @@ final class Dir_Tests extends UT\A6t\Tests {
 	 */
 	public function test_sys_temp() : void {
 		$this->assertSame( true, is_dir( U\Dir::sys_temp() ), $this->message() );
+	}
+
+	/**
+	 * @covers ::sys_cache()
+	 */
+	public function test_sys_cache() : void {
+		$this->assertSame( true, is_dir( U\Dir::sys_cache() ), $this->message() );
+	}
+
+	/**
+	 * @covers ::sys_state()
+	 */
+	public function test_sys_state() : void {
+		$this->assertSame( true, is_dir( U\Dir::sys_state() ), $this->message() );
+	}
+
+	/**
+	 * @covers ::sys_data()
+	 */
+	public function test_sys_data() : void {
+		$this->assertSame( true, is_dir( U\Dir::sys_data() ), $this->message() );
 	}
 
 	/**

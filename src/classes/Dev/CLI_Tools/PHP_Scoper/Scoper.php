@@ -144,7 +144,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 *
 	 * @since        2021-12-15
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function run_scoper() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Running PHP Scoper ...' );
@@ -155,7 +155,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 		$config_file = U\Dir::join( $this->project->dir, '/.scoper.cfg.php' );
 
 		if ( ! is_file( $config_file ) ) {
-			throw new U\Exception( 'Missing `[project-dir]/.scoper.cfg.php`: `' . $config_file . '`.' );
+			throw new U\Fatal_Exception( 'Missing `[project-dir]/.scoper.cfg.php`: `' . $config_file . '`.' );
 		}
 		U\CLI::run( [
 			[ 'composer', 'exec', '--profile', '--', 'php-scoper', 'add-prefix' ],
@@ -171,7 +171,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function fix_comments() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Fixing comments ...' );
@@ -179,7 +179,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 		$output_dir = U\Fs::abs( $this->get_option( 'output-dir' ) );
 
 		if ( ! is_dir( $output_dir ) ) {
-			throw new U\Exception( 'Missing `output-dir`: `' . $output_dir . '`.' );
+			throw new U\Fatal_Exception( 'Missing `output-dir`: `' . $output_dir . '`.' );
 		}
 		$regexp             = U\Fs::gitignore_regexp_lookahead( 'negative', '.+\.php$', [ 'vendor' => false ] );
 		$php_files_iterator = U\Dir::iterator( $output_dir, $regexp );
@@ -195,7 +195,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function fix_formatting() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Fixing formatting ...' );
@@ -204,16 +204,16 @@ final class Scoper extends U\A6t\CLI_Tool {
 		$output_dir = U\Fs::abs( $this->get_option( 'output-dir' ) );
 
 		if ( ! is_dir( $output_dir ) ) {
-			throw new U\Exception( 'Missing `output-dir`: `' . $output_dir . '`.' );
+			throw new U\Fatal_Exception( 'Missing `output-dir`: `' . $output_dir . '`.' );
 		}
 		if ( ! is_file( $standard ) ) {
-			throw new U\Exception( 'Missing `[project-dir]/.phpcs.xml`: `' . $standard . '`.' );
+			throw new U\Fatal_Exception( 'Missing `[project-dir]/.phpcs.xml`: `' . $standard . '`.' );
 		}
 		$ignore            = U\Fs::gitignore_phpcs_regexp_lookahead_positive( $output_dir, [ 'except:vendor/' => 'clevercanyon' ] );
 		$phpcbf_bin_script = U\Dir::join( $this->project->dir, '/vendor/bin/phpcbf' );
 
 		if ( ! is_file( $phpcbf_bin_script ) ) {
-			throw new U\Exception( 'Missing `[project-dir]/vendor/bin/phpcbf`: `' . $phpcbf_bin_script . '`.' );
+			throw new U\Fatal_Exception( 'Missing `[project-dir]/vendor/bin/phpcbf`: `' . $phpcbf_bin_script . '`.' );
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Running PHPCBF w/ standard: `' . $standard . '` ...' );
 
@@ -225,7 +225,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 				[ '--extensions=php', '--ignore=' . $ignore ],
 				$output_dir, // ← directory to fix.
 			], $this->project->dir, false ) ) {
-			throw new U\Exception(
+			throw new U\Fatal_Exception(
 				'Got unexpected exit status from `phpcbf` while formatting: `' . $output_dir . '`.' .
 				' Running from: `' . $this->project->dir . '`.'
 			);
@@ -240,7 +240,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function fix_autoloader() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Fixing autoloader ...' );
@@ -249,13 +249,13 @@ final class Scoper extends U\A6t\CLI_Tool {
 		$output_project_dir_entry_file = U\Fs::abs( $this->get_option( 'output-project-dir-entry-file' ) ?: '' );
 
 		if ( ! is_dir( $output_project_dir ) ) {
-			throw new U\Exception( 'Missing `output-project-dir`: `' . $output_project_dir . '`.' );
+			throw new U\Fatal_Exception( 'Missing `output-project-dir`: `' . $output_project_dir . '`.' );
 		}
 		if ( ! is_dir( U\Dir::join( $output_project_dir, '/vendor' ) ) ) {
-			throw new U\Exception( 'Missing `[output-project-dir]/vendor`: `' . U\Dir::join( $output_project_dir, '/vendor' ) . '`.' );
+			throw new U\Fatal_Exception( 'Missing `[output-project-dir]/vendor`: `' . U\Dir::join( $output_project_dir, '/vendor' ) . '`.' );
 		}
 		if ( ! is_file( U\Dir::join( $output_project_dir, '/composer.json' ) ) ) {
-			throw new U\Exception( 'Missing `[output-project-dir]/composer.json`: `' . U\Dir::join( $output_project_dir, '/composer.json' ) . '`.' );
+			throw new U\Fatal_Exception( 'Missing `[output-project-dir]/composer.json`: `' . U\Dir::join( $output_project_dir, '/composer.json' ) . '`.' );
 		}
 		U\CLI::run( [
 			[ 'composer', 'dump-autoload' ],
@@ -266,7 +266,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 
 		if ( $output_project_dir_entry_file ) { // Optional entry file.
 			if ( ! is_file( $output_project_dir_entry_file ) ) {
-				throw new U\Exception( 'Missing `output-project-dir-entry-file`: `' . $output_project_dir_entry_file . '`.' );
+				throw new U\Fatal_Exception( 'Missing `output-project-dir-entry-file`: `' . $output_project_dir_entry_file . '`.' );
 			}
 			if (
 				! is_readable( $output_project_dir_entry_file )
@@ -274,7 +274,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 				|| null === ( $_f15s = U\File::read( $output_project_dir_entry_file, false ) )
 				|| ! U\File::write( $output_project_dir_entry_file, str_replace( '/autoload.php', '/scoper-autoload.php', $_f15s ), false )
 			) {
-				throw new U\Exception( 'Failed to change `/autoload.php` to `/scoper-autoload.php` in `' . $output_project_dir_entry_file . '`.' );
+				throw new U\Fatal_Exception( 'Failed to change `/autoload.php` to `/scoper-autoload.php` in `' . $output_project_dir_entry_file . '`.' );
 			}
 			U\CLI::log( '[' . __FUNCTION__ . '()]: Updated: `' . $output_project_dir_entry_file . '`.' );
 		}
@@ -289,14 +289,14 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 *
 	 * @param string $file File path.
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function fix_comments_process_file( string $file ) : void {
 		if ( ! $file || ! is_readable( $file ) || ! is_writable( $file ) ) {
-			throw new U\Exception( 'Unable to process file: `' . $file . '`. Is it readable and writable?' );
+			throw new U\Fatal_Exception( 'Unable to process file: `' . $file . '`. Is it readable and writable?' );
 		}
 		if ( ! U\File::write( $file, $this->fix_comments_process_string( U\File::read( $file ) ), false ) ) {
-			throw new U\Exception( 'Failed processing file: `' . $file . '`. Is the file readable and writable?' );
+			throw new U\Fatal_Exception( 'Failed processing file: `' . $file . '`. Is the file readable and writable?' );
 		}
 	}
 
@@ -308,8 +308,6 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 * @param string $str PHP file contents.
 	 *
 	 * @return string Modified PHP file contents.
-	 *
-	 * @throws U\Exception On any failure.
 	 */
 	protected function fix_comments_process_string( string $str ) : string {
 		return $this->fix_comments_process_tokens( token_get_all( U\Str::normalize_eols( $str ) ) );
@@ -324,11 +322,11 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 *
 	 * @return string Modified PHP file contents (tokens converted to string).
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function fix_comments_process_tokens( array $tokens ) : string {
 		if ( version_compare( PHP_VERSION, '8.0', '<' ) ) {
-			throw new U\Exception(
+			throw new U\Fatal_Exception(
 				'PHP version 8.0+ is required for parsing tokens.' .
 				'The way whitespace is handled in tokens changed in PHP 8.0+.' .
 				'This code is written to support the new and improved handling of whitespace.'

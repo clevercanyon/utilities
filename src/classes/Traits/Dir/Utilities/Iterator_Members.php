@@ -54,9 +54,9 @@ trait Iterator_Members {
 	 *
 	 * @return \Generator|\RecursiveDirectoryIterator[] Recursive directory iterator.
 	 *
-	 * @throws U\Exception If either of the input parameters are empty.
-	 * @throws U\Exception If `$path` is not a readable/iterable directory.
-	 * @throws U\Exception On failure to construct iterator.
+	 * @throws U\Fatal_Exception If either of the input parameters are empty.
+	 * @throws U\Fatal_Exception If `$path` is not a readable/iterable directory.
+	 * @throws U\Fatal_Exception On failure to construct iterator.
 	 *
 	 * @see   U\Fs::gitignore_regexp_lookahead() — please review carefully.
 	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
@@ -68,10 +68,10 @@ trait Iterator_Members {
 		$regexp ??= U\Fs::gitignore_regexp_lookahead( 'negative' );
 
 		if ( ! $path || ! $regexp ) {
-			throw new U\Exception( 'Missing required parameters.' );
+			throw new U\Fatal_Exception( 'Missing required parameters.' );
 		}
 		if ( ! is_dir( $path ) || ! is_readable( $path ) ) {
-			throw new U\Exception( 'Not a readable/iterable directory.' );
+			throw new U\Fatal_Exception( 'Not a readable/iterable directory.' );
 		}
 		try {
 			if ( $follow_symlinks ) {
@@ -95,7 +95,7 @@ trait Iterator_Members {
 				}
 			}
 		} catch ( \Throwable $throwable ) {
-			throw new U\Exception( $throwable->getMessage() );
+			throw new U\Fatal_Exception( $throwable->getMessage() );
 		}
 	}
 }

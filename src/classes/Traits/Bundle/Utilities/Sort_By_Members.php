@@ -46,9 +46,6 @@ trait Sort_By_Members {
 	 *
 	 * @return object|array Sorted bundle.
 	 *
-	 * @throws U\Exception If attempting to sort by an unexpected directive.
-	 * @throws U\Exception If attempting to sort by non-scalar values.
-	 *
 	 * @see   U\Obj::sort_by()
 	 * @see   U\Arr::sort_by()
 	 */

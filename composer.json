@@ -21,9 +21,11 @@
 		}
 	},
 	"require"           : {
-		"php-64bit"    : "^7.4 || ^8.0 || ^8.1",
-		"ext-mbstring" : "*",
-		"ext-json"     : "*"
+		"php-64bit"         : "^7.4 || ^8.0 || ^8.1",
+		"ext-mbstring"      : "*",
+		"ext-json"          : "*",
+
+		"league/commonmark" : "^2.2"
 	},
 	"suggest"           : {
 		"ext-fileinfo"        : "*",

@@ -167,7 +167,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function maybe_symlink_local_repos() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Maybe; looking ...' );
@@ -179,7 +179,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			return; // Nothing to do here.
 		}
 		if ( ! is_object( $symlink_local_packages ) ) {
-			throw new U\Exception(
+			throw new U\Fatal_Exception(
 				'Unexpected extra prop: `' . $symlink_local_packages_prop . '` in: `' . $this->project->file . '`.' .
 				' Must be an object with props matching pattern: `' . U\Dev\Composer::PACKAGES_DIR_REGEXP . '`.'
 			);
@@ -190,13 +190,13 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 				|| ! is_string( $_packages_dir )
 				|| ! preg_match( U\Dev\Composer::PACKAGES_DIR_REGEXP, $_packages_dir )
 			) {
-				throw new U\Exception(
+				throw new U\Fatal_Exception(
 					'Unexpected extra prop: `' . $symlink_local_packages_prop . '` in: `' . $this->project->file . '`.' .
 					' Each packages directory must match pattern: `' . U\Dev\Composer::PACKAGES_DIR_REGEXP . '`.'
 				);
 			}
 			if ( ! is_array( $_package_names ) ) {
-				throw new U\Exception(
+				throw new U\Fatal_Exception(
 					'Unexpected extra prop: `' . $symlink_local_packages_prop . '` in: `' . $this->project->file . '`.' .
 					' Package names must be an array, each matching a pattern appropriate for a given packages directory.'
 				);
@@ -209,7 +209,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 							|| ! preg_match( U\Dev\NPM::PACKAGE_NAME_REGEXP, $_package_name )
 							|| strlen( $_package_name ) > U\Dev\NPM::PACKAGE_NAME_MAX_BYTES
 						) {
-							throw new U\Exception(
+							throw new U\Fatal_Exception(
 								'Unexpected extra prop: `' . $symlink_local_packages_prop . '` with package name: `' . $_package_name . '`' .
 								' in: `' . $this->project->file . '`. Package name must match pattern: `' . U\Dev\NPM::PACKAGE_NAME_REGEXP . '`' .
 								' and be <= `' . U\Dev\NPM::PACKAGE_NAME_MAX_BYTES . '` bytes in length.'
@@ -222,7 +222,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 							|| ! preg_match( U\Dev\Composer::PACKAGE_NAME_REGEXP, $_package_name )
 							|| strlen( $_package_name ) > U\Dev\Composer::PACKAGE_NAME_MAX_BYTES
 						) {
-							throw new U\Exception(
+							throw new U\Fatal_Exception(
 								'Unexpected extra prop: `' . $symlink_local_packages_prop . '` with package name: `' . $_package_name . '`' .
 								' in: `' . $this->project->file . '`. Package name must match pattern: `' . U\Dev\Composer::PACKAGE_NAME_REGEXP . '`' .
 								' and be <= `' . U\Dev\Composer::PACKAGE_NAME_MAX_BYTES . '` bytes in length.'
@@ -230,7 +230,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 						}
 						break;
 					default:
-						throw new U\Exception(
+						throw new U\Fatal_Exception(
 							'Unexpected extra prop: `' . $symlink_local_packages_prop . '` in: `' . $this->project->file . '`.' .
 							' Unable to properly validate package names for directory: `' . $_packages_dir . '`.'
 						);
@@ -247,10 +247,10 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 						continue; // Not far enough up yet?
 					}
 					if ( ! U\Fs::delete( $_package_dir ) ) {
-						throw new U\Exception( 'Prior to symlink creation, failed to delete: `' . $_package_dir . '`.' );
+						throw new U\Fatal_Exception( 'Prior to symlink creation, failed to delete: `' . $_package_dir . '`.' );
 					}
 					if ( ! U\Fs::make_link( $_local_repo_dir, $_package_dir, [], false, false ) ) {
-						throw new U\Exception( 'Failed to symlink: `' . $_package_dir . '`.' );
+						throw new U\Fatal_Exception( 'Failed to symlink: `' . $_package_dir . '`.' );
 					}
 					U\CLI::log( '[' . __FUNCTION__ . '()]: Symlinked: `' . $_package_dir . '`' . "\n" . ' →  `' . $_local_repo_dir . '`.' );
 					break; // We can stop this loop.
@@ -264,7 +264,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function maybe_setup_dotfiles() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Maybe; looking ...' );
@@ -273,16 +273,16 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		$dotfiles_file = U\Dir::join( $dotfiles_dir, '/.dotfiles.json' );
 
 		if ( ! is_dir( $dotfiles_dir ) || ! is_readable( $dotfiles_dir ) ) {
-			throw new U\Exception( 'Missing readable directory: `' . $dotfiles_dir . '`.' );
+			throw new U\Fatal_Exception( 'Missing readable directory: `' . $dotfiles_dir . '`.' );
 		}
 		if ( ! is_file( $dotfiles_file ) || ! is_readable( $dotfiles_file ) ) {
-			throw new U\Exception( 'Missing readable file: `' . $dotfiles_file . '`.' );
+			throw new U\Fatal_Exception( 'Missing readable file: `' . $dotfiles_file . '`.' );
 		}
 		$dotfiles_iterator = U\Dir::iterator( $dotfiles_dir );
 		$dotfiles_json     = U\File::read_json( $dotfiles_file, false );
 
 		if ( ! is_object( $dotfiles_json ) || ! is_array( $dotfiles_json->manifest ?? null ) ) {
-			throw new U\Exception( 'Failed to parse `manifest` in `' . $dotfiles_json . '`.' );
+			throw new U\Fatal_Exception( 'Failed to parse `manifest` in `' . $dotfiles_json . '`.' );
 		}
 		foreach ( $dotfiles_iterator as $_resource ) {
 			if ( ! $_resource->isFile() ) {
@@ -296,10 +296,10 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 				continue; // Not in the manifest; ignore.
 			}
 			if ( ! is_file( $_from_path ) || ! is_readable( $_from_path ) ) {
-				throw new U\Exception( 'Unable to read dotfile: `' . $_from_path . '`.' );
+				throw new U\Fatal_Exception( 'Unable to read dotfile: `' . $_from_path . '`.' );
 			}
 			if ( is_file( $_to_path ) && ( ! is_readable( $_to_path ) || ! is_writable( $_to_path ) ) ) {
-				throw new U\Exception( 'Unable to update existing dotfile: `' . $_to_path . '`.' );
+				throw new U\Fatal_Exception( 'Unable to update existing dotfile: `' . $_to_path . '`.' );
 			}
 			switch ( $_from_subpath ) {
 				case 'package.json': // If exists, update. Do NOT overwrite.
@@ -312,38 +312,38 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 						// Validate `$_from_path_json`.
 
 						if ( ! is_object( $_from_path_json ) ) {
-							throw new U\Exception( 'Unable to parse JSON in: `' . $_from_path . '`.' );
+							throw new U\Fatal_Exception( 'Unable to parse JSON in: `' . $_from_path . '`.' );
 						}
 						$_from_path_json->devDependencies      ??= (object) [];
 						$_from_path_json->config               ??= (object) [];
 						$_from_path_json->config->clevercanyon ??= (object) [];
 
 						if ( ! is_object( $_from_path_json->devDependencies ) ) {
-							throw new U\Exception( 'Unexpected `devDependencies` in: `' . $_from_path . '`.' );
+							throw new U\Fatal_Exception( 'Unexpected `devDependencies` in: `' . $_from_path . '`.' );
 						}
 						if ( ! is_object( $_from_path_json->config ) ) {
-							throw new U\Exception( 'Unexpected `config` in: `' . $_from_path . '`.' );
+							throw new U\Fatal_Exception( 'Unexpected `config` in: `' . $_from_path . '`.' );
 						}
 						if ( ! is_object( $_from_path_json->config->clevercanyon ) ) {
-							throw new U\Exception( 'Unexpected `config->clevercanyon` in: `' . $_from_path . '`.' );
+							throw new U\Fatal_Exception( 'Unexpected `config->clevercanyon` in: `' . $_from_path . '`.' );
 						}
 						// Validate `$_to_path_json`.
 
 						if ( ! is_object( $_to_path_json ) ) {
-							throw new U\Exception( 'Unable to parse JSON in: `' . $_to_path . '`.' );
+							throw new U\Fatal_Exception( 'Unable to parse JSON in: `' . $_to_path . '`.' );
 						}
 						$_to_path_json->devDependencies      ??= (object) [];
 						$_to_path_json->config               ??= (object) [];
 						$_to_path_json->config->clevercanyon ??= (object) [];
 
 						if ( ! is_object( $_to_path_json->devDependencies ) ) {
-							throw new U\Exception( 'Unexpected `devDependencies` in: `' . $_to_path . '`.' );
+							throw new U\Fatal_Exception( 'Unexpected `devDependencies` in: `' . $_to_path . '`.' );
 						}
 						if ( ! is_object( $_to_path_json->config ) ) {
-							throw new U\Exception( 'Unexpected `config` in: `' . $_to_path . '`.' );
+							throw new U\Fatal_Exception( 'Unexpected `config` in: `' . $_to_path . '`.' );
 						}
 						if ( ! is_object( $_to_path_json->config->clevercanyon ) ) {
-							throw new U\Exception( 'Unexpected `config->clevercanyon` in: `' . $_to_path . '`.' );
+							throw new U\Fatal_Exception( 'Unexpected `config->clevercanyon` in: `' . $_to_path . '`.' );
 						}
 						// Update `$_to_path_json`.
 
@@ -356,7 +356,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 						$_to_path_json->config->clevercanyon = U\Bundle::merge( $_to_path_json->config->clevercanyon, $_from_path_json->config->clevercanyon );
 
 						if ( ! U\File::write( $_to_path, U\Str::json_encode( $_to_path_json, true ), false ) ) {
-							throw new U\Exception( 'Failed to update `devDependencies` in: `' . $_to_path . '`.' );
+							throw new U\Fatal_Exception( 'Failed to update `devDependencies` in: `' . $_to_path . '`.' );
 						}
 						U\CLI::log( '[' . __FUNCTION__ . '()]: Updated: `' . $_to_path . '`.' );
 						break; // We can stop here.
@@ -364,7 +364,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 					} // Please note the important fallthrough from above.
 				default: // Everything falls through unless there's a `break` above.
 					if ( ! U\Fs::copy( $_from_path, $_to_path ) ) {
-						throw new U\Exception( 'Failed to setup dotfile: `' . $_to_path . '`.' );
+						throw new U\Fatal_Exception( 'Failed to setup dotfile: `' . $_to_path . '`.' );
 					}
 					U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $_from_path . '`' . "\n" . ' →  `' . $_to_path . '`.' );
 			}
@@ -407,7 +407,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function maybe_compile_distro_lib_dir() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Maybe; looking ...' );
@@ -431,7 +431,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			$comp_dir_copy_config[ 'ignore' ],
 			$comp_dir_copy_config[ 'exceptions' ]
 		) ) {
-			throw new U\Exception( 'Failed to create `./._x/comp`.' );
+			throw new U\Fatal_Exception( 'Failed to create `./._x/comp`.' );
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $this->project->dir . '`' . "\n" . ' →  `' . $comp_dir . '`.' );
 
@@ -457,7 +457,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 				'/(?:^|.+?\/)composer\.json$/ui',
 			] ),
 		) ) {
-			throw new U\Exception( 'Failed to prune `./._x/comp`.' );
+			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp`.' );
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_dir . '`.' );
 
@@ -489,7 +489,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			$comp_dir_prune_config[ 'prune' ],
 			$comp_dir_prune_config[ 'exceptions' ]
 		) ) {
-			throw new U\Exception( 'Failed to prune `./._x/distro`.' );
+			throw new U\Fatal_Exception( 'Failed to prune `./._x/distro`.' );
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $distro_dir . '`.' );
 	}
@@ -499,7 +499,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function maybe_compile_distro_lib_zip() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Maybe; looking ...' );
@@ -510,13 +510,13 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		$distro_dir = U\Dir::join( $this->project->dir, '/._x/distro' );
 
 		if ( ! is_dir( $distro_dir ) ) {
-			throw new U\Exception( 'Failed to zip `./._x/distro` directory. Missing: `' . $distro_dir . '`.' );
+			throw new U\Fatal_Exception( 'Failed to zip `./._x/distro` directory. Missing: `' . $distro_dir . '`.' );
 		}
 		$zip_basename = $this->project->slug . '-v' . $this->project->version . '.zip';
 		$zip_path     = U\Dir::join( $this->project->dir, '/._x/distro-zips/' . $zip_basename );
 
 		if ( ! U\Fs::zip_er( $distro_dir . '->' . $this->project->slug, $zip_path ) ) {
-			throw new U\Exception( 'Failed to zip: `' . $distro_dir . '->' . $this->project->slug . '`, to: `' . $zip_path . '`.' );
+			throw new U\Fatal_Exception( 'Failed to zip: `' . $distro_dir . '->' . $this->project->slug . '`, to: `' . $zip_path . '`.' );
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Zipped: `' . $distro_dir . '`' . "\n" . ' →  `' . $zip_path . '`.' );
 	}
@@ -526,7 +526,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Exception On any failure.
+	 * @throws U\Fatal_Exception On any failure.
 	 * @throws \Throwable On some failures.
 	 */
 	protected function maybe_s3_upload_distro_lib_zip() : void {
@@ -539,7 +539,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		$zip_path     = U\Dir::join( $this->project->dir, '/._x/distro-zips/' . $zip_basename );
 
 		if ( ! is_file( $zip_path ) ) {
-			throw new U\Exception( 'Missing zip file: `' . $zip_path . '`.' );
+			throw new U\Fatal_Exception( 'Missing zip file: `' . $zip_path . '`.' );
 		}
 		$s3_zip_hash           = $this->project->s3_hash_hmac_sha256( $this->project->unbranded_slug . $this->project->version );
 		$s3_zip_file_subpath   = 'cdn/product/' . $this->project->unbranded_slug . '/zips/' . $s3_zip_hash . '/' . $zip_basename;
@@ -562,7 +562,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 				|| ! is_object( $s3_index->versions->tags )
 				|| ! is_string( $s3_index->versions->stable_tag )
 			) {
-				throw new U\Exception(
+				throw new U\Fatal_Exception(
 					'Unable to retrieve valid JSON data from: ' .
 					' `' . U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_index_file_subpath ) . '`.'
 				);
@@ -596,7 +596,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		// Throws exception on failure, which we intentionally do not catch.
 
 		$s3_index->versions->tags = (array) $s3_index->versions->tags;
-		$s3_index->versions->tags = array_merge( $s3_index->versions->tags, [ $this->project->version => time() ] );
+		$s3_index->versions->tags = array_merge( $s3_index->versions->tags, [ $this->project->version => U\Time::utc() ] );
 
 		uksort( $s3_index->versions->tags, 'version_compare' ); // Example: <https://3v4l.org/QitGb>.
 		$s3_index->versions->tags = array_reverse( $s3_index->versions->tags );

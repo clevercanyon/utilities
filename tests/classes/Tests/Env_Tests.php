@@ -74,15 +74,76 @@ final class Env_Tests extends UT\A6t\Tests {
 	}
 
 	/**
+	 * @covers ::is_web()
+	 *
+	 * @covers ::is_apache()
+	 * @covers ::apache_version()
+	 *
+	 * @covers ::is_iis()
+	 * @covers ::iis_version()
+	 *
+	 * @covers ::is_lighttpd()
+	 * @covers ::lighttpd_version()
+	 *
+	 * @covers ::is_litespeed()
+	 * @covers ::litespeed_version()
+	 *
+	 * @covers ::is_nginx()
+	 * @covers ::nginx_version()
+	 */
+	public function test_is_web() : void {
+		$this->assertSame( true, U\Env::is_web(), $this->message() );
+
+		$this->assertSame( false, U\Env::is_apache(), $this->message() );
+		$this->assertSame( '', U\Env::apache_version(), $this->message() );
+
+		$this->assertSame( false, U\Env::is_iis(), $this->message() );
+		$this->assertSame( '', U\Env::iis_version(), $this->message() );
+
+		$this->assertSame( false, U\Env::is_lighttpd(), $this->message() );
+		$this->assertSame( '', U\Env::lighttpd_version(), $this->message() );
+
+		$this->assertSame( false, U\Env::is_litespeed(), $this->message() );
+		$this->assertSame( '', U\Env::litespeed_version(), $this->message() );
+
+		$this->assertSame( false, U\Env::is_nginx(), $this->message() );
+		$this->assertSame( '', U\Env::nginx_version(), $this->message() );
+	}
+
+	/**
+	 * @covers ::raise_memory_limit()
+	 *
+	 * Can be tested with PHPUnit in other memory limits by passing:
+	 * e.g., `-d memory_limit=32M` to `phpunit` from command line.
+	 */
+	public function test_raise_memory_limit() : void {
+		$this->assertSame( U\File::abbr_bytes( '257M' ), U\Env::raise_memory_limit( 'admin', '257M' ), $this->message() );
+		$this->assertSame( U\File::abbr_bytes( '512M' ), U\Env::raise_memory_limit( 'dev' ), $this->message() );
+		$this->assertSame( U\File::abbr_bytes( '512M' ), U\Env::raise_memory_limit( 'dev', '257M' ), $this->message() );
+	}
+
+	/**
 	 * @covers ::charset()
-	 * @covers ::is_charset_utf8()
+	 * @covers ::is_utf8()
 	 *
 	 * Can be tested with PHPUnit in other charsets by passing:
 	 * e.g., `-d default_charset=iso-8859-1` to `phpunit` from command line.
 	 */
 	public function test_charset() : void {
 		$this->assertSame( true, ! empty( U\Env::charset() ), $this->message() );
-		$this->assertSame( 'utf-8' === U\Env::charset(), U\Env::is_charset_utf8(), $this->message() );
+		$this->assertSame( 'utf-8' === U\Env::charset(), U\Env::is_utf8(), $this->message() );
+	}
+
+	/**
+	 * @covers ::timezone()
+	 * @covers ::is_utc()
+	 *
+	 * Can be tested with PHPUnit in other timezones by passing:
+	 * e.g., `-d date.timezone=America/New_York` to `phpunit` from command line.
+	 */
+	public function test_timezone() : void {
+		$this->assertSame( true, ! empty( U\Env::timezone() ), $this->message() );
+		$this->assertSame( 'utc' === U\Env::timezone(), U\Env::is_utc(), $this->message() );
 	}
 
 	/**
@@ -102,9 +163,14 @@ final class Env_Tests extends UT\A6t\Tests {
 	 */
 	public function test_var() : void {
 		$this->assertSame( true, ! empty( U\Env::var( 'USER' ) ), $this->message() );
+		$this->assertSame( true, ! empty( U\Env::var( 'USER_LC' ) ), $this->message() );
+		$this->assertSame( true, ! empty( U\Env::var( 'USER_ID' ) ), $this->message() );
 		$this->assertSame( true, ! empty( U\Env::var( 'HOME' ) ), $this->message() );
 		$this->assertSame( true, ! empty( U\Env::var( 'CWD' ) ), $this->message() );
 		$this->assertSame( true, ! empty( U\Env::var( 'TMPDIR' ) ), $this->message() );
+		$this->assertSame( true, is_string( U\Env::var( 'TERM' ) ), $this->message() );
+		$this->assertSame( true, is_string( U\Env::var( 'APPDATA' ) ), $this->message() );
+		$this->assertSame( true, is_string( U\Env::var( 'DOCUMENT_ROOT' ) ), $this->message() );
 	}
 
 	/**
@@ -214,5 +280,54 @@ final class Env_Tests extends UT\A6t\Tests {
 	public function test_end_output_buffering() : void {
 		$this->assertSame( true, U\Env::end_output_buffering(), $this->message() );
 		$this->assertSame( true, 1 === ob_get_level(), $this->message() );
+	}
+
+	/**
+	 * @covers ::sys_name()
+	 */
+	public function test_sys_name() : void {
+		$this->assertSame( true, ! empty( U\Env::sys_name() ), $this->message() );
+	}
+
+	/**
+	 * @covers ::sys_ip()
+	 */
+	public function test_sys_ip() : void {
+		$this->assertSame( true, ! empty( U\Env::sys_ip() ), $this->message() );
+	}
+
+	/**
+	 * @covers ::server_api()
+	 */
+	public function test_server_api() : void {
+		$this->assertSame( true, ! empty( U\Env::server_api() ), $this->message() );
+	}
+
+	/**
+	 * @covers ::server_name()
+	 */
+	public function test_server_name() : void {
+		$this->assertSame( true, empty( U\Env::server_name() ), $this->message() );
+	}
+
+	/**
+	 * @covers ::server_ip()
+	 */
+	public function test_server_ip() : void {
+		$this->assertSame( true, empty( U\Env::server_ip() ), $this->message() );
+	}
+
+	/**
+	 * @covers ::server_port()
+	 */
+	public function test_server_port() : void {
+		$this->assertSame( true, empty( U\Env::server_port() ), $this->message() );
+	}
+
+	/**
+	 * @covers ::is_robotic_web_server_user()
+	 */
+	public function test_is_robotic_web_server_user() : void {
+		$this->assertSame( false, U\Env::is_robotic_web_server_user(), $this->message() );
 	}
 }

@@ -51,20 +51,21 @@ trait INI_Setting_Members {
 	 * @see   wp_is_ini_value_changeable()
 	 */
 	public static function is_ini_setting_changeable( string $setting ) : bool {
-		static $ini_get_all; // Memoize.
+		static $ini, $can_use_function_ini_set; // Memoize.
 
-		if ( null === $ini_get_all ) {
+		if ( null === $ini || null === $can_use_function_ini_set ) {
 			if ( U\Env::can_use_function( 'ini_get_all' ) ) {
-				$ini_get_all = ini_get_all();
+				$ini = ini_get_all();
 			}
-			$ini_get_all = $ini_get_all ?: false;
+			$ini                      = $ini ?: false;
+			$can_use_function_ini_set = U\Env::can_use_function( 'ini_set' );
 		}
-		if ( false === $ini_get_all ) {
-			return U\Env::can_use_function( 'ini_set' );
+		if ( false === $ini ) { // If no settings, assume true.
+			return $can_use_function_ini_set;
 		}
-		return isset( $cache[ $setting ][ 'access' ] )
-			&& ( INI_ALL === ( $cache[ $setting ][ 'access' ] & INI_ALL )
-				|| INI_USER === ( $cache[ $setting ][ 'access' ] & INI_ALL ) )
-			&& U\Env::can_use_function( 'ini_set' );
+		return $can_use_function_ini_set
+			&& isset( $ini[ $setting ][ 'access' ] )
+			&& ( INI_ALL === ( $ini[ $setting ][ 'access' ] & INI_ALL )
+				|| INI_USER === ( $ini[ $setting ][ 'access' ] & INI_ALL ) );
 	}
 }

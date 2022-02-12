@@ -61,7 +61,7 @@ trait Server_Members {
 	 *
 	 * @since 2020-11-19
 	 *
-	 * @throws U\Fatal_Exception On failure (in debugging mode).
+	 * @throws U\Fatal_Exception In debug mode; on failure.
 	 *
 	 * @see   https://o5p.me/xXgmzk
 	 * @see   https://code.launchpad.net/libmemcached
@@ -83,14 +83,16 @@ trait Server_Members {
 			// Configure options for the pool of servers added below.
 			// Goal is for things to run smoothly in different environments.
 
-			// Note: `OPT_CORK` is a deprecated option — do not use.
-			// Note: `OPT_USER_DATA` is a deprecated option — do not use.
-			// Note: `OPT_CACHE_LOOKUPS` is a deprecated option — do not use.
-			// Note: `OPT_AUTO_EJECT_HOSTS` is a deprecated option — do not use.
-			// Note: `OPT_DEAD_TIMEOUT` is an undocumented option — probably should not use.
-			// Note: `OPT_TCP_KEEPIDLE` is only available on Linux — probably should not use.
-			// Note: `OPT_PREFIX_KEY` we are not using, but if we were, it has an upper limit of 128 bytes.
-			// Note: `OPT_SUPPORT_CAS` not set here; it's enabled on-demand JIT, as it incurs a light performance penalty.
+			// Note    : `OPT_CORK` is a deprecated option — do not use.
+			// Note    : `OPT_USER_DATA` is a deprecated option — do not use.
+			// Note    : `OPT_CACHE_LOOKUPS` is a deprecated option — do not use.
+			// Note    : `OPT_AUTO_EJECT_HOSTS` is a deprecated option — do not use.
+			// Note    : `OPT_DEAD_TIMEOUT` is an undocumented option — probably should not use.
+			// Note    : `OPT_TCP_KEEPIDLE` is only available on Linux — probably should not use.
+			// Note    : `OPT_PREFIX_KEY` we are not using, but if we were, it has an upper limit of 128 bytes.
+			// Note    : `OPT_SUPPORT_CAS` not set here; it's enabled on-demand JIT, as it incurs a light performance penalty.
+			// Warning : `Mc::OPT_BUFFER_WRITES` must remain `true`, else MAMP's Memcached console throws:
+			// ...       `Failed to write, and not due to blocking: Broken pipe`.
 
 			$this->memcached->setOption( Mc::OPT_PREFIX_KEY, '' );        // No, this class does its own prefixing.
 			$this->memcached->setOption( Mc::OPT_BINARY_PROTOCOL, true ); // Yes, let's operate in binary mode for UTF-8.

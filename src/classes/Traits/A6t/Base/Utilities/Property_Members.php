@@ -43,9 +43,12 @@ trait Property_Members {
 	 * @param string|null $filter Optional filter. Default is `null`.
 	 *                            {@see U\Obj::props()} for further details.
 	 *
+	 * @param bool        $clean  Clean property names? Default is `false`.
+	 *                            {@see U\Obj::props()} for further details.
+	 *
 	 * @return array Non-static properties using the given `$filter`.
 	 */
-	final public function props( /* string|null */ ?string $filter = null ) : array {
-		return U\Obj::props( $this, $filter );
+	final public function props( /* string|null */ ?string $filter = null, bool $clean = false ) : array {
+		return U\Obj::props( $this, $filter, $clean );
 	}
 }

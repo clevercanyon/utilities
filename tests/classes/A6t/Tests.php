@@ -77,6 +77,18 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	public static function setUpBeforeClass() : void {
 		parent::setUpBeforeClass();
 
+		$_SERVER[ 'HTTPS' ]        = 'on';
+		$_SERVER[ 'HTTP_HOST' ]    = 'foo.bar.com:123';
+		$_SERVER[ 'REQUEST_URI' ]  = '/foo.bar?foo=foo&bar=bar';
+		$_SERVER[ 'QUERY_STRING' ] = 'foo=foo&bar=bar';
+		$_SERVER[ 'HTTP_REFERER' ] = 'https://example.com';
+
+		$_GET[ 'foo' ] = 'foo';
+		$_GET[ 'bar' ] = 'bar';
+
+		$_REQUEST[ 'foo' ] = 'foo';
+		$_REQUEST[ 'bar' ] = 'bar';
+
 		U\Env::set_test_mode( 'phpunit' );
 		U\Env::set_debug_mode( 'phpunit' );
 	}
@@ -117,6 +129,18 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 */
 	public static function tearDownAfterClass() : void {
 		parent::tearDownAfterClass();
+
+		$_SERVER[ 'HTTPS' ]        = '';
+		$_SERVER[ 'HTTP_HOST' ]    = '';
+		$_SERVER[ 'REQUEST_URI' ]  = '';
+		$_SERVER[ 'QUERY_STRING' ] = '';
+		$_SERVER[ 'HTTP_REFERER' ] = '';
+
+		unset( $_GET[ 'foo' ] ); // phpcs:ignore.
+		unset( $_GET[ 'bar' ] ); // phpcs:ignore.
+
+		unset( $_REQUEST[ 'foo' ] ); // phpcs:ignore.
+		unset( $_REQUEST[ 'bar' ] ); // phpcs:ignore.
 	}
 
 	/**

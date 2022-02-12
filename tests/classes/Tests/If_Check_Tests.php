@@ -281,15 +281,15 @@ final class If_Check_Tests extends UT\A6t\Tests {
 	}
 
 	/**
-	 * @covers u\iff()
+	 * @covers u\if_fn()
 	 */
-	public function test_iff() : void {
-		$this->assertSame( null, u\iff( 1.0, fn( $v ) => is_int( $v ) ), $this->message() );
-		$this->assertSame( null, u\iff( false, fn( $v ) => is_int( $v ) ), $this->message() );
-		$this->assertSame( true, u\iff( '', fn( $v ) => is_int( $v ), true ), $this->message() );
+	public function test_if_fn() : void {
+		$this->assertSame( null, u\if_fn( 1.0, fn( $v ) => is_int( $v ) ), $this->message() );
+		$this->assertSame( null, u\if_fn( false, fn( $v ) => is_int( $v ) ), $this->message() );
+		$this->assertSame( true, u\if_fn( '', fn( $v ) => is_int( $v ), true ), $this->message() );
 
-		$this->assertSame( 0, u\iff( 0, fn( $v ) => is_int( $v ), true ), $this->message() );
-		$this->assertSame( 1, u\iff( 1, fn( $v ) => is_int( $v ), true ), $this->message() );
-		$this->assertSame( 'foo', u\iff( 'foo', fn( $v ) => is_string( $v ), false ), $this->message() );
+		$this->assertSame( 0, u\if_fn( 0, fn( $v ) => is_int( $v ), true ), $this->message() );
+		$this->assertSame( 1, u\if_fn( 1, fn( $v ) => is_int( $v ), true ), $this->message() );
+		$this->assertSame( 'foo', u\if_fn( 'foo', fn( $v ) => is_string( $v ), false ), $this->message() );
 	}
 }

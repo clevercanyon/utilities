@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-final class Code_Stream extends U\A6t\Stream {
+final class Code_Stream extends U\A6t\Code_Stream {
 	/**
 	 * Traits.
 	 *

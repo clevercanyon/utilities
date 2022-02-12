@@ -44,6 +44,8 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * UTF-8 byte-order marker.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @var string `ï»¿`
 	 */
 	public const UTF8_BOM = "\xEF\xBB\xBF";
 
@@ -51,20 +53,26 @@ final class Str extends U\A6t\Stc_Utilities {
 	 * Chars removed by {@see trim()}.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @var string Whitespace.
 	 */
 	public const TRIM_CHARS = " \n\r\t\v\x00";
 
 	/**
-	 * Serialize (no WP) prefix.
+	 * Serialized marker.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @var string `§Ð¦`
 	 */
-	public const SERIALIZE_NO_WP_PREFIX = '[|{:s!wp:}|]';
+	public const SERIALIZED_MARKER = "\xA7\xD0\xA6";
 
 	/**
-	 * Serialize signature separator.
+	 * Serialized signature separator.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @var string `¦¤«§»¤¦`
 	 */
-	public const SERIALIZE_SIGNATURE_SEPARATOR = '[|{:sSs:}|]';
+	public const SERIALIZED_SIGNATURE_SEPARATOR = "\xA6\xA4\xAB\xA7\xBB\xA4\xA6";
 }

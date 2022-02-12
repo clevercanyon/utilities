@@ -58,6 +58,8 @@ trait Clear_Members {
 	 *                                 The default sub-key prefix + `\` is 33 bytes in length, so default max length is 217 bytes.
 	 *
 	 * @return bool True on success.
+	 *
+	 * @throws U\Exception {@see U\Mem::key()}.
 	 */
 	public function clear( string $primary_key, /* string|null */ ?string $sub_key = null ) : bool {
 		if ( null === $sub_key ) {

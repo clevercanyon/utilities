@@ -55,7 +55,6 @@ trait Members {
 	use U\Traits\Str\Utilities\Multibyte_Members;
 	use U\Traits\Str\Utilities\N7M_Members;
 	use U\Traits\Str\Utilities\Name_Members;
-	use U\Traits\Str\Utilities\No_WP_Serialize_Members;
 	use U\Traits\Str\Utilities\Normalize_EOL_Members;
 	use U\Traits\Str\Utilities\Preg_Match_In_Members;
 	use U\Traits\Str\Utilities\Replace_Members;

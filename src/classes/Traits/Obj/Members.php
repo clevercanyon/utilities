@@ -40,8 +40,9 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
+	use U\Traits\Obj\Utilities\Conditional_Members;
+	use U\Traits\Obj\Utilities\Get_Prop_Members;
+	use U\Traits\Obj\Utilities\Own_Prop_Members;
 	use U\Traits\Obj\Utilities\Props_Members;
 	use U\Traits\Obj\Utilities\Sort_By_Members;
-	use U\Traits\Obj\Utilities\Get_Prop_Members;
-	use U\Traits\Obj\Utilities\Conditional_Members;
 }

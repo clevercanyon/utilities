@@ -46,9 +46,7 @@ trait Replace_Members {
 	 * @param int          $limit   {@see replace()}.
 	 * @param int|null     $count   {@see replace()}.
 	 *
-	 * @return array|string {@see replace()}.
-	 *
-	 * @throws U\Exception {@see replace()}.
+	 * @return array|string {@see replace()}..
 	 */
 	public static function ireplace(
 		/* string|array */ $search,
@@ -86,8 +84,8 @@ trait Replace_Members {
 	 *
 	 * @return string|array {@see str_replace()}. Same behavior here.
 	 *
-	 * @throws U\Exception When `$replace` is passed as an array, but `$search` is passed as a string. Makes no sense.
-	 *                     Throwing an exception matches the behavior of {@see str_replace()} in PHP 8.0+.
+	 * @throws U\Fatal_Exception When `$replace` is passed as an array, but `$search` is passed as a string. Makes no sense.
+	 *                           Throwing an exception matches the behavior of {@see str_replace()} in PHP 8.0+.
 	 */
 	public static function replace(
 		/* string|array */ $search,
@@ -112,10 +110,10 @@ trait Replace_Members {
 		assert( is_string( $subject ) || is_array( $subject ) );
 
 		if ( ! ( -1 === $limit || $limit >= 1 ) ) {
-			throw new U\Exception( '`$limit` must be `-1`, or >= `1`.' );
+			throw new U\Fatal_Exception( '`$limit` must be `-1`, or >= `1`.' );
 		}
 		if ( $replace_is_array && ! $search_is_array ) {
-			throw new U\Exception( '`$replace` must be a string when `$search` is a string.' );
+			throw new U\Fatal_Exception( '`$replace` must be a string when `$search` is a string.' );
 		}
 		$is_case_insensitive = ! empty( $_d[ 'case:insensitive' ] );
 

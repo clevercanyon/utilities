@@ -60,6 +60,8 @@ trait Getter_Members {
 	 *                    In general, it is a best practice not to cache `null` values.
 	 *                    In fact, {@see U\Mem::set()} treats `null` as a request to unset a cache key.
 	 *                    Therefore, under expected circumstances, this should only return `null` on miss or failure.
+	 *
+	 * @throws U\Exception {@see U\Mem::key()}.
 	 */
 	public function get( string $primary_key, string $sub_key ) /* : mixed */ {
 		if ( ! ( $key = $this->key( $primary_key, $sub_key ) ) ) {

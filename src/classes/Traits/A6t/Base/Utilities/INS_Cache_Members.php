@@ -58,6 +58,7 @@ trait INS_Cache_Members {
 	 *
 	 *                         * PHP does not allow a {@see \Closure} to be serialized whatsoever.
 	 *                           Do not pass closures as a key part; either directly or indirectly.
+	 *                           You can, however, pass a {@see U\Code_Stream_Closure}.
 	 *
 	 *                         * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
 	 *                           Do not pass resource values as a key part; either directly or indirectly.

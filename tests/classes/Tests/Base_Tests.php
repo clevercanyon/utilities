@@ -47,49 +47,39 @@ use Clever_Canyon\Utilities\{Tests as UT};
 final class Base_Tests extends UT\A6t\Tests {
 	/**
 	 * @covers ::props()
+	 * @covers ::own_prop_names()
 	 */
 	public function test_props() : void {
 		$offsets    = new class extends U\A6t\Offsets {
 			/**
-			 * Public property.
+			 * Public foo property.
 			 */
 			public string $public_foo = 'foo';
 
 			/**
-			 * Protected property.
+			 * Protected foo property.
 			 */
 			protected string $protected_foo = 'foo';
 
 			/**
-			 * Private property.
+			 * Private foo property.
 			 */
 			private string $private_foo = 'foo';
 
 			/**
-			 * Public clone property.
+			 * Public bar property.
 			 */
-			public object $public_clone;
+			public string $public_bar = 'bar';
 
 			/**
-			 * Protected clone property.
+			 * Protected bar property.
 			 */
-			protected object $protected_clone;
+			protected string $protected_bar = 'bar';
 
 			/**
-			 * Private clone property.
+			 * Private bar property.
 			 */
-			private object $private_clone;
-
-			/**
-			 * Constructor.
-			 */
-			public function __construct() {
-				parent::__construct();
-
-				$this->public_clone    = clone $this;
-				$this->protected_clone = clone $this;
-				$this->private_clone   = clone $this;
-			}
+			private string $private_bar = 'bar';
 		};
 		$class_name = get_class( $offsets );
 
@@ -106,15 +96,18 @@ final class Base_Tests extends UT\A6t\Tests {
 		$debug_props      = U\Obj::props( $offsets, 'debug' );
 		$debug_plus_props = U\Obj::props( $offsets, 'debug+' );
 
+		$own_debug_plus_props       = U\Obj::props( $offsets, 'own:debug+' );
+		$own_debug_plus_props_clean = U\Obj::props( $offsets, 'own:debug+', true );
+
 		// `public` prop tests.
 
 		$this->assertArrayHasKey( 'public_foo', $public_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . '*' . "\0" . 'protected_foo', $public_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_foo', $public_props, $this->message() );
 
-		$this->assertArrayHasKey( 'public_clone', $public_props, $this->message() );
-		$this->assertArrayNotHasKey( "\0" . '*' . "\0" . 'protected_clone', $public_props, $this->message() );
-		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_clone', $public_props, $this->message() );
+		$this->assertArrayHasKey( 'public_bar', $public_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . '*' . "\0" . 'protected_bar', $public_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_bar', $public_props, $this->message() );
 
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $public_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $public_props, $this->message() );
@@ -127,9 +120,9 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayNotHasKey( "\0" . '*' . "\0" . 'protected_foo', $public_plus_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_foo', $public_plus_props, $this->message() );
 
-		$this->assertArrayHasKey( 'public_clone', $public_plus_props, $this->message() );
-		$this->assertArrayNotHasKey( "\0" . '*' . "\0" . 'protected_clone', $public_plus_props, $this->message() );
-		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_clone', $public_plus_props, $this->message() );
+		$this->assertArrayHasKey( 'public_bar', $public_plus_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . '*' . "\0" . 'protected_bar', $public_plus_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_bar', $public_plus_props, $this->message() );
 
 		$this->assertArrayHasKey( "\0" . '+' . "\0" . 'offsets', $public_plus_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $public_plus_props, $this->message() );
@@ -142,9 +135,9 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_foo', $protected_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_foo', $protected_props, $this->message() );
 
-		$this->assertArrayNotHasKey( 'public_clone', $protected_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_clone', $protected_props, $this->message() );
-		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_clone', $protected_props, $this->message() );
+		$this->assertArrayNotHasKey( 'public_bar', $protected_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_bar', $protected_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_bar', $protected_props, $this->message() );
 
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $protected_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $protected_props, $this->message() );
@@ -157,9 +150,9 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayNotHasKey( "\0" . '*' . "\0" . 'protected_foo', $private_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_foo', $private_props, $this->message() );
 
-		$this->assertArrayNotHasKey( 'public_clone', $private_props, $this->message() );
-		$this->assertArrayNotHasKey( "\0" . '*' . "\0" . 'protected_clone', $private_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_clone', $private_props, $this->message() );
+		$this->assertArrayNotHasKey( 'public_bar', $private_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . '*' . "\0" . 'protected_bar', $private_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_bar', $private_props, $this->message() );
 
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $private_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $private_props, $this->message() );
@@ -172,9 +165,9 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_foo', $public__protected_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_foo', $public__protected_props, $this->message() );
 
-		$this->assertArrayHasKey( 'public_clone', $public__protected_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_clone', $public__protected_props, $this->message() );
-		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_clone', $public__protected_props, $this->message() );
+		$this->assertArrayHasKey( 'public_bar', $public__protected_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_bar', $public__protected_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . $class_name . "\0" . 'private_bar', $public__protected_props, $this->message() );
 
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $public__protected_props, $this->message() );
 		$this->assertArrayNotHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $public__protected_props, $this->message() );
@@ -187,9 +180,9 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_foo', $public__private_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_foo', $public__private_props, $this->message() );
 
-		$this->assertArrayHasKey( 'public_clone', $public__private_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_clone', $public__private_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_clone', $public__private_props, $this->message() );
+		$this->assertArrayHasKey( 'public_bar', $public__private_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_bar', $public__private_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_bar', $public__private_props, $this->message() );
 
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $public__private_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $public__private_props, $this->message() );
@@ -202,9 +195,9 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_foo', $protected__private_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_foo', $protected__private_props, $this->message() );
 
-		$this->assertArrayNotHasKey( 'public_clone', $protected__private_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_clone', $protected__private_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_clone', $protected__private_props, $this->message() );
+		$this->assertArrayNotHasKey( 'public_bar', $protected__private_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_bar', $protected__private_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_bar', $protected__private_props, $this->message() );
 
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $protected__private_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $protected__private_props, $this->message() );
@@ -217,9 +210,9 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_foo', $debug_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_foo', $debug_props, $this->message() );
 
-		$this->assertArrayHasKey( 'public_clone', $debug_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_clone', $debug_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_clone', $debug_props, $this->message() );
+		$this->assertArrayHasKey( 'public_bar', $debug_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_bar', $debug_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_bar', $debug_props, $this->message() );
 
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $debug_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $debug_props, $this->message() );
@@ -232,13 +225,42 @@ final class Base_Tests extends UT\A6t\Tests {
 		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_foo', $debug_plus_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_foo', $debug_plus_props, $this->message() );
 
-		$this->assertArrayHasKey( 'public_clone', $debug_plus_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_clone', $debug_plus_props, $this->message() );
-		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_clone', $debug_plus_props, $this->message() );
+		$this->assertArrayHasKey( 'public_bar', $debug_plus_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_bar', $debug_plus_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_bar', $debug_plus_props, $this->message() );
 
 		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $debug_plus_props, $this->message() );
 		$this->assertArrayHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $debug_plus_props, $this->message() );
 
 		$this->assertArrayHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $debug_plus_props, $this->message() );
+
+		// `own:debug+` tests.
+
+		$this->assertArrayHasKey( 'public_foo', $own_debug_plus_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_foo', $own_debug_plus_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_foo', $own_debug_plus_props, $this->message() );
+
+		$this->assertArrayHasKey( 'public_bar', $own_debug_plus_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . '*' . "\0" . 'protected_bar', $own_debug_plus_props, $this->message() );
+		$this->assertArrayHasKey( "\0" . $class_name . "\0" . 'private_bar', $own_debug_plus_props, $this->message() );
+
+		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $own_debug_plus_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $own_debug_plus_props, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $own_debug_plus_props, $this->message() );
+
+		// `own:debug+` clean tests.
+
+		$this->assertArrayHasKey( 'public_foo', $own_debug_plus_props_clean, $this->message() );
+		$this->assertArrayHasKey( 'protected_foo', $own_debug_plus_props_clean, $this->message() );
+		$this->assertArrayHasKey( 'private_foo', $own_debug_plus_props_clean, $this->message() );
+
+		$this->assertArrayHasKey( 'public_bar', $own_debug_plus_props_clean, $this->message() );
+		$this->assertArrayHasKey( 'protected_bar', $own_debug_plus_props_clean, $this->message() );
+		$this->assertArrayHasKey( 'private_bar', $own_debug_plus_props_clean, $this->message() );
+
+		$this->assertArrayNotHasKey( 'offsets', $own_debug_plus_props_clean, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . '+' . "\0" . 'offsets', $own_debug_plus_props_clean, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Offsets::class . "\0" . 'offsets', $own_debug_plus_props_clean, $this->message() );
+		$this->assertArrayNotHasKey( "\0" . U\A6t\Base::class . "\0" . 'ins_cache', $own_debug_plus_props_clean, $this->message() );
 	}
 }

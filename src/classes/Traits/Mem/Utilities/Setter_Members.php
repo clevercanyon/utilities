@@ -61,6 +61,7 @@ trait Setter_Members {
 	 *                            * PHP does not allow a {@see \Closure} to be serialized whatsoever.
 	 *                              Do not attempt to cache closures here; either directly or indirectly.
 	 *                              The `igbinary` extension is no exception. It throws an exception if you try.
+	 *                              You can, however, cache a {@see U\Code_Stream_Closure}.
 	 *
 	 *                            * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
 	 *                              Do not attempt to cache resource values here; either directly or indirectly.
@@ -70,7 +71,6 @@ trait Setter_Members {
 	 *                              Do not attempt to cache resource values here; either directly or indirectly.
 	 *                              Future versions of PHP will likely disallow altogether.
 	 *
-	 *                            * If you must cache a closure, consider {@see U\A6t\Base::cls_cache()}.
 	 *                            * If you must cache a resource, consider {@see U\A6t\Base::cls_cache()}.
 	 *
 	 * @param int    $expires_in  Expires (in seconds). Default is {@see U\Time::HOUR_IN_SECONDS}.
@@ -83,8 +83,8 @@ trait Setter_Members {
 	 *
 	 * @return bool True on success.
 	 *
-	 * @throws U\Fatal_Exception When `$value` is too large according to Memcached response code.
-	 * @throws U\Fatal_Exception When a derived cache key is too large according to Memcached response code.
+	 * @throws U\Exception When `$value` is too large according to Memcached response code.
+	 * @throws U\Exception When a derived cache key is too large according to Memcached response code.
 	 */
 	public function set( string $primary_key, string $sub_key, /* mixed */ $value, int $expires_in = U\Time::HOUR_IN_SECONDS ) : bool {
 		assert( ! is_resource( $value ) );
@@ -94,7 +94,7 @@ trait Setter_Members {
 			return $this->clear( $primary_key, $sub_key );
 		}
 		$expires_in = max( 0, $expires_in );
-		$expires    = $expires_in ? time() + $expires_in : 0;
+		$expires    = $expires_in ? U\Time::utc() + $expires_in : 0;
 
 		if ( ! ( $key = $this->key( $primary_key, $sub_key ) ) ) {
 			return false; // Fail; e.g., down server or unexpected error.
@@ -122,9 +122,9 @@ trait Setter_Members {
 			$result_code = $this->memcached->getResultCode();
 
 			if ( \Memcached::RES_KEY_TOO_BIG === $result_code ) {
-				throw new U\Fatal_Exception( 'Cache key is too large.' );
+				throw new U\Exception( 'Cache key is too large.' );
 			} elseif ( \Memcached::RES_E2BIG === $result_code ) {
-				throw new U\Fatal_Exception( 'Data is too large for a single cache key.' );
+				throw new U\Exception( 'Data is too large for a single cache key.' );
 			}
 		} while ( $attempts < U\Mem::$max_write_attempts // Give up after X attempts.
 		&& ( \Memcached::RES_NOTSTORED === $result_code || \Memcached::RES_DATA_EXISTS === $result_code ) );

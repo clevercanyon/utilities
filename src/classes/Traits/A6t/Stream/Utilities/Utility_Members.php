@@ -59,8 +59,13 @@ trait Utility_Members {
 	 */
 	public static function wrapper_name() : string {
 		static $name; // Memoize.
-		$name ??= U\Crypto::x_sha( static::class );
-		return $name; // e.g., `xec457d0a974c48e`.
+
+		if ( null === $name ) {
+			$class_x_sha    = U\Crypto::x_sha( static::class );
+			$class_basename = basename( str_replace( '\\', '/', static::class ) );
+			$name           = U\Str::to_slug( 'c10n-' . $class_basename . '-' . $class_x_sha );
+		}
+		return $name; // e.g., `c10n-my-stream-xec457d0a974c48e`.
 	}
 
 	/**

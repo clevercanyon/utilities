@@ -42,7 +42,7 @@ trait Charset_Members {
 	 *
 	 * @return bool True if charset is `utf-8`.
 	 */
-	public static function is_charset_utf8() : bool {
+	public static function is_utf8() : bool {
 		static $is; // Memoize.
 
 		if ( null !== $is ) {

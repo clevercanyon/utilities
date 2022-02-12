@@ -40,10 +40,10 @@ trait Unconstructable_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @throws U\Exception If class instantiation occurs.
+	 * @throws U\Fatal_Exception If class instantiation occurs.
 	 */
 	final public function __construct() {
-		throw new U\Exception(
+		throw new U\Fatal_Exception(
 			'Any attempt to instantiate `' . get_class( $this ) . '` is entirely pointless.' .
 			' The class contains only static members. Instantiation is not allowed at this time.'
 		);

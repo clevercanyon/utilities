@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Stream
+ * @see   U\I7e\Code_Stream
  */
 trait Members {
 	/**
@@ -40,5 +40,5 @@ trait Members {
 	 *
 	 * @since 2021-12-28
 	 */
-	use U\Traits\Code_Stream\Utilities\Open_Members;
+	// None at this time.
 }

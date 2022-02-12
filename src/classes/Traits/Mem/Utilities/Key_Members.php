@@ -58,8 +58,8 @@ trait Key_Members {
 	 *
 	 * @return string Full UUIDv4-prefixed key; i.e., `[UUIDv4]\[sub-key]`.
 	 *
+	 * @throws U\Exception If unable to acquire namespaced primary key’s UUIDv4.
 	 * @throws U\Fatal_Exception If the full UUIDv4-prefixed key exceeds 250 bytes in length.
-	 * @throws U\Fatal_Exception If unable to acquire namespaced primary key’s UUIDv4.
 	 */
 	protected function key( string $primary_key, string $sub_key ) : string {
 		if ( ! ( $namespaced_primary_key = $this->namespaced_primary_key( $primary_key ) ) ) {
@@ -87,9 +87,9 @@ trait Key_Members {
 			$result_code = $this->memcached->getResultCode();
 
 			if ( \Memcached::RES_KEY_TOO_BIG === $result_code ) {
-				throw new U\Fatal_Exception( 'Cache key is too large.' );
+				throw new U\Exception( 'Cache key is too large.' );
 			} elseif ( \Memcached::RES_E2BIG === $result_code ) {
-				throw new U\Fatal_Exception( 'Data is too large for a single cache key.' );
+				throw new U\Exception( 'Data is too large for a single cache key.' );
 			}
 		} while ( $attempts < U\Mem::$max_write_attempts && \Memcached::RES_NOTSTORED === $result_code );
 

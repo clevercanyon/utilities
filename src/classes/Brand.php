@@ -68,5 +68,16 @@ final class Brand extends U\A6t\Stc_Utilities {
 			'slug_prefix' => 'wpgroove-',
 			'var_prefix'  => 'wpgroove_',
 		],
+		'h5y'  => [
+			'n7m'       => 'h5y',
+			'name'      => 'Hostery',
+			'namespace' => 'Hostery',
+
+			'slug' => 'hostery',
+			'var'  => 'hostery',
+
+			'slug_prefix' => 'hostery-',
+			'var_prefix'  => 'hostery_',
+		],
 	];
 }

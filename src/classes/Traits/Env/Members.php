@@ -64,5 +64,6 @@ trait Members {
 	use U\Traits\Env\Utilities\Set_Time_Limit_Members;
 	use U\Traits\Env\Utilities\Static_Var_Members;
 	use U\Traits\Env\Utilities\System_Members;
+	use U\Traits\Env\Utilities\Timezone_Members;
 	use U\Traits\Env\Utilities\Var_Members;
 }

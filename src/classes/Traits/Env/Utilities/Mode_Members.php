@@ -121,8 +121,9 @@ trait Mode_Members {
 				&& $set_static_var;
 		} else {
 			$can_use_ini_set_function = U\Env::can_use_function( 'ini_set' );
-			$error_log                = U\Dir::join( U\Dir::sys_temp(), '/php-errors.log' );
-
+			if ( ! ( $error_log = ini_get( 'error_log' ) ) ) {
+				$error_log = U\Dir::join( U\Dir::sys_temp(), '/php-errors.log' );
+			}
 			if ( $enabled_error_reporting = U\Env::can_use_function( 'error_reporting' ) ) {
 				$enabled_error_reporting = null !== error_reporting( E_ALL );
 			}

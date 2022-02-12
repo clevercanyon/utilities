@@ -28,17 +28,15 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Checks if a validator returns `true` explicitly.
+ * Checks if {@see is_callable()}.
  *
  * @since 2021-12-15
  *
- * @param mixed    $value   Value to check and potentially return.
- * @param callable $v7r     Validator (callable); e.g., `fn( $v ) => is_string( $v )`.
- *                          The validator receives a single parameter `( $value )`.
- * @param mixed    $default Value to return on failure. Default is `null`.
+ * @param mixed $value   Value to check and potentially return.
+ * @param mixed $default Value to return on failure. Default is `null`.
  *
- * @return mixed If `$v7r()` returns `true`, `$value`; else `$default` value.
+ * @return mixed If {@see is_callable()}, `$value`; else `$default` value.
  */
-function iff( /* mixed */ $value, callable $v7r, /* mixed */ $default = null ) /* : mixed */ {
-	return true === $v7r( $value ) ? $value : $default;
+function iff_callable( /* mixed */ &$value, /* mixed */ $default = null ) /* : mixed */ {
+	return is_callable( $value ) ? $value : $default;
 }

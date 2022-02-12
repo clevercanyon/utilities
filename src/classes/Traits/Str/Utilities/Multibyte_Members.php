@@ -45,7 +45,7 @@ trait Multibyte_Members {
 	 * @return string String with first character lowercase.
 	 */
 	public static function lc_first( string $str ) : string {
-		return $str ? mb_strtolower( $str[ 0 ] ) . mb_substr( $str, 1 ) : $str;
+		return $str ? mb_strtolower( mb_substr( $str, 0, 1 ) ) . mb_substr( $str, 1 ) : $str;
 	}
 
 	/**
@@ -58,7 +58,7 @@ trait Multibyte_Members {
 	 * @return string String with first character uppercase.
 	 */
 	public static function uc_first( string $str ) : string {
-		return $str ? mb_strtoupper( $str[ 0 ] ) . mb_substr( $str, 1 ) : $str;
+		return $str ? mb_strtoupper( mb_substr( $str, 0, 1 ) ) . mb_substr( $str, 1 ) : $str;
 	}
 
 	/**

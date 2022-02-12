@@ -40,11 +40,11 @@ final class Bench extends U\A6t\Stc_Utilities {
 	 *
 	 * @param mixed ...$args {@see run()}.
 	 *
-	 * @throws U\Exception When not running from a CLI.
+	 * @throws U\Fatal_Exception When not running from a CLI.
 	 */
 	public static function scratch_run( ...$args ) : void {
 		if ( ! U\Env::is_cli() ) {
-			throw new U\Exception( 'A scratch requires PHP’s command-line interface.' );
+			throw new U\Fatal_Exception( 'A scratch requires PHP’s command-line interface.' );
 		}
 		$details = U\Dev\Bench::run( ...$args );
 
@@ -61,11 +61,11 @@ final class Bench extends U\A6t\Stc_Utilities {
 	 *
 	 * @param mixed ...$args {@see compare()}.
 	 *
-	 * @throws U\Exception When not running from a CLI.
+	 * @throws U\Fatal_Exception When not running from a CLI.
 	 */
 	public static function scratch_compare( ...$args ) : void {
 		if ( ! U\Env::is_cli() ) {
-			throw new U\Exception( 'A scratch requires PHP’s command-line interface.' );
+			throw new U\Fatal_Exception( 'A scratch requires PHP’s command-line interface.' );
 		}
 		$comparison = U\Dev\Bench::compare( ...$args );
 
@@ -117,13 +117,13 @@ final class Bench extends U\A6t\Stc_Utilities {
 	 *
 	 * @return object Details including `summary` of comparison.
 	 *
-	 * @throws U\Exception If fewer than 2 callables are given.
+	 * @throws U\Fatal_Exception If fewer than 2 callables are given.
 	 */
 	public static function compare( array $callables, /* int|null */ ?int $iterations = null ) : object {
 		$number_of_callables = count( $callables );
 
 		if ( $number_of_callables <= 1 ) {
-			throw new U\Exception(
+			throw new U\Fatal_Exception(
 				'Got `' . $number_of_callables . '`.' .
 				' Must have 2 or more callables to compare.'
 			);

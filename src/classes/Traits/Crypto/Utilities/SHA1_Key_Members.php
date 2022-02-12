@@ -48,6 +48,7 @@ trait SHA1_Key_Members {
 	 *
 	 *                     * PHP does not allow a {@see \Closure} to be serialized whatsoever.
 	 *                       Do not pass values containing a closure; either directly or indirectly.
+	 *                       You can, however, pass a {@see U\Code_Stream_Closure}.
 	 *
 	 *                     * PHP serializes a resource as `0`, and therefore works, but it's a bad practice.
 	 *                       Do not pass resource values, either directly or indirectly.

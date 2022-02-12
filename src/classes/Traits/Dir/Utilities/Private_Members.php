@@ -234,12 +234,7 @@ trait Private_Members {
 			 * - Confirmed all modules are working with Apache v2.4.46 on 2022-02-02.
 			 * - Confirmed all modules are working with LiteSpeed v6.0.8 on 2022-02-02.
 			 */
-			// This regexp has been thoroughly tested and works well at replacing `.htaccess` contents.
-			// `/#\h*\<(' . U\Str::esc_reg( $htaccess_marker ) . ')(?:\h*\:{2}[^<>]*)?\>.*?\<\/\\1\>\s*/us`.
-
-			$htaccess_marker        = U\Pkg::namespace_crux( $nsc_fqn, 'x_sha' );
 			$htaccess_file_contents = <<<ooo
-				# <$htaccess_marker::deny-public-access>
 				<IfModule authz_core_module>
 					Require all denied
 				</IfModule>
@@ -259,7 +254,6 @@ trait Private_Members {
 						RewriteRule .* - [F,L]
 					</IfModule>
 				</IfModule>
-				# </$htaccess_marker>
 				ooo;
 			if ( ! U\File::write( $htaccess_file, $htaccess_file_contents, false ) ) {
 				U\Fs::delete( $htaccess_file ); // Fresh start next time.
@@ -282,15 +276,11 @@ trait Private_Members {
 				);
 			}
 			/**
-			 * Modern Windows IIS web servers. Only works on IIS7?
+			 * Modern Windows IIS web servers. Only works on IIS7? @todo IIS testing.
 			 * - Not confirmed working yet. Looking for best ways to test this.
-			 *
-			 * @todo IIS testing.
 			 */
-			$web_config_marker        = U\Pkg::namespace_crux( $nsc_fqn, 'x_sha' );
 			$web_config_file_contents = <<<ooo
 				<?xml version="1.0" encoding="utf-8" ?>
-				<!-- $web_config_marker::deny-public-access -->
 				<configuration>
 					<system.web>
 						<authorization>
@@ -298,7 +288,6 @@ trait Private_Members {
 						</authorization>
 					</system.web>
 				</configuration>
-				<!-- /$web_config_marker -->
 				ooo;
 			if ( ! U\File::write( $web_config_file, $web_config_file_contents, false ) ) {
 				U\Fs::delete( $web_config_file ); // Fresh start next time.
