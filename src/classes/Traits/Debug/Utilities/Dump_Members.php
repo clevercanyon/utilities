@@ -43,9 +43,11 @@ trait Dump_Members {
 	 * If you need to dump multiple values, recommendaton is to pass an associative array.
 	 *
 	 * @param mixed       $value       Value or expression to dump.
-	 * @param bool        $rtn         Return? Default is `false`, like {@see var_dump()}.
+	 *
+	 * @param bool        $rtn         Return? Default is `false`; like {@see var_dump()}.
+	 *
 	 * @param bool        $show_ids    Show `object`, `array`, and `resource` IDs?
-	 *                                 Default is `true`, like {@see var_dump()}.
+	 *                                 Default is `false` (less noisy); unlike {@see var_dump()}.
 	 *
 	 * @param int         $indent_size Indent size. Default is `1` for tabbed indentation.
 	 *                                 Must be `>= 1`. There is also an upper limit of `12` max.
@@ -57,12 +59,13 @@ trait Dump_Members {
 	 * @param array       $_c          Internal use only — do not pass.
 	 * @param object|null $_r          Internal use only — do not pass.
 	 *
-	 * @return string A dump of the input `$var` (always in string format).
+	 * @return string When `$rtn` is `false` (default); this does an `echo`, and returns an empty string.
+	 *                When `$rtn` is `true`; a dump of the input `$value` (always in string format).
 	 */
 	public static function dump(
 		/* mixed */ $value,
 		bool $rtn = false,
-		bool $show_ids = true,
+		bool $show_ids = false,
 		int $indent_size = 1,
 		string $indent_char = "\t",
 		array $_c = [],

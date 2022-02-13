@@ -42,12 +42,12 @@ trait Maybe_Prefix_Key_Members {
 	 *
 	 * @param string|int $key         Desired key.
 	 * @param array      $arr         Array to query.
-	 * @param string     $prefix_char Optional prefix char. Default is `:`.
+	 * @param string     $prefix_char Optional prefix char. Default is `o`.
 	 *                                If `$key` is not available we'll start prefixing.
 	 *
 	 * @return string Shortest key available.
 	 */
-	public static function maybe_prefix_key( /* string|int */ $key, array $arr, string $prefix_char = ':' ) : string {
+	public static function maybe_prefix_key( /* string|int */ $key, array $arr, string $prefix_char = 'o' ) : string {
 		$starting_mb_strlen_key = mb_strlen( $key );
 
 		while ( array_key_exists( $key, $arr ) ) {
