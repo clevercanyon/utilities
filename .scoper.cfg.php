@@ -66,8 +66,6 @@ $cfg = array (
   'expose-global-functions' => false,
   'exclude-files' => 
   array (
-    0 => '._x/comp/src/functions/polyfills/wp-esc.php',
-    1 => '._x/comp/src/functions/polyfills/wp-i18n.php',
   ),
   'exclude-constants' => 
   array (
@@ -6284,21 +6282,28 @@ $cfg = array (
   ),
 );
 $cfg[ 'patchers' ] = [ 	function ( string $file, string $prefix, string $content ) : string {
+		if ( false === mb_strpos( $file, 'polyfill' ) ) {
+			return $content; // Saves time.
+		}
 		static $project_dir, $project, $esc_reg_prefix; // Memoize.
 
 		$project_dir    ??= str_replace( '\\', '/', __DIR__ );
 		$project        ??= json_decode( file_get_contents( __DIR__ . '/composer.json' ) );
 		$esc_reg_prefix ??= preg_quote( $prefix, '/' );
 
-		if ( false === mb_strpos( $file, 'symfony' ) ) {
-			return $content; // Not applicable.
-		}
 		$file         = str_replace( '\\', '/', realpath( $file ) );
 		$file_subpath = mb_substr( $file, mb_strlen( $project_dir . '/._x/comp/' ) );
 
 		switch( true ) {
-			case (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ):
-				$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\s{0,2}/um';
+			case ( ! empty( $project->name ) && 'clevercanyon/utilities' === $project->name
+					&& preg_match( '`^src/functions/polyfills/[^/]+.php$`u', $file_subpath ) ):
+
+				$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um';
+				return preg_replace( $regexp, '', $content, 1 );
+
+			case ( (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ) ):
+
+				$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um';
 				return preg_replace( $regexp, '', $content, 1 );
 		}
 		return $content;

@@ -282,20 +282,20 @@ final class Config_File extends U\A6t\CLI_Tool {
 	protected static function compile_patchers() : string {
 		return <<<'ooo'
 			function ( string $file, string $prefix, string $content ) : string {
+				if ( false === mb_strpos( $file, 'polyfill' ) ) {
+					return $content; // Saves time.
+				}
 				static $project_dir, $project, $esc_reg_prefix; // Memoize.
 
 				$project_dir    ??= str_replace( '\\', '/', __DIR__ );
 				$project        ??= json_decode( file_get_contents( __DIR__ . '/composer.json' ) );
 				$esc_reg_prefix ??= preg_quote( $prefix, '/' );
 
-				if ( false === mb_strpos( $file, 'symfony' ) ) {
-					return $content; // Not applicable.
-				}
 				$file         = str_replace( '\\', '/', realpath( $file ) );
 				$file_subpath = mb_substr( $file, mb_strlen( $project_dir . '/._x/comp/' ) );
 
 				switch( true ) {
-					case ( 'clevercanyon/utilities' === ( $project->name ?? '' )
+					case ( ! empty( $project->name ) && 'clevercanyon/utilities' === $project->name
 							&& preg_match( '`^src/functions/polyfills/[^/]+.php$`u', $file_subpath ) ):
 
 						$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um';
@@ -319,12 +319,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 * @return array Files to exclude.
 	 */
 	protected function compile_exclude_files() : array {
-		$exclude_files = []; // Initialize.
-
-		foreach ( glob( $this->project->dir . '/src/functions/polyfills/*.php' ) as $_php_file ) {
-			$exclude_files[] = '._x/comp/' . U\Dir::subpath( $this->project->dir, $_php_file );
-		}
-		return $exclude_files;
+		return []; // Nothing to exclude at this time.
 	}
 
 	/**
