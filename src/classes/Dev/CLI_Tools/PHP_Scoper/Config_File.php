@@ -301,7 +301,8 @@ final class Config_File extends U\A6t\CLI_Tool {
 						$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um';
 						return preg_replace( $regexp, '', $content, 1 );
 
-					case ( (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ) ):
+					case ( preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath )
+					 	|| preg_match( '`^vendor/symfony/polyfill-php[^/]+/Resources/stubs/[^/]+\.php$`u', $file_subpath ) ):
 
 						$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um';
 						return preg_replace( $regexp, '', $content, 1 );
