@@ -763,12 +763,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/standards.git",
-                "reference": "2ed786b2a42a3e162a0a5e65b2bd9a6d2b5a19ff"
+                "reference": "709337effb46f24fcbebd8ed86970c9073eb6cbe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/standards/zipball/2ed786b2a42a3e162a0a5e65b2bd9a6d2b5a19ff",
-                "reference": "2ed786b2a42a3e162a0a5e65b2bd9a6d2b5a19ff",
+                "url": "https://api.github.com/repos/clevercanyon/standards/zipball/709337effb46f24fcbebd8ed86970c9073eb6cbe",
+                "reference": "709337effb46f24fcbebd8ed86970c9073eb6cbe",
                 "shasum": ""
             },
             "require": {
@@ -786,17 +786,17 @@
             ],
             "authors": [
                 {
-                    "name": "CLEVER CANYON",
+                    "name": "Clever Canyon",
                     "homepage": "https://clevercanyon.com",
                     "role": "organization"
                 }
             ],
-            "description": "CLEVER CANYON’s coding standards for PHP/JS.",
+            "description": "Clever Canyon’s coding standards for PHP/JS.",
             "support": {
                 "issues": "https://github.com/clevercanyon/standards/issues",
                 "source": "https://github.com/clevercanyon/standards/tree/main"
             },
-            "time": "2022-02-09T17:17:09+00:00"
+            "time": "2022-02-13T22:13:03+00:00"
         },
         {
             "name": "clevercanyon/utilities-dev",
@@ -804,12 +804,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/utilities-dev.git",
-                "reference": "e70ac59ff7b50ea1d419c35778828bd4f9c65f1e"
+                "reference": "c75dc2174b723bc0b85b0d771a0782f19be67333"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/utilities-dev/zipball/e70ac59ff7b50ea1d419c35778828bd4f9c65f1e",
-                "reference": "e70ac59ff7b50ea1d419c35778828bd4f9c65f1e",
+                "url": "https://api.github.com/repos/clevercanyon/utilities-dev/zipball/c75dc2174b723bc0b85b0d771a0782f19be67333",
+                "reference": "c75dc2174b723bc0b85b0d771a0782f19be67333",
                 "shasum": ""
             },
             "require": {
@@ -851,7 +851,7 @@
                 "issues": "https://github.com/clevercanyon/utilities-dev/issues",
                 "source": "https://github.com/clevercanyon/utilities-dev/tree/main"
             },
-            "time": "2022-02-13T14:12:58+00:00"
+            "time": "2022-02-13T22:15:07+00:00"
         },
         {
             "name": "clevercanyon/utilities-dev-npm",
@@ -859,12 +859,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/utilities-dev-npm.git",
-                "reference": "3fcebae606e0ed313c6d201ca34a80a1c0852f0f"
+                "reference": "4654c32c69deaf6a884facf439d6ac2b98c4f90b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/utilities-dev-npm/zipball/3fcebae606e0ed313c6d201ca34a80a1c0852f0f",
-                "reference": "3fcebae606e0ed313c6d201ca34a80a1c0852f0f",
+                "url": "https://api.github.com/repos/clevercanyon/utilities-dev-npm/zipball/4654c32c69deaf6a884facf439d6ac2b98c4f90b",
+                "reference": "4654c32c69deaf6a884facf439d6ac2b98c4f90b",
                 "shasum": ""
             },
             "default-branch": true,
@@ -875,17 +875,17 @@
             ],
             "authors": [
                 {
-                    "name": "CLEVER CANYON",
+                    "name": "Clever Canyon",
                     "homepage": "https://clevercanyon.com",
                     "role": "organization"
                 }
             ],
-            "description": "CLEVER CANYON’s utilities for PHP/JS (NPM dev dependencies).",
+            "description": "Clever Canyon’s utilities for PHP/JS (NPM dev dependencies).",
             "support": {
                 "issues": "https://github.com/clevercanyon/utilities-dev-npm/issues",
-                "source": "https://github.com/clevercanyon/utilities-dev-npm/tree/main"
+                "source": "https://github.com/clevercanyon/utilities-dev-npm/tree/v1.0.2"
             },
-            "time": "2022-02-09T17:15:42+00:00"
+            "time": "2022-02-13T22:14:34+00:00"
         },
         {
             "name": "composer/package-versions-deprecated",
