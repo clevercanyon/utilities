@@ -151,10 +151,13 @@ final class Config_File extends U\A6t\CLI_Tool {
 	protected function generate_config_file_contents() : string {
 		U\Env::raise_memory_limit();
 
-		$names = $this->php_parser_compile_names();
-		sort( $names->constants, SORT_NATURAL );
-		sort( $names->classes, SORT_NATURAL );
-		sort( $names->functions, SORT_NATURAL );
+		$exclude_files = [
+			'vendor/',
+		];
+		$exclude_names = $this->php_parser_compile_names();
+		sort( $exclude_names->constants, SORT_NATURAL );
+		sort( $exclude_names->classes, SORT_NATURAL );
+		sort( $exclude_names->functions, SORT_NATURAL );
 
 		$headers = <<<'ooo'
 		<?php
@@ -184,6 +187,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 				"&" : {
 					"php_scoper" : {
 						"cfg" : {
+							"exclude-files"     : [],
 							"exclude-constants" : [],
 							"exclude-classes"   : [],
 							"exclude-functions" : [],
@@ -234,9 +238,10 @@ final class Config_File extends U\A6t\CLI_Tool {
 				'expose-global-classes'   => false,
 				'expose-global-functions' => false,
 
-				'exclude-constants' => $names->constants,
-				'exclude-classes'   => $names->classes,
-				'exclude-functions' => $names->functions,
+				'exclude-files'     => $exclude_files,
+				'exclude-constants' => $exclude_names->constants,
+				'exclude-classes'   => $exclude_names->classes,
+				'exclude-functions' => $exclude_names->functions,
 			], true ) . ';' . "\n";
 
 		$body .= <<<'ooo'
@@ -245,6 +250,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 			$prj_cfg = is_array( $prj_cfg = json_decode( $prj_cfg, true ) ) ? $prj_cfg : [];
 			$prj_cfg = $prj_cfg['extra']['clevercanyon']['&']['php_scoper']['cfg'] ?? [];
 			$cfg     = array_merge( $cfg, $prj_cfg, [
+				'exclude-files'     => array_merge( $cfg['exclude-files'], $prj_cfg['exclude-files'] ?? [] ),
 				'exclude-constants' => array_merge( $cfg['exclude-constants'], $prj_cfg['exclude-constants'] ?? [] ),
 				'exclude-classes'   => array_merge( $cfg['exclude-classes'], $prj_cfg['exclude-classes'] ?? [] ),
 				'exclude-functions' => array_merge( $cfg['exclude-functions'], $prj_cfg['exclude-functions'] ?? [] ),
@@ -253,6 +259,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 		if ( is_file( __DIR__ . '/.scoper.prj.cfg.php' ) ) {
 			$prj_cfg = require __DIR__ . '/.scoper.prj.cfg.php';
 			$cfg     = array_merge( $cfg, $prj_cfg, [
+				'exclude-files'     => array_merge( $cfg['exclude-files'], $prj_cfg['exclude-files'] ?? [] ),
 				'exclude-constants' => array_merge( $cfg['exclude-constants'], $prj_cfg['exclude-constants'] ?? [] ),
 				'exclude-classes'   => array_merge( $cfg['exclude-classes'], $prj_cfg['exclude-classes'] ?? [] ),
 				'exclude-functions' => array_merge( $cfg['exclude-functions'], $prj_cfg['exclude-functions'] ?? [] ),
