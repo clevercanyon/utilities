@@ -293,7 +293,8 @@ final class Config_File extends U\A6t\CLI_Tool {
 
 				switch( true ) {
 					case (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ):
-						return preg_replace( '/use\s+(Symfony\\\Polyfill\\\Php)/u', 'use ' . $prefix . '${1}', $content, 1 );
+						var_dump( $content );
+						return preg_replace( '/^use\s+(Symfony\\\Polyfill\\\Php)/um', 'xuse ' . $prefix . '${1}', $content, 1 );
 				}
 				return $content;
 			},

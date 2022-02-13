@@ -6297,7 +6297,8 @@ $cfg[ 'patchers' ] = [ 	function ( string $file, string $prefix, string $content
 
 		switch( true ) {
 			case (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ):
-				return preg_replace( '/(use Symfony\\\Polyfill\\\Php)/u', $prefix . '${1}', $content, 1 );
+				var_dump( $content );
+				return preg_replace( '/^use\s+(Symfony\\\Polyfill\\\Php)/um', 'xuse ' . $prefix . '${1}', $content, 1 );
 		}
 		return $content;
 	}, ];
