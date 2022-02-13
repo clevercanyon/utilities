@@ -279,10 +279,10 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 *
 	 * @return string Patchers.
 	 */
-	protected static function compile_patchers() : string {
+	protected function compile_patchers() : string {
 		return <<<'ooo'
 			function ( string $file, string $prefix, string $content ) : string {
-				if ( false === mb_strpos( $file, 'polyfill' ) ) {
+				if ( ! preg_match( '/(?:polyfill|deprecation)/u', $file ) ) {
 					return $content; // Saves time.
 				}
 				static $project_dir, $project, $esc_reg_prefix; // Memoize.
@@ -295,17 +295,17 @@ final class Config_File extends U\A6t\CLI_Tool {
 				$file_subpath = mb_substr( $file, mb_strlen( $project_dir . '/._x/comp/' ) );
 
 				switch( true ) {
-					case ( ! empty( $project->name ) && 'clevercanyon/utilities' === $project->name
-							&& preg_match( '`^src/functions/polyfills/[^/]+.php$`u', $file_subpath ) ):
+					case ( ( ! empty( $project->name ) && 'clevercanyon/utilities' === $project->name
+								&& preg_match( '`^src/functions/polyfills/[^/]+.php$`u', $file_subpath ) )
+							|| preg_match( '`^vendor/clevercanyon/utilities/src/functions/polyfills/[^/]+.php$`u', $file_subpath ) ):
 
-						$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um';
-						return preg_replace( $regexp, '', $content, 1 );
+						return preg_replace( '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um', '', $content, 1 );
 
 					case ( preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath )
-					 	|| preg_match( '`^vendor/symfony/polyfill-php[^/]+/Resources/stubs/[^/]+\.php$`u', $file_subpath ) ):
+					 	|| preg_match( '`^vendor/symfony/polyfill-php[^/]+/Resources/stubs/[^/]+\.php$`u', $file_subpath )
+					 	|| preg_match( '`^vendor/symfony/deprecation-contracts/function\.php$`u', $file_subpath ) ):
 
-						$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um';
-						return preg_replace( $regexp, '', $content, 1 );
+						return preg_replace( '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um', '', $content, 1 );
 				}
 				return $content;
 			},
