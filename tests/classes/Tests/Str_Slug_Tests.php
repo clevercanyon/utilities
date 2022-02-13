@@ -84,7 +84,7 @@ final class Str_Slug_Tests extends UT\A6t\Tests {
 		$this->assertSame( 'acme-broadcasting', U\Str::to_brand_slug( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme-broadcasting', U\Str::to_brand_slug( '- acme™™   broadcasting ' ), $this->message() );
 		$this->assertSame( 'my-brand-my-slugx', U\Str::to_brand_slug( 'my-brand-my-slug-x' ), $this->message() );
-		$this->assertSame( 'my-brand-my-slugx', U\Str::to_brand_slug( 'my-brand-my-slug-x-' ), $this->message() );
+		$this->assertSame( 'my-brand-my-slug', U\Str::to_brand_slug( 'my-brand-my-slug-x-' ), $this->message() );
 		$this->assertSame( 'my-brand-my-slug', U\Str::to_brand_slug( '\\My_Brand\\My_Slug\\' ), $this->message() );
 		$this->assertSame( 'my-brandxmy-slug', U\Str::to_brand_slug( '\\My_Brand_X\\My_Slug\\' ), $this->message() );
 
@@ -109,6 +109,7 @@ final class Str_Slug_Tests extends UT\A6t\Tests {
 	 */
 	public function test_is_brand_slug_prefix() : void {
 		$this->assertSame( true, U\Str::is_brand_slug_prefix( 'clevercanyon-' ), $this->message() );
+		$this->assertSame( true, U\Str::is_brand_slug_prefix( 'clevercanyon-', 'clevercanyon' ), $this->message() );
 		$this->assertSame( true, U\Str::is_brand_slug_prefix( 'wpgroove-' ), $this->message() );
 		$this->assertSame( true, U\Str::is_brand_slug_prefix( 'hostery-' ), $this->message() );
 
@@ -130,7 +131,7 @@ final class Str_Slug_Tests extends UT\A6t\Tests {
 		$this->assertSame( 'acme-broadcasting-', U\Str::to_brand_slug_prefix( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme-broadcasting-', U\Str::to_brand_slug_prefix( '- acme™™   broadcasting ' ), $this->message() );
 		$this->assertSame( 'my-brand-my-slugx-', U\Str::to_brand_slug_prefix( 'my-brand-my-slug-x' ), $this->message() );
-		$this->assertSame( 'my-brand-my-slugx-', U\Str::to_brand_slug_prefix( 'my-brand-my-slug-x-' ), $this->message() );
+		$this->assertSame( 'my-brand-my-slug-', U\Str::to_brand_slug_prefix( 'my-brand-my-slug-x-' ), $this->message() );
 		$this->assertSame( 'my-brand-my-slug-', U\Str::to_brand_slug_prefix( '\\My_Brand\\My_Slug\\' ), $this->message() );
 		$this->assertSame( 'my-brandxmy-slug-', U\Str::to_brand_slug_prefix( '\\My_Brand_X\\My_Slug\\' ), $this->message() );
 
@@ -189,7 +190,7 @@ final class Str_Slug_Tests extends UT\A6t\Tests {
 		$this->assertSame( 'acme-broadcasting', U\Str::to_lede_slug( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme-broadcasting', U\Str::to_lede_slug( '- acme™™   broadcasting ' ), $this->message() );
 		$this->assertSame( 'my-brand-my-slugx', U\Str::to_lede_slug( 'my-brand-my-slug-x' ), $this->message() );
-		$this->assertSame( 'my-brand-my-slugx', U\Str::to_lede_slug( 'my-brand-my-slug-x-' ), $this->message() );
+		$this->assertSame( 'my-brand-my-slug', U\Str::to_lede_slug( 'my-brand-my-slug-x-' ), $this->message() );
 		$this->assertSame( 'my-brand-my-slug', U\Str::to_lede_slug( '\\My_Brand\\My_Slug\\' ), $this->message() );
 		$this->assertSame( 'my-brandxmy-slug', U\Str::to_lede_slug( '\\My_Brand_X\\My_Slug\\' ), $this->message() );
 
@@ -235,7 +236,7 @@ final class Str_Slug_Tests extends UT\A6t\Tests {
 		$this->assertSame( 'acme-broadcasting-x-', U\Str::to_lede_slug_prefix( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme-broadcasting-x-', U\Str::to_lede_slug_prefix( '- acme™™   broadcasting ' ), $this->message() );
 		$this->assertSame( 'my-brand-my-slugx-x-', U\Str::to_lede_slug_prefix( 'my-brand-my-slug-x' ), $this->message() );
-		$this->assertSame( 'my-brand-my-slugx-x-', U\Str::to_lede_slug_prefix( 'my-brand-my-slug-x-' ), $this->message() );
+		$this->assertSame( 'my-brand-my-slug-x-', U\Str::to_lede_slug_prefix( 'my-brand-my-slug-x-' ), $this->message() );
 		$this->assertSame( 'my-brand-my-slug-x-', U\Str::to_lede_slug_prefix( '\\My_Brand\\My_Slug\\' ), $this->message() );
 		$this->assertSame( 'my-brandxmy-slug-x-', U\Str::to_lede_slug_prefix( '\\My_Brand_X\\My_Slug\\' ), $this->message() );
 
@@ -328,7 +329,7 @@ final class Str_Slug_Tests extends UT\A6t\Tests {
 		$this->assertSame( 'acme-broadcasting-x-', U\Str::to_slug_prefix( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme-broadcasting-x-', U\Str::to_slug_prefix( '- acme™™   broadcasting ' ), $this->message() );
 		$this->assertSame( 'my-brand-my-slug-x-x-', U\Str::to_slug_prefix( 'my-brand-my-slug-x' ), $this->message() );
-		$this->assertSame( 'my-brand-my-slug-x-x-', U\Str::to_slug_prefix( 'my-brand-my-slug-x-' ), $this->message() );
+		$this->assertSame( 'my-brand-my-slug-x-', U\Str::to_slug_prefix( 'my-brand-my-slug-x-' ), $this->message() );
 		$this->assertSame( 'my-brand-my-slug-x-', U\Str::to_slug_prefix( '\\My_Brand\\My_Slug\\' ), $this->message() );
 		$this->assertSame( 'my-brand-x-my-slug-x-', U\Str::to_slug_prefix( '\\My_Brand_X\\My_Slug\\' ), $this->message() );
 

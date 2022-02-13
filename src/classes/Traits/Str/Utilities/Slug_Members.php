@@ -273,7 +273,9 @@ trait Slug_Members {
 		// Or, in case of string already being a slug.
 
 		$slug = str_replace( '_', '-', $slug );
-
+		if ( $for_brand || $for_lede || $for_prefix ) {
+			$slug = preg_replace( '/-x-$|-$/ui', '', $slug );
+		}
 		if ( $for_brand && ! $for_lede && ! $for_prefix && U\Str::is_brand_slug( $slug ) ) {
 			return $slug; // Saves time.
 		} elseif ( $for_brand && ! $for_lede && $for_prefix && U\Str::is_brand_slug_prefix( $slug . '-' ) ) {

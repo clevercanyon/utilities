@@ -45,14 +45,8 @@ trait Is_Valid_Helper_Members {
 	 * @param int    $min_chars Optional minimum chars. Default is `2`.
 	 * @param int    $max_chars Optional maximum chars. Default is `100`.
 	 * @param string $regexp    Optional valid regular expression pattern.
-	 *
 	 * @param string $prefix    Optional required prefix. Default is ``, no prefix requirement.
-	 *                          If given, `$min_chars`, `$max_chars`, and `$regexp` are tested against
-	 *                          both the full string and also the unprefixed string.
-	 *
 	 * @param string $suffix    Optional required suffix. Default is ``, no suffix requirement.
-	 *                          If given, `$min_chars`, `$max_chars`, and `$regexp` are tested against
-	 *                          both the full string and also the unsuffixed string.
 	 *
 	 * @return bool True if it's a valid string.
 	 */
@@ -74,34 +68,10 @@ trait Is_Valid_Helper_Members {
 			return false;
 		} elseif ( $regexp && ! preg_match( $regexp, $str ) ) {
 			return false;
-		}
-		if ( '' !== $prefix ) {
-			$unprefixed_str       = mb_substr( $str, mb_strlen( $prefix ) );
-			$unprefixed_str_chars = mb_strlen( $unprefixed_str );
-
-			if ( $unprefixed_str === $str ) {
-				return false;
-			} elseif ( $min_chars && $unprefixed_str_chars < $min_chars ) {
-				return false;
-			} elseif ( $max_chars && $unprefixed_str_chars > $max_chars ) {
-				return false;
-			} elseif ( $regexp && ! preg_match( $regexp, $unprefixed_str ) ) {
-				return false;
-			}
-		}
-		if ( '' !== $suffix ) {
-			$unsuffixed_str       = mb_substr( $str, 0, -mb_strlen( $suffix ) );
-			$unsuffixed_str_chars = mb_strlen( $unsuffixed_str );
-
-			if ( $unsuffixed_str === $str ) {
-				return false;
-			} elseif ( $min_chars && $unsuffixed_str_chars < $min_chars ) {
-				return false;
-			} elseif ( $max_chars && $unsuffixed_str_chars > $max_chars ) {
-				return false;
-			} elseif ( $regexp && ! preg_match( $regexp, $unsuffixed_str ) ) {
-				return false;
-			}
+		} elseif ( '' !== $prefix && ! U\Str::begins_with( $str, $prefix ) ) {
+			return false;
+		} elseif ( '' !== $suffix && ! U\Str::ends_with( $str, $suffix ) ) {
+			return false;
 		}
 		return true;
 	}
