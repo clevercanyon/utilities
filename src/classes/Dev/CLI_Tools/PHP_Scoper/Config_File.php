@@ -295,8 +295,15 @@ final class Config_File extends U\A6t\CLI_Tool {
 				$file_subpath = mb_substr( $file, mb_strlen( $project_dir . '/._x/comp/' ) );
 
 				switch( true ) {
-					case (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ):
-						$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;/um';
+					case ( 'clevercanyon/utilities' === ( $project->name ?? '' )
+							&& preg_match( '`^src/functions/polyfills/[^/]+.php$`u', $file_subpath ) ):
+
+						$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um';
+						return preg_replace( $regexp, '', $content, 1 );
+
+					case ( (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ) ):
+
+						$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um';
 						return preg_replace( $regexp, '', $content, 1 );
 				}
 				return $content;
