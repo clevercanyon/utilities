@@ -151,10 +151,9 @@ final class Config_File extends U\A6t\CLI_Tool {
 	protected function generate_config_file_contents() : string {
 		U\Env::raise_memory_limit();
 
-		$exclude_files = [
-			'vendor/',
-		];
-		$exclude_names = $this->php_parser_compile_names();
+		$exclude_files = $this->compile_exclude_files();
+		$exclude_names = $this->compile_exclude_names();
+
 		sort( $exclude_names->constants, SORT_NATURAL );
 		sort( $exclude_names->classes, SORT_NATURAL );
 		sort( $exclude_names->functions, SORT_NATURAL );
@@ -272,7 +271,26 @@ final class Config_File extends U\A6t\CLI_Tool {
 	}
 
 	/**
-	 * Compiles
+	 * Compiles files to exclude.
+	 *
+	 * @since 2022-02-13
+	 *
+	 * @return array Files to exclude.
+	 */
+	protected function compile_exclude_files() : array {
+		$exclude_files = []; // Initialize.
+
+		foreach ( glob( $this->project->dir . '/src/functions/polyfills/*.php' ) as $_php_file ) {
+			$exclude_files[] = '._x/comp/' . U\Dir::subpath( $this->project->dir, $_php_file );
+		}
+		foreach ( glob( $this->project->dir . '/vendor/symfony/polyfill-php*/bootstrap.php' ) as $_php_file ) {
+			$exclude_files[] = '._x/comp/' . U\Dir::subpath( $this->project->dir, $_php_file );
+		}
+		return $exclude_files;
+	}
+
+	/**
+	 * Compiles names to exclude.
 	 *
 	 * @since 2022-01-02
 	 *
@@ -281,7 +299,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 *
 	 * @throws U\Fatal_Exception On any error.
 	 */
-	protected function php_parser_compile_names() : object {
+	protected function compile_exclude_names() : object {
 		try {
 			$visitor   = $this->php_parser_node_visitor();
 			$traverser = $this->php_parser_node_traverser( $visitor );
