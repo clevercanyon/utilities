@@ -128,7 +128,8 @@ final class Scoper extends U\A6t\CLI_Tool {
 
 			$this->run_scoper();
 			$this->fix_comments();
-			//$this->fix_formatting();
+			// $this->fix_formatting(); // This approach works well, but it takes too long.
+			// PHP Scoper is already working to improve formatting.
 			$this->fix_autoloader();
 
 			U\CLI::done( '[' . __METHOD__ . '()]: Scoping complete ✔.' );
