@@ -1501,12 +1501,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/humbug/php-scoper.git",
-                "reference": "cb23986d9309a10eaa284242f2169723af4e4a7e"
+                "reference": "89e135bd8fad131533ec2492e10fe13b28cc316f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/humbug/php-scoper/zipball/cb23986d9309a10eaa284242f2169723af4e4a7e",
-                "reference": "cb23986d9309a10eaa284242f2169723af4e4a7e",
+                "url": "https://api.github.com/repos/humbug/php-scoper/zipball/89e135bd8fad131533ec2492e10fe13b28cc316f",
+                "reference": "89e135bd8fad131533ec2492e10fe13b28cc316f",
                 "shasum": ""
             },
             "require": {
@@ -1575,7 +1575,7 @@
                 "issues": "https://github.com/humbug/php-scoper/issues",
                 "source": "https://github.com/humbug/php-scoper/tree/master"
             },
-            "time": "2022-02-13T15:17:47+00:00"
+            "time": "2022-02-13T19:46:54+00:00"
         },
         {
             "name": "jetbrains/phpstorm-stubs",

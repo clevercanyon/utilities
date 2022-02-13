@@ -151,6 +151,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 	protected function generate_config_file_contents() : string {
 		U\Env::raise_memory_limit();
 
+		$patchers      = $this->compile_patchers();
 		$exclude_files = $this->compile_exclude_files();
 		$exclude_names = $this->compile_exclude_names();
 
@@ -242,6 +243,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 				'exclude-classes'   => $exclude_names->classes,
 				'exclude-functions' => $exclude_names->functions,
 			], true ) . ';' . "\n";
+		$body .= '$cfg[ \'patchers\' ] = [ ' . $patchers . ' ];' . "\n";
 
 		$body .= <<<'ooo'
 		if ( is_file( __DIR__ . '/composer.json' ) ) {
@@ -268,6 +270,35 @@ final class Config_File extends U\A6t\CLI_Tool {
 		ooo;
 
 		return $headers . "\n\n" . $body;
+	}
+
+	/**
+	 * Compiles patchers.
+	 *
+	 * @since 2022-02-13
+	 *
+	 * @return string Patchers.
+	 */
+	protected static function compile_patchers() : string {
+		return <<<'ooo'
+			function ( string $file, string $prefix, string $content ) : string {
+				static $project_dir; // Memoize.
+				$project_dir ??= str_replace( '\\', '/', __DIR__ );
+
+				if ( false === mb_strpos( $file, 'symfony' ) ) {
+					return $content; // Not applicable.
+				}
+				$file         = str_replace( '\\', '/', realpath( $file ) );
+				$file_subpath = mb_substr( $file, mb_strlen( $project_dir . '/._x/comp/' ) );
+
+				switch( true ) {
+					case (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ):
+						var_dump( $file_subpath );
+						return $content;
+				}
+				return $content;
+			},
+		ooo;
 	}
 
 	/**

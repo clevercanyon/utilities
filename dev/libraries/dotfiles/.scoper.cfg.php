@@ -6285,6 +6285,20 @@ $cfg = array (
     4284 => 'zeroise',
   ),
 );
+$cfg[ 'patchers' ] = [ 	function ( string $file, string $prefix, string $content ) : string {
+		static $project_dir; // Memoize.
+		$project_dir ??= str_replace( '\\', '/', __DIR__ );
+
+		$file         = str_replace( '\\', '/', realpath( $file ) );
+		$file_subpath = mb_substr( $file, mb_strlen( $project_dir . '/._x/comp/' ) );
+
+		switch( true ) {
+			case (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ):
+				var_dump( $file_subpath );
+				return $content;
+		}
+		return $content;
+	}, ];
 if ( is_file( __DIR__ . '/composer.json' ) ) {
 	$prj_cfg = file_get_contents( __DIR__ . '/composer.json' );
 	$prj_cfg = is_array( $prj_cfg = json_decode( $prj_cfg, true ) ) ? $prj_cfg : [];
