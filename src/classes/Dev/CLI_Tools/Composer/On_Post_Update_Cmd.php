@@ -480,6 +480,17 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		] );
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $comp_dir . '`' . "\n" . ' →  `' . $distro_dir . '`.' );
 
+		if ( is_dir( $this->project->dir . '/tests' ) ) {
+			U\CLI::run( [
+				[ 'composer', 'exec', '--profile', '--', 'php-scoper', 'add-prefix' ],
+				[ '--force', '--no-interaction', '--stop-on-failure' ],
+				[ '--config', U\Dir::join( $this->project->dir, '/.scoper.cfg.php' ) ],
+				[ '--prefix', $this->project->namespace_scope ],
+				[ '--output-dir', $distro_dir . '-tests' ],
+				[ $this->project->dir . '/tests' ],
+			], $this->project->dir );
+			U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $this->project->dir . '/tests`' . "\n" . ' →  `' . $distro_dir . '-tests`.' );
+		}
 		// Prunes the `./._x/distro` directory now.
 		// This prunes everything in `.gitignore`, except `vendor`. This time, including `composer.json` files.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
