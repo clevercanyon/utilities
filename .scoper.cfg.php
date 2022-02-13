@@ -6289,13 +6289,15 @@ $cfg[ 'patchers' ] = [ 	function ( string $file, string $prefix, string $content
 		static $project_dir; // Memoize.
 		$project_dir ??= str_replace( '\\', '/', __DIR__ );
 
+		if ( false === mb_strpos( $file, 'symfony' ) ) {
+			return $content; // Not applicable.
+		}
 		$file         = str_replace( '\\', '/', realpath( $file ) );
 		$file_subpath = mb_substr( $file, mb_strlen( $project_dir . '/._x/comp/' ) );
 
 		switch( true ) {
 			case (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ):
-				var_dump( $file_subpath );
-				return $content;
+				return preg_replace( '/(use Symfony\\\Polyfill\\\Php)/u', $prefix . '${1}', $content, 1 );
 		}
 		return $content;
 	}, ];
