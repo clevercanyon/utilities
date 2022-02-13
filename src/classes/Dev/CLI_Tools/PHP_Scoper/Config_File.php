@@ -282,8 +282,11 @@ final class Config_File extends U\A6t\CLI_Tool {
 	protected static function compile_patchers() : string {
 		return <<<'ooo'
 			function ( string $file, string $prefix, string $content ) : string {
-				static $project_dir; // Memoize.
-				$project_dir ??= str_replace( '\\', '/', __DIR__ );
+				static $project_dir, $project, $esc_reg_prefix; // Memoize.
+
+				$project_dir    ??= str_replace( '\\', '/', __DIR__ );
+				$project        ??= json_decode( file_get_contents( __DIR__ . '/composer.json' ) );
+				$esc_reg_prefix ??= preg_quote( $prefix, '/' );
 
 				if ( false === mb_strpos( $file, 'symfony' ) ) {
 					return $content; // Not applicable.
@@ -293,8 +296,8 @@ final class Config_File extends U\A6t\CLI_Tool {
 
 				switch( true ) {
 					case (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ):
-						var_dump( $content );
-						return preg_replace( '/^use\s+(Symfony\\\Polyfill\\\Php)/um', 'xuse ' . $prefix . '${1}', $content, 1 );
+						$regexp = '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;/um';
+						return preg_replace( $regexp, '', $content, 1 );
 				}
 				return $content;
 			},
@@ -312,9 +315,6 @@ final class Config_File extends U\A6t\CLI_Tool {
 		$exclude_files = []; // Initialize.
 
 		foreach ( glob( $this->project->dir . '/src/functions/polyfills/*.php' ) as $_php_file ) {
-			$exclude_files[] = '._x/comp/' . U\Dir::subpath( $this->project->dir, $_php_file );
-		}
-		foreach ( glob( $this->project->dir . '/vendor/symfony/polyfill-php*/bootstrap.php' ) as $_php_file ) {
 			$exclude_files[] = '._x/comp/' . U\Dir::subpath( $this->project->dir, $_php_file );
 		}
 		return $exclude_files;

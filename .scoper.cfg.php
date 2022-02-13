@@ -68,8 +68,6 @@ $cfg = array (
   array (
     0 => '._x/comp/src/functions/polyfills/wp-esc.php',
     1 => '._x/comp/src/functions/polyfills/wp-i18n.php',
-    2 => '._x/comp/vendor/symfony/polyfill-php80/bootstrap.php',
-    3 => '._x/comp/vendor/symfony/polyfill-php81/bootstrap.php',
   ),
   'exclude-constants' => 
   array (
@@ -6286,8 +6284,11 @@ $cfg = array (
   ),
 );
 $cfg[ 'patchers' ] = [ 	function ( string $file, string $prefix, string $content ) : string {
-		static $project_dir; // Memoize.
-		$project_dir ??= str_replace( '\\', '/', __DIR__ );
+		static $project_dir, $project, $esc_reg_prefix; // Memoize.
+
+		$project_dir    ??= str_replace( '\\', '/', __DIR__ );
+		$project        ??= json_decode( file_get_contents( __DIR__ . '/composer.json' ) );
+		$esc_reg_prefix ??= preg_quote( $prefix, '/' );
 
 		if ( false === mb_strpos( $file, 'symfony' ) ) {
 			return $content; // Not applicable.
@@ -6297,8 +6298,8 @@ $cfg[ 'patchers' ] = [ 	function ( string $file, string $prefix, string $content
 
 		switch( true ) {
 			case (bool) preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath ):
-				var_dump( $content );
-				return preg_replace( '/^use\s+(Symfony\\\Polyfill\\\Php)/um', 'xuse ' . $prefix . '${1}', $content, 1 );
+				$regexp = '/^use\s+' . $esc_reg_prefix . '\\\(Symfony\\\Polyfill\\\Php)/um';
+				return preg_replace( $regexp, 'use ${1}', $content, 1 );
 		}
 		return $content;
 	}, ];
