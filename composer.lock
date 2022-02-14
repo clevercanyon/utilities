@@ -763,12 +763,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/standards.git",
-                "reference": "709337effb46f24fcbebd8ed86970c9073eb6cbe"
+                "reference": "5d7afe064e8492712760dc162c6b4db10cb6cebc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/standards/zipball/709337effb46f24fcbebd8ed86970c9073eb6cbe",
-                "reference": "709337effb46f24fcbebd8ed86970c9073eb6cbe",
+                "url": "https://api.github.com/repos/clevercanyon/standards/zipball/5d7afe064e8492712760dc162c6b4db10cb6cebc",
+                "reference": "5d7afe064e8492712760dc162c6b4db10cb6cebc",
                 "shasum": ""
             },
             "require": {
@@ -796,7 +796,7 @@
                 "issues": "https://github.com/clevercanyon/standards/issues",
                 "source": "https://github.com/clevercanyon/standards/tree/main"
             },
-            "time": "2022-02-13T22:13:03+00:00"
+            "time": "2022-02-14T00:45:25+00:00"
         },
         {
             "name": "clevercanyon/utilities-dev",
