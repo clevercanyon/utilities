@@ -87,7 +87,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 						'required'    => true,
 						'description' => 'Namespace prefix to apply.',
 						'validator'   => fn( $value ) => $value && is_string( $value )
-							&& preg_match( '/^[a-z0-9]+$/ui', $value ),
+							&& U\Str::is_namespace_scope( $value ),
 					],
 					'output-dir'                    => [
 						'required'    => true,
@@ -97,13 +97,15 @@ final class Scoper extends U\A6t\CLI_Tool {
 					],
 					'output-project-dir'            => [
 						'required'    => true,
-						'description' => 'Output project directory. In case it’s different from `output-dir`.',
+						'multiple'    => true,
+						'description' => 'Output project directories; e.g., `--output-project-dir [output-dir] --output-project-dir [output-dir]/trunk`.',
 						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'dir' ] ) )
 							&& preg_match( '/\/\._[^\/]*\//u', $abs_path ),
 					],
 					'output-project-dir-entry-file' => [
 						'optional'    => true,
-						'description' => 'Output project directory entry file; i.e., PHP file that `require()`’s autoloader.',
+						'multiple'    => true,
+						'description' => 'Output project directory entry files; e.g., `--output-project-dir-entry-file [output-dir]/.trunk.php --output-project-dir-entry-file [output-dir]/trunk/plugin.php`.',
 						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'file' ] ) )
 							&& preg_match( '/\/\._[^\/]*\//u', $abs_path )
 							&& preg_match( '/\.php$/ui', $abs_path ),
@@ -129,7 +131,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 			$this->run_scoper();
 			$this->fix_comments();
 			// $this->fix_formatting(); // This approach works well, but it takes too long.
-			// PHP Scoper is already working to improve formatting.
+			// Disabling for now. PHP Scoper is already working to improve formatting, which isn't terrible as-is.
 			$this->fix_autoloader();
 
 			U\CLI::done( '[' . __METHOD__ . '()]: Scoping complete ✔.' );
@@ -246,38 +248,47 @@ final class Scoper extends U\A6t\CLI_Tool {
 	protected function fix_autoloader() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Fixing autoloader ...' );
 
-		$output_project_dir            = U\Fs::abs( $this->get_option( 'output-project-dir' ) );
-		$output_project_dir_entry_file = U\Fs::abs( $this->get_option( 'output-project-dir-entry-file' ) ?: '' );
+		// Handle required output project directories.
 
-		if ( ! is_dir( $output_project_dir ) ) {
-			throw new U\Fatal_Exception( 'Missing `output-project-dir`: `' . $output_project_dir . '`.' );
+		if ( ! $output_project_dirs = $this->get_option( 'output-project-dir' ) ) {
+			throw new U\Fatal_Exception( 'Missing `output-project-dir`.' );
 		}
-		if ( ! is_dir( U\Dir::join( $output_project_dir, '/vendor' ) ) ) {
-			throw new U\Fatal_Exception( 'Missing `[output-project-dir]/vendor`: `' . U\Dir::join( $output_project_dir, '/vendor' ) . '`.' );
-		}
-		if ( ! is_file( U\Dir::join( $output_project_dir, '/composer.json' ) ) ) {
-			throw new U\Fatal_Exception( 'Missing `[output-project-dir]/composer.json`: `' . U\Dir::join( $output_project_dir, '/composer.json' ) . '`.' );
-		}
-		U\CLI::run( [
-			[ 'composer', 'dump-autoload' ],
-			[ '--profile', '--no-dev', '--no-scripts', '--no-plugins' ],
-			[ '--optimize', '--classmap-authoritative' ],
-		], $output_project_dir );
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Dumped composer autoloader.' );
+		foreach ( $output_project_dirs as $_output_project_dir ) {
+			$_output_project_dir = U\Fs::abs( $_output_project_dir );
 
-		if ( $output_project_dir_entry_file ) { // Optional entry file.
-			if ( ! is_file( $output_project_dir_entry_file ) ) {
-				throw new U\Fatal_Exception( 'Missing `output-project-dir-entry-file`: `' . $output_project_dir_entry_file . '`.' );
+			if ( ! is_dir( $_output_project_dir ) ) {
+				throw new U\Fatal_Exception( 'Missing `output-project-dir`: `' . $_output_project_dir . '`.' );
+			}
+			if ( ! is_dir( U\Dir::join( $_output_project_dir, '/vendor' ) ) ) {
+				throw new U\Fatal_Exception( 'Missing `[output-project-dir]/vendor`: `' . U\Dir::join( $_output_project_dir, '/vendor' ) . '`.' );
+			}
+			if ( ! is_file( U\Dir::join( $_output_project_dir, '/composer.json' ) ) ) {
+				throw new U\Fatal_Exception( 'Missing `[output-project-dir]/composer.json`: `' . U\Dir::join( $_output_project_dir, '/composer.json' ) . '`.' );
+			}
+			U\CLI::run( [
+				[ 'composer', 'dump-autoload' ],
+				[ '--profile', '--no-dev', '--no-scripts', '--no-plugins' ],
+				[ '--optimize', '--classmap-authoritative' ],
+			], $_output_project_dir );
+			U\CLI::log( '[' . __FUNCTION__ . '()]: Dumped composer autoloader.' );
+		}
+		// Handle optional output project directory entry file(s).
+
+		foreach ( $this->get_option( 'output-project-dir-entry-file' ) as $_output_project_dir_entry_file ) {
+			$_output_project_dir_entry_file = U\Fs::abs( $_output_project_dir_entry_file );
+
+			if ( ! $_output_project_dir_entry_file || ! is_file( $_output_project_dir_entry_file ) ) {
+				throw new U\Fatal_Exception( 'Missing `output-project-dir-entry-file`: `' . $_output_project_dir_entry_file . '`.' );
 			}
 			if (
-				! is_readable( $output_project_dir_entry_file )
-				|| ! is_writable( $output_project_dir_entry_file )
-				|| null === ( $_f15s = U\File::read( $output_project_dir_entry_file, false ) )
-				|| ! U\File::write( $output_project_dir_entry_file, str_replace( '/autoload.php', '/scoper-autoload.php', $_f15s ), false )
+				! is_readable( $_output_project_dir_entry_file )
+				|| ! is_writable( $_output_project_dir_entry_file )
+				|| null === ( $_f15s = U\File::read( $_output_project_dir_entry_file, false ) )
+				|| ! U\File::write( $_output_project_dir_entry_file, str_replace( '/autoload.php', '/scoper-autoload.php', $_f15s ), false )
 			) {
-				throw new U\Fatal_Exception( 'Failed to change `/autoload.php` to `/scoper-autoload.php` in `' . $output_project_dir_entry_file . '`.' );
+				throw new U\Fatal_Exception( 'Failed to change `/autoload.php` to `/scoper-autoload.php` in `' . $_output_project_dir_entry_file . '`.' );
 			}
-			U\CLI::log( '[' . __FUNCTION__ . '()]: Updated: `' . $output_project_dir_entry_file . '`.' );
+			U\CLI::log( '[' . __FUNCTION__ . '()]: Updated: `' . $_output_project_dir_entry_file . '`.' );
 		}
 	}
 

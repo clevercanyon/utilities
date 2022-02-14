@@ -151,6 +151,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			$this->maybe_run_npx_webpack();
 
 			$this->maybe_compile_distro_lib_dir();
+			$this->maybe_compile_distro_lib_tests_dir();
+
 			$this->maybe_compile_distro_lib_zip();
 			$this->maybe_s3_upload_distro_lib_zip();
 
@@ -421,9 +423,6 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		$comp_dir   = U\Dir::join( $this->project->dir, '/._x/comp' );
 		$distro_dir = U\Dir::join( $this->project->dir, '/._x/distro' );
 
-		$comp_tests_dir   = U\Dir::join( $this->project->dir, '/._x/comp-tests' );
-		$distro_tests_dir = U\Dir::join( $this->project->dir, '/._x/distro-tests' );
-
 		// Copies project directory into `._x/comp`.
 		// This copy ignores everything in `.gitignore`, and nothing else.
 		// For further details {@see Project::comp_dir_copy_config()}.
@@ -438,20 +437,6 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $this->project->dir . '`' . "\n" . ' →  `' . $comp_dir . '`.' );
 
-		// Copies `._x/comp` directory into `._x/comp-tests`.
-		// This is simply an additional copy of what we just copied.
-		// Should take less time, because now there is nothing to ignore.
-
-		if ( ! U\Fs::copy(
-			$comp_dir,
-			$comp_tests_dir,
-			$comp_dir_copy_config[ 'ignore' ],
-			$comp_dir_copy_config[ 'exceptions' ]
-		) ) {
-			throw new U\Fatal_Exception( 'Failed to create `./._x/comp-tests`.' );
-		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $comp_dir . '`' . "\n" . ' →  `' . $comp_tests_dir . '`.' );
-
 		// Installs composer dependencies in `._x/comp`.
 		// Good that we didn't ignore `composer.json|lock` when copying.
 		// The autoloader is optimized here, as we are compiling for production.
@@ -462,6 +447,91 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			[ '--optimize-autoloader', '--classmap-authoritative' ],
 		], $comp_dir );
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Ran `composer install` in: `' . $comp_dir . '`.' );
+
+		// Prunes the `./._x/comp` directory, which speeds up remaining tasks.
+		// This prunes everything in `.gitignore`, except: `vendor` (off by default) and `composer.json|lock`.
+		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
+
+		if ( ! U\Dir::prune(
+			$comp_dir,
+			$comp_dir_prune_config[ 'prune' ],
+			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
+				'/(?:^|.+\/)composer\.(?:json|lock)$/ui',
+			] ),
+		) ) {
+			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp`.' );
+		}
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_dir . '`.' );
+
+		// Runs PHP Scoper on full `._x/comp` directory; outputting to `._x/distro`.
+		// PHP Scoper can expose, exclude, and apply patchers. To learn more, see `.scoper.cfg.php` file.
+		// We're not excluding anything extra special here, though, as we have already pruned the directory.
+
+		if ( 'clevercanyon/utilities' === $this->project->pkg_name ) {
+			$scoper_bin_script = U\Dir::join( $this->project->dir, '/dev/cli-tools/php-scoper/scoper' );
+		} else {
+			$scoper_bin_script = U\Dir::join( $this->project->dir, '/vendor/clevercanyon/utilities/dev/cli-tools/php-scoper/scoper' );
+		}
+		U\CLI::run( [
+			[ $scoper_bin_script, 'scope' ],
+			[ '--project-dir', $this->project->dir ],
+			[ '--prefix', $this->project->namespace_scope ],
+
+			[ '--work-dir', $comp_dir ],
+			[ '--output-dir', $distro_dir ],
+			[ '--output-project-dir', $distro_dir ],
+		] );
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $comp_dir . '`' . "\n" . ' →  `' . $distro_dir . '`.' );
+
+		// Prunes the `./._x/distro` directory now.
+		// This prunes everything in `.gitignore`, except `vendor` (off by default).
+		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
+
+		if ( ! U\Dir::prune(
+			$distro_dir,
+			$comp_dir_prune_config[ 'prune' ],
+			$comp_dir_prune_config[ 'exceptions' ]
+		) ) {
+			throw new U\Fatal_Exception( 'Failed to prune `./._x/distro`.' );
+		}
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $distro_dir . '`.' );
+	}
+
+	/**
+	 * Maybe compile project’s distro tests directory.
+	 *
+	 * Regarding use of `--no-plugins` in Composer calls below.
+	 * {@see https://github.com/humbug/php-scoper#composer-plugins}.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @throws U\Fatal_Exception On any failure.
+	 */
+	protected function maybe_compile_distro_lib_tests_dir() : void {
+		U\CLI::output( '[' . __FUNCTION__ . '()]: Maybe; looking ...' );
+
+		if ( ! $this->project->is_distro_lib() ) {
+			return; // Not applicable.
+		}
+		$comp_dir_copy_config  = $this->project->comp_dir_copy_config();
+		$comp_dir_prune_config = $this->project->comp_dir_prune_config();
+
+		$comp_tests_dir   = U\Dir::join( $this->project->dir, '/._x/comp-tests' );
+		$distro_tests_dir = U\Dir::join( $this->project->dir, '/._x/distro-tests' );
+
+		// Copies project directory into `._x/comp-tests`.
+		// This copy ignores everything in `.gitignore`, and nothing else.
+		// For further details {@see Project::comp_dir_copy_config()}.
+
+		if ( ! U\Fs::copy(
+			$this->project->dir,
+			$comp_tests_dir,
+			$comp_dir_copy_config[ 'ignore' ],
+			$comp_dir_copy_config[ 'exceptions' ]
+		) ) {
+			throw new U\Fatal_Exception( 'Failed to create `./._x/comp-tests`.' );
+		}
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $this->project->dir . '`' . "\n" . ' →  `' . $comp_tests_dir . '`.' );
 
 		// Installs composer dependencies in `._x/comp-tests`.
 		// Good that we didn't ignore `composer.json|lock` when copying.
@@ -492,21 +562,6 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		], $comp_tests_dir );
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Ran `composer install` in: `' . $comp_tests_dir . '`.' );
 
-		// Prunes the `./._x/comp` directory, which speeds up remaining tasks.
-		// This prunes everything in `.gitignore`, except: `vendor` (off by default) and `composer.json|lock`.
-		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
-
-		if ( ! U\Dir::prune(
-			$comp_dir,
-			$comp_dir_prune_config[ 'prune' ],
-			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
-				'/(?:^|.+\/)composer\.(?:json|lock)$/ui',
-			] ),
-		) ) {
-			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp`.' );
-		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_dir . '`.' );
-
 		// Prunes the `./._x/comp-tests` directory, which speeds up remaining tasks.
 		// This prunes everything in `.gitignore`, except: `vendor` (off by default), `tests`, and `composer.json|lock`.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
@@ -523,9 +578,9 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_tests_dir . '`.' );
 
-		// Runs PHP Scoper on full `._x/comp` directory; outputting to `._x/distro`.
-		// PHP Scoper ignores files based on Finders in the `.scoper.cfg.php` file.
-		// We're not using that functionality, though, as we have already pruned the directory.
+		// Runs PHP Scoper on full `._x/comp-tests` directory; outputting to `._x/distro-tests`.
+		// PHP Scoper can expose, exclude, and apply patchers. To learn more, see `.scoper.cfg.php` file.
+		// We're not excluding anything extra special here, though, as we have already pruned the directory.
 
 		if ( 'clevercanyon/utilities' === $this->project->pkg_name ) {
 			$scoper_bin_script = U\Dir::join( $this->project->dir, '/dev/cli-tools/php-scoper/scoper' );
@@ -535,38 +590,13 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		U\CLI::run( [
 			[ $scoper_bin_script, 'scope' ],
 			[ '--project-dir', $this->project->dir ],
-			[ '--work-dir', $comp_dir ],
 			[ '--prefix', $this->project->namespace_scope ],
-			[ '--output-dir', $distro_dir ],
-			[ '--output-project-dir', $distro_dir ],
-		] );
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $comp_dir . '`' . "\n" . ' →  `' . $distro_dir . '`.' );
 
-		// Runs PHP Scoper on full `._x/comp-tests` directory; outputting to `._x/distro-tests`.
-		// We're simply doing the very same thing again. This time for the `._x/distro-tests` directory.
-
-		U\CLI::run( [
-			[ $scoper_bin_script, 'scope' ],
-			[ '--project-dir', $this->project->dir ],
 			[ '--work-dir', $comp_tests_dir ],
-			[ '--prefix', $this->project->namespace_scope ],
 			[ '--output-dir', $distro_tests_dir ],
 			[ '--output-project-dir', $distro_tests_dir ],
 		] );
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $comp_tests_dir . '`' . "\n" . ' →  `' . $distro_tests_dir . '`.' );
-
-		// Prunes the `./._x/distro` directory now.
-		// This prunes everything in `.gitignore`, except `vendor` (off by default).
-		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
-
-		if ( ! U\Dir::prune(
-			$distro_dir,
-			$comp_dir_prune_config[ 'prune' ],
-			$comp_dir_prune_config[ 'exceptions' ]
-		) ) {
-			throw new U\Fatal_Exception( 'Failed to prune `./._x/distro`.' );
-		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $distro_dir . '`.' );
 
 		// Prunes the `./._x/distro-tests` directory now.
 		// This prunes everything in `.gitignore`, except `vendor` (off by default) and `tests`.
