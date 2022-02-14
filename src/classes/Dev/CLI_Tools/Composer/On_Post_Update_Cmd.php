@@ -452,8 +452,6 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $comp_dir . '`' . "\n" . ' →  `' . $comp_tests_dir . '`.' );
 
-		exit;
-
 		// Installs composer dependencies in `._x/comp`.
 		// Good that we didn't ignore `composer.json|lock` when copying.
 		// The autoloader is optimized here, as we are compiling for production.
