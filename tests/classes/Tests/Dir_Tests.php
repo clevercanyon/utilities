@@ -267,10 +267,10 @@ final class Dir_Tests extends UT\A6t\Tests {
 			[ '/' => [ '\\' ] ],
 			[ '/' => [ '\\\\' ] ],
 
-			[ '/foo' => [ '\\foo\\bar' ] ],
+			[ '/foo' => [ '\\foo\\bar\\' ] ],
 			[ '/foo' => [ '\\foo\\\\bar\\\\' ] ],
 
-			[ '/foo' => [ '\\foo\\bar' ] ],
+			[ '/foo' => [ '\\foo\\bar\\' ] ],
 			[ '//foo' => [ '//\\foo//\\\\//bar//\\\\' ] ],
 
 			[ 'c:/foo' => [ 'C:\\foo\\bar\\' ] ],
@@ -332,10 +332,10 @@ final class Dir_Tests extends UT\A6t\Tests {
 			[ '' => [ '\\', '\\' ] ],
 			[ '' => [ '\\\\', '\\\\' ] ],
 
-			[ 'bar' => [ '/foo', '\\foo\\bar' ] ],
+			[ 'bar' => [ '/foo', '\\foo\\bar\\' ] ],
 			[ 'bar' => [ '/foo', '\\foo\\\\bar\\\\' ] ],
 
-			[ 'bar' => [ '/foo/', '\\foo\\bar' ] ],
+			[ 'bar' => [ '/foo/', '\\foo\\bar\\' ] ],
 			[ 'bar' => [ '//foo', '//\\foo//\\\\//bar//\\\\' ] ],
 
 			[ 'bar' => [ 'C:\\foo', 'C:\\foo\\bar\\' ] ],
