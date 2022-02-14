@@ -516,6 +516,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			$comp_dir_prune_config[ 'prune' ],
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
 				'/^tests$/ui',
+				'/^tests\/classes\/Tests$/ui',
 				'/(?:^|.+?\/)composer\.json$/ui',
 			] ),
 		) ) {
@@ -577,6 +578,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			$comp_dir_prune_config[ 'prune' ],
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
 				'/^tests$/ui',
+				'/^tests\/classes\/Tests$/ui',
 			] ),
 		) ) {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/distro-tests`.' );
