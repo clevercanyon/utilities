@@ -91,8 +91,8 @@ final class Str_Var_Tests extends UT\A6t\Tests {
 		$this->assertSame( '', U\Str::to_brand_var( '' ), $this->message() );
 		$this->assertSame( 'x0', U\Str::to_brand_var( '0' ), $this->message() );
 		$this->assertSame( 'x1', U\Str::to_brand_var( '1' ), $this->message() );
-		$this->assertSame( 'xabcxxxx', U\Str::to_brand_var( 'xabc\\x_x__x____x' ), $this->message() );
-		$this->assertSame( 'abc_dxxx', U\Str::to_brand_var( 'abc\\d_x__x____x' ), $this->message() );
+		$this->assertSame( 'xabcxxxx', U\Str::to_brand_var( 'xabc\\x_x__x____x\\' ), $this->message() );
+		$this->assertSame( 'abc_dxxx', U\Str::to_brand_var( 'abc\\d_x__x____x\\' ), $this->message() );
 		$this->assertSame( 'x1_0', U\Str::to_brand_var( '1.0' ), $this->message() );
 		$this->assertSame( 'jx', U\Str::to_brand_var( 'J' ), $this->message() );
 		$this->assertSame( 'jx', U\Str::to_brand_var( 'J' ), $this->message() );
@@ -250,8 +250,8 @@ final class Str_Var_Tests extends UT\A6t\Tests {
 		$this->assertSame( '', U\Str::to_lede_var( '' ), $this->message() );
 		$this->assertSame( 'x0', U\Str::to_lede_var( '0' ), $this->message() );
 		$this->assertSame( 'x1', U\Str::to_lede_var( '1' ), $this->message() );
-		$this->assertSame( 'xabcxxxx', U\Str::to_lede_var( 'xabc\\x_x__x____x' ), $this->message() );
-		$this->assertSame( 'abc_dxxx', U\Str::to_lede_var( 'abc\\d_x__x____x' ), $this->message() );
+		$this->assertSame( 'xabcxxxx', U\Str::to_lede_var( 'xabc\\x_x__x____x\\' ), $this->message() );
+		$this->assertSame( 'abc_dxxx', U\Str::to_lede_var( 'abc\\d_x__x____x\\' ), $this->message() );
 		$this->assertSame( 'x1_0', U\Str::to_lede_var( '1.0' ), $this->message() );
 		$this->assertSame( 'jx', U\Str::to_lede_var( 'J' ), $this->message() );
 		$this->assertSame( 'jx', U\Str::to_lede_var( 'J' ), $this->message() );
