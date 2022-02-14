@@ -70,7 +70,7 @@ final class Pkg_Tests extends UT\A6t\Tests {
 		} else {
 			$namespace_scope = 'Xae3c7c368fe2e3c';
 			$this->assertSame(
-				mb_substr( U::class, mb_strlen( $namespace_scope . '\\' ) ),
+				U::class, // Easy peasy.
 				U\Pkg::namespace_crux( $namespace_scope . '\\' . __CLASS__ ), $this->message()
 			);
 		}
@@ -88,7 +88,7 @@ final class Pkg_Tests extends UT\A6t\Tests {
 		} else {
 			$namespace_scope = 'Xae3c7c368fe2e3c';
 			$this->assertSame(
-				mb_substr( __CLASS__, mb_strlen( $namespace_scope . '\\' ) ),
+				mb_substr( $namespace_scope . '\\' . __CLASS__, mb_strlen( $namespace_scope . '\\' ) ),
 				U\Pkg::fqn_crux( $namespace_scope . '\\' . __CLASS__ ), $this->message()
 			);
 		}
