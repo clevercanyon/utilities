@@ -285,27 +285,30 @@ final class Config_File extends U\A6t\CLI_Tool {
 				if ( ! preg_match( '/(?:polyfill|deprecation)/u', $file ) ) {
 					return $content; // Saves time.
 				}
-				static $project_dir, $project, $esc_reg_prefix; // Memoize.
+				static $project_dir, $project; // Memoize.
+				static $preg_quote_project_dir, $preg_quote_prefix;
 
-				$project_dir    ??= str_replace( '\\', '/', __DIR__ );
-				$project        ??= json_decode( file_get_contents( __DIR__ . '/composer.json' ) );
-				$esc_reg_prefix ??= preg_quote( $prefix, '/' );
+				$project_dir ??= str_replace( '\\', '/', __DIR__ );
+				$project     ??= json_decode( file_get_contents( __DIR__ . '/composer.json' ) );
+
+				$preg_quote_project_dir ??= preg_quote( $project_dir, '/' );
+				$preg_quote_prefix      ??= preg_quote( $prefix, '/' );
 
 				$file         = str_replace( '\\', '/', realpath( $file ) );
-				$file_subpath = mb_substr( $file, mb_strlen( $project_dir . '/._x/comp/' ) );
+				$file_subpath = preg_replace( '/^' . $preg_quote_project_dir . '\/\._x\/comp(?:-tests)?(?:$|\/)/ui', '', $file );
 
 				switch( true ) {
 					case ( ( ! empty( $project->name ) && 'clevercanyon/utilities' === $project->name
-								&& preg_match( '`^src/functions/polyfills/[^/]+.php$`u', $file_subpath ) )
-							|| preg_match( '`^vendor/clevercanyon/utilities/src/functions/polyfills/[^/]+.php$`u', $file_subpath ) ):
+								&& preg_match( '/^src\/functions\/polyfills\/[^\/]+\.php$/u', $file_subpath ) )
+							|| preg_match( '/^vendor\/clevercanyon\/utilities\/src\/functions\/polyfills\/[^\/]+\.php$/u', $file_subpath ) ):
 
-						return preg_replace( '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um', '', $content, 1 );
+						return preg_replace( '/^\s*namespace\s+' . $preg_quote_prefix . '\s*;\v?/um', '', $content, 1 );
 
-					case ( preg_match( '`^vendor/symfony/polyfill-php[^/]+/bootstrap\.php$`u', $file_subpath )
-					 	|| preg_match( '`^vendor/symfony/polyfill-php[^/]+/Resources/stubs/[^/]+\.php$`u', $file_subpath )
-					 	|| preg_match( '`^vendor/symfony/deprecation-contracts/function\.php$`u', $file_subpath ) ):
+					case ( preg_match( '/^vendor\/symfony\/polyfill-php[^\/]+\/bootstrap\.php$/u', $file_subpath )
+					 	|| preg_match( '/^vendor\/symfony\/polyfill-php[^\/]+\/Resources\/stubs\/[^\/]+\.php$/u', $file_subpath )
+					 	|| preg_match( '/^vendor\/symfony\/deprecation-contracts\/function\.php$/u', $file_subpath ) ):
 
-						return preg_replace( '/^\s*namespace\s+' . $esc_reg_prefix . '\s*;\v?/um', '', $content, 1 );
+						return preg_replace( '/^\s*namespace\s+' . $preg_quote_prefix . '\s*;\v?/um', '', $content, 1 );
 				}
 				return $content;
 			},
