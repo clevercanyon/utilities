@@ -75,7 +75,7 @@ final class Dir_Tests extends UT\A6t\Tests {
 			[ '/foo/bar' => [ '\\foo', '\\bar' ] ],
 			[ '/foo/bar' => [ '\\foo\\', '\\bar\\\\' ] ],
 
-			[ '/foo/bar' => [ '\\foo\\bar' ] ],
+			[ '/foo/bar' => [ '\\\\foo\\bar' ] ],
 			[ '//foo/bar' => [ '//\\foo//', '\\\\//bar//\\\\' ] ],
 
 			[ 'c:/foo/bar' => [ 'C:\\', 'foo\\bar\\' ] ],
@@ -160,7 +160,7 @@ final class Dir_Tests extends UT\A6t\Tests {
 			[ '/foo/bar' => [ '\\foo', '\\bar' ] ],
 			[ '/foo/bar' => [ '\\foo\\', '\\bar\\\\' ] ],
 
-			[ '/foo/bar' => [ '\\foo\\bar' ] ],
+			[ '/foo/bar' => [ '\\\\foo\\bar' ] ],
 			[ '//foo/bar' => [ '//\\foo//', '\\\\//bar//\\\\' ] ],
 
 			[ 'c:/foo/bar' => [ 'C:\\', 'foo\\bar\\' ] ],
@@ -181,7 +181,7 @@ final class Dir_Tests extends UT\A6t\Tests {
 			[ '/foo/bar/' => [ '\\foo', '\\bar', '/' ] ],
 			[ '/foo/bar/' => [ '\\foo\\', '\\bar\\\\', '/' ] ],
 
-			[ '/foo/bar/' => [ '\\foo\\bar', '/' ] ],
+			[ '/foo/bar/' => [ '\\\\foo\\bar', '/' ] ],
 			[ '//foo/bar/' => [ '//\\foo//', '\\\\//bar//\\\\', '/' ] ],
 
 			[ 'c:/foo/bar/' => [ 'C:\\', 'foo\\bar\\', '/' ] ],

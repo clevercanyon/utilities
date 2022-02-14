@@ -114,9 +114,13 @@ trait Constructable_Members {
 		$code = rtrim( $code, U\Str::TRIM_CHARS . ';' );
 		$code = 'return ' . $code . ';';
 
-		$use[ 'Clever_Canyon\\Utilities' ] = 'U';
-		$use[ 'WP_Groove\\Framework' ]     = 'WPG';
-
+		if ( $namespace_scope = U\Pkg::namespace_scope() ) {
+			$use[ $namespace_scope . '\\Clever_Canyon\\Utilities' ] = 'U';
+			$use[ $namespace_scope . '\\WP_Groove\\Framework' ]     = 'WPG';
+		} else {
+			$use[ 'Clever_Canyon\\Utilities' ] = 'U';
+			$use[ 'WP_Groove\\Framework' ]     = 'WPG';
+		}
 		foreach ( array_reverse( $use ) as $_use => $_as ) {
 			$code = 'use ' . $_use . ' as ' . $_as . ';' . "\n" .
 				$code; // Existing.
