@@ -25,7 +25,6 @@
 	beStrictAboutResourceUsageDuringSmallTests="true"
 
 	defaultTestSuite="tests"
-	bootstrap="./._x/distro-tests/vendor/scoper-autoload.php"
 	cacheResultFile="._x/phpunit/distro-tests/result.cache"
 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
