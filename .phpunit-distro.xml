@@ -25,8 +25,8 @@
 	beStrictAboutResourceUsageDuringSmallTests="true"
 
 	defaultTestSuite="tests"
-	bootstrap="./._x/distro-tests/vendor/autoload.php"
-	cacheResultFile="._x/phpunit-distro/result.cache"
+	bootstrap="./._x/distro-tests/vendor/scoper-autoload.php"
+	cacheResultFile="._x/phpunit/distro-tests/result.cache"
 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
@@ -39,7 +39,7 @@
 
     <coverage cacheDirectory="./._x/phpunit/distro-tests/coverage/._cache">
         <include>
-            <directory suffix=".php">src</directory>
+            <directory suffix=".php">._x/distro-tests/src</directory>
         </include>
         <report>
             <xml outputDirectory="./._x/phpunit/distro-tests/coverage/xml" />
