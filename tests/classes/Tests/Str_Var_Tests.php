@@ -239,7 +239,7 @@ final class Str_Var_Tests extends UT\A6t\Tests {
 	 */
 	public function test_to_lede_var() : void {
 		$this->assertSame( 'my_brand_my_var', U\Str::to_lede_var( 'My Brand:my\\var\\' ), $this->message() );
-		$this->assertSame( 'my_brand_my_var', U\Str::to_lede_var( '_~My Brand__my\\var__' ), $this->message() );
+		$this->assertSame( 'my_brand_my_var', U\Str::to_lede_var( '_~My Brand__my\\var__\\' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting', U\Str::to_lede_var( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting', U\Str::to_lede_var( '- acme™™   broadcasting ' ), $this->message() );
 		$this->assertSame( 'my_brand_my_varx', U\Str::to_lede_var( 'my-brand-my-var-x' ), $this->message() );
