@@ -452,6 +452,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $comp_dir . '`' . "\n" . ' →  `' . $comp_tests_dir . '`.' );
 
+		exit;
+
 		// Installs composer dependencies in `._x/comp`.
 		// Good that we didn't ignore `composer.json|lock` when copying.
 		// The autoloader is optimized here, as we are compiling for production.
@@ -511,7 +513,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		// This prunes everything in `.gitignore`, except: `vendor`, `tests`, `composer.json|lock`.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
 
-		/*if ( ! U\Dir::prune(
+		if ( ! U\Dir::prune(
 			$comp_tests_dir,
 			$comp_dir_prune_config[ 'prune' ],
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
@@ -522,7 +524,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		) ) {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp-tests`.' );
 		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_tests_dir . '`.' );*/
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_tests_dir . '`.' );
 
 		// Runs PHP Scoper on full `._x/comp` directory; outputting to `._x/distro`.
 		// PHP Scoper ignores files based on Finders in the `.scoper.cfg.php` file.
@@ -573,7 +575,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		// This prunes everything in `.gitignore`, except `vendor`, `tests`. This time, including `composer.json|lock` files.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
 
-		/*if ( ! U\Dir::prune(
+		if ( ! U\Dir::prune(
 			$distro_tests_dir,
 			$comp_dir_prune_config[ 'prune' ],
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
@@ -582,7 +584,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			] ),
 		) ) {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/distro-tests`.' );
-		}*/
+		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $distro_tests_dir . '`.' );
 	}
 
