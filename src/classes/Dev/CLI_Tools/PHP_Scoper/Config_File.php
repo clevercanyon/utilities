@@ -352,7 +352,10 @@ final class Config_File extends U\A6t\CLI_Tool {
 				U\CLI::log( '[' . __FUNCTION__ . '()]: Parsing: `' . $_stubs . '()`.' );
 				$traverser->traverse( $_parser->parse( $this->{$_stubs}() ) );
 			}
-			return (object) (array) $visitor;
+			$exclude_names            = (object) (array) $visitor;
+			$exclude_names->classes[] = 'PHPUnit\\Framework\\TestCase';
+
+			return $exclude_names;
 
 		} catch ( \Throwable $throwable ) {
 			throw new U\Fatal_Exception( $throwable->getMessage() );
