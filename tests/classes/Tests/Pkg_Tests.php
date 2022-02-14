@@ -49,7 +49,12 @@ final class Pkg_Tests extends UT\A6t\Tests {
 	 * @covers ::namespace_scope()
 	 */
 	public function test_namespace_scope() : void {
-		$this->assertSame( 'Xae3c7c368fe2e3c', U\Pkg::namespace_scope( 'Xae3c7c368fe2e3c\\' . __CLASS__ ), $this->message() );
+		if ( $namespace_scope = U\Pkg::namespace_scope() ) {
+			$this->assertSame( $namespace_scope, U\Pkg::namespace_scope( __CLASS__ ), $this->message() );
+		} else {
+			$namespace_scope = 'Xae3c7c368fe2e3c';
+			$this->assertSame( $namespace_scope, U\Pkg::namespace_scope( $namespace_scope . '\\' . __CLASS__ ), $this->message() );
+		}
 	}
 
 	/**
@@ -57,16 +62,36 @@ final class Pkg_Tests extends UT\A6t\Tests {
 	 * @noinspection PhpUndefinedClassInspection
 	 */
 	public function test_namespace_crux() : void {
-		$this->assertSame( U::class, U\Pkg::namespace_crux( __CLASS__ ), $this->message() );
-		$this->assertSame( U::class, U\Pkg::namespace_crux( 'Xae3c7c368fe2e3c\\' . __CLASS__ ), $this->message() );
+		if ( $namespace_scope = U\Pkg::namespace_scope() ) {
+			$this->assertSame(
+				mb_substr( U::class, mb_strlen( $namespace_scope . '\\' ) ),
+				U\Pkg::namespace_crux( __CLASS__ ), $this->message()
+			);
+		} else {
+			$namespace_scope = 'Xae3c7c368fe2e3c';
+			$this->assertSame(
+				mb_substr( U::class, mb_strlen( $namespace_scope . '\\' ) ),
+				U\Pkg::namespace_crux( $namespace_scope . '\\' . __CLASS__ ), $this->message()
+			);
+		}
 	}
 
 	/**
 	 * @covers ::fqn_crux()
 	 */
 	public function test_fqn_crux() : void {
-		$this->assertSame( __CLASS__, U\Pkg::fqn_crux( __CLASS__ ), $this->message() );
-		$this->assertSame( __CLASS__, U\Pkg::fqn_crux( 'Xae3c7c368fe2e3c\\' . __CLASS__ ), $this->message() );
+		if ( $namespace_scope = U\Pkg::namespace_scope() ) {
+			$this->assertSame(
+				mb_substr( __CLASS__, mb_strlen( $namespace_scope . '\\' ) ),
+				U\Pkg::fqn_crux( __CLASS__ ), $this->message()
+			);
+		} else {
+			$namespace_scope = 'Xae3c7c368fe2e3c';
+			$this->assertSame(
+				mb_substr( __CLASS__, mb_strlen( $namespace_scope . '\\' ) ),
+				U\Pkg::fqn_crux( $namespace_scope . '\\' . __CLASS__ ), $this->message()
+			);
+		}
 	}
 
 	/**
