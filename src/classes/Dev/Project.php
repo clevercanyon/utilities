@@ -944,48 +944,50 @@ final class Project extends U\A6t\Base {
 				U\Fs::gitignore_regexp_lookahead( 'positive', null, [ 'vendor' => false ] ),
 
 				// All dotfiles.
-				'/(?:^|.+?\/)\./ui',
+				'/(?:^|.+\/)\./ui',
 
 				// All of these project config paths.
-				'/(?:^|.+?\/)[^\/]+?\.(?:cjs|cts|xml|yml|yaml|json5?|neon|dist|lock)$/ui',
-				'/(?:^|.+?\/)(?:babel|gulpfile|gruntfile)(?:\.(?:esm))?\.(?:jsx?|tsx?)$/ui',
-				'/(?:^|.+?\/)[^\/]+?\.(?:cfg|config|babel)\.(?:jsx?|tsx?)$/ui',
+				'/(?:^|.+\/)[^\/]+?\.(?:cjs|cts|xml|yml|yaml|json5?|neon|dist|lock)$/ui',
+				'/(?:^|.+\/)(?:babel|gulpfile|gruntfile)(?:\.(?:esm))?\.(?:jsx?|tsx?)$/ui',
+				'/(?:^|.+\/)[^\/]+?\.(?:cfg|config|babel)\.(?:jsx?|tsx?)$/ui',
 
 				// All of these project source-only paths.
-				'/(?:^|.+?\/)[^\/]+?\.(?:jsx|tsx?)$/ui',
+				'/(?:^|.+\/)[^\/]+?\.(?:jsx|tsx?)$/ui',
 
 				// All of these project bin paths.
-				'/(?:^|.+?\/)(?:bin)$/ui',
-				'/(?:^|.+?\/)[^\/]+?\.(?:exe|bat|sh|bash|zsh)$/ui',
+				'/(?:^|.+\/)(?:bin)(?:$|\/)/ui',
+				'/(?:^|.+\/)[^\/]+?\.(?:exe|bat|sh|bash|zsh)$/ui',
 
 				// All of these arbitrary archive paths.
-				'/(?:^|.+?\/)[^\/]+?\.(?:iso|dmg|bz2|7z|zip|sketch|app|tar|tgz|gz|phar)$/ui',
+				'/(?:^|.+\/)[^\/]+?\.(?:iso|dmg|bz2|7z|zip|sketch|app|tar|tgz|gz|phar)$/ui',
 
 				// All of these project test paths.
-				'/(?:^|.+?\/)(?:tests?|test[_\-]files?|phpunit([_\-]tests?)?)$/ui',
+				'/(?:^|.+\/)(?:tests?|test[_\-]files?|phpunit(?:[_\-]tests?)?)(?:$|\/)/ui',
 
 				// All of these project doc paths.
-				'/(?:^|.+?\/)(?:docs?|api[_\-]docs?|examples?|benchmarks?)$/ui',
+				'/(?:^|.+\/)(?:docs?|api[_\-]docs?|examples?|benchmarks?)(?:$|\/)/ui',
 
 				// All of these project build paths.
-				'/(?:^|.+?\/)(?:builds?|make(files?)?)$/ui',
+				'/(?:^|.+\/)(?:builds?|make(?:files?)?)(?:$|\/)/ui',
 
-				// All of these project devop paths.
-				'/(?:^|.+?\/)(?:ci|dev|dev[_\-]ops?|dev[_\-]?only)$/ui',
+				// All of these project dev-only paths.
+				'/(?:^|.+\/)(?:ci|dev|dev[_\-]ops?|dev[_\-]?only)(?:$|\/)/ui',
 
 				// All of these project package paths.
-				'/(?:^|.+?\/)(?:node[_\-]modules|jspm[_\-]packages|bower[_\-]components)$/ui',
+				'/(?:^|.+\/)(?:node[_\-]modules|jspm[_\-]packages|bower[_\-]components)(?:$|\/)/ui',
 			],
 			'exceptions' => [
-				'/(?:^|.+?\/)\.htaccess$/ui',
+				'/(?:^|.+\/)vendor(?:$|\/)/ui',
+				'/(?:^|.+\/)\.htaccess$/ui',
+				'/(?:^|.+\/)web\.config$/ui',
 			],
 		];
 		if ( $this->is_wp_project() ) {
 			$config[ 'prune' ] = array_merge( $config[ 'prune' ], [
 				// The root directory of a WP project is dev-only.
-				// We still keep `trunk/vendor`; i.e., this is a root exclusion only.
-				'/^(?:vendor)$/ui',
-				'/^(?:readme)\.(?:md|txt|rtf)$/ui',
+				// We still keep `trunk/vendor`. This is a root exclusion only.
+				'/^vendor(?:$|\/)/ui',
+				'/^readme\.(?:md|txt|rtf)$/ui',
 			] );
 		}
 		return $config;
