@@ -355,6 +355,10 @@ final class Config_File extends U\A6t\CLI_Tool {
 			$exclude_names            = (object) (array) $visitor;
 			$exclude_names->classes[] = 'PHPUnit\\Framework\\TestCase';
 
+			// @todo Consider a better way to exclude PHPUnit classes.
+			// Current approach is brittle, as it will not exclude anything else we might use.
+			// Also, in the event that we ship a project containing PHPUnit, this isn't going to work.
+
 			return $exclude_names;
 
 		} catch ( \Throwable $throwable ) {
