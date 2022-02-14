@@ -511,7 +511,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		// This prunes everything in `.gitignore`, except: `vendor`, `tests`, `composer.json|lock`.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
 
-		if ( ! U\Dir::prune(
+		/*if ( ! U\Dir::prune(
 			$comp_tests_dir,
 			$comp_dir_prune_config[ 'prune' ],
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
@@ -522,7 +522,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		) ) {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp-tests`.' );
 		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_tests_dir . '`.' );
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_tests_dir . '`.' );*/
 
 		// Runs PHP Scoper on full `._x/comp` directory; outputting to `._x/distro`.
 		// PHP Scoper ignores files based on Finders in the `.scoper.cfg.php` file.
