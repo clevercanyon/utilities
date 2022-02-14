@@ -193,8 +193,8 @@ final class Fs_Tests extends UT\A6t\Tests {
 			[ 'c:/foo/bar' => 'C:\\foo\\bar\\' ],
 			[ 'c:/foo/bar' => 'C:\\foo\\bar\\\\' ],
 
-			[ 'c:/foo:/bar/baz' => 'C:\\foo:\\\\bar\\baz' ],
 			[ 'c:/foo:/bar/baz' => 'C:\\foo:\\\\bar\\baz\\' ],
+			[ 'c:/foo:/bar/baz®' => 'C:\\foo:\\\\bar\\baz\\®' ],
 			[ 'c:/foo:/bar/baz' => 'C:\\foo:\\\\bar\\baz\\\\' ],
 
 			// A wrapper is invalid if it contains invalid chars?
