@@ -57,6 +57,9 @@ trait Write_Members {
 	 */
 	public static function write( string $file, string $contents, bool $throw_on_failure = true ) : bool {
 		if ( '' !== $file && is_file( $file ) && is_writable( $file ) ) {
+			if ( 'php' === U\File::ext( $file, true ) ) {
+				$contents = rtrim( $contents, "\n" ) . "\n";
+			}
 			if ( false !== file_put_contents( $file, $contents ) ) {
 				U\Fs::clear_stat_cache( $file );
 				return true; // Success.

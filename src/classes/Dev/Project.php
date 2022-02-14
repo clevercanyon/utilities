@@ -546,7 +546,9 @@ final class Project extends U\A6t\Base {
 	 * @return mixed Value, else `null` on failure to locate.
 	 */
 	public function extra_json_prop( string $prop ) /* : mixed */ {
-		return U\Obj::get_prop( $this->json->extra, preg_replace( '/^clevercanyon\./u', '&.', $prop ) );
+		static $esc_reg_org_slug; // Memoize.
+		$esc_reg_org_slug ??= U\Str::esc_reg( U\Brand::get( '&', 'slug' ) );
+		return U\Obj::get_prop( $this->json->extra, preg_replace( '/^' . $esc_reg_org_slug . '\./u', '&.', $prop ) );
 	}
 
 	/**
@@ -559,7 +561,9 @@ final class Project extends U\A6t\Base {
 	 * @return mixed Value, else `null` on failure to locate.
 	 */
 	public function dev_json_prop( string $prop ) /* : mixed */ {
-		return U\Obj::get_prop( $this->dev_json, preg_replace( '/^clevercanyon\./u', '&.', $prop ) );
+		static $esc_reg_org_slug; // Memoize.
+		$esc_reg_org_slug ??= U\Str::esc_reg( U\Brand::get( '&', 'slug' ) );
+		return U\Obj::get_prop( $this->dev_json, preg_replace( '/^' . $esc_reg_org_slug . '\./u', '&.', $prop ) );
 	}
 
 	/**
@@ -924,7 +928,7 @@ final class Project extends U\A6t\Base {
 	public function comp_dir_copy_config() : array {
 		return [
 			'ignore'     => [
-				U\Fs::gitignore_regexp_lookahead( 'positive' ),
+				'gitignore' => U\Fs::gitignore_regexp_lookahead( 'positive' ),
 			],
 			'exceptions' => [],
 		];
@@ -940,54 +944,52 @@ final class Project extends U\A6t\Base {
 	public function comp_dir_prune_config() : array {
 		$config = [
 			'prune'      => [
-				// `.gitignore`, except `/vendor`, which we keep in final distros.
-				U\Fs::gitignore_regexp_lookahead( 'positive', null, [ 'vendor' => false ] ),
-
 				// All dotfiles.
-				'/(?:^|.+\/)\./ui',
+				'dot_paths'           => '/(?:^|.+\/)\./ui',
+
+				// `.gitignore`, except `/vendor`, which we keep in final distros.
+				'gitignore'           => U\Fs::gitignore_regexp_lookahead( 'positive', null, [ 'vendor' => false ] ),
 
 				// All of these project config paths.
-				'/(?:^|.+\/)[^\/]+?\.(?:cjs|cts|xml|yml|yaml|json5?|neon|dist|lock)$/ui',
-				'/(?:^|.+\/)(?:babel|gulpfile|gruntfile)(?:\.(?:esm))?\.(?:jsx?|tsx?)$/ui',
-				'/(?:^|.+\/)[^\/]+?\.(?:cfg|config|babel)\.(?:jsx?|tsx?)$/ui',
+				'project_cfg_files'   => '/(?:^|.+\/)[^\/]+\.(?:cjs|cts|xml|yml|yaml|json5?|neon|dist|lock)$/ui',
+				'project_cfg_files/2' => '/(?:^|.+\/)(?:babel|gulpfile|gruntfile)(?:\.(?:esm))?\.(?:jsx?|tsx?)$/ui',
+				'project_cfg_files/3' => '/(?:^|.+\/)[^\/]+\.(?:cfg|config|babel)\.(?:jsx?|tsx?)$/ui',
 
 				// All of these project source-only paths.
-				'/(?:^|.+\/)[^\/]+?\.(?:jsx|tsx?)$/ui',
+				'source_only_files'   => '/(?:^|.+\/)[^\/]+\.(?:jsx|tsx?)$/ui',
 
 				// All of these project bin paths.
-				'/(?:^|.+\/)(?:bin)(?:$|\/)/ui',
-				'/(?:^|.+\/)[^\/]+?\.(?:exe|bat|sh|bash|zsh)$/ui',
+				'project_bin_dirs'    => '/(?:^|.+\/)(?:bin)(?:$|\/)/ui',
+				'project_bin_files'   => '/(?:^|.+\/)[^\/]+\.(?:exe|bat|sh|bash|zsh)$/ui',
 
 				// All of these arbitrary archive paths.
-				'/(?:^|.+\/)[^\/]+?\.(?:iso|dmg|bz2|7z|zip|sketch|app|tar|tgz|gz|phar)$/ui',
+				'archive_files'       => '/(?:^|.+\/)[^\/]+\.(?:iso|dmg|bz2|7z|zip|sketch|app|tar|tgz|gz|phar)$/ui',
 
 				// All of these project test paths.
-				'/(?:^|.+\/)(?:tests?|test[_\-]files?|phpunit(?:[_\-]tests?)?)(?:$|\/)/ui',
+				'test_dirs'           => '/(?:^|.+\/)(?:tests?|test[_\-]files?|phpunit(?:[_\-]tests?)?)(?:$|\/)/ui',
 
 				// All of these project doc paths.
-				'/(?:^|.+\/)(?:docs?|api[_\-]docs?|examples?|benchmarks?)(?:$|\/)/ui',
+				'doc_dirs'            => '/(?:^|.+\/)(?:docs?|api[_\-]docs?|examples?|benchmarks?)(?:$|\/)/ui',
 
 				// All of these project build paths.
-				'/(?:^|.+\/)(?:builds?|make(?:files?)?)(?:$|\/)/ui',
+				'build_dirs'          => '/(?:^|.+\/)(?:builds?)(?:$|\/)/ui',
+				'build_files'         => '/(?:^|.+\/)(?:make(?:files?)?)$/ui',
 
 				// All of these project dev-only paths.
-				'/(?:^|.+\/)(?:ci|dev|dev[_\-]ops?|dev[_\-]?only)(?:$|\/)/ui',
+				'dev_only_dirs'       => '/(?:^|.+\/)(?:ci|dev|dev[_\-]ops?|dev[_\-]?only)(?:$|\/)/ui',
 
-				// All of these project package paths.
-				'/(?:^|.+\/)(?:node[_\-]modules|jspm[_\-]packages|bower[_\-]components)(?:$|\/)/ui',
+				// All of these project package paths. Note that we're keeping `vendor`.
+				'package_dirs'        => '/(?:^|.+\/)(?:node[_\-]modules|jspm[_\-]packages|bower[_\-]components)(?:$|\/)/ui',
 			],
 			'exceptions' => [
-				'/(?:^|.+\/)vendor(?:$|\/)/ui',
-				'/(?:^|.+\/)\.htaccess$/ui',
-				'/(?:^|.+\/)web\.config$/ui',
+				'web_server_cfg_files' => '/(?:^|.+\/)(?:\.htaccess|web\.config)$/ui',
 			],
 		];
 		if ( $this->is_wp_project() ) {
 			$config[ 'prune' ] = array_merge( $config[ 'prune' ], [
 				// The root directory of a WP project is dev-only.
-				// We still keep `trunk/vendor`. This is a root exclusion only.
-				'/^vendor(?:$|\/)/ui',
-				'/^readme\.(?:md|txt|rtf)$/ui',
+				'package_dirs/root_vendor_dir' => '/^vendor(?:$|\/)/ui',
+				'doc_files/root_doc_files'     => '/^[^\/]+\.(?:txt|rtf|md|html?)$/ui',
 			] );
 		}
 		return $config;
