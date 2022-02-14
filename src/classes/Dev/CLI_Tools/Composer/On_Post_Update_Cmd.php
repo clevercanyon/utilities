@@ -500,7 +500,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			$comp_dir,
 			$comp_dir_prune_config[ 'prune' ],
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
-				'/^vendor\/composer$/ui',
+				'/^vendor\/composer($|.+)$/ui',
 				'/(?:^|.+?\/)composer\.(?:json|lock)$/ui',
 			] ),
 		) ) {
@@ -518,7 +518,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
 				'/^tests$/u',
 				'/^tests\/classes\/Tests$/u',
-				'/^vendor\/composer$/ui',
+				'/^vendor\/composer($|.+)$/ui',
 				'/(?:^|.+?\/)composer\.(?:json|lock)$/ui',
 			] ),
 		) ) {
@@ -575,7 +575,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		// This prunes everything in `.gitignore`, except `vendor`, `tests`. This time, including `composer.json|lock` files.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
 
-		/*if ( ! U\Dir::prune(
+		if ( ! U\Dir::prune(
 			$distro_tests_dir,
 			$comp_dir_prune_config[ 'prune' ],
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
@@ -585,7 +585,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		) ) {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/distro-tests`.' );
 		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $distro_tests_dir . '`.' );*/
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $distro_tests_dir . '`.' );
 	}
 
 	/**
