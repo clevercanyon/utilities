@@ -79,7 +79,7 @@ final class Str_Var_Tests extends UT\A6t\Tests {
 	 * @covers ::to_brand_var()
 	 */
 	public function test_to_brand_var() : void {
-		$this->assertSame( 'my_brand_my_var', U\Str::to_brand_var( 'My Brand:my\\var' ), $this->message() );
+		$this->assertSame( 'my_brand_my_var', U\Str::to_brand_var( 'My Brand:my\\var\\' ), $this->message() );
 		$this->assertSame( 'my_brand_my_var', U\Str::to_brand_var( '_~My Brand--my\\var--' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting', U\Str::to_brand_var( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting', U\Str::to_brand_var( '- acme™™   broadcasting ' ), $this->message() );
@@ -125,7 +125,7 @@ final class Str_Var_Tests extends UT\A6t\Tests {
 	 * @covers ::to_brand_var_prefix()
 	 */
 	public function test_to_brand_var_prefix() : void {
-		$this->assertSame( 'my_brand_my_var_', U\Str::to_brand_var_prefix( 'My Brand:my\\var' ), $this->message() );
+		$this->assertSame( 'my_brand_my_var_', U\Str::to_brand_var_prefix( 'My Brand:my\\var\\' ), $this->message() );
 		$this->assertSame( 'my_brand_my_var_', U\Str::to_brand_var_prefix( '_~My Brand--my\\var--' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting_', U\Str::to_brand_var_prefix( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting_', U\Str::to_brand_var_prefix( '- acme™™   broadcasting ' ), $this->message() );
@@ -179,7 +179,7 @@ final class Str_Var_Tests extends UT\A6t\Tests {
 	 * @covers ::to_lede_var_prefix()
 	 */
 	public function test_to_lede_var_prefix() : void {
-		$this->assertSame( 'my_brand_my_var_x_', U\Str::to_lede_var_prefix( 'My Brand:my\\var' ), $this->message() );
+		$this->assertSame( 'my_brand_my_var_x_', U\Str::to_lede_var_prefix( 'My Brand:my\\var\\' ), $this->message() );
 		$this->assertSame( 'my_brand_my_var_x_', U\Str::to_lede_var_prefix( '_~My Brand--my\\var--' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting_x_', U\Str::to_lede_var_prefix( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting_x_', U\Str::to_lede_var_prefix( '- acme™™   broadcasting ' ), $this->message() );
@@ -238,7 +238,7 @@ final class Str_Var_Tests extends UT\A6t\Tests {
 	 * @covers ::to_lede_var()
 	 */
 	public function test_to_lede_var() : void {
-		$this->assertSame( 'my_brand_my_var', U\Str::to_lede_var( 'My Brand:my\\var' ), $this->message() );
+		$this->assertSame( 'my_brand_my_var', U\Str::to_lede_var( 'My Brand:my\\var\\' ), $this->message() );
 		$this->assertSame( 'my_brand_my_var', U\Str::to_lede_var( '_~My Brand__my\\var__' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting', U\Str::to_lede_var( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting', U\Str::to_lede_var( '- acme™™   broadcasting ' ), $this->message() );
@@ -323,7 +323,7 @@ final class Str_Var_Tests extends UT\A6t\Tests {
 	 * @covers ::to_var_prefix()
 	 */
 	public function test_to_var_prefix() : void {
-		$this->assertSame( 'my_brand_my_var_x_', U\Str::to_var_prefix( 'My Brand:my\\var' ), $this->message() );
+		$this->assertSame( 'my_brand_my_var_x_', U\Str::to_var_prefix( 'My Brand:my\\var\\' ), $this->message() );
 		$this->assertSame( 'my_brand_my_var_x_', U\Str::to_var_prefix( '_~My Brand--my\\var--' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting_x_', U\Str::to_var_prefix( 'acme  broadcasting' ), $this->message() );
 		$this->assertSame( 'acme_broadcasting_x_', U\Str::to_var_prefix( '- acme™™   broadcasting ' ), $this->message() );
