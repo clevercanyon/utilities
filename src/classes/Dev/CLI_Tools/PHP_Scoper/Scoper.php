@@ -105,7 +105,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 					'output-project-dir-entry-file' => [
 						'optional'    => true,
 						'multiple'    => true,
-						'description' => 'Output project directory entry files; e.g., `--output-project-dir-entry-file [output-dir]/.trunk.php --output-project-dir-entry-file [output-dir]/trunk/plugin.php`.',
+						'description' => 'Output project directory entry files; e.g., `--output-project-dir-entry-file [output-dir]/trunk/plugin.php`.',
 						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'file' ] ) )
 							&& preg_match( '/\/\._[^\/]*\//u', $abs_path )
 							&& preg_match( '/\.php$/ui', $abs_path ),
