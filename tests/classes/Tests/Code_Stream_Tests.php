@@ -53,14 +53,14 @@ final class Code_Stream_Tests extends UT\A6t\Tests {
 		$code_stream_closure = new U\Code_Stream_Closure(
 			<<<'ooo'
 			function() {
-				return U\Env::sys_name();
+				return gethostname();
 			};
 			ooo
 		);
 		$code_stream_closure = U\Str::serialize( $code_stream_closure );
 		$code_stream_closure = U\Str::unserialize( $code_stream_closure );
 
-		$this->assertSame( U\Env::sys_name(), $code_stream_closure->call(), $this->message() );
+		$this->assertSame( gethostname(), $code_stream_closure->call(), $this->message() );
 		$this->assertSame( \Closure::class, get_class( $code_stream_closure->get() ), $this->message() );
 		$this->assertSame( \Closure::class, get_class( $code_stream_closure->get_closure() ), $this->message() );
 	}
