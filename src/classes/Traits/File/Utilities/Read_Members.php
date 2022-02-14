@@ -75,7 +75,7 @@ trait Read_Members {
 		}
 		if ( $throw_on_failure ) {
 			throw new U\Fatal_Exception(
-				'Failed to read contents of: `' . basename( $file ) . '`.' .
+				'Failed to read contents of: `' . $file . '`.' .
 				' Have filesystem permissions changed?'
 			);
 		}
@@ -109,7 +109,7 @@ trait Read_Members {
 	/**
 	 * Reads and decodes a JSON file.
 	 *
-	 * @since 2021-12-19
+	 * @since        2021-12-19
 	 *
 	 * @param string $file             File path to read from.
 	 * @param bool   $throw_on_failure Throw exceptions on failure? Default is `true`.
@@ -117,20 +117,62 @@ trait Read_Members {
 	 * @return mixed Decoded JSON value in a PHP data type; else `null` on failure.
 	 *
 	 *               * It's also possible for a JSON-decoded value to itself be a `null` value.
-	 *                 Unfortunately, there really is no way of detecting the difference at this time.
-	 *                 It's generally not a good idea to JSON-encode `null`. This is one of the reasons.
 	 *
-	 * @throws U\Fatal_Exception On read failure; if `$throw_on_failure` is `true`.
+	 *                 * If `$throw_on_failure` is `true`, a `null` return value will indicate success.
+	 *                   In other words, it indicates the JSON-encoded value was in fact `null`. Not a decoding issue.
 	 *
-	 *                           * An exception will *not* be thrown if JSON decoding fails.
-	 *                             Callers should handle a `null` return value appropriately.
+	 *                 * If `$throw_on_failure` is `false`, there is no way of detecting the difference at this time.
+	 *                   It's generally not a good idea to JSON-encode `null`. This is one of the reasons.
+	 *
+	 * @throws U\Fatal_Exception On read|decode failure; if `$throw_on_failure` is `true`.
+	 *
+	 * @noinspection PhpRedundantCatchClauseInspection
 	 */
 	public static function read_json( string $file, bool $throw_on_failure = true ) /* : mixed */ {
 		$contents = U\File::read( $file, $throw_on_failure );
 
-		if ( null === $contents ) {
-			return null; // Not possible.
+		if ( null !== $contents ) {
+			try { // Possible `null` return value; but it's OK if no exception.
+				return U\Str::json_decode( $contents, null, 512, JSON_THROW_ON_ERROR );
+			} catch ( \JsonException $exception ) {
+				// Fall through to below.
+			}
 		}
-		return json_decode( $contents ); // `null` on failure.
+		if ( $throw_on_failure ) {
+			throw new U\Fatal_Exception(
+				'Failed to read JSON from: `' . $file . '`.' .
+				' Does the JSON file contain valid syntax?'
+			);
+		}
+		return null;
+	}
+
+	/**
+	 * Reads and decodes an object in a JSON file.
+	 *
+	 * @since        2021-12-19
+	 *
+	 * @param string $file             File path to read from.
+	 * @param bool   $throw_on_failure Throw exceptions on failure? Default is `true`.
+	 *
+	 * @return object|null Decoded JSON object; else `null` on failure.
+	 *
+	 * @throws U\Fatal_Exception On read|decode failure; if `$throw_on_failure` is `true`.
+	 */
+	public static function read_json_obj( string $file, bool $throw_on_failure = true ) /* : object|null */ : ?object {
+		$contents = U\File::read( $file, $throw_on_failure );
+
+		if ( null !== $contents ) {
+			if ( is_object( $obj = U\Str::json_decode( $contents ) ) ) {
+				return $obj; // Success.
+			}
+		}
+		if ( $throw_on_failure ) {
+			throw new U\Fatal_Exception(
+				'Failed to read JSON object from: `' . $file . '`.' .
+				' Does the JSON file contain valid syntax?'
+			);
+		}
+		return null;
 	}
 }

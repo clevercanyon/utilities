@@ -421,6 +421,9 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		$comp_dir   = U\Dir::join( $this->project->dir, '/._x/comp' );
 		$distro_dir = U\Dir::join( $this->project->dir, '/._x/distro' );
 
+		$comp_tests_dir   = U\Dir::join( $this->project->dir, '/._x/comp-tests' );
+		$distro_tests_dir = U\Dir::join( $this->project->dir, '/._x/distro-tests' );
+
 		// Copies project directory into `._x/comp`.
 		// This copy ignores everything in `.gitignore`, and nothing else.
 		// For further details {@see Project::comp_dir_copy_config()}.
@@ -435,8 +438,22 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $this->project->dir . '`' . "\n" . ' →  `' . $comp_dir . '`.' );
 
+		// Copies `._x/comp` directory into `._x/comp-tests`.
+		// This is simply an additional copy of what we just copied.
+		// Should take less time, because now there is nothing to ignore.
+
+		if ( ! U\Fs::copy(
+			$comp_dir,
+			$comp_tests_dir,
+			$comp_dir_copy_config[ 'ignore' ],
+			$comp_dir_copy_config[ 'exceptions' ]
+		) ) {
+			throw new U\Fatal_Exception( 'Failed to create `./._x/comp-tests`.' );
+		}
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $comp_dir . '`' . "\n" . ' →  `' . $comp_tests_dir . '`.' );
+
 		// Installs composer dependencies in `._x/comp`.
-		// We didn't ignore `composer.json` when copying, so it's available.
+		// Good that we didn't ignore `composer.json|lock` when copying.
 		// The autoloader is optimized here, as we are compiling for production.
 
 		U\CLI::run( [
@@ -445,6 +462,35 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			[ '--optimize-autoloader', '--classmap-authoritative' ],
 		], $comp_dir );
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Ran `composer install` in: `' . $comp_dir . '`.' );
+
+		// Installs composer dependencies in `._x/comp-tests`.
+		// Good that we didn't ignore `composer.json|lock` when copying.
+		// This locates a PSR-4 `\Tests\$` prefix in `autoload-dev` and copies it to the `autoload` prop.
+		// This way it's possible to run `composer install --no-dev`, but still get autoloading for tests.
+		// The autoloader is optimized here, as we are compiling for pseudo-production tests.
+
+		$comp_tests_composer_json_file = U\Dir::join( $comp_tests_dir, '/composer.json' );
+		$comp_tests_composer_json      = U\File::read_json_obj( $comp_tests_composer_json_file );
+
+		if ( isset( $comp_tests_composer_json->{'autoload-dev'}->{'psr-4'} ) ) {
+			foreach ( $comp_tests_composer_json->{'autoload-dev'}->{'psr-4'} as $_prefix => $_dir ) {
+				if ( U\Str::ends_with( $_prefix, '\\Tests\\' ) ) {
+					$comp_tests_composer_json->{'autoload'}                        ??= (object) [];
+					$comp_tests_composer_json->{'autoload'}->{'psr-4'}             ??= (object) [];
+					$comp_tests_composer_json->{'autoload'}->{'psr-4'}->{$_prefix} = $_dir;
+				}
+			}
+			U\File::write(
+				$comp_tests_composer_json_file,
+				U\Str::json_encode( $comp_tests_composer_json )
+			);
+		}
+		U\CLI::run( [
+			[ 'composer', 'install' ],
+			[ '--profile', '--no-dev', '--no-scripts', '--no-plugins' ],
+			[ '--optimize-autoloader', '--classmap-authoritative' ],
+		], $comp_tests_dir );
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Ran `composer install` in: `' . $comp_tests_dir . '`.' );
 
 		// Prunes the `./._x/comp` directory, which speeds up remaining tasks.
 		// This prunes everything in `.gitignore`, except: `vendor`, `composer.json`.
@@ -460,6 +506,22 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp`.' );
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_dir . '`.' );
+
+		// Prunes the `./._x/comp-tests` directory, which speeds up remaining tasks.
+		// This prunes everything in `.gitignore`, except: `vendor`, `tests`, `composer.json`.
+		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
+
+		if ( ! U\Dir::prune(
+			$comp_tests_dir,
+			$comp_dir_prune_config[ 'prune' ],
+			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
+				'/^tests$/ui',
+				'/(?:^|.+?\/)composer\.json$/ui',
+			] ),
+		) ) {
+			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp-tests`.' );
+		}
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_tests_dir . '`.' );
 
 		// Runs PHP Scoper on full `._x/comp` directory; outputting to `._x/distro`.
 		// PHP Scoper ignores files based on Finders in the `.scoper.cfg.php` file.
@@ -480,17 +542,19 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		] );
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $comp_dir . '`' . "\n" . ' →  `' . $distro_dir . '`.' );
 
-		if ( is_dir( $this->project->dir . '/tests' ) ) {
-			U\CLI::run( [
-				[ 'composer', 'exec', '--profile', '--', 'php-scoper', 'add-prefix' ],
-				[ '--force', '--no-interaction', '--stop-on-failure' ],
-				[ '--config', U\Dir::join( $this->project->dir, '/.scoper.cfg.php' ) ],
-				[ '--prefix', $this->project->namespace_scope ],
-				[ '--output-dir', $distro_dir . '-tests' ],
-				[ $this->project->dir . '/tests' ],
-			], $this->project->dir );
-			U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $this->project->dir . '/tests`' . "\n" . ' →  `' . $distro_dir . '-tests`.' );
-		}
+		// Runs PHP Scoper on full `._x/comp-tests` directory; outputting to `._x/distro-tests`.
+		// We're simply doing the very same thing again. This time for the `._x/distro-tests` directory.
+
+		U\CLI::run( [
+			[ $scoper_bin_script, 'scope' ],
+			[ '--project-dir', $this->project->dir ],
+			[ '--work-dir', $comp_tests_dir ],
+			[ '--prefix', $this->project->namespace_scope ],
+			[ '--output-dir', $distro_tests_dir ],
+			[ '--output-project-dir', $distro_tests_dir ],
+		] );
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $comp_tests_dir . '`' . "\n" . ' →  `' . $distro_tests_dir . '`.' );
+
 		// Prunes the `./._x/distro` directory now.
 		// This prunes everything in `.gitignore`, except `vendor`. This time, including `composer.json` files.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
@@ -503,6 +567,21 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/distro`.' );
 		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $distro_dir . '`.' );
+
+		// Prunes the `./._x/distro-tests` directory now.
+		// This prunes everything in `.gitignore`, except `vendor`, `tests`. This time, including `composer.json` files.
+		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
+
+		if ( ! U\Dir::prune(
+			$distro_tests_dir,
+			$comp_dir_prune_config[ 'prune' ],
+			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
+				'/^tests$/ui',
+			] ),
+		) ) {
+			throw new U\Fatal_Exception( 'Failed to prune `./._x/distro-tests`.' );
+		}
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $distro_tests_dir . '`.' );
 	}
 
 	/**
