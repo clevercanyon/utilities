@@ -194,7 +194,7 @@ final class Fs_Tests extends UT\A6t\Tests {
 			[ 'c:/foo/bar' => 'C:\\foo\\bar\\\\' ],
 
 			[ 'c:/foo:/bar/baz' => 'C:\\foo:\\\\bar\\baz\\' ],
-			[ 'c:/foo:/bar/baz®' => 'C:\\foo:\\\\bar\\baz\\®' ],
+			[ 'c:/foo:/bar/baz/®' => 'C:\\foo:\\\\bar\\baz\\®' ],
 			[ 'c:/foo:/bar/baz' => 'C:\\foo:\\\\bar\\baz\\\\' ],
 
 			// A wrapper is invalid if it contains invalid chars?
@@ -398,10 +398,10 @@ final class Fs_Tests extends UT\A6t\Tests {
 			[ 'c:' => 'C:\\//\\\\foo' ],
 			[ 'c:' => 'C:\\//\\//\\foo' ],
 
-			[ 'c:' => 'C:\\foo\\bar\\foo' ],
-			[ 'c:' => 'C:\\foo\\\\bar\\\\foo' ],
+			[ 'c:' => 'C:\\foo\\bar\\foo\\' ],
+			[ 'c:' => 'C:\\foo\\\\bar\\\\foo\\' ],
 
-			[ 'c:' => 'C:\\foo/\\/bar/\\/foo' ],
+			[ 'c:' => 'C:\\foo/\\/bar/\\/foo\\' ],
 			[ 'c:' => 'C:\\foo//\\//\\bar//\\//\\//foo' ],
 
 			// CaSe of wrappers is always lowercase?
@@ -409,8 +409,8 @@ final class Fs_Tests extends UT\A6t\Tests {
 			[ 'foo://' => 'fOo://foo' ],
 			[ 'foo://' => 'Foo://foo' ],
 
-			[ 'c:' => 'C:\\foo\\bar\\foo' ],
-			[ 'c:' => 'c:\\foo\\\\bar\\\\foo' ],
+			[ 'c:' => 'C:\\foo\\bar\\foo\\' ],
+			[ 'c:' => 'c:\\foo\\\\bar\\\\foo\\' ],
 
 			// UTF-8 characters preserved?
 
