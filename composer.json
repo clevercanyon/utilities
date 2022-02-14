@@ -83,10 +83,16 @@
 				},
 				"php_scoper"              : {
 					"cfg" : {
-						"exclude-files"     : [ ],
-						"exclude-constants" : [ ],
-						"exclude-classes"   : [ ],
-						"exclude-functions" : [ ]
+						"expose-namespaces"  : [ ],
+						"expose-constants"   : [ ],
+						"expose-classes"     : [ ],
+						"expose-functions"   : [ ],
+
+						"exclude-namespaces" : [ ],
+						"exclude-constants"  : [ ],
+						"exclude-classes"    : [ ],
+						"exclude-functions"  : [ ],
+						"exclude-files"      : [ ]
 					}
 				},
 				"post_update_cmd_handler" : {

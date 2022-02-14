@@ -155,10 +155,6 @@ final class Config_File extends U\A6t\CLI_Tool {
 		$exclude_files = $this->compile_exclude_files();
 		$exclude_names = $this->compile_exclude_names();
 
-		sort( $exclude_names->constants, SORT_NATURAL );
-		sort( $exclude_names->classes, SORT_NATURAL );
-		sort( $exclude_names->functions, SORT_NATURAL );
-
 		$headers = <<<'ooo'
 		<?php
 		/**
@@ -172,6 +168,8 @@ final class Config_File extends U\A6t\CLI_Tool {
 		 * Instead of editing, please configure `composer.json`. See instructions below.
 		 * Instead of editing, please create `.scoper.prj.cfg.php`, which can also be merged in.
 		 * Instead of editing, please review source repository {@see https://o5p.me/LevQOD}.
+		 *
+		 * @see https://github.com/humbug/php-scoper/blob/master/docs/configuration.md
 		 *
 		 * @since 1.0.0
 		 * @noinspection ALL
@@ -238,10 +236,16 @@ final class Config_File extends U\A6t\CLI_Tool {
 				'expose-global-classes'   => false,
 				'expose-global-functions' => false,
 
-				'exclude-files'     => $exclude_files,
-				'exclude-constants' => $exclude_names->constants,
-				'exclude-classes'   => $exclude_names->classes,
-				'exclude-functions' => $exclude_names->functions,
+				'expose-namespaces' => [], // Supports regexp.
+				'expose-constants'  => [], // Supports regexp.
+				'expose-classes'    => [], // Supports regexp.
+				'expose-functions'  => [], // Supports regexp.
+
+				'exclude-namespaces' => $exclude_names->namespaces, // Supports regexp.
+				'exclude-constants'  => $exclude_names->constants,  // Supports regexp.
+				'exclude-classes'    => $exclude_names->classes,    // Supports regexp.
+				'exclude-functions'  => $exclude_names->functions,  // Supports regexp.
+				'exclude-files'      => $exclude_files,             // Relative to config file.
 			], true ) . ';' . "\n";
 		$body .= '$cfg[ \'patchers\' ] = [ ' . $patchers . ' ];' . "\n";
 
@@ -251,19 +255,33 @@ final class Config_File extends U\A6t\CLI_Tool {
 			$prj_cfg = is_array( $prj_cfg = json_decode( $prj_cfg, true ) ) ? $prj_cfg : [];
 			$prj_cfg = $prj_cfg['extra']['clevercanyon']['&']['php_scoper']['cfg'] ?? [];
 			$cfg     = array_merge( $cfg, $prj_cfg, [
-				'exclude-files'     => array_merge( $cfg['exclude-files'], $prj_cfg['exclude-files'] ?? [] ),
-				'exclude-constants' => array_merge( $cfg['exclude-constants'], $prj_cfg['exclude-constants'] ?? [] ),
-				'exclude-classes'   => array_merge( $cfg['exclude-classes'], $prj_cfg['exclude-classes'] ?? [] ),
-				'exclude-functions' => array_merge( $cfg['exclude-functions'], $prj_cfg['exclude-functions'] ?? [] ),
+				'expose-namespaces'  => array_merge( $cfg['expose-namespaces'], $prj_cfg['expose-namespaces'] ?? [] ),
+				'expose-constants'   => array_merge( $cfg['expose-constants'], $prj_cfg['expose-constants'] ?? [] ),
+				'expose-classes'     => array_merge( $cfg['expose-classes'], $prj_cfg['expose-classes'] ?? [] ),
+				'expose-functions'   => array_merge( $cfg['expose-functions'], $prj_cfg['expose-functions'] ?? [] ),
+
+				'exclude-namespaces' => array_merge( $cfg['exclude-namespaces'], $prj_cfg['exclude-namespaces'] ?? [] ),
+				'exclude-constants'  => array_merge( $cfg['exclude-constants'], $prj_cfg['exclude-constants'] ?? [] ),
+				'exclude-classes'    => array_merge( $cfg['exclude-classes'], $prj_cfg['exclude-classes'] ?? [] ),
+				'exclude-functions'  => array_merge( $cfg['exclude-functions'], $prj_cfg['exclude-functions'] ?? [] ),
+				'exclude-files'      => array_merge( $cfg['exclude-files'], $prj_cfg['exclude-files'] ?? [] ),
 			] );
 		}
 		if ( is_file( __DIR__ . '/.scoper.prj.cfg.php' ) ) {
 			$prj_cfg = require __DIR__ . '/.scoper.prj.cfg.php';
 			$cfg     = array_merge( $cfg, $prj_cfg, [
-				'exclude-files'     => array_merge( $cfg['exclude-files'], $prj_cfg['exclude-files'] ?? [] ),
-				'exclude-constants' => array_merge( $cfg['exclude-constants'], $prj_cfg['exclude-constants'] ?? [] ),
-				'exclude-classes'   => array_merge( $cfg['exclude-classes'], $prj_cfg['exclude-classes'] ?? [] ),
-				'exclude-functions' => array_merge( $cfg['exclude-functions'], $prj_cfg['exclude-functions'] ?? [] ),
+				'expose-namespaces'  => array_merge( $cfg['expose-namespaces'], $prj_cfg['expose-namespaces'] ?? [] ),
+				'expose-constants'   => array_merge( $cfg['expose-constants'], $prj_cfg['expose-constants'] ?? [] ),
+				'expose-classes'     => array_merge( $cfg['expose-classes'], $prj_cfg['expose-classes'] ?? [] ),
+				'expose-functions'   => array_merge( $cfg['expose-functions'], $prj_cfg['expose-functions'] ?? [] ),
+
+				'exclude-namespaces' => array_merge( $cfg['exclude-namespaces'], $prj_cfg['exclude-namespaces'] ?? [] ),
+				'exclude-constants'  => array_merge( $cfg['exclude-constants'], $prj_cfg['exclude-constants'] ?? [] ),
+				'exclude-classes'    => array_merge( $cfg['exclude-classes'], $prj_cfg['exclude-classes'] ?? [] ),
+				'exclude-functions'  => array_merge( $cfg['exclude-functions'], $prj_cfg['exclude-functions'] ?? [] ),
+				'exclude-files'      => array_merge( $cfg['exclude-files'], $prj_cfg['exclude-files'] ?? [] ),
+
+				'patchers'           => array_merge( $cfg['patchers'], $prj_cfg['patchers'] ?? [] ),
 			] );
 		}
 		return $cfg;
@@ -352,12 +370,12 @@ final class Config_File extends U\A6t\CLI_Tool {
 				U\CLI::log( '[' . __FUNCTION__ . '()]: Parsing: `' . $_stubs . '()`.' );
 				$traverser->traverse( $_parser->parse( $this->{$_stubs}() ) );
 			}
-			$exclude_names            = (object) (array) $visitor;
-			$exclude_names->classes[] = 'PHPUnit\\Framework\\TestCase';
+			$exclude_names = (object) (array) $visitor;
 
-			// @todo Consider a better way to exclude PHPUnit classes.
-			// Current approach is brittle, as it will not exclude anything else we might use.
-			// Also, in the event that we ship a project containing PHPUnit, this isn't going to work.
+			sort( $exclude_names->namespaces, SORT_NATURAL );
+			sort( $exclude_names->constants, SORT_NATURAL );
+			sort( $exclude_names->classes, SORT_NATURAL );
+			sort( $exclude_names->functions, SORT_NATURAL );
 
 			return $exclude_names;
 
@@ -405,6 +423,13 @@ final class Config_File extends U\A6t\CLI_Tool {
 	 */
 	protected function php_parser_node_visitor() : PhpParser\NodeVisitorAbstract {
 		return new class extends PhpParser\NodeVisitorAbstract {
+			/**
+			 * Namespaces array.
+			 *
+			 * @since 2022-01-02
+			 */
+			public array $namespaces = [ 'PHPUnit' ];
+
 			/**
 			 * Consts array.
 			 *
