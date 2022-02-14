@@ -493,14 +493,14 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Ran `composer install` in: `' . $comp_tests_dir . '`.' );
 
 		// Prunes the `./._x/comp` directory, which speeds up remaining tasks.
-		// This prunes everything in `.gitignore`, except: `vendor`, `composer.json`.
+		// This prunes everything in `.gitignore`, except: `vendor`, `composer.json|lock`.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
 
 		if ( ! U\Dir::prune(
 			$comp_dir,
 			$comp_dir_prune_config[ 'prune' ],
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
-				'/(?:^|.+?\/)composer\.json$/ui',
+				'/(?:^|.+?\/)composer\.(?:json|lock)$/ui',
 			] ),
 		) ) {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp`.' );
@@ -508,7 +508,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_dir . '`.' );
 
 		// Prunes the `./._x/comp-tests` directory, which speeds up remaining tasks.
-		// This prunes everything in `.gitignore`, except: `vendor`, `tests`, `composer.json`.
+		// This prunes everything in `.gitignore`, except: `vendor`, `tests`, `composer.json|lock`.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
 
 		if ( ! U\Dir::prune(
@@ -517,7 +517,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
 				'/^tests$/u',
 				'/^tests\/classes\/Tests$/u',
-				'/(?:^|.+?\/)composer\.json$/ui',
+				'/(?:^|.+?\/)composer\.(?:json|lock)$/ui',
 			] ),
 		) ) {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp-tests`.' );
@@ -557,7 +557,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Scoped: `' . $comp_tests_dir . '`' . "\n" . ' →  `' . $distro_tests_dir . '`.' );
 
 		// Prunes the `./._x/distro` directory now.
-		// This prunes everything in `.gitignore`, except `vendor`. This time, including `composer.json` files.
+		// This prunes everything in `.gitignore`, except `vendor`. This time, including `composer.json|lock` files.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
 
 		if ( ! U\Dir::prune(
@@ -570,10 +570,10 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $distro_dir . '`.' );
 
 		// Prunes the `./._x/distro-tests` directory now.
-		// This prunes everything in `.gitignore`, except `vendor`, `tests`. This time, including `composer.json` files.
+		// This prunes everything in `.gitignore`, except `vendor`, `tests`. This time, including `composer.json|lock` files.
 		// It also prunes a bunch of other things; {@see Project::comp_dir_prune_config()}.
 
-		/*if ( ! U\Dir::prune(
+		if ( ! U\Dir::prune(
 			$distro_tests_dir,
 			$comp_dir_prune_config[ 'prune' ],
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
@@ -582,7 +582,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			] ),
 		) ) {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/distro-tests`.' );
-		}*/
+		}
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $distro_tests_dir . '`.' );
 	}
 
