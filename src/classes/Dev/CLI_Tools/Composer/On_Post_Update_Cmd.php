@@ -500,7 +500,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			$comp_dir,
 			$comp_dir_prune_config[ 'prune' ],
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
-				'/(?:^|.+?\/)composer\.(?:json|lock)$/ui',
+				'/(?:^|.+?\/)composer(?:\.(?:json|lock))?$/ui',
 			] ),
 		) ) {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp`.' );
@@ -517,7 +517,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			array_merge( $comp_dir_prune_config[ 'exceptions' ], [
 				'/^tests$/u',
 				'/^tests\/classes\/Tests$/u',
-				'/(?:^|.+?\/)composer\.(?:json|lock)$/ui',
+				'/(?:^|.+?\/)composer(?:\.(?:json|lock))?$/ui',
 			] ),
 		) ) {
 			throw new U\Fatal_Exception( 'Failed to prune `./._x/comp-tests`.' );
