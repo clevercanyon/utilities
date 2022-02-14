@@ -139,10 +139,10 @@ final class Fs_Tests extends UT\A6t\Tests {
 			[ '/foo/bar' => '/foo/bar' ],
 			[ '/foo/bar' => '/foo//bar//' ],
 
-			[ '/foo/bar' => '\\foo\\bar' ],
+			[ '/foo/bar' => '\\foo\\bar\\' ],
 			[ '/foo/bar' => '\\foo\\\\bar\\\\' ],
 
-			[ '/foo/bar' => '\\foo\\bar' ],
+			[ '/foo/bar' => '\\foo\\bar\\' ],
 			[ '//foo/bar' => '//\\foo//\\\\//bar//\\\\' ],
 
 			[ 'c:/foo/bar' => 'C:\\foo\\bar\\' ],
@@ -171,7 +171,7 @@ final class Fs_Tests extends UT\A6t\Tests {
 			[ '/foo/bAr' => '/foo/bAr' ],
 			[ '/foo/Bar' => '/foo//Bar//' ],
 
-			[ '/foo/bar' => '\\foo\\bar' ],
+			[ '/foo/bar' => '\\foo\\bar\\' ],
 			[ '/Foo/bar' => '\\Foo\\\\bar\\\\' ],
 
 			[ 'c:/foo/bar' => 'C:\\foo\\bar\\' ],
@@ -334,7 +334,7 @@ final class Fs_Tests extends UT\A6t\Tests {
 			[ '' => '/foo/bar' ],
 
 			[ '' => '\\foo' ],
-			[ '' => '\\foo\\bar' ],
+			[ '' => '\\foo\\bar\\' ],
 			[ '' => '\\foo\\\\bar\\\\' ],
 
 			[ 'c:' => 'C:/foo' ],
