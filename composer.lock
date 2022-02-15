@@ -804,12 +804,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/utilities-dev.git",
-                "reference": "7554f48873d055232704985badd544f24a4c014e"
+                "reference": "83f7ed729cd63ed1c76006cfa2c74edb92e55d93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/utilities-dev/zipball/7554f48873d055232704985badd544f24a4c014e",
-                "reference": "7554f48873d055232704985badd544f24a4c014e",
+                "url": "https://api.github.com/repos/clevercanyon/utilities-dev/zipball/83f7ed729cd63ed1c76006cfa2c74edb92e55d93",
+                "reference": "83f7ed729cd63ed1c76006cfa2c74edb92e55d93",
                 "shasum": ""
             },
             "require": {
@@ -820,7 +820,6 @@
                 "ext-intl": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "ext-posix": "*",
                 "ext-session": "*",
                 "ext-zip": "*",
                 "humbug/php-scoper": "dev-master",
@@ -833,7 +832,8 @@
                 "ulrichsg/getopt-php": "^4.0"
             },
             "suggest": {
-                "ext-memcached": "*"
+                "ext-memcached": "*",
+                "ext-posix": "*"
             },
             "default-branch": true,
             "type": "library",
@@ -853,7 +853,7 @@
                 "issues": "https://github.com/clevercanyon/utilities-dev/issues",
                 "source": "https://github.com/clevercanyon/utilities-dev/tree/main"
             },
-            "time": "2022-02-15T00:15:44+00:00"
+            "time": "2022-02-15T00:17:13+00:00"
         },
         {
             "name": "clevercanyon/utilities-dev-npm",
