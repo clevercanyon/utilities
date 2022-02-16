@@ -9,14 +9,19 @@
 		".linariarc.cjs",
 		".npmignore",
 		".phpcs.xml",
-		".phpunit.xml",
 		".phpunit-distro.xml",
+		".phpunit.xml",
 		".postcssrc.cjs",
 		".prettierrc.cjs",
 		".scoper.cfg.php",
+		".scoper.prj.cfg.php",
 		".stylelintrc.cjs",
 		".tailwindrc.cjs",
 		".webpack.cjs",
+		".wp-docker.prj.sh",
+		".wp-docker.prj.yml",
+		".wp-docker.sh",
+		".wp-docker.yml",
 		"package.json"
 	]
 }

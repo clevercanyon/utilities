@@ -40,19 +40,26 @@ trait Prepare_CMD_Members {
 	 *
 	 * @since 2022-01-09
 	 *
-	 * @param array       $args Command arguments (unquoted/unescaped).
-	 *                          This array can have multiple dimensions, which will be flattened here.
+	 * @param array       $args         Command arguments (unquoted/unescaped).
+	 *                                  This array can have multiple dimensions, which will be flattened here.
 	 *
-	 * @param string|null $dir  Current working directory. Defaults to `null` value.
+	 * @param string|null $redirections Any redirections; e.g., `&>/dev/null`, `&>/dev/null &`.
+	 *
+	 * @param string|null $dir          Current working directory. Defaults to `null` value.
 	 *
 	 * @return string Escaped/quoted command string.
 	 */
-	public static function prepare_cmd( array $args, /* string|null */ ?string $dir = null ) : string {
+	public static function prepare_cmd(
+		array $args,
+		/* string|null */ ?string $redirections = null,
+		/* string|null */ ?string $dir = null
+	) : string {
 		$args = U\Arr::flatten( $args );
 		$args = array_map( 'strval', $args );
 
 		$cmd = $dir ? 'cd ' . U\Str::esc_shell_arg( $dir ) . ' && ' : '';
 		$cmd .= implode( ' ', array_map( [ U\Str::class, 'esc_shell_arg' ], $args ) );
+		$cmd .= $redirections ? ' ' . $redirections : '';
 
 		return $cmd;
 	}

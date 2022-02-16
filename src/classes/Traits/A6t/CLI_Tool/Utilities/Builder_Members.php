@@ -95,11 +95,12 @@ trait Builder_Members {
 	 */
 	protected function build_operands( array $_operands ) : array {
 		foreach ( $_operands as $_operand => $_config ) {
-			$_multiple  = $_config[ 'multiple' ] ?? null;
-			$_required  = $_config[ 'required' ] ?? null;
-			$_optional  = $_config[ 'optional' ] ?? null;
-			$_validator = $_config[ 'validator' ] ?? null;
-			$_default   = $_config[ 'default' ] ?? null;
+			$_multiple    = $_config[ 'multiple' ] ?? null;
+			$_required    = $_config[ 'required' ] ?? null;
+			$_optional    = $_config[ 'optional' ] ?? null;
+			$_description = $_config[ 'description' ] ?? null;
+			$_validator   = $_config[ 'validator' ] ?? null;
+			$_default     = $_config[ 'default' ] ?? null;
 
 			if ( $_multiple && ( $_required || false === $_optional ) ) {
 				$_mode = Operand::MULTIPLE | Operand::REQUIRED;
@@ -111,6 +112,7 @@ trait Builder_Members {
 				$_mode = Operand::OPTIONAL;
 			}
 			$operands[ $_operand ] = Operand::create( $_operand, $_mode );
+			$operands[ $_operand ]->setDescription( $_description ?? '' );
 			$operands[ $_operand ]->setValidation( $_validator ?: [ U\Func::class, 'noop_true' ] );
 
 			if ( $_multiple && ! isset( $_default ) ) {

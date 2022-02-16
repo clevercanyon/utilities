@@ -55,7 +55,8 @@
 		"phpunit"                       : "composer exec --profile -- phpunit --configuration ./.phpunit.xml --no-coverage",
 		"phpunit-coverage"              : "XDEBUG_MODE=coverage composer exec --profile -- phpunit --configuration ./.phpunit.xml",
 		"webpack"                       : "npx webpack --config ./.webpack.cjs",
-		"php-scoper-config-file-update" : "./dev/cli-tools/php-scoper/config-file update --project-dir ./"
+		"wp-docker"                     : "./dev/cli-tools/docker/wp",
+		"php-scoper-config-file-update" : "./dev/cli-tools/php-scoper/config-file update"
 	},
 	"extra"             : {
 		"clevercanyon" : {

@@ -58,7 +58,7 @@ final class CLI {
 	}
 
 	/**
-	 * Locatest nearest project directory to CLI script file.
+	 * Locates nearest project directory to CLI script file.
 	 *
 	 * The trick here is to start from the current CLI script file path (as it was called),
 	 * convert that path, which is likely relative, to an absolute path. Then look up the directory tree

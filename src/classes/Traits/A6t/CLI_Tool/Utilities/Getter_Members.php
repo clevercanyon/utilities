@@ -42,6 +42,22 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Getter_Members {
 	/**
+	 * Gets command (i.e., sub-command) name.
+	 *
+	 * This has to consider that not all CLI tools require sub-commands.
+	 * However, if you're calling this from within a sub-command handler,
+	 * then it's safe to assume that it isn't going to be empty.
+	 *
+	 * @since 2022-02-16
+	 *
+	 * @return string Command name; else empty string.
+	 */
+	protected function get_command_name() : string {
+		$command = $this->parser->getCommand();
+		return $command ? $command->getName() : '';
+	}
+
+	/**
 	 * Gets an option.
 	 *
 	 * @since 2021-12-15

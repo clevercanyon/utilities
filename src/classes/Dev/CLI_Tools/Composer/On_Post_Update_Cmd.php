@@ -303,8 +303,13 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			if ( is_file( $_to_path ) && ( ! is_readable( $_to_path ) || ! is_writable( $_to_path ) ) ) {
 				throw new U\Fatal_Exception( 'Unable to update existing dotfile: `' . $_to_path . '`.' );
 			}
-			switch ( $_from_subpath ) {
-				case 'package.json': // If exists, update. Do NOT overwrite.
+			switch ( true ) {
+				case ( (bool) preg_match( '/\.prj\./ui', $_from_subpath ) ):
+					if ( is_file( $_to_path ) ) {
+						break; // Do not update. Do NOT overwrite.
+					} // Please note this fallthrough to `default` case.
+
+				case ( 'package.json' === $_from_subpath ): // Update. Do NOT overwrite.
 					if ( is_file( $_to_path ) ) {
 						// Parse JSON objects.
 
@@ -363,7 +368,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 						U\CLI::log( '[' . __FUNCTION__ . '()]: Updated: `' . $_to_path . '`.' );
 						break; // We can stop here.
 
-					} // Please note the important fallthrough from above.
+					} // Please note this fallthrough to `default` case.
+
 				default: // Everything falls through unless there's a `break` above.
 					if ( ! U\Fs::copy( $_from_path, $_to_path ) ) {
 						throw new U\Fatal_Exception( 'Failed to setup dotfile: `' . $_to_path . '`.' );
