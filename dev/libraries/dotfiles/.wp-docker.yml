@@ -61,6 +61,9 @@
 #
 # $ crs wp-docker bash [container-short-alias];                       ... `sql`, `php`, `pma`, `nxp`, `nxc`
 # $ composer run-script wp-docker -- bash [container-short-alias];    ... `sql`, `php`, `pma`, `nxp`, `nxc`
+#
+# $ crs wp-docker bash --user root;                                   ... main `php` container w/ root access.
+# $ composer run-script wp-docker -- bash --user root;                ... main `php` container w/ root access.
 # ---------------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -181,7 +184,7 @@ services :
             HTTPS_METHOD                     : 'noredirect'                    # Does not redirect HTTP requests to HTTPS.
             HSTS                             : 'off'                           # Turn off since we aren't redirecting HTTP.
             SSL_POLICY                       : 'Mozilla-Modern'                # TLSv1.3+; {@see https://o5p.me/g1XbSB}.
-            VIRTUAL_HOST                     : '.${X_COMPOSE_PROJECT_SLUG}.wp' # Virtual host FQDN to be accessed by browser.
+            VIRTUAL_HOST                     : '.${X_COMPOSE_PROJECT_SLUG}.wp' # `.` at beginning matches exact name & wildcards.
             SELF_SIGNED_HOST                 : '${X_COMPOSE_PROJECT_SLUG}.wp'  # Root of `VIRTUAL_HOST` for wildcard SSL certs.
 
             # All of these get picked up by the WordPress core installer in `./.wp-docker.sh`.

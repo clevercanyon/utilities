@@ -31,6 +31,11 @@ if [[ ! -f /usr/local/bin/apache2-noop ]]; then
 fi;
 /usr/local/bin/docker-entrypoint.sh apache2-noop;
 
+# Maybe install `info.php` file for debugging.
+
+if [[ ! -f "${WORDPRESS_DIR}"/info.php ]]; then
+	echo '<?php phpinfo();' > "${WORDPRESS_DIR}"/info.php;
+fi;
 # Maybe install WP-CLI phar file.
 
 if [[ ! -f /usr/local/bin/wp ]]; then
