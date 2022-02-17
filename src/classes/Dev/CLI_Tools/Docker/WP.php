@@ -357,21 +357,26 @@ final class WP extends U\A6t\CLI_Tool {
 		if ( 'ci' === $this->get_option( 'variant' ) ) {
 			return; // Not applicable.
 		}
-		U\CLI::heading( 'MySQL Database' );
-		U\CLI::log( 'IP Address: ' . $this->get_container_ip( 'sql' ) );
-		U\CLI::log( 'Host      : ' . $this->get_container_fqdn( 'sql' ) );
-		U\CLI::output( 'PMA       : https://' . $this->get_container_fqdn( 'pma' ) );
+		U\CLI::output( 'MySQL Database' );
+		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'sql' ) );
+		U\CLI::log( 'Host                 : ' . $this->get_container_fqdn( 'sql' ) );
+		U\CLI::log( 'PMA                  : https://' . $this->get_container_fqdn( 'pma' ) );
+
 		U\CLI::new_line();
-		U\CLI::heading( 'Apache/PHPv' . $this->get_option( 'php-version' ) . '/WordPress' );
+
+		U\CLI::output( 'Apache/PHPv' . $this->get_option( 'php-version' ) . '/WordPress' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'php' ) );
 		U\CLI::log( 'Host                 : ' . $this->get_container_fqdn( 'php' ) );
 		U\CLI::log( 'Shell Access         : composer run-script wp-docker -- bash;' );
-		U\CLI::output( 'Project In Container : /x-host/project' );
+		U\CLI::log( 'Project In Container : /x-host/project' );
+
 		U\CLI::new_line();
-		U\CLI::heading( 'Nginx Proxy w/ HTTP & HTTPs Access' );
-		U\CLI::log( 'Wildcard SSL : *.' . $this->get_container_fqdn( 'nxp' ) );
-		U\CLI::log( 'http         : http://' . $this->get_container_fqdn( 'nxp' ) );
-		U\CLI::output( 'https     : https://' . $this->get_container_fqdn( 'nxp' ) );
+
+		U\CLI::output( 'Nginx Proxy w/ HTTP & HTTPs Access' );
+		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'nxp' ) );
+		U\CLI::log( 'Wildcard SSL         : *.' . $this->get_container_fqdn( 'nxp' ) );
+		U\CLI::log( 'http                 : http://' . $this->get_container_fqdn( 'nxp' ) );
+		U\CLI::log( 'https                : https://' . $this->get_container_fqdn( 'nxp' ) );
 	}
 
 	/**
@@ -437,7 +442,7 @@ final class WP extends U\A6t\CLI_Tool {
 		if ( 'up' === $command_name ) {
 			$new_etc_hosts_file_contents .= $sql_docker_ip . ' ' . $sql_docker_fqdn . "\n";
 			$new_etc_hosts_file_contents .= $php_docker_ip . ' ' . $php_docker_fqdn . "\n";
-			$new_etc_hosts_file_contents .= $pma_docker_ip . ' ' . $pma_docker_fqdn . "\n";
+			$new_etc_hosts_file_contents .= $nxp_docker_ip . ' ' . $pma_docker_fqdn . "\n";
 			$new_etc_hosts_file_contents .= $nxp_docker_ip . ' ' . $nxp_docker_fqdn . "\n";
 			$new_etc_hosts_file_contents .= $nxc_docker_ip . ' ' . $nxc_docker_fqdn . "\n";
 		}

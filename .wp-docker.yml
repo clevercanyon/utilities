@@ -176,13 +176,13 @@ services :
             - '${X_COMPOSE_PROJECT_SLUG}.wp:127.0.0.1'
         environment    :
             # Proxy configuration settings; {@see https://o5p.me/FKFB99}.
-            VIRTUAL_PORT                     : '80'                              # Virtual host for SSL proxy.
-            VIRTUAL_PROTO                    : 'http'                            # HTTP from proxy to origin.
-            HTTPS_METHOD                     : 'noredirect'                      # Does not redirect HTTP requests to HTTPS.
-            HSTS                             : 'off'                             # Turn off since we aren't redirecting HTTP.
-            SSL_POLICY                       : 'Mozilla-Modern'                  # TLSv1.3+; {@see https://o5p.me/g1XbSB}.
-            VIRTUAL_HOST                     : '*.${X_COMPOSE_PROJECT_SLUG}.wp' # Virtual host FQDN to be accessed by browser.
-            SELF_SIGNED_HOST                 : '${X_COMPOSE_PROJECT_SLUG}.wp'   # Root of `VIRTUAL_HOST` for wildcard SSL certs.
+            VIRTUAL_PORT                     : '80'                            # Virtual host for SSL proxy.
+            VIRTUAL_PROTO                    : 'http'                          # HTTP from proxy to origin.
+            HTTPS_METHOD                     : 'noredirect'                    # Does not redirect HTTP requests to HTTPS.
+            HSTS                             : 'off'                           # Turn off since we aren't redirecting HTTP.
+            SSL_POLICY                       : 'Mozilla-Modern'                # TLSv1.3+; {@see https://o5p.me/g1XbSB}.
+            VIRTUAL_HOST                     : '.${X_COMPOSE_PROJECT_SLUG}.wp' # Virtual host FQDN to be accessed by browser.
+            SELF_SIGNED_HOST                 : '${X_COMPOSE_PROJECT_SLUG}.wp'  # Root of `VIRTUAL_HOST` for wildcard SSL certs.
 
             # All of these get picked up by the WordPress core installer in `./.wp-docker.sh`.
             WORDPRESS_DB_HOST                : 'sql:3306'                       # Database container name:port.
@@ -250,11 +250,11 @@ services :
             - 'network'
         environment    :
             # Proxy configuration settings; {@see https://o5p.me/FKFB99}.
-            VIRTUAL_PORT     : '80'                                # Virtual host for SSL proxy.
-            VIRTUAL_PROTO    : 'http'                              # HTTP from proxy to origin.
-            HTTPS_METHOD     : 'redirect'                          # Redirect HTTP requests to HTTPS.
-            HSTS             : 'max-age=31536000'                  # Turn on, since we are redirecting.
-            SSL_POLICY       : 'Mozilla-Modern'                    # TLSv1.3+; {@see https://o5p.me/g1XbSB}.
+            VIRTUAL_PORT     : '80'                               # Virtual host for SSL proxy.
+            VIRTUAL_PROTO    : 'http'                             # HTTP from proxy to origin.
+            HTTPS_METHOD     : 'redirect'                         # Redirect HTTP requests to HTTPS.
+            HSTS             : 'max-age=31536000'                 # Turn on, since we are redirecting.
+            SSL_POLICY       : 'Mozilla-Modern'                   # TLSv1.3+; {@see https://o5p.me/g1XbSB}.
             VIRTUAL_HOST     : '${X_COMPOSE_PROJECT_SLUG}-pma.wp' # Virtual host FQDN to be accessed by browser.
             SELF_SIGNED_HOST : '${X_COMPOSE_PROJECT_SLUG}-pma.wp' # Same as `VIRTUAL_HOST`; wildcard SSL n/a here.
 
