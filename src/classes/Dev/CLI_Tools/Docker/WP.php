@@ -367,7 +367,7 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::output( 'Apache/PHPv' . $this->get_option( 'php-version' ) . '/WordPress' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'php' ) );
 		U\CLI::log( 'Host                 : ' . $this->get_container_fqdn( 'php' ) );
-		U\CLI::log( 'PHP Info             : https://' . $this->get_container_fqdn( 'php' ) . '/info.php' );
+		U\CLI::log( 'PHP Info             : http://' . $this->get_container_fqdn( 'php' ) . '/info.php' );
 		U\CLI::log( 'Shell Access         : composer run-script wp-docker -- bash;' );
 		U\CLI::log( 'Project In Container : /x-host/project' );
 

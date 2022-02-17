@@ -67,6 +67,7 @@ trait Current_Part_Members {
 		$is_https = // Any of these.
 			'443' === U\Env::server_port()
 			|| U\Bln::validate( U\Env::var( 'HTTPS' ) )
+			|| '443' === U\Env::var( 'HTTP_X_FORWARDED_PORT' )
 			|| 'https' === U\Env::var( 'HTTP_X_FORWARDED_PROTO' )
 			|| false !== mb_stripos( U\Env::var( 'HTTP_CF_VISITOR' ), '"scheme":"https"' )
 			|| ( U\Env::is_wordpress() && is_ssl() );

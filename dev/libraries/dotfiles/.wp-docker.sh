@@ -39,9 +39,16 @@ fi;
 # Maybe install WP-CLI phar file.
 
 if [[ ! -f /usr/local/bin/wp ]]; then
-	apt-get update; apt-get install curl;
+	apt-get update --yes; apt-get install curl --yes;
 	curl -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp;
 	chmod +x /usr/local/bin/wp; # Make it executable.
+fi;
+# Maybe install Memcached, igbinary, and Memcached extensions.
+if [ ! -f /usr/bin/memcached ]; then
+    apt-get install memcached libmemcached-dev zlib1g-dev --yes;
+	yes '' pecl install igbinary-3.2.7 && docker-php-ext-enable igbinary;
+	yes '' pecl install memcached-3.1.5 && docker-php-ext-enable memcached;
+	service memcached start;
 fi;
 # Maybe install a WP-CLI config file.
 
