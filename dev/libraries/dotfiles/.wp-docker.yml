@@ -47,6 +47,13 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------------
+# Review status of a project's containers.
+# ---------------------------------------------------------------------------------------------------------------------
+# $ crs wp-docker status;                                             ... shows all containers.
+# $ composer run-script wp-docker -- status;                          ... shows all containers.
+# ---------------------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------------
 # Logging into a container (shell access).
 # ---------------------------------------------------------------------------------------------------------------------
 # $ crs wp-docker bash;                                               ... main `php` container.
@@ -115,7 +122,7 @@ services :
     sql : # MySQL database server.
         container_name : '${X_COMPOSE_PROJECT_SLUG}-sql'
         hostname       : '${X_COMPOSE_PROJECT_SLUG}-sql'
-        domainname     : 'dkr' # i.e., `${X_COMPOSE_PROJECT_SLUG}-sql.dkr`.
+        domainname     : 'wp' # i.e., `${X_COMPOSE_PROJECT_SLUG}-sql.wp`.
         image          : 'mysql:latest'
         dns            :
             - '1.1.1.1'        # Cloudflare.
@@ -147,7 +154,7 @@ services :
         # How to install other PHP extensions; {@see https://o5p.me/8K3seT}.
         container_name : '${X_COMPOSE_PROJECT_SLUG}-php'
         hostname       : '${X_COMPOSE_PROJECT_SLUG}-php'
-        domainname     : 'dkr' # i.e., `${X_COMPOSE_PROJECT_SLUG}-php.dkr`.
+        domainname     : 'wp' # i.e., `${X_COMPOSE_PROJECT_SLUG}-php.wp`.
         image          : 'wordpress:php${X_COMPOSE_PHP_VERSION:?Missing `X_COMPOSE_PHP_VERSION`.}-apache'
         depends_on     :
             sql :
@@ -166,7 +173,7 @@ services :
             - 'php-data:/var/www/html' # WordPress core installation data.
             - './:/x-host/project:ro' # Host's project directory (read-only).
         extra_hosts    :
-            - '${X_COMPOSE_PROJECT_SLUG}.dkr:127.0.0.1'
+            - '${X_COMPOSE_PROJECT_SLUG}.wp:127.0.0.1'
         environment    :
             # Proxy configuration settings; {@see https://o5p.me/FKFB99}.
             VIRTUAL_PORT                     : '80'                              # Virtual host for SSL proxy.
@@ -174,8 +181,8 @@ services :
             HTTPS_METHOD                     : 'noredirect'                      # Does not redirect HTTP requests to HTTPS.
             HSTS                             : 'off'                             # Turn off since we aren't redirecting HTTP.
             SSL_POLICY                       : 'Mozilla-Modern'                  # TLSv1.3+; {@see https://o5p.me/g1XbSB}.
-            VIRTUAL_HOST                     : '*.${X_COMPOSE_PROJECT_SLUG}.dkr' # Virtual host FQDN to be accessed by browser.
-            SELF_SIGNED_HOST                 : '${X_COMPOSE_PROJECT_SLUG}.dkr'   # Root of `VIRTUAL_HOST` for wildcard SSL certs.
+            VIRTUAL_HOST                     : '*.${X_COMPOSE_PROJECT_SLUG}.wp' # Virtual host FQDN to be accessed by browser.
+            SELF_SIGNED_HOST                 : '${X_COMPOSE_PROJECT_SLUG}.wp'   # Root of `VIRTUAL_HOST` for wildcard SSL certs.
 
             # All of these get picked up by the WordPress core installer in `./.wp-docker.sh`.
             WORDPRESS_DB_HOST                : 'sql:3306'                       # Database container name:port.
@@ -194,7 +201,7 @@ services :
             # These are for the default administrative user.
             X_WORDPRESS_ADMIN_USERNAME       : '${USER:-wordpress}'             # WordPress administrative username.
             X_WORDPRESS_ADMIN_PASSWORD       : '${USER:-wordpress}'             # WordPress administrative password.
-            X_WORDPRESS_ADMIN_EMAIL          : '${USER:-wordpress}@${X_COMPOSE_PROJECT_SLUG}.dkr' # Admin email address.
+            X_WORDPRESS_ADMIN_EMAIL          : '${USER:-wordpress}@${X_COMPOSE_PROJECT_SLUG}.wp' # Admin email address.
 
             # One of: `` (default), `subdirectories`, or `subdomains`.
             X_WORDPRESS_MULTISITE_TYPE       : '${X_WORDPRESS_MULTISITE_TYPE:-}'
@@ -226,7 +233,7 @@ services :
     pma : # PhpMyAdmin for database administration.
         container_name : '${X_COMPOSE_PROJECT_SLUG}-pma'
         hostname       : '${X_COMPOSE_PROJECT_SLUG}-pma'
-        domainname     : 'dkr' # i.e., `${X_COMPOSE_PROJECT_SLUG}-pma.dkr`.
+        domainname     : 'wp' # i.e., `${X_COMPOSE_PROJECT_SLUG}-pma.wp`.
         image          : 'phpmyadmin:latest'
         depends_on     :
             sql :
@@ -248,8 +255,8 @@ services :
             HTTPS_METHOD     : 'redirect'                          # Redirect HTTP requests to HTTPS.
             HSTS             : 'max-age=31536000'                  # Turn on, since we are redirecting.
             SSL_POLICY       : 'Mozilla-Modern'                    # TLSv1.3+; {@see https://o5p.me/g1XbSB}.
-            VIRTUAL_HOST     : '${X_COMPOSE_PROJECT_SLUG}-pma.dkr' # Virtual host FQDN to be accessed by browser.
-            SELF_SIGNED_HOST : '${X_COMPOSE_PROJECT_SLUG}-pma.dkr' # Same as `VIRTUAL_HOST`; wildcard SSL n/a here.
+            VIRTUAL_HOST     : '${X_COMPOSE_PROJECT_SLUG}-pma.wp' # Virtual host FQDN to be accessed by browser.
+            SELF_SIGNED_HOST : '${X_COMPOSE_PROJECT_SLUG}-pma.wp' # Same as `VIRTUAL_HOST`; wildcard SSL n/a here.
 
             # PhpMyAdmin configuration; {@see https://o5p.me/3k7NUm}.
             PMA_HOST         : 'sql'       # Database container name.
@@ -266,7 +273,7 @@ services :
     nxp : # Nginx proxy for SSL access.
         container_name : '${X_COMPOSE_PROJECT_SLUG}-nxp'
         hostname       : '${X_COMPOSE_PROJECT_SLUG}'
-        domainname     : 'dkr' # i.e., `${X_COMPOSE_PROJECT_SLUG}.dkr`.
+        domainname     : 'wp' # i.e., `${X_COMPOSE_PROJECT_SLUG}.wp`.
         image          : 'nginxproxy/nginx-proxy:latest'
         depends_on     :
             sql :
@@ -292,7 +299,7 @@ services :
             - '/var/run/docker.sock:/tmp/docker.sock:ro'
 
         environment    : # {@see https://o5p.me/bEtXkH}.
-            DEFAULT_HOST : '${X_COMPOSE_PROJECT_SLUG}.dkr'
+            DEFAULT_HOST : '${X_COMPOSE_PROJECT_SLUG}.wp'
             ENABLE_IPV6  : false # Disable for now.
 
         healthcheck    :
@@ -304,7 +311,7 @@ services :
     nxc : # Nginx self-signed companion for nginx proxy.
         container_name : '${X_COMPOSE_PROJECT_SLUG}-nxc'
         hostname       : '${X_COMPOSE_PROJECT_SLUG}-nxc'
-        domainname     : 'dkr' # i.e., `${X_COMPOSE_PROJECT_SLUG}-nxc.dkr`.
+        domainname     : 'wp' # i.e., `${X_COMPOSE_PROJECT_SLUG}-nxc.wp`.
         image          : 'sebastienheyd/self-signed-proxy-companion:latest'
         depends_on     :
             sql :
@@ -335,7 +342,7 @@ services :
             EXPIRATION            : 395 # {@see https://o5p.me/Fz1NWM}.
 
         healthcheck    :
-            test     : 'bash -c "[ -f /etc/nginx/certs/${X_COMPOSE_PROJECT_SLUG}.dkr.crt ]" || exit 1'
+            test     : 'bash -c "[ -f /etc/nginx/certs/${X_COMPOSE_PROJECT_SLUG}.wp.crt ]" || exit 1'
             interval : '3s'
             timeout  : '30s'
             retries  : 10

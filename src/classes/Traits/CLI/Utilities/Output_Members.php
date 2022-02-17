@@ -36,6 +36,15 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Output_Members {
 	/**
+	 * Outputs a "\n".
+	 *
+	 * @since 2021-12-15
+	 */
+	public static function new_line() : void {
+		U\CLI::stdout( '' );
+	}
+
+	/**
 	 * Outputs a heading.
 	 *
 	 * @since 2021-12-15

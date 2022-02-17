@@ -136,6 +136,12 @@ final class WP extends U\A6t\CLI_Tool {
 					],
 				],
 			],
+			'status'  => [
+				'callback'    => [ $this, 'status' ],
+				'synopsis'    => 'Runs `docker compose ps --all`.',
+				'description' => 'Runs `docker compose ps --all`. See ' . __CLASS__ . '::status()',
+				'options'     => $common_options,
+			],
 			'logs'    => [
 				'callback'    => [ $this, 'logs' ],
 				'synopsis'    => 'Runs `docker logs [container] --follow`.',
@@ -218,14 +224,39 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			$short_alias = $this->get_operand( 'container-short-alias' );
+
 			U\CLI::run( [
 				[ 'docker', 'exec' ],
 				[ '--interactive', '--tty' ],
 				[ '--user', $this->get_option( 'user' ) ],
-				[ '--workdir', '/var/www/html' ],
-				[ $this->project->slug . '-' . $this->get_operand( 'container-short-alias' ) ],
+				( 'php' === $short_alias ? [ '--workdir', '/var/www/html' ] : [] ),
+				[ $this->project->slug . '-' . $short_alias ],
 				[ 'bash', '--login' ],
 			], $this->project->dir, false );
+
+		} catch ( \Throwable $throwable ) {
+			U\CLI::error( $throwable->getMessage() );
+			U\CLI::error( $throwable->getTraceAsString() );
+			U\CLI::exit_status( 1 );
+		}
+	}
+
+	/**
+	 * Command: `status`.
+	 *
+	 * @since        2021-12-15
+	 */
+	protected function status() : void {
+		try {
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
+			U\CLI::run( [
+				'::env_vars' => $this->prepare_env_var_args(),
+				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
+				[ 'ps', '--all', '--format', 'pretty' ],
+			], $this->project->dir );
 
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
@@ -244,9 +275,11 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			$short_alias = $this->get_operand( 'container-short-alias' );
+
 			U\CLI::run( [
 				[ 'docker', 'logs', '--follow' ],
-				[ $this->project->slug . '-' . $this->get_operand( 'container-short-alias' ) ],
+				[ $this->project->slug . '-' . $short_alias ],
 			], $this->project->dir, false );
 
 		} catch ( \Throwable $throwable ) {
@@ -266,11 +299,12 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
-			$format = $this->get_option( 'format' );
+			$format      = $this->get_option( 'format' );
+			$short_alias = $this->get_operand( 'container-short-alias' );
 
 			U\CLI::run( [
 				[ 'docker', 'inspect' ],
-				[ $this->project->slug . '-' . $this->get_operand( 'container-short-alias' ) ],
+				[ $this->project->slug . '-' . $short_alias ],
 				( $format ? [ '--format', $format ] : [] ),
 			], $this->project->dir, false );
 
@@ -327,13 +361,13 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'IP Address: ' . $this->get_container_ip( 'sql' ) );
 		U\CLI::log( 'Host      : ' . $this->get_container_fqdn( 'sql' ) );
 		U\CLI::output( 'PMA       : https://' . $this->get_container_fqdn( 'pma' ) );
-
+		U\CLI::new_line();
 		U\CLI::heading( 'Apache/PHPv' . $this->get_option( 'php-version' ) . '/WordPress' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'php' ) );
 		U\CLI::log( 'Host                 : ' . $this->get_container_fqdn( 'php' ) );
 		U\CLI::log( 'Shell Access         : composer run-script wp-docker -- bash;' );
 		U\CLI::output( 'Project In Container : /x-host/project' );
-
+		U\CLI::new_line();
 		U\CLI::heading( 'Nginx Proxy w/ HTTP & HTTPs Access' );
 		U\CLI::log( 'Wildcard SSL : *.' . $this->get_container_fqdn( 'nxp' ) );
 		U\CLI::log( 'http         : http://' . $this->get_container_fqdn( 'nxp' ) );
@@ -491,9 +525,9 @@ final class WP extends U\A6t\CLI_Tool {
 	 *                            e.g., `sql`, `php`, `pma`, `nxp`, `nxc`.
 	 *
 	 * @param bool   $with_port   With port number? Default is `true`.
-	 *                            Port is only included if it's a non-standard HTTP port#.
-	 *                            - e.g., `my-project.dkr:80` is *always* returned as `my-project.dkr`.
-	 *                            - e.g., You'll get `my-project-db.dkr:3306` if `$with_port` is `true`.
+	 *                            Port is only included if it's a non-standard HTTP port.
+	 *                            - e.g., `my-project.wp:80` is *always* returned as `my-project.wp`.
+	 *                            - You'll get `my-project-sql.wp:3306` if `$with_port` is `true`.
 	 *
 	 * @return string Container FQDN; i.e., `hostname.domainname[:port]`.
 	 *                Always normalized as lowercase.
@@ -512,7 +546,7 @@ final class WP extends U\A6t\CLI_Tool {
 		], $this->project->dir )->stdout;
 
 		if ( 'sql' === $short_alias && $fqdn && $with_port ) {
-			$fqdn .= ':3306'; // e.g., `my-project-sql.dkr:3306`.
+			$fqdn .= ':3306'; // e.g., `my-project-sql.wp:3306`.
 		}
 		return $fqdn = mb_strtolower( $fqdn );
 	}

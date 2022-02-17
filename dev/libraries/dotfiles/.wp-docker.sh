@@ -17,9 +17,9 @@
 # $ sudo brew services start chipmk/tap/docker-mac-net-connect; # {@see https://o5p.me/Q9hnml}.
 # ---------------------------------------------------------------------------------------------------------------------
 
-WWW_DATA_HOME_DIR=/var/www;                            # `www-data` user's home directory.
-WORDPRESS_DIR=/var/www/html;                           # Apache `DOCUMENT_ROOT` directory.
-WORDPRESS_URL=https://"${X_COMPOSE_PROJECT_SLUG}".dkr; # Requires DNS mapping, which we do handle.
+WWW_DATA_HOME_DIR=/var/www;                           # `www-data` user's home directory.
+WORDPRESS_DIR=/var/www/html;                          # Apache `DOCUMENT_ROOT` directory.
+WORDPRESS_URL=https://"${X_COMPOSE_PROJECT_SLUG}".wp; # Requires DNS mapping, which we do handle.
 
 # Run parent container's entrypoint before we continue.
 # The `apache2-noop` name is important. Noting because it's extremely non-obvious.
