@@ -47,7 +47,7 @@ fi;
 if [ ! -f /usr/bin/memcached ]; then
     apt-get install memcached libmemcached-dev zlib1g-dev --yes;
 	pecl install igbinary-3.2.7; docker-php-ext-enable igbinary;
-	yes '' | pecl install memcached-3.1.5; docker-php-ext-enable memcached;
+	yes 'yes' | pecl install memcached-3.1.5; docker-php-ext-enable memcached;
 	service memcached start;
 fi;
 # Maybe install a WP-CLI config file.
