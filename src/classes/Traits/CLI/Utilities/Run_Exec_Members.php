@@ -41,17 +41,15 @@ trait Run_Exec_Members {
 	 * @param array       $args         {@see U\CLI::run()} for details.
 	 * @param string|null $dir          {@see U\CLI::run()} for details.
 	 * @param bool        $check_status {@see U\CLI::run()} for details.
-	 * @param string|null $redirections {@see U\CLI::run()} for details.
 	 *
 	 * @return int Status code; {@see U\CLI::run()} for details.
 	 */
 	public static function try_run(
 		array $args,
 		/* string|null */ ?string $dir = null,
-		bool $check_status = true,
-		/* string|null */ ?string $redirections = null
+		bool $check_status = true
 	) : int {
-		return U\CLI::run( $args, $dir, $check_status, false, $redirections );
+		return U\CLI::run( $args, $dir, $check_status, false );
 	}
 
 	/**
@@ -61,7 +59,6 @@ trait Run_Exec_Members {
 	 * @param string|null $dir              Current working directory. Defaults to `null` value.
 	 * @param bool        $check_status     Check status and throw exception on failure? Defaults to `true`.
 	 * @param bool        $throw_on_failure Throw exectpion on failure? Default is `true`.
-	 * @param string|null $redirections     Any redirections; e.g., `&>/dev/null`, `&>/dev/null &`.
 	 *
 	 * @return int Status code.
 	 *
@@ -73,8 +70,7 @@ trait Run_Exec_Members {
 		array $args,
 		/* string|null */ ?string $dir = null,
 		bool $check_status = true,
-		bool $throw_on_failure = true,
-		/* string|null */ ?string $redirections = null
+		bool $throw_on_failure = true
 	) : int {
 		if ( ! U\Env::can_use_function( 'escapeshellarg', 'passthru' ) ) {
 			if ( $throw_on_failure ) {
@@ -85,7 +81,7 @@ trait Run_Exec_Members {
 			}         // Else; not throwing.
 			return 1; // Indicate run failure.
 		}
-		$cmd             = U\CLI::prepare_cmd( $args, $redirections, $dir );
+		$cmd             = U\CLI::prepare_cmd( $args, $dir );
 		U\CLI::$last_cmd = $cmd; // Records last CMD string.
 
 		passthru( $cmd, $status );

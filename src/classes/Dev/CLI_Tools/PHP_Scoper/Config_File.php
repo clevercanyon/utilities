@@ -87,10 +87,11 @@ final class Config_File extends U\A6t\CLI_Tool {
 				'description' => 'Updates `src/libraries/dotfiles/.scoper.cfg.php` config file. See ' . __CLASS__ . '::update()',
 				'options'     => [
 					'project-dir' => [
-						'required'    => true,
+						'optional'    => true,
 						'description' => 'Project directory path.',
 						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
 							&& is_file( U\Dir::join( $abs_path, '/composer.json' ) ),
+						'default'     => $this->locate_nearest_project_dir(),
 					],
 				],
 			],

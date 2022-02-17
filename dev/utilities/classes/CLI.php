@@ -74,6 +74,8 @@ final class CLI {
 	 * @return string Nearest project directory to CLI script file.
 	 *
 	 * @throws D\Fatal_Exception On any failure.
+	 *
+	 * @see   \Clever_Canyon\Utilities\A6t\CLI_Tool::locate_nearest_project_dir()
 	 */
 	protected static function locate_nearest_project_dir() : string {
 		// `$argv[ 0 ]` is likely relative.

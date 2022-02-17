@@ -75,7 +75,7 @@ trait Builder_Members {
 			$options[ $_option ]->setDescription( $_description ?? '' );
 			$options[ $_option ]->setValidation( $_validator ?? [ U\Func::class, 'noop_true' ] );
 
-			if ( ( $_required || false === $_optional ) && isset( $_default ) ) {
+			if ( isset( $_default ) ) {
 				$options[ $_option ]->setDefaultValue( $_default );
 			}
 		}

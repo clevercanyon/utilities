@@ -17,15 +17,10 @@
 # $ sudo brew services start chipmk/tap/docker-mac-net-connect; # {@see https://o5p.me/Q9hnml}.
 # ---------------------------------------------------------------------------------------------------------------------
 
-WORDPRESS_DIR=/var/www/html; # Apache `DOCUMENT_ROOT` directory.
-WWW_DATA_HOME_DIR=/var/www;  # `www-data` user's home directory.
+WWW_DATA_HOME_DIR=/var/www;                            # `www-data` user's home directory.
+WORDPRESS_DIR=/var/www/html;                           # Apache `DOCUMENT_ROOT` directory.
+WORDPRESS_URL=https://"${X_COMPOSE_PROJECT_SLUG}".dkr; # Requires DNS mapping, which we do handle.
 
-if [[ "${X_COMPOSE_VARIANT:-}" == 'ci' ]]; then
-	WORDPRESS_URL=http://localhost; # See `./.wp-docker-ci.yml`.
-else
-	WORDPRESS_URL=http://"${X_COMPOSE_PROJECT_SLUG}".dkr; # Requires DNS.
-	# DNS mapping is beyond the scope of this file. That's handled elsewhere.
-fi;
 # Run parent container's entrypoint before we continue.
 # The `apache2-noop` name is important. Noting because it's extremely non-obvious.
 # Take a peek at the top of `docker-entrypoint.sh` to see why `apache2` is key; {@see https://o5p.me/j70ja4}.
@@ -159,7 +154,7 @@ if ! wp core is-installed --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPR
 fi;
 # Run the project-specific entrypoint hook.
 
-/x-host/project/.wp-docker.prj.sh;
+. /x-host/project/.wp-docker.prj.sh;
 
 # Start Apache.
 

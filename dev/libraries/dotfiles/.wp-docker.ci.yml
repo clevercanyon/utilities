@@ -15,18 +15,26 @@
 version  : '3.9' # {@see https://o5p.me/TtD60s}.
 
 services :
-    db  :
+    sql :
         ports       :
             - '3306:3306'
+            - '33060:33060'
         environment :
             X_COMPOSE_VARIANT : 'ci'
-    wp  :
-        ports       :
-            - '80:80'
+    php :
         environment :
             X_COMPOSE_VARIANT : 'ci'
     pma :
         ports       :
             - '81:80'
+        environment :
+            X_COMPOSE_VARIANT : 'ci'
+    nxp :
+        ports       :
+            - '80:80'
+            - '443:443'
+        environment :
+            X_COMPOSE_VARIANT : 'ci'
+    nxc :
         environment :
             X_COMPOSE_VARIANT : 'ci'

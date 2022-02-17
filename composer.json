@@ -33,6 +33,7 @@
 		"ext-posix"           : "*",
 		"ext-session"         : "*",
 		"ext-zip"             : "*",
+		"ext-pcntl"           : "*",
 		"ulrichsg/getopt-php" : "^4.0"
 	},
 	"autoload"          : {
@@ -51,12 +52,13 @@
 		}
 	},
 	"scripts"           : {
-		"post-update-cmd"               : "[ $COMPOSER_DEV_MODE -eq 0 ] || ./dev/cli-tools/composer/on-post-update-cmd",
-		"phpunit"                       : "composer exec --profile -- phpunit --configuration ./.phpunit.xml --no-coverage",
-		"phpunit-coverage"              : "XDEBUG_MODE=coverage composer exec --profile -- phpunit --configuration ./.phpunit.xml",
 		"webpack"                       : "npx webpack --config ./.webpack.cjs",
 		"wp-docker"                     : "./dev/cli-tools/docker/wp",
-		"php-scoper-config-file-update" : "./dev/cli-tools/php-scoper/config-file update"
+		"update-mac-keychain"           : "./ssl-ri-cas.sh add-to-mac-keychain",
+		"php-scoper-config-file-update" : "./dev/cli-tools/php-scoper/config-file update",
+		"phpunit"                       : "composer exec --profile -- phpunit --configuration ./.phpunit.xml --no-coverage",
+		"phpunit-coverage"              : "XDEBUG_MODE=coverage composer exec --profile -- phpunit --configuration ./.phpunit.xml",
+		"post-update-cmd"               : "[ $COMPOSER_DEV_MODE -eq 0 ] || ./dev/cli-tools/composer/on-post-update-cmd"
 	},
 	"extra"             : {
 		"clevercanyon" : {

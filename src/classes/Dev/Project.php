@@ -951,7 +951,7 @@ final class Project extends U\A6t\Base {
 				'gitignore'           => U\Fs::gitignore_regexp_lookahead( 'positive', null, [ 'vendor' => false ] ),
 
 				// All of these project config paths.
-				'project_cfg_files'   => '/(?:^|.+\/)[^\/]+\.(?:cjs|cts|xml|yml|yaml|json5?|neon|dist|lock)$/ui',
+				'project_cfg_files'   => '/(?:^|.+\/)[^\/]+\.(?:cnf|conf|cjs|cts|xml|yml|yaml|json5?|neon|dist|lock)$/ui',
 				'project_cfg_files/2' => '/(?:^|.+\/)(?:babel|gulpfile|gruntfile)(?:\.(?:esm))?\.(?:jsx?|tsx?)$/ui',
 				'project_cfg_files/3' => '/(?:^|.+\/)[^\/]+\.(?:cfg|config|babel)\.(?:jsx?|tsx?)$/ui',
 
