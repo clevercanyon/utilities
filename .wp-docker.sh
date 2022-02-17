@@ -17,10 +17,19 @@
 # $ sudo brew services start chipmk/tap/docker-mac-net-connect; # {@see https://o5p.me/Q9hnml}.
 # ---------------------------------------------------------------------------------------------------------------------
 
+# Define a few variables.
+
 WWW_DATA_HOME_DIR=/var/www;                           # `www-data` user's home directory.
 WORDPRESS_DIR=/var/www/html;                          # Apache `DOCUMENT_ROOT` directory.
 WORDPRESS_URL=https://"${X_COMPOSE_PROJECT_SLUG}".wp; # Requires DNS mapping, which we do handle.
 
+# Version compare utility function.
+
+function version-compare() {
+  local v1="'${1:-}'"; local v2="'${2:-}'"; local op="'${3:-}'";
+  if [[ "$(php -r 'echo (int)version_compare('"${v1}"', '"${v2}"', '"${op}"');')" == 1 ]];
+  	then return 0; else return 1; fi;
+};
 # Run parent container's entrypoint before we continue.
 # The `apache2-noop` name is important. Noting because it's extremely non-obvious.
 # Take a peek at the top of `docker-entrypoint.sh` to see why `apache2` is key; {@see https://o5p.me/j70ja4}.
@@ -31,36 +40,85 @@ if [[ ! -f /usr/local/bin/apache2-noop ]]; then
 fi;
 /usr/local/bin/docker-entrypoint.sh apache2-noop;
 
-# Maybe install `info.php` file for debugging.
+# Maybe run initial installation/setup.
+# The routines below install several things; including WordPress.
+# It also installs WordPress plugins, themes, and handles activation.
 
-if [[ ! -f "${WORDPRESS_DIR}"/info.php ]]; then
+if [[ ! -f /usr/local/etc/x-install-complete ]]; then
+	# Aptitude.
+
+	apt-get update --yes;
+
+	# Install utilities.
+
+	apt-get install build-essential tar curl zip unzip git expect golang-go --yes;
+
+	# Install `info.php` file for debugging.
+
 	echo '<?php phpinfo();' > "${WORDPRESS_DIR}"/info.php;
-fi;
-# Maybe install WP-CLI phar file.
 
-if [[ ! -f /usr/local/bin/wp ]]; then
-	apt-get update --yes; apt-get install curl --yes;
+	# Install WP-CLI phar file.
+
 	curl -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp;
 	chmod +x /usr/local/bin/wp; # Make it executable.
-fi;
-# Maybe install Memcached, igbinary, and Memcached extensions.
-if [ ! -f /usr/bin/memcached ]; then
-    apt-get install memcached libmemcached-dev zlib1g-dev --yes;
-	pecl install igbinary-3.2.7; docker-php-ext-enable igbinary;
-	yes 'yes' | pecl install memcached-3.1.5; docker-php-ext-enable memcached;
-	service memcached start;
-fi;
-# Maybe install a WP-CLI config file.
 
-if [[ ! -f "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml ]]; then
+	# Install MailHog.
+
+	go get github.com/mailhog/MailHog;
+	/root/go/bin/MailHog &>>/var/log/mailhog.log;
+
+	# Maybe install Memcached, igbinary, and Memcached extensions.
+
+	if version-compare "${X_COMPOSE_PHP_VERSION}" '8.1' '>='; then
+		pecl install igbinary-3.2.7;
+		docker-php-ext-enable igbinary;
+
+		apt-get install memcached --yes;
+		service memcached start;
+
+		apt-get install zlib1g-dev --yes;
+		apt-get install libmemcached-dev --yes;
+
+		expect <(cat <<- 'ooo'
+		spawn pecl install memcached-3.1.5;
+
+		expect -re 'libmemcached directory.*';
+		send "/usr\n";
+
+		expect -re 'zlib directory.*';
+		send "/usr\n";
+
+		expect -re 'system fastlz.*';
+		send "no\n";
+
+		expect -re 'igbinary serializer.*';
+		send "yes\n";
+
+		expect -re 'msgpack serializer.*';
+		send "no\n";
+
+		expect -re 'json serializer.*';
+		send "no\n";
+
+		expect -re 'server protocol.*';
+		send "yes\n";
+
+		expect -re 'sasl.*';
+		send "yes\n";
+
+		expect -re 'sessions.*';
+		send "yes\n";
+		ooo
+		)
+		docker-php-ext-enable memcached;
+	fi;
+	# Install a WP-CLI config file.
+
 	mkdir                                         "${WWW_DATA_HOME_DIR}"/.wp-cli;
 	echo "path: ${WORDPRESS_DIR}"               > "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
 	echo "url: ${WORDPRESS_URL}"               >> "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
 	echo "user: ${X_WORDPRESS_ADMIN_USERNAME}" >> "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
-fi;
-# Maybe install WordPress core, plugins, and themes.
 
-if ! wp core is-installed --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPRESS_URL}"; then
 	# Install WordPress core.
 
 	wp core install --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPRESS_URL}" \
@@ -163,6 +221,9 @@ if ! wp core is-installed --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPR
 				"${X_COMPOSE_PROJECT_SLUG}" --activate;
 		fi;
 	fi;
+	# Flag installation complete.
+
+	touch /usr/local/etc/x-install-complete;
 fi;
 # Run the project-specific entrypoint hook.
 
