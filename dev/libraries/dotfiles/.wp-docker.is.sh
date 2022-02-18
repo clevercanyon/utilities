@@ -212,7 +212,7 @@ curl --location https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp
 chmod +x /usr/local/bin/wp;
 
 mkdir                                                    "${ROOT_HOME_DIR}"/.wp-cli;
-echo "path: ${WORDPRESS_DIR}"               >            "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
+echo "path: ${WORDPRESS_DIR}"                          > "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
 
 chmod 0700                                               "${ROOT_HOME_DIR}"/.wp-cli;
 chmod 0600                                               "${ROOT_HOME_DIR}"/.wp-cli/config.yml;

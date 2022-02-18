@@ -155,7 +155,6 @@ final class Env_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, ! empty( $vars[ 'USER' ] ), $this->message() );
 		$this->assertSame( true, ! empty( $vars[ 'HOME' ] ), $this->message() );
 		$this->assertSame( true, ! empty( $vars[ 'CWD' ] ), $this->message() );
-		$this->assertSame( true, ! empty( $vars[ 'TMPDIR' ] ), $this->message() );
 	}
 
 	/**
@@ -167,7 +166,6 @@ final class Env_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, ! empty( U\Env::var( 'USER_ID' ) ), $this->message() );
 		$this->assertSame( true, ! empty( U\Env::var( 'HOME' ) ), $this->message() );
 		$this->assertSame( true, ! empty( U\Env::var( 'CWD' ) ), $this->message() );
-		$this->assertSame( true, ! empty( U\Env::var( 'TMPDIR' ) ), $this->message() );
 		$this->assertSame( true, is_string( U\Env::var( 'TERM' ) ), $this->message() );
 		$this->assertSame( true, is_string( U\Env::var( 'APPDATA' ) ), $this->message() );
 		$this->assertSame( true, is_string( U\Env::var( 'DOCUMENT_ROOT' ) ), $this->message() );
@@ -328,6 +326,6 @@ final class Env_Tests extends UT\A6t\Tests {
 	 * @covers ::is_robotic_web_server_user()
 	 */
 	public function test_is_robotic_web_server_user() : void {
-		$this->assertSame( false, U\Env::is_robotic_web_server_user(), $this->message() );
+		$this->assertSame( U\Env::is_wp_docker(), U\Env::is_robotic_web_server_user(), $this->message() );
 	}
 }

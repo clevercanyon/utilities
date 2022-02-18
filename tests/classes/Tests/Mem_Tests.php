@@ -64,12 +64,41 @@ final class Mem_Tests extends UT\A6t\Tests {
 		$sub_key     = U\Crypto::uuid_v4();
 
 		$mem = new U\Mem( $connection_id_salt, $namespace_salt, $servers );
-		$this->assertSame( false, $mem->is_alive(), $this->message() );
 
-		$this->assertSame( null, $mem->get( $primary_key, $sub_key ), $this->message() );         // Gets.
-		$this->assertSame( false, $mem->set( $primary_key, $sub_key, 'foo' ), $this->message() ); // Sets.
-		$this->assertSame( null, $mem->get( $primary_key, $sub_key ), $this->message() );         // Gets.
-		$this->assertSame( false, $mem->clear( $primary_key, $sub_key ), $this->message() );      // Clears.
+		try {
+			$rtn_value = $mem->is_alive();
+		} catch ( U\I7e\Exception $exception ) {
+			$rtn_value = false; // Ignore exception.
+		}
+		$this->assertSame( false, $rtn_value, $this->message() );
+
+		try {
+			$rtn_value = $mem->get( $primary_key, $sub_key );
+		} catch ( U\I7e\Exception $exception ) {
+			$rtn_value = null; // Ignore exception.
+		}
+		$this->assertSame( null, $rtn_value, $this->message() );
+
+		try {
+			$rtn_value = $mem->set( $primary_key, $sub_key, 'foo' );
+		} catch ( U\I7e\Exception $exception ) {
+			$rtn_value = false; // Ignore exception.
+		}
+		$this->assertSame( false, $rtn_value, $this->message() );
+
+		try {
+			$rtn_value = $mem->get( $primary_key, $sub_key );
+		} catch ( U\I7e\Exception $exception ) {
+			$rtn_value = null; // Ignore exception.
+		}
+		$this->assertSame( null, $rtn_value, $this->message() );
+
+		try {
+			$rtn_value = $mem->clear( $primary_key, $sub_key );
+		} catch ( U\I7e\Exception $exception ) {
+			$rtn_value = false; // Ignore exception.
+		}
+		$this->assertSame( false, $rtn_value, $this->message() );
 	}
 
 	/**

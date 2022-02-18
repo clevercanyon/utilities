@@ -56,7 +56,7 @@
 		"wp-docker"                     : "./dev/cli-tools/docker/wp",
 		"update-mac-keychain"           : "./ssl-ri-cas.sh add-to-mac-keychain",
 		"php-scoper-config-file-update" : "./dev/cli-tools/php-scoper/config-file update",
-		"phpunit"                       : "composer exec --profile -- phpunit --configuration ./.phpunit.xml --no-coverage",
+		"phpunit"                       : "composer exec --profile -- phpunit --configuration ./.phpunit.xml --no-coverage --no-logging --do-not-cache-result",
 		"phpunit-coverage"              : "XDEBUG_MODE=coverage composer exec --profile -- phpunit --configuration ./.phpunit.xml",
 		"post-update-cmd"               : "[ $COMPOSER_DEV_MODE -eq 0 ] || ./dev/cli-tools/composer/on-post-update-cmd"
 	},
