@@ -122,6 +122,16 @@ services :
             - 'network'
         logging        :
             driver : 'none'  # Too noisy.
+        environment    :
+            # Proxy configuration settings; {@see https://o5p.me/FKFB99}.
+            VIRTUAL_PORT     : '8025'                             # Virtual host for SSL proxy.
+            VIRTUAL_PROTO    : 'http'                             # HTTP from proxy to origin.
+            HTTPS_METHOD     : 'redirect'                         # Redirect HTTP requests to HTTPS.
+            HSTS             : 'max-age=31536000'                 # Turn on, since we are redirecting.
+            SSL_POLICY       : 'Mozilla-Modern'                   # TLSv1.3+; {@see https://o5p.me/g1XbSB}.
+            VIRTUAL_HOST     : '${X_COMPOSE_PROJECT_SLUG}-hog.wp' # Virtual host FQDN to be accessed by browser.
+            SELF_SIGNED_HOST : '${X_COMPOSE_PROJECT_SLUG}-hog.wp' # Same as `VIRTUAL_HOST`; wildcard SSL n/a here.
+
         healthcheck    : # This image has netcat installed already.
             test     : '( nc -z localhost 1025 && nc -z localhost 8025 ) || exit 1'
             interval : '3s'

@@ -466,8 +466,8 @@ final class WP extends U\A6t\CLI_Tool {
 		}
 		U\CLI::output( 'MySQL Database Server' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'sql' ) );
-		U\CLI::log( 'FQDN                 : ' . $this->get_container_fqdn( 'sql' ) );
-		U\CLI::log( 'MySQLx               : ' . $this->get_container_fqdn( 'sql', 'mysqlx' ) );
+		U\CLI::log( 'FQDN (MySQL)         : ' . $this->get_container_fqdn( 'sql' ) );
+		U\CLI::log( 'FQDN (MySQLx)        : ' . $this->get_container_fqdn( 'sql', 'mysqlx' ) );
 
 		U\CLI::new_line();
 
@@ -486,7 +486,7 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::output( 'MailHog SMTP Server' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'hog' ) );
 		U\CLI::log( 'FQDN (SMTP)          : ' . $this->get_container_fqdn( 'hog' ) );
-		U\CLI::log( 'FQDN (Webmail)       : ' . $this->get_container_fqdn( 'hog', 'webmail' ) );
+		U\CLI::log( 'FQDN (Webmail)       : https://' . $this->get_container_fqdn( 'hog', false ) );
 
 		U\CLI::new_line();
 
@@ -576,7 +576,7 @@ final class WP extends U\A6t\CLI_Tool {
 		if ( 'up' === $command_name ) {
 			$new_etc_hosts_file_contents .= $sql_docker_ip . ' ' . $sql_docker_fqdn . "\n";
 			$new_etc_hosts_file_contents .= $mem_docker_ip . ' ' . $mem_docker_fqdn . "\n";
-			$new_etc_hosts_file_contents .= $hog_docker_ip . ' ' . $hog_docker_fqdn . "\n";
+			$new_etc_hosts_file_contents .= $nxp_docker_ip . ' ' . $hog_docker_fqdn . "\n";
 			$new_etc_hosts_file_contents .= $php_docker_ip . ' ' . $php_docker_fqdn . "\n";
 			$new_etc_hosts_file_contents .= $nxp_docker_ip . ' ' . $pma_docker_fqdn . "\n";
 			$new_etc_hosts_file_contents .= $nxp_docker_ip . ' ' . $nxp_docker_fqdn . "\n";
