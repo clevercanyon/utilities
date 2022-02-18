@@ -235,6 +235,7 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 		apt-get install zlib1g-dev --yes;
 		apt-get install libmemcached-dev --yes;
 
+		apt-get install expect --yes;
 		expect <(cat <<- 'ooo'
 			spawn pecl install memcached-3.1.5;
 			expect -re 'libmemcached directory.*'; send "\n";
