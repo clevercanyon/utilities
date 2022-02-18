@@ -131,7 +131,7 @@ services :
         container_name : '${X_COMPOSE_PROJECT_SLUG}-php'
         hostname       : '${X_COMPOSE_PROJECT_SLUG}-php'
         domainname     : 'wp' # i.e., `${X_COMPOSE_PROJECT_SLUG}-php.wp`.
-        image          : 'wordpress:php${X_COMPOSE_PHP_VERSION:?Missing `X_COMPOSE_PHP_VERSION`.}-apache'
+        image          : 'wordpress:php${X_COMPOSE_PHP_VERSION}-apache'
         depends_on     :
             sql :
                 condition : 'service_healthy'
@@ -201,6 +201,7 @@ services :
 
             # The `:?` forces these environment variables to be non-empty. Compliments of docker compose.
             COMPOSE_PROJECT_NAME             : '${COMPOSE_PROJECT_NAME:?Missing `COMPOSE_PROJECT_NAME` environment variable.}'
+            X_COMPOSE_PHP_VERSION            : '${X_COMPOSE_PHP_VERSION:?Missing `X_COMPOSE_PHP_VERSION` environment variable.}'
             X_COMPOSE_PROJECT_SLUG           : '${X_COMPOSE_PROJECT_SLUG:?Missing `X_COMPOSE_PROJECT_SLUG` environment variable.}'
             X_COMPOSE_PROJECT_TYPE           : '${X_COMPOSE_PROJECT_TYPE:?Missing `X_COMPOSE_PROJECT_TYPE` environment variable.}'
             X_COMPOSE_PROJECT_LAYOUT         : '${X_COMPOSE_PROJECT_LAYOUT:?Missing `X_COMPOSE_PROJECT_LAYOUT` environment variable.}'

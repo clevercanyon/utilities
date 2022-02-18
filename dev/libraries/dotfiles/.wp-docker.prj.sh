@@ -7,3 +7,16 @@
 # You *CAN* edit this file. It can contain project-specific scripting.
 # This file is automatically detected by `./.wp-docker.sh` and called like a hook.
 ##
+# ---------------------------------------------------------------------------------------------------------------------
+# Guard against mishaps. Must run inside a container only.
+# ---------------------------------------------------------------------------------------------------------------------
+
+if [[ -z "${COMPOSE_PROJECT_NAME:-}" \
+	|| -z "${X_COMPOSE_PROJECT_SLUG:-}" \
+	|| ! -d /x-host/project \
+	|| "$(whoami)" != 'root' ]]; then
+	echo 'No direct access.'; exit 1;
+fi;
+# ---------------------------------------------------------------------------------------------------------------------
+# Project-specific customizations:
+# ---------------------------------------------------------------------------------------------------------------------
