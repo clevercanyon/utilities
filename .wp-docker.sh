@@ -193,7 +193,7 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 	chmod 0700                                                     "${WWW_DATA_HOME_DIR}"/.config;
 	rm --recursive --force                                         "${WWW_DATA_HOME_DIR}"/.config/psysh;
 	cp --recursive --preserve=all "${ROOT_HOME_DIR}"/.config/psysh "${WWW_DATA_HOME_DIR}"/.config/psysh;
-	chown --recursive www-data                                     "${WWW_DATA_HOME_DIR}"/.config/psysh;
+	chown --recursive www-data                                     "${WWW_DATA_HOME_DIR}"/.config;
 
 	# -----------------------------------------------------------------------------------------------------------------
 	# Install WP-CLI.
