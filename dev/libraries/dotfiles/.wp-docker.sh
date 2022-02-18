@@ -160,6 +160,9 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
  	echo '	. /etc/bash_completion;'                   >> "${ROOT_HOME_DIR}"/.profile;
 	echo 'fi;'                                         >> "${ROOT_HOME_DIR}"/.profile;
 
+	echo 'export PS1="🐳 \[\e[32m\]\h\[\e[m\] \[\e[34m\][\[\e[m\]\[\e[33m\]\w\[\e[m\]\[\e[34m\]]\[\e[m\] \\$ ";' \
+	                                                   >> "${ROOT_HOME_DIR}"/.profile;
+
 	cp --preserve=all "${ROOT_HOME_DIR}"/.profile         "${WWW_DATA_HOME_DIR}"/.profile;
 	chown www-data                                        "${WWW_DATA_HOME_DIR}"/.profile;
 
