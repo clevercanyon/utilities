@@ -142,7 +142,7 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
 		apt-get install bash-completion --yes;
 	fi;
-	rm                                                    "${ROOT_HOME_DIR}"/.bashrc;
+	rm --force                                            "${ROOT_HOME_DIR}"/.bashrc;
 	touch                                                 "${ROOT_HOME_DIR}"/.profile;
 	chmod 0600                                            "${ROOT_HOME_DIR}"/.profile;
 
@@ -236,7 +236,7 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 		apt-get install libmemcached-dev --yes;
 
 		apt-get install expect --yes;
-		expect <(cat <<- 'ooo'
+		expect - <(cat <<- 'ooo'
 			spawn pecl install memcached-3.1.5;
 			expect -re 'libmemcached directory.*'; send "\n";
 			expect -re 'zlib directory.*'; send "\n";
