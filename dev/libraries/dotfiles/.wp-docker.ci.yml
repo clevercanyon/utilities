@@ -21,6 +21,17 @@ services :
             - '33060:33060'
         environment :
             X_COMPOSE_VARIANT : 'ci'
+    mem :
+        ports       :
+            - '11211:11211'
+        environment :
+            X_COMPOSE_VARIANT : 'ci'
+    hog :
+        ports       :
+            - '1025:1025'
+            - '8025:8025'
+        environment :
+            X_COMPOSE_VARIANT : 'ci'
     php :
         environment :
             X_COMPOSE_VARIANT : 'ci'

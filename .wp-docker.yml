@@ -25,79 +25,6 @@
 # every container to be accessed by it's own individual IP address. That's a huge, huge, huge feature.
 # ---------------------------------------------------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------------------------------------------------
-# Suggested functions, which you can leverage as shorter aliases by adding to your `~/.bash_profile`.
-# ---------------------------------------------------------------------------------------------------------------------
-# function c() {
-#   composer "${@}";
-# };
-# function crs() {
-#   composer run-script "${1:-}" -- "${@:2}";
-# };
-# ---------------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------------
-# Bringing up or taking down a project, network, and containers:
-# ---------------------------------------------------------------------------------------------------------------------
-# $ crs wp-docker up;                                                 ... shorter alias using function above.
-# $ composer run-script wp-docker -- up;                              ... longer; and requires `--` before args.
-#
-# $ crs wp-docker down;                                               ... shorter alias using function above.
-# $ composer run-script wp-docker -- down;                            ... longer; and requires `--` before args.
-# ---------------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------------
-# Review status of a project's containers.
-# ---------------------------------------------------------------------------------------------------------------------
-# $ crs wp-docker status;                                             ... shows all containers.
-# $ composer run-script wp-docker -- status;                          ... shows all containers.
-# ---------------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------------
-# Logging into a container (shell access).
-# ---------------------------------------------------------------------------------------------------------------------
-# $ crs wp-docker bash;                                               ... main `php` container.
-# $ composer run-script wp-docker -- bash;                            ... main `php` container.
-#
-# $ crs wp-docker bash [container-short-alias];                       ... `sql`, `php`, `pma`, `nxp`, `nxc`
-# $ composer run-script wp-docker -- bash [container-short-alias];    ... `sql`, `php`, `pma`, `nxp`, `nxc`
-#
-# $ crs wp-docker bash --user root;                                   ... main `php` container w/ root access.
-# $ composer run-script wp-docker -- bash --user root;                ... main `php` container w/ root access.
-# ---------------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------------
-# Following a container's logs.
-# ---------------------------------------------------------------------------------------------------------------------
-# $ crs wp-docker logs;                                               ... main `php` container.
-# $ composer run-script wp-docker -- logs;                            ... main `php` container.
-#
-# $ crs wp-docker logs [container-short-alias];                       ... `sql`, `php`, `pma`, `nxp`, `nxc`
-# $ composer run-script wp-docker -- logs [container-short-alias];    ... `sql`, `php`, `pma`, `nxp`, `nxc`
-# ---------------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------------
-# Inspecting a container (raw JSON configuration access):
-# ---------------------------------------------------------------------------------------------------------------------
-# $ crs wp-docker inspect;                                            ... main `php` container.
-# $ composer run-script wp-docker -- inspect;                         ... main `php` container.
-#
-# $ crs wp-docker inspect [container-short-alias];                    ... `sql`, `php`, `pma`, `nxp`, `nxc`
-# $ composer run-script wp-docker -- inspect [container-short-alias]; ... `sql`, `php`, `pma`, `nxp`, `nxc`
-# ---------------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------------
-# A few more examples showing use of docker directly.
-# ---------------------------------------------------------------------------------------------------------------------
-# $ docker compose ls;
-# $ docker inspect [project-slug]-network;
-# $ docker logs [project-slug]-[container-short-alias];
-# $ docker inspect [project-slug]-[container-short-alias];
-# $ docker attach [project-slug]-[container-short-alias];
-# $ docker exec -it [project-slug]-[container-short-alias] bash --login;
-# $ docker inspect --format '[format]' [project-slug]-[container-short-alias];
-# ---------------------------------------------------------------------------------------------------------------------
-
 version  : '3.9' # {@see https://o5p.me/TtD60s}.
 
 networks :
@@ -153,6 +80,52 @@ services :
             timeout  : '30s'
             retries  : 10
 
+    mem : # Memcached server.
+        container_name : '${X_COMPOSE_PROJECT_SLUG}-mem'
+        hostname       : '${X_COMPOSE_PROJECT_SLUG}-mem'
+        domainname     : 'wp' # i.e., `${X_COMPOSE_PROJECT_SLUG}-mem.wp`.
+        image          : 'memcached:latest'
+        dns            :
+            - '1.1.1.1'        # Cloudflare.
+            - '8.8.8.8'        # Google.
+            - '8.8.4.4'        # Google.
+            - '208.67.222.222' # OpenDNS.
+            - '208.67.220.220' # OpenDNS.
+        expose         :
+            - '11211'
+        networks       :
+            - 'network'
+        command        : '' # Ditch default CMD.
+        # {@see https://o5p.me/siDlED} for config details. 16MB of RAM.
+        entrypoint     : 'memcached -m 16 -vv;'
+        healthcheck    : # Could not install netcat on this image.
+            test     : '( cat /proc/1/status | grep memcached ) || exit 1'
+            interval : '3s'
+            timeout  : '30s'
+            retries  : 10
+
+    hog : # Mailhog server.
+        container_name : '${X_COMPOSE_PROJECT_SLUG}-hog'
+        hostname       : '${X_COMPOSE_PROJECT_SLUG}-hog'
+        domainname     : 'wp' # i.e., `${X_COMPOSE_PROJECT_SLUG}-hog.wp`.
+        image          : 'mailhog/mailhog:latest'
+        dns            :
+            - '1.1.1.1'        # Cloudflare.
+            - '8.8.8.8'        # Google.
+            - '8.8.4.4'        # Google.
+            - '208.67.222.222' # OpenDNS.
+            - '208.67.220.220' # OpenDNS.
+        expose         :
+            - '1025' # SMTP server.
+            - '8025' # Web interface.
+        networks       :
+            - 'network'
+        healthcheck    : # This image has netcat installed already.
+            test     : '( nc -z localhost 1025 && nc -z localhost 8025 ) || exit 1'
+            interval : '3s'
+            timeout  : '30s'
+            retries  : 10
+
     php : # Apache/PHP/WordPress server.
         # How to install other PHP extensions; {@see https://o5p.me/8K3seT}.
         container_name : '${X_COMPOSE_PROJECT_SLUG}-php'
@@ -161,6 +134,10 @@ services :
         image          : 'wordpress:php${X_COMPOSE_PHP_VERSION:?Missing `X_COMPOSE_PHP_VERSION`.}-apache'
         depends_on     :
             sql :
+                condition : 'service_healthy'
+            mem :
+                condition : 'service_healthy'
+            hog :
                 condition : 'service_healthy'
         dns            :
             - '1.1.1.1'        # Cloudflare.
@@ -219,6 +196,9 @@ services :
             X_WORDPRESS_INSTALL_THEME        : '${X_WORDPRESS_INSTALL_THEME:-}'
             X_WORDPRESS_INSTALLED_THEME_SLUG : '${X_WORDPRESS_INSTALLED_THEME_SLUG:-}'
 
+            # This tells `.wp-docker.sh` to install everything; i.e., more than necessary.
+            X_INSTALL_KITCHEN_SINK           : '${X_INSTALL_KITCHEN_SINK:-}'
+
             # The `:?` forces these environment variables to be non-empty. Compliments of docker compose.
             COMPOSE_PROJECT_NAME             : '${COMPOSE_PROJECT_NAME:?Missing `COMPOSE_PROJECT_NAME` environment variable.}'
             X_COMPOSE_PROJECT_SLUG           : '${X_COMPOSE_PROJECT_SLUG:?Missing `X_COMPOSE_PROJECT_SLUG` environment variable.}'
@@ -240,6 +220,10 @@ services :
         image          : 'phpmyadmin:latest'
         depends_on     :
             sql :
+                condition : 'service_healthy'
+            mem :
+                condition : 'service_healthy'
+            hog :
                 condition : 'service_healthy'
         dns            :
             - '1.1.1.1'        # Cloudflare.
@@ -281,6 +265,10 @@ services :
         depends_on     :
             sql :
                 condition : 'service_healthy'
+            mem :
+                condition : 'service_healthy'
+            hog :
+                condition : 'service_healthy'
             php :
                 condition : 'service_healthy'
             pma :
@@ -318,6 +306,10 @@ services :
         image          : 'sebastienheyd/self-signed-proxy-companion:latest'
         depends_on     :
             sql :
+                condition : 'service_healthy'
+            mem :
+                condition : 'service_healthy'
+            hog :
                 condition : 'service_healthy'
             php :
                 condition : 'service_healthy'

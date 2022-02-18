@@ -25,6 +25,7 @@
 		".stylelintrc.cjs",
 		".tailwindrc.cjs",
 		".webpack.cjs",
+		".wp-docker",
 		".wp-docker.prj.sh",
 		".wp-docker.prj.yml",
 		".wp-docker.sh",

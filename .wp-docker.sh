@@ -10,29 +10,60 @@
 # Instead of editing this file, please edit `./.wp-docker.prj.sh`.
 ##
 # ---------------------------------------------------------------------------------------------------------------------
-# macOS Docker installation for compatibility with this configuration.
-# ---------------------------------------------------------------------------------------------------------------------
-# $ brew install --cask docker;
-# $ brew install chipmk/tap/docker-mac-net-connect;
-# $ sudo brew services start chipmk/tap/docker-mac-net-connect; # {@see https://o5p.me/Q9hnml}.
+# Strict mode and shell options.
 # ---------------------------------------------------------------------------------------------------------------------
 
-# Define a few variables.
+set   -o nounset; set   -o errexit; set   -o errtrace; set   -o pipefail;
+shopt -s extglob; shopt -s dotglob; shopt -s globstar; shopt -s nullglob;
 
-WWW_DATA_HOME_DIR=/var/www;                           # `www-data` user's home directory.
-WORDPRESS_DIR=/var/www/html;                          # Apache `DOCUMENT_ROOT` directory.
-WORDPRESS_URL=https://"${X_COMPOSE_PROJECT_SLUG}".wp; # Requires DNS mapping, which we do handle.
+# ---------------------------------------------------------------------------------------------------------------------
+# Stack trace handler.
+# ---------------------------------------------------------------------------------------------------------------------
 
+function stack_trace() {
+  local last_command_status_code=$?;
+  set +o xtrace; # {@see https://o5p.me/8eGn9c}.
+  local exit_status_code="${1:-1}";
+
+  echo '----------------------------------------------------------------------';
+  echo 'Error in '"${BASH_SOURCE[1]}"':'"${BASH_LINENO[0]}";
+  echo '`'"${BASH_COMMAND}"'` exited with status `'"${last_command_status_code}"'`.';
+
+  if [[ ${#FUNCNAME[@]} -gt 2 ]]; then
+    echo 'Stack Trace:';
+    for ((_i=1; _i < ${#FUNCNAME[@]}-1; _i++)); do
+      echo " ${_i}: ${BASH_SOURCE[${_i}+1]}:${BASH_LINENO[${_i}]} ${FUNCNAME[${_i}]}(...)";
+    done;
+  fi;
+  echo 'Exiting w/ status `'"${exit_status_code}"'`.'; exit "${exit_status_code}";
+};
+trap stack_trace ERR;
+
+# ---------------------------------------------------------------------------------------------------------------------
 # Version compare utility function.
+# ---------------------------------------------------------------------------------------------------------------------
 
 function version-compare() {
   local v1="'${1:-}'"; local v2="'${2:-}'"; local op="'${3:-}'";
   if [[ "$(php -r 'echo (int)version_compare('"${v1}"', '"${v2}"', '"${op}"');')" == 1 ]];
   	then return 0; else return 1; fi;
 };
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Define a few variables.
+# ---------------------------------------------------------------------------------------------------------------------
+
+ROOT_HOME_DIR=/root;                                  # `root` user's home directory.
+WWW_DATA_HOME_DIR=/var/www;                           # `www-data` user's home directory.
+WORDPRESS_DIR=/var/www/html;                          # Apache `DOCUMENT_ROOT` directory.
+WORDPRESS_URL=https://"${X_COMPOSE_PROJECT_SLUG}".wp; # Requires DNS mapping, which we do handle.
+PROJECT_DIR=/x-host/project;                          # Mounted by Docker; this is the host project directory.
+
+# ---------------------------------------------------------------------------------------------------------------------
 # Run parent container's entrypoint before we continue.
 # The `apache2-noop` name is important. Noting because it's extremely non-obvious.
 # Take a peek at the top of `docker-entrypoint.sh` to see why `apache2` is key; {@see https://o5p.me/j70ja4}.
+# ---------------------------------------------------------------------------------------------------------------------
 
 if [[ ! -f /usr/local/bin/apache2-noop ]]; then
 	echo "#!/usr/bin/env bash" > /usr/local/bin/apache2-noop;
@@ -40,86 +71,177 @@ if [[ ! -f /usr/local/bin/apache2-noop ]]; then
 fi;
 /usr/local/bin/docker-entrypoint.sh apache2-noop;
 
+# ---------------------------------------------------------------------------------------------------------------------
 # Maybe run initial installation/setup.
 # The routines below install several things; including WordPress.
 # It also installs WordPress plugins, themes, and handles activation.
+# ---------------------------------------------------------------------------------------------------------------------
 
 if [[ ! -f /usr/local/etc/x-install-complete ]]; then
+	# -----------------------------------------------------------------------------------------------------------------
 	# Aptitude.
+	# -----------------------------------------------------------------------------------------------------------------
 
 	apt-get update --yes;
 
-	# Install utilities.
+	# -----------------------------------------------------------------------------------------------------------------
+	# Core utilities.
+	# -----------------------------------------------------------------------------------------------------------------
 
-	apt-get install build-essential tar curl zip unzip git expect golang-go --yes;
+	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
+		apt-get install man --yes;
+		apt-get install coreutils --yes;
+	fi;
+	# -----------------------------------------------------------------------------------------------------------------
+	# Build tools.
+	# -----------------------------------------------------------------------------------------------------------------
 
+	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
+		apt-get install build-essential --yes;
+		apt-get install g++ --yes;
+		apt-get install cmake --yes;
+		apt-get install expect --yes;
+		apt-get install libtool --yes;
+		apt-get install autoconf --yes;
+		apt-get install pkg-config --yes;
+	fi;
+	# -----------------------------------------------------------------------------------------------------------------
+	# Other tools; grouped broadly by function.
+	# -----------------------------------------------------------------------------------------------------------------
+
+	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
+		apt-get install tar zip gzip unzip --yes;
+		apt-get install curl wget rsync --yes;
+		apt-get install telnet netcat --yes;
+		apt-get install openssl gpg --yes;
+		apt-get install tmux screen --yes;
+		apt-get install tree ack grok less --yes;
+		apt-get install gettext pandoc --yes;
+		apt-get install vim nano --yes;
+		apt-get install ncdu htop --yes;
+		apt-get install acl pwgen --yes;
+		apt-get install apache2-utils --yes;
+		apt-get install git subversion --yes;
+		apt-get install perl ruby python3 --yes;
+		apt-get install nodejs npm --yes;
+	fi;
+	# -----------------------------------------------------------------------------------------------------------------
+	# Simple shell enhancements.
+	# -----------------------------------------------------------------------------------------------------------------
+
+	apt-get install bash-completion --yes;
+
+	rm                                                    "${ROOT_HOME_DIR}"/.bashrc;
+	touch                                                 "${ROOT_HOME_DIR}"/.profile;
+	chmod 0600                                            "${ROOT_HOME_DIR}"/.profile;
+
+	echo 'alias ls='"'"'ls -la --color=auto'"'"';'     >> "${ROOT_HOME_DIR}"/.profile;
+	echo 'function cd() { builtin cd "${@}" && ls; };' >> "${ROOT_HOME_DIR}"/.profile;
+
+	echo 'if [ -f /etc/bash_completion ]; then'        >> "${ROOT_HOME_DIR}"/.profile;
+ 	echo '	. /etc/bash_completion;'                   >> "${ROOT_HOME_DIR}"/.profile;
+	echo 'fi;'                                         >> "${ROOT_HOME_DIR}"/.profile;
+
+	cp --preserve=all "${ROOT_HOME_DIR}"/.profile         "${WWW_DATA_HOME_DIR}"/.profile;
+	chown www-data                                        "${WWW_DATA_HOME_DIR}"/.profile;
+
+	# -----------------------------------------------------------------------------------------------------------------
+	# Install Composer.
+	# -----------------------------------------------------------------------------------------------------------------
+
+	curl --location https://getcomposer.org/installer \
+    	| php -- --install-dir=/usr/local/bin --filename=composer;
+
+	# -----------------------------------------------------------------------------------------------------------------
+    # Install PHPUnit.
+	# -----------------------------------------------------------------------------------------------------------------
+
+    curl --location https://phar.phpunit.de/phpunit.phar \
+    	--output /usr/local/bin/phpunit;
+    chmod +x /usr/local/bin/phpunit;
+
+	# -----------------------------------------------------------------------------------------------------------------
+    # Install Psysh.
+	# -----------------------------------------------------------------------------------------------------------------
+
+    curl --location https://psysh.org/psysh \
+    	--output /usr/local/bin/psysh;
+    chmod +x /usr/local/bin/psysh;
+
+	mkdir --parents                                                "${ROOT_HOME_DIR}"/.config/psysh;
+	echo '<?php'                                                 > "${ROOT_HOME_DIR}"/.config/psysh/config.php;
+	echo "require_once '${PROJECT_DIR}/vendor/autoload.php';"   >> "${ROOT_HOME_DIR}"/.config/psysh/config.php;
+	echo 'return [];'                                           >> "${ROOT_HOME_DIR}"/.config/psysh/config.php;
+
+	chmod 0700                                                     "${ROOT_HOME_DIR}"/.config;
+	chmod 0700                                                     "${ROOT_HOME_DIR}"/.config/psysh;
+	chmod 0600                                                     "${ROOT_HOME_DIR}"/.config/psysh/config.php;
+
+	mkdir --parents                                                "${WWW_DATA_HOME_DIR}"/.config;
+	chmod 0700                                                     "${WWW_DATA_HOME_DIR}"/.config;
+	rm --recursive --force                                         "${WWW_DATA_HOME_DIR}"/.config/psysh;
+	cp --recursive --preserve=all "${ROOT_HOME_DIR}"/.config/psysh "${WWW_DATA_HOME_DIR}"/.config/psysh;
+	chown --recursive www-data                                     "${WWW_DATA_HOME_DIR}"/.config/psysh;
+
+	# -----------------------------------------------------------------------------------------------------------------
+	# Install WP-CLI.
+	# -----------------------------------------------------------------------------------------------------------------
+
+	curl --location https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+		--output /usr/local/bin/wp;
+	chmod +x /usr/local/bin/wp;
+
+	mkdir                                                    "${ROOT_HOME_DIR}"/.wp-cli;
+	echo "path: ${WORDPRESS_DIR}"               >            "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
+	echo "url: ${WORDPRESS_URL}"               >>            "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
+	echo "user: ${X_WORDPRESS_ADMIN_USERNAME}" >>            "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
+
+	chmod 0700                                               "${ROOT_HOME_DIR}"/.wp-cli;
+	chmod 0600                                               "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
+
+	rm --recursive --force                                   "${WWW_DATA_HOME_DIR}"/.wp-cli;
+	cp --recursive --preserve=all "${ROOT_HOME_DIR}"/.wp-cli "${WWW_DATA_HOME_DIR}"/.wp-cli;
+	chown --recursive www-data                               "${WWW_DATA_HOME_DIR}"/.wp-cli;
+
+	# -----------------------------------------------------------------------------------------------------------------
 	# Install `info.php` file for debugging.
+	# -----------------------------------------------------------------------------------------------------------------
 
 	echo '<?php phpinfo();' > "${WORDPRESS_DIR}"/info.php;
 
-	# Install WP-CLI phar file.
-
-	curl -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp;
-	chmod +x /usr/local/bin/wp; # Make it executable.
-
-	# Install MailHog.
-
-	go get github.com/mailhog/MailHog;
-	/root/go/bin/MailHog &>>/var/log/mailhog.log;
-
-	# Maybe install Memcached, igbinary, and Memcached extensions.
+	# -----------------------------------------------------------------------------------------------------------------
+	# Maybe install igbinary and Memcached extensions.
+	# -----------------------------------------------------------------------------------------------------------------
 
 	if version-compare "${X_COMPOSE_PHP_VERSION}" '8.1' '>='; then
+		# We're running Memcached using a Docker container.
+		# However, we still need the PHP extension.
+
 		pecl install igbinary-3.2.7;
 		docker-php-ext-enable igbinary;
-
-		apt-get install memcached --yes;
-		service memcached start;
 
 		apt-get install zlib1g-dev --yes;
 		apt-get install libmemcached-dev --yes;
 
 		expect <(cat <<- 'ooo'
-		spawn pecl install memcached-3.1.5;
-
-		expect -re 'libmemcached directory.*';
-		send "/usr\n";
-
-		expect -re 'zlib directory.*';
-		send "/usr\n";
-
-		expect -re 'system fastlz.*';
-		send "no\n";
-
-		expect -re 'igbinary serializer.*';
-		send "yes\n";
-
-		expect -re 'msgpack serializer.*';
-		send "no\n";
-
-		expect -re 'json serializer.*';
-		send "no\n";
-
-		expect -re 'server protocol.*';
-		send "yes\n";
-
-		expect -re 'sasl.*';
-		send "yes\n";
-
-		expect -re 'sessions.*';
-		send "yes\n";
-		ooo
-		)
+			spawn pecl install memcached-3.1.5;
+			expect -re 'libmemcached directory.*'; send "\n";
+			expect -re 'zlib directory.*'; send "\n";
+			expect -re 'system fastlz.*'; send "\n";
+			expect -re 'igbinary serializer.*'; send "yes\n";
+			expect -re 'msgpack serializer.*'; send "\n";
+			expect -re 'json serializer.*'; send "\n";
+			expect -re 'server protocol.*'; send "\n";
+			expect -re 'sasl.*'; send "\n";
+			expect -re 'sessions.*'; send "\n";
+			interact; # Wait force installer to finish.
+			ooo
+		);
 		docker-php-ext-enable memcached;
 	fi;
-	# Install a WP-CLI config file.
-
-	mkdir                                         "${WWW_DATA_HOME_DIR}"/.wp-cli;
-	echo "path: ${WORDPRESS_DIR}"               > "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
-	echo "url: ${WORDPRESS_URL}"               >> "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
-	echo "user: ${X_WORDPRESS_ADMIN_USERNAME}" >> "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
-
+	# -----------------------------------------------------------------------------------------------------------------
 	# Install WordPress core.
+	# -----------------------------------------------------------------------------------------------------------------
 
 	wp core install --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPRESS_URL}" \
 		--title="${X_WORDPRESS_SITE_TITLE}" \
@@ -127,45 +249,49 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 		--admin_password="${X_WORDPRESS_ADMIN_PASSWORD}" \
 		--admin_email="${X_WORDPRESS_ADMIN_EMAIL}" --skip-email;
 
+	# -----------------------------------------------------------------------------------------------------------------
 	# Maybe update `.htaccess` file for mulitisite installs.
+	# -----------------------------------------------------------------------------------------------------------------
 
 	if [[ "${X_WORDPRESS_MULTISITE_TYPE}" == 'subdomains' ]]; then
 		wp core multisite-convert --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPRESS_URL}" \
 			--title="${X_WORDPRESS_SITE_TITLE}" --subdomains;
 
-		echo 'RewriteEngine On'                                                          > "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]'            >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteBase /'                                                            >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule ^index\.php$ - [L]'                                           >> "${WORDPRESS_DIR}"/.htaccess;
-		echo ''                                                                         >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule ^wp-admin$ wp-admin/ [R=301,L]'                               >> "${WORDPRESS_DIR}"/.htaccess;
-		echo ''                                                                         >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteCond %{REQUEST_FILENAME} -f [OR]'                                  >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteCond %{REQUEST_FILENAME} -d'                                       >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule ^ - [L]'                                                      >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule ^(wp-(content|admin|includes).*) $1 [L]'                      >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule ^(.*\.php)$ $1 [L]'                                           >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule . index.php [L]'                                              >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteEngine On'                                                       > "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]'         >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteBase /'                                                         >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule ^index\.php$ - [L]'                                        >> "${WORDPRESS_DIR}"/.htaccess;
+		echo ''                                                                      >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule ^wp-admin$ wp-admin/ [R=301,L]'                            >> "${WORDPRESS_DIR}"/.htaccess;
+		echo ''                                                                      >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteCond %{REQUEST_FILENAME} -f [OR]'                               >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteCond %{REQUEST_FILENAME} -d'                                    >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule ^ - [L]'                                                   >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule ^(wp-(content|admin|includes).*) $1 [L]'                   >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule ^(.*\.php)$ $1 [L]'                                        >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule . index.php [L]'                                           >> "${WORDPRESS_DIR}"/.htaccess;
 
 	elif [[ -n "${X_WORDPRESS_MULTISITE_TYPE}" ]]; then
 		wp core multisite-convert --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPRESS_URL}" \
 			--title="${X_WORDPRESS_SITE_TITLE}";
 
-		echo 'RewriteEngine On'                                                          > "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]'            >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteBase /'                                                            >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule ^index\.php$ - [L]'                                           >> "${WORDPRESS_DIR}"/.htaccess;
-		echo ''                                                                         >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule ^([_0-9a-zA-Z-]+/)?wp-admin$ $1wp-admin/ [R=301,L]'           >> "${WORDPRESS_DIR}"/.htaccess;
-		echo ''                                                                         >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteCond %{REQUEST_FILENAME} -f [OR]'                                  >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteCond %{REQUEST_FILENAME} -d'                                       >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule ^ - [L]'                                                      >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]'    >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule ^([_0-9a-zA-Z-]+/)?(.*\.php)$ $2 [L]'                         >> "${WORDPRESS_DIR}"/.htaccess;
-		echo 'RewriteRule . index.php [L]'                                              >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteEngine On'                                                       > "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]'         >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteBase /'                                                         >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule ^index\.php$ - [L]'                                        >> "${WORDPRESS_DIR}"/.htaccess;
+		echo ''                                                                      >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule ^([_0-9a-zA-Z-]+/)?wp-admin$ $1wp-admin/ [R=301,L]'        >> "${WORDPRESS_DIR}"/.htaccess;
+		echo ''                                                                      >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteCond %{REQUEST_FILENAME} -f [OR]'                               >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteCond %{REQUEST_FILENAME} -d'                                    >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule ^ - [L]'                                                   >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]' >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule ^([_0-9a-zA-Z-]+/)?(.*\.php)$ $2 [L]'                      >> "${WORDPRESS_DIR}"/.htaccess;
+		echo 'RewriteRule . index.php [L]'                                           >> "${WORDPRESS_DIR}"/.htaccess;
 	fi;
+	# -----------------------------------------------------------------------------------------------------------------
 	# Maybe install plugins|themes network-wide.
+	# -----------------------------------------------------------------------------------------------------------------
 
 	if [[ -n "${X_WORDPRESS_MULTISITE_TYPE}" ]]; then
 		if [[ -n "${X_WORDPRESS_INSTALL_PLUGINS}" ]]; then
@@ -183,7 +309,9 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 			wp theme enable --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPRESS_URL}" \
 				"${X_WORDPRESS_INSTALLED_THEME_SLUG}" --network --activate;
 		fi;
+	# -----------------------------------------------------------------------------------------------------------------
 	# Maybe install plugins|themes for standard WordPress.
+	# -----------------------------------------------------------------------------------------------------------------
 	else
 		if [[ -n "${X_WORDPRESS_INSTALL_PLUGINS}" ]]; then
 			while IFS=',' read -ra _x_wordpress_install_plugins; do
@@ -198,7 +326,9 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 				"${X_WORDPRESS_INSTALL_THEME}" --activate;
 		fi;
 	fi;
+	# -----------------------------------------------------------------------------------------------------------------
 	# Maybe link a project's WordPress plugin|theme directory and activate.
+	# -----------------------------------------------------------------------------------------------------------------
 
 	if [[ "${X_COMPOSE_PROJECT_TYPE}" == 'library' && "${X_COMPOSE_PROJECT_LAYOUT}" == 'wp-plugin' && -f /x-host/project/trunk/plugin.php ]]; then
 		ln -s /x-host/project/trunk "${WORDPRESS_DIR}"/wp-content/plugins/"${X_COMPOSE_PROJECT_SLUG}";
@@ -221,14 +351,21 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 				"${X_COMPOSE_PROJECT_SLUG}" --activate;
 		fi;
 	fi;
+	# -----------------------------------------------------------------------------------------------------------------
 	# Flag installation complete.
+	# -----------------------------------------------------------------------------------------------------------------
 
 	touch /usr/local/etc/x-install-complete;
 fi;
-# Run the project-specific entrypoint hook.
+# ---------------------------------------------------------------------------------------------------------------------
+# Maybe run project-specific entrypoint hook.
+# ---------------------------------------------------------------------------------------------------------------------
 
-. /x-host/project/.wp-docker.prj.sh;
-
+if [[ -f "${PROJECT_DIR}"/.wp-docker.prj.sh ]]; then
+	. "${PROJECT_DIR}"/.wp-docker.prj.sh;
+fi;
+# ---------------------------------------------------------------------------------------------------------------------
 # Start Apache.
+# ---------------------------------------------------------------------------------------------------------------------
 
 apache2-foreground;

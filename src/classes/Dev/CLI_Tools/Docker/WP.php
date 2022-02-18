@@ -113,6 +113,10 @@ final class WP extends U\A6t\CLI_Tool {
 							' This is a required argument when `wp-install-theme` is passed. It’s necessary for multisite compat.',
 						'validator'   => fn( $value ) => is_string( $value ) && U\Str::is_slug( $value ),
 					],
+					'install-kitchen-sink'    => [
+						'description' => 'Install everything (more than necessary); including the kitchen sink.' .
+							' This adds a lot more overhead, but with many utilities. See: `.wp-docker.sh` for details.',
+					],
 				] ),
 			],
 			'bash'    => [
@@ -130,11 +134,43 @@ final class WP extends U\A6t\CLI_Tool {
 				'operands'    => [
 					'container-short-alias' => [
 						'optional'    => true,
-						'description' => 'Container short alias; e.g., `sql`, `php`, `pma`, `nxp`, `nxc`.',
+						'description' => 'Container short alias; e.g., `sql`, `mem`, `hog`, `php`, `pma`, `nxp`, `nxc`.',
 						'validator'   => fn( $value ) => is_string( $value ) && U\Str::is_slug( $value ),
 						'default'     => 'php',
 					],
 				],
+			],
+			'psysh'   => [
+				'callback'    => [ $this, 'psysh' ],
+				'synopsis'    => 'Runs `docker exec -it [container] bash -c \'psysh\'`.',
+				'description' => 'Runs `docker exec -it [container] bash -c \'psysh\'`. See ' . __CLASS__ . '::psysh()',
+				'options'     => array_merge( $common_options, [
+					'user' => [
+						'optional'    => true,
+						'description' => 'User to log in as; e.g., `root`, `www-data`.',
+						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
+						'default'     => 'www-data',
+					],
+				] ),
+			],
+			'shell'   => [
+				'callback'    => [ $this, 'shell' ],
+				'synopsis'    => 'Runs `docker exec -it [container] bash -c \'wp shell\'`.',
+				'description' => 'Runs `docker exec -it [container] bash -c \'wp shell\'`. See ' . __CLASS__ . '::shell()',
+				'options'     => array_merge( $common_options, [
+					'user' => [
+						'optional'    => true,
+						'description' => 'User to log in as; e.g., `root`, `www-data`.',
+						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
+						'default'     => 'www-data',
+					],
+				] ),
+			],
+			'info'    => [
+				'callback'    => [ $this, 'info' ],
+				'synopsis'    => 'Displays helpful service info.',
+				'description' => 'Displays helpful service info. See ' . __CLASS__ . '::info()',
+				'options'     => $common_options,
 			],
 			'status'  => [
 				'callback'    => [ $this, 'status' ],
@@ -150,7 +186,7 @@ final class WP extends U\A6t\CLI_Tool {
 				'operands'    => [
 					'container-short-alias' => [
 						'optional'    => true,
-						'description' => 'Container short alias; e.g., `sql`, `php`, `pma`, `nxp`, `nxc`.',
+						'description' => 'Container short alias; e.g., `sql`, `mem`, `hog`, `php`, `pma`, `nxp`, `nxc`.',
 						'validator'   => fn( $value ) => is_string( $value ) && U\Str::is_slug( $value ),
 						'default'     => 'php',
 					],
@@ -170,7 +206,7 @@ final class WP extends U\A6t\CLI_Tool {
 				'operands'    => [
 					'container-short-alias' => [
 						'optional'    => true,
-						'description' => 'Container short alias; e.g., `sql`, `php`, `pma`, `nxp`, `nxc`.',
+						'description' => 'Container short alias; e.g., `sql`, `mem`, `hog`, `php`, `pma`, `nxp`, `nxc`.',
 						'validator'   => fn( $value ) => is_string( $value ) && U\Str::is_slug( $value ),
 						'default'     => 'php',
 					],
@@ -243,6 +279,77 @@ final class WP extends U\A6t\CLI_Tool {
 	}
 
 	/**
+	 * Command: `psysh`.
+	 *
+	 * @since        2021-12-15
+	 */
+	protected function psysh() : void {
+		try {
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
+			U\CLI::run( [
+				[ 'docker', 'exec' ],
+				[ '--interactive', '--tty' ],
+				[ '--user', $this->get_option( 'user' ) ],
+				[ '--workdir', '/var/www/html' ],
+				[ $this->project->slug . '-php' ],
+				[ 'bash', '-c', 'psysh' ],
+			], $this->project->dir, false );
+
+		} catch ( \Throwable $throwable ) {
+			U\CLI::error( $throwable->getMessage() );
+			U\CLI::error( $throwable->getTraceAsString() );
+			U\CLI::exit_status( 1 );
+		}
+	}
+
+	/**
+	 * Command: `shell`.
+	 *
+	 * @since        2021-12-15
+	 */
+	protected function shell() : void {
+		try {
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
+			U\CLI::run( [
+				[ 'docker', 'exec' ],
+				[ '--interactive', '--tty' ],
+				[ '--user', $this->get_option( 'user' ) ],
+				[ '--workdir', '/var/www/html' ],
+				[ $this->project->slug . '-php' ],
+				[ 'bash', '-c', 'wp shell' ],
+			], $this->project->dir, false );
+
+		} catch ( \Throwable $throwable ) {
+			U\CLI::error( $throwable->getMessage() );
+			U\CLI::error( $throwable->getTraceAsString() );
+			U\CLI::exit_status( 1 );
+		}
+	}
+
+	/**
+	 * Command: `info`.
+	 *
+	 * @since        2021-12-15
+	 */
+	protected function info() : void {
+		try {
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
+			$this->maybe_print_container_info();
+
+		} catch ( \Throwable $throwable ) {
+			U\CLI::error( $throwable->getMessage() );
+			U\CLI::error( $throwable->getTraceAsString() );
+			U\CLI::exit_status( 1 );
+		}
+	}
+
+	/**
 	 * Command: `status`.
 	 *
 	 * @since        2021-12-15
@@ -256,7 +363,7 @@ final class WP extends U\A6t\CLI_Tool {
 				'::env_vars' => $this->prepare_env_var_args(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'ps', '--all', '--format', 'pretty' ],
-			], $this->project->dir );
+			], $this->project->dir, false );
 
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
@@ -351,33 +458,53 @@ final class WP extends U\A6t\CLI_Tool {
 		if ( ! U\Env::is_mac() ) {
 			return; // Not applicable.
 		}
-		if ( 'up' !== $this->get_command_name() ) {
+		if ( ! in_array( $this->get_command_name(), [ 'up', 'info' ], true ) ) {
 			return; // Not applicable.
 		}
 		if ( 'ci' === $this->get_option( 'variant' ) ) {
 			return; // Not applicable.
 		}
-		U\CLI::output( 'MySQL Database' );
+		U\CLI::output( 'MySQL Database Server' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'sql' ) );
-		U\CLI::log( 'Host                 : ' . $this->get_container_fqdn( 'sql' ) );
-		U\CLI::log( 'PMA                  : https://' . $this->get_container_fqdn( 'pma' ) );
+		U\CLI::log( 'FQDN                 : ' . $this->get_container_fqdn( 'sql' ) );
+		U\CLI::log( 'MySQLx               : ' . $this->get_container_fqdn( 'sql', 'mysqlx' ) );
 
 		U\CLI::new_line();
 
-		U\CLI::output( 'Apache/PHPv' . $this->get_option( 'php-version' ) . '/WordPress' );
+		U\CLI::output( 'PhpMyAdmin (PMA) Server' );
+		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'pma' ) );
+		U\CLI::log( 'FQDN                 : https://' . $this->get_container_fqdn( 'pma' ) );
+
+		U\CLI::new_line();
+
+		U\CLI::output( 'Memcached Server' );
+		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'mem' ) );
+		U\CLI::log( 'FQDN:                : ' . $this->get_container_fqdn( 'mem' ) );
+
+		U\CLI::new_line();
+
+		U\CLI::output( 'MailHog SMTP Server' );
+		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'hog' ) );
+		U\CLI::log( 'FQDN (SMTP)          : ' . $this->get_container_fqdn( 'hog' ) );
+		U\CLI::log( 'FQDN (Webmail)       : ' . $this->get_container_fqdn( 'hog', 'webmail' ) );
+
+		U\CLI::new_line();
+
+		U\CLI::output( 'Apache/PHPv' . $this->get_option( 'php-version' ) . '/WordPress Server' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'php' ) );
-		U\CLI::log( 'Host                 : ' . $this->get_container_fqdn( 'php' ) );
-		U\CLI::log( 'PHP Info             : http://' . $this->get_container_fqdn( 'php' ) . '/info.php' );
-		U\CLI::log( 'Shell Access         : composer run-script wp-docker -- bash;' );
+		U\CLI::log( 'FQDN                 : ' . $this->get_container_fqdn( 'php' ) );
+		U\CLI::log( 'Shell Access         : $ . .wp-docker bash' );
+		U\CLI::log( 'Psysh Access         : $ . .wp-docker psysh' );
+		U\CLI::log( 'WP Shell Access      : $ . .wp-docker shell' );
 		U\CLI::log( 'Project In Container : /x-host/project' );
 
 		U\CLI::new_line();
 
-		U\CLI::output( 'Nginx Proxy w/ HTTP & HTTPs Access' );
+		U\CLI::output( 'Nginx Proxy w/ HTTP & HTTPs Servers' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'nxp' ) );
 		U\CLI::log( 'Wildcard SSL         : *.' . $this->get_container_fqdn( 'nxp' ) );
-		U\CLI::log( 'http                 : http://' . $this->get_container_fqdn( 'nxp' ) );
-		U\CLI::log( 'https                : https://' . $this->get_container_fqdn( 'nxp' ) );
+		U\CLI::log( 'HTTP                 : http://' . $this->get_container_fqdn( 'nxp' ) );
+		U\CLI::log( 'HTTPS                : https://' . $this->get_container_fqdn( 'nxp' ) );
 		U\CLI::log( 'PHP Info             : https://' . $this->get_container_fqdn( 'nxp' ) . '/info.php' );
 	}
 
@@ -387,7 +514,9 @@ final class WP extends U\A6t\CLI_Tool {
 	 * This triggers a dialoge on macOS, asking for password.
 	 * This way it's possible to update the `/etc/hosts` file.
 	 *
-	 * @since 2022-02-16
+	 * @since        2022-02-16
+	 *
+	 * @noinspection PhpUnusedLocalVariableInspection
 	 */
 	protected function maybe_update_etc_hosts_file() : void {
 		if ( ! U\Env::is_mac() ) {
@@ -412,19 +541,22 @@ final class WP extends U\A6t\CLI_Tool {
 		$etc_hosts_needs_cleanup     = false; // Initialize.
 
 		$sql_docker_ip = $this->get_container_ip( 'sql' );
+		$mem_docker_ip = $this->get_container_ip( 'mem' );
+		$hog_docker_ip = $this->get_container_ip( 'hog' );
 		$php_docker_ip = $this->get_container_ip( 'php' );
 		$pma_docker_ip = $this->get_container_ip( 'pma' );
 		$nxp_docker_ip = $this->get_container_ip( 'nxp' );
 		$nxc_docker_ip = $this->get_container_ip( 'nxc' );
 
-		$sql_docker_fqdn = $this->get_container_fqdn( 'sql', false );
-		$php_docker_fqdn = $this->get_container_fqdn( 'php', false );
-		$pma_docker_fqdn = $this->get_container_fqdn( 'pma', false );
-		$nxp_docker_fqdn = $this->get_container_fqdn( 'nxp', false );
-		$nxc_docker_fqdn = $this->get_container_fqdn( 'nxc', false );
-
-		$fqdns = [ $sql_docker_fqdn, $php_docker_fqdn, $pma_docker_fqdn, $nxp_docker_fqdn, $nxc_docker_fqdn ];
-
+		$fqdns = [
+			$sql_docker_fqdn = $this->get_container_fqdn( 'sql', false ),
+			$mem_docker_fqdn = $this->get_container_fqdn( 'mem', false ),
+			$hog_docker_fqdn = $this->get_container_fqdn( 'hog', false ),
+			$php_docker_fqdn = $this->get_container_fqdn( 'php', false ),
+			$pma_docker_fqdn = $this->get_container_fqdn( 'pma', false ),
+			$nxp_docker_fqdn = $this->get_container_fqdn( 'nxp', false ),
+			$nxc_docker_fqdn = $this->get_container_fqdn( 'nxc', false ),
+		];
 		foreach ( explode( "\n", $etc_hosts_file_contents ) as $_line ) {
 			$_line  = trim( $_line );
 			$_parts = preg_split( '/\s+/u', $_line, -1, PREG_SPLIT_NO_EMPTY );
@@ -443,6 +575,8 @@ final class WP extends U\A6t\CLI_Tool {
 		}
 		if ( 'up' === $command_name ) {
 			$new_etc_hosts_file_contents .= $sql_docker_ip . ' ' . $sql_docker_fqdn . "\n";
+			$new_etc_hosts_file_contents .= $mem_docker_ip . ' ' . $mem_docker_fqdn . "\n";
+			$new_etc_hosts_file_contents .= $hog_docker_ip . ' ' . $hog_docker_fqdn . "\n";
 			$new_etc_hosts_file_contents .= $php_docker_ip . ' ' . $php_docker_fqdn . "\n";
 			$new_etc_hosts_file_contents .= $nxp_docker_ip . ' ' . $pma_docker_fqdn . "\n";
 			$new_etc_hosts_file_contents .= $nxp_docker_ip . ' ' . $nxp_docker_fqdn . "\n";
@@ -453,21 +587,33 @@ final class WP extends U\A6t\CLI_Tool {
 		$temp_file = U\File::make_temp();
 		U\File::write( $temp_file, $new_etc_hosts_file_contents );
 
-		U\CLI::exec( [
-			[ 'osascript', '-e' ],
-			[
-				'do shell script "' .
-				'sudo /bin/mv -f \"' . $temp_file . '\" /etc/hosts &&' .
-				' sudo /usr/bin/dscacheutil -flushcache &&' .
-				' sudo /usr/bin/killall -HUP mDNSResponder' .
-				'"' .
-				( 'up' === $command_name
-					? ' with prompt "Add `' . $nxp_docker_ip . ' ' . $nxp_docker_fqdn . '` to /etc/hosts file."'
-					: ' with prompt "Remove `' . $nxp_docker_ip . ' ' . $nxp_docker_fqdn . '` from /etc/hosts file."'
-				) .
-				' with administrator privileges',
-			],
-		], $this->project->dir );
+		if ( $devs_update_etc_hosts_cmd = $this->project->dev_json_prop( '&.local.dns.commands.update_etc_hosts' ) ) {
+			U\CLI::exec( [ $devs_update_etc_hosts_cmd, $temp_file ], $this->project->dir );
+
+		} elseif ( is_executable( '/usr/local/bin/update-etc-hosts' ) ) {
+			// {@see https://gist.github.com/jaswrks/dea734437938042eab52da5e04abfecf}.
+			U\CLI::exec( [ '/usr/local/bin/update-etc-hosts', $temp_file ], $this->project->dir );
+
+		} elseif ( is_writable( $etc_hosts_file ) ) {
+			U\File::write( $etc_hosts_file, $new_etc_hosts_file_contents );
+
+		} else {
+			U\CLI::exec( [
+				[ 'osascript', '-e' ],
+				[
+					'do shell script "' .
+					'sudo /bin/mv -f \"' . $temp_file . '\" /etc/hosts &&' .
+					' sudo /usr/bin/dscacheutil -flushcache &&' .
+					' sudo /usr/bin/killall -HUP mDNSResponder' .
+					'"' .
+					( 'up' === $command_name
+						? ' with prompt "Add `' . $nxp_docker_ip . ' ' . $nxp_docker_fqdn . '` to /etc/hosts file."'
+						: ' with prompt "Remove `' . $nxp_docker_ip . ' ' . $nxp_docker_fqdn . '` from /etc/hosts file."'
+					) .
+					' with administrator privileges',
+				],
+			], $this->project->dir );
+		}
 	}
 
 	/**
@@ -502,7 +648,7 @@ final class WP extends U\A6t\CLI_Tool {
 	 * @since 2022-02-16
 	 *
 	 * @param string $short_alias Container short alias.
-	 *                            e.g., `sql`, `php`, `pma`, `nxp`, `nxc`.
+	 *                            e.g., `sql`, `mem`, `hog`, `php`, `pma`, `nxp`, `nxc`.
 	 *
 	 * @return string Container's IP address.
 	 *                Always normalized as lowercase.
@@ -528,18 +674,26 @@ final class WP extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2022-02-16
 	 *
-	 * @param string $short_alias Container short alias.
-	 *                            e.g., `sql`, `php`, `pma`, `nxp`, `nxc`.
+	 * @param string      $short_alias Container short alias.
+	 *                                 e.g., `sql`, `mem`, `hog`, `php`, `pma`, `nxp`, `nxc`.
 	 *
-	 * @param bool   $with_port   With port number? Default is `true`.
-	 *                            Port is only included if it's a non-standard HTTP port.
-	 *                            - e.g., `my-project.wp:80` is *always* returned as `my-project.wp`.
-	 *                            - You'll get `my-project-sql.wp:3306` if `$with_port` is `true`.
+	 * @param bool|string $with_port   With port number? Default is `true`.
+	 *
+	 *                                 * No port is returned for services that have no exposed ports.
+	 *                                 * Port is only included if it's not a default 80|443 HTTP port known by browsers.
+	 *                                   - e.g., `my-project.wp:80|443` is *always* returned as `my-project.wp`.
+	 *                                   - You'll get `my-project-sql.wp:3306` if `$with_port` is `true`.
+	 *                                   - You'll get `my-project-mem.wp:11211` if `$with_port` is `true`.
+	 *                                   - You'll get `my-project-hog.wp:8025` if `$with_port` is `true`.
+	 *
+	 *                                 * In some cases it is helpful to request a specific port by a slug.
+	 *                                   e.g., In the case of a service exposing multiple ports. The only slugs
+	 *                                   currently accepted are: `mysqlx`, `webmail`.
 	 *
 	 * @return string Container FQDN; i.e., `hostname.domainname[:port]`.
 	 *                Always normalized as lowercase.
 	 */
-	protected function get_container_fqdn( string $short_alias, bool $with_port = true ) : string {
+	protected function get_container_fqdn( string $short_alias, /* bool|string */ $with_port = true ) : string {
 		$command_name = $this->get_command_name();
 		$fqdn         = &$this->ins_cache( [ __FUNCTION__, $short_alias, $with_port, $command_name ] );
 
@@ -553,7 +707,13 @@ final class WP extends U\A6t\CLI_Tool {
 		], $this->project->dir )->stdout;
 
 		if ( 'sql' === $short_alias && $fqdn && $with_port ) {
-			$fqdn .= ':3306'; // e.g., `my-project-sql.wp:3306`.
+			$fqdn .= 'mysqlx' === $with_port ? ':33060' : ':3306'; // e.g., `my-project-sql.wp:3306`.
+
+		} elseif ( 'mem' === $short_alias && $fqdn && $with_port ) {
+			$fqdn .= ':11211'; // e.g., `my-project-mem.wp:11211`.
+
+		} elseif ( 'hog' === $short_alias && $fqdn && $with_port ) {
+			$fqdn .= 'webmail' === $with_port ? ':8025' : ':1025'; // e.g., `my-project-hog.wp:8025`.
 		}
 		return $fqdn = mb_strtolower( $fqdn );
 	}
@@ -579,6 +739,7 @@ final class WP extends U\A6t\CLI_Tool {
 			$args[] = 'X_WORDPRESS_INSTALL_PLUGINS=' . U\Str::esc_shell_arg( implode( ',', $this->get_option( 'wp-install-plugin' ) ?: [] ) );
 			$args[] = 'X_WORDPRESS_INSTALL_THEME=' . U\Str::esc_shell_arg( $this->get_option( 'wp-install-theme' ) ?: '' );
 			$args[] = 'X_WORDPRESS_INSTALLED_THEME_SLUG=' . U\Str::esc_shell_arg( $this->get_option( 'wp-installed-theme-slug' ) ?: '' );
+			$args[] = 'X_INSTALL_KITCHEN_SINK=' . U\Str::esc_shell_arg( $this->get_option( 'install-kitchen-sink' ) ? '1' : '' );
 		}
 		return $args;
 	}
