@@ -120,6 +120,8 @@ services :
             - '8025' # Web interface.
         networks       :
             - 'network'
+        logging        :
+            driver : 'none'  # Too noisy.
         healthcheck    : # This image has netcat installed already.
             test     : '( nc -z localhost 1025 && nc -z localhost 8025 ) || exit 1'
             interval : '3s'
