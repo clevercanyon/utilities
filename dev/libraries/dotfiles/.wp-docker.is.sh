@@ -12,13 +12,22 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # Image Setup Instructions:
 # ---------------------------------------------------------------------------------------------------------------------
-# Parent image is `wordpress:php8.1-apache`.
-# - Start a new container with the parent image; e.g., using Docker Desktop.
-# - Log into the container and install `vim`: `$ apt-get update --yes && apt-get install vim --yes;`.
-# - Create a new file: `/usr/local/src/.wp-docker.is.sh`. Paste the contents of this file in and save.
-# - Run `chmod +x /usr/local/src/.wp-docker.is.sh && /usr/local/src/.wp-docker.is.sh`, and await completion.
-# - Commit the image: `$ docker commit [container-name] jaswrks/wp-docker:php8.1-apache`.
-# - Push the image to Docker Hub: `$ docker push jaswrks/wp-docker:php8.1-apache`.
+# Parent Images:
+# - wordpress:php8.1-apache
+# - wordpress:php8.0-apache
+# - wordpress:php7.4-apache
+#
+# WP Docker Images:
+# - jaswrks/wp-docker:php8.1-apache
+# - jaswrks/wp-docker:php8.0-apache
+# - jaswrks/wp-docker:php7.4-apache
+#
+# - Start a new container with each of the parent images; e.g., using Docker Desktop.
+# - Log into each container and install `vim`: `$ apt-get update --yes && apt-get install vim --yes;`.
+# - Create a new file: `$ vi /usr/local/src/x-.wp-docker.is.sh`. Paste the contents of this file in and save.
+# - Run `chmod +x /usr/local/src/x-.wp-docker.is.sh && /usr/local/src/x-.wp-docker.is.sh` ... await completion.
+# - Commit the image: `$ docker commit [container-name] jaswrks/wp-docker:php[version]-apache`.
+# - Push the image to Docker Hub: `$ docker push jaswrks/wp-docker:php[version]-apache`.
 # ---------------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------------

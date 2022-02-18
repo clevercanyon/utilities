@@ -80,7 +80,7 @@ final class WP extends U\A6t\CLI_Tool {
 			],
 			'php-version' => [
 				'optional'    => true,
-				'description' => 'PHP version (MAJOR.MINOR) matching an Apache container tag: <https://hub.docker.com/_/wordpress>.',
+				'description' => 'PHP version (MAJOR.MINOR) matching one of: <https://hub.docker.com/repository/docker/jaswrks/wp-docker>.',
 				'validator'   => fn( $value ) => is_string( $value ) && U\Str::is_version( $value ),
 				'default'     => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
 			],
