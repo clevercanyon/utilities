@@ -236,20 +236,7 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 		apt-get install libmemcached-dev --yes;
 
 		apt-get install expect --yes;
-		expect <(cat <<- 'ooo'
-			spawn pecl install memcached-3.1.5;
-			expect -re '\blibmemcached directory\b[^:]*?\:'; send "\n";
-			expect -re '\bzlib directory\b[^:]*?\:'; send "\n";
-			expect -re '\bsystem fastlz\b[^:]*?\:'; send "\n";
-			expect -re '\bigbinary serializer\b[^:]*?\:'; send "yes\n";
-			expect -re '\bmsgpack serializer\b[^:]*?\:'; send "\n";
-			expect -re '\bjson serializer\b[^:]*?\:'; send "\n";
-			expect -re '\bserver protocol\b[^:]*?\:'; send "\n";
-			expect -re '\bsasl\b[^:]*?\:'; send "\n";
-			expect -re '\bsessions\b[^:]*?\:'; send "\n";
-			interact;
-			ooo
-		);
+		echo -e "\n\n\nyes\n\n\n\n\n\n" | pecl install memcached-3.1.5;
 		docker-php-ext-enable memcached;
 	fi;
 	# -----------------------------------------------------------------------------------------------------------------
