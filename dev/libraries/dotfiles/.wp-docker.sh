@@ -139,8 +139,9 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 	# Simple shell enhancements.
 	# -----------------------------------------------------------------------------------------------------------------
 
-	apt-get install bash-completion --yes;
-
+	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
+		apt-get install bash-completion --yes;
+	fi;
 	rm                                                    "${ROOT_HOME_DIR}"/.bashrc;
 	touch                                                 "${ROOT_HOME_DIR}"/.profile;
 	chmod 0600                                            "${ROOT_HOME_DIR}"/.profile;
@@ -159,16 +160,17 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 	# Install Composer.
 	# -----------------------------------------------------------------------------------------------------------------
 
-	curl --location https://getcomposer.org/installer \
-    	| php -- --install-dir=/usr/local/bin --filename=composer;
-
+	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
+		curl --location https://getcomposer.org/installer \
+			| php -- --install-dir=/usr/local/bin --filename=composer;
+	fi;
 	# -----------------------------------------------------------------------------------------------------------------
     # Install PHPUnit.
 	# -----------------------------------------------------------------------------------------------------------------
 
-    curl --location https://phar.phpunit.de/phpunit.phar \
-    	--output /usr/local/bin/phpunit;
-    chmod +x /usr/local/bin/phpunit;
+	curl --location https://phar.phpunit.de/phpunit.phar \
+		--output /usr/local/bin/phpunit;
+	chmod +x /usr/local/bin/phpunit;
 
 	# -----------------------------------------------------------------------------------------------------------------
     # Install Psysh.
@@ -244,7 +246,7 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 			expect -re 'server protocol.*'; send "\n";
 			expect -re 'sasl.*'; send "\n";
 			expect -re 'sessions.*'; send "\n";
-			interact; # Wait force installer to finish.
+			interact;
 			ooo
 		);
 		docker-php-ext-enable memcached;
