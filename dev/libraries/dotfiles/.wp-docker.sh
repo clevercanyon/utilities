@@ -96,11 +96,11 @@ if [[ ! -f /usr/local/etc/x-.wp-docker.sh-install-complete ]]; then
 	# Adjust WP-CLI configuration.
 	# -----------------------------------------------------------------------------------------------------------------
 
-	echo "url: ${WORDPRESS_URL}"               >> "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
-	echo "user: ${X_WORDPRESS_ADMIN_USERNAME}" >> "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
+	echo "url: ${WORDPRESS_URL}"                          >> "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
+	echo "user: ${X_WORDPRESS_ADMIN_USERNAME}"            >> "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
 
-	cp --preserve=all "${ROOT_HOME_DIR}"/.wp-cli  "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
-	chown www-data                                "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
+	cp --preserve=all "${ROOT_HOME_DIR}"/.wp-cli/config.yml  "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
+	chown www-data                                           "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
 
 	# -----------------------------------------------------------------------------------------------------------------
 	# Install WordPress core.
