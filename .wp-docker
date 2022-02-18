@@ -20,7 +20,8 @@ fi;
 # Bringing up or taking down a project, network, and containers:
 # ---------------------------------------------------------------------------------------------------------------------
 # $ ./.wp-docker up;                                         Brings network, volumes, and services up.
-# $ ./.wp-docker pause;                                      Pauses everything; with option to resume via `up`.
+# $ ./.wp-docker pause;                                      Pauses everything. Resume via `unpause`.
+# $ ./.wp-docker unpause;                                    Unpauses. Brings network, volumes, services back up.
 # $ ./.wp-docker down;                                       Brings everything down & permanently removes everything.
 # ---------------------------------------------------------------------------------------------------------------------
 

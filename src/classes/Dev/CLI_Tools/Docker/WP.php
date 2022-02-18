@@ -212,6 +212,18 @@ final class WP extends U\A6t\CLI_Tool {
 					],
 				],
 			],
+			'pause'   => [
+				'callback'    => [ $this, 'pause' ],
+				'synopsis'    => 'Runs `docker compose pause`.',
+				'description' => 'Runs `docker compose pause`. See ' . __CLASS__ . '::pause()',
+				'options'     => $common_options,
+			],
+			'unpause' => [
+				'callback'    => [ $this, 'unpause' ],
+				'synopsis'    => 'Runs `docker compose unpause`.',
+				'description' => 'Runs `docker compose unpause`. See ' . __CLASS__ . '::unpause()',
+				'options'     => $common_options,
+			],
 			'down'    => [
 				'callback'    => [ $this, 'down' ],
 				'synopsis'    => 'Runs `docker compose down --volumes`.',
@@ -415,6 +427,58 @@ final class WP extends U\A6t\CLI_Tool {
 				( $format ? [ '--format', $format ] : [] ),
 			], $this->project->dir, false );
 
+		} catch ( \Throwable $throwable ) {
+			U\CLI::error( $throwable->getMessage() );
+			U\CLI::error( $throwable->getTraceAsString() );
+			U\CLI::exit_status( 1 );
+		}
+	}
+
+	/**
+	 * Command: `pause`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected function pause() : void {
+		try {
+			U\CLI::heading( '[' . __METHOD__ . '()]: `docker compose pause` ...' );
+
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
+			U\CLI::run( [
+				'::env_vars' => $this->prepare_env_var_args(),
+				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
+				[ 'pause' ],
+			], $this->project->dir, false );
+
+			U\CLI::done( '[' . __METHOD__ . '()]: `docker compose pause` complete ✔.' );
+		} catch ( \Throwable $throwable ) {
+			U\CLI::error( $throwable->getMessage() );
+			U\CLI::error( $throwable->getTraceAsString() );
+			U\CLI::exit_status( 1 );
+		}
+	}
+
+	/**
+	 * Command: `unpause`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected function unpause() : void {
+		try {
+			U\CLI::heading( '[' . __METHOD__ . '()]: `docker compose unpause` ...' );
+
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
+			U\CLI::run( [
+				'::env_vars' => $this->prepare_env_var_args(),
+				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
+				[ 'unpause' ],
+			], $this->project->dir, false );
+
+			U\CLI::done( '[' . __METHOD__ . '()]: `docker compose unpause` complete ✔.' );
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );

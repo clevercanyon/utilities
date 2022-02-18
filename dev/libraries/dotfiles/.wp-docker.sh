@@ -13,9 +13,7 @@
 # Guard against mishaps. Must run inside a container only.
 # ---------------------------------------------------------------------------------------------------------------------
 
-if [[ -z "${COMPOSE_PROJECT_NAME:-}" \
-	|| -z "${X_COMPOSE_PROJECT_SLUG:-}" \
-	|| ! -d /x-host/project \
+if [[ ! -f /.dockerenv \
 	|| "$(whoami)" != 'root' ]]; then
 	echo 'No direct access.'; exit 1;
 fi;
@@ -58,7 +56,6 @@ function version-compare() {
   if [[ "$(php -r 'echo (int)version_compare('"${v1}"', '"${v2}"', '"${op}"');')" == 1 ]];
   	then return 0; else return 1; fi;
 };
-
 # ---------------------------------------------------------------------------------------------------------------------
 # Define a few variables.
 # ---------------------------------------------------------------------------------------------------------------------
@@ -87,171 +84,24 @@ fi;
 # It also installs WordPress plugins, themes, and handles activation.
 # ---------------------------------------------------------------------------------------------------------------------
 
-if [[ ! -f /usr/local/etc/x-install-complete ]]; then
-	# -----------------------------------------------------------------------------------------------------------------
-	# Aptitude.
-	# -----------------------------------------------------------------------------------------------------------------
-
-	apt-get update --yes;
-
-	# -----------------------------------------------------------------------------------------------------------------
-	# Core utilities.
-	# -----------------------------------------------------------------------------------------------------------------
-
-	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
-		apt-get install man --yes;
-		apt-get install coreutils --yes;
-	fi;
-	# -----------------------------------------------------------------------------------------------------------------
-	# Build tools.
-	# -----------------------------------------------------------------------------------------------------------------
-
-	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
-		apt-get install build-essential --yes;
-		apt-get install g++ --yes;
-		apt-get install cmake --yes;
-		apt-get install expect --yes;
-		apt-get install libtool --yes;
-		apt-get install autoconf --yes;
-		apt-get install pkg-config --yes;
-	fi;
-	# -----------------------------------------------------------------------------------------------------------------
-	# Other tools; grouped broadly by function.
-	# -----------------------------------------------------------------------------------------------------------------
-
-	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
-		apt-get install tar zip gzip unzip --yes;
-		apt-get install curl wget rsync --yes;
-		apt-get install telnet netcat --yes;
-		apt-get install openssl gpg --yes;
-		apt-get install tmux screen --yes;
-		apt-get install tree ack grok less --yes;
-		apt-get install gettext pandoc --yes;
-		apt-get install vim nano --yes;
-		apt-get install ncdu htop --yes;
-		apt-get install acl pwgen --yes;
-		apt-get install apache2-utils --yes;
-		apt-get install git subversion --yes;
-		apt-get install perl ruby python3 --yes;
-		apt-get install nodejs npm --yes;
-	fi;
+if [[ ! -f /usr/local/etc/x-.wp-docker.sh-install-complete ]]; then
 	# -----------------------------------------------------------------------------------------------------------------
 	# `www-data` should have write access to its own HOME directory.
 	# -----------------------------------------------------------------------------------------------------------------
 
-	chmod 0700                                            "${WWW_DATA_HOME_DIR}";
-	chown --recursive www-data                            "${WWW_DATA_HOME_DIR}";
+	chmod 0700                 "${WWW_DATA_HOME_DIR}";
+	chown --recursive www-data "${WWW_DATA_HOME_DIR}";
 
 	# -----------------------------------------------------------------------------------------------------------------
-	# Simple shell enhancements.
+	# Adjust WP-CLI configuration.
 	# -----------------------------------------------------------------------------------------------------------------
 
-	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
-		apt-get install bash-completion --yes;
-	fi;
-	rm --force                                            "${ROOT_HOME_DIR}"/.bashrc;
-	touch                                                 "${ROOT_HOME_DIR}"/.profile;
-	chmod 0600                                            "${ROOT_HOME_DIR}"/.profile;
+	echo "url: ${WORDPRESS_URL}"               >> "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
+	echo "user: ${X_WORDPRESS_ADMIN_USERNAME}" >> "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
 
-	echo 'alias ls='"'"'ls -la --color=auto'"'"';'     >> "${ROOT_HOME_DIR}"/.profile;
-	echo 'function cd() { builtin cd "${@}" && ls; };' >> "${ROOT_HOME_DIR}"/.profile;
-	echo 'function up() { cd ../ || return 1; };'      >> "${ROOT_HOME_DIR}"/.profile;
-	echo 'function back() { cd - || return 1; };'      >> "${ROOT_HOME_DIR}"/.profile;
-	echo 'function home() { cd ~/ || return 1; };'     >> "${ROOT_HOME_DIR}"/.profile;
+	cp --preserve=all "${ROOT_HOME_DIR}"/.wp-cli  "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
+	chown www-data                                "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
 
-	echo 'if [ -f /etc/bash_completion ]; then'        >> "${ROOT_HOME_DIR}"/.profile;
- 	echo '	. /etc/bash_completion;'                   >> "${ROOT_HOME_DIR}"/.profile;
-	echo 'fi;'                                         >> "${ROOT_HOME_DIR}"/.profile;
-
-	echo 'export PS1="🐳 \[\e[32m\]\h\[\e[m\] \[\e[34m\][\[\e[m\]\[\e[33m\]\w\[\e[m\]\[\e[34m\]]\[\e[m\] \\$ ";' \
-	                                                   >> "${ROOT_HOME_DIR}"/.profile;
-
-	cp --preserve=all "${ROOT_HOME_DIR}"/.profile         "${WWW_DATA_HOME_DIR}"/.profile;
-	chown www-data                                        "${WWW_DATA_HOME_DIR}"/.profile;
-
-	# -----------------------------------------------------------------------------------------------------------------
-	# Install Composer.
-	# -----------------------------------------------------------------------------------------------------------------
-
-	if [[ -n "${X_INSTALL_KITCHEN_SINK}" ]]; then
-		curl --location https://getcomposer.org/installer \
-			| php -- --install-dir=/usr/local/bin --filename=composer;
-	fi;
-	# -----------------------------------------------------------------------------------------------------------------
-    # Install PHPUnit.
-	# -----------------------------------------------------------------------------------------------------------------
-
-	curl --location https://phar.phpunit.de/phpunit.phar \
-		--output /usr/local/bin/phpunit;
-	chmod +x /usr/local/bin/phpunit;
-
-	# -----------------------------------------------------------------------------------------------------------------
-    # Install Psysh.
-	# -----------------------------------------------------------------------------------------------------------------
-
-    curl --location https://psysh.org/psysh \
-    	--output /usr/local/bin/psysh;
-    chmod +x /usr/local/bin/psysh;
-
-	mkdir --parents                                                "${ROOT_HOME_DIR}"/.config/psysh;
-	echo '<?php'                                                 > "${ROOT_HOME_DIR}"/.config/psysh/config.php;
-	echo "require_once '${PROJECT_DIR}/vendor/autoload.php';"   >> "${ROOT_HOME_DIR}"/.config/psysh/config.php;
-	echo 'return [];'                                           >> "${ROOT_HOME_DIR}"/.config/psysh/config.php;
-
-	chmod 0700                                                     "${ROOT_HOME_DIR}"/.config;
-	chmod 0700                                                     "${ROOT_HOME_DIR}"/.config/psysh;
-	chmod 0600                                                     "${ROOT_HOME_DIR}"/.config/psysh/config.php;
-
-	mkdir --parents                                                "${WWW_DATA_HOME_DIR}"/.config;
-	chmod 0700                                                     "${WWW_DATA_HOME_DIR}"/.config;
-	rm --recursive --force                                         "${WWW_DATA_HOME_DIR}"/.config/psysh;
-	cp --recursive --preserve=all "${ROOT_HOME_DIR}"/.config/psysh "${WWW_DATA_HOME_DIR}"/.config/psysh;
-	chown --recursive www-data                                     "${WWW_DATA_HOME_DIR}"/.config;
-
-	# -----------------------------------------------------------------------------------------------------------------
-	# Install WP-CLI.
-	# -----------------------------------------------------------------------------------------------------------------
-
-	curl --location https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-		--output /usr/local/bin/wp;
-	chmod +x /usr/local/bin/wp;
-
-	mkdir                                                    "${ROOT_HOME_DIR}"/.wp-cli;
-	echo "path: ${WORDPRESS_DIR}"               >            "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
-	echo "url: ${WORDPRESS_URL}"               >>            "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
-	echo "user: ${X_WORDPRESS_ADMIN_USERNAME}" >>            "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
-
-	chmod 0700                                               "${ROOT_HOME_DIR}"/.wp-cli;
-	chmod 0600                                               "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
-
-	rm --recursive --force                                   "${WWW_DATA_HOME_DIR}"/.wp-cli;
-	cp --recursive --preserve=all "${ROOT_HOME_DIR}"/.wp-cli "${WWW_DATA_HOME_DIR}"/.wp-cli;
-	chown --recursive www-data                               "${WWW_DATA_HOME_DIR}"/.wp-cli;
-
-	# -----------------------------------------------------------------------------------------------------------------
-	# Install `info.php` file for debugging.
-	# -----------------------------------------------------------------------------------------------------------------
-
-	echo '<?php phpinfo();' > "${WORDPRESS_DIR}"/info.php;
-
-	# -----------------------------------------------------------------------------------------------------------------
-	# Maybe install igbinary and Memcached extensions.
-	# -----------------------------------------------------------------------------------------------------------------
-
-	if version-compare "${X_COMPOSE_PHP_VERSION}" '8.1' '>='; then
-		# We're running Memcached using a Docker container.
-		# However, we still need the PHP extension.
-
-		pecl install igbinary-3.2.7;
-		docker-php-ext-enable igbinary;
-
-		apt-get install zlib1g-dev --yes;
-		apt-get install libmemcached-dev --yes;
-
-		apt-get install expect --yes;
-		echo -e "\n\n\nyes\n\n\n\n\n\n" | pecl install memcached-3.1.5;
-		docker-php-ext-enable memcached;
-	fi;
 	# -----------------------------------------------------------------------------------------------------------------
 	# Install WordPress core.
 	# -----------------------------------------------------------------------------------------------------------------
@@ -368,7 +218,7 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 	# Flag installation complete.
 	# -----------------------------------------------------------------------------------------------------------------
 
-	touch /usr/local/etc/x-install-complete;
+	touch /usr/local/etc/x-.wp-docker.sh-install-complete;
 fi;
 # ---------------------------------------------------------------------------------------------------------------------
 # Maybe run project-specific entrypoint hook.

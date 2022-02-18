@@ -11,9 +11,7 @@
 # Guard against mishaps. Must run inside a container only.
 # ---------------------------------------------------------------------------------------------------------------------
 
-if [[ -z "${COMPOSE_PROJECT_NAME:-}" \
-	|| -z "${X_COMPOSE_PROJECT_SLUG:-}" \
-	|| ! -d /x-host/project \
+if [[ ! -f /.dockerenv \
 	|| "$(whoami)" != 'root' ]]; then
 	echo 'No direct access.'; exit 1;
 fi;
