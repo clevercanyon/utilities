@@ -238,15 +238,15 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 		apt-get install expect --yes;
 		expect <(cat <<- 'ooo'
 			spawn pecl install memcached-3.1.5;
-			expect -re 'libmemcached directory.*?\['; send "\n";
-			expect -re 'zlib directory.*?\['; send "\n";
-			expect -re 'system fastlz.*?\['; send "\n";
-			expect -re 'igbinary serializer.*?\['; send "yes\n";
-			expect -re 'msgpack serializer.*?\['; send "\n";
-			expect -re 'json serializer.*?\['; send "\n";
-			expect -re 'server protocol.*?\['; send "\n";
-			expect -re 'sasl.*?\['; send "\n";
-			expect -re 'sessions.*?\['; send "\n";
+			expect -re 'libmemcached directory.*?\[.*?\]'; send "\n";
+			expect -re 'zlib directory.*?\[.*?\]'; send "\n";
+			expect -re 'system fastlz.*?\[.*?\]'; send "\n";
+			expect -re 'igbinary serializer.*?\[.*?\]'; send "yes\n";
+			expect -re 'msgpack serializer.*?\[.*?\]'; send "\n";
+			expect -re 'json serializer.*?\[.*?\]'; send "\n";
+			expect -re 'server protocol.*?\[.*?\]'; send "\n";
+			expect -re 'sasl.*?\[.*?\]'; send "\n";
+			expect -re 'sessions.*?\[.*?\]'; send "\n";
 			interact;
 			ooo
 		);
