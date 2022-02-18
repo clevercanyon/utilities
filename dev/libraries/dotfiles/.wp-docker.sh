@@ -155,6 +155,9 @@ if [[ ! -f /usr/local/etc/x-install-complete ]]; then
 
 	echo 'alias ls='"'"'ls -la --color=auto'"'"';'     >> "${ROOT_HOME_DIR}"/.profile;
 	echo 'function cd() { builtin cd "${@}" && ls; };' >> "${ROOT_HOME_DIR}"/.profile;
+	echo 'function up() { cd ../ || return 1; };'      >> "${ROOT_HOME_DIR}"/.profile;
+	echo 'function back() { cd - || return 1; };'      >> "${ROOT_HOME_DIR}"/.profile;
+	echo 'function home() { cd ~/ || return 1; };'     >> "${ROOT_HOME_DIR}"/.profile;
 
 	echo 'if [ -f /etc/bash_completion ]; then'        >> "${ROOT_HOME_DIR}"/.profile;
  	echo '	. /etc/bash_completion;'                   >> "${ROOT_HOME_DIR}"/.profile;

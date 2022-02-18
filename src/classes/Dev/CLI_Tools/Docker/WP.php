@@ -493,7 +493,7 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::output( 'Apache/PHPv' . $this->get_option( 'php-version' ) . '/WordPress Server' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'php' ) );
 		U\CLI::log( 'FQDN                 : ' . $this->get_container_fqdn( 'php' ) );
-		U\CLI::log( 'Shell Access         : $ ./.wp-docker bash' );
+		U\CLI::log( 'Shell Access         : 🐳 $ ./.wp-docker bash' );
 		U\CLI::log( 'Psysh Access         : $ ./.wp-docker psysh' );
 		U\CLI::log( 'WP Shell Access      : $ ./.wp-docker shell' );
 		U\CLI::log( 'Project In Container : /x-host/project' );
@@ -504,7 +504,7 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'nxp' ) );
 		U\CLI::log( 'Wildcard SSL         : *.' . $this->get_container_fqdn( 'nxp' ) );
 		U\CLI::log( 'HTTP                 : http://' . $this->get_container_fqdn( 'nxp' ) );
-		U\CLI::log( 'HTTPS                : https://' . $this->get_container_fqdn( 'nxp' ) );
+		U\CLI::log( 'HTTPS                : 🌎 https://' . $this->get_container_fqdn( 'nxp' ) );
 		U\CLI::log( 'PHP Info             : https://' . $this->get_container_fqdn( 'nxp' ) . '/info.php' );
 	}
 
