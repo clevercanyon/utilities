@@ -94,10 +94,14 @@ trait Constructable_Members {
 		}
 		// Configure a few variables.
 
+		if ( U\Env::is_wp_docker() ) {
+			$default_servers = [ [ 'host' => 'mem', 'port' => 11211, 'weight' => 0 ] ];
+		} else {
+			$default_servers = [ [ 'host' => '127.0.0.1', 'port' => 11211, 'weight' => 0 ] ];
+		}
 		$connection_id_salt = $connection_id_salt ?: U\Env::static_var( 'MEMCACHED_CONNECTION_ID_SALT' ) ?: '';
 		$namespace_salt     = $namespace_salt ?: U\Env::static_var( 'MEMCACHED_NAMESPACE_SALT' ) ?: '';
-		$servers            = $servers ?: U\Env::static_var( 'MEMCACHED_SERVERS' )
-			?: [ [ 'host' => '127.0.0.1', 'port' => 11211, 'weight' => 0 ] ];
+		$servers            = $servers ?: U\Env::static_var( 'MEMCACHED_SERVERS' ) ?: $default_servers;
 
 		/**
 		 * A possibly-persistent connection ID is a 32-byte {@see U\Crypto::x_sha()} of (6) considerations:

@@ -24,18 +24,19 @@
 #
 # - Start a new container with each of the parent images; e.g., using Docker Desktop.
 # - Log into each container and install `vim`: `$ apt-get update --yes && apt-get install vim --yes;`.
-# - Create a new file: `$ vi /usr/local/src/x-.wp-docker.is.sh`. Paste the contents of this file in and save.
-# - Run `chmod +x /usr/local/src/x-.wp-docker.is.sh && /usr/local/src/x-.wp-docker.is.sh` ... await completion.
+# - Create a new file: `$ vi /usr/local/src/.wp-docker.is.sh`. Paste the contents of this file in and save.
+# - Run `chmod +x /usr/local/src/.wp-docker.is.sh && /usr/local/src/.wp-docker.is.sh` ... await completion.
 # - Commit the image: `$ docker commit [container-name] jaswrks/wp-docker:php[version]-apache`.
 # - Push the image to Docker Hub: `$ docker push jaswrks/wp-docker:php[version]-apache`.
+#
+# NOTE: The `.wp-docker.is.sh` name and location are important. We use it to detect a WP Docker container.
 # ---------------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Guard against mishaps. Must run inside a container only.
 # ---------------------------------------------------------------------------------------------------------------------
 
-if [[ ! -f /.dockerenv \
-	|| "$(whoami)" != 'root' ]]; then
+if [[ ! -f /usr/local/src/.wp-docker.is.sh || "$(whoami)" != 'root' ]]; then
 	echo 'No direct access.'; exit 1;
 fi;
 # ---------------------------------------------------------------------------------------------------------------------

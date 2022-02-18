@@ -46,6 +46,7 @@ trait Members {
 	use U\Traits\Env\Utilities\Can_Use_Function_Members;
 	use U\Traits\Env\Utilities\Charset_Members;
 	use U\Traits\Env\Utilities\IIS_Members;
+	use U\Traits\Env\Utilities\Is_Docker_Members;
 	use U\Traits\Env\Utilities\INI_Setting_Members;
 	use U\Traits\Env\Utilities\Is_CLI_Members;
 	use U\Traits\Env\Utilities\Is_HTTP_Members;

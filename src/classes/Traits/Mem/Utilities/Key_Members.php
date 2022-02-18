@@ -94,6 +94,13 @@ trait Key_Members {
 		} while ( $attempts < U\Mem::$max_write_attempts && \Memcached::RES_NOTSTORED === $result_code );
 
 		if ( ! $namespaced_primary_key_uuid_v4 ) {
+			if ( U\Env::in_debug_mode() && U\Env::is_wp_docker() ) {
+				if ( isset( $result_code ) && \Memcached::RES_SERVER_MARKED_DEAD === $result_code ) {
+					throw new U\Exception( 'Missing primary key UUIDv4 because a Memcached server is down.' );
+				} else {
+					throw new U\Exception( 'Missing primary key UUIDv4. Result code: `' . ( $result_code ?? '?' ) . '`.' );
+				}
+			}
 			return ''; // Fail; e.g., down server or unexpected error.
 		}
 		$namespaced_primary_key_uuid_v4_prefix = $namespaced_primary_key_uuid_v4 . '\\';

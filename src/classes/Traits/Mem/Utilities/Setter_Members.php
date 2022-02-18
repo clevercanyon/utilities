@@ -83,6 +83,7 @@ trait Setter_Members {
 	 *
 	 * @return bool True on success.
 	 *
+	 * @throws U\Exception In debug mode, if missing a CAS token for an unknown reason.
 	 * @throws U\Exception When `$value` is too large according to Memcached response code.
 	 * @throws U\Exception When a derived cache key is too large according to Memcached response code.
 	 */
@@ -114,6 +115,9 @@ trait Setter_Members {
 					return true; // All good; stop here.
 				}
 			} elseif ( ! $cas ) {
+				if ( U\Env::in_debug_mode() ) {
+					throw new U\Exception( 'Missing CAS token. Result code: `' . $this->memcached->getResultCode() . '`.' );
+				}
 				return false; // Fail; e.g., down server or unexpected error.
 
 			} elseif ( $this->memcached->cas( $cas, $key, $value, $expires ) ) {

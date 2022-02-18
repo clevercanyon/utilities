@@ -11,8 +11,7 @@
 # Guard against mishaps. Must run inside a container only.
 # ---------------------------------------------------------------------------------------------------------------------
 
-if [[ ! -f /.dockerenv \
-	|| "$(whoami)" != 'root' ]]; then
+if [[ ! -f /usr/local/src/.wp-docker.is.sh || "$(whoami)" != 'root' ]]; then
 	echo 'No direct access.'; exit 1;
 fi;
 # ---------------------------------------------------------------------------------------------------------------------
