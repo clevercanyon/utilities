@@ -112,7 +112,7 @@ module.exports = ( env, argv ) => {
 						use     : [
 							{
 								loader : 'babel-loader', options : {
-									configFile : { config : path.resolve( __dirname, './babel.cjs' ) },
+									configFile : path.resolve( __dirname, './babel.cjs' ),
 								},
 							},
 							{ loader : '@linaria/webpack-loader' },
