@@ -98,7 +98,11 @@ module.exports = ( env, argv ) => {
 						use  : [
 							miniCss.loader,
 							{ loader : 'css-loader' },
-							{ loader : 'postcss-loader', options : { postcssOptions : { config : './postcss.cjs' } } },
+							{
+								loader : 'postcss-loader', options : {
+									postcssOptions : { config : path.resolve( __dirname, './postcss.cjs' ) },
+								},
+							},
 							{ loader : 'sass-loader' },
 						],
 					},
