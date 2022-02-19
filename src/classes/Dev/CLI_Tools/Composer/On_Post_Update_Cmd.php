@@ -476,7 +476,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		U\CLI::log( '[' . __FUNCTION__ . '()]: Pruned: `' . $comp_dir . '`.' );
 
 		// Runs PHP Scoper on full `._x/comp` directory; outputting to `._x/distro`.
-		// PHP Scoper can expose, exclude, and apply patchers. To learn more, see `.scoper.cfg.php` file.
+		// PHP Scoper can expose, exclude, and apply patchers. To learn more, see `./dev/.libs/php-scoper/config.php` file.
 		// We're not excluding anything extra special here, though, as we have already pruned the directory.
 
 		if ( 'clevercanyon/utilities' === $this->project->pkg_name ) {

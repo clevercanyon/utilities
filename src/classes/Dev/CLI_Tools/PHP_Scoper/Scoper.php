@@ -155,10 +155,10 @@ final class Scoper extends U\A6t\CLI_Tool {
 		$prefix      = $this->get_option( 'prefix' );
 		$work_dir    = U\Fs::abs( $this->get_option( 'work-dir' ) );
 		$output_dir  = U\Fs::abs( $this->get_option( 'output-dir' ) );
-		$config_file = U\Dir::join( $this->project->dir, '/.scoper.cfg.php' );
+		$config_file = U\Dir::join( $this->project->dir, '/dev/.libs/php-scoper/config.php' );
 
 		if ( ! is_file( $config_file ) ) {
-			throw new U\Fatal_Exception( 'Missing `[project-dir]/.scoper.cfg.php`: `' . $config_file . '`.' );
+			throw new U\Fatal_Exception( 'Missing `[project-dir]/dev/.libs/php-scoper/config.php`: `' . $config_file . '`.' );
 		}
 		U\CLI::run( [
 			[ 'composer', 'exec', '--profile', '--', 'php-scoper', 'add-prefix' ],

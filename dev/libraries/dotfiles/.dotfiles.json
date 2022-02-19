@@ -1,14 +1,10 @@
 {
 	"manifest"          : {
-		"dev/.libs/docker/wp/certs"           : "@",
-		"dev/.libs/docker/wp/compose.yml"     : "@",
-		"dev/.libs/docker/wp/compose~ci.yml"  : "@",
-		"dev/.libs/docker/wp/compose~prj.yml" : "@",
-		"dev/.libs/docker/wp/entry.bash"      : "@",
-		"dev/.libs/docker/wp/entry~prj.bash"  : "@",
-
 		"dev/.libs/phpunit/config.xml"        : "@",
 		"dev/.libs/phpunit/config~distro.xml" : "@",
+
+		"dev/.libs/php-scoper/config.php"     : "@",
+		"dev/.libs/php-scoper/config~prj.php" : "@",
 
 		".babelrc.cjs"                        : "@",
 		".browserslistrc"                     : "@",
@@ -21,13 +17,18 @@
 		".phpcs.xml"                          : "@",
 		".postcssrc.cjs"                      : "@",
 		".prettierrc.cjs"                     : "@",
-		".scoper.cfg.php"                     : "@",
-		".scoper.cfg~prj.php"                 : "@",
 		".shellcheckrc"                       : "@",
 		".stylelintrc.cjs"                    : "@",
 		".tailwindrc.cjs"                     : "@",
 		".webpack.cjs"                        : "@",
+
 		".wp-docker"                          : "@",
+		"dev/.libs/docker/wp/certs"           : "@",
+		"dev/.libs/docker/wp/compose.yml"     : "@",
+		"dev/.libs/docker/wp/compose~ci.yml"  : "@",
+		"dev/.libs/docker/wp/compose~prj.yml" : "@",
+		"dev/.libs/docker/wp/entry.bash"      : "@",
+		"dev/.libs/docker/wp/entry~prj.bash"  : "@",
 
 		"package.json"                        : "@"
 	},
@@ -36,6 +37,8 @@
 		".phpunit~distro.xml",
 		".phpunit-distro.xml",
 		".scoper.prj.cfg.php",
+		".scoper.cfg.php",
+		".scoper.cfg~prj.php",
 		".ssl-i-ca-crt.pem",
 		".ssl-i-ca-csr.pem",
 		".ssl-i-ca-key.pem",
