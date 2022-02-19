@@ -15,7 +15,7 @@ module.exports = function ( api ) {
 	return {
 		plugins : {
 			'postcss-import'     : {},
-			'tailwindcss'        : require( '.tailwind.cjs' ),
+			'tailwindcss'        : require( './tailwind.cjs' ),
 			'postcss-preset-env' : {
 				stage    : 1,
 				features : {

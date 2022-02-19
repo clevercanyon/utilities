@@ -15,14 +15,14 @@ module.exports = function ( api ) {
 	return {
 		plugins : {
 			'postcss-import'     : {},
-			'tailwindcss'        : require( './dev/.libs/webpack/tailwind.cjs' ),
+			'tailwindcss'        : require( './tailwind.cjs' ),
 			'postcss-preset-env' : {
 				stage    : 1,
 				features : {
 					'focus-within-pseudo-class' : false,
 				},
 			},
-			'cssnano'            : require( './dev/.libs/webpack/cssnano.cjs' ),
+			'cssnano'            : require( './cssnano.cjs' ),
 		},
 	};
 };
