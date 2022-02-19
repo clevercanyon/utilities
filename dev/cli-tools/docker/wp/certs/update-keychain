@@ -18,6 +18,6 @@ cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1;
 
 # Configuration of SSL certs.
 
-output_dir=../../../../../dev/libraries/dotfiles/dev/dotfiles/docker/wp/certs;
+output_dir=../../../../../dev/libraries/dotfiles/dev/.libs/docker/wp/certs;
 sudo security -v add-trusted-cert -d -r trustRoot -k   /Library/Keychains/System.keychain "${output_dir}"/root-ca-crt.pem;
 sudo security -v add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain "${output_dir}"/i10e-ca-crt.pem;

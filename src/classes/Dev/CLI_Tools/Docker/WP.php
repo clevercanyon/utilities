@@ -115,7 +115,7 @@ final class WP extends U\A6t\CLI_Tool {
 					],
 					'install-kitchen-sink'    => [
 						'description' => 'Install everything (more than necessary); including the kitchen sink.' .
-							' This adds a lot more overhead, but with many utilities. See: `./dev/dotfiles/docker/wp/entrypoint.sh` for details.',
+							' This adds a lot more overhead, but with many utilities. See: `./dev/.libs/docker/wp/entry.bash` for details.',
 					],
 				] ),
 			],
@@ -818,14 +818,14 @@ final class WP extends U\A6t\CLI_Tool {
 	protected function prepare_yml_file_args() : array {
 		if ( 'ci' === $this->get_option( 'variant' ) ) {
 			return [
-				[ '--file', './dev/dotfiles/docker/wp/compose.yml' ],
-				[ '--file', './dev/dotfiles/docker/wp/compose~ci.yml' ],
-				[ '--file', './dev/dotfiles/docker/wp/compose~prj.yml' ],
+				[ '--file', './dev/.libs/docker/wp/compose.yml' ],
+				[ '--file', './dev/.libs/docker/wp/compose~ci.yml' ],
+				[ '--file', './dev/.libs/docker/wp/compose~prj.yml' ],
 			];
 		} else {
 			return [
-				[ '--file', './dev/dotfiles/docker/wp/compose.yml' ],
-				[ '--file', './dev/dotfiles/docker/wp/compose~prj.yml' ],
+				[ '--file', './dev/.libs/docker/wp/compose.yml' ],
+				[ '--file', './dev/.libs/docker/wp/compose~prj.yml' ],
 			];
 		}
 	}

@@ -19,7 +19,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1;
 # Configuration of SSL certs.
 
 days=395; # {@see https://o5p.me/Fz1NWM}.
-output_dir=../../../../../dev/libraries/dotfiles/dev/dotfiles/docker/wp/certs;
+output_dir=../../../../../dev/libraries/dotfiles/dev/.libs/docker/wp/certs;
 if [[ ! -d "${output_dir}" ]]; then mkdir -p "${output_dir}"; fi;
 
 # Self-signed root CA generator.
