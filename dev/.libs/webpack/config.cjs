@@ -95,7 +95,12 @@ module.exports = ( env, argv ) => {
 					},
 					{
 						test : /\.(?:css|scss)$/i,
-						use  : [ miniCss.loader, 'css-loader', 'postcss-loader', 'sass-loader' ],
+						use  : [
+							miniCss.loader,
+							{ loader : 'css-loader' },
+							{ loader : 'postcss-loader', options : { config : './postcss.cjs' } },
+							{ loader : 'sass-loader' },
+						],
 					},
 					{
 						test    : /\.(?:js|jsx)$/i,

@@ -13,7 +13,6 @@
 		".gitignore"                          : "@",
 		".npmignore"                          : "@",
 		".phpcs.xml"                          : "@",
-		".postcssrc.cjs"                      : "@",
 		".prettierrc.cjs"                     : "@",
 		".shellcheckrc"                       : "@",
 		".stylelintrc.cjs"                    : "@",
@@ -21,6 +20,7 @@
 		"dev/.libs/webpack/config.cjs"        : "@",
 		"dev/.libs/webpack/tailwind.cjs"      : "@",
 		"dev/.libs/webpack/cssnano.cjs"       : "@",
+		"dev/.libs/webpack/postcss.cjs"       : "@",
 
 		".wp-docker"                          : "@",
 		"dev/.libs/docker/wp/certs"           : "@",
@@ -37,6 +37,7 @@
 		".linariarc.cjs",
 		".phpunit-distro.xml",
 		".phpunit.xml",
+		".postcssrc.cjs",
 		".phpunit~distro.xml",
 		".scoper.cfg.php",
 		".scoper.cfg~prj.php",
