@@ -15,7 +15,7 @@ module.exports = function ( api ) {
 	return {
 		plugins : {
 			'postcss-import'     : {},
-			'tailwindcss'        : require( './dev/.libs/tailwind/config.cjs' ),
+			'tailwindcss'        : require( './dev/.libs/webpack/tailwind.cjs' ),
 			'postcss-preset-env' : {
 				stage    : 1,
 				features : {
