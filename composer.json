@@ -52,7 +52,7 @@
 		}
 	},
 	"scripts"           : {
-		"webpack"                       : "npx webpack --config ./.webpack.cjs",
+		"webpack"                       : "npx webpack --config ./dev/.libs/webpack/config.cjs",
 		"wp-docker"                     : "./dev/cli-tools/docker/wp/docker",
 		"php-scoper-config-file-update" : "./dev/cli-tools/php-scoper/config-file update",
 
