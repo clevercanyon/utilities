@@ -109,7 +109,14 @@ module.exports = ( env, argv ) => {
 					{
 						test    : /\.(?:js|jsx)$/i,
 						exclude : [ /\/(?:node_modules\/(?:core-js|webpack\/buildin))\//i ],
-						use     : [ 'babel-loader', '@linaria/webpack-loader' ],
+						use     : [
+							{
+								loader : 'babel-loader', options : {
+									configFile : { config : path.resolve( __dirname, './babel.cjs' ) },
+								},
+							},
+							{ loader : '@linaria/webpack-loader' },
+						],
 					},
 				],
 			},

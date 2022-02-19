@@ -6,7 +6,6 @@
 		"dev/.libs/php-scoper/config.php"     : "@",
 		"dev/.libs/php-scoper/config~prj.php" : "@",
 
-		".babelrc.cjs"                        : "@",
 		".browserslistrc"                     : "@",
 		".eslintrc.cjs"                       : "@",
 		".gitattributes"                      : "@",
@@ -33,6 +32,7 @@
 		"package.json"                        : "@"
 	},
 	"deletion_manifest" : [
+		".babelrc.cjs",
 		".cssnanorc.cjs",
 		".linariarc.cjs",
 		".phpunit-distro.xml",
