@@ -758,6 +758,87 @@
             "time": "2022-02-18T19:19:17+00:00"
         },
         {
+            "name": "clevercanyon/php-scoper",
+            "version": "dev-fork",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/clevercanyon/php-scoper.git",
+                "reference": "2cbabfb26609f937e4a44410945447c8efbe7e9b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/clevercanyon/php-scoper/zipball/2cbabfb26609f937e4a44410945447c8efbe7e9b",
+                "reference": "2cbabfb26609f937e4a44410945447c8efbe7e9b",
+                "shasum": ""
+            },
+            "require": {
+                "composer/package-versions-deprecated": "^1.8",
+                "fidry/console": "^0.2.0",
+                "jetbrains/phpstorm-stubs": "^v2021.1",
+                "nikic/php-parser": "^4.12",
+                "php": "^7.4 || ^8.0",
+                "symfony/console": "^5.2",
+                "symfony/filesystem": "^5.2",
+                "symfony/finder": "^5.2",
+                "symfony/polyfill-php80": "^1.23",
+                "symfony/polyfill-php81": "^1.24",
+                "thecodingmachine/safe": "^1.3"
+            },
+            "replace": {
+                "symfony/polyfill-php73": "*"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.1",
+                "humbug/box": "^3.15.0",
+                "phpspec/prophecy-phpunit": "^2.0",
+                "phpunit/phpunit": "^9.0"
+            },
+            "default-branch": true,
+            "bin": [
+                "bin/php-scoper"
+            ],
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false
+                },
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Humbug\\PhpScoper\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bernhard Schussek",
+                    "email": "bschussek@gmail.com"
+                },
+                {
+                    "name": "Théo Fidry",
+                    "email": "theo.fidry@gmail.com"
+                },
+                {
+                    "name": "Pádraic Brady",
+                    "email": "padraic.brady@gmail.com"
+                }
+            ],
+            "description": "Prefixes all PHP namespaces in a file or directory.",
+            "support": {
+                "source": "https://github.com/clevercanyon/php-scoper/tree/fork"
+            },
+            "time": "2022-02-19T20:42:21+00:00"
+        },
+        {
             "name": "clevercanyon/standards",
             "version": "dev-main",
             "source": {
@@ -804,16 +885,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/utilities-dev.git",
-                "reference": "83f7ed729cd63ed1c76006cfa2c74edb92e55d93"
+                "reference": "81dd09952e4abb4dd1962372435b917808b2f8c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/utilities-dev/zipball/83f7ed729cd63ed1c76006cfa2c74edb92e55d93",
-                "reference": "83f7ed729cd63ed1c76006cfa2c74edb92e55d93",
+                "url": "https://api.github.com/repos/clevercanyon/utilities-dev/zipball/81dd09952e4abb4dd1962372435b917808b2f8c0",
+                "reference": "81dd09952e4abb4dd1962372435b917808b2f8c0",
                 "shasum": ""
             },
             "require": {
                 "aws/aws-sdk-php": "^3.2",
+                "clevercanyon/php-scoper": "dev-fork",
                 "clevercanyon/standards": "dev-main",
                 "clevercanyon/utilities-dev-npm": "dev-main",
                 "ext-fileinfo": "*",
@@ -822,7 +904,6 @@
                 "ext-mbstring": "*",
                 "ext-session": "*",
                 "ext-zip": "*",
-                "humbug/php-scoper": "dev-master",
                 "nikic/php-parser": "^4.13",
                 "php-64bit": "^7.4 || ^8.0 || ^8.1",
                 "php-stubs/woocommerce-stubs": ">=6.0.0",
@@ -853,7 +934,7 @@
                 "issues": "https://github.com/clevercanyon/utilities-dev/issues",
                 "source": "https://github.com/clevercanyon/utilities-dev/tree/main"
             },
-            "time": "2022-02-15T00:17:13+00:00"
+            "time": "2022-02-19T20:11:44+00:00"
         },
         {
             "name": "clevercanyon/utilities-dev-npm",
@@ -1496,88 +1577,6 @@
                 }
             ],
             "time": "2021-10-06T17:43:30+00:00"
-        },
-        {
-            "name": "humbug/php-scoper",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/humbug/php-scoper.git",
-                "reference": "89e135bd8fad131533ec2492e10fe13b28cc316f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/humbug/php-scoper/zipball/89e135bd8fad131533ec2492e10fe13b28cc316f",
-                "reference": "89e135bd8fad131533ec2492e10fe13b28cc316f",
-                "shasum": ""
-            },
-            "require": {
-                "composer/package-versions-deprecated": "^1.8",
-                "fidry/console": "^0.2.0",
-                "jetbrains/phpstorm-stubs": "^v2021.1",
-                "nikic/php-parser": "^4.12",
-                "php": "^7.4 || ^8.0",
-                "symfony/console": "^5.2",
-                "symfony/filesystem": "^5.2",
-                "symfony/finder": "^5.2",
-                "symfony/polyfill-php80": "^1.23",
-                "symfony/polyfill-php81": "^1.24",
-                "thecodingmachine/safe": "^1.3"
-            },
-            "replace": {
-                "symfony/polyfill-php73": "*"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.1",
-                "humbug/box": "^3.15.0",
-                "phpspec/prophecy-phpunit": "^2.0",
-                "phpunit/phpunit": "^9.0"
-            },
-            "default-branch": true,
-            "bin": [
-                "bin/php-scoper"
-            ],
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false
-                },
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/functions.php"
-                ],
-                "psr-4": {
-                    "Humbug\\PhpScoper\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Bernhard Schussek",
-                    "email": "bschussek@gmail.com"
-                },
-                {
-                    "name": "Théo Fidry",
-                    "email": "theo.fidry@gmail.com"
-                },
-                {
-                    "name": "Pádraic Brady",
-                    "email": "padraic.brady@gmail.com"
-                }
-            ],
-            "description": "Prefixes all PHP namespaces in a file or directory.",
-            "support": {
-                "issues": "https://github.com/humbug/php-scoper/issues",
-                "source": "https://github.com/humbug/php-scoper/tree/master"
-            },
-            "time": "2022-02-13T19:46:54+00:00"
         },
         {
             "name": "jetbrains/phpstorm-stubs",

@@ -164,8 +164,8 @@ services :
         networks       :
             - 'network'
         volumes        :
-            - 'php-data:/var/www/html'        # WordPress core installation data.
-            - './:/wp-docker/host/project:ro' # Host's project directory (read-only).
+            - 'php-data:/var/www/html'                  # WordPress core installation data.
+            - '../../../../:/wp-docker/host/project:ro' # Host's project directory (read-only).
         extra_hosts    :
             - '${WP_DOCKER_COMPOSE_PROJECT_SLUG}.wp:127.0.0.1'
         environment    :

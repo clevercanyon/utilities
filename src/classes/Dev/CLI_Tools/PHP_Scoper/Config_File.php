@@ -131,15 +131,19 @@ final class Config_File extends U\A6t\CLI_Tool {
 	protected function update_file() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Regenerating config file ...' );
 
-		$cfg_file = U\Dir::name( __FILE__, 6, '/dev/libraries/dotfiles/dev/.libs/php-scoper/config.php' );
+		$cfg_file1         = U\Dir::name( __FILE__, 6, '/dev/libraries/dotfiles/dev/.libs/php-scoper/config.php' );
+		$cfg_file2         = U\Dir::name( __FILE__, 6, '/dev/.libs/php-scoper/config.php' );
+		$new_file_contents = $this->generate_config_file_contents();
 
-		if ( ! is_file( $cfg_file ) && ! U\File::make( $cfg_file, [ [ 0755, 0755 ], 0644 ], false, false ) ) {
-			throw new U\Fatal_Exception( 'Failed to create PHP Scoper config file: `' . $cfg_file . '`.' );
+		foreach ( [ $cfg_file1, $cfg_file2 ] as $_cfg_file ) {
+			if ( ! is_file( $_cfg_file ) && ! U\File::make( $_cfg_file, [], false, false ) ) {
+				throw new U\Fatal_Exception( 'Failed to create PHP Scoper config file: `' . $_cfg_file . '`.' );
+			}
+			if ( ! U\File::write( $_cfg_file, $new_file_contents, false ) ) {
+				throw new U\Fatal_Exception( 'Failed to update PHP Scoper config file: `' . $_cfg_file . '`.' );
+			}
+			U\CLI::log( '[' . __FUNCTION__ . '()]: Updated: `' . $_cfg_file . '`.' );
 		}
-		if ( ! U\File::write( $cfg_file, $this->generate_config_file_contents(), false ) ) {
-			throw new U\Fatal_Exception( 'Failed to update PHP Scoper config file: `' . $cfg_file . '`.' );
-		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Updated: `' . $cfg_file . '`.' );
 	}
 
 	/**
@@ -168,7 +172,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 		 * This file and the contents of it are updated automatically.
 		 *
 		 * - Instead of editing this file, please configure `composer.json`. See instructions below.
-		 * - Instead of editing this file, modify `config~prj.php`, which is automatically merged in.
+		 * - Instead of editing this file, modify `./config~prj.php`, which is automatically merged in.
 		 * - Instead of editing this file, please review source repository {@see https://o5p.me/LevQOD}.
 		 *
 		 * @see https://github.com/humbug/php-scoper/blob/master/docs/configuration.md
@@ -258,8 +262,8 @@ final class Config_File extends U\A6t\CLI_Tool {
 		$body .= '$cfg[ \'patchers\' ] = [ ' . $patchers . ' ];' . "\n";
 
 		$body .= <<<'ooo'
-		if ( is_file( __DIR__ . '../../../composer.json' ) ) {
-			$prj_cfg = file_get_contents( __DIR__ . '../../../composer.json' );
+		if ( is_file( __DIR__ . '/../../../composer.json' ) ) {
+			$prj_cfg = file_get_contents( __DIR__ . '/../../../composer.json' );
 			$prj_cfg = is_array( $prj_cfg = json_decode( $prj_cfg, true ) ) ? $prj_cfg : [];
 			$prj_cfg = $prj_cfg['extra']['clevercanyon']['&']['php_scoper']['cfg'] ?? [];
 

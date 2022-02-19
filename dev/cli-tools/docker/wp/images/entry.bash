@@ -10,34 +10,11 @@
 # Instead of editing this file, please edit `./dev/.libs/docker/wp/compose~prj.yml`.
 ##
 # ---------------------------------------------------------------------------------------------------------------------
-# Image Setup Instructions:
-# ---------------------------------------------------------------------------------------------------------------------
-# - CD into this directory.
-#   - `$ cd ./dev/cli-tools/docker/wp/images`
-#
-# - Start each of the parent images.
-#   - `$ docker compose --file php8.1.yml up`
-#   - `$ docker compose --file php8.0.yml up`
-#   - `$ docker compose --file php7.4.yml up`
-#
-# - Exit each and commit the images.
-#   - `$ docker commit wp-docker-php8.1-apache jaswrks/wp-docker:php8.1-apache`
-#   - `$ docker commit wp-docker-php8.0-apache jaswrks/wp-docker:php8.0-apache`
-#   - `$ docker commit wp-docker-php7.4-apache jaswrks/wp-docker:php7.4-apache`
-#
-# - Push the images to Docker Hub.
-#   - `$ docker push jaswrks/wp-docker:php8.1-apache`
-#   - `$ docker push jaswrks/wp-docker:php8.0-apache`
-#   - `$ docker push jaswrks/wp-docker:php7.4-apache`
-# ---------------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------------
 # Source a few dependencies.
 # ---------------------------------------------------------------------------------------------------------------------
 
 . /wp-docker/host/project/dev/utilities/load.bash;
 . /wp-docker/host/project/dev/utilities/bash/partials/require-root;
-. /wp-docker/host/project/dev/utilities/bash/partials/require-wp-docker;
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Define a few variables.
@@ -54,7 +31,7 @@ WORDPRESS_DIR=/var/www/html; # Apache `DOCUMENT_ROOT` directory.
 # ---------------------------------------------------------------------------------------------------------------------
 
 if [[ ! -f /usr/bin/apache2-noop ]]; then
-	echo "#!/usr/bin/env bash" > /usr/bin/apache2-noop;
+	echo '#!/usr/bin/env bash' > /usr/bin/apache2-noop;
 	chmod +x /usr/bin/apache2-noop;
 fi;
 /usr/local/bin/docker-entrypoint.sh apache2-noop;
@@ -246,17 +223,11 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 	docker-php-ext-enable memcached;
 
 	# -----------------------------------------------------------------------------------------------------------------
-	# Reload Apache configuration so extensions kick-in.
-	# -----------------------------------------------------------------------------------------------------------------
-
-	/etc/init.d/apache2 reload;
-
-	# -----------------------------------------------------------------------------------------------------------------
 	# Cleanup.
 	# -----------------------------------------------------------------------------------------------------------------
 
-	rm -rf /var/www/html/* --force;
-	rm -rf /var/www/html/.htaccess --force;
+	rm --recursive --force /var/www/html/*;
+	rm --force /var/www/html/.htaccess;
 
 	# -----------------------------------------------------------------------------------------------------------------
 	# Leave `/usr/src/wordpress`. It's required by our parent image.

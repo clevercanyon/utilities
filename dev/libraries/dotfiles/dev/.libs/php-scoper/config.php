@@ -9,7 +9,7 @@
  * This file and the contents of it are updated automatically.
  *
  * - Instead of editing this file, please configure `composer.json`. See instructions below.
- * - Instead of editing this file, modify `config~prj.php`, which is automatically merged in.
+ * - Instead of editing this file, modify `./config~prj.php`, which is automatically merged in.
  * - Instead of editing this file, please review source repository {@see https://o5p.me/LevQOD}.
  *
  * @see https://github.com/humbug/php-scoper/blob/master/docs/configuration.md
@@ -6337,8 +6337,8 @@ $cfg[ 'patchers' ] = [ 	function ( string $file, string $prefix, string $content
 		}
 		return $content;
 	}, ];
-if ( is_file( __DIR__ . '../../../composer.json' ) ) {
-	$prj_cfg = file_get_contents( __DIR__ . '../../../composer.json' );
+if ( is_file( __DIR__ . '/../../../composer.json' ) ) {
+	$prj_cfg = file_get_contents( __DIR__ . '/../../../composer.json' );
 	$prj_cfg = is_array( $prj_cfg = json_decode( $prj_cfg, true ) ) ? $prj_cfg : [];
 	$prj_cfg = $prj_cfg['extra']['clevercanyon']['&']['php_scoper']['cfg'] ?? [];
 
