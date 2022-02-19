@@ -271,45 +271,51 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	protected function maybe_setup_dotfiles() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Maybe; looking ...' );
 
-		$dotfiles_dir  = U\Dir::name( __FILE__, 6, '/dev/libraries/dotfiles' );
-		$dotfiles_file = U\Dir::join( $dotfiles_dir, '/.dotfiles.json' );
+		$org_brand_var      = U\Brand::get( '&', 'var' );
+		$dotfiles_dir       = U\Dir::name( __FILE__, 6, '/dev/libraries/dotfiles' );
+		$dotfiles_json_file = U\Dir::join( $dotfiles_dir, '/.dotfiles.json' );
 
 		if ( ! is_dir( $dotfiles_dir ) || ! is_readable( $dotfiles_dir ) ) {
 			throw new U\Fatal_Exception( 'Missing readable directory: `' . $dotfiles_dir . '`.' );
 		}
-		if ( ! is_file( $dotfiles_file ) || ! is_readable( $dotfiles_file ) ) {
-			throw new U\Fatal_Exception( 'Missing readable file: `' . $dotfiles_file . '`.' );
+		if ( ! is_file( $dotfiles_json_file ) || ! is_readable( $dotfiles_json_file ) ) {
+			throw new U\Fatal_Exception( 'Missing readable JSON file: `' . $dotfiles_json_file . '`.' );
 		}
-		$dotfiles_iterator = U\Dir::iterator( $dotfiles_dir );
-		$dotfiles_json     = U\File::read_json( $dotfiles_file, false );
+		$dotfiles_json = U\File::read_json( $dotfiles_json_file, false );
 
-		if ( ! is_object( $dotfiles_json ) || ! is_array( $dotfiles_json->manifest ?? null ) ) {
-			throw new U\Fatal_Exception( 'Failed to parse `manifest` in `' . $dotfiles_json . '`.' );
+		if ( ! is_object( $dotfiles_json )
+			|| ! is_array( $dotfiles_json->manifest ?? null )
+			|| ! is_array( $dotfiles_json->deletion_manifest ?? null ) ) {
+			throw new U\Fatal_Exception( 'Failed to parse `manifest|deletion_manifest` in `' . $dotfiles_json . '`.' );
 		}
-		foreach ( $dotfiles_iterator as $_resource ) {
-			if ( ! $_resource->isFile() ) {
-				continue; // Not applicable.
+		foreach ( $dotfiles_json->deletion_manifest as $_subpath ) {
+			if ( ! U\Fs::delete( $_path = U\Dir::join( $this->project->dir, '/' . $_subpath ) ) ) {
+				throw new U\Fatal_Exception( 'Unable to delete: `' . $_path . '`.' );
 			}
-			$_from_path    = U\Fs::normalize( $_resource->getPathname() );
-			$_from_subpath = U\Fs::normalize( $_resource->getSubPathname() );
-			$_to_path      = U\Dir::join( $this->project->dir, '/' . $_from_subpath );
+		}                         // After all of the deletions, clear stat cache.
+		U\Fs::clear_stat_cache(); // i.e., Loop below needs up-to-date info.
 
-			if ( ! in_array( $_from_subpath, $dotfiles_json->manifest, true ) ) {
-				continue; // Not in the manifest; ignore.
-			}
-			if ( ! is_file( $_from_path ) || ! is_readable( $_from_path ) ) {
-				throw new U\Fatal_Exception( 'Unable to read dotfile: `' . $_from_path . '`.' );
-			}
-			if ( is_file( $_to_path ) && ( ! is_readable( $_to_path ) || ! is_writable( $_to_path ) ) ) {
-				throw new U\Fatal_Exception( 'Unable to update existing dotfile: `' . $_to_path . '`.' );
+		foreach ( $dotfiles_json->manifest as $_from_subpath => $_to_subpath ) {
+			/*
+			 * This supports copying entire directoryies or specific files.
+			 * It simply depends on what's been listed in the manifest.
+			 */
+			$_to_subpath = '@' === $_to_subpath ? $_from_subpath : $_to_subpath;
+
+			$_from_path        = U\Dir::join( $dotfiles_dir, '/' . $_from_subpath );
+			$_to_path          = U\Dir::join( $this->project->dir, '/' . $_to_subpath );
+			$_to_path_basename = basename( $_to_path ); // e.g., `package.json`.
+
+			if ( ! is_readable( $_from_path ) ) {
+				throw new U\Fatal_Exception( 'Unable to read: `' . $_from_path . '`.' );
 			}
 			switch ( true ) {
-				case ( (bool) preg_match( '/\.prj\./ui', $_from_subpath ) ):
-					if ( is_file( $_to_path ) ) {
+				case ( (bool) preg_match( '/~prj\./ui', $_to_path_basename ) ):
+					if ( U\Fs::exists( $_to_path ) ) {
 						break; // Do not update. Do NOT overwrite.
 					} // Please note this fallthrough to `default` case.
 
-				case ( 'package.json' === $_from_subpath ): // Update. Do NOT overwrite.
+				case ( 'package.json' === $_to_subpath ): // Update. Do NOT overwrite.
 					if ( is_file( $_to_path ) ) {
 						// Parse JSON objects.
 
@@ -321,9 +327,9 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 						if ( ! is_object( $_from_path_json ) ) {
 							throw new U\Fatal_Exception( 'Unable to parse JSON in: `' . $_from_path . '`.' );
 						}
-						$_from_path_json->devDependencies      ??= (object) [];
-						$_from_path_json->config               ??= (object) [];
-						$_from_path_json->config->clevercanyon ??= (object) [];
+						$_from_path_json->devDependencies          ??= (object) [];
+						$_from_path_json->config                   ??= (object) [];
+						$_from_path_json->config->{$org_brand_var} ??= (object) [];
 
 						if ( ! is_object( $_from_path_json->devDependencies ) ) {
 							throw new U\Fatal_Exception( 'Unexpected `devDependencies` in: `' . $_from_path . '`.' );
@@ -331,17 +337,17 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 						if ( ! is_object( $_from_path_json->config ) ) {
 							throw new U\Fatal_Exception( 'Unexpected `config` in: `' . $_from_path . '`.' );
 						}
-						if ( ! is_object( $_from_path_json->config->clevercanyon ) ) {
-							throw new U\Fatal_Exception( 'Unexpected `config->clevercanyon` in: `' . $_from_path . '`.' );
+						if ( ! is_object( $_from_path_json->config->{$org_brand_var} ) ) {
+							throw new U\Fatal_Exception( 'Unexpected `config->' . $org_brand_var . '` in: `' . $_from_path . '`.' );
 						}
 						// Validate `$_to_path_json`.
 
 						if ( ! is_object( $_to_path_json ) ) {
 							throw new U\Fatal_Exception( 'Unable to parse JSON in: `' . $_to_path . '`.' );
 						}
-						$_to_path_json->devDependencies      ??= (object) [];
-						$_to_path_json->config               ??= (object) [];
-						$_to_path_json->config->clevercanyon ??= (object) [];
+						$_to_path_json->devDependencies          ??= (object) [];
+						$_to_path_json->config                   ??= (object) [];
+						$_to_path_json->config->{$org_brand_var} ??= (object) [];
 
 						if ( ! is_object( $_to_path_json->devDependencies ) ) {
 							throw new U\Fatal_Exception( 'Unexpected `devDependencies` in: `' . $_to_path . '`.' );
@@ -349,8 +355,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 						if ( ! is_object( $_to_path_json->config ) ) {
 							throw new U\Fatal_Exception( 'Unexpected `config` in: `' . $_to_path . '`.' );
 						}
-						if ( ! is_object( $_to_path_json->config->clevercanyon ) ) {
-							throw new U\Fatal_Exception( 'Unexpected `config->clevercanyon` in: `' . $_to_path . '`.' );
+						if ( ! is_object( $_to_path_json->config->{$org_brand_var} ) ) {
+							throw new U\Fatal_Exception( 'Unexpected `config->' . $org_brand_var . '` in: `' . $_to_path . '`.' );
 						}
 						// Update `$_to_path_json`.
 
@@ -359,8 +365,8 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 								$_to_path_json->devDependencies->{$_package} = $_version;
 							} // Package should NOT depend on itself ^.
 						}
-						$_to_path_json->devDependencies      = U\Obj::sort_by( 'prop', $_to_path_json->devDependencies );
-						$_to_path_json->config->clevercanyon = U\Bundle::merge( $_to_path_json->config->clevercanyon, $_from_path_json->config->clevercanyon );
+						$_to_path_json->devDependencies          = U\Obj::sort_by( 'prop', $_to_path_json->devDependencies );
+						$_to_path_json->config->{$org_brand_var} = U\Bundle::merge( $_to_path_json->config->{$org_brand_var}, $_from_path_json->config->{$org_brand_var} );
 
 						if ( ! U\File::write( $_to_path, U\Str::json_encode( $_to_path_json, true ), false ) ) {
 							throw new U\Fatal_Exception( 'Failed to update `devDependencies` in: `' . $_to_path . '`.' );
@@ -372,7 +378,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 
 				default: // Everything falls through unless there's a `break` above.
 					if ( ! U\Fs::copy( $_from_path, $_to_path ) ) {
-						throw new U\Fatal_Exception( 'Failed to setup dotfile: `' . $_to_path . '`.' );
+						throw new U\Fatal_Exception( 'Failed to copy: `' . $_to_path . '`.' );
 					}
 					U\CLI::log( '[' . __FUNCTION__ . '()]: Copied: `' . $_from_path . '`' . "\n" . ' →  `' . $_to_path . '`.' );
 			}

@@ -17,7 +17,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Dev\CLI_Tools\Docker;
+namespace Clever_Canyon\Utilities\Dev\CLI_Tools\Docker\WP;
 
 /**
  * Utilities.
@@ -43,7 +43,7 @@ if ( 'cli' !== PHP_SAPI ) {
  *
  * @since 2021-12-15
  */
-require_once dirname( __FILE__, 3 ) . '/utilities/load.php';
+require_once dirname( __FILE__, 4 ) . '/utilities/load.php';
 
 /**
  * Requires autoloader.

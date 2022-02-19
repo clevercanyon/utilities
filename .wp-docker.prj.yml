@@ -3,7 +3,7 @@
 #
 # @since 1.0.0
 #
-# You *CAN* edit this file. It can contain project-specific overrides.
+# You *can* edit this file. It can contain project-specific overrides.
 # This file is automatically detected by PHP scripts and merged into `./.wp-docker.yml`.
 #
 # @see https://docs.docker.com/compose/extends/

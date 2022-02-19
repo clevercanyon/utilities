@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+if [[ ! -f /wp-docker/image/setup-complete ]]; then
+	echo 'Requires `/wp-docker/image/setup-complete`.'; exit 1;
+fi;

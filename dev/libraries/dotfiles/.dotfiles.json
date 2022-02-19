@@ -1,19 +1,37 @@
 {
-	"manifest" : [
-		".babelrc.cjs",
-		".browserslistrc",
-		".cssnanorc.cjs",
-		".eslintrc.cjs",
-		".gitattributes",
-		".gitignore",
-		".linariarc.cjs",
-		".npmignore",
-		".phpcs.xml",
+	"manifest"          : {
+		"dev/dotfiles/docker/wp/certs"           : "@",
+		"dev/dotfiles/docker/wp/compose.yml"     : "@",
+		"dev/dotfiles/docker/wp/compose~ci.yml"  : "@",
+		"dev/dotfiles/docker/wp/compose~prj.yml" : "@",
+		"dev/dotfiles/docker/wp/entry.bash"      : "@",
+		"dev/dotfiles/docker/wp/entry~prj.bash"  : "@",
+
+		".babelrc.cjs"                           : "@",
+		".browserslistrc"                        : "@",
+		".cssnanorc.cjs"                         : "@",
+		".eslintrc.cjs"                          : "@",
+		".gitattributes"                         : "@",
+		".gitignore"                             : "@",
+		".linariarc.cjs"                         : "@",
+		".npmignore"                             : "@",
+		".phpcs.xml"                             : "@",
+		".phpunit.xml"                           : "@",
+		".phpunit~distro.xml"                    : "@",
+		".postcssrc.cjs"                         : "@",
+		".prettierrc.cjs"                        : "@",
+		".scoper.cfg.php"                        : "@",
+		".scoper.cfg~prj.php"                    : "@",
+		".shellcheckrc"                          : "@",
+		".stylelintrc.cjs"                       : "@",
+		".tailwindrc.cjs"                        : "@",
+		".webpack.cjs"                           : "@",
+		".wp-docker"                             : "@",
+
+		"package.json"                           : "@"
+	},
+	"deletion_manifest" : [
 		".phpunit-distro.xml",
-		".phpunit.xml",
-		".postcssrc.cjs",
-		".prettierrc.cjs",
-		".scoper.cfg.php",
 		".scoper.prj.cfg.php",
 		".ssl-i-ca-crt.pem",
 		".ssl-i-ca-csr.pem",
@@ -22,14 +40,10 @@
 		".ssl-r-ca-crt.pem",
 		".ssl-r-ca-key.pem",
 		".ssl-ri-cas.sh",
-		".stylelintrc.cjs",
-		".tailwindrc.cjs",
-		".webpack.cjs",
-		".wp-docker",
+		".wp-docker.ci.yml",
 		".wp-docker.prj.sh",
 		".wp-docker.prj.yml",
 		".wp-docker.sh",
-		".wp-docker.yml",
-		"package.json"
+		".wp-docker.yml"
 	]
 }

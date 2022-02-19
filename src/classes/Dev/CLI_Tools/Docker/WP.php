@@ -115,7 +115,7 @@ final class WP extends U\A6t\CLI_Tool {
 					],
 					'install-kitchen-sink'    => [
 						'description' => 'Install everything (more than necessary); including the kitchen sink.' .
-							' This adds a lot more overhead, but with many utilities. See: `.wp-docker.sh` for details.',
+							' This adds a lot more overhead, but with many utilities. See: `./dev/dotfiles/docker/wp/entrypoint.sh` for details.',
 					],
 				] ),
 			],
@@ -560,7 +560,7 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'Shell Access         : 🐳 $ ./.wp-docker bash' );
 		U\CLI::log( 'Psysh Access         : $ ./.wp-docker psysh' );
 		U\CLI::log( 'WP Shell Access      : $ ./.wp-docker shell' );
-		U\CLI::log( 'Project In Container : /x-host/project' );
+		U\CLI::log( 'Project In Container : /wp-docker/host/project' );
 
 		U\CLI::new_line();
 
@@ -793,17 +793,17 @@ final class WP extends U\A6t\CLI_Tool {
 		$args   = []; // Initialize.
 		$args[] = 'COMPOSE_PROJECT_NAME=' . U\Str::esc_shell_arg( $this->project->slug );
 
-		$args[] = 'X_COMPOSE_PROJECT_SLUG=' . U\Str::esc_shell_arg( $this->project->slug );
-		$args[] = 'X_COMPOSE_PROJECT_TYPE=' . U\Str::esc_shell_arg( $this->project->type );
-		$args[] = 'X_COMPOSE_PROJECT_LAYOUT=' . U\Str::esc_shell_arg( $this->project->layout );
-		$args[] = 'X_COMPOSE_PHP_VERSION=' . U\Str::esc_shell_arg( $this->get_option( 'php-version' ) );
+		$args[] = 'WP_DOCKER_COMPOSE_PROJECT_SLUG=' . U\Str::esc_shell_arg( $this->project->slug );
+		$args[] = 'WP_DOCKER_COMPOSE_PROJECT_TYPE=' . U\Str::esc_shell_arg( $this->project->type );
+		$args[] = 'WP_DOCKER_COMPOSE_PROJECT_LAYOUT=' . U\Str::esc_shell_arg( $this->project->layout );
+		$args[] = 'WP_DOCKER_COMPOSE_PHP_VERSION=' . U\Str::esc_shell_arg( $this->get_option( 'php-version' ) );
 
 		if ( 'up' === $this->get_command_name() ) {
-			$args[] = 'X_WORDPRESS_MULTISITE_TYPE=' . U\Str::esc_shell_arg( $this->get_option( 'wp-multisite-type' ) ?: '' );
-			$args[] = 'X_WORDPRESS_INSTALL_PLUGINS=' . U\Str::esc_shell_arg( implode( ',', $this->get_option( 'wp-install-plugin' ) ?: [] ) );
-			$args[] = 'X_WORDPRESS_INSTALL_THEME=' . U\Str::esc_shell_arg( $this->get_option( 'wp-install-theme' ) ?: '' );
-			$args[] = 'X_WORDPRESS_INSTALLED_THEME_SLUG=' . U\Str::esc_shell_arg( $this->get_option( 'wp-installed-theme-slug' ) ?: '' );
-			$args[] = 'X_INSTALL_KITCHEN_SINK=' . U\Str::esc_shell_arg( $this->get_option( 'install-kitchen-sink' ) ? '1' : '' );
+			$args[] = 'WP_DOCKER_WORDPRESS_MULTISITE_TYPE=' . U\Str::esc_shell_arg( $this->get_option( 'wp-multisite-type' ) ?: '' );
+			$args[] = 'WP_DOCKER_WORDPRESS_INSTALL_PLUGINS=' . U\Str::esc_shell_arg( implode( ',', $this->get_option( 'wp-install-plugin' ) ?: [] ) );
+			$args[] = 'WP_DOCKER_WORDPRESS_INSTALL_THEME=' . U\Str::esc_shell_arg( $this->get_option( 'wp-install-theme' ) ?: '' );
+			$args[] = 'WP_DOCKER_WORDPRESS_INSTALLED_THEME_SLUG=' . U\Str::esc_shell_arg( $this->get_option( 'wp-installed-theme-slug' ) ?: '' );
+			$args[] = 'WP_DOCKER_INSTALL_KITCHEN_SINK=' . U\Str::esc_shell_arg( $this->get_option( 'install-kitchen-sink' ) ? '1' : '' );
 		}
 		return $args;
 	}
@@ -818,14 +818,14 @@ final class WP extends U\A6t\CLI_Tool {
 	protected function prepare_yml_file_args() : array {
 		if ( 'ci' === $this->get_option( 'variant' ) ) {
 			return [
-				[ '--file', './.wp-docker.yml' ],
-				[ '--file', './.wp-docker.ci.yml' ],
-				[ '--file', './.wp-docker.prj.yml' ],
+				[ '--file', './dev/dotfiles/docker/wp/compose.yml' ],
+				[ '--file', './dev/dotfiles/docker/wp/compose~ci.yml' ],
+				[ '--file', './dev/dotfiles/docker/wp/compose~prj.yml' ],
 			];
 		} else {
 			return [
-				[ '--file', './.wp-docker.yml' ],
-				[ '--file', './.wp-docker.prj.yml' ],
+				[ '--file', './dev/dotfiles/docker/wp/compose.yml' ],
+				[ '--file', './dev/dotfiles/docker/wp/compose~prj.yml' ],
 			];
 		}
 	}

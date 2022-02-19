@@ -162,8 +162,8 @@ services :
         networks       :
             - 'network'
         volumes        :
-            - 'php-data:/var/www/html' # WordPress core installation data.
-            - './:/x-host/project:ro' # Host's project directory (read-only).
+            - 'php-data:/var/www/html'        # WordPress core installation data.
+            - './:/wp-docker-host/project:ro' # Host's project directory (read-only).
         extra_hosts    :
             - '${X_COMPOSE_PROJECT_SLUG}.wp:127.0.0.1'
         environment    :
@@ -219,7 +219,7 @@ services :
             X_COMPOSE_PROJECT_LAYOUT         : '${X_COMPOSE_PROJECT_LAYOUT:?Missing `X_COMPOSE_PROJECT_LAYOUT` environment variable.}'
 
         command        : '' # Ditch default CMD.
-        entrypoint     : '/x-host/project/.wp-docker.sh'
+        entrypoint     : '/wp-docker-host/project/.wp-docker.sh'
         healthcheck    :
             test     : 'curl --fail http://localhost || exit 1'
             interval : '3s'

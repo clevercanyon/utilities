@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+shopt -s  extglob;
+shopt -s  dotglob;
+shopt -s globstar;
+shopt -s nullglob;

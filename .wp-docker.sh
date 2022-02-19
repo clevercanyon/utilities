@@ -63,7 +63,7 @@ ROOT_HOME_DIR=/root;                                  # `root` user's home direc
 WWW_DATA_HOME_DIR=/var/www;                           # `www-data` user's home directory.
 WORDPRESS_DIR=/var/www/html;                          # Apache `DOCUMENT_ROOT` directory.
 WORDPRESS_URL=https://"${X_COMPOSE_PROJECT_SLUG}".wp; # Requires DNS mapping, which we do handle.
-PROJECT_DIR=/x-host/project;                          # Mounted by Docker; this is the host project directory.
+PROJECT_DIR=/wp-docker-host/project;                  # Mounted by Docker; this is the host project directory.
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Run parent container's entrypoint before we continue.
@@ -198,8 +198,8 @@ if [[ ! -f /usr/local/etc/x-.wp-docker.sh-install-complete ]]; then
 	# Maybe link a project's WordPress plugin|theme directory and activate.
 	# -----------------------------------------------------------------------------------------------------------------
 
-	if [[ "${X_COMPOSE_PROJECT_TYPE}" == 'library' && "${X_COMPOSE_PROJECT_LAYOUT}" == 'wp-plugin' && -f /x-host/project/trunk/plugin.php ]]; then
-		ln -s /x-host/project/trunk "${WORDPRESS_DIR}"/wp-content/plugins/"${X_COMPOSE_PROJECT_SLUG}";
+	if [[ "${X_COMPOSE_PROJECT_TYPE}" == 'library' && "${X_COMPOSE_PROJECT_LAYOUT}" == 'wp-plugin' && -f "${PROJECT_DIR}"/trunk/plugin.php ]]; then
+		ln -s "${PROJECT_DIR}"/trunk "${WORDPRESS_DIR}"/wp-content/plugins/"${X_COMPOSE_PROJECT_SLUG}";
 
 		if [[ -n "${X_WORDPRESS_MULTISITE_TYPE}" ]]; then
 			wp plugin activate --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPRESS_URL}" \
@@ -208,8 +208,8 @@ if [[ ! -f /usr/local/etc/x-.wp-docker.sh-install-complete ]]; then
 			wp plugin activate --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPRESS_URL}" \
 				"${X_COMPOSE_PROJECT_SLUG}";
 		fi;
-	elif [[ "${X_COMPOSE_PROJECT_TYPE}" == 'library' && "${X_COMPOSE_PROJECT_LAYOUT}" == 'wp-theme' && -f /x-host/project/trunk/theme.php ]]; then
-		ln -s /x-host/project/trunk "${WORDPRESS_DIR}"/wp-content/themes/"${X_COMPOSE_PROJECT_SLUG}";
+	elif [[ "${X_COMPOSE_PROJECT_TYPE}" == 'library' && "${X_COMPOSE_PROJECT_LAYOUT}" == 'wp-theme' && -f "${PROJECT_DIR}"/trunk/theme.php ]]; then
+		ln -s "${PROJECT_DIR}"/trunk "${WORDPRESS_DIR}"/wp-content/themes/"${X_COMPOSE_PROJECT_SLUG}";
 
 		if [[ -n "${X_WORDPRESS_MULTISITE_TYPE}" ]]; then
 			wp theme enable --allow-root --path="${WORDPRESS_DIR}" --url="${WORDPRESS_URL}" \

@@ -546,9 +546,9 @@ final class Project extends U\A6t\Base {
 	 * @return mixed Value, else `null` on failure to locate.
 	 */
 	public function extra_json_prop( string $prop ) /* : mixed */ {
-		static $esc_reg_org_slug; // Memoize.
-		$esc_reg_org_slug ??= U\Str::esc_reg( U\Brand::get( '&', 'slug' ) );
-		return U\Obj::get_prop( $this->json->extra, preg_replace( '/^' . $esc_reg_org_slug . '\./u', '&.', $prop ) );
+		static $esc_reg_org_var; // Memoize.
+		$esc_reg_org_var ??= U\Str::esc_reg( U\Brand::get( '&', 'var' ) );
+		return U\Obj::get_prop( $this->json->extra, preg_replace( '/^' . $esc_reg_org_var . '\./u', '&.', $prop ) );
 	}
 
 	/**
@@ -561,9 +561,9 @@ final class Project extends U\A6t\Base {
 	 * @return mixed Value, else `null` on failure to locate.
 	 */
 	public function dev_json_prop( string $prop ) /* : mixed */ {
-		static $esc_reg_org_slug; // Memoize.
-		$esc_reg_org_slug ??= U\Str::esc_reg( U\Brand::get( '&', 'slug' ) );
-		return U\Obj::get_prop( $this->dev_json, preg_replace( '/^' . $esc_reg_org_slug . '\./u', '&.', $prop ) );
+		static $esc_reg_org_var; // Memoize.
+		$esc_reg_org_var ??= U\Str::esc_reg( U\Brand::get( '&', 'var' ) );
+		return U\Obj::get_prop( $this->dev_json, preg_replace( '/^' . $esc_reg_org_var . '\./u', '&.', $prop ) );
 	}
 
 	/**

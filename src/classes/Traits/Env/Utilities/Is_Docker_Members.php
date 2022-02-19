@@ -48,6 +48,6 @@ trait Is_Docker_Members {
 		if ( null !== $is ) {
 			return $is; // Saves time.
 		}
-		return $is = is_file( '/usr/local/src/.wp-docker.is.sh' );
+		return $is = is_file( '/wp-docker/image/setup-complete' );
 	}
 }

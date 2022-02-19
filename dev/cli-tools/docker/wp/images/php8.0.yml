@@ -1,0 +1,18 @@
+##
+# WP docker image compose file.
+#
+# @since 1.0.0
+#
+# Docker is not aware of this file's location.
+# Please use the `--file` option when running `docker compose`.
+##
+version  : '3.9' # {@see https://o5p.me/TtD60s}.
+
+services :
+    wp-docker :
+        container_name : 'wp-docker-php8.0-apache'
+        image          : 'wordpress:php8.0-apache'
+        volumes        :
+            - '../../../../../:/wp-docker/host/project:ro'
+        command        : '' # Ditch default CMD.
+        entrypoint     : '/wp-docker/host/project/dev/cli-tools/docker/wp/images/entry.bash'

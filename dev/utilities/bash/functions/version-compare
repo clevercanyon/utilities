@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Requires PHP.
+
+function version-compare() {
+  local v1="'${1:-}'"; # Version 1.
+  local v2="'${2:-}'"; # Version 2.
+  local op="'${3:-}'"; # Comparison operator.
+
+  if [[ "$(php -r 'echo (int) version_compare('"${v1}"', '"${v2}"', '"${op}"');')" == 1 ]]; then
+    return 0;
+  else
+    return 1;
+  fi;
+};

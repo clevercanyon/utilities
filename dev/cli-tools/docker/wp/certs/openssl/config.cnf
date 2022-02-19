@@ -1,18 +1,27 @@
-dir = ./.ssl-openssl
+##
+# OpenSSL config file.
+#
+# Configuration is limited to what's needed
+# for the WP docker certificates, specifically.
+#
+# @see https://www.openssl.org/docs/man1.1.1/man5/config.html
+##
+
+dir = ./openssl
 
 [ ca ]
 default_ca = CA_default
 
 [ CA_default ]
 serial = $dir/serial
-database = $dir/index.txt
-new_certs_dir = $dir/newcerts
-certificate  = $dir/cacert.pem
-private_key = $dir/private/cakey.pem
+database = $dir/index.db
+new_certs_dir = $dir/certs
+certificate = $dir/certs/ca-crt.pem
+private_key = $dir/certs/ca-key.pem
 default_days = 36500
-default_md  = sha256
+default_md = sha256
 preserve = no
-email_in_dn  = no
+email_in_dn = no
 nameopt = default_ca
 certopt = default_ca
 policy = policy_match

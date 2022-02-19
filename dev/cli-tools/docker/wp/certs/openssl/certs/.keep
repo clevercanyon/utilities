@@ -1,0 +1,2 @@
+This directory is never used; but referenced by the `config.cnf` file.
+It needs to exist to avoid OpenSSL kicking errors back at us.
