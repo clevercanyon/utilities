@@ -284,9 +284,9 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 		$dotfiles_json = U\File::read_json( $dotfiles_json_file, false );
 
 		if ( ! is_object( $dotfiles_json )
-			|| ! is_array( $dotfiles_json->manifest ?? null )
+			|| ! is_object( $dotfiles_json->manifest ?? null )
 			|| ! is_array( $dotfiles_json->deletion_manifest ?? null ) ) {
-			throw new U\Fatal_Exception( 'Failed to parse `manifest|deletion_manifest` in `' . $dotfiles_json . '`.' );
+			throw new U\Fatal_Exception( 'Failed to parse `manifest|deletion_manifest` in `' . $dotfiles_json_file . '`.' );
 		}
 		foreach ( $dotfiles_json->deletion_manifest as $_subpath ) {
 			if ( ! U\Fs::delete( $_path = U\Dir::join( $this->project->dir, '/' . $_subpath ) ) ) {
