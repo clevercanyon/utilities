@@ -8,11 +8,9 @@
 
 		".babelrc.cjs"                        : "@",
 		".browserslistrc"                     : "@",
-		".cssnanorc.cjs"                      : "@",
 		".eslintrc.cjs"                       : "@",
 		".gitattributes"                      : "@",
 		".gitignore"                          : "@",
-		".linariarc.cjs"                      : "@",
 		".npmignore"                          : "@",
 		".phpcs.xml"                          : "@",
 		".postcssrc.cjs"                      : "@",
@@ -20,8 +18,9 @@
 		".shellcheckrc"                       : "@",
 		".stylelintrc.cjs"                    : "@",
 
-		"dev/.libs/tailwind/config.cjs"       : "@",
 		"dev/.libs/webpack/config.cjs"        : "@",
+		"dev/.libs/webpack/tailwind.cjs"      : "@",
+		"dev/.libs/webpack/cssnano.cjs"       : "@",
 
 		".wp-docker"                          : "@",
 		"dev/.libs/docker/wp/certs"           : "@",
@@ -34,12 +33,14 @@
 		"package.json"                        : "@"
 	},
 	"deletion_manifest" : [
+		".cssnanorc.cjs",
+		".linariarc.cjs",
+		".phpunit-distro.xml",
 		".phpunit.xml",
 		".phpunit~distro.xml",
-		".phpunit-distro.xml",
-		".scoper.prj.cfg.php",
 		".scoper.cfg.php",
 		".scoper.cfg~prj.php",
+		".scoper.prj.cfg.php",
 		".ssl-i-ca-crt.pem",
 		".ssl-i-ca-csr.pem",
 		".ssl-i-ca-key.pem",
@@ -47,12 +48,12 @@
 		".ssl-r-ca-crt.pem",
 		".ssl-r-ca-key.pem",
 		".ssl-ri-cas.sh",
+		".tailwindrc.cjs",
+		".webpack.cjs",
 		".wp-docker.ci.yml",
 		".wp-docker.prj.sh",
 		".wp-docker.prj.yml",
 		".wp-docker.sh",
-		".tailwindrc.cjs",
-		".webpack.cjs",
 		".wp-docker.yml"
 	]
 }
