@@ -16,8 +16,6 @@
 		".linariarc.cjs"                      : "@",
 		".npmignore"                          : "@",
 		".phpcs.xml"                          : "@",
-		".phpunit.xml"                        : "@",
-		".phpunit~distro.xml"                 : "@",
 		".postcssrc.cjs"                      : "@",
 		".prettierrc.cjs"                     : "@",
 		".scoper.cfg.php"                     : "@",
@@ -31,6 +29,8 @@
 		"package.json"                        : "@"
 	},
 	"deletion_manifest" : [
+		".phpunit.xml",
+		".phpunit~distro.xml",
 		".phpunit-distro.xml",
 		".scoper.prj.cfg.php",
 		".ssl-i-ca-crt.pem",
