@@ -316,7 +316,7 @@ final class Config_File extends U\A6t\CLI_Tool {
 				static $project_dir, $project; // Memoize.
 				static $preg_quote_project_dir, $preg_quote_prefix;
 
-				$project_dir ??= str_replace( '\\', '/', __DIR__ . '/../../..' );
+				$project_dir ??= str_replace( '\\', '/', realpath( __DIR__ . '/../../..' ) );
 				$project     ??= json_decode( file_get_contents( $project_dir . '/composer.json' ) );
 
 				$preg_quote_project_dir ??= preg_quote( $project_dir, '/' );
