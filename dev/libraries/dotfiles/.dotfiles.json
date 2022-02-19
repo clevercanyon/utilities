@@ -7,6 +7,9 @@
 		"dev/.libs/docker/wp/entry.bash"      : "@",
 		"dev/.libs/docker/wp/entry~prj.bash"  : "@",
 
+		"dev/.libs/phpunit/config.xml"        : "@",
+		"dev/.libs/phpunit/config~distro.xml" : "@",
+
 		".babelrc.cjs"                        : "@",
 		".browserslistrc"                     : "@",
 		".cssnanorc.cjs"                      : "@",
