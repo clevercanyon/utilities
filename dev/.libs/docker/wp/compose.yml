@@ -344,12 +344,13 @@ services :
             - './certs/i10e-ca-crt.pem:/etc/nginx/certs/ca.crt:ro'
 
         environment    : # {@see https://o5p.me/mTJ17Z}.
-            NGINX_PROXY_CONTAINER : '${WP_DOCKER_COMPOSE_PROJECT_SLUG}-nxp'
-            DOCKER_HOST           : 'unix:///tmp/docker.sock'
-            EXPIRATION            : 395 # {@see https://o5p.me/Fz1NWM}.
+            WP_DOCKER_COMPOSE_PROJECT_SLUG : '${WP_DOCKER_COMPOSE_PROJECT_SLUG:?Missing `WP_DOCKER_COMPOSE_PROJECT_SLUG` environment variable.}'
+            NGINX_PROXY_CONTAINER          : '${WP_DOCKER_COMPOSE_PROJECT_SLUG}-nxp'
+            DOCKER_HOST                    : 'unix:///tmp/docker.sock'
+            EXPIRATION                     : 395 # {@see https://o5p.me/Fz1NWM}.
 
         healthcheck    :
-            test     : 'bash -c "[ -f /etc/nginx/certs/$${WP_DOCKER_COMPOSE_PROJECT_SLUG}.wp.crt ]" || exit 1'
+            test     : 'bash -c "[ -f /etc/nginx/certs/${WP_DOCKER_COMPOSE_PROJECT_SLUG}.wp.crt ]" || exit 1'
             interval : '3s'
             timeout  : '30s'
             retries  : 10
