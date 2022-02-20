@@ -17,17 +17,61 @@ cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1;
 . ../../../../utilities/load.bash; # Loads utilities.
 
 # Configuration of SSL certs.
+# A few variables for CLI args below.
 
 days=395; # {@see https://o5p.me/Fz1NWM}.
 output_dir=../../../../../dev/libraries/dotfiles/dev/.libs/docker/wp/certs;
 if [[ ! -d "${output_dir}" ]]; then mkdir -p "${output_dir}"; fi;
 
-# Self-signed root CA generator.
+key_usages=$(          tr -d '\n' <<-'ooo'
+	digitalSignature,
+	nonRepudiation,
+	keyEncipherment,
+	dataEncipherment,
+	keyAgreement,
+	keyCertSign,
+	cRLSign
+	ooo
+);
+extended_key_usages=$( tr -d '\n' <<-'ooo'
+	serverAuth,
+	clientAuth,
+	codeSigning,
+	emailProtection,
+	anyExtendedKeyUsage
+	ooo
+);
+subject=$(             tr -d '\n' <<-'ooo'
+	/L=Johns Creek
+	/ST=GA
+	/C=US
+	/O=Clever Canyon
+	/OU=Engineering
+	/CN=clevercanyon.com
+	/emailAddress=admin@clevercanyon.com
+	ooo
+);
+subject_alt_names=$(   tr -d '\n' <<-'ooo'
+	IP:127.0.0.1,
+	DNS:*.mac,
+	DNS:*.dev,
+	DNS:*.wp,
+	DNS:*.dkr,
+	DNS:*.vm,
+	DNS:local,
+	DNS:*.local,
+	DNS:localhost,
+	DNS:*.localhost,
+	DNS:clevercanyon.com,
+	DNS:*.clevercanyon.com
+	ooo
+);
+# Root & intermediate CA keys.
 
 openssl genrsa -out "${output_dir}"/root-ca-key.pem 4096;
 openssl genrsa -out "${output_dir}"/i10e-ca-key.pem 4096;
 
-# Root CA.
+# Root CA certificate.
 
 openssl req -config ./openssl/config.cnf -extensions v3_ca \
 	-new \
@@ -37,27 +81,36 @@ openssl req -config ./openssl/config.cnf -extensions v3_ca \
 	-days "${days}" \
 	-key "${output_dir}"/root-ca-key.pem \
 	-out "${output_dir}"/root-ca-crt.pem \
-	-subj "/C=US/ST=GA/L=Johns Creek/O=Clever Canyon/OU=Engineering/CN=clevercanyon.com";
+	-subj "${subject}" -addext 'subjectAltName = '"${subject_alt_names}" \
+	-addext 'keyUsage = '"${key_usages}" -addext 'extendedKeyUsage = '"${extended_key_usages}";
 
-# Intermediate CSR.
+# Intermediate CSR & CA certificate.
 
-openssl req -config ./openssl/config.cnf -extensions v3_req \
+openssl req -config ./openssl/config.cnf -extensions v3_i10e \
 	-new \
 	-nodes \
 	-sha512 \
+	-days "${days}" \
 	-key "${output_dir}"/i10e-ca-key.pem \
 	-out "${output_dir}"/i10e-ca-csr.pem \
-	-subj "/C=US/ST=GA/L=Johns Creek/O=Clever Canyon/OU=Engineering/CN=clevercanyon.com";
-
-# Intermediate CA for CSR.
+	-subj "${subject}" -addext 'subjectAltName = '"${subject_alt_names}" \
+	-addext 'keyUsage = '"${key_usages}" -addext 'extendedKeyUsage = '"${extended_key_usages}";
 
 openssl ca -config ./openssl/config.cnf -extensions v3_ca \
 	-notext \
 	-batch \
-	-md sha256 \
+	-md sha512 \
 	-rand_serial \
 	-days "${days}" \
 	-cert "${output_dir}"/root-ca-crt.pem \
 	-keyfile "${output_dir}"/root-ca-key.pem \
 	-in "${output_dir}"/i10e-ca-csr.pem \
 	-out "${output_dir}"/i10e-ca-crt.pem;
+
+# Start clean each time.
+
+rm -f ./openssl/*-db*;
+rm -f ./openssl/certs/*;
+
+touch ./openssl/certs/.keep; # Keep directory.
+touch ./openssl/certs-db;    # Needs to exist anew.

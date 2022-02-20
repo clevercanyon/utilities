@@ -343,8 +343,8 @@ services :
         volumes_from   :
             - 'nxp'
         volumes        : # Use our already-trusted CA.
-            - './dev/.libs/docker/wp/certs/i10e-ca-key.pem:/etc/nginx/certs/ca.key:ro'
-            - './dev/.libs/docker/wp/certs/i10e-ca-crt.pem:/etc/nginx/certs/ca.crt:ro'
+            - './certs/i10e-ca-key.pem:/etc/nginx/certs/ca.key:ro'
+            - './certs/i10e-ca-crt.pem:/etc/nginx/certs/ca.crt:ro'
 
         environment    : # {@see https://o5p.me/mTJ17Z}.
             NGINX_PROXY_CONTAINER : '${WP_DOCKER_COMPOSE_PROJECT_SLUG}-nxp'
