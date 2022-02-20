@@ -83,8 +83,7 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 	apt-get install vim nano --yes;
 	apt-get install ncdu htop --yes;
 	apt-get install sudo acl pwgen --yes;
-	apt-get install apache2-utils --yes;
-	apt-get install sendmail mailutils --yes;
+	apt-get install apache2-utils mailutils --yes;
 	apt-get install perl ruby python3 nodejs golang-go --yes;
 	apt-get install git subversion npm --yes; # After nodejs.
 
@@ -243,8 +242,3 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 	# Leave `/wp-docker/image/setup`. We use it to detect WP docker containers.
 	# Do not add or remove anything in `/usr/local`. That's for eventual image consumers.
 fi;
-# ---------------------------------------------------------------------------------------------------------------------
-# Start Apache.
-# ---------------------------------------------------------------------------------------------------------------------
-
-apache2-foreground;

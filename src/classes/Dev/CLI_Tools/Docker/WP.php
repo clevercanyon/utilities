@@ -278,14 +278,14 @@ final class WP extends U\A6t\CLI_Tool {
 			$user        = $user ?: ( 'php' === $short_alias ? 'www-data' : '' );
 			$shell       = in_array( $short_alias, [ 'hog' ], true ) ? [ 'ash' ] : [ 'bash', '--login' ];
 
-			U\CLI::run( [
+			U\CLI::tty( [
 				[ 'docker', 'exec' ],
 				[ '--interactive', '--tty' ],
 				( $user ? [ '--user', $user ] : [] ),
 				( 'php' === $short_alias ? [ '--workdir', '/var/www/html' ] : [] ),
 				[ $this->project->slug . '-' . $short_alias ],
 				$shell,
-			], $this->project->dir, false );
+			], $this->project->dir );
 
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
