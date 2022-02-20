@@ -30,6 +30,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
+use GetOpt\{GetOpt as Parser, Command, Option, Operand};
 
 // </editor-fold>
 

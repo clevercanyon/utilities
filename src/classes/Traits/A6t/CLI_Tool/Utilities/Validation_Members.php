@@ -30,6 +30,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
+use GetOpt\{GetOpt as Parser, Command, Option, Operand};
 
 // </editor-fold>
 
@@ -41,6 +42,45 @@ use Clever_Canyon\{Utilities as U};
  * @see   U\I7e\CLI_Tool
  */
 trait Validation_Members {
+	/**
+	 * Checks required options and operands.
+	 *
+	 * @since 2022-02-20
+	 */
+	protected function check_required_options_and_operands() : void {
+		foreach ( $this->required_options as $_option_key => $_option ) {
+			if ( in_array( $this->get_option( $_option_key ), [ null, 0, '', [] ], true ) ) {
+				$_names = [];
+
+				$_short_name = $_option->getShort();
+				$_short_name = $_short_name ? '-' . $_short_name : '';
+
+				$_long_name = $_option->getLong();
+				$_long_name = $_long_name ? '--' . $_long_name : '';
+
+				if ( $_short_name ) {
+					$_names[] = $_short_name;
+				}
+				if ( $_long_name ) {
+					$_names[] = $_long_name;
+				}
+				$_names = $_names ?: [ '--' . $_option_key ];
+				$_names = implode( ', ', $_names );
+
+				U\CLI::output( $this->parser->getHelpText(), 'blue' );
+				U\CLI::error( 'Missing required ' . $_names . ' option.' );
+				U\CLI::exit_status( 1 );
+			}
+		}
+		foreach ( $this->required_operands as $_operand_key => $_operand ) {
+			if ( in_array( $this->get_operand( $_operand_key ), [ null, 0, '', [] ], true ) ) {
+				U\CLI::output( $this->parser->getHelpText(), 'blue' );
+				U\CLI::error( 'Missing required `' . $_operand->getName() . '` operand.' );
+				U\CLI::exit_status( 1 );
+			}
+		}
+	}
+
 	/**
 	 * Validate and expand option value to absolute path.
 	 *

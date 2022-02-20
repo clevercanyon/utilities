@@ -24,13 +24,13 @@ namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Magic;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use GetOpt\{GetOpt as Parser};
 
 /**
  * File-specific.
  *
  * @since 2021-12-15
  */
+use GetOpt\{GetOpt as Parser, Command, Option, Operand};
 
 // </editor-fold>
 
@@ -56,7 +56,9 @@ trait Constructable_Members {
 	public function __construct( /* string|array|null */ $args_to_parse = null ) {
 		parent::__construct();
 
-		$this->args_to_parse = $args_to_parse;
+		$this->args_to_parse     = $args_to_parse;
+		$this->required_options  = []; // Initialize.
+		$this->required_operands = []; // Initialize.
 
 		if ( isset( $this->args_to_parse ) && ! is_array( $this->args_to_parse ) ) {
 			$this->args_to_parse = (string) $this->args_to_parse;

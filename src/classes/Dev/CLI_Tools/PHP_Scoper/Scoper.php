@@ -72,41 +72,47 @@ final class Scoper extends U\A6t\CLI_Tool {
 				'description' => 'Runs PHP scoper, fixes docBlocks, formatting, and autoloader. See ' . __CLASS__ . '::scope()',
 				'options'     => [
 					'project-dir'                   => [
-						'required'    => true,
-						'description' => 'Project directory path.',
-						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
+						'required'     => true,
+						'arg_required' => true,
+						'description'  => 'Project directory path.',
+						'validator'    => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
 							&& is_file( U\Dir::join( $abs_path, '/composer.json' ) ),
 					],
 					'work-dir'                      => [
-						'required'    => true,
-						'description' => 'Work directory path.',
-						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
+						'required'     => true,
+						'arg_required' => true,
+						'description'  => 'Work directory path.',
+						'validator'    => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
 							&& preg_match( '/\/\._[^\/]*\//u', $abs_path ),
 					],
 					'prefix'                        => [
-						'required'    => true,
-						'description' => 'Namespace prefix to apply.',
-						'validator'   => fn( $value ) => $value && is_string( $value )
+						'required'     => true,
+						'arg_required' => true,
+						'description'  => 'Namespace prefix to apply.',
+						'validator'    => fn( $value ) => $value && is_string( $value )
 							&& U\Str::is_namespace_scope( $value ),
 					],
 					'output-dir'                    => [
-						'required'    => true,
-						'description' => 'Directory to output scoped files to.',
-						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'dir' ] ) )
+						'required'     => true,
+						'arg_required' => true,
+						'description'  => 'Directory to output scoped files to.',
+						'validator'    => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'dir' ] ) )
 							&& preg_match( '/\/\._[^\/]*\//u', $abs_path ),
 					],
 					'output-project-dir'            => [
-						'required'    => true,
-						'multiple'    => true,
-						'description' => 'Output project directories; e.g., `--output-project-dir [output-dir] --output-project-dir [output-dir]/trunk`.',
-						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'dir' ] ) )
+						'required'     => true,
+						'arg_required' => true,
+						'multiple'     => true,
+						'description'  => 'Output project directories; e.g., `--output-project-dir [output-dir] --output-project-dir [output-dir]/trunk`.',
+						'validator'    => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'dir' ] ) )
 							&& preg_match( '/\/\._[^\/]*\//u', $abs_path ),
 					],
 					'output-project-dir-entry-file' => [
-						'optional'    => true,
-						'multiple'    => true,
-						'description' => 'Output project directory entry files; e.g., `--output-project-dir-entry-file [output-dir]/trunk/plugin.php`.',
-						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'file' ] ) )
+						'optional'     => true,
+						'arg_required' => true,
+						'multiple'     => true,
+						'description'  => 'Output project directory entry files; e.g., `--output-project-dir-entry-file [output-dir]/trunk/plugin.php`.',
+						'validator'    => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, [ '', 'file' ] ) )
 							&& preg_match( '/\/\._[^\/]*\//u', $abs_path )
 							&& preg_match( '/\.php$/ui', $abs_path ),
 					],

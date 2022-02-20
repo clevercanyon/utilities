@@ -67,22 +67,25 @@ final class WP extends U\A6t\CLI_Tool {
 
 		$common_options = [
 			'project-dir' => [
-				'optional'    => true,
-				'description' => 'Project directory path.',
-				'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
+				'optional'     => true,
+				'arg_required' => true,
+				'description'  => 'Project directory path.',
+				'validator'    => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
 					&& is_file( U\Dir::join( $abs_path, '/composer.json' ) ),
-				'default'     => $this->locate_nearest_project_dir(),
+				'default'      => $this->locate_nearest_project_dir(),
 			],
 			'variant'     => [
-				'optional'    => true,
-				'description' => 'Composition variant. One of: `ci` (that’s it for now).',
-				'validator'   => fn( $value ) => in_array( $value, [ 'ci' ], true ),
+				'optional'     => true,
+				'arg_required' => true,
+				'description'  => 'Composition variant. One of: `ci` (that’s it for now).',
+				'validator'    => fn( $value ) => in_array( $value, [ 'ci' ], true ),
 			],
 			'php-version' => [
-				'optional'    => true,
-				'description' => 'PHP version (MAJOR.MINOR) matching one of: <https://hub.docker.com/repository/docker/jaswrks/wp-docker>.',
-				'validator'   => fn( $value ) => is_string( $value ) && U\Str::is_version( $value ),
-				'default'     => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
+				'optional'     => true,
+				'arg_required' => true,
+				'description'  => 'PHP version (MAJOR.MINOR) matching one of: <https://hub.docker.com/repository/docker/jaswrks/wp-docker>.',
+				'validator'    => fn( $value ) => is_string( $value ) && U\Str::is_version( $value ),
+				'default'      => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
 			],
 		];
 		$this->add_commands( [
@@ -92,29 +95,35 @@ final class WP extends U\A6t\CLI_Tool {
 				'description' => 'Runs `docker compose up`. See ' . __CLASS__ . '::up()',
 				'options'     => array_merge( $common_options, [
 					'wp-multisite-type'       => [
-						'optional'    => true,
-						'description' => 'Multisite type. One of: `subdomains` or `subdirectories`.',
-						'validator'   => fn( $value ) => in_array( $value, [ 'subdomains', 'subdirectories' ], true ),
+						'optional'     => true,
+						'arg_required' => true,
+						'description'  => 'Multisite type. One of: `subdomains` or `subdirectories`.',
+						'validator'    => fn( $value ) => in_array( $value, [ 'subdomains', 'subdirectories' ], true ),
 					],
 					'wp-install-plugin'       => [
-						'optional'    => true,
-						'multiple'    => true,
-						'description' => 'Plugin slug, relative plugin zip file path, or plugin zip file URL.',
-						'validator'   => fn( $value ) => $value && is_string( $value ),
+						'optional'     => true,
+						'arg_required' => true,
+						'multiple'     => true,
+						'description'  => 'Plugin slug, relative plugin zip file path, or plugin zip file URL.',
+						'validator'    => fn( $value ) => $value && is_string( $value ),
 					],
 					'wp-install-theme'        => [
-						'optional'    => true,
-						'description' => 'Theme slug, relative theme zip file path, or theme zip file URL.',
-						'validator'   => fn( $value ) => $value && is_string( $value ),
+						'optional'     => true,
+						'arg_required' => true,
+						'description'  => 'Theme slug, relative theme zip file path, or theme zip file URL.',
+						'validator'    => fn( $value ) => $value && is_string( $value ),
 					],
 					'wp-installed-theme-slug' => [
-						'optional'    => true,
-						'description' => 'From `wp-install-theme`; the installed theme’s slug — for activation.' .
+						'optional'     => true,
+						'arg_required' => true,
+						'description'  => 'From `wp-install-theme`; the installed theme’s slug — for activation.' .
 							' This is a required argument when `wp-install-theme` is passed. It’s necessary for multisite compat.',
-						'validator'   => fn( $value ) => is_string( $value ) && U\Str::is_slug( $value ),
+						'validator'    => fn( $value ) => is_string( $value ) && U\Str::is_slug( $value ),
 					],
 					'install-kitchen-sink'    => [
-						'description' => 'Install everything (more than necessary); including the kitchen sink.' .
+						'optional'     => true,
+						'arg_required' => null,
+						'description'  => 'Install everything (more than necessary); including the kitchen sink.' .
 							' This adds a lot more overhead, but with many utilities. See: `./dev/.libs/docker/wp/entry.bash` for details.',
 					],
 				] ),
@@ -125,19 +134,23 @@ final class WP extends U\A6t\CLI_Tool {
 				'description' => 'Runs `docker exec [container] [CMD]`. See ' . __CLASS__ . '::exec()',
 				'options'     => array_merge( $common_options, [
 					'cmd-args'    => [
-						'short'       => 'c',
-						'required'    => true,
-						'description' => 'Command and any arguments; e.g., `/etc/init.d/apache2 reload`.',
-						'validator'   => fn( $value ) => $value && is_string( $value ),
+						'short'        => 'c',
+						'required'     => true,
+						'arg_required' => true,
+						'description'  => 'Command and any arguments; e.g., `/etc/init.d/apache2 reload`.',
+						'validator'    => fn( $value ) => $value && is_string( $value ),
 					],
 					'user'        => [
-						'short'       => 'u',
-						'optional'    => true,
-						'description' => 'User to exec as; e.g., `root`, `www-data`.',
-						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
+						'short'        => 'u',
+						'optional'     => true,
+						'arg_required' => true,
+						'description'  => 'User to exec as; e.g., `root`, `www-data`.',
+						'validator'    => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
 					],
 					'prepare-cmd' => [
-						'description' => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
+						'optional'     => true,
+						'arg_required' => null,
+						'description'  => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
 					],
 				] ),
 				'operands'    => [
@@ -155,13 +168,16 @@ final class WP extends U\A6t\CLI_Tool {
 				'description' => 'Runs `docker exec -it [container] bash --login`. See ' . __CLASS__ . '::shell()',
 				'options'     => array_merge( $common_options, [
 					'user'        => [
-						'short'       => 'u',
-						'optional'    => true,
-						'description' => 'User to log in as; e.g., `root`, `www-data`.',
-						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
+						'short'        => 'u',
+						'optional'     => true,
+						'arg_required' => true,
+						'description'  => 'User to log in as; e.g., `root`, `www-data`.',
+						'validator'    => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
 					],
 					'prepare-cmd' => [
-						'description' => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
+						'optional'     => true,
+						'arg_required' => null,
+						'description'  => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
 					],
 				] ),
 				'operands'    => [
@@ -179,14 +195,17 @@ final class WP extends U\A6t\CLI_Tool {
 				'description' => 'Runs `docker exec -it [container] bash -c \'psysh\'`. See ' . __CLASS__ . '::psysh()',
 				'options'     => array_merge( $common_options, [
 					'user'        => [
-						'short'       => 'u',
-						'optional'    => true,
-						'description' => 'User to log in as; e.g., `root`, `www-data`.',
-						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
-						'default'     => 'www-data',
+						'short'        => 'u',
+						'optional'     => true,
+						'arg_required' => true,
+						'description'  => 'User to log in as; e.g., `root`, `www-data`.',
+						'validator'    => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
+						'default'      => 'www-data',
 					],
 					'prepare-cmd' => [
-						'description' => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
+						'optional'     => true,
+						'arg_required' => null,
+						'description'  => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
 					],
 				] ),
 			],
@@ -196,14 +215,17 @@ final class WP extends U\A6t\CLI_Tool {
 				'description' => 'Runs `docker exec -it [container] bash -c \'wp shell\'`. See ' . __CLASS__ . '::wp_cli()',
 				'options'     => array_merge( $common_options, [
 					'user'        => [
-						'short'       => 'u',
-						'optional'    => true,
-						'description' => 'User to log in as; e.g., `root`, `www-data`.',
-						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
-						'default'     => 'www-data',
+						'short'        => 'u',
+						'optional'     => true,
+						'arg_required' => true,
+						'description'  => 'User to log in as; e.g., `root`, `www-data`.',
+						'validator'    => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
+						'default'      => 'www-data',
 					],
 					'prepare-cmd' => [
-						'description' => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
+						'optional'     => true,
+						'arg_required' => null,
+						'description'  => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
 					],
 				] ),
 			],
@@ -239,10 +261,11 @@ final class WP extends U\A6t\CLI_Tool {
 				'description' => 'Runs `docker inspect [container]`. See ' . __CLASS__ . '::inspect()',
 				'options'     => array_merge( $common_options, [
 					'format' => [
-						'short'       => 'f',
-						'optional'    => true,
-						'description' => 'Format string.',
-						'validator'   => fn( $value ) => $value && is_string( $value ),
+						'short'        => 'f',
+						'optional'     => true,
+						'arg_required' => true,
+						'description'  => 'Format string.',
+						'validator'    => fn( $value ) => $value && is_string( $value ),
 					],
 				] ),
 				'operands'    => [
@@ -333,7 +356,7 @@ final class WP extends U\A6t\CLI_Tool {
 			if ( 'php' === $short_alias ) {
 				$work_dir_args = [ '--workdir', '/var/www/html' ];
 			}
-			$cmd_args = preg_split( '/\s+/u', $cmd_args, -1, PREG_SPLIT_NO_EMPTY );
+			$cmd_args = preg_split( '/\s+/u', $cmd_args ?: '', -1, PREG_SPLIT_NO_EMPTY );
 			$cmd_args = array_map( [ U\Str::class, 'unquote' ], $cmd_args );
 			$cmd_args = [
 				[ 'docker', 'exec' ],

@@ -24,13 +24,13 @@ namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Utilities;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use GetOpt\{GetOpt as Parser, Option, Operand};
 
 /**
  * File-specific.
  *
  * @since 2021-12-15
  */
+use GetOpt\{GetOpt as Parser, Command, Option, Operand};
 
 // </editor-fold>
 
@@ -53,20 +53,21 @@ trait Builder_Members {
 	 */
 	protected function build_options( array $_options ) : array {
 		foreach ( $_options as $_option => $_config ) {
-			$_short       = $_config[ 'short' ] ?? null;
-			$_long        = $_config[ 'long' ] ?? null;
-			$_multiple    = $_config[ 'multiple' ] ?? null;
-			$_required    = $_config[ 'required' ] ?? null;
-			$_optional    = $_config[ 'optional' ] ?? null;
-			$_description = $_config[ 'description' ] ?? null;
-			$_validator   = $_config[ 'validator' ] ?? null;
-			$_default     = $_config[ 'default' ] ?? null;
+			$_short        = $_config[ 'short' ] ?? null;
+			$_long         = $_config[ 'long' ] ?? null;
+			$_multiple     = $_config[ 'multiple' ] ?? null;
+			$_required     = $_config[ 'required' ] ?? null;     // Is the --option itself required?
+			$_arg_required = $_config[ 'arg_required' ] ?? null; // Is the --option=argument required?
+			$_arg_optional = $_config[ 'arg_optional' ] ?? null; // Is the --option=argument optional?
+			$_description  = $_config[ 'description' ] ?? null;
+			$_validator    = $_config[ 'validator' ] ?? null;
+			$_default      = $_config[ 'default' ] ?? null;
 
 			if ( $_multiple ) {
 				$_mode = Parser::MULTIPLE_ARGUMENT;
-			} elseif ( $_required || false === $_optional ) {
+			} elseif ( $_arg_required || false === $_arg_optional ) {
 				$_mode = Parser::REQUIRED_ARGUMENT;
-			} elseif ( $_optional || false === $_required ) {
+			} elseif ( $_arg_optional || false === $_arg_required ) {
 				$_mode = Parser::OPTIONAL_ARGUMENT;
 			} else {
 				$_mode = Parser::NO_ARGUMENT;
@@ -77,6 +78,9 @@ trait Builder_Members {
 
 			if ( isset( $_default ) ) {
 				$options[ $_option ]->setDefaultValue( $_default );
+			}
+			if ( $_required ) {
+				$this->required_options[ $_option ] = $options[ $_option ];
 			}
 		}
 		return $options ?? [];
@@ -96,8 +100,8 @@ trait Builder_Members {
 	protected function build_operands( array $_operands ) : array {
 		foreach ( $_operands as $_operand => $_config ) {
 			$_multiple    = $_config[ 'multiple' ] ?? null;
-			$_required    = $_config[ 'required' ] ?? null;
-			$_optional    = $_config[ 'optional' ] ?? null;
+			$_required    = $_config[ 'required' ] ?? null; // Is the ... [operand] required?
+			$_optional    = $_config[ 'optional' ] ?? null; // Is the ... [operand] optional?
 			$_description = $_config[ 'description' ] ?? null;
 			$_validator   = $_config[ 'validator' ] ?? null;
 			$_default     = $_config[ 'default' ] ?? null;
@@ -120,6 +124,9 @@ trait Builder_Members {
 			}
 			if ( isset( $_default ) ) {
 				$operands[ $_operand ]->setDefaultValue( $_default );
+			}
+			if ( $_required ) {
+				$this->required_operands[ $_operand ] = $operands[ $_operand ];
 			}
 		}
 		return $operands ?? [];

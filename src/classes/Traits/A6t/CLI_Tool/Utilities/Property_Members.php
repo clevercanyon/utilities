@@ -24,13 +24,13 @@ namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Utilities;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use GetOpt\{GetOpt as Parser};
 
 /**
  * File-specific.
  *
  * @since 2021-12-15
  */
+use GetOpt\{GetOpt as Parser, Command, Option, Operand};
 
 // </editor-fold>
 
@@ -57,4 +57,22 @@ trait Property_Members {
 	 * @var string|array|null
 	 */
 	protected $args_to_parse; /* string|array|null */
+
+	/**
+	 * Required options.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @var Option[] Options.
+	 */
+	protected array $required_options;
+
+	/**
+	 * Required operands.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @var Operand[] Options.
+	 */
+	protected array $required_operands;
 }

@@ -30,6 +30,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
+use GetOpt\{GetOpt as Parser, Command, Option, Operand};
 
 // </editor-fold>
 
@@ -66,6 +67,10 @@ trait Routing_Members {
 		if ( $this->maybe_process_help_request() || $this->maybe_process_version_request() ) {
 			return; // Nothing more to do here.
 		}
+		// Check required options and operands.
+
+		$this->check_required_options_and_operands();
+
 		// Handle CLI commands parsed from CLI args above.
 
 		try {

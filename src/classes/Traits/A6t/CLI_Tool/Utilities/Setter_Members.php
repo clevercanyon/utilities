@@ -24,13 +24,13 @@ namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Utilities;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use GetOpt\{Command};
 
 /**
  * File-specific.
  *
  * @since 2021-12-15
  */
+use GetOpt\{GetOpt as Parser, Command, Option, Operand};
 
 // </editor-fold>
 
