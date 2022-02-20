@@ -38,30 +38,5 @@
 
 		"package.json"                              : "@"
 	},
-	"deletion_manifest" : [
-		".babelrc.cjs",
-		".cssnanorc.cjs",
-		".linariarc.cjs",
-		".phpunit-distro.xml",
-		".phpunit.xml",
-		".postcssrc.cjs",
-		".phpunit~distro.xml",
-		".scoper.cfg.php",
-		".scoper.cfg~prj.php",
-		".scoper.prj.cfg.php",
-		".ssl-i-ca-crt.pem",
-		".ssl-i-ca-csr.pem",
-		".ssl-i-ca-key.pem",
-		".ssl-openssl.cnf",
-		".ssl-r-ca-crt.pem",
-		".ssl-r-ca-key.pem",
-		".ssl-ri-cas.sh",
-		".tailwindrc.cjs",
-		".webpack.cjs",
-		".wp-docker.ci.yml",
-		".wp-docker.prj.sh",
-		".wp-docker.prj.yml",
-		".wp-docker.sh",
-		".wp-docker.yml"
-	]
+	"deletion_manifest" : [ ]
 }
