@@ -531,7 +531,6 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::output( 'MySQL Database Server' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'sql' ) );
 		U\CLI::log( 'FQDN (MySQL)         : ' . $this->get_container_fqdn( 'sql' ) );
-		U\CLI::log( 'FQDN (MySQLx)        : ' . $this->get_container_fqdn( 'sql', 'mysqlx' ) );
 
 		U\CLI::new_line();
 

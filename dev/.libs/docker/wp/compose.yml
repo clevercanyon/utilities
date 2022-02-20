@@ -51,11 +51,11 @@ volumes  :
         name : '${WP_DOCKER_COMPOSE_PROJECT_SLUG}-nxp-data'
 
 services :
-    sql : # MySQL database server.
+    sql : # MySQL (MariaDB) database server.
         container_name : '${WP_DOCKER_COMPOSE_PROJECT_SLUG}-sql'
         hostname       : '${WP_DOCKER_COMPOSE_PROJECT_SLUG}-sql'
         domainname     : 'wp' # i.e., `${WP_DOCKER_COMPOSE_PROJECT_SLUG}-sql.wp`.
-        image          : 'mysql:latest'
+        image          : 'mariadb:latest'
         dns            :
             - '1.1.1.1'        # Cloudflare.
             - '8.8.8.8'        # Google.
@@ -64,7 +64,6 @@ services :
             - '208.67.220.220' # OpenDNS.
         expose         :
             - '3306'
-            - '33060' # {@see https://o5p.me/2PWGCV}.
         networks       :
             - 'network'
         volumes        :
@@ -122,8 +121,6 @@ services :
             - '8025' # Web interface.
         networks       :
             - 'network'
-        logging        :
-            driver : 'none'  # Too noisy.
         environment    :
             # Proxy configuration settings; {@see https://o5p.me/FKFB99}.
             VIRTUAL_PORT     : '8025'                                     # Virtual host for SSL proxy.
