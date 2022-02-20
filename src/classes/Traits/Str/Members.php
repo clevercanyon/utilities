@@ -63,4 +63,5 @@ trait Members {
 	use U\Traits\Str\Utilities\Stringify_Members;
 	use U\Traits\Str\Utilities\To_ASCII_Members;
 	use U\Traits\Str\Utilities\Var_Members;
+	use U\Traits\Str\Utilities\Unquote_Members;
 }

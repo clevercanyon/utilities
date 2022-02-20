@@ -163,9 +163,10 @@ services :
         networks       :
             - 'network'
         volumes        :
-            - 'php-data:/var/www/html'                                      # WordPress core installation data.
-            - '../../../../:/wp-docker/host/project:ro'                     # Host's project directory (read-only).
-            - './config/php.ini:/usr/local/etc/php/conf.d/wp-docker.ini:ro' # Host's project directory (read-only).
+            - 'php-data:/var/www/html'                                              # WordPress core installation data.
+            - '../../../../:/wp-docker/host/project:ro'                             # Host's project directory (read-only).
+            - './config/php.ini:/usr/local/etc/php/conf.d/wp-docker.ini:ro'         # Host's PHP.ini configuration file.
+            - './config/php~prj.ini:/usr/local/etc/php/conf.d/wp-docker~prj.ini:ro' # Host's project-specific config file.
         extra_hosts    :
             - '${WP_DOCKER_COMPOSE_PROJECT_SLUG}.wp:127.0.0.1'
         environment    :

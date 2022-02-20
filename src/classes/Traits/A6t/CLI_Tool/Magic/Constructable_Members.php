@@ -63,7 +63,7 @@ trait Constructable_Members {
 		}
 		$this->parser = new Parser( null, [
 			Parser::SETTING_STRICT_OPTIONS  => true,
-			Parser::SETTING_STRICT_OPERANDS => true,
+			Parser::SETTING_STRICT_OPERANDS => false,
 		] );
 		$this->add_options( [
 			'help'    => [ 'description' => 'Get help.' ],

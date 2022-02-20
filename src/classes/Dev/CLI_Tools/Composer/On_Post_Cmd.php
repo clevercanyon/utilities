@@ -341,16 +341,17 @@ final class On_Post_Cmd extends U\A6t\CLI_Tool {
 		U\Fs::clear_stat_cache(); // i.e., Loop below needs up-to-date info.
 
 		foreach ( $dotfiles_json->manifest as $_from_subpath => $_to_subpath ) {
-			/*
-			 * This supports copying entire directoryies or specific files.
-			 * It simply depends on what's been listed in the manifest.
-			 */
 			$_to_subpath = '@' === $_to_subpath ? $_from_subpath : $_to_subpath;
 
 			$_from_path        = U\Dir::join( $dotfiles_dir, '/' . $_from_subpath );
 			$_to_path          = U\Dir::join( $this->project->dir, '/' . $_to_subpath );
 			$_to_path_basename = basename( $_to_path ); // e.g., `package.json`.
 
+			if ( ! is_file( $_from_path ) ) { // Files only.
+				// We don't copy entire directories. Must be file-by-file.
+				// Instead of directories, maintain the manifest's structure.
+				throw new U\Fatal_Exception( 'Not a file: `' . $_from_path . '`.' );
+			}
 			if ( ! is_readable( $_from_path ) ) {
 				throw new U\Fatal_Exception( 'Unable to read: `' . $_from_path . '`.' );
 			}

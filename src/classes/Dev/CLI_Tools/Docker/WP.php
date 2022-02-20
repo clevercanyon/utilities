@@ -119,16 +119,46 @@ final class WP extends U\A6t\CLI_Tool {
 					],
 				] ),
 			],
+			'exec'    => [
+				'callback'    => [ $this, 'exec' ],
+				'synopsis'    => 'Runs `docker exec [container] [CMD]`.',
+				'description' => 'Runs `docker exec [container] [CMD]`. See ' . __CLASS__ . '::exec()',
+				'options'     => array_merge( $common_options, [
+					'cmd-args'    => [
+						'short'       => 'c',
+						'required'    => true,
+						'description' => 'Command and any arguments; e.g., `/etc/init.d/apache2 reload`.',
+						'validator'   => fn( $value ) => $value && is_string( $value ),
+					],
+					'user'        => [
+						'short'       => 'u',
+						'optional'    => true,
+						'description' => 'User to exec as; e.g., `root`, `www-data`.',
+						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
+					],
+					'prepare-cmd' => [
+						'description' => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
+					],
+				] ),
+				'operands'    => [
+					'container-short-alias' => [
+						'optional'    => true,
+						'description' => 'Container short alias; e.g., `sql`, `mem`, `hog`, `php`, `pma`, `nxp`, `nxc`.',
+						'validator'   => fn( $value ) => is_string( $value ) && U\Str::is_slug( $value ),
+						'default'     => 'php',
+					],
+				],
+			],
 			'shell'   => [
 				'callback'    => [ $this, 'shell' ],
 				'synopsis'    => 'Runs `docker exec -it [container] bash --login`.',
 				'description' => 'Runs `docker exec -it [container] bash --login`. See ' . __CLASS__ . '::shell()',
 				'options'     => array_merge( $common_options, [
 					'user'        => [
+						'short'       => 'u',
 						'optional'    => true,
 						'description' => 'User to log in as; e.g., `root`, `www-data`.',
 						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
-						'default'     => '',
 					],
 					'prepare-cmd' => [
 						'description' => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
@@ -149,6 +179,7 @@ final class WP extends U\A6t\CLI_Tool {
 				'description' => 'Runs `docker exec -it [container] bash -c \'psysh\'`. See ' . __CLASS__ . '::psysh()',
 				'options'     => array_merge( $common_options, [
 					'user'        => [
+						'short'       => 'u',
 						'optional'    => true,
 						'description' => 'User to log in as; e.g., `root`, `www-data`.',
 						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
@@ -165,6 +196,7 @@ final class WP extends U\A6t\CLI_Tool {
 				'description' => 'Runs `docker exec -it [container] bash -c \'wp shell\'`. See ' . __CLASS__ . '::wp_cli()',
 				'options'     => array_merge( $common_options, [
 					'user'        => [
+						'short'       => 'u',
 						'optional'    => true,
 						'description' => 'User to log in as; e.g., `root`, `www-data`.',
 						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
@@ -207,6 +239,7 @@ final class WP extends U\A6t\CLI_Tool {
 				'description' => 'Runs `docker inspect [container]`. See ' . __CLASS__ . '::inspect()',
 				'options'     => array_merge( $common_options, [
 					'format' => [
+						'short'       => 'f',
 						'optional'    => true,
 						'description' => 'Format string.',
 						'validator'   => fn( $value ) => $value && is_string( $value ),
@@ -273,6 +306,53 @@ final class WP extends U\A6t\CLI_Tool {
 	}
 
 	/**
+	 * Command: `exec`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected function exec() : void {
+		try {
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
+			$user        = $this->get_option( 'user' );
+			$cmd_args    = $this->get_option( 'cmd-args' );
+			$short_alias = $this->get_operand( 'container-short-alias' );
+
+			$user_args      = []; // Initialize.
+			$work_dir_args  = []; // Initialize.
+			$container_args = [ $this->project->slug . '-' . $short_alias ];
+
+			if ( 'php' === $short_alias && ! $user ) {
+				$user_args = [ '--user', 'www-data' ];
+			}
+			if ( 'php' === $short_alias ) {
+				$work_dir_args = [ '--workdir', '/var/www/html' ];
+			}
+			$cmd_args = preg_split( '/\s+/u', $cmd_args, -1, PREG_SPLIT_NO_EMPTY );
+			$cmd_args = array_map( [ U\Str::class, 'unquote' ], $cmd_args );
+			$cmd_args = [
+				[ 'docker', 'exec' ],
+				[ $user_args, $work_dir_args ],
+				[ $container_args, $cmd_args ],
+			];
+			if ( $this->get_option( 'prepare-cmd' ) ) {
+				exit( 'CMD:' . U\CLI::prepare_cmd( $cmd_args, $this->project->dir ) ); // phpcs:ignore.
+			} else {
+				U\CLI::exit_status( U\CLI::run( $cmd_args, $this->project->dir, false ) );
+			}
+		} catch ( \Throwable $throwable ) {
+			U\CLI::error( $throwable->getMessage() );
+			U\CLI::error( $throwable->getTraceAsString() );
+			U\CLI::exit_status( 1 );
+		}
+	}
+
+	/**
 	 * Command: `shell`.
 	 *
 	 * @since 2021-12-15
@@ -282,6 +362,10 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
 			$user        = $this->get_option( 'user' );
 			$short_alias = $this->get_operand( 'container-short-alias' );
 
@@ -326,6 +410,10 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
 			$cmd_args = [
 				[ 'docker', 'exec' ],
 				[ '--interactive', '--tty' ],
@@ -356,6 +444,10 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
 			$cmd_args = [
 				[ 'docker', 'exec' ],
 				[ '--interactive', '--tty' ],
@@ -386,6 +478,10 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
 			$this->maybe_print_container_info();
 
 		} catch ( \Throwable $throwable ) {
@@ -405,6 +501,10 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
 			U\CLI::run( [
 				'::env_vars' => $this->prepare_env_var_args(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
@@ -428,6 +528,10 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
 			$short_alias = $this->get_operand( 'container-short-alias' );
 
 			U\CLI::run( [
@@ -452,6 +556,10 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
 			$format      = $this->get_option( 'format' );
 			$short_alias = $this->get_operand( 'container-short-alias' );
 
@@ -480,6 +588,10 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
 			U\CLI::run( [
 				'::env_vars' => $this->prepare_env_var_args(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
@@ -506,6 +618,10 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
 			U\CLI::run( [
 				'::env_vars' => $this->prepare_env_var_args(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
@@ -532,6 +648,10 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			if ( ! $this->network_exists() ) {
+				U\CLI::log( 'WP Docker is down.' );
+				U\CLI::exit_status( 1 );
+			}
 			$this->maybe_update_etc_hosts_file();
 
 			U\CLI::run( [

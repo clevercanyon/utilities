@@ -13,6 +13,7 @@
 
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1;
 . ./dev/utilities/load.bash; # Loads utilities.
+. ./dev/utilities/bash/partials/loose-mode;
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Determine WP Docker path.
@@ -31,7 +32,11 @@ if [[ "${1:-}" == 'shell' || "${1:-}" == 'psysh' || "${1:-}" == 'wp-cli' ]]; the
 	CMD="$("${wp_docker_path}" "${@}" --prepare-cmd)";
 
 	if [[ "${CMD:0:4}" == 'CMD:' ]]; then
-		eval "${CMD:4}"; fi;
+		eval "${CMD:4}";
+	else
+		echo 'WP Docker failed to prepare a CMD.';
+		echo 'Got: '"${CMD:4}"; exit 1;
+	fi;
 else
 	"${wp_docker_path}" "${@}";
 fi;
@@ -73,6 +78,14 @@ fi;
 # ---------------------------------------------------------------------------------------------------------------------
 # $ ./.wp-docker wp-cli;                                     Main `php` container as default user `www-data`.
 # $ ./.wp-docker wp-cli --user root;                         Main `php` container w/ root access.
+# ---------------------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Executing array CMD inside of a container:
+# ---------------------------------------------------------------------------------------------------------------------
+# $ ./.wp-docker exec -c 'whoami';                            Main `php` container as default user `www-data`.
+# $ ./.wp-docker exec --cmd-args 'whoami';                    Main `php` container as default user `www-data`.
+# $ ./.wp-docker exec --user root --cmd-args '/etc/init.d/apache2 reload' [container-short-alias];
 # ---------------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------------
