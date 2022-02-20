@@ -119,16 +119,19 @@ final class WP extends U\A6t\CLI_Tool {
 					],
 				] ),
 			],
-			'bash'    => [
-				'callback'    => [ $this, 'bash' ],
+			'shell'   => [
+				'callback'    => [ $this, 'shell' ],
 				'synopsis'    => 'Runs `docker exec -it [container] bash --login`.',
-				'description' => 'Runs `docker exec -it [container] bash --login`. See ' . __CLASS__ . '::bash()',
+				'description' => 'Runs `docker exec -it [container] bash --login`. See ' . __CLASS__ . '::shell()',
 				'options'     => array_merge( $common_options, [
-					'user' => [
+					'user'        => [
 						'optional'    => true,
 						'description' => 'User to log in as; e.g., `root`, `www-data`.',
 						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
 						'default'     => '',
+					],
+					'prepare-cmd' => [
+						'description' => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
 					],
 				] ),
 				'operands'    => [
@@ -145,24 +148,30 @@ final class WP extends U\A6t\CLI_Tool {
 				'synopsis'    => 'Runs `docker exec -it [container] bash -c \'psysh\'`.',
 				'description' => 'Runs `docker exec -it [container] bash -c \'psysh\'`. See ' . __CLASS__ . '::psysh()',
 				'options'     => array_merge( $common_options, [
-					'user' => [
+					'user'        => [
 						'optional'    => true,
 						'description' => 'User to log in as; e.g., `root`, `www-data`.',
 						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
 						'default'     => 'www-data',
 					],
+					'prepare-cmd' => [
+						'description' => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
+					],
 				] ),
 			],
-			'shell'   => [
-				'callback'    => [ $this, 'shell' ],
+			'wp-cli'  => [
+				'callback'    => [ $this, 'wp_cli' ],
 				'synopsis'    => 'Runs `docker exec -it [container] bash -c \'wp shell\'`.',
-				'description' => 'Runs `docker exec -it [container] bash -c \'wp shell\'`. See ' . __CLASS__ . '::shell()',
+				'description' => 'Runs `docker exec -it [container] bash -c \'wp shell\'`. See ' . __CLASS__ . '::wp_cli()',
 				'options'     => array_merge( $common_options, [
-					'user' => [
+					'user'        => [
 						'optional'    => true,
 						'description' => 'User to log in as; e.g., `root`, `www-data`.',
 						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
 						'default'     => 'www-data',
+					],
+					'prepare-cmd' => [
+						'description' => 'Prepares a `CMD: [CMD]` to run and returns that CMD.',
 					],
 				] ),
 			],
@@ -264,29 +273,42 @@ final class WP extends U\A6t\CLI_Tool {
 	}
 
 	/**
-	 * Command: `bash`.
+	 * Command: `shell`.
 	 *
-	 * @since        2021-12-15
+	 * @since 2021-12-15
 	 */
-	protected function bash() : void {
+	protected function shell() : void {
 		try {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
 			$user        = $this->get_option( 'user' );
 			$short_alias = $this->get_operand( 'container-short-alias' );
-			$user        = $user ?: ( 'php' === $short_alias ? 'www-data' : '' );
-			$shell       = in_array( $short_alias, [ 'hog' ], true ) ? [ 'ash' ] : [ 'bash', '--login' ];
 
-			U\CLI::tty( [
+			$user_args      = []; // Initialize.
+			$work_dir_args  = []; // Initialize.
+			$shell_args     = [ 'bash', '--login' ];
+			$container_args = [ $this->project->slug . '-' . $short_alias ];
+
+			if ( 'php' === $short_alias && ! $user ) {
+				$user_args = [ '--user', 'www-data' ];
+			}
+			if ( 'php' === $short_alias ) {
+				$work_dir_args = [ '--workdir', '/var/www/html' ];
+			}
+			if ( 'hog' === $short_alias ) {
+				$shell_args = [ 'ash' ];
+			}
+			$cmd_args = [
 				[ 'docker', 'exec' ],
 				[ '--interactive', '--tty' ],
-				( $user ? [ '--user', $user ] : [] ),
-				( 'php' === $short_alias ? [ '--workdir', '/var/www/html' ] : [] ),
-				[ $this->project->slug . '-' . $short_alias ],
-				$shell,
-			], $this->project->dir );
-
+				[ $user_args, $work_dir_args, $container_args, $shell_args ],
+			];
+			if ( $this->get_option( 'prepare-cmd' ) ) {
+				exit( 'CMD:' . U\CLI::prepare_cmd( $cmd_args, $this->project->dir ) ); // phpcs:ignore.
+			} else {
+				U\CLI::run( $cmd_args, $this->project->dir, false );
+			}
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
@@ -297,22 +319,26 @@ final class WP extends U\A6t\CLI_Tool {
 	/**
 	 * Command: `psysh`.
 	 *
-	 * @since        2021-12-15
+	 * @since 2021-12-15
 	 */
 	protected function psysh() : void {
 		try {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
-			U\CLI::run( [
+			$cmd_args = [
 				[ 'docker', 'exec' ],
 				[ '--interactive', '--tty' ],
 				[ '--user', $this->get_option( 'user' ) ],
 				[ '--workdir', '/var/www/html' ],
 				[ $this->project->slug . '-php' ],
 				[ 'bash', '-c', 'psysh' ],
-			], $this->project->dir, false );
-
+			];
+			if ( $this->get_option( 'prepare-cmd' ) ) {
+				exit( 'CMD:' . U\CLI::prepare_cmd( $cmd_args, $this->project->dir ) ); // phpcs:ignore.
+			} else {
+				U\CLI::run( $cmd_args, $this->project->dir, false );
+			}
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
@@ -321,24 +347,28 @@ final class WP extends U\A6t\CLI_Tool {
 	}
 
 	/**
-	 * Command: `shell`.
+	 * Command: `wp-cli`.
 	 *
-	 * @since        2021-12-15
+	 * @since 2021-12-15
 	 */
-	protected function shell() : void {
+	protected function wp_cli() : void {
 		try {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
-			U\CLI::run( [
+			$cmd_args = [
 				[ 'docker', 'exec' ],
 				[ '--interactive', '--tty' ],
 				[ '--user', $this->get_option( 'user' ) ],
 				[ '--workdir', '/var/www/html' ],
 				[ $this->project->slug . '-php' ],
 				[ 'bash', '-c', 'wp shell' ],
-			], $this->project->dir, false );
-
+			];
+			if ( $this->get_option( 'prepare-cmd' ) ) {
+				exit( 'CMD:' . U\CLI::prepare_cmd( $cmd_args, $this->project->dir ) ); // phpcs:ignore.
+			} else {
+				U\CLI::run( $cmd_args, $this->project->dir, false );
+			}
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
@@ -561,9 +591,9 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::output( 'Apache/PHPv' . $this->get_option( 'php-version' ) . '/WordPress Server' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'php' ) );
 		U\CLI::log( 'FQDN                 : ' . $this->get_container_fqdn( 'php' ) );
-		U\CLI::log( 'Shell Access         : 🐳 $ ./.wp-docker bash' );
+		U\CLI::log( 'Shell Access         : 🐳 $ ./.wp-docker shell|bash' );
 		U\CLI::log( 'Psysh Access         : $ ./.wp-docker psysh' );
-		U\CLI::log( 'WP Shell Access      : $ ./.wp-docker shell' );
+		U\CLI::log( 'WP-CLI Access        : $ ./.wp-docker cli' );
 		U\CLI::log( 'Project In Container : /wp-docker/host/project' );
 
 		U\CLI::new_line();

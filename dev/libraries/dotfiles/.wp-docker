@@ -7,11 +7,33 @@
 # This file and the contents of it are updated automatically.
 # - Instead of editing this file, please review source repository {@see https://o5p.me/LevQOD}.
 ##
+# ---------------------------------------------------------------------------------------------------------------------
+# $ ./.wp-docker [command] [args];
+# ---------------------------------------------------------------------------------------------------------------------
+
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1;
+. ./dev/utilities/load.bash; # Loads utilities.
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Determine WP Docker path.
+# ---------------------------------------------------------------------------------------------------------------------
 
 if [[ -x ./dev/cli-tools/docker/wp/docker ]]; then
-    ./dev/cli-tools/docker/wp/docker "${@}";
+    wp_docker_path=./dev/cli-tools/docker/wp/docker;
 else
-	./vendor/clevercanyon/utilities/dev/cli-tools/docker/wp/docker "${@}";
+	wp_docker_path=./vendor/clevercanyon/utilities/dev/cli-tools/docker/wp/docker;
+fi;
+# ---------------------------------------------------------------------------------------------------------------------
+# Run `./.wp-docker [command] [args]`.
+# ---------------------------------------------------------------------------------------------------------------------
+
+if [[ "${1:-}" == 'shell' || "${1:-}" == 'psysh' || "${1:-}" == 'wp-cli' ]]; then
+	CMD="$("${wp_docker_path}" "${@}" --prepare-cmd)";
+
+	if [[ "${CMD:0:4}" == 'CMD:' ]]; then
+		eval "${CMD:4}"; fi;
+else
+	"${wp_docker_path}" "${@}";
 fi;
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -31,12 +53,12 @@ fi;
 # ---------------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Logging into a container (bash shell access):
+# Logging into a container (shell access):
 # ---------------------------------------------------------------------------------------------------------------------
-# $ ./.wp-docker bash;                                       Main `php` container as default user `www-data`.
-# $ ./.wp-docker bash [container-short-alias];               One of: `sql`, `mem`, `hog`, `php`, `pma`, `nxp`, `nxc`.
-# $ ./.wp-docker bash --user root;                           Main `php` container w/ root access.
-# $ ./.wp-docker bash --user root [container-short-alias];   A given container w/ root access.
+# $ ./.wp-docker shell;                                      Main `php` container as default user `www-data`.
+# $ ./.wp-docker shell [container-short-alias];              One of: `sql`, `mem`, `hog`, `php`, `pma`, `nxp`, `nxc`.
+# $ ./.wp-docker shell --user root;                          Main `php` container w/ root access.
+# $ ./.wp-docker shell --user root [container-short-alias];  A given container w/ root access.
 # ---------------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -49,8 +71,8 @@ fi;
 # ---------------------------------------------------------------------------------------------------------------------
 # Accessing WordPress in main `php` container (WP shell access):
 # ---------------------------------------------------------------------------------------------------------------------
-# $ ./.wp-docker shell;                                      Main `php` container as default user `www-data`.
-# $ ./.wp-docker shell --user root;                          Main `php` container w/ root access.
+# $ ./.wp-docker wp-cli;                                     Main `php` container as default user `www-data`.
+# $ ./.wp-docker wp-cli --user root;                         Main `php` container w/ root access.
 # ---------------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------------
