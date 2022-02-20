@@ -21,7 +21,6 @@ services :
     sql :
         ports       :
             - '3306:3306'
-            - '33060:33060'
         environment :
             WP_DOCKER_COMPOSE_VARIANT : 'ci'
     mem :

@@ -530,7 +530,7 @@ final class WP extends U\A6t\CLI_Tool {
 		}
 		U\CLI::output( 'MySQL Database Server' );
 		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'sql' ) );
-		U\CLI::log( 'FQDN (MySQL)         : ' . $this->get_container_fqdn( 'sql' ) );
+		U\CLI::log( 'MySQL (MariaDB)      : ' . $this->get_container_fqdn( 'sql' ) );
 
 		U\CLI::new_line();
 
@@ -752,6 +752,10 @@ final class WP extends U\A6t\CLI_Tool {
 	 *                                 * In some cases it is helpful to request a specific port by a slug.
 	 *                                   e.g., In the case of a service exposing multiple ports. The only slugs
 	 *                                   currently accepted are: `mysqlx`, `webmail`.
+	 *
+	 *                                   * `mysqlx` is a port opened by the MySQL container.
+	 *                                     We are currently using MariaDB, which doesn't open this port.
+	 *                                     Leaving support for it here, but it's never an open port at this time.
 	 *
 	 * @return string Container FQDN; i.e., `hostname.domainname[:port]`.
 	 *                Always normalized as lowercase.
