@@ -44,11 +44,11 @@ use Aws\Exception\AwsException;
 // </editor-fold>
 
 /**
- * On `post-update-cmd` hook.
+ * On `post-(install|update)-cmd` hook.
  *
  * @since 2021-12-15
  */
-final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
+final class On_Post_Cmd extends U\A6t\CLI_Tool {
 	/**
 	 * Project.
 	 *
@@ -68,7 +68,7 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 */
-	protected const NAME = 'Composer/On_Post_Update_Cmd';
+	protected const NAME = 'Composer/On_Post_Cmd';
 
 	/**
 	 * Constructor.
@@ -86,6 +86,19 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 				'callback'    => [ $this, 'symlink' ],
 				'synopsis'    => 'Updates project symlinks.',
 				'description' => 'Updates project symlinks. See ' . __CLASS__ . '::symlink()',
+				'options'     => [
+					'project-dir' => [
+						'required'    => true,
+						'description' => 'Project directory path.',
+						'validator'   => fn( $value ) => ( $abs_path = $this->v6e_abs_path( $value, 'dir' ) )
+							&& is_file( U\Dir::join( $abs_path, '/composer.json' ) ),
+					],
+				],
+			],
+			'install' => [
+				'callback'    => [ $this, 'install' ],
+				'synopsis'    => 'Installs project dotfiles and NPM packages.',
+				'description' => 'Installs project dotfiles and NPM packages. See ' . __CLASS__ . '::install()',
 				'options'     => [
 					'project-dir' => [
 						'required'    => true,
@@ -127,6 +140,37 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 			$this->maybe_symlink_local_repos();
 
 			U\CLI::done( '[' . __METHOD__ . '()]: Symlinking complete ✔.' );
+		} catch ( \Throwable $throwable ) {
+			U\CLI::error( $throwable->getMessage() );
+			U\CLI::error( $throwable->getTraceAsString() );
+			U\CLI::exit_status( 1 );
+		}
+	}
+
+	/**
+	 * Command: `install`.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected function install() : void {
+		try {
+			U\CLI::heading( '[' . __METHOD__ . '()]: Installing ...' );
+
+			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
+			$this->project = new U\Dev\Project( $project_dir );
+
+			$this->maybe_setup_dotfiles();
+
+			$this->maybe_run_npm_install();
+			$this->maybe_run_npx_webpack();
+
+			$this->maybe_compile_distro_lib_dir();
+			$this->maybe_compile_distro_lib_tests_dir();
+
+			$this->maybe_compile_distro_lib_zip();
+			$this->maybe_s3_upload_distro_lib_zip();
+
+			U\CLI::done( '[' . __METHOD__ . '()]: Install complete ✔.' );
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
 			U\CLI::error( $throwable->getTraceAsString() );
@@ -387,7 +431,21 @@ final class On_Post_Update_Cmd extends U\A6t\CLI_Tool {
 	}
 
 	/**
-	 * Maybe run NPM updates.
+	 * Maybe run NPM install.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected function maybe_run_npm_install() : void {
+		U\CLI::output( '[' . __FUNCTION__ . '()]: Maybe; looking ...' );
+
+		if ( $this->project->has_file( 'package.json' ) ) {
+			U\CLI::log( '[' . __FUNCTION__ . '()]: Running `npm install` ...' );
+			U\CLI::run( [ 'npm', 'install' ], $this->project->dir );
+		}
+	}
+
+	/**
+	 * Maybe run NPM update.
 	 *
 	 * @since 2021-12-15
 	 */
