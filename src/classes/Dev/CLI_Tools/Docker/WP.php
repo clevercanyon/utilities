@@ -128,7 +128,7 @@ final class WP extends U\A6t\CLI_Tool {
 						'optional'    => true,
 						'description' => 'User to log in as; e.g., `root`, `www-data`.',
 						'validator'   => fn( $value ) => is_string( $value ) && ( U\Str::is_slug( $value ) || U\Str::is_var( $value ) ),
-						'default'     => 'www-data',
+						'default'     => '',
 					],
 				] ),
 				'operands'    => [
@@ -251,6 +251,7 @@ final class WP extends U\A6t\CLI_Tool {
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'up', '--detach' ],
 			], $this->project->dir );
+
 			$this->maybe_update_etc_hosts_file();
 			$this->maybe_print_container_info();
 
@@ -272,15 +273,18 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			$user        = $this->get_option( 'user' );
 			$short_alias = $this->get_operand( 'container-short-alias' );
+			$user        = $user ?: ( 'php' === $short_alias ? 'www-data' : '' );
+			$shell       = in_array( $short_alias, [ 'hog' ], true ) ? [ 'ash' ] : [ 'bash', '--login' ];
 
 			U\CLI::run( [
 				[ 'docker', 'exec' ],
 				[ '--interactive', '--tty' ],
-				[ '--user', $this->get_option( 'user' ) ],
+				( $user ? [ '--user', $user ] : [] ),
 				( 'php' === $short_alias ? [ '--workdir', '/var/www/html' ] : [] ),
 				[ $this->project->slug . '-' . $short_alias ],
-				[ 'bash', '--login' ],
+				$shell,
 			], $this->project->dir, false );
 
 		} catch ( \Throwable $throwable ) {
@@ -499,6 +503,7 @@ final class WP extends U\A6t\CLI_Tool {
 			$this->project = new U\Dev\Project( $project_dir );
 
 			$this->maybe_update_etc_hosts_file();
+
 			U\CLI::run( [
 				'::env_vars' => $this->prepare_env_var_args(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],

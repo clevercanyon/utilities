@@ -24,6 +24,7 @@
 
 		".wp-docker"                          : "@",
 		"dev/.libs/docker/wp/certs"           : "@",
+		"dev/.libs/docker/wp/config"          : "@",
 		"dev/.libs/docker/wp/compose.yml"     : "@",
 		"dev/.libs/docker/wp/compose~ci.yml"  : "@",
 		"dev/.libs/docker/wp/compose~prj.yml" : "@",

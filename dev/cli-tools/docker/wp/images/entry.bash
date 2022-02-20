@@ -84,9 +84,9 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 	apt-get install ncdu htop --yes;
 	apt-get install sudo acl pwgen --yes;
 	apt-get install apache2-utils --yes;
-	apt-get install git subversion --yes;
-	apt-get install perl ruby python3 --yes;
-	apt-get install nodejs npm --yes;
+	apt-get install sendmail mailutils --yes;
+	apt-get install perl ruby python3 nodejs golang-go --yes;
+	apt-get install git subversion npm --yes; # After nodejs.
 
 	# -----------------------------------------------------------------------------------------------------------------
 	# Give `www-data` a default login shell; and write access to its own HOME directory.
@@ -198,6 +198,15 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 	fi;
 	cp    --preserve=all "${ROOT_HOME_DIR}"/.wp-cli/config.yml "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
 	chown www-data                                             "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
+
+	# -----------------------------------------------------------------------------------------------------------------
+	# Install MailHog's MTA for SMTP connectivity.
+	# -----------------------------------------------------------------------------------------------------------------
+
+	go get github.com/mailhog/mhsendmail; # MailHog.
+	ln --symbolic ~/go/bin/mhsendmail /usr/bin/mhsendmail;
+	echo 'sendmail_path = /usr/bin/mhsendmail --smtp-addr hog:1025' \
+		> /usr/local/etc/php/conf.d/mailhog.ini;
 
 	# -----------------------------------------------------------------------------------------------------------------
 	# Fill in a few gaps by adding additional extensions already supported by `docker-php-ext-install`.

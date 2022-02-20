@@ -201,8 +201,8 @@ if [[ ! -f /wp-docker/container/setup-complete ]]; then
 	# -----------------------------------------------------------------------------------------------------------------
 
 	chown --recursive www-data "${WORDPRESS_DIR}";
-	find "${WORDPRESS_DIR}" -type d -exec chmod 0755 {} \; # Includes the directory itself, too.
-	find "${WORDPRESS_DIR}" -type f -exec chmod 0644 {} \; # All files, in this case.
+	find "${WORDPRESS_DIR}" -type d -exec chmod 0755 {} \;; # Includes the directory itself, too.
+	find "${WORDPRESS_DIR}" -type f -exec chmod 0644 {} \;; # All files, in this case.
 fi;
 # ---------------------------------------------------------------------------------------------------------------------
 # Maybe run project-specific entrypoint hook.
