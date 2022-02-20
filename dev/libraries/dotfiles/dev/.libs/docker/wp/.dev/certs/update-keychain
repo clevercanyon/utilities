@@ -10,14 +10,14 @@
 # set as trusted by those working on Clever Canyon products.
 ##
 # ---------------------------------------------------------------------------------------------------------------------
-# $ ./dev/cli-tools/docker/wp/certs/update-keychain;
+# $ ./dev/libraries/dotfiles/dev/.libs/docker/wp/.dev/certs/update-keychain;
 # ---------------------------------------------------------------------------------------------------------------------
 
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1;
-. ../../../../utilities/load.bash; # Loads utilities.
+. ../../../../../../../../utilities/load.bash; # Loads utilities.
 
 # Configuration of SSL certs.
 
-output_dir=../../../../../dev/libraries/dotfiles/dev/.libs/docker/wp/certs;
+output_dir=../../../../../../../../libraries/dotfiles/dev/.libs/docker/wp/certs;
 sudo security -v add-trusted-cert -d -r trustRoot -k   /Library/Keychains/System.keychain "${output_dir}"/root-ca-crt.pem;
 sudo security -v add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain "${output_dir}"/i10e-ca-crt.pem;

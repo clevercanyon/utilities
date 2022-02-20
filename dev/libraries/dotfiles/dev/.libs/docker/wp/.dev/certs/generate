@@ -10,17 +10,17 @@
 # set as trusted by those working on Clever Canyon products.
 ##
 # ---------------------------------------------------------------------------------------------------------------------
-# $ ./dev/cli-tools/docker/wp/certs/generate;
+# $ ./dev/libraries/dotfiles/dev/.libs/docker/wp/.dev/certs/generate;
 # ---------------------------------------------------------------------------------------------------------------------
 
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1;
-. ../../../../utilities/load.bash; # Loads utilities.
+. ../../../../../../../../utilities/load.bash; # Loads utilities.
 
 # Configuration of SSL certs.
 # A few variables for CLI args below.
 
 days=395; # {@see https://o5p.me/Fz1NWM}.
-output_dir=../../../../../dev/libraries/dotfiles/dev/.libs/docker/wp/certs;
+output_dir=../../../../../../../../libraries/dotfiles/dev/.libs/docker/wp/certs;
 if [[ ! -d "${output_dir}" ]]; then mkdir -p "${output_dir}"; fi;
 
 key_usages=$(          tr -d '\n' <<-'ooo'

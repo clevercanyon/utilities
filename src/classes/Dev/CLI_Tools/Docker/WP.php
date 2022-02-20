@@ -563,35 +563,56 @@ final class WP extends U\A6t\CLI_Tool {
 		if ( 'ci' === $this->get_option( 'variant' ) ) {
 			return; // Not applicable.
 		}
+		$php_version = $this->get_option( 'php-version' );
+
+		$sql_container_ip   = $this->get_container_ip( 'sql' );
+		$sql_container_fqdn = $this->get_container_fqdn( 'sql' );
+
+		$pma_container_ip   = $this->get_container_ip( 'pma' );
+		$pma_container_fqdn = $this->get_container_fqdn( 'pma' );
+
 		U\CLI::output( 'MySQL Database Server' );
-		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'sql' ) );
-		U\CLI::log( 'MySQL (MariaDB)      : ' . $this->get_container_fqdn( 'sql' ) );
+		U\CLI::log( 'IP Address           : ' . $sql_container_ip );
+		U\CLI::log( 'MySQL (MariaDB)      : ' . $sql_container_fqdn );
 
 		U\CLI::new_line();
 
 		U\CLI::output( 'PhpMyAdmin (PMA) Server' );
-		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'pma' ) );
-		U\CLI::log( 'FQDN                 : https://' . $this->get_container_fqdn( 'pma' ) );
+		U\CLI::log( 'IP Address           : ' . $pma_container_ip );
+		U\CLI::log( 'FQDN                 : https://' . $pma_container_fqdn );
 
 		U\CLI::new_line();
 
+		$mem_container_ip   = $this->get_container_ip( 'mem' );
+		$mem_container_fqdn = $this->get_container_fqdn( 'mem' );
+
+		$hog_container_ip           = $this->get_container_ip( 'hog' );
+		$hog_container_fqdn         = $this->get_container_fqdn( 'hog' );
+		$hog_container_fqdn_no_port = $this->get_container_fqdn( 'hog', false );
+
 		U\CLI::output( 'Memcached Server' );
-		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'mem' ) );
-		U\CLI::log( 'FQDN:                : ' . $this->get_container_fqdn( 'mem' ) );
+		U\CLI::log( 'IP Address           : ' . $mem_container_ip );
+		U\CLI::log( 'FQDN:                : ' . $mem_container_fqdn );
 
 		U\CLI::new_line();
 
 		U\CLI::output( 'MailHog SMTP Server' );
-		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'hog' ) );
-		U\CLI::log( 'FQDN (SMTP)          : ' . $this->get_container_fqdn( 'hog' ) );
-		U\CLI::log( 'FQDN (Webmail)       : https://' . $this->get_container_fqdn( 'hog', false ) );
+		U\CLI::log( 'IP Address           : ' . $hog_container_ip );
+		U\CLI::log( 'FQDN (SMTP)          : ' . $hog_container_fqdn );
+		U\CLI::log( 'FQDN (Webmail)       : https://' . $hog_container_fqdn_no_port );
 
 		U\CLI::new_line();
 
-		U\CLI::output( 'Apache/PHPv' . $this->get_option( 'php-version' ) . '/WordPress Server' );
-		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'php' ) );
-		U\CLI::log( 'FQDN                 : ' . $this->get_container_fqdn( 'php' ) );
-		U\CLI::log( 'Shell Access         : 🐳 $ ./.wp-docker shell|bash' );
+		$php_container_ip   = $this->get_container_ip( 'php' );
+		$php_container_fqdn = $this->get_container_fqdn( 'php' );
+
+		$nxp_container_ip   = $this->get_container_ip( 'nxp' );
+		$nxp_container_fqdn = $this->get_container_fqdn( 'nxp' );
+
+		U\CLI::output( 'Apache/PHPv' . $php_version . '/WordPress Server' );
+		U\CLI::log( 'IP Address           : ' . $php_container_ip );
+		U\CLI::log( 'FQDN                 : ' . $php_container_fqdn );
+		U\CLI::log( 'Shell Access         : $ ./.wp-docker shell 🐳' );
 		U\CLI::log( 'Psysh Access         : $ ./.wp-docker psysh' );
 		U\CLI::log( 'WP-CLI Access        : $ ./.wp-docker cli' );
 		U\CLI::log( 'Project In Container : /wp-docker/host/project' );
@@ -599,11 +620,11 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::new_line();
 
 		U\CLI::output( 'Nginx Proxy w/ HTTP & HTTPs Servers' );
-		U\CLI::log( 'IP Address           : ' . $this->get_container_ip( 'nxp' ) );
-		U\CLI::log( 'Wildcard SSL         : *.' . $this->get_container_fqdn( 'nxp' ) );
-		U\CLI::log( 'HTTP                 : http://' . $this->get_container_fqdn( 'nxp' ) );
-		U\CLI::log( 'HTTPS                : 🌎 https://' . $this->get_container_fqdn( 'nxp' ) );
-		U\CLI::log( 'PHP Info             : https://' . $this->get_container_fqdn( 'nxp' ) . '/info.php' );
+		U\CLI::log( 'IP Address           : ' . $nxp_container_ip );
+		U\CLI::log( 'Wildcard SSL         : *.' . $nxp_container_fqdn );
+		U\CLI::log( 'HTTP                 : http://' . $nxp_container_fqdn );
+		U\CLI::log( 'HTTPS                : https://' . $nxp_container_fqdn . ' 🌎' );
+		U\CLI::log( 'PHP Info             : https://' . $nxp_container_fqdn . '/info.php' );
 	}
 
 	/**

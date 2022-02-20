@@ -3,7 +3,7 @@
 CD into this directory.
 
 ```
-$ cd ./dev/cli-tools/docker/wp/images
+$ cd ./dev/libraries/dotfiles/dev/.libs/docker/wp/.dev/images
 ```
 
 First untag each of the existing images so we can add new ones.

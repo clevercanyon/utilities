@@ -107,7 +107,8 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 
 	{   echo 'export PS1="🐳 \[\e[32m\]\h\[\e[m\] \[\e[34m\][\[\e[m\]\[\e[33m\]\w\[\e[m\]\[\e[34m\]]\[\e[m\] \\$ ";';
 
-		echo 'alias ls='"'"'ls -la --color=auto'"'"';';
+		echo "alias ls='ls -la --color=auto';";
+
 		echo 'function cd() { builtin cd "${@}" && ls; };';
 		echo 'function up() { cd ../ || return 1; };';
 		echo 'function back() { cd - || return 1; };';
@@ -153,7 +154,7 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 		chmod 0700 "${ROOT_HOME_DIR}"/.config/psysh;
 	fi;
 	{   echo '<?php';
-		echo 'use Clever_Canyon\\{Utilities as U};';
+		echo 'use Clever_Canyon\{Utilities as U};';
 		echo "if ( is_file( '/wp-docker/host/project/vendor/autoload.php' ) ) {";
 		echo "    require_once '/wp-docker/host/project/vendor/autoload.php';";
 		echo "    U\\Env::set_debug_mode( 'psysh' );";

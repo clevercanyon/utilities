@@ -10,9 +10,9 @@ version  : '3.9' # {@see https://o5p.me/TtD60s}.
 
 services :
     wp-docker :
-        container_name : 'wp-docker-php8.1-apache'
-        image          : 'wordpress:php8.1-apache'
+        container_name : 'wp-docker-php7.4-apache'
+        image          : 'wordpress:php7.4-apache'
         volumes        :
-            - '../../../../../:/wp-docker/host/project:ro'
+            - '../../../../../../../../../:/wp-docker/host/project:ro'
         command        : '' # Ditch default CMD.
-        entrypoint     : '/wp-docker/host/project/dev/cli-tools/docker/wp/images/entry.bash'
+        entrypoint     : '/wp-docker/host/project/dev/libraries/dotfiles/dev/.libs/docker/wp/.dev/images/entry.bash'
