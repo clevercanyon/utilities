@@ -132,7 +132,7 @@ services :
             SELF_SIGNED_HOST : '${WP_DOCKER_COMPOSE_PROJECT_SLUG}-hog.wp' # Same as `VIRTUAL_HOST`; wildcard SSL n/a here.
 
         command        : '' # Ditch default CMD.
-        entrypoint     : 'MailHog &>/dev/null' # Too noisy.
+        entrypoint     : 'ash -c "MailHog &>/dev/null"' # Too noisy.
         healthcheck    : # This image has netcat installed already.
             test     : '( nc -z localhost 1025 && nc -z localhost 8025 ) || exit 1'
             interval : '3s'
