@@ -159,6 +159,11 @@ final class On_Post_Cmd extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			print_r( $this->get_options() );
+			print_r( $this->get_operands() );
+			print_r( U\Env::vars() );
+			U\CLI::exit_status( 0 );
+
 			$this->maybe_setup_dotfiles();
 
 			$this->maybe_run_npm_install();
