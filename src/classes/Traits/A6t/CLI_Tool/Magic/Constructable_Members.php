@@ -62,8 +62,8 @@ trait Constructable_Members {
 			$this->args_to_parse = (string) $this->args_to_parse;
 		}
 		$this->parser = new Parser( null, [
-			Parser::SETTING_STRICT_OPTIONS  => true,
-			Parser::SETTING_STRICT_OPERANDS => true,
+			Parser::SETTING_STRICT_OPTIONS  => false,
+			Parser::SETTING_STRICT_OPERANDS => false,
 		] );
 		$this->add_options( [
 			'help'    => [ 'description' => 'Get help.' ],
