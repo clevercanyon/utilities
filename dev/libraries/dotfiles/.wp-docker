@@ -98,10 +98,10 @@ fi;
 # A few more examples showing use of docker directly:
 # ---------------------------------------------------------------------------------------------------------------------
 # $ docker compose ls;
-# $ docker inspect [project-slug]-network;
-# $ docker logs [project-slug]-[container-short-alias];
-# $ docker inspect [project-slug]-[container-short-alias];
-# $ docker attach [project-slug]-[container-short-alias];
+# $ docker inspect  [project-slug]-network;
+# $ docker logs     [project-slug]-[container-short-alias];
+# $ docker inspect  [project-slug]-[container-short-alias];
+# $ docker attach   [project-slug]-[container-short-alias];
 # $ docker exec -it [project-slug]-[container-short-alias] bash --login;
 # $ docker inspect --format '[format]' [project-slug]-[container-short-alias];
 # ---------------------------------------------------------------------------------------------------------------------
