@@ -26,7 +26,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Tests\Tests;
+namespace Clever_Canyon\Utilities\Tests\WP_Docker;
 
 /**
  * Utilities.
@@ -50,9 +50,6 @@ final class MySQL_Tests extends UT\A6t\Tests {
 	 * @covers ::query()
 	 */
 	public function test_construct() : void {
-		if ( ! U\Env::is_wp_docker() ) {
-			$this->markTestSkipped( 'This test only runs in WP Docker.' );
-		}
 		$mysql = $this->mysql();
 
 		$mysql->query(
