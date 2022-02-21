@@ -105,8 +105,6 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 * Fires before each method is run.
 	 *
 	 * @since 2021-12-15
-	 *
-	 * @see   https://phpunit.readthedocs.io/en/9.5/fixtures.html
 	 */
 	protected function setUp() : void {
 		parent::setUp();
@@ -121,8 +119,6 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 * Fires after each method is run.
 	 *
 	 * @since 2021-12-15
-	 *
-	 * @see   https://phpunit.readthedocs.io/en/9.5/fixtures.html
 	 */
 	protected function tearDown() : void {
 		parent::tearDown();
