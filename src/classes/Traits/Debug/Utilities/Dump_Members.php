@@ -84,7 +84,7 @@ trait Dump_Members {
 		}
 		$dump_value = &$value; // Alias for clarity.
 
-		switch ( $dump_type = gettype( $dump_value ) ) {
+		switch ( $dump_type = U\Data::type( $dump_value ) ) {
 			case 'object':
 			case 'array':
 				// Note: `c_`, `_c` = "current".
@@ -133,7 +133,7 @@ trait Dump_Members {
 					$_x_prop_key_length             = mb_strlen( (string) $_x_dump_prop_key );
 					$x_dump_longest_prop_key_length = max( $x_dump_longest_prop_key_length, $_x_prop_key_length );
 
-					switch ( $_x_dump_type = gettype( $_x_dump_value ) ) {
+					switch ( $_x_dump_type = U\Data::type( $_x_dump_value ) ) {
 						case 'object':
 						case 'array':
 							switch ( $_x_dump_type ) {
@@ -209,22 +209,18 @@ trait Dump_Members {
 			// Everything else is simpler.
 
 			case 'null':
-			case 'NULL':
 				$dump = 'null';
 				break; // Break switch.
 
 			case 'int':
-			case 'integer':
 				$dump = '(int) ' . $dump_value;
 				break; // Break switch.
 
-			case 'double':
 			case 'float':
 				$dump = '(float) ' . $dump_value;
 				break; // Break switch.
 
 			case 'bool':
-			case 'boolean':
 				$dump = '(bool) ' . ( $dump_value ? 'true' : 'false' );
 				break; // Break switch.
 
@@ -239,7 +235,6 @@ trait Dump_Members {
 				break; // Break switch.
 
 			case 'unknown':
-			case 'unknown type':
 			default: // Default case handler.
 				$dump = '(unknown) \\' . $dump_type;
 				break; // Break switch.

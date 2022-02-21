@@ -43,19 +43,25 @@ use GetOpt\{GetOpt as Parser, Command, Option, Operand};
  */
 trait Getter_Members {
 	/**
-	 * Gets command (i.e., sub-command) name.
+	 * Gets command (i.e., sub-command).
 	 *
-	 * This has to consider that not all CLI tools require sub-commands.
-	 * However, if you're calling this from within a sub-command handler,
-	 * then it's safe to assume that it isn't going to be empty.
+	 * @since 2022-02-16
+	 *
+	 * @return Command Command; else `null`.
+	 */
+	protected function command() /* : Command|null */ : ?Command {
+		return $this->parser->getCommand() ?: null;
+	}
+
+	/**
+	 * Gets command name (i.e., sub-command).
 	 *
 	 * @since 2022-02-16
 	 *
 	 * @return string Command name; else empty string.
 	 */
-	protected function get_command_name() : string {
-		$command = $this->parser->getCommand();
-		return $command ? $command->getName() : '';
+	protected function command_name() : string {
+		return ( $command = $this->parser->getCommand() ) ? $command->getName() : '';
 	}
 
 	/**

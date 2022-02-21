@@ -47,15 +47,15 @@ trait Setter_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param array $commands Command configurations.
+	 * @param array $command_cfgs Command configurations.
 	 *
-	 * @return self For easy chaining with {@see U\A6t\CLI_Tool::route_request()}.
+	 * @return self Chained w/ {@see U\A6t\CLI_Tool::route_request()}.
 	 *
 	 * @throws U\Fatal_Exception On invalid arguments.
 	 */
-	protected function add_commands( array $commands ) : self {
+	protected function add_commands( array $command_cfgs ) : self {
 		try {
-			foreach ( $commands as $_command => $_config ) {
+			foreach ( $command_cfgs as $_command_name => $_config ) {
 				$_callback    = $_config[ 'callback' ] ?? null;
 				$_synopsis    = $_config[ 'synopsis' ] ?? null;
 				$_description = $_config[ 'description' ] ?? null;
@@ -63,14 +63,14 @@ trait Setter_Members {
 				$_operands    = $_config[ 'operands' ] ?? null;
 
 				if ( ! isset( $_callback ) ) {
-					$_callback = [ $this, str_replace( '-', '_', $_command ) ];
+					$_callback = [ $this, str_replace( '-', '_', $_command_name ) ];
 				}
 				$this->parser->addCommand(
-					Command::create( $_command, $_callback )
+					Command::create( $_command_name, $_callback )
 						->setShortDescription( $_synopsis ?? '' )
 						->setDescription( $_description ?? '' )
-						->addOptions( $this->build_options( $_options ?? [] ) )
-						->addOperands( $this->build_operands( $_operands ?? [] ) )
+						->addOptions( $this->build_options( $_command_name, $_options ?? [] ) )
+						->addOperands( $this->build_operands( $_command_name, $_operands ?? [] ) )
 				);
 			}
 		} catch ( \InvalidArgumentException $exception ) {
@@ -84,15 +84,16 @@ trait Setter_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param array $options Option configurations.
+	 * @param string|null $command_name Command name.
+	 * @param array       $option_cfgs  Option configurations.
 	 *
-	 * @return self For easy chaining with {@see U\A6t\CLI_Tool::route_request()}.
+	 * @return self Chained w/ {@see U\A6t\CLI_Tool::route_request()}.
 	 *
 	 * @throws U\Fatal_Exception On invalid arguments.
 	 */
-	protected function add_options( array $options ) : self {
+	protected function add_options( /* string|null */ ?string $command_name, array $option_cfgs ) : self {
 		try {
-			$this->parser->addOptions( $this->build_options( $options ) );
+			$this->parser->addOptions( $this->build_options( $command_name, $option_cfgs ) );
 			return $this; // For chaining.
 		} catch ( \InvalidArgumentException $exception ) {
 			throw new U\Fatal_Exception( $exception->getMessage() );
@@ -104,15 +105,16 @@ trait Setter_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param array $operands Operand configurations.
+	 * @param string|null $command_name Command name.
+	 * @param array       $operand_cfgs Operand configurations.
 	 *
-	 * @return self For easy chaining with {@see U\A6t\CLI_Tool::route_request()}.
+	 * @return self Chained w/ {@see U\A6t\CLI_Tool::route_request()}.
 	 *
 	 * @throws U\Fatal_Exception On invalid arguments.
 	 */
-	protected function add_operands( array $operands ) : self {
+	protected function add_operands( /* string|null */ ?string $command_name, array $operand_cfgs ) : self {
 		try {
-			$this->parser->addOperands( $this->build_operands( $operands ) );
+			$this->parser->addOperands( $this->build_operands( $command_name, $operand_cfgs ) );
 			return $this; // For chaining.
 		} catch ( \InvalidArgumentException $exception ) {
 			throw new U\Fatal_Exception( $exception->getMessage() );

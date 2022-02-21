@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Debug;
+namespace Clever_Canyon\Utilities;
 
 /**
  * Utilities.
@@ -28,17 +28,15 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * MySQL database.
  *
  * @since 2021-12-15
- *
- * @see   U\Debug
  */
-trait Members {
+final class MySQL extends U\A6t\Database {
 	/**
-	 * Traits.
+	 * PDO type.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Debug\Utilities\Dump_Members;
+	protected string $type = 'mysql';
 }

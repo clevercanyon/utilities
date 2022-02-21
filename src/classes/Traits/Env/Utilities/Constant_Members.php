@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Debug;
+namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
 
 /**
  * Utilities.
@@ -32,13 +32,40 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\Debug
+ * @see   U\Env
  */
-trait Members {
+trait Constant_Members {
 	/**
-	 * Traits.
+	 * Gets a constant; if defined.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param string $name Name.
+	 *
+	 * @return mixed Mixed; else `null` if not defined.
 	 */
-	use U\Traits\Debug\Utilities\Dump_Members;
+	public static function const( string $name ) /* : mixed */ {
+		if ( defined( $name ) ) {
+			return constant( $name );
+		}
+		return null;
+	}
+
+	/**
+	 * Defines a constant, if not defined already.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string                     $name  Name.
+	 * @param int|float|string|bool|null $value Value.
+	 *
+	 * @return bool True if already defined and already set to `$value`.
+	 *              Otherwise, `true` if a new constant is defined successfully.
+	 */
+	public static function maybe_define( string $name, /* int|float|string|bool|null */ $value ) : bool {
+		if ( defined( $name ) ) {
+			return constant( $name ) === $value;
+		}
+		return define( $name, $value );
+	}
 }

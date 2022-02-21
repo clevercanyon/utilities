@@ -106,10 +106,10 @@ trait Constructable_Members {
 			throw new U\Fatal_Exception( 'Missing required `$code` argument.' );
 		}
 		if ( ! is_string( $code ) ) {
-			throw new U\Fatal_Exception( 'Invalid `$code` argument type. Got `' . gettype( $code ) . '`.' );
+			throw new U\Fatal_Exception( 'Invalid `$code` argument type. Got `' . U\Data::type( $code ) . '`.' );
 		}
 		if ( ! is_array( $use ) ) {
-			throw new U\Fatal_Exception( 'Invalid `$use` argument type. Got `' . gettype( $use ) . '`.' );
+			throw new U\Fatal_Exception( 'Invalid `$use` argument type. Got `' . U\Data::type( $use ) . '`.' );
 		}
 		$code = rtrim( $code, U\Str::TRIM_CHARS . ';' );
 		$code = 'return ' . $code . ';';

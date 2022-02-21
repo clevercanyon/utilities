@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-25
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Debug;
+namespace Clever_Canyon\Utilities\Traits\A6t\Database\Utilities;
 
 /**
  * Utilities.
@@ -28,17 +36,45 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\Debug
+ * @see   U\I7e\Database
  */
-trait Members {
+trait Property_Members {
 	/**
-	 * Traits.
+	 * PDO type.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Debug\Utilities\Dump_Members;
+	protected string $type;
+
+	/**
+	 * PDO instance.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected \PDO $pdo;
+
+	/**
+	 * Configuration.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected object $config;
+
+	/**
+	 * Persistent connection ID.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $connection_id;
+
+	/**
+	 * Connection ID version.
+	 *
+	 * @since 2022-01-24
+	 */
+	protected static string $connection_id_version = '1.0.0';
 }

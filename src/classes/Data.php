@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Debug;
+namespace Clever_Canyon\Utilities;
 
 /**
  * Utilities.
@@ -28,17 +28,15 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Data utilities.
  *
  * @since 2021-12-15
- *
- * @see   U\Debug
  */
-trait Members {
+final class Data extends U\A6t\Stc_Utilities {
 	/**
 	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Debug\Utilities\Dump_Members;
+	use U\Traits\Data\Members;
 }

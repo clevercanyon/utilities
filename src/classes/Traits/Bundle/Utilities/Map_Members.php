@@ -98,7 +98,7 @@ trait Map_Members {
 				if ( ! $_type || ! is_string( $_type ) ) {
 					throw new U\Fatal_Exception( 'Array key `' . $_key . '` is not a data type.' );
 				} else {
-					$_type = U\Debug::match_gettype( $_type );
+					$_type = U\Data::canonicalize_type( $_type );
 				}
 			}
 			$_r->callables = array_reverse( $_r->callables );                    // See method comments.
@@ -108,7 +108,7 @@ trait Map_Members {
 			if ( U\Bundle::is( $_value ) ) {
 				$_value = U\Bundle::map( $callables, $_value, $types, $_r );
 			} else {
-				if ( ! $_r->types || isset( $_r->types[ gettype( $_value ) ] ) ) {
+				if ( ! $_r->types || isset( $_r->types[ U\Data::type( $_value ) ] ) ) {
 					foreach ( $_r->callables as $_callable ) {
 						$_value = $_callable( $_value );
 					}

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Debug;
+namespace Clever_Canyon\Utilities;
 
 /**
  * Utilities.
@@ -28,17 +28,15 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * MySQL database query.
  *
  * @since 2021-12-15
- *
- * @see   U\Debug
  */
-trait Members {
+final class MySQL_Query extends U\A6t\DB_Query {
 	/**
-	 * Traits.
+	 * DB query type.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Debug\Utilities\Dump_Members;
+	protected string $type = 'mysql';
 }

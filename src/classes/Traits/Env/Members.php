@@ -56,7 +56,7 @@ trait Members {
 	use U\Traits\Env\Utilities\Is_WordPress_Members;
 	use U\Traits\Env\Utilities\Lighttpd_Members;
 	use U\Traits\Env\Utilities\LiteSpeed_Members;
-	use U\Traits\Env\Utilities\Maybe_Define_Members;
+	use U\Traits\Env\Utilities\Constant_Members;
 	use U\Traits\Env\Utilities\Mode_Members;
 	use U\Traits\Env\Utilities\Nginx_Members;
 	use U\Traits\Env\Utilities\Output_Buffer_Members;

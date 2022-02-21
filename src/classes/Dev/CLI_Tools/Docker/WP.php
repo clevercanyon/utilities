@@ -700,7 +700,7 @@ final class WP extends U\A6t\CLI_Tool {
 		if ( ! U\Env::is_mac() ) {
 			return; // Not applicable.
 		}
-		if ( ! in_array( $this->get_command_name(), [ 'up', 'info' ], true ) ) {
+		if ( ! in_array( $this->command_name(), [ 'up', 'info' ], true ) ) {
 			return; // Not applicable.
 		}
 		if ( 'ci' === $this->get_option( 'variant' ) ) {
@@ -787,13 +787,13 @@ final class WP extends U\A6t\CLI_Tool {
 		if ( 'ci' === $this->get_option( 'variant' ) ) {
 			return; // Not applicable.
 		}
-		if ( ! in_array( $this->get_command_name(), [ 'up', 'down' ], true ) ) {
+		if ( ! in_array( $this->command_name(), [ 'up', 'down' ], true ) ) {
 			return; // Not applicable.
 		}
 		if ( ! $this->network_exists() ) {
 			return; // Not applicable.
 		}
-		$command_name = $this->get_command_name();
+		$command_name = $this->command_name();
 
 		$etc_hosts_file          = '/etc/hosts';
 		$etc_hosts_file_contents = U\File::read( $etc_hosts_file );
@@ -886,7 +886,7 @@ final class WP extends U\A6t\CLI_Tool {
 	 * @return bool True if network exists.
 	 */
 	protected function network_exists() : bool {
-		$command_name = $this->get_command_name();
+		$command_name = $this->command_name();
 		$exists       = &$this->ins_cache( [ __FUNCTION__, $command_name ] );
 
 		if ( null !== $exists ) {
@@ -916,7 +916,7 @@ final class WP extends U\A6t\CLI_Tool {
 	 *                Always normalized as lowercase.
 	 */
 	protected function get_container_ip( string $short_alias ) : string {
-		$command_name = $this->get_command_name();
+		$command_name = $this->command_name();
 		$ip           = &$this->ins_cache( [ __FUNCTION__, $short_alias, $command_name ] );
 
 		if ( null !== $ip ) {
@@ -960,7 +960,7 @@ final class WP extends U\A6t\CLI_Tool {
 	 *                Always normalized as lowercase.
 	 */
 	protected function get_container_fqdn( string $short_alias, /* bool|string */ $with_port = true ) : string {
-		$command_name = $this->get_command_name();
+		$command_name = $this->command_name();
 		$fqdn         = &$this->ins_cache( [ __FUNCTION__, $short_alias, $with_port, $command_name ] );
 
 		if ( null !== $fqdn ) {
@@ -1000,7 +1000,7 @@ final class WP extends U\A6t\CLI_Tool {
 		$args[] = 'WP_DOCKER_COMPOSE_PROJECT_LAYOUT=' . U\Str::esc_shell_arg( $this->project->layout );
 		$args[] = 'WP_DOCKER_COMPOSE_PHP_VERSION=' . U\Str::esc_shell_arg( $this->get_option( 'php-version' ) );
 
-		if ( 'up' === $this->get_command_name() ) {
+		if ( 'up' === $this->command_name() ) {
 			$args[] = 'WP_DOCKER_WORDPRESS_MULTISITE_TYPE=' . U\Str::esc_shell_arg( $this->get_option( 'wp-multisite-type' ) ?: '' );
 			$args[] = 'WP_DOCKER_WORDPRESS_INSTALL_PLUGINS=' . U\Str::esc_shell_arg( implode( ',', $this->get_option( 'wp-install-plugin' ) ?: [] ) );
 			$args[] = 'WP_DOCKER_WORDPRESS_INSTALL_THEME=' . U\Str::esc_shell_arg( $this->get_option( 'wp-install-theme' ) ?: '' );

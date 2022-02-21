@@ -48,35 +48,50 @@ trait Validation_Members {
 	 * @since 2022-02-20
 	 */
 	protected function check_required_options_and_operands() : void {
-		foreach ( $this->required_options as $_option_key => $_option ) {
-			if ( in_array( $this->get_option( $_option_key ), [ null, 0, '', [] ], true ) ) {
-				$_names = [];
+		$current_command_name = $this->command_name();
 
-				$_short_name = $_option->getShort();
-				$_short_name = $_short_name ? '-' . $_short_name : '';
+		// In the case of no command, the command's name is explicitly `''`.
+		// `required_options` and `required_operands` explicitly have a `''` key.
 
-				$_long_name = $_option->getLong();
-				$_long_name = $_long_name ? '--' . $_long_name : '';
+		foreach ( $this->required_options as $_command_name => $_command_required_options ) {
+			if ( $_command_name !== $current_command_name ) {
+				continue; // Not applicable.
+			}
+			foreach ( $_command_required_options as $_option_key => $_option ) {
+				if ( in_array( $this->get_option( $_option_key ), [ null, 0, '', [] ], true ) ) {
+					$_names = [];
 
-				if ( $_short_name ) {
-					$_names[] = $_short_name;
+					$_short_name = $_option->getShort();
+					$_short_name = $_short_name ? '-' . $_short_name : '';
+
+					$_long_name = $_option->getLong();
+					$_long_name = $_long_name ? '--' . $_long_name : '';
+
+					if ( $_short_name ) {
+						$_names[] = $_short_name;
+					}
+					if ( $_long_name ) {
+						$_names[] = $_long_name;
+					}
+					$_names = $_names ?: [ '--' . $_option_key ];
+					$_names = implode( ', ', $_names );
+
+					U\CLI::output( $this->parser->getHelpText(), 'blue' );
+					U\CLI::error( 'Missing required ' . $_names . ' option.' );
+					U\CLI::exit_status( 1 );
 				}
-				if ( $_long_name ) {
-					$_names[] = $_long_name;
-				}
-				$_names = $_names ?: [ '--' . $_option_key ];
-				$_names = implode( ', ', $_names );
-
-				U\CLI::output( $this->parser->getHelpText(), 'blue' );
-				U\CLI::error( 'Missing required ' . $_names . ' option.' );
-				U\CLI::exit_status( 1 );
 			}
 		}
-		foreach ( $this->required_operands as $_operand_key => $_operand ) {
-			if ( in_array( $this->get_operand( $_operand_key ), [ null, 0, '', [] ], true ) ) {
-				U\CLI::output( $this->parser->getHelpText(), 'blue' );
-				U\CLI::error( 'Missing required `' . $_operand->getName() . '` operand.' );
-				U\CLI::exit_status( 1 );
+		foreach ( $this->required_operands as $_command_name => $_command_required_operands ) {
+			if ( $_command_name !== $current_command_name ) {
+				continue; // Not applicable.
+			}
+			foreach ( $_command_required_operands as $_operand_key => $_operand ) {
+				if ( in_array( $this->get_operand( $_operand_key ), [ null, 0, '', [] ], true ) ) {
+					U\CLI::output( $this->parser->getHelpText(), 'blue' );
+					U\CLI::error( 'Missing required `' . $_operand->getName() . '` operand.' );
+					U\CLI::exit_status( 1 );
+				}
 			}
 		}
 	}

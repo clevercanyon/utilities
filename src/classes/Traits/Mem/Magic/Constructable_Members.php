@@ -128,7 +128,7 @@ trait Constructable_Members {
 		$this->connection_id .= '\\' . U\Pkg::namespace_crux();
 		$this->connection_id .= '\\' . U\Pkg::data_context();
 		$this->connection_id .= '\\' . $connection_id_salt;
-		$this->connection_id .= '\\' . U\Mem::$connection_id_version;
+		$this->connection_id .= '\\' . $this::$connection_id_version;
 		$this->connection_id = U\Crypto::x_sha( $this->connection_id, 32 );
 
 		/**

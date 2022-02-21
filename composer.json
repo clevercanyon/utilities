@@ -27,6 +27,7 @@
 		"league/commonmark" : "^2.2"
 	},
 	"suggest"           : {
+		"ext-pdo"             : "*",
 		"ext-fileinfo"        : "*",
 		"ext-intl"            : "*",
 		"ext-memcached"       : "*",

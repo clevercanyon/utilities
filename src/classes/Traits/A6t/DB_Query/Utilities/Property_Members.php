@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-25
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\DB_Query\Utilities;
 
 /**
  * Utilities.
@@ -28,28 +36,61 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\Env
+ * @see   U\I7e\DB_Query
  */
-trait Maybe_Define_Members {
+trait Property_Members {
 	/**
-	 * Defines a constant, if not defined already.
+	 * PDO type.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected string $type;
+
+	/**
+	 * Query string.
+	 *
+	 * @since 2021-12-15
+	 */
+	public string $string;
+
+	/**
+	 * Database.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected U\I7e\Database $db;
+
+	/**
+	 * Prepared values.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected array $prepared_values;
+
+	/**
+	 * Prepared values bound?
+	 *
+	 * @since 2021-12-15
+	 */
+	protected bool $prepared_values_bound;
+
+	/**
+	 * Query executed?
+	 *
+	 * @since 2021-12-15
+	 */
+	protected bool $query_executed;
+
+	/**
+	 * Query statement.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string                     $name  Name.
-	 * @param int|float|string|bool|null $value Value.
-	 *
-	 * @return bool True if already defined and already set to `$value`.
-	 *              Otherwise, `true` if a new constant is defined successfully.
+	 * @var \PDOStatement|null Depending on state.
 	 */
-	public static function maybe_define( string $name, /* int|float|string|bool|null */ $value ) : bool {
-		if ( defined( $name ) ) {
-			return constant( $name ) === $value;
-		}
-		return define( $name, $value );
-	}
+	protected ?\PDOStatement $sm;
 }

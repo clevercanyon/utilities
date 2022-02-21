@@ -79,6 +79,6 @@ trait Utility_Members {
 		if ( is_resource( $offset ) ) { // {@see get_resource_id()} is PHP 8+ only.
 			return '#' . "\0" . 'r:' . "\0" . ( function_exists( 'get_resource_id' ) ? get_resource_id( $offset ) : (string) $offset );
 		}
-		throw new U\Fatal_Exception( 'Unexpected offset type: `' . gettype( $offset ) . '`.' );
+		throw new U\Fatal_Exception( 'Unexpected offset type: `' . U\Data::type( $offset ) . '`.' );
 	}
 }

@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-25
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Debug;
+namespace Clever_Canyon\Utilities\Traits\A6t\DB_Query\Utilities;
 
 /**
  * Utilities.
@@ -28,17 +36,36 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\Debug
+ * @see   U\I7e\DB_Query
  */
-trait Members {
+trait Escape_Members {
 	/**
-	 * Traits.
+	 * Escapes an SQL name.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param string $name SQL name.
+	 *
+	 * @return string Escaped SQL name.
 	 */
-	use U\Traits\Debug\Utilities\Dump_Members;
+	public function esc_name( string $name ) : string {
+		return preg_replace( '/[^a-z0-9_]+/ui', '', $name );
+	}
+
+	/**
+	 * Escapes order direction.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string $order Order direction.
+	 *
+	 * @return string Escaped order direction.
+	 */
+	public function esc_order( string $order ) : string {
+		return in_array( $order = mb_strtoupper( $order ), [ 'ASC', 'DESC' ], true ) ? $order : 'ASC';
+	}
 }

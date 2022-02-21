@@ -15,6 +15,7 @@
  *
  * @since        2021-12-15
  *
+ * @noinspection PhpComposerExtensionStubsInspection
  * @noinspection PhpStaticAsDynamicMethodCallInspection
  */
 
@@ -70,6 +71,13 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	protected array $temp_links;
 
 	/**
+	 * MySQL database.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected ?U\MySQL $mysql = null;
+
+	/**
 	 * Fires before the first method is run.
 	 *
 	 * @since 2021-12-15
@@ -120,6 +128,11 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 		parent::tearDown();
 
 		$this->tear_down_temp_fs_resources();
+
+		// No reason to delete the test database after running tests.
+		// On WP Docker it'll be deleted prior to the next test run anyway.
+		// Also, this way it's easier to review DB state after any test failures.
+		// `static::$mysql->query( 'DROP DATABASE IF EXISTS `phpunit`' )->execute();`.
 	}
 
 	/**
@@ -223,6 +236,41 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 	 */
 	protected function message( string $message = '' ) : string {
 		return 'assertion-' . ( ++$this->counter ) . ( $message ? '[' . $message . ']' : '' );
+	}
+
+	/**
+	 * Gets MySQL database.
+	 *
+	 * @since 2022-02-21
+	 *
+	 * @return U\MySQL|null `null` if not on WP Docker.
+	 *
+	 * @throws \PDOException On connection failure.
+	 */
+	protected function mysql() /* : U\MySQL|null */ : ?U\MySQL {
+		if ( ! U\Env::is_wp_docker() ) {
+			return null; // Not applicable.
+		}
+		if ( $this->mysql ) {
+			return $this->mysql;
+		}
+		$this->mysql = new U\MySQL( [
+			'host' => 'sql',
+			'port' => '3306',
+
+			'database' => '',
+			'username' => 'root',
+			'password' => 'wordpress',
+
+			'connection_options' => [
+				\PDO::ATTR_PERSISTENT => false,
+			],
+		] );
+		$this->mysql->query( 'DROP DATABASE IF EXISTS `phpunit`' )->execute();
+		$this->mysql->query( 'CREATE DATABASE `phpunit`' )->execute();
+		$this->mysql->query( 'use `phpunit`' )->execute();
+
+		return $this->mysql;
 	}
 
 	/**

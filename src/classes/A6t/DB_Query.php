@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Debug;
+namespace Clever_Canyon\Utilities\A6t;
 
 /**
  * Utilities.
@@ -28,17 +28,15 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * DB query base class.
  *
  * @since 2021-12-15
- *
- * @see   U\Debug
  */
-trait Members {
+abstract class DB_Query extends U\A6t\Base implements U\I7e\DB_Query {
 	/**
 	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Debug\Utilities\Dump_Members;
+	use U\Traits\A6t\DB_Query\Members;
 }

@@ -11,12 +11,21 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-15
+ *
+ * @noinspection PhpUndefinedMethodInspection
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Debug;
+namespace Clever_Canyon\Utilities\Traits\A6t\DB_Query\Magic;
 
 /**
  * Utilities.
@@ -28,17 +37,24 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\Debug
+ * @see   U\I7e\DB_Query
  */
-trait Members {
+trait Stringable_Members {
 	/**
-	 * Traits.
+	 * Defines string representation of object.
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-27
+	 *
+	 * @return string {@see U\A6t\DB_Query::$string}.
+	 *                Current DB query string.
+	 *
+	 * @see   https://www.php.net/manual/en/class.stringable.php
 	 */
-	use U\Traits\Debug\Utilities\Dump_Members;
+	public function __toString() : string {
+		return $this->string;
+	}
 }

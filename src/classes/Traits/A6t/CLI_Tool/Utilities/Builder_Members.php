@@ -47,12 +47,13 @@ trait Builder_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param array $_options Option configurations.
+	 * @param string|null $command_name Command name.
+	 * @param array       $option_cfgs  Option configurations.
 	 *
 	 * @return Option[] An array of option instances.
 	 */
-	protected function build_options( array $_options ) : array {
-		foreach ( $_options as $_option => $_config ) {
+	protected function build_options( /* string|null */ ?string $command_name, array $option_cfgs ) : array {
+		foreach ( $option_cfgs as $_option => $_config ) {
 			$_short        = $_config[ 'short' ] ?? null;
 			$_long         = $_config[ 'long' ] ?? null;
 			$_multiple     = $_config[ 'multiple' ] ?? null;
@@ -80,7 +81,8 @@ trait Builder_Members {
 				$options[ $_option ]->setDefaultValue( $_default );
 			}
 			if ( $_required ) {
-				$this->required_options[ $_option ] = $options[ $_option ];
+				$this->required_options[ $command_name ?: '' ]             ??= [];
+				$this->required_options[ $command_name ?: '' ][ $_option ] = $options[ $_option ];
 			}
 		}
 		return $options ?? [];
@@ -91,14 +93,15 @@ trait Builder_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param array $_operands Operand configurations.
+	 * @param string|null $command_name Command name.
+	 * @param array       $operand_cfgs Operand configurations.
 	 *
 	 * @return Operand[] An array of operand instances, else empty array.
 	 *
 	 * @throws \InvalidArgumentException On invalid args.
 	 */
-	protected function build_operands( array $_operands ) : array {
-		foreach ( $_operands as $_operand => $_config ) {
+	protected function build_operands( /* string|null */ ?string $command_name, array $operand_cfgs ) : array {
+		foreach ( $operand_cfgs as $_operand => $_config ) {
 			$_multiple    = $_config[ 'multiple' ] ?? null;
 			$_required    = $_config[ 'required' ] ?? null; // Is the ... [operand] required?
 			$_optional    = $_config[ 'optional' ] ?? null; // Is the ... [operand] optional?
@@ -126,7 +129,8 @@ trait Builder_Members {
 				$operands[ $_operand ]->setDefaultValue( $_default );
 			}
 			if ( $_required ) {
-				$this->required_operands[ $_operand ] = $operands[ $_operand ];
+				$this->required_operands[ $command_name ?: '' ]              ??= [];
+				$this->required_operands[ $command_name ?: '' ][ $_operand ] = $operands[ $_operand ];
 			}
 		}
 		return $operands ?? [];
