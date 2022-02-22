@@ -79,7 +79,7 @@ trait Make_Members {
 			&& '' !== $link_path_dir
 			&& U\Fs::really_exists( $real_target_path )
 			&& ! U\Fs::really_exists( $link_path )
-			&& ( ! is_link( $link_path ) || U\Fs::delete( $link_path ) )
+			&& ( ! is_link( $link_path ) || U\Fs::delete( $link_path, false, false ) )
 			&& ( is_dir( $link_path_dir ) || U\Dir::make( $link_path_dir, $perms[ 0 ], $recursively, false ) )
 			&& symlink( $real_target_path, $link_path )
 		) {

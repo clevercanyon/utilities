@@ -41,8 +41,6 @@ trait Is_Web_Members {
 	 * @since 2021-12-18
 	 *
 	 * @return bool True if web app.
-	 *
-	 * @todo  Update this when we add DB support.
 	 */
 	public static function is_web() : bool {
 		static $is; // Memoize.

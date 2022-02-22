@@ -200,21 +200,21 @@ abstract class Tests extends \PHPUnit\Framework\TestCase {
 
 		foreach ( $this->temp_dirs as $_dir ) {
 			if ( U\Fs::exists( $_dir ) ) {
-				if ( 0 !== mb_stripos( $_dir, $sys_temp ) || ! U\Fs::delete( $_dir ) ) {
+				if ( 0 !== mb_stripos( $_dir, $sys_temp ) || ! U\Fs::delete( $_dir, true, false ) ) {
 					throw new U\Fatal_Exception( 'Failed to cleanup dir: `' . $_dir . '`.' );
 				}
 			}
 		}
 		foreach ( $this->temp_files as $_file ) {
 			if ( U\Fs::exists( $_file ) ) {
-				if ( 0 !== mb_stripos( $_file, $sys_temp ) || ! U\Fs::delete( $_file ) ) {
+				if ( 0 !== mb_stripos( $_file, $sys_temp ) || ! U\Fs::delete( $_file, false, false ) ) {
 					throw new U\Fatal_Exception( 'Failed to cleanup file: `' . $_file . '`.' );
 				}
 			}
 		}
 		foreach ( $this->temp_links as $_link ) {
 			if ( U\Fs::exists( $_link ) ) {
-				if ( 0 !== mb_stripos( $_link, $sys_temp ) || ! U\Fs::delete( $_link ) ) {
+				if ( 0 !== mb_stripos( $_link, $sys_temp ) || ! U\Fs::delete( $_link, false, false ) ) {
 					throw new U\Fatal_Exception( 'Failed to cleanup link: `' . $_link . '`.' );
 				}
 			}

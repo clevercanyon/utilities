@@ -1,0 +1,81 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Clever Canyon™ {@see https://clevercanyon.com}
+ *
+ *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
+ * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
+ * CC      LL      EEEEE    VV   VV  EEEEE   RRRRRR     CC      AA   AA NN N NN  YYYYY  OO   OO NN N NN
+ * CC      LL      EE        VV VV   EE      RR  RR     CC      AAAAAAA NN  NNN   YYY   OO   OO NN  NNN
+ *  CCCCC  LLLLLLL EEEEEEE    VVV    EEEEEEE RR   RR     CCCCC  AA   AA NN   NN   YYY    OOOO0  NN   NN
+ */
+// <editor-fold desc="Strict types, namespace, use statements, and other headers.">
+
+/**
+ * Declarations & namespace.
+ *
+ * @since 2021-12-25
+ */
+declare( strict_types = 1 );
+namespace Clever_Canyon\Utilities\Dev\CLI_Tools\Composer;
+
+/**
+ * Utilities.
+ *
+ * @since 2021-12-15
+ */
+use Clever_Canyon\{Utilities as U};
+use Clever_Canyon\Utilities\Dev\{Utilities as D};
+
+// </editor-fold>
+
+/**
+ * CLI mode only.
+ *
+ * @since 2021-12-15
+ */
+if ( 'cli' !== PHP_SAPI ) {
+	exit( 1 ); // CLI mode only.
+}
+
+/**
+ * Dev mode only.
+ *
+ * @since 2021-12-15
+ */
+if ( ! getenv( 'COMPOSER_DEV_MODE' ) ) {
+	exit( 1 ); // Dev mode only.
+}
+
+/**
+ * Requires dev utilities.
+ *
+ * @since 2021-12-15
+ */
+require_once dirname( __FILE__, 3 ) . '/utilities/load.php';
+
+/**
+ * Requires autoloader.
+ *
+ * @since 2021-12-15
+ */
+require_once D\Dir::join( D\CLI::project_dir(), '/vendor/autoload.php' );
+
+/**
+ * Sets debug mode.
+ *
+ * @since 2021-12-15
+ */
+U\Env::set_debug_mode();
+
+/**
+ * Handles compilation.
+ *
+ * @since 2021-12-15
+ */
+if ( 'compile' === ( $argv[ 1 ] ?? '' ) ) {
+	new U\Dev\CLI_Tools\Composer\Compiler( [ 'compile', '--project-dir', D\CLI::project_dir() ] );
+} else {
+	new U\Dev\CLI_Tools\Composer\Compiler( [ 'symlink', '--project-dir', D\CLI::project_dir() ] );
+	U\CLI::run( [ $argv[ 0 ], 'compile' ] ); // Separate process, after symlinks.
+}

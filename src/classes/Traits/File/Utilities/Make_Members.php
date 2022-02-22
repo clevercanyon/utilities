@@ -68,7 +68,7 @@ trait Make_Members {
 		if ( '' !== $dir
 			&& '' !== $file
 			&& ! U\Fs::really_exists( $file )
-			&& ( ! is_link( $file ) || U\Fs::delete( $file ) )
+			&& ( ! is_link( $file ) || U\Fs::delete( $file, false, false ) )
 			&& ( is_dir( $dir ) || U\Dir::make( $dir, $perms[ 0 ], $recursively, false ) )
 			&& touch( $file )
 			&& chmod( $file, $perms[ 1 ] )

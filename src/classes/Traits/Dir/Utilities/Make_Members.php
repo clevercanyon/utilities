@@ -75,7 +75,7 @@ trait Make_Members {
 
 		if ( '' !== $dir
 			&& ! U\Fs::really_exists( $dir )
-			&& ( ! is_link( $dir ) || U\Fs::delete( $dir ) )
+			&& ( ! is_link( $dir ) || U\Fs::delete( $dir, false, false ) )
 			&& @mkdir( $dir, $perms[ 0 ], $recursively ) // phpcs:ignore.
 			&& chmod( $dir, $perms[ 1 ] )
 		) {

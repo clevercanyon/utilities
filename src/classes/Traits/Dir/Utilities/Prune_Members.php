@@ -100,7 +100,7 @@ trait Prune_Members {
 
 			if ( $prune && U\Str::preg_match_in( $prune, $_base_subpath ) ) {
 				if ( ! $exceptions || ! U\Str::preg_match_in( $exceptions, $_base_subpath ) ) {
-					if ( ! U\Fs::delete( $_path ) ) {
+					if ( ! U\Fs::delete( $_path, true, false ) ) {
 						closedir( $_path_opendir );
 						return false;
 					}

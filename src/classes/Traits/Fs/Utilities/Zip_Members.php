@@ -225,7 +225,7 @@ trait Zip_Members {
 		// `$to_path` deletion ahead of zip.
 
 		if ( ! $is_recursive ) {
-			if ( $to_path_type && ! U\Fs::delete( $to_path ) ) {
+			if ( $to_path_type && ! U\Fs::delete( $to_path, true, false ) ) {
 				$_r->maybe_close_zip( $is_recursive );
 				return false; // Not possible.
 			}

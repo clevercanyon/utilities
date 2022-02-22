@@ -210,7 +210,8 @@ trait Private_Members {
 				&& ( ! U\File::make( $_index_file, [ null, 0644 ], false, false )
 					|| ! U\File::write( $_index_file, 'Silence is golden.', false ) )
 			) {
-				U\Fs::delete( $_index_file ); // Fresh start next time.
+				U\Fs::delete( $_index_file, false, false ); // Fresh start next time.
+
 				throw new U\Fatal_Exception(
 					'Failed to create|write `' . $_index_file . '` file.' .
 					' Have filesystem permissions changed?'
@@ -223,7 +224,8 @@ trait Private_Members {
 
 		if ( ! is_file( $htaccess_file ) ) {
 			if ( ! U\File::make( $htaccess_file, [ null, 0644 ], false, false ) ) {
-				U\Fs::delete( $htaccess_file ); // Fresh start next time.
+				U\Fs::delete( $htaccess_file, false, false ); // Fresh start next time.
+
 				throw new U\Fatal_Exception(
 					'Failed to create `' . $htaccess_file . '` file.' .
 					' Have filesystem permissions changed?'
@@ -256,7 +258,8 @@ trait Private_Members {
 				</IfModule>
 				ooo;
 			if ( ! U\File::write( $htaccess_file, $htaccess_file_contents, false ) ) {
-				U\Fs::delete( $htaccess_file ); // Fresh start next time.
+				U\Fs::delete( $htaccess_file, false, false ); // Fresh start next time.
+
 				throw new U\Fatal_Exception(
 					'Failed to write `' . $htaccess_file . '` file.' .
 					' Have filesystem permissions changed?'
@@ -269,7 +272,8 @@ trait Private_Members {
 
 		if ( ! is_file( $web_config_file ) ) {
 			if ( ! U\File::make( $web_config_file, [ null, 0644 ], false, false ) ) {
-				U\Fs::delete( $web_config_file ); // Fresh start next time.
+				U\Fs::delete( $web_config_file, false, false ); // Fresh start next time.
+
 				throw new U\Fatal_Exception(
 					'Failed to create `' . $web_config_file . '` file.' .
 					' Have filesystem permissions changed?'
@@ -290,7 +294,8 @@ trait Private_Members {
 				</configuration>
 				ooo;
 			if ( ! U\File::write( $web_config_file, $web_config_file_contents, false ) ) {
-				U\Fs::delete( $web_config_file ); // Fresh start next time.
+				U\Fs::delete( $web_config_file, false, false ); // Fresh start next time.
+
 				throw new U\Fatal_Exception(
 					'Failed to write `' . $web_config_file . '` file.' .
 					' Have filesystem permissions changed?'
@@ -325,11 +330,11 @@ trait Private_Members {
 						<?php return $salt_file_contents_value;
 						ooo;
 					if ( ! U\File::write( $salt_file, $salt_file_contents, false ) ) {
-						U\Fs::delete( $salt_file ); // Fresh start next time.
-						$salt = '';                 // Failure.
+						U\Fs::delete( $salt_file, false, false ); // Fresh start next time.
+						$salt = '';                               // Failure.
 					}
-				} else {                        // Fresh start next time.
-					U\Fs::delete( $salt_file ); // Exception below.
+				} else {                                      // Fresh start next time.
+					U\Fs::delete( $salt_file, false, false ); // Exception below.
 				}
 			}
 		}
@@ -348,7 +353,8 @@ trait Private_Members {
 		$dir = U\Dir::join( $c10n_dir, '/' . $x_sha_hmac . '/' . $context . '/' . $basename );
 
 		if ( ! is_dir( $dir ) && ! U\Dir::make( $dir, [], true, false ) ) {
-			U\Fs::delete( $dir ); // Fresh start next time.
+			U\Fs::delete( $dir, true, false ); // Fresh start next time.
+
 			throw new U\Fatal_Exception(
 				'Failed to create `' . $c10n_dir . '/` ... `' . $context . '/' . $basename . '`.' .
 				' Have filesystem permissions changed?'

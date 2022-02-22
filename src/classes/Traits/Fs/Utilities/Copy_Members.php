@@ -189,7 +189,7 @@ trait Copy_Members {
 		}
 		// `$to_path` deletion before copy.
 
-		if ( $to_path_type && ! U\Fs::delete( $to_path ) ) {
+		if ( $to_path_type && ! U\Fs::delete( $to_path, true, false ) ) {
 			return false; // Not possible.
 		}
 		// `$to_path_dir` creation.

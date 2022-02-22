@@ -44,8 +44,6 @@ trait Context_Members {
 	 *                            {@see U\Pkg::format_str_helper()} for further details.
 	 *
 	 * @return string Data context with desired formatting.
-	 *
-	 * @todo  Update this when we add DB support.
 	 */
 	public static function data_context( /* string|null */ ?string $format = null ) : string {
 		$format  = $format ?: 'raw'; // Default is `raw`.

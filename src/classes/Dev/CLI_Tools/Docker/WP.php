@@ -794,7 +794,7 @@ final class WP extends U\A6t\CLI_Tool {
 
 		switch ( $command_name ) {
 			case 'down':
-				U\Fs::delete( $env_file );
+				U\Fs::delete( $env_file, false );
 				break;
 
 			case 'up':
@@ -829,7 +829,7 @@ final class WP extends U\A6t\CLI_Tool {
 
 		switch ( $command_name ) {
 			case 'down':
-				U\Fs::delete( $symlinks_file );
+				U\Fs::delete( $symlinks_file, false );
 				break;
 
 			case 'up': // Space indents.
@@ -856,7 +856,7 @@ final class WP extends U\A6t\CLI_Tool {
 					}
 					U\File::write( $symlinks_file, $symlinks_file_contents );
 				} else {
-					U\Fs::delete( $symlinks_file ); // Not necessary.
+					U\Fs::delete( $symlinks_file, false ); // Not necessary.
 				}
 				break;
 		}

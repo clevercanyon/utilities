@@ -47,21 +47,24 @@ trait Delete_Members {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string      $path           Path to delete.
-	 * @param bool        $recursively    Recursively? Default is `true`.
+	 * @param string      $path             Path to delete.
+	 * @param bool        $recursively      Recursively? Default is `true`.
 	 *
-	 * @param bool        $x_confirmation Added confirmation. Default is `false`.
-	 *                                    This is needed when attempting to delete the root of anything.
+	 * @param bool        $throw_on_failure Throw exceptions on failure? Default is `true`.
 	 *
-	 * @param object|null $_r             Internal use only — do not pass.
+	 * @param bool        $x_confirmation   Added confirmation. Default is `false`.
+	 *                                      This is needed when attempting to delete the root of anything.
+	 *
+	 * @param object|null $_r               Internal use only — do not pass.
 	 *
 	 * @return bool True if deleted successfully.
 	 *
-	 * @todo  Add `$throw_on_failure` argument?
+	 * @throws U\Fatal_Exception On any failure, if `$throw_on_failure` is `true`.
 	 */
 	public static function delete(
 		string $path,
 		bool $recursively = true,
+		bool $throw_on_failure = true,
 		bool $x_confirmation = false,
 		/* object|null */ ?object $_r = null
 	) : bool {
@@ -80,12 +83,12 @@ trait Delete_Members {
 			return true; // No longer exists.
 		}
 		if ( ! $x_confirmation && '' === trim( $path, '/' ) ) {
-			// Refuse when we're missing added confirmation.
+			if ( $throw_on_failure ) {
+				throw new U\Fatal_Exception( 'Deletion of `' . $path . '` requires added confirmation; which was not given.' );
+			}             // Refuse when we're missing added confirmation.
 			return false; // Don't destroy the root of anything.
 		}
-		if ( ! $is_recursive && ! $x_confirmation
-			&& U\Fs::may_have_wrappers( $path, [ 'skip:str_replace' => true ] )
-		) {
+		if ( ! $is_recursive && ! $x_confirmation && U\Fs::may_have_wrappers( $path, [ 'skip:str_replace' => true ] ) ) {
 			$wrappers = U\Fs::wrappers( $path, 'string', [
 				'bypass:may_have_wrappers' => true,
 				'bypass:normalize'         => true,
@@ -96,12 +99,17 @@ trait Delete_Members {
 				$last_wrapper     = U\Arr::value_last( U\Fs::split_wrappers( $wrappers ) );
 
 				if ( ! $path_no_wrappers || '' === trim( $path_no_wrappers, '/' ) ) {
-					// Refuse when we're missing added confirmation.
+					if ( $throw_on_failure ) {
+						throw new U\Fatal_Exception( 'Deletion of `' . $path . '` requires added confirmation, which was not given.' );
+					}             // Refuse when we're missing added confirmation.
 					return false; // Don't destroy the root of anything.
 				}
 				if ( false === mb_strpos( trim( $path_no_wrappers, '/' ), '/' )
-					&& preg_match( '/^(?:\/{2}|(?:s3|php|http|data|expect|ssh2\.tunnel)\:\/{2})$/ui', $last_wrapper ) ) {
-					// Must have `foo/bar` at minimum. Refuse when we're missing added confirmation.
+					&& preg_match( '/^(?:\/{2}|(?:s3|php|http|data|expect|ssh2\.tunnel)\:\/{2})$/ui', $last_wrapper )
+				) {
+					if ( $throw_on_failure ) {
+						throw new U\Fatal_Exception( 'Deletion of `' . $path . '` requires added confirmation, which was not given.' );
+					}             // Refuse when we're missing added confirmation.
 					return false; // Don't destroy the root of anything.
 				}
 			} // End `$wrappers` check from above.
@@ -110,23 +118,55 @@ trait Delete_Members {
 		// We skip over broken links and instead let the next section handle link deletion.
 
 		if ( ! is_writable( $path ) && 'broken-link' !== $path_real_type ) {
-			return false; // Not possible.
+			if ( $throw_on_failure ) {
+				throw new U\Fatal_Exception( 'Failed to delete `' . $path . '`. Not writable.' );
+			}
+			return false; // Failure.
 		}
 		// Link, broken link, file, and non-recursive directory deletion.
 
 		if ( ! $recursively || in_array( $path_type, [ 'link', 'file' ], true ) ) {
+			/*
+			 * Broken links.
+			 */
 			if ( 'link' === $path_type && 'broken-link' === $path_real_type ) {
-				return @unlink( $path ) || ( U\Env::is_windows() && @rmdir( $path ) ); // phpcs:ignore.
+				if ( @unlink( $path ) || ( U\Env::is_windows() && @rmdir( $path ) /* phpcs:ignore */ ) ) {
+					return true; // We can try to delete a broken link.
+				} elseif ( $throw_on_failure ) {
+					throw new U\Fatal_Exception( 'Failed to delete `' . $path . '`. Broken link.' );
+				}
+				return false; // Failure.
 			}
+			/*
+			 * Directory links (junctions) on Windows.
+			 */
 			if ( 'link' === $path_type && 'dir' === $path_real_type && U\Env::is_windows() ) {
-				return rmdir( $path ); // Directory links require {@see rmdir()} on Windows.
+				if ( rmdir( $path ) ) {
+					return true; // Directory links require {@see rmdir()} on Windows.
+				} elseif ( $throw_on_failure ) {
+					throw new U\Fatal_Exception( 'Failed to delete `' . $path . '`.' );
+				}
+				return false; // Failure.
 			}
-			return 'dir' === $path_type ? @rmdir( $path ) : unlink( $path ); // phpcs:ignore.
+			/*
+			 * All other link|file|non-recursive-directory deletions.
+			 */
+			if ( 'dir' !== $path_type && unlink( $path ) ) {
+				return true;
+			} elseif ( 'dir' === $path_type && @rmdir( $path ) /* phpcs:ignore */ ) {
+				return true;
+			} elseif ( $throw_on_failure ) {
+				throw new U\Fatal_Exception( 'Failed to delete `' . $path . '`.' );
+			}
+			return false; // Failure.
 		}
 		// Recursive directory deletion.
 
 		if ( ! ( $_path_opendir = opendir( $path ) ) ) {
-			return false; // Not possible.
+			if ( $throw_on_failure ) {
+				throw new U\Fatal_Exception( 'Failed to delete `' . $path . '`. Not executable.' );
+			}
+			return false; // Failure.
 		}
 		while ( false !== ( $_subpath = readdir( $_path_opendir ) ) ) {
 			if ( '' === $_subpath || in_array( $_subpath, [ '.', '..' ], true ) ) {
@@ -134,12 +174,22 @@ trait Delete_Members {
 			}
 			$_path = U\Dir::join( $path, '/' . $_subpath );
 
-			if ( ! U\Fs::delete( $_path, $recursively, $x_confirmation, $_r ) ) {
-				closedir( $_path_opendir );
-				return false;
+			if ( ! U\Fs::delete( $_path, $recursively, $throw_on_failure, $x_confirmation, $_r ) ) {
+				closedir( $_path_opendir ); // `void` return.
+
+				if ( $throw_on_failure ) {
+					throw new U\Fatal_Exception( 'Failed to delete `' . $_path . '`.' );
+				}
+				return false; // Failure.
 			}
 		}
-		closedir( $_path_opendir );
-		return rmdir( $path );
+		closedir( $_path_opendir ); // `void` return.
+
+		if ( rmdir( $path ) ) {
+			return true;
+		} elseif ( $throw_on_failure ) {
+			throw new U\Fatal_Exception( 'Failed to delete `' . $path . '`.' );
+		}
+		return false; // Failure.
 	}
 }
