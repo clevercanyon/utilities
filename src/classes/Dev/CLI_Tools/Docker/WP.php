@@ -315,7 +315,7 @@ final class WP extends U\A6t\CLI_Tool {
 			$this->maybe_update_symlinks_file();
 
 			U\CLI::run( [
-				'::env_vars' => $this->prepare_cmd_env_vars(),
+				'::env_vars' => $this->prepare_cmd_env_var_args(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'up', '--detach' ],
 			], $this->project->dir );
@@ -532,7 +532,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::exit_status( 1 );
 			}
 			U\CLI::run( [
-				'::env_vars' => $this->prepare_cmd_env_vars(),
+				'::env_vars' => $this->prepare_cmd_env_var_args(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'ps', '--all', '--format', 'pretty' ],
 			], $this->project->dir, false );
@@ -619,7 +619,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::exit_status( 1 );
 			}
 			U\CLI::run( [
-				'::env_vars' => $this->prepare_cmd_env_vars(),
+				'::env_vars' => $this->prepare_cmd_env_var_args(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'pause' ],
 			], $this->project->dir, false );
@@ -649,7 +649,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::exit_status( 1 );
 			}
 			U\CLI::run( [
-				'::env_vars' => $this->prepare_cmd_env_vars(),
+				'::env_vars' => $this->prepare_cmd_env_var_args(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'unpause' ],
 			], $this->project->dir, false );
@@ -683,7 +683,7 @@ final class WP extends U\A6t\CLI_Tool {
 			$this->maybe_update_etc_hosts_file();
 
 			U\CLI::run( [
-				'::env_vars' => $this->prepare_cmd_env_vars(),
+				'::env_vars' => $this->prepare_cmd_env_var_args(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'down', '--volumes' ],
 			], $this->project->dir );
@@ -798,7 +798,9 @@ final class WP extends U\A6t\CLI_Tool {
 				break;
 
 			case 'up':
-				$env_vars = $this->prepare_cmd_env_vars();
+				$env_vars = U\Arr::flatten( $this->prepare_cmd_env_var_args() );
+				$env_vars = array_map( [ U\Str::class, 'unquote' ], $env_vars );
+
 				if ( ! is_file( $env_file ) ) {
 					U\File::make( $env_file );
 				}
@@ -844,6 +846,7 @@ final class WP extends U\A6t\CLI_Tool {
 
 				foreach ( glob( $vendor_org_dir . '/*', GLOB_ONLYDIR ) as $_dir ) {
 					if ( '.' !== $_dir && '..' !== $_dir && is_dir( $_dir ) && is_link( $_dir ) ) {
+						$symlinks_file_contents = rtrim( $symlinks_file_contents, "\n" ) . "\n";
 						$symlinks_file_contents .= "\t\t\t" .
 							'- ' . "'" . '../../../../vendor/' . $vendor_org_dir_basename . '/' . basename( $_dir ) .
 							':/wp-docker/host/project/vendor/' . $vendor_org_dir_basename . '/' . basename( $_dir ) . ':ro' . "'\n";
@@ -1081,7 +1084,7 @@ final class WP extends U\A6t\CLI_Tool {
 	 *
 	 * @return array All of the CMD environment variable args.
 	 */
-	protected function prepare_cmd_env_vars() : array {
+	protected function prepare_cmd_env_var_args() : array {
 		$env_vars   = [ 'COMPOSE_PROJECT_NAME=' . U\Str::esc_shell_arg( $this->project->slug ) ];
 		$env_vars[] = 'WP_DOCKER_COMPOSE_PROJECT_SLUG=' . U\Str::esc_shell_arg( $this->project->slug );
 		$env_vars[] = 'WP_DOCKER_COMPOSE_PROJECT_TYPE=' . U\Str::esc_shell_arg( $this->project->type );
