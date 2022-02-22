@@ -40,10 +40,6 @@ fi;
 # ---------------------------------------------------------------------------------------------------------------------
 
 case "${1:-}" in
-	'webpack')
-		npx webpack --config ./dev/.libs/webpack/config.cjs "${@:2}";
-		;;
-
 	'phpunit')
 		if is-wp-docker; then
 			phpunit \
@@ -91,14 +87,6 @@ case "${1:-}" in
 				--no-logging "${@:2}";
 		fi;;
 
-	'wp-docker')
-		if is-wp-docker; then
-			echo 'Not possible. This *is* WP Docker.';
-			exit 1; # Exit w/ error status.
-		else
-			./.wp-docker "${@:2}";
-		fi;;
-
 	'php-scoper-config-file-update')
 		if is-wp-docker; then
 			echo 'Not supported in a WP Docker environment. Please run locally.';
@@ -111,12 +99,39 @@ case "${1:-}" in
 			./dev/cli-tools/php-scoper/config-file update;
 		fi;;
 
+	'webpack')
+		npx webpack --config ./dev/.libs/webpack/config.cjs "${@:2}";
+		;;
+
+	'wp-docker')
+		./.wp-docker "${@:2}";
+		;;
+
+	'composer')
+		composer "${@:2}";
+		;;
+
+	'npm')
+		npm "${@:2}";
+		;;
+
 	*)
 		echo 'Hmm. `'"${1:-}"'` is an unexpected script name.';
 
 		echo 'Did you mean one of these?';
-		echo 'Try: `webpack`, `phpunit`, `phpunit~distro`, `phpunit~coverage`, or `wp-docker`.';
-		echo 'e.g., ./.run-script webpack; ./.run-script phpunit; ./.run-script phpunit~distro; ./.run-script phpunit~coverage;';
+		echo;
+		echo '- phpunit';
+		echo '- phpunit~distro';
+		echo '- phpunit~coverage';
+		if [[ -f ./.cc-utilities ]]; then
+			echo '- php-scoper-config-file-update';
+		fi;
+		echo '- webpack';
+		echo '- wp-docker';
+		echo '- composer';
+		echo '- npm';
+		echo;
+		echo 'e.g., ./.run-script phpunit;';
 
 		exit 1; # Exit w/ error status.
 esac;
