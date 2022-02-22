@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+function is-w6e-framework() {
+	local project_dir="${1:-.}";
+
+	if [[ -f "${project_dir}"/.w6e-framework ]]; then
+	    return 0; # True.
+	else
+		return 1;
+	fi;
+}

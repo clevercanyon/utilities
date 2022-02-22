@@ -21,12 +21,12 @@
 
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1;
 
-if [[ -f ./.cc-utilities ]]; then ccu_path=.;
-else ccu_path=./vendor/clevercanyon/utilities; fi;
-wp_docker="${ccu_path}"/dev/cli-tools/docker/wp/docker;
+if [[ -f ./.c10n-utilities ]]; then c10n_utilities_path=.;
+else c10n_utilities_path=./vendor/clevercanyon/utilities; fi;
+wp_docker="${c10n_utilities_path}"/dev/cli-tools/docker/wp/docker;
 
-if [[ ! -f "${ccu_path}"/dev/utilities/load.bash ]]; then
-	echo 'Missing required dependency: `'"${ccu_path}"'`';
+if [[ ! -f "${c10n_utilities_path}"/dev/utilities/load.bash ]]; then
+	echo 'Missing required dependency: `'"${c10n_utilities_path}"'`';
 	echo 'Have you run `composer install` yet?';
 	exit 1; # Exit w/ error status.
 fi;
@@ -40,8 +40,8 @@ if [[ ! -d ./vendor/bin || ! -d ./node_modules/.bin ]]; then
 	echo 'Have you run `composer install` yet?';
 	exit 1; # Exit w/ error status.
 fi;
-. "${ccu_path}"/dev/utilities/load.bash; # Loads utilities.
-. "${ccu_path}"/dev/utilities/bash/partials/loose-mode;
+. "${c10n_utilities_path}"/dev/utilities/load.bash; # Loads utilities.
+. "${c10n_utilities_path}"/dev/utilities/bash/partials/loose-mode;
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Runs command in one of two ways; depending on requestion action.

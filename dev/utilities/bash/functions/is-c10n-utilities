@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+function is-c10n-utilities() {
+	local project_dir="${1:-.}";
+
+	if [[ -f "${project_dir}"/.c10n-utilities ]]; then
+	    return 0; # True.
+	else
+		return 1;
+	fi;
+}
