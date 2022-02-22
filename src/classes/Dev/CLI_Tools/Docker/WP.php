@@ -798,13 +798,10 @@ final class WP extends U\A6t\CLI_Tool {
 				break;
 
 			case 'up':
-				$env_vars = U\Arr::flatten( $this->prepare_cmd_env_var_args() );
-				$env_vars = array_map( [ U\Str::class, 'unquote' ], $env_vars );
-
 				if ( ! is_file( $env_file ) ) {
 					U\File::make( $env_file );
 				}
-				U\File::write( $env_file, implode( "\n", $env_vars ) );
+				U\File::write( $env_file, $this->prepare_cmd_env_var_lines() );
 				break;
 		}
 	}
@@ -835,21 +832,21 @@ final class WP extends U\A6t\CLI_Tool {
 				U\Fs::delete( $symlinks_file );
 				break;
 
-			case 'up':
+			case 'up': // Space indents.
 				$symlinks_file_contents = <<<'ooo'
 					version  : '3.9'  # {@see https://o5p.me/TtD60s}.
 					services :
-						php  :
-							volumes : # Must bind mount symlinks explicitly. 
+					    php  :
+					        volumes : # Must bind mount symlinks explicitly. 
 					ooo;
 				$have_symlinks          = false; // Initialize.
 
 				foreach ( glob( $vendor_org_dir . '/*', GLOB_ONLYDIR ) as $_dir ) {
 					if ( '.' !== $_dir && '..' !== $_dir && is_dir( $_dir ) && is_link( $_dir ) ) {
 						$symlinks_file_contents = rtrim( $symlinks_file_contents, "\n" ) . "\n";
-						$symlinks_file_contents .= "\t\t\t" .
+						$symlinks_file_contents .= str_repeat( '    ', 3 ) . // 4-space indent x 3.
 							'- ' . "'" . '../../../../vendor/' . $vendor_org_dir_basename . '/' . basename( $_dir ) .
-							':/wp-docker/host/project/vendor/' . $vendor_org_dir_basename . '/' . basename( $_dir ) . ':ro' . "'\n";
+							':/wp-docker/host/project/vendor/' . $vendor_org_dir_basename . '/' . basename( $_dir ) . ':ro' . "'";
 						$have_symlinks          = true;
 					}
 				}
@@ -858,6 +855,8 @@ final class WP extends U\A6t\CLI_Tool {
 						U\File::make( $symlinks_file );
 					}
 					U\File::write( $symlinks_file, $symlinks_file_contents );
+				} else {
+					U\Fs::delete( $symlinks_file ); // Not necessary.
 				}
 				break;
 		}
@@ -1078,6 +1077,22 @@ final class WP extends U\A6t\CLI_Tool {
 	}
 
 	/**
+	 * Prepares CMD environment variable lines.
+	 *
+	 * @since 2022-02-16
+	 *
+	 * @return string All of the CMD environment variable lines.
+	 */
+	protected function prepare_cmd_env_var_lines() : string {
+		$env_var_lines = []; // Initialize.
+
+		foreach ( $this->prepare_cmd_env_vars() as $_env_var => $_value ) {
+			$env_var_lines[] = $_env_var . '=' . $_value;
+		}
+		return implode( "\n", $env_var_lines );
+	}
+
+	/**
 	 * Prepares CMD environment variable args.
 	 *
 	 * @since 2022-02-16
@@ -1085,18 +1100,34 @@ final class WP extends U\A6t\CLI_Tool {
 	 * @return array All of the CMD environment variable args.
 	 */
 	protected function prepare_cmd_env_var_args() : array {
-		$env_vars   = [ 'COMPOSE_PROJECT_NAME=' . U\Str::esc_shell_arg( $this->project->slug ) ];
-		$env_vars[] = 'WP_DOCKER_COMPOSE_PROJECT_SLUG=' . U\Str::esc_shell_arg( $this->project->slug );
-		$env_vars[] = 'WP_DOCKER_COMPOSE_PROJECT_TYPE=' . U\Str::esc_shell_arg( $this->project->type );
-		$env_vars[] = 'WP_DOCKER_COMPOSE_PROJECT_LAYOUT=' . U\Str::esc_shell_arg( $this->project->layout );
-		$env_vars[] = 'WP_DOCKER_COMPOSE_PHP_VERSION=' . U\Str::esc_shell_arg( $this->get_option( 'php-version' ) );
+		$env_var_args = []; // Initialize.
+
+		foreach ( $this->prepare_cmd_env_vars() as $_env_var => $_value ) {
+			$env_var_args[] = $_env_var . '=' . U\Str::esc_shell_arg( $_value );
+		}
+		return $env_var_args;
+	}
+
+	/**
+	 * Prepares CMD environment variables.
+	 *
+	 * @since 2022-02-16
+	 *
+	 * @return array All of the CMD environment variables.
+	 */
+	protected function prepare_cmd_env_vars() : array {
+		$env_vars[ 'COMPOSE_PROJECT_NAME' ]             = $this->project->slug;
+		$env_vars[ 'WP_DOCKER_COMPOSE_PROJECT_SLUG' ]   = $this->project->slug;
+		$env_vars[ 'WP_DOCKER_COMPOSE_PROJECT_TYPE' ]   = $this->project->type;
+		$env_vars[ 'WP_DOCKER_COMPOSE_PROJECT_LAYOUT' ] = $this->project->layout;
+		$env_vars[ 'WP_DOCKER_COMPOSE_PHP_VERSION' ]    = $this->get_option( 'php-version' );
 
 		if ( 'up' === $this->command_name() ) {
-			$env_vars[] = 'WP_DOCKER_WORDPRESS_MULTISITE_TYPE=' . U\Str::esc_shell_arg( $this->get_option( 'wp-multisite-type' ) ?: '' );
-			$env_vars[] = 'WP_DOCKER_WORDPRESS_INSTALL_PLUGINS=' . U\Str::esc_shell_arg( implode( ',', $this->get_option( 'wp-install-plugin' ) ?: [] ) );
-			$env_vars[] = 'WP_DOCKER_WORDPRESS_INSTALL_THEME=' . U\Str::esc_shell_arg( $this->get_option( 'wp-install-theme' ) ?: '' );
-			$env_vars[] = 'WP_DOCKER_WORDPRESS_INSTALLED_THEME_SLUG=' . U\Str::esc_shell_arg( $this->get_option( 'wp-installed-theme-slug' ) ?: '' );
-			$env_vars[] = 'WP_DOCKER_INSTALL_KITCHEN_SINK=' . U\Str::esc_shell_arg( $this->get_option( 'install-kitchen-sink' ) ? '1' : '' );
+			$env_vars[ 'WP_DOCKER_WORDPRESS_MULTISITE_TYPE' ]       = $this->get_option( 'wp-multisite-type' ) ?: '';
+			$env_vars[ 'WP_DOCKER_WORDPRESS_INSTALL_PLUGINS' ]      = implode( ',', $this->get_option( 'wp-install-plugin' ) ?: [] );
+			$env_vars[ 'WP_DOCKER_WORDPRESS_INSTALL_THEME' ]        = $this->get_option( 'wp-install-theme' ) ?: '';
+			$env_vars[ 'WP_DOCKER_WORDPRESS_INSTALLED_THEME_SLUG' ] = $this->get_option( 'wp-installed-theme-slug' ) ?: '';
+			$env_vars[ 'WP_DOCKER_INSTALL_KITCHEN_SINK' ]           = $this->get_option( 'install-kitchen-sink' ) ? '1' : '';
 		}
 		return $env_vars;
 	}
