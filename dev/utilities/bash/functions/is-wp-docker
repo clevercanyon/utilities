@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+function is-wp-docker() {
+	if [[ -f /wp-docker/image/setup-complete ]]; then
+	    return 0; # True.
+	else
+		return 1;
+	fi;
+}

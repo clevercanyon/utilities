@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+function is-phpunit() {
+	if [[ -n "${IS_PHPUNIT:-}" ]]; then
+	    return 0; # True.
+	else
+		return 1;
+	fi;
+}

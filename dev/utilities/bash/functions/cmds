@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Can run a command?
+
+function can-run() {
+  command -v "${1}" >/dev/null 2>&1;
+};
+
+# Takes `${PATH}` into consideration.
+
+function ::() {
+  if [[ "${1:-}" == cd || "${1:-}" == dirs ]]; then
+    builtin "${@}";
+  else
+    command "${@}"; # <https://askubuntu.com/q/512770>
+  fi;
+};
+
+# Uses system default `${PATH}` via `-p` option.
+
+function :::() {
+  if [[ "${1:-}" == cd || "${1:-}" == dirs ]]; then
+    builtin "${@}";
+  else
+    command -p "${@}"; # <https://askubuntu.com/q/512770>
+  fi;
+};

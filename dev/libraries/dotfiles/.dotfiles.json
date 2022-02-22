@@ -24,7 +24,9 @@
 		"dev/.libs/webpack/cssnano.cjs"                 : "@",
 		"dev/.libs/webpack/postcss.cjs"                 : "@",
 
+		".run-script"                                   : "@",
 		".wp-docker"                                    : "@",
+
 		"dev/.libs/docker/wp/certs/i10e-ca-crt.pem"     : "@",
 		"dev/.libs/docker/wp/certs/i10e-ca-csr.pem"     : "@",
 		"dev/.libs/docker/wp/certs/i10e-ca-key.pem"     : "@",

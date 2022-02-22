@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# Requires PHP.
-
 function version-compare() {
   local v1="'${1:-}'"; # Version 1.
   local v2="'${2:-}'"; # Version 2.
