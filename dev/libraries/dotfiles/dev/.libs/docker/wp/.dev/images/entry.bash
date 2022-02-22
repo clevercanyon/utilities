@@ -20,9 +20,10 @@
 # Define a few variables.
 # ---------------------------------------------------------------------------------------------------------------------
 
-ROOT_HOME_DIR=/root;         # `root` user's home directory.
-WWW_DATA_HOME_DIR=/var/www;  # `www-data` user's home directory.
-WORDPRESS_DIR=/var/www/html; # Apache `DOCUMENT_ROOT` directory.
+WP_DOCKER_ROOT_HOME_DIR=/root;                # `root` user’s home directory.
+WP_DOCKER_WEB_SERVER_USER=www-data;           # Web server runs as user `www-data`.
+WP_DOCKER_WEB_SERVER_USER_HOME_DIR=/var/www;  # Web server user’s home directory.
+WP_DOCKER_WORDPRESS_DIR=/var/www/html;        # Apache `DOCUMENT_ROOT` directory.
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Run parent container's entrypoint before we continue.
@@ -88,12 +89,12 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 	apt-get install git subversion npm --yes; # After nodejs.
 
 	# -----------------------------------------------------------------------------------------------------------------
-	# Give `www-data` a default login shell; and write access to its own HOME directory.
+	# Give web server user a default login shell; and write access to its own HOME directory.
 	# -----------------------------------------------------------------------------------------------------------------
 
-	chsh  --shell /bin/bash www-data;
-	chmod --recursive 0700     "${WWW_DATA_HOME_DIR}";
-	chown --recursive www-data "${WWW_DATA_HOME_DIR}";
+	chsh  --shell /bin/bash                          "${WP_DOCKER_WEB_SERVER_USER}";
+	chmod --recursive 0700                           "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}";
+	chown --recursive "${WP_DOCKER_WEB_SERVER_USER}" "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}";
 
 	# -----------------------------------------------------------------------------------------------------------------
 	# Simple shell enhancements.
@@ -101,9 +102,9 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 
 	apt-get install bash-completion --yes;
 
-	rm    --force                                         "${ROOT_HOME_DIR}"/.bashrc;
-	touch                                                 "${ROOT_HOME_DIR}"/.profile;
-	chmod 0600                                            "${ROOT_HOME_DIR}"/.profile;
+	rm    --force                                              "${WP_DOCKER_ROOT_HOME_DIR}"/.bashrc;
+	touch                                                      "${WP_DOCKER_ROOT_HOME_DIR}"/.profile;
+	chmod 0600                                                 "${WP_DOCKER_ROOT_HOME_DIR}"/.profile;
 
 	{   echo 'export PS1="🐳 \[\e[32m\]\h\[\e[m\] \[\e[34m\][\[\e[m\]\[\e[33m\]\w\[\e[m\]\[\e[34m\]]\[\e[m\] \\$ ";';
 
@@ -117,10 +118,10 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 		echo 'if [ -f /etc/bash_completion ]; then';
 		echo '	. /etc/bash_completion;';
 		echo 'fi;';
-	} >> "${ROOT_HOME_DIR}"/.profile;
+	} >> "${WP_DOCKER_ROOT_HOME_DIR}"/.profile;
 
-	cp    --preserve=all "${ROOT_HOME_DIR}"/.profile "${WWW_DATA_HOME_DIR}"/.profile;
-	chown www-data                                   "${WWW_DATA_HOME_DIR}"/.profile;
+	cp    --preserve=all "${WP_DOCKER_ROOT_HOME_DIR}"/.profile "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.profile;
+	chown "${WP_DOCKER_WEB_SERVER_USER}"                       "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.profile;
 
 	# -----------------------------------------------------------------------------------------------------------------
 	# Install Composer.
@@ -145,13 +146,13 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 		 --output /usr/local/bin/psysh;
 	chmod +x /usr/local/bin/psysh;
 
-	if [[ ! -d "${ROOT_HOME_DIR}"/.config ]]; then
-		mkdir      "${ROOT_HOME_DIR}"/.config;
-		chmod 0700 "${ROOT_HOME_DIR}"/.config;
+	if [[ ! -d "${WP_DOCKER_ROOT_HOME_DIR}"/.config ]]; then
+		mkdir      "${WP_DOCKER_ROOT_HOME_DIR}"/.config;
+		chmod 0700 "${WP_DOCKER_ROOT_HOME_DIR}"/.config;
 	fi;
-	if [[ ! -d "${ROOT_HOME_DIR}"/.config/psysh ]]; then
-		mkdir      "${ROOT_HOME_DIR}"/.config/psysh;
-		chmod 0700 "${ROOT_HOME_DIR}"/.config/psysh;
+	if [[ ! -d "${WP_DOCKER_ROOT_HOME_DIR}"/.config/psysh ]]; then
+		mkdir      "${WP_DOCKER_ROOT_HOME_DIR}"/.config/psysh;
+		chmod 0700 "${WP_DOCKER_ROOT_HOME_DIR}"/.config/psysh;
 	fi;
 	{   echo '<?php';
 		echo 'use Clever_Canyon\{Utilities as U};';
@@ -160,21 +161,21 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 		echo "    U\\Env::set_debug_mode( 'psysh' );";
 		echo '}';
 		echo 'return [];';
-	} > "${ROOT_HOME_DIR}"/.config/psysh/config.php;
-	chmod 0600 "${ROOT_HOME_DIR}"/.config/psysh/config.php;
+	} > "${WP_DOCKER_ROOT_HOME_DIR}"/.config/psysh/config.php;
+	chmod 0600 "${WP_DOCKER_ROOT_HOME_DIR}"/.config/psysh/config.php;
 
-	if [[ ! -d "${WWW_DATA_HOME_DIR}"/.config ]]; then
-		mkdir                                                        "${WWW_DATA_HOME_DIR}"/.config;
-		chmod 0700                                                   "${WWW_DATA_HOME_DIR}"/.config;
-		chown www-data                                               "${WWW_DATA_HOME_DIR}"/.config;
+	if [[ ! -d "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.config ]]; then
+		mkdir                                                                  "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.config;
+		chmod 0700                                                             "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.config;
+		chown "${WP_DOCKER_WEB_SERVER_USER}"                                   "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.config;
 	fi;
-	if [[ ! -d "${WWW_DATA_HOME_DIR}"/.config/psysh ]]; then
-		mkdir                                                        "${WWW_DATA_HOME_DIR}"/.config/psysh;
-		chmod 0700                                                   "${WWW_DATA_HOME_DIR}"/.config/psysh;
-		chown www-data                                               "${WWW_DATA_HOME_DIR}"/.config/psysh;
+	if [[ ! -d "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.config/psysh ]]; then
+		mkdir                                                                  "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.config/psysh;
+		chmod 0700                                                             "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.config/psysh;
+		chown "${WP_DOCKER_WEB_SERVER_USER}"                                   "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.config/psysh;
 	fi;
-	cp    --preserve=all "${ROOT_HOME_DIR}"/.config/psysh/config.php "${WWW_DATA_HOME_DIR}"/.config/psysh/config.php;
-	chown www-data                                                   "${WWW_DATA_HOME_DIR}"/.config/psysh/config.php;
+	cp    --preserve=all "${WP_DOCKER_ROOT_HOME_DIR}"/.config/psysh/config.php "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.config/psysh/config.php;
+	chown "${WP_DOCKER_WEB_SERVER_USER}"                                       "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.config/psysh/config.php;
 
 	# -----------------------------------------------------------------------------------------------------------------
 	# Install WP-CLI.
@@ -184,20 +185,20 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 		--output /usr/local/bin/wp;
 	chmod +x /usr/local/bin/wp;
 
-	if [[ ! -d "${ROOT_HOME_DIR}"/.wp-cli ]]; then
-		mkdir                                                  "${ROOT_HOME_DIR}"/.wp-cli;
-		chmod 0700                                             "${ROOT_HOME_DIR}"/.wp-cli;
+	if [[ ! -d "${WP_DOCKER_ROOT_HOME_DIR}"/.wp-cli ]]; then
+		mkdir                                                            "${WP_DOCKER_ROOT_HOME_DIR}"/.wp-cli;
+		chmod 0700                                                       "${WP_DOCKER_ROOT_HOME_DIR}"/.wp-cli;
 	fi;
-	echo "path: ${WORDPRESS_DIR}"                            > "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
-	chmod 0600                                                 "${ROOT_HOME_DIR}"/.wp-cli/config.yml;
+	echo "path: ${WP_DOCKER_WORDPRESS_DIR}"                            > "${WP_DOCKER_ROOT_HOME_DIR}"/.wp-cli/config.yml;
+	chmod 0600                                                           "${WP_DOCKER_ROOT_HOME_DIR}"/.wp-cli/config.yml;
 
-	if [[ ! -d "${WWW_DATA_HOME_DIR}"/.wp-cli ]]; then
-		mkdir                                                  "${WWW_DATA_HOME_DIR}"/.wp-cli;
-		chmod 0700                                             "${WWW_DATA_HOME_DIR}"/.wp-cli;
-		chown www-data                                         "${WWW_DATA_HOME_DIR}"/.wp-cli;
+	if [[ ! -d "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.wp-cli ]]; then
+		mkdir                                                            "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.wp-cli;
+		chmod 0700                                                       "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.wp-cli;
+		chown "${WP_DOCKER_WEB_SERVER_USER}"                             "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.wp-cli;
 	fi;
-	cp    --preserve=all "${ROOT_HOME_DIR}"/.wp-cli/config.yml "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
-	chown www-data                                             "${WWW_DATA_HOME_DIR}"/.wp-cli/config.yml;
+	cp    --preserve=all "${WP_DOCKER_ROOT_HOME_DIR}"/.wp-cli/config.yml "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.wp-cli/config.yml;
+	chown "${WP_DOCKER_WEB_SERVER_USER}"                                 "${WP_DOCKER_WEB_SERVER_USER_HOME_DIR}"/.wp-cli/config.yml;
 
 	# -----------------------------------------------------------------------------------------------------------------
 	# Install MailHog's MTA for SMTP connectivity.
