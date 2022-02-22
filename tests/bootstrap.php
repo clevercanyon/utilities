@@ -26,7 +26,7 @@ namespace Clever_Canyon\Utilities\Tests;
  * @since 2021-12-15
  */
 if ( ! getenv( 'IS_PHPUNIT' ) ) {
-	return; // Not applicable.
+	exit( 'Not a PHPUnit environment.' );
 }
 
 /**
