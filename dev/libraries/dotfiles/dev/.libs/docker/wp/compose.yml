@@ -27,6 +27,7 @@
 # every container to be accessed by it's own individual IP address. That's a huge, huge, huge feature.
 # ---------------------------------------------------------------------------------------------------------------------
 
+name     : '${WP_DOCKER_COMPOSE_PROJECT_SLUG}'
 version  : '3.9' # {@see https://o5p.me/TtD60s}.
 
 networks :

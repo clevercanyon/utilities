@@ -222,7 +222,7 @@ final class On_Post_Cmd extends U\A6t\CLI_Tool {
 	protected function maybe_symlink_local_repos() : void {
 		U\CLI::output( '[' . __FUNCTION__ . '()]: Maybe; looking ...' );
 
-		$symlink_local_packages_prop = '&.post_update_cmd_handler.symlink_local_packages';
+		$symlink_local_packages_prop = '&.post_cmd_handler.symlink_local_packages';
 		$symlink_local_packages      = $this->project->extra_json_prop( $symlink_local_packages_prop );
 
 		if ( null === $symlink_local_packages ) {

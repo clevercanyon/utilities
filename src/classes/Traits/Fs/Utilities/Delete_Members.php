@@ -56,6 +56,8 @@ trait Delete_Members {
 	 * @param object|null $_r             Internal use only — do not pass.
 	 *
 	 * @return bool True if deleted successfully.
+	 *
+	 * @todo  Add `$throw_on_failure` argument?
 	 */
 	public static function delete(
 		string $path,

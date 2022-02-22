@@ -311,8 +311,11 @@ final class WP extends U\A6t\CLI_Tool {
 			$project_dir   = U\Fs::abs( $this->get_option( 'project-dir' ) );
 			$this->project = new U\Dev\Project( $project_dir );
 
+			$this->maybe_update_env_file();
+			$this->maybe_update_symlinks_file();
+
 			U\CLI::run( [
-				'::env_vars' => $this->prepare_env_var_args(),
+				'::env_vars' => $this->prepare_cmd_env_vars(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'up', '--detach' ],
 			], $this->project->dir );
@@ -529,7 +532,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::exit_status( 1 );
 			}
 			U\CLI::run( [
-				'::env_vars' => $this->prepare_env_var_args(),
+				'::env_vars' => $this->prepare_cmd_env_vars(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'ps', '--all', '--format', 'pretty' ],
 			], $this->project->dir, false );
@@ -616,7 +619,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::exit_status( 1 );
 			}
 			U\CLI::run( [
-				'::env_vars' => $this->prepare_env_var_args(),
+				'::env_vars' => $this->prepare_cmd_env_vars(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'pause' ],
 			], $this->project->dir, false );
@@ -646,7 +649,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::exit_status( 1 );
 			}
 			U\CLI::run( [
-				'::env_vars' => $this->prepare_env_var_args(),
+				'::env_vars' => $this->prepare_cmd_env_vars(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'unpause' ],
 			], $this->project->dir, false );
@@ -675,10 +678,12 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::log( 'WP Docker is down.' );
 				U\CLI::exit_status( 1 );
 			}
+			$this->maybe_update_env_file();
+			$this->maybe_update_symlinks_file();
 			$this->maybe_update_etc_hosts_file();
 
 			U\CLI::run( [
-				'::env_vars' => $this->prepare_env_var_args(),
+				'::env_vars' => $this->prepare_cmd_env_vars(),
 				[ 'docker', 'compose', $this->prepare_yml_file_args() ],
 				[ 'down', '--volumes' ],
 			], $this->project->dir );
@@ -768,6 +773,85 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'HTTP                 : http://' . $nxp_container_fqdn );
 		U\CLI::log( 'HTTPS                : https://' . $nxp_container_fqdn . ' 🌎' );
 		U\CLI::log( 'PHP Info             : https://' . $nxp_container_fqdn . '/info.php' );
+	}
+
+	/**
+	 * Updates environment variables file (maybe).
+	 *
+	 * This file should reflect the most recent `up` command configuration.
+	 * This file should be deleted when a project comes `down`.
+	 *
+	 * @since 2022-02-16
+	 *
+	 * @see   https://docs.docker.com/compose/env-file/
+	 */
+	protected function maybe_update_env_file() : void {
+		if ( ! in_array( $this->command_name(), [ 'up', 'down' ], true ) ) {
+			return; // Not applicable.
+		}
+		$command_name = $this->command_name();
+		$env_file     = U\Dir::join( $this->project->dir, 'dev/.libs/docker/wp/.env' );
+
+		switch ( $command_name ) {
+			case 'down':
+				U\Fs::delete( $env_file );
+				break;
+
+			case 'up':
+				$env_vars = $this->prepare_cmd_env_vars();
+				U\File::write( $env_file, implode( "\n", $env_vars ) );
+				break;
+		}
+	}
+
+	/**
+	 * Updates symlinks file (maybe).
+	 *
+	 * This file should be created on `up` command.
+	 * This file should be deleted when a project comes `down`.
+	 *
+	 * Reason for this is because symlinks don't work inside a container.
+	 * It makes sense. For symlinks to work, we have to mount them explicitly.
+	 *
+	 * @since 2022-02-16
+	 */
+	protected function maybe_update_symlinks_file() : void {
+		if ( ! in_array( $this->command_name(), [ 'up', 'down' ], true ) ) {
+			return; // Not applicable.
+		}
+		$command_name  = $this->command_name();
+		$symlinks_file = U\Dir::join( $this->project->dir, 'dev/.libs/docker/wp/compose-sym.yml' );
+
+		$vendor_org_dir_basename = U\Brand::get( 'c10n', 'slug' );
+		$vendor_org_dir          = U\Dir::join( $this->project->dir, '/vendor/' . $vendor_org_dir_basename );
+
+		switch ( $command_name ) {
+			case 'down':
+				U\Fs::delete( $symlinks_file );
+				break;
+
+			case 'up':
+				$symlinks_file_contents = <<<'ooo'
+					version  : '3.9'  # {@see https://o5p.me/TtD60s}.
+					services :
+						php  :
+							volumes : # Must bind mount symlinks explicitly. 
+					ooo;
+				$have_symlinks          = false; // Initialize.
+
+				foreach ( glob( $vendor_org_dir . '/*', GLOB_ONLYDIR ) as $_dir ) {
+					if ( '.' !== $_dir && '..' !== $_dir && is_dir( $_dir ) && is_link( $_dir ) ) {
+						$symlinks_file_contents .= "\t\t\t" .
+							'- ' . "'" . '../../../../vendor/' . $vendor_org_dir_basename . '/' . basename( $_dir ) .
+							':/wp-docker/host/project/vendor/' . $vendor_org_dir_basename . '/' . basename( $_dir ) . ':ro' . "'\n";
+						$have_symlinks          = true;
+					}
+				}
+				if ( $have_symlinks ) {
+					U\File::write( $symlinks_file, $symlinks_file_contents );
+				}
+				break;
+		}
 	}
 
 	/**
@@ -985,29 +1069,27 @@ final class WP extends U\A6t\CLI_Tool {
 	}
 
 	/**
-	 * Prepares environment variable args.
+	 * Prepares CMD environment variable args.
 	 *
 	 * @since 2022-02-16
 	 *
 	 * @return array All of the CMD environment variable args.
 	 */
-	protected function prepare_env_var_args() : array {
-		$args   = []; // Initialize.
-		$args[] = 'COMPOSE_PROJECT_NAME=' . U\Str::esc_shell_arg( $this->project->slug );
-
-		$args[] = 'WP_DOCKER_COMPOSE_PROJECT_SLUG=' . U\Str::esc_shell_arg( $this->project->slug );
-		$args[] = 'WP_DOCKER_COMPOSE_PROJECT_TYPE=' . U\Str::esc_shell_arg( $this->project->type );
-		$args[] = 'WP_DOCKER_COMPOSE_PROJECT_LAYOUT=' . U\Str::esc_shell_arg( $this->project->layout );
-		$args[] = 'WP_DOCKER_COMPOSE_PHP_VERSION=' . U\Str::esc_shell_arg( $this->get_option( 'php-version' ) );
+	protected function prepare_cmd_env_vars() : array {
+		$env_vars   = [ 'COMPOSE_PROJECT_NAME=' . U\Str::esc_shell_arg( $this->project->slug ) ];
+		$env_vars[] = 'WP_DOCKER_COMPOSE_PROJECT_SLUG=' . U\Str::esc_shell_arg( $this->project->slug );
+		$env_vars[] = 'WP_DOCKER_COMPOSE_PROJECT_TYPE=' . U\Str::esc_shell_arg( $this->project->type );
+		$env_vars[] = 'WP_DOCKER_COMPOSE_PROJECT_LAYOUT=' . U\Str::esc_shell_arg( $this->project->layout );
+		$env_vars[] = 'WP_DOCKER_COMPOSE_PHP_VERSION=' . U\Str::esc_shell_arg( $this->get_option( 'php-version' ) );
 
 		if ( 'up' === $this->command_name() ) {
-			$args[] = 'WP_DOCKER_WORDPRESS_MULTISITE_TYPE=' . U\Str::esc_shell_arg( $this->get_option( 'wp-multisite-type' ) ?: '' );
-			$args[] = 'WP_DOCKER_WORDPRESS_INSTALL_PLUGINS=' . U\Str::esc_shell_arg( implode( ',', $this->get_option( 'wp-install-plugin' ) ?: [] ) );
-			$args[] = 'WP_DOCKER_WORDPRESS_INSTALL_THEME=' . U\Str::esc_shell_arg( $this->get_option( 'wp-install-theme' ) ?: '' );
-			$args[] = 'WP_DOCKER_WORDPRESS_INSTALLED_THEME_SLUG=' . U\Str::esc_shell_arg( $this->get_option( 'wp-installed-theme-slug' ) ?: '' );
-			$args[] = 'WP_DOCKER_INSTALL_KITCHEN_SINK=' . U\Str::esc_shell_arg( $this->get_option( 'install-kitchen-sink' ) ? '1' : '' );
+			$env_vars[] = 'WP_DOCKER_WORDPRESS_MULTISITE_TYPE=' . U\Str::esc_shell_arg( $this->get_option( 'wp-multisite-type' ) ?: '' );
+			$env_vars[] = 'WP_DOCKER_WORDPRESS_INSTALL_PLUGINS=' . U\Str::esc_shell_arg( implode( ',', $this->get_option( 'wp-install-plugin' ) ?: [] ) );
+			$env_vars[] = 'WP_DOCKER_WORDPRESS_INSTALL_THEME=' . U\Str::esc_shell_arg( $this->get_option( 'wp-install-theme' ) ?: '' );
+			$env_vars[] = 'WP_DOCKER_WORDPRESS_INSTALLED_THEME_SLUG=' . U\Str::esc_shell_arg( $this->get_option( 'wp-installed-theme-slug' ) ?: '' );
+			$env_vars[] = 'WP_DOCKER_INSTALL_KITCHEN_SINK=' . U\Str::esc_shell_arg( $this->get_option( 'install-kitchen-sink' ) ? '1' : '' );
 		}
-		return $args;
+		return $env_vars;
 	}
 
 	/**
@@ -1018,16 +1100,20 @@ final class WP extends U\A6t\CLI_Tool {
 	 * @return array All of the prepared YAML file arguments.
 	 */
 	protected function prepare_yml_file_args() : array {
+		$dir = U\Dir::join( $this->project->dir, '/dev/.libs/docker/wp' );
+
 		if ( 'ci' === $this->get_option( 'variant' ) ) {
 			return [
-				[ '--file', './dev/.libs/docker/wp/compose.yml' ],
-				[ '--file', './dev/.libs/docker/wp/compose~ci.yml' ],
-				[ '--file', './dev/.libs/docker/wp/compose~prj.yml' ],
+				[ '--file', U\Dir::join( $dir, '/compose.yml' ) ],
+				( is_file( $sym = U\Dir::join( $dir, '/compose-sym.yml' ) ) ? [ '--file', $sym ] : [] ),
+				[ '--file', U\Dir::join( $dir, '/compose~ci.yml' ) ],
+				[ '--file', U\Dir::join( $dir, '/compose~prj.yml' ) ],
 			];
 		} else {
 			return [
-				[ '--file', './dev/.libs/docker/wp/compose.yml' ],
-				[ '--file', './dev/.libs/docker/wp/compose~prj.yml' ],
+				[ '--file', U\Dir::join( $dir, '/compose.yml' ) ],
+				( is_file( $sym = U\Dir::join( $dir, '/compose-sym.yml' ) ) ? [ '--file', $sym ] : [] ),
+				[ '--file', U\Dir::join( $dir, '/compose~prj.yml' ) ],
 			];
 		}
 	}

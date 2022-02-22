@@ -72,7 +72,7 @@
 	"extra"             : {
 		"clevercanyon" : {
 			"&" : {
-				"brand"                   : {
+				"brand"            : {
 					"data" : {
 						"n7m" : "c10n"
 					},
@@ -83,7 +83,7 @@
 						}
 					}
 				},
-				"project"                 : {
+				"project"          : {
 					"data" : {
 						"version"        : "1.0.0",
 						"stable_tag"     : "1.0.0",
@@ -93,7 +93,7 @@
 						"name"           : "Clever Canyon: PHP/JS Utilities"
 					}
 				},
-				"php_scoper"              : {
+				"php_scoper"       : {
 					"cfg" : {
 						"expose-namespaces"  : [ ],
 						"expose-constants"   : [ ],
@@ -107,7 +107,7 @@
 						"exclude-files"      : [ ]
 					}
 				},
-				"post_update_cmd_handler" : {
+				"post_cmd_handler" : {
 					"symlink_local_packages" : {
 						"vendor"       : [
 							"clevercanyon/standards",
