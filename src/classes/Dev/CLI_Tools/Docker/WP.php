@@ -799,6 +799,9 @@ final class WP extends U\A6t\CLI_Tool {
 
 			case 'up':
 				$env_vars = $this->prepare_cmd_env_vars();
+				if ( ! is_file( $env_file ) ) {
+					U\File::make( $env_file );
+				}
 				U\File::write( $env_file, implode( "\n", $env_vars ) );
 				break;
 		}
@@ -848,6 +851,9 @@ final class WP extends U\A6t\CLI_Tool {
 					}
 				}
 				if ( $have_symlinks ) {
+					if ( ! is_file( $symlinks_file ) ) {
+						U\File::make( $symlinks_file );
+					}
 					U\File::write( $symlinks_file, $symlinks_file_contents );
 				}
 				break;
