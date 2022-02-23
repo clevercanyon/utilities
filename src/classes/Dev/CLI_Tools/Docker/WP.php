@@ -719,6 +719,21 @@ final class WP extends U\A6t\CLI_Tool {
 		$pma_container_ip   = $this->get_container_ip( 'pma' );
 		$pma_container_fqdn = $this->get_container_fqdn( 'pma' );
 
+		$mem_container_ip   = $this->get_container_ip( 'mem' );
+		$mem_container_fqdn = $this->get_container_fqdn( 'mem' );
+
+		$hog_container_ip           = $this->get_container_ip( 'hog' );
+		$hog_container_fqdn         = $this->get_container_fqdn( 'hog' );
+		$hog_container_fqdn_no_port = $this->get_container_fqdn( 'hog', false );
+
+		$php_container_ip   = $this->get_container_ip( 'php' );
+		$php_container_fqdn = $this->get_container_fqdn( 'php' );
+
+		$nxp_container_ip   = $this->get_container_ip( 'nxp' );
+		$nxp_container_fqdn = $this->get_container_fqdn( 'nxp' );
+
+		$user_pass = U\Env::var( 'USER' ) ?: 'wordpress';
+
 		U\CLI::output( 'MySQL Database Server' );
 		U\CLI::log( 'IP Address           : ' . $sql_container_ip );
 		U\CLI::log( 'MySQL (MariaDB)      : ' . $sql_container_fqdn );
@@ -730,13 +745,6 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'FQDN                 : https://' . $pma_container_fqdn );
 
 		U\CLI::new_line();
-
-		$mem_container_ip   = $this->get_container_ip( 'mem' );
-		$mem_container_fqdn = $this->get_container_fqdn( 'mem' );
-
-		$hog_container_ip           = $this->get_container_ip( 'hog' );
-		$hog_container_fqdn         = $this->get_container_fqdn( 'hog' );
-		$hog_container_fqdn_no_port = $this->get_container_fqdn( 'hog', false );
 
 		U\CLI::output( 'Memcached Server' );
 		U\CLI::log( 'IP Address           : ' . $mem_container_ip );
@@ -750,12 +758,6 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'FQDN (Webmail)       : https://' . $hog_container_fqdn_no_port );
 
 		U\CLI::new_line();
-
-		$php_container_ip   = $this->get_container_ip( 'php' );
-		$php_container_fqdn = $this->get_container_fqdn( 'php' );
-
-		$nxp_container_ip   = $this->get_container_ip( 'nxp' );
-		$nxp_container_fqdn = $this->get_container_fqdn( 'nxp' );
 
 		U\CLI::output( 'Apache/PHPv' . $php_version . '/WordPress Server' );
 		U\CLI::log( 'IP Address           : ' . $php_container_ip );
@@ -773,6 +775,12 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'HTTP                 : http://' . $nxp_container_fqdn );
 		U\CLI::log( 'HTTPS                : https://' . $nxp_container_fqdn . ' 🌎' );
 		U\CLI::log( 'PHP Info             : https://' . $nxp_container_fqdn . '/info.php' );
+
+		U\CLI::new_line();
+
+		U\CLI::output( 'WordPress Admin' );
+		U\CLI::log( 'Username/Password    : ' . $user_pass . '/' . $user_pass );
+		U\CLI::log( 'WP Admin             : https://' . $nxp_container_fqdn . '/wp-admin/ ⚙️' );
 	}
 
 	/**
