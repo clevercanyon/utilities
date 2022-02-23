@@ -167,11 +167,9 @@ final class Skeleton extends U\A6t\CLI_Tool {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @return object User input data.
-	 *
 	 * @throws U\Fatal_Exception On any failure.
 	 */
-	protected function gather_user_input() : object {
+	protected function gather_user_input() : void {
 		/*
 		 * Skeleton project directory.
 		 */
@@ -204,7 +202,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 
 		U\CLI::output(
 			"\n" . 'Great! That’s Brand Slug: `' . $brand->slug . '`.' . "\n" .
-			'You’re starting a new Package — how exciting!',
+			'You’re starting a new Project — how exciting!',
 			'blue'
 		);
 
@@ -305,6 +303,27 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		U\CLI::output( "\n" . 'Thanks!', 'blue' );
 
 		/*
+		 * Project description.
+		 */
+		$description = U\CLI::question(
+			"\n" . 'One line Project Description, please.' . "\n\n" .
+
+			'Examples of Project Descriptions:' . "\n" .
+			' - Spectacular code providing amazing features.' . "\n" .
+			' - Amazing addon providing everything you need to extend Spectacular.' . "\n\n" .
+
+			'Project Description must be given as:' . "\n" .
+			'e.g., Project description.' . "\n\n" .
+
+			'Project Description (5+ words): ',
+			true, // Require answer.
+			function ( string $answer ) : bool {
+				return str_word_count( $answer ) >= 5;
+			}
+		);
+		U\CLI::output( "\n" . 'Thanks!', 'blue' );
+
+		/*
 		 * Package type.
 		 */
 		$type = U\CLI::question(
@@ -334,25 +353,25 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		U\CLI::output( "\n" . 'Thanks!', 'blue' );
 
 		/*
-		 * Package layout.
+		 * Project layout.
 		 */
 		$layout = U\CLI::question(
-			"\n" . 'What Package Layout will this have?' . "\n\n" .
+			"\n" . 'What Project Layout will this have?' . "\n\n" .
 
-			'Valid Package Layouts:' . "\n" .
+			'Valid Project Layouts:' . "\n" .
 			' - library (default; no compilation)' . "\n" .
 			' - distro-lib (for release; compiles to distro zip)' . "\n" .
 			' - wp-plugin (for release; compiles as a WordPress plugin)' . "\n" .
 			' - wp-theme (for release; compiles as a WordPress theme)' . "\n\n" .
 
-			'Package Layout:' . "\n" .
+			'Project Layout:' . "\n" .
 			'e.g., library' . "\n\n" .
 
-			'Package Layouts are a Clever Canyon compilation feature.' . "\n" .
-			'If you’re creating a typical library for use in other packages, just use `library`.' . "\n" .
+			'Project Layouts are a Clever Canyon compilation feature.' . "\n" .
+			'If you’re creating a typical library for use in other projects, just use `library`.' . "\n" .
 			'You can always change this later by editing your `composer.json` file.' . "\n\n" .
 
-			'Package Layout: ',
+			'Project Layout: ',
 			true, // Require answer.
 			function ( string $answer ) : bool {
 				return U\Str::is_slug( $answer )
@@ -379,7 +398,9 @@ final class Skeleton extends U\A6t\CLI_Tool {
 
 			'pkg_name'       => $pkg_name,
 			'namespace_crux' => $namespace_crux,
-			'name'           => $name,
+
+			'name'        => $name,
+			'description' => $description,
 
 			'slug'           => $slug,
 			'unbranded_slug' => $unbranded_slug,
@@ -401,7 +422,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		) ) {
 			U\CLI::exit_status( 1 );
 		}
-		return $data;
+		$this->data = $data;
 	}
 
 	/**
@@ -427,33 +448,39 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		if ( U\Fs::exists( $to_dir ) ) {
 			throw new U\Fatal_Exception( 'New project directory already exists: `' . $to_dir . '`.' );
 		}
-		if ( ! U\Fs::copy( $from_dir, $to_dir ) ) {
+		if ( ! U\Fs::copy( $from_dir, $to_dir, [ U\Fs::typically_ignore_regexp_lookahead( 'positive' ), '/^\._x$/ui' ] ) ) {
 			throw new U\Fatal_Exception( 'Failed to copy: `' . $from_dir . '` → `' . $to_dir . '`.' );
 		}
 		// OK. Let's begin updating.
-
-		U\CLI::exit_status( 0 ); // Dry run.
 
 		foreach ( U\Dir::iterator( $to_dir, '.+\.php$' ) as $_php_file ) {
 			if ( $_php_file->isFile() ) {
 				$this->update_php_file( $_php_file->getPathname() );
 			}
 		}
-		foreach ( U\Dir::iterator( $to_dir, '(?:^|\/)composer.json$' ) as $_composer_json_file ) {
+		foreach ( U\Dir::iterator( $to_dir, '(?:.+\/)?composer.json$' ) as $_composer_json_file ) {
 			if ( $_composer_json_file->isFile() ) {
 				$this->update_composer_json_file( $_composer_json_file->getPathname() );
 			}
 		}
+		foreach ( U\Dir::iterator( $to_dir, '(?:(?:.+\/)?(?:readme\.(?:md|txt|html))|trunk\/(?:plugin|theme)\.php)$' ) as $_readme_file ) {
+			if ( $_readme_file->isFile() ) {
+				$this->update_readme_or_docblock_file( $_readme_file->getPathname() );
+			}
+		}
+		U\CLI::run( [ 'composer', 'install' ], $to_dir );
 	}
 
 	/**
 	 * Updates a PHP file.
 	 *
-	 * @since 2022-02-23
+	 * @since        2022-02-23
 	 *
 	 * @param string $file File path.
 	 *
 	 * @throws U\Fatal_Exception If running with less than PHP v8.
+	 *
+	 * @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection
 	 */
 	protected function update_php_file( string $file ) : void {
 		static $is_lt_php8; // Memoize.
@@ -469,61 +496,33 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		$file_contents = U\File::read( $file );
 		$tokens        = token_get_all( $file_contents );
 
-		foreach ( $tokens as $_i => &$_this_token ) {
-			// Current token references.
-
-			if ( is_array( $_this_token ) ) {
-				$_this_token_type  = &$_this_token[ 0 ];
-				$_this_token_value = &$_this_token[ 1 ];
-			} else {
-				$_this_token_type  = &$_this_token;
-				$_this_token_value = &$_this_token;
-			}
-			// Previous token references.
-
-			if ( isset( $tokens[ $_i - 1 ] ) ) {
-				$_prev_token = &$tokens[ $_i - 1 ];
-
-				if ( is_array( $_prev_token ) ) {
-					$_prev_token_type  = &$_prev_token[ 0 ];
-					$_prev_token_value = &$_prev_token[ 1 ];
-				} else {
-					$_prev_token_type  = &$_prev_token;
-					$_prev_token_value = &$_prev_token;
+		$token_type  = function ( int $i ) use ( $tokens ) /* : string|int */ {
+			return U\Debug::token_type( $tokens, $i );
+		};
+		$token_value = function ( int $i, ?string $new_value = null ) use ( &$tokens ) : string {
+			return U\Debug::token_value( $tokens, $i, $new_value );
+		};
+		foreach ( array_keys( $tokens ) as $_i ) {
+			if ( T_NAME_QUALIFIED === $token_type( $_i ) ) {
+				if ( false !== mb_strpos( $token_value( $_i ), '\\Skeleton' ) ) {
+					$token_value( $_i, preg_replace( '/[^\\\]+\\\Skeleton[^\\\]*/u', $this->data->namespace_crux, $token_value( $_i ) ) );
 				}
-			} else {
-				unset( $_prev_token, $_prev_token_type, $_prev_token_value );
-				$_prev_token = $_prev_token_type = $_prev_token_value = '';
-			}
-			// Next token references.
-
-			if ( isset( $tokens[ $_i + 1 ] ) ) {
-				$_next_token = &$tokens[ $_i + 1 ];
-
-				if ( is_array( $_next_token ) ) {
-					$_next_token_type  = &$_next_token[ 0 ];
-					$_next_token_value = &$_next_token[ 1 ];
-				} else {
-					$_next_token_type  = &$_next_token;
-					$_next_token_value = &$_next_token;
+			} elseif ( T_NS_SEPARATOR === $token_type( $_i ) && T_STRING === $token_type( $_i - 1 ) && '{' === $token_type( $_i + 1 ) ) {
+				if ( $token_value( $_i - 1 ) && T_STRING === $token_type( $_i + 2 ) && $token_value( $_i + 2 ) ) {
+					if ( U\Str::begins_with( $token_value( $_i + 2 ), 'Skeleton' ) ) {
+						$token_value( $_i - 1, explode( '\\', $this->data->namespace_crux, 2 )[ 0 ] );
+						$token_value( $_i + 2, explode( '\\', $this->data->namespace_crux, 2 )[ 1 ] );
+					}
 				}
-			} else {
-				unset( $_next_token, $_next_token_type, $_next_token_value );
-				$_next_token = $_next_token_type = $_next_token_value = '';
-			}
-			// Token inspection & modification.
-
-			if ( T_NS_SEPARATOR === $_this_token_type ) {
-				if ( U\Str::begins_with( $_next_token_value, 'Skeleton' ) ) {
-					$_prev_token_value = explode( '\\', $this->data->namespace_crux, 2 )[ 0 ];
-					$_next_token_value = explode( '\\', $this->data->namespace_crux, 2 )[ 1 ];
+			} elseif ( T_NS_SEPARATOR === $token_type( $_i ) && T_STRING === $token_type( $_i - 1 ) && T_STRING === $token_type( $_i + 1 ) ) {
+				if ( $token_value( $_i - 1 ) && U\Str::begins_with( $token_value( $_i + 1 ), 'Skeleton' ) ) {
+					$token_value( $_i - 1, explode( '\\', $this->data->namespace_crux, 2 )[ 0 ] );
+					$token_value( $_i + 1, explode( '\\', $this->data->namespace_crux, 2 )[ 1 ] );
 				}
+			} elseif ( T_DOC_COMMENT === $token_type( $_i ) && false !== mb_strpos( $token_value( $_i ), 'Skeleton' ) ) {
+				$token_value( $_i, preg_replace( '/\b[^\\\]+\\\Skeleton[^\\\]*/u', $this->data->namespace_crux, $token_value( $_i ) ) );
 			}
 		}
-		unset( $_this_token, $_this_token_type, $_this_token_value ); // References.
-		unset( $_prev_token, $_prev_token_type, $_prev_token_value ); // References.
-		unset( $_next_token, $_next_token_type, $_next_token_value ); // References.
-
 		$modified_file_contents = ''; // Initialize.
 
 		foreach ( $tokens as $_token ) { // Modified file contents.
@@ -548,8 +547,8 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		if ( isset( $json->name ) ) {
 			$json->name = $this->data->pkg_name;
 		}
-		if ( isset( $json->autoload->extra->{U\Brand::get( '&', 'var' )}->{'&'}->project->data ) ) {
-			$_data                 = &$json->autoload->extra->{U\Brand::get( '&', 'var' )}->{'&'}->project->data;
+		if ( isset( $json->extra->{U\Brand::get( '&', 'var' )}->{'&'}->project->data ) ) {
+			$_data                 = &$json->extra->{U\Brand::get( '&', 'var' )}->{'&'}->project->data;
 			$_data->layout         = $this->data->layout;
 			$_data->namespace_crux = $this->data->namespace_crux;
 			$_data->name           = $this->data->name;
@@ -558,7 +557,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			if ( isset( $json->{$_autoload_prop}->{'psr-4'} ) && is_object( $json->{$_autoload_prop}->{'psr-4'} ) ) {
 				$_psr_4s = clone $json->{$_autoload_prop}->{'psr-4'};
 
-				foreach ( $_psr_4s as $_namespace_prefix => $_dir_path ) {
+				foreach ( $_psr_4s as $_namespace_prefix => $_dir_path_or_paths ) {
 					$_namespace_prefix_parts = explode( '\\', $_namespace_prefix );
 
 					foreach ( $_namespace_prefix_parts as $_i => $_namespace_prefix_part ) {
@@ -567,7 +566,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 							$_namespace_prefix_parts[ $_i ]     = explode( '\\', $this->data->namespace_crux, 2 )[ 1 ];
 
 							unset( $json->{$_autoload_prop}->{'psr-4'}->{$_namespace_prefix} );
-							$json->{$_autoload_prop}->{'psr-4'}[ implode( '\\', $_namespace_prefix_parts ) ] = $_dir_path;
+							$json->{$_autoload_prop}->{'psr-4'}->{implode( '\\', $_namespace_prefix_parts )} = $_dir_path_or_paths;
 							break; // Stop iterating parts for this prefix.
 						}
 					}
@@ -575,6 +574,26 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			}
 		}
 		U\File::write( $file, U\Str::json_encode( $json ) );
+	}
+
+	/**
+	 * Updates a readme or docblock file.
+	 *
+	 * @since 2022-02-23
+	 *
+	 * @param string $file File path.
+	 */
+	protected function update_readme_or_docblock_file( string $file ) : void {
+		$file_contents = U\File::read( $file );
+
+		$file_contents = preg_replace( '/\{\{name\s*\:.*?\}\}/uis', U\Str::esc_reg_brs( $this->data->name ), $file_contents );
+		$file_contents = preg_replace( '/\{\{description\s*\:.*?\}\}/uis', U\Str::esc_reg_brs( $this->data->description ), $file_contents );
+
+		$file_contents = preg_replace( '/^(\s*\*\s*Text\s*Domain\s*\:\s*).*\bskeleton\b.*$/uim', '${1}' . U\Str::esc_reg_brs( $this->data->slug ), $file_contents );
+		$file_contents = preg_replace( '/^(\s*\*\s*Description\s*\:\s*).*\bskeleton\b.*$/uim', '${1}' . U\Str::esc_reg_brs( $this->data->description ), $file_contents );
+		$file_contents = preg_replace( '/^(\s*\*\s*[a-z0-9_\-]+\s*URI\s*\:.*\/product\/)[^\v\/]*\bskeleton\b[^\v\/]*(\/update)?$/uim', '${1}' . U\Str::esc_reg_brs( $this->data->slug ) . '${2}', $file_contents );
+
+		U\File::write( $file, $file_contents );
 	}
 
 	/**
@@ -590,7 +609,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		$to_dir                            = $this->data->{'to:prepare_project_dir'};
 		$subpaths_with_skeleton_references = []; // Initialize.
 
-		foreach ( U\Dir::iterator( $to_dir, '(?:^|\/)(?:php|c?[tj]s|[tj]sx?|json5?|s?css|md|txt|html|xml)$' ) as $_textual_file ) {
+		foreach ( U\Dir::iterator( $to_dir, '.+\.(?:php|c?[tj]s|[tj]sx?|json5?|s?css|md|txt|html|xml)$' ) as $_textual_file ) {
 			if ( $_textual_file->isFile() && false !== mb_stripos( U\File::read( $_textual_file->getPathname() ), 'skeleton' ) ) {
 				$subpaths_with_skeleton_references[] = $_textual_file->getSubPathname();
 			}

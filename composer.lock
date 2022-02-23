@@ -844,12 +844,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/standards.git",
-                "reference": "5133cc98133879565086bfa3b8cf70e5078c7d58"
+                "reference": "1bb40216e2b68f86ec8684bf0cdc7c62515dbf04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/standards/zipball/5133cc98133879565086bfa3b8cf70e5078c7d58",
-                "reference": "5133cc98133879565086bfa3b8cf70e5078c7d58",
+                "url": "https://api.github.com/repos/clevercanyon/standards/zipball/1bb40216e2b68f86ec8684bf0cdc7c62515dbf04",
+                "reference": "1bb40216e2b68f86ec8684bf0cdc7c62515dbf04",
                 "shasum": ""
             },
             "require": {
@@ -877,7 +877,7 @@
                 "issues": "https://github.com/clevercanyon/standards/issues",
                 "source": "https://github.com/clevercanyon/standards/tree/main"
             },
-            "time": "2022-02-22T11:18:51+00:00"
+            "time": "2022-02-23T13:57:41+00:00"
         },
         {
             "name": "clevercanyon/utilities-dev",
@@ -885,12 +885,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/utilities-dev.git",
-                "reference": "9d202fa12e590b9fbdf730820edb9561ef0a29cb"
+                "reference": "bd9250777a1e00a745584aa0738e9a0a34163137"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/utilities-dev/zipball/9d202fa12e590b9fbdf730820edb9561ef0a29cb",
-                "reference": "9d202fa12e590b9fbdf730820edb9561ef0a29cb",
+                "url": "https://api.github.com/repos/clevercanyon/utilities-dev/zipball/bd9250777a1e00a745584aa0738e9a0a34163137",
+                "reference": "bd9250777a1e00a745584aa0738e9a0a34163137",
                 "shasum": ""
             },
             "require": {
@@ -902,6 +902,10 @@
                 "ext-intl": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
+                "ext-pcntl": "*",
+                "ext-pdo": "*",
+                "ext-posix": "*",
+                "ext-readline": "*",
                 "ext-session": "*",
                 "ext-zip": "*",
                 "nikic/php-parser": "^4.13",
@@ -934,7 +938,7 @@
                 "issues": "https://github.com/clevercanyon/utilities-dev/issues",
                 "source": "https://github.com/clevercanyon/utilities-dev/tree/main"
             },
-            "time": "2022-02-21T09:09:55+00:00"
+            "time": "2022-02-23T13:58:52+00:00"
         },
         {
             "name": "clevercanyon/utilities-dev-npm",
