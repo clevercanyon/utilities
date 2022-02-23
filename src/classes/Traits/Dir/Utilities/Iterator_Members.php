@@ -43,12 +43,12 @@ trait Iterator_Members {
 	 * @param string      $path            Directory to iterate.
 	 *
 	 * @param string|null $regexp          Regular expression to use as a filter.
-	 *                                     Default is everything except `.gitignore` items.
-	 *                                     Depends on use of {@see U\Fs::gitignore_regexp_lookahead()}.
+	 *                                     Default is everything except typically ignored paths.
+	 *                                     Depends on use of {@see U\Fs::typically_ignore_regexp_lookahead()}.
 	 *
 	 *                                     You can pass a complete regular expression, which must begin with `/`.
 	 *                                     Or, pass a regular expression fragment, which is anything that doesn't begin with `/`.
-	 *                                     Fragments are auto-expanded into `U\Fs::gitignore_regexp_lookahead( 'negative', [fragment] )`.
+	 *                                     Fragments are auto-expanded into `U\Fs::typically_ignore_regexp_lookahead( 'negative', [fragment] )`.
 	 *
 	 * @param bool        $follow_symlinks Default is `false`.
 	 *
@@ -58,14 +58,14 @@ trait Iterator_Members {
 	 * @throws U\Fatal_Exception If `$path` is not a readable/iterable directory.
 	 * @throws U\Fatal_Exception On failure to construct iterator.
 	 *
-	 * @see   U\Fs::gitignore_regexp_lookahead() — please review carefully.
+	 * @see   U\Fs::typically_ignore_regexp_lookahead() — review carefully.
 	 * @see   https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php
 	 */
 	public static function iterator( string $path, /* string|null */ ?string $regexp = null, bool $follow_symlinks = false ) : \Generator {
 		if ( isset( $regexp ) && '' !== $regexp && '/' !== $regexp[ 0 ] ) {
-			$regexp = U\Fs::gitignore_regexp_lookahead( 'negative', $regexp );
+			$regexp = U\Fs::typically_ignore_regexp_lookahead( 'negative', $regexp );
 		}
-		$regexp ??= U\Fs::gitignore_regexp_lookahead( 'negative' );
+		$regexp ??= U\Fs::typically_ignore_regexp_lookahead( 'negative' );
 
 		if ( ! $path || ! $regexp ) {
 			throw new U\Fatal_Exception( 'Missing required parameters.' );

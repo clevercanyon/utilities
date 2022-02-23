@@ -43,8 +43,11 @@ trait Zip_Members {
 	 * @param string      $from_path         Path to zip.
 	 * @param string      $to_path           Destination path.
 	 *
-	 * @param array       $ignore            Array of regex expressions to ignore; i.e., not add to zip.
-	 * @param array       $exceptions        Array of regex expressions to not ignore (i.e., exceptions to the ignore list).
+	 * @param array|null  $ignore            Array of regex expressions to ignore; i.e., not add to zip.
+	 *                                       Default is {@see U\Fs::typically_ignore_regexp_lookahead()}.
+	 *
+	 * @param array|null  $exceptions        Array of regex expressions to not ignore (i.e., exceptions to the ignore list).
+	 *                                       Default is `null`; i.e., resulting in no exceptions.
 	 *
 	 * @param string|null $base_path         Base path, which gets stripped prior to regex matching. Defaults to `$from_path`.
 	 *                                       Note: The resulting base subpaths you're matching will NOT begin with a leading `/`.
@@ -72,8 +75,8 @@ trait Zip_Members {
 	public static function zip_er(
 		string $from_path,
 		string $to_path,
-		array $ignore = [],
-		array $exceptions = [],
+		/* array|null */ ?array $ignore = null,
+		/* array|null */ ?array $exceptions = null,
 		/* string|null */ ?string $base_path = null,
 		bool $follow_symlinks = true,
 		array $to_path_dir_perms = [ 0700, 0700 ],
@@ -110,6 +113,16 @@ trait Zip_Members {
 			} );
 			// Initialize.
 			$_r->cycle_stack = [];
+		}
+		// Maybe set default ignores.
+
+		if ( ! $is_recursive && null === $ignore ) {
+			$ignore = [ U\Fs::typically_ignore_regexp_lookahead( 'positive' ) ];
+		}
+		// Maybe set default exceptions.
+
+		if ( ! $is_recursive && null === $exceptions ) {
+			$exceptions = []; // No exceptions.
 		}
 		// `$from_path` validation.
 

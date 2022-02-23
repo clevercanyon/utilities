@@ -47,7 +47,9 @@ final class Brand extends U\A6t\Stc_Utilities {
 	 */
 	public const BY_N7M = [
 		'c10n' => [
-			'n7m'       => 'c10n',
+			'org_n7m' => 'c10n',
+			'n7m'     => 'c10n',
+
 			'name'      => 'Clever Canyon',
 			'namespace' => 'Clever_Canyon',
 
@@ -58,7 +60,9 @@ final class Brand extends U\A6t\Stc_Utilities {
 			'var_prefix'  => 'clevercanyon_',
 		],
 		'w6e'  => [
-			'n7m'       => 'w6e',
+			'org_n7m' => 'c10n',
+			'n7m'     => 'w6e',
+
 			'name'      => 'WP Groove',
 			'namespace' => 'WP_Groove',
 
@@ -69,7 +73,9 @@ final class Brand extends U\A6t\Stc_Utilities {
 			'var_prefix'  => 'wpgroove_',
 		],
 		'h5y'  => [
-			'n7m'       => 'h5y',
+			'org_n7m' => 'c10n',
+			'n7m'     => 'h5y',
+
 			'name'      => 'Hostery',
 			'namespace' => 'Hostery',
 

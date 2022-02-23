@@ -91,7 +91,8 @@ trait N7M_Members {
 				$value = U\Brand::format_str_helper( $value, $format );
 			}
 		} else {
-			$value = (object) U\Brand::BY_N7M[ $n7m ];
+			$value      = (object) U\Brand::BY_N7M[ $n7m ];
+			$value->org = (object) U\Brand::BY_N7M[ $value->org_n7m ];
 		}
 		return $value;
 	}

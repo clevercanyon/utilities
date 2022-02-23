@@ -40,11 +40,13 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
+	use U\Traits\CLI\Utilities\Bash_Members;
 	use U\Traits\CLI\Utilities\Chalk_Members;
 	use U\Traits\CLI\Utilities\Exit_Status_Members;
 	use U\Traits\CLI\Utilities\Last_CMD_Members;
 	use U\Traits\CLI\Utilities\Output_Members;
 	use U\Traits\CLI\Utilities\Prepare_CMD_Members;
+	use U\Traits\CLI\Utilities\Readline_Members;
 	use U\Traits\CLI\Utilities\Run_Exec_Members;
 	use U\Traits\CLI\Utilities\Std_In_Out_Err_Members;
 }

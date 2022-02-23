@@ -143,7 +143,7 @@ final class Scoper extends U\A6t\CLI_Tool {
 			U\CLI::done( '[' . __METHOD__ . '()]: Scoping complete ✔.' );
 		} catch ( \Throwable $throwable ) {
 			U\CLI::error( $throwable->getMessage() );
-			U\CLI::error( $throwable->getTraceAsString() );
+			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
 	}
@@ -343,7 +343,10 @@ final class Scoper extends U\A6t\CLI_Tool {
 	 * @throws U\Fatal_Exception On any failure.
 	 */
 	protected function fix_comments_process_tokens( array $tokens ) : string {
-		if ( version_compare( PHP_VERSION, '8.0', '<' ) ) {
+		static $is_lt_php8; // Memoize.
+		$is_lt_php8 ??= version_compare( PHP_VERSION, '8.0', '<' );
+
+		if ( $is_lt_php8 ) {
 			throw new U\Fatal_Exception(
 				'PHP version 8.0+ is required for parsing tokens.' .
 				'The way whitespace is handled in tokens changed in PHP 8.0+.' .

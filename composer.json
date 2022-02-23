@@ -27,14 +27,15 @@
 		"league/commonmark" : "^2.2"
 	},
 	"suggest"           : {
-		"ext-pdo"             : "*",
 		"ext-fileinfo"        : "*",
 		"ext-intl"            : "*",
 		"ext-memcached"       : "*",
+		"ext-pcntl"           : "*",
+		"ext-pdo"             : "*",
 		"ext-posix"           : "*",
+		"ext-readline"        : "*",
 		"ext-session"         : "*",
 		"ext-zip"             : "*",
-		"ext-pcntl"           : "*",
 		"ulrichsg/getopt-php" : "^4.0"
 	},
 	"autoload"          : {
@@ -53,7 +54,7 @@
 		}
 	},
 	"scripts"           : {
-		"compile"          : "COMPOSER_DEV_MODE=1 ./dev/cli-tools/composer/compile",
+		"compile"          : "./dev/cli-tools/composer/compile",
 		"post-install-cmd" : "[ $COMPOSER_DEV_MODE -eq 0 ] || ./dev/cli-tools/composer/on-post-install-cmd",
 		"post-update-cmd"  : "[ $COMPOSER_DEV_MODE -eq 0 ] || ./dev/cli-tools/composer/on-post-update-cmd"
 	},

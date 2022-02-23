@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 /**
  * Clever Canyon™ {@see https://clevercanyon.com}
@@ -16,7 +17,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Fs;
+namespace Clever_Canyon\Utilities\Dev\CLI_Tools\Composer;
 
 /**
  * Utilities.
@@ -24,35 +25,43 @@ namespace Clever_Canyon\Utilities\Traits\Fs;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
+use Clever_Canyon\Utilities\Dev\{Utilities as D};
 
 // </editor-fold>
 
 /**
- * Utility members.
+ * CLI mode only.
  *
  * @since 2021-12-15
- *
- * @see   U\Fs
  */
-trait Members {
-	/**
-	 * Traits.
-	 *
-	 * @since 2021-12-15
-	 */
-	use U\Traits\Fs\Utilities\Abs_Members;
-	use U\Traits\Fs\Utilities\Copy_Members;
-	use U\Traits\Fs\Utilities\Delete_Members;
-	use U\Traits\Fs\Utilities\Exists_Members;
-	use U\Traits\Fs\Utilities\Git_Ignore_Members;
-	use U\Traits\Fs\Utilities\Make_Members;
-	use U\Traits\Fs\Utilities\Normalize_Members;
-	use U\Traits\Fs\Utilities\Path_Wrapper_Properties;
-	use U\Traits\Fs\Utilities\Perms_Members;
-	use U\Traits\Fs\Utilities\Realize_Members;
-	use U\Traits\Fs\Utilities\Stat_Members;
-	use U\Traits\Fs\Utilities\Type_Members;
-	use U\Traits\Fs\Utilities\Typically_Ignore_Members;
-	use U\Traits\Fs\Utilities\Wrapper_Members;
-	use U\Traits\Fs\Utilities\Zip_Members;
+if ( 'cli' !== PHP_SAPI ) {
+	exit( 1 ); // CLI mode only.
 }
+
+/**
+ * Requires dev utilities.
+ *
+ * @since 2021-12-15
+ */
+require_once dirname( __FILE__, 3 ) . '/utilities/load.php';
+
+/**
+ * Requires autoloader.
+ *
+ * @since 2021-12-15
+ */
+require_once D\Dir::join( D\CLI::project_dir(), '/vendor/autoload.php' );
+
+/**
+ * Sets debug mode.
+ *
+ * @since 2021-12-15
+ */
+U\Env::set_debug_mode();
+
+/**
+ * CLI tool instance.
+ *
+ * @since 2021-12-15
+ */
+new U\Dev\CLI_Tools\Composer\Skeleton();

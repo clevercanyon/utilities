@@ -36,19 +36,20 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Std_In_Out_Err_Members {
 	/**
-	 * Gets standard input.
+	 * Gets standard input lines.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param int $lines Defaults to `0` (no limit).
+	 * @param bool $blocking Blocking mode? Default is `false`.
+	 * @param int  $lines    Defaults to `0` (no limit).
 	 *
-	 * @return string X lines of stdin.
+	 * @return string N`$lines` lines of stdin.
 	 */
-	public static function stdin( int $lines = 0 ) : string {
+	public static function stdin_lines( bool $blocking = false, int $lines = 0 ) : string {
 		$stdin      = '';
 		$lines_read = 0;
 
-		stream_set_blocking( STDIN, false );
+		stream_set_blocking( STDIN, $blocking );
 
 		while ( false !== ( $_line = fgets( STDIN ) ) ) {
 			$stdin .= $_line;
@@ -62,17 +63,48 @@ trait Std_In_Out_Err_Members {
 	}
 
 	/**
+	 * Gets standard input bytes.
+	 *
+	 * Despite the name {@see fgetc()}, this gets bytes, not chars.
+	 * Bytes are fine. Would be nice if it were multibyte safe, though.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param bool $blocking Blocking mode? Default is `false`.
+	 * @param int  $bytes    Defaults to `0` (no limit).
+	 *
+	 * @return string N`$bytes` bytes of stdin.
+	 */
+	public static function stdin_bytes( bool $blocking = false, int $bytes = 0 ) : string {
+		$stdin      = '';
+		$bytes_read = 0;
+
+		stream_set_blocking( STDIN, $blocking );
+
+		while ( false !== ( $_byte = fgetc( STDIN ) ) ) {
+			$stdin .= $_byte;
+			$bytes_read++;
+
+			if ( $bytes && $bytes_read >= $bytes ) {
+				break;
+			}
+		}
+		return trim( $stdin );
+	}
+
+	/**
 	 * Sends standard output.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param mixed $data Output data.
+	 * @param mixed $data     Output data.
+	 * @param bool  $new_line Include `\n`? Default is `true`.
 	 */
-	public static function stdout( /* mixed */ $data ) : void {
+	public static function stdout( /* mixed */ $data, bool $new_line = true ) : void {
 		$string = U\Str::stringify( $data, true );
 
 		stream_set_blocking( STDOUT, true );
-		fwrite( STDOUT, $string . "\n" );
+		fwrite( STDOUT, $string . ( $new_line ? "\n" : '' ) );
 	}
 
 	/**
@@ -80,12 +112,13 @@ trait Std_In_Out_Err_Members {
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param mixed $data Output data.
+	 * @param mixed $data     Output data.
+	 * @param bool  $new_line Include `\n`? Default is `true`.
 	 */
-	public static function stderr( /* mixed */ $data ) : void {
+	public static function stderr( /* mixed */ $data, bool $new_line = true ) : void {
 		$string = U\Str::stringify( $data, true );
 
 		stream_set_blocking( STDERR, true );
-		fwrite( STDERR, $string . "\n" );
+		fwrite( STDERR, $string . ( $new_line ? "\n" : '' ) );
 	}
 }

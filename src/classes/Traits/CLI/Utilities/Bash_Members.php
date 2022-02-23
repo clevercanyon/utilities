@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Fs;
+namespace Clever_Canyon\Utilities\Traits\CLI\Utilities;
 
 /**
  * Utilities.
@@ -32,27 +32,27 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\Fs
+ * @see   U\CLI
  */
-trait Members {
+trait Bash_Members {
 	/**
-	 * Traits.
+	 * Locats `bash`.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-09
+	 *
+	 * @return string Path to `bash`; else empty string.
 	 */
-	use U\Traits\Fs\Utilities\Abs_Members;
-	use U\Traits\Fs\Utilities\Copy_Members;
-	use U\Traits\Fs\Utilities\Delete_Members;
-	use U\Traits\Fs\Utilities\Exists_Members;
-	use U\Traits\Fs\Utilities\Git_Ignore_Members;
-	use U\Traits\Fs\Utilities\Make_Members;
-	use U\Traits\Fs\Utilities\Normalize_Members;
-	use U\Traits\Fs\Utilities\Path_Wrapper_Properties;
-	use U\Traits\Fs\Utilities\Perms_Members;
-	use U\Traits\Fs\Utilities\Realize_Members;
-	use U\Traits\Fs\Utilities\Stat_Members;
-	use U\Traits\Fs\Utilities\Type_Members;
-	use U\Traits\Fs\Utilities\Typically_Ignore_Members;
-	use U\Traits\Fs\Utilities\Wrapper_Members;
-	use U\Traits\Fs\Utilities\Zip_Members;
+	public static function can_bash() : string {
+		static $bash; // Memoize.
+
+		if ( null !== $bash ) {
+			return $bash; // Saves time.
+		}
+		if ( is_executable( $_path = '/usr/local/bin/bash' ) ) {
+			return $bash = $_path;
+		} elseif ( is_executable( $_path = '/bin/bash' ) ) {
+			return $bash = $_path;
+		}
+		return $bash = '';
+	}
 }
