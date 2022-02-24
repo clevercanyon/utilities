@@ -282,6 +282,32 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		U\CLI::output( "\n" . 'Thanks!', 'blue' );
 
 		/*
+		 * Short namespace alias.
+		 */
+		$short_namespace_alias = U\CLI::question(
+			"\n" . 'You’ll also need a Short Namespace Alias.' . "\n\n" .
+
+			'Examples of Short Namespace Aliases:' . "\n" .
+			' - U (references Clever_Canyon\\Utilities)' . "\n" .
+			' - WPG (references WP_Groove\\Framework)' . "\n\n" .
+
+			'Short Namespace Alias must be given as:' . "\n" .
+			'e.g., [Alias] (first letter capitalized)' . "\n\n" .
+
+			'Note: The following are already consumed by dependencies:' . "\n" .
+			' D, S, U, UT, WPG, WPGT ... please choose something other than these.' . "\n\n" .
+
+			'Short Namespace Alias (3 chars max): ',
+			true, // Require answer.
+			function ( string $answer ) use ( $brand, $unbranded_slug ) : bool {
+				return preg_match( '/^[A-Z](?:(?:_[A-Z])?[a-zA-Z0-9]*)*$/u', $answer )
+					&& ! in_array( $answer, [ 'D', 'S', 'U', 'UT', 'WPG', 'WPGT' ], true )
+					&& mb_strlen( $answer ) <= 3;
+			}
+		);
+		U\CLI::output( "\n" . 'Thanks!', 'blue' );
+
+		/*
 		 * Project name.
 		 */
 		$name = U\CLI::question(
@@ -362,7 +388,8 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			' - library (default; no compilation)' . "\n" .
 			' - distro-lib (for release; compiles to distro zip)' . "\n" .
 			' - wp-plugin (for release; compiles as a WordPress plugin)' . "\n" .
-			' - wp-theme (for release; compiles as a WordPress theme)' . "\n\n" .
+			' - wp-theme (for release; compiles as a WordPress theme)' . "\n" .
+			' - website (potentially private; compiles as a website)' . "\n\n" .
 
 			'Project Layout:' . "\n" .
 			'e.g., library' . "\n\n" .
@@ -375,7 +402,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			true, // Require answer.
 			function ( string $answer ) : bool {
 				return U\Str::is_slug( $answer )
-					&& in_array( $answer, [ 'library', 'distro-lib', 'wp-plugin', 'wp-theme' ], true );
+					&& in_array( $answer, [ 'library', 'distro-lib', 'wp-plugin', 'wp-theme', 'website' ], true );
 			},
 			'library'
 		);
@@ -396,8 +423,9 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		$data = (object) [
 			'brand' => $brand,
 
-			'pkg_name'       => $pkg_name,
-			'namespace_crux' => $namespace_crux,
+			'pkg_name'              => $pkg_name,
+			'namespace_crux'        => $namespace_crux,
+			'short_namespace_alias' => $short_namespace_alias,
 
 			'name'        => $name,
 			'description' => $description,
@@ -506,12 +534,23 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			if ( T_NAME_QUALIFIED === $token_type( $_i ) ) {
 				if ( false !== mb_strpos( $token_value( $_i ), '\\Skeleton' ) ) {
 					$token_value( $_i, preg_replace( '/[^\\\]+\\\Skeleton[^\\\]*/u', $this->data->namespace_crux, $token_value( $_i ) ) );
+
+				} elseif ( 0 === mb_strpos( $token_value( $_i ), 'S\\' ) ) {
+					$token_value( $_i, preg_replace( '/^S\\\/u', $this->data->short_namespace_alias . '\\', $token_value( $_i ) ) );
 				}
 			} elseif ( T_NS_SEPARATOR === $token_type( $_i ) && T_STRING === $token_type( $_i - 1 ) && '{' === $token_type( $_i + 1 ) ) {
 				if ( $token_value( $_i - 1 ) && T_STRING === $token_type( $_i + 2 ) && $token_value( $_i + 2 ) ) {
 					if ( U\Str::begins_with( $token_value( $_i + 2 ), 'Skeleton' ) ) {
 						$token_value( $_i - 1, explode( '\\', $this->data->namespace_crux, 2 )[ 0 ] );
 						$token_value( $_i + 2, explode( '\\', $this->data->namespace_crux, 2 )[ 1 ] );
+						if (
+							T_WHITESPACE === $token_type( $_i + 3 )
+							&& T_AS === $token_type( $_i + 4 )
+							&& T_WHITESPACE === $token_type( $_i + 5 )
+							&& T_STRING === $token_type( $_i + 6 )
+						) {
+							$token_value( $_i + 6, $this->data->short_namespace_alias );
+						}
 					}
 				}
 			} elseif ( T_NS_SEPARATOR === $token_type( $_i ) && T_STRING === $token_type( $_i - 1 ) && T_STRING === $token_type( $_i + 1 ) ) {
