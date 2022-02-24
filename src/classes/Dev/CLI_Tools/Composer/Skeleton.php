@@ -389,6 +389,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			' - distro-lib (for release; compiles to distro zip)' . "\n" .
 			' - wp-plugin (for release; compiles as a WordPress plugin)' . "\n" .
 			' - wp-theme (for release; compiles as a WordPress theme)' . "\n" .
+			' - wp-website (potentially private; compiles as a WP website)' . "\n" .
 			' - website (potentially private; compiles as a website)' . "\n\n" .
 
 			'Project Layout:' . "\n" .
