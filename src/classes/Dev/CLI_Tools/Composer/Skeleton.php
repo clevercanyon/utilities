@@ -403,7 +403,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			true, // Require answer.
 			function ( string $answer ) : bool {
 				return U\Str::is_slug( $answer )
-					&& in_array( $answer, [ 'library', 'distro-lib', 'wp-plugin', 'wp-theme', 'website' ], true );
+					&& in_array( $answer, [ 'library', 'distro-lib', 'wp-plugin', 'wp-theme', 'wp-website', 'website' ], true );
 			},
 			'library'
 		);
