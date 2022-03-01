@@ -328,4 +328,22 @@ final class Env_Tests extends UT\A6t\Tests {
 	public function test_is_robotic_web_server_user() : void {
 		$this->assertSame( U\Env::is_wp_docker(), U\Env::is_robotic_web_server_user(), $this->message() );
 	}
+
+	/**
+	 * @covers ::is_hostery()
+	 */
+	public function test_is_hostery() : void {
+		$this->assertSame( false, U\Env::is_hostery(), $this->message() );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @covers ::is_hostery()
+	 */
+	public function test_is_hostery_yes() : void {
+		putenv( 'HOSTERY=cpanel' ); // phpcs:ignore.
+		$this->assertSame( true, U\Env::is_hostery(), $this->message() );
+		$this->assertSame( true, U\Env::is_hostery( 'cpanel' ), $this->message() );
+		$this->assertSame( false, U\Env::is_hostery( 'digitalocean' ), $this->message() );
+	}
 }

@@ -359,12 +359,10 @@ final class WP extends U\A6t\CLI_Tool {
 			if ( 'php' === $short_alias ) {
 				$work_dir_args = [ '--workdir', '/var/www/html' ];
 			}
-			$cmd_args = preg_split( '/\s+/u', $cmd_args ?: '', -1, PREG_SPLIT_NO_EMPTY );
-			$cmd_args = array_map( [ U\Str::class, 'unquote' ], $cmd_args );
 			$cmd_args = [
 				[ 'docker', 'exec' ],
-				[ $user_args, $work_dir_args ],
-				[ $container_args, $cmd_args ],
+				[ $user_args, $work_dir_args, $container_args ],
+				[ $cmd_args ? [ 'bash', '-c', $cmd_args ] : [] ],
 			];
 			if ( $this->get_option( 'prepare-cmd' ) ) {
 				exit( 'CMD:' . U\CLI::prepare_cmd( $cmd_args, $this->project->dir ) ); // phpcs:ignore.
