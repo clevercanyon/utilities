@@ -497,7 +497,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 				$this->update_readme_or_docblock_file( $_readme_file->getPathname() );
 			}
 		}
-		U\CLI::run( [ 'composer', 'install' ], $to_dir );
+		U\CLI::run( [ 'composer', 'install', '--no-interaction' ], $to_dir );
 	}
 
 	/**

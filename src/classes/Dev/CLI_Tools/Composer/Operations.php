@@ -361,7 +361,7 @@ abstract class Operations extends U\A6t\CLI_Tool {
 		// The autoloader is optimized here, as we are compiling for production.
 
 		U\CLI::run( [
-			[ 'composer', 'install' ],
+			[ 'composer', 'install', '--no-interaction' ],
 			[ '--profile', '--no-dev', '--no-scripts', '--no-plugins' ],
 			[ '--optimize-autoloader', '--classmap-authoritative' ],
 		], $comp_dir );
@@ -475,7 +475,7 @@ abstract class Operations extends U\A6t\CLI_Tool {
 			);
 		}
 		U\CLI::run( [
-			[ 'composer', 'install' ],
+			[ 'composer', 'install', '--no-interaction' ],
 			[ '--profile', '--no-dev', '--no-scripts', '--no-plugins' ],
 			[ '--optimize-autoloader', '--classmap-authoritative' ],
 		], $comp_tests_dir );
