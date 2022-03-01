@@ -323,9 +323,9 @@ final class WP extends U\A6t\CLI_Tool {
 			$this->maybe_update_etc_hosts_file();
 			$this->maybe_print_container_info();
 
-			U\CLI::done( '[' . __METHOD__ . '()]: `docker compose up` complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: `docker compose up` complete ✔.' );
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -372,7 +372,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::exit_status( U\CLI::run( $cmd_args, $this->project->dir, false ) );
 			}
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -420,7 +420,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::run( $cmd_args, $this->project->dir, false );
 			}
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -454,7 +454,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::run( $cmd_args, $this->project->dir, false );
 			}
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -488,7 +488,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\CLI::run( $cmd_args, $this->project->dir, false );
 			}
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -511,7 +511,7 @@ final class WP extends U\A6t\CLI_Tool {
 			$this->maybe_print_container_info();
 
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -538,7 +538,7 @@ final class WP extends U\A6t\CLI_Tool {
 			], $this->project->dir, false );
 
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -566,7 +566,7 @@ final class WP extends U\A6t\CLI_Tool {
 			], $this->project->dir, false );
 
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -596,7 +596,7 @@ final class WP extends U\A6t\CLI_Tool {
 			], $this->project->dir, false );
 
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -624,9 +624,9 @@ final class WP extends U\A6t\CLI_Tool {
 				[ 'pause' ],
 			], $this->project->dir, false );
 
-			U\CLI::done( '[' . __METHOD__ . '()]: `docker compose pause` complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: `docker compose pause` complete ✔.' );
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -654,9 +654,9 @@ final class WP extends U\A6t\CLI_Tool {
 				[ 'unpause' ],
 			], $this->project->dir, false );
 
-			U\CLI::done( '[' . __METHOD__ . '()]: `docker compose unpause` complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: `docker compose unpause` complete ✔.' );
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -688,9 +688,9 @@ final class WP extends U\A6t\CLI_Tool {
 				[ 'down', '--volumes' ],
 			], $this->project->dir );
 
-			U\CLI::done( '[' . __METHOD__ . '()]: `docker compose down` complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: `docker compose down` complete ✔.' );
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}

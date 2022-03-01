@@ -201,4 +201,23 @@ trait Chalk_Members {
 		}
 		return "\033" . '[' . ( U\CLI::$bg_color_es_map[ $color ] ?? U\CLI::$bg_color_es_map[ 'none' ] ) . 'm';
 	}
+
+	/**
+	 * Current terminal using a dark background?
+	 *
+	 * @since 2022-03-01
+	 *
+	 * @return bool True if terminal is using a dark background, else `false`.
+	 *
+	 * @todo  This needs more work; {@see https://o5p.me/BAkbEq} for inspiration.
+	 */
+	protected static function is_on_dark_bg() : bool {
+		static $is; // Memoize.
+
+		if ( null !== $is ) {
+			return $is; // Saves time.
+		}
+		$env = U\Env::var( 'COLORFGBG' ); // {@see https://o5p.me/BAkbEq}.
+		return $is = ! $env || in_array( $env, [ '15;0', '15;default;0' ], true );
+	}
 }

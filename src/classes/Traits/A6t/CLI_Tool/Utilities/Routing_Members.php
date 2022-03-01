@@ -59,7 +59,7 @@ trait Routing_Members {
 			$this->maybe_process_help_request();
 			$this->maybe_process_version_request();
 
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::exit_status( 1 );
 		}
 		// Maybe handle help/version requests.
@@ -79,7 +79,7 @@ trait Routing_Members {
 			$process_command_request = $command ? $command->getHandler() : null;
 
 			if ( ! $command || ! is_callable( $process_command_request ) ) {
-				U\CLI::error( 'Please specify a valid command to run. You gave `' . ( $command_name ?: '?' ) . '`, which is not available.' );
+				U\CLI::danger_hilite( 'Please specify a valid command to run. You gave `' . ( $command_name ?: '?' ) . '`, which is not available.' );
 				U\CLI::output( $this->parser->getHelpText(), 'blue' );
 				U\CLI::exit_status( 1 );
 			}
@@ -87,11 +87,11 @@ trait Routing_Members {
 				$process_command_request();
 
 			} catch ( \Throwable $throwable ) {
-				U\CLI::error( $throwable->getMessage() );
+				U\CLI::danger_hilite( $throwable->getMessage() );
 				U\CLI::exit_status( 1 );
 			}
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( 'Unexpected error running `' . ( ! empty( $command_name ) ? $command_name : '?' ) . '` command. Please try again.' );
+			U\CLI::danger_hilite( 'Unexpected error running `' . ( ! empty( $command_name ) ? $command_name : '?' ) . '` command. Please try again.' );
 			U\CLI::exit_status( 1 );
 		}
 	}

@@ -77,7 +77,7 @@ trait Validation_Members {
 					$_names = implode( ', ', $_names );
 
 					U\CLI::output( $this->parser->getHelpText(), 'blue' );
-					U\CLI::error( 'Missing required ' . $_names . ' option.' );
+					U\CLI::danger_hilite( 'Missing required ' . $_names . ' option.' );
 					U\CLI::exit_status( 1 );
 				}
 			}
@@ -89,7 +89,7 @@ trait Validation_Members {
 			foreach ( $_command_required_operands as $_operand_key => $_operand ) {
 				if ( in_array( $this->get_operand( $_operand_key ), [ null, 0, '', [] ], true ) ) {
 					U\CLI::output( $this->parser->getHelpText(), 'blue' );
-					U\CLI::error( 'Missing required `' . $_operand->getName() . '` operand.' );
+					U\CLI::danger_hilite( 'Missing required `' . $_operand->getName() . '` operand.' );
 					U\CLI::exit_status( 1 );
 				}
 			}

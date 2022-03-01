@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\HTTP;
+namespace Clever_Canyon\Utilities\Traits\Env\Utilities;
 
 /**
  * Utilities.
@@ -32,18 +32,27 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\HTTP
+ * @see   U\Env
  */
-trait Members {
+trait Is_Hostery_Members {
 	/**
-	 * Traits.
+	 * Is Hostery environment?
 	 *
-	 * @since 2021-12-15
+	 * @since 2021-12-18
+	 *
+	 * @param string|null $env Specific Hostery environment?
+	 *                         Default is `null` (any Hostery environment).
+	 *
+	 * @return bool True if Hostery environment.
 	 */
-	use U\Traits\HTTP\Utilities\Close_Session_Members;
-	use U\Traits\HTTP\Utilities\Config_Robots_Members;
-	use U\Traits\HTTP\Utilities\Disable_Caching_Members;
-	use U\Traits\HTTP\Utilities\Disable_Output_Compression_Members;
-	use U\Traits\HTTP\Utilities\Header_Members;
-	use U\Traits\HTTP\Utilities\Prep_For_Members;
+	public static function is_hostery( /* string|null */ ?string $env = null ) : bool {
+		static $is = []; // Memoize.
+		$env ??= 'any';
+
+		if ( isset( $is[ $env ] ) ) {
+			return $is[ $env ]; // Saves time.
+		}
+		$hostery = U\Env::var( 'HOSTERY' );
+		return $is[ $env ] = $hostery && ( 'any' === $env || $env === $hostery );
+	}
 }

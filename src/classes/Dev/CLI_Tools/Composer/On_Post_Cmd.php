@@ -138,9 +138,9 @@ final class On_Post_Cmd extends Operations {
 
 			$this->maybe_symlink_local_repos();
 
-			U\CLI::done( '[' . __METHOD__ . '()]: Symlinking complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: Symlinking complete ✔.' );
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -164,9 +164,9 @@ final class On_Post_Cmd extends Operations {
 			$this->maybe_setup_dotfiles();
 			$this->maybe_run_npm_install();
 
-			U\CLI::done( '[' . __METHOD__ . '()]: Install complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: Install complete ✔.' );
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -190,9 +190,9 @@ final class On_Post_Cmd extends Operations {
 			$this->maybe_setup_dotfiles();
 			$this->maybe_run_npm_update();
 
-			U\CLI::done( '[' . __METHOD__ . '()]: Update complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: Update complete ✔.' );
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}

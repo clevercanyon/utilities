@@ -114,14 +114,14 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			$this->gather_user_input();
 			$this->prepare_project();
 
-			U\CLI::done( '[' . __METHOD__ . '()]: Preparation complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: Preparation complete ✔.' );
 
 			if ( $remaining_references = $this->check_skeleton_references_in_textual_files() ) {
 				U\CLI::heading( 'The word `skeleton` still appears in the following files, however. Please review.' );
 				U\CLI::log( $remaining_references );
 			}
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}

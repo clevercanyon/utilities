@@ -64,6 +64,7 @@ trait MIME_Types_Property {
 			'heic'         => 'image/heic',
 			'ico'          => 'image/x-icon',
 			'jpg|jpeg|jpe' => 'image/jpeg',
+			'pict'         => 'image/pict',
 			'png'          => 'image/png',
 			'psd'          => 'image/vnd.adobe.photoshop',
 			'pspimage'     => 'image/vnd.corel.psp',
@@ -80,6 +81,7 @@ trait MIME_Types_Property {
 			'mka'         => 'audio/x-matroska',
 			'mp3|m4a|m4b' => 'audio/mpeg',
 			'ogg|oga'     => 'audio/ogg',
+			'pls'         => 'audio/x-scpls',
 			'ra|ram'      => 'audio/x-realaudio',
 			'wav'         => 'audio/wav',
 			'wax'         => 'audio/x-ms-wax',
@@ -116,9 +118,9 @@ trait MIME_Types_Property {
 		// PHP formats.
 
 		'PHP' => [
-			'php'        => 'text/html',
-			'phar'       => 'application/php-archive',
-			'phps|x-php' => 'application/x-php-source',
+			'web|php|phtml' => 'text/html',
+			'phar'          => 'application/php-archive',
+			'phps'          => 'application/x-php-source',
 		],
 		// HTML formats.
 
@@ -156,19 +158,19 @@ trait MIME_Types_Property {
 		// JavaScript formats.
 
 		'JavaScript' => [
-			'js|cjs|jsx|ts|tjs|tsx' => 'application/javascript',
+			'js|ejs|cjs|jsx|ts|tjs|tsx' => 'application/javascript',
 		],
 		// Misc. code formats.
 
 		'Code' => [
-			'asp|aspx'    => 'text/html',
-			'bat'         => 'application/octet-stream',
-			'cgi|pl'      => 'text/html',
-			'class'       => 'application/java',
-			'hta'         => 'application/hta',
-			'htc'         => 'text/x-component',
-			'sh|bash|zsh' => 'application/octet-stream',
-			'sql|sqlite'  => 'text/plain',
+			'asp|aspx'            => 'text/html',
+			'bat'                 => 'application/octet-stream',
+			'cgi|pl|plx|ppl|perl' => 'text/html',
+			'class'               => 'application/java',
+			'hta'                 => 'application/hta',
+			'htc'                 => 'text/x-component',
+			'sh|bash|zsh'         => 'application/octet-stream',
+			'sql|sqlite'          => 'text/plain',
 		],
 		// Delimited file formats.
 
@@ -184,8 +186,8 @@ trait MIME_Types_Property {
 		// Misc. config file formats.
 
 		'Configuration' => [
-			'htaccess|htaccess-apache|htpasswd' => 'text/plain',
-			'ini|cfg|conf'                      => 'text/plain',
+			'htaccess|htpasswd' => 'text/plain',
+			'ini|cfg|conf'      => 'text/plain',
 		],
 		// Translation file formats.
 
@@ -236,10 +238,16 @@ trait MIME_Types_Property {
 			'dll'     => 'application/octet-stream',
 			'exe'     => 'application/x-msdownload',
 			'so'      => 'application/octet-stream',
-			'fla'     => 'application/vnd.adobe.flash',
-			'swf'     => 'application/x-shockwave-flash',
 			'blend'   => 'application/x-blender',
 		],
+		// Proprietary Adobe formats.
+
+		'Adobe' => [
+			'ps'  => 'application/postscript',
+			'fla' => 'application/vnd.adobe.flash',
+			'swf' => 'application/x-shockwave-flash',
+		],
+
 		// Proprietary: MS Office formats.
 
 		'MS Office' => [

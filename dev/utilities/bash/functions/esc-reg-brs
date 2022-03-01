@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Escapes regexp back-references in a replacement string.
+
+function esc-reg-brs() {
+  local str="${1:-}";
+
+  str="${str//@/\\@}";
+  str="${str//$/\\$}";
+  str="${str//\//\\/}";
+
+  echo "${str}";
+};

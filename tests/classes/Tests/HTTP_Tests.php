@@ -86,14 +86,14 @@ final class HTTP_Tests extends UT\A6t\Tests {
 
 	/**
 	 * @runInSeparateProcess
-	 * @covers ::disable_gzip()
+	 * @covers ::disable_output_compression()
 	 *
 	 * Runs in separate process to avoid headers having already been sent by PHPUnit.
 	 * Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
 	 */
-	public function test_disable_gzip() : void {
+	public function test_disable_output_compression() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
-		$this->assertSame( true, U\HTTP::disable_gzip(), $this->message() );
+		$this->assertSame( true, U\HTTP::disable_output_compression(), $this->message() );
 		$this->assertSame( true, 'off' === ini_get( 'zlib.output_compression' ), $this->message() );
 	}
 

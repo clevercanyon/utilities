@@ -43,12 +43,12 @@ trait Prep_For_Members {
 	 * @return bool True if everything prepped successfully.
 	 */
 	public static function prep_for_special_output() : bool {
-		$closed_session         = U\HTTP::close_session();
-		$disabled_gzip          = U\HTTP::disable_gzip();
-		$ended_output_buffering = U\Env::end_output_buffering();
+		$closed_session              = U\HTTP::close_session();
+		$disabled_output_compression = U\HTTP::disable_output_compression();
+		$ended_output_buffering      = U\Env::end_output_buffering();
 
 		return $closed_session
-			&& $disabled_gzip
+			&& $disabled_output_compression
 			&& $ended_output_buffering;
 	}
 
@@ -60,18 +60,18 @@ trait Prep_For_Members {
 	 * @return bool True if everything prepped successfully.
 	 */
 	public static function prep_for_file_download() : bool {
-		$set_time_limit         = U\Env::set_time_limit( 900 );
-		$disabled_caching       = U\HTTP::disable_caching();
-		$closed_session         = U\HTTP::close_session();
-		$disabled_gzip          = U\HTTP::disable_gzip();
-		$disabled_robots        = U\HTTP::disable_robots();
-		$ended_output_buffering = U\Env::end_output_buffering();
+		$set_time_limit              = U\Env::set_time_limit( 900 );
+		$closed_session              = U\HTTP::close_session();
+		$disabled_caching            = U\HTTP::disable_caching();           // Before disabling output compression.
+		$disabled_robots             = U\HTTP::disable_robots();
+		$disabled_output_compression = U\HTTP::disable_output_compression();
+		$ended_output_buffering      = U\Env::end_output_buffering();
 
 		return $set_time_limit
-			&& $disabled_caching
 			&& $closed_session
-			&& $disabled_gzip
+			&& $disabled_caching
 			&& $disabled_robots
+			&& $disabled_output_compression
 			&& $ended_output_buffering;
 	}
 }

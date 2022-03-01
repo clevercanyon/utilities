@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+function filemtime() {
+	local file="${1:-}";
+	stat -c '%Y' "${file}";
+}

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+function preg-replace-line-in-file() {
+	local regexp="${1:-}";
+	local replace="${2:-}";
+	local file="${3:-}";
+
+	perl -i -wpe 's/'"${regexp}"'/'"$(esc-reg-brs "${replace}")"'/ug' "${file}";
+};
+function preg-ireplace-line-in-file() {
+	local regexp="${1:-}";
+	local replace="${2:-}";
+	local file="${3:-}";
+
+	perl -i -wpe 's/'"${regexp}"'/'"$(esc-reg-brs "${replace}")"'/ugi' "${file}";
+};

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\HTTP;
+namespace Clever_Canyon\Utilities\Traits\HTTP\Utilities;
 
 /**
  * Utilities.
@@ -34,16 +34,30 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\HTTP
  */
-trait Members {
+trait Header_Members {
 	/**
-	 * Traits.
+	 * Gets the value of a header; if it's been set already.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param string $header Name of header to check.
+	 *
+	 * @return string|null String value if header set already; else `null`.
+	 *                     It is possible for this to return an empty string, but still be `true`.
+	 *                     Use `! is_null()` to test for a true return value from this function.
 	 */
-	use U\Traits\HTTP\Utilities\Close_Session_Members;
-	use U\Traits\HTTP\Utilities\Config_Robots_Members;
-	use U\Traits\HTTP\Utilities\Disable_Caching_Members;
-	use U\Traits\HTTP\Utilities\Disable_Output_Compression_Members;
-	use U\Traits\HTTP\Utilities\Header_Members;
-	use U\Traits\HTTP\Utilities\Prep_For_Members;
+	public static function already_set_header( string $header ) /* : string|null */ : ?string {
+		$header = trim( mb_strtolower( $header ), U\Str::TRIM_CHARS . ':' );
+
+		foreach ( headers_list() as $_header ) {
+			$_header_parts = explode( ':', $_header, 2 );
+			$_header_name  = trim( mb_strtolower( $_header_parts[ 0 ] ) );
+			$_header_value = trim( $_header_parts[ 1 ] ?? '' );
+
+			if ( $_header_name === $header ) {
+				return $_header_value;
+			}
+		}
+		return null;
+	}
 }

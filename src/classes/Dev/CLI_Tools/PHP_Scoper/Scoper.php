@@ -140,9 +140,9 @@ final class Scoper extends U\A6t\CLI_Tool {
 			// Disabling for now. PHP Scoper is already working to improve formatting, which isn't terrible as-is.
 			$this->fix_autoloader();
 
-			U\CLI::done( '[' . __METHOD__ . '()]: Scoping complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: Scoping complete ✔.' );
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}

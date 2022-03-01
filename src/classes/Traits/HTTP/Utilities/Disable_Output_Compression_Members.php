@@ -34,16 +34,28 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\HTTP
  */
-trait Disable_GZIP_Members {
+trait Disable_Output_Compression_Members {
 	/**
-	 * Disables GZIP compression.
+	 * Disables output compression.
 	 *
-	 * You may need to set `content-encoding`, `transfer-encoding`, or `content-transfer-encoding`
-	 * headers after calling this method. They are all forced to default values here.
+	 * You may need to set `transfer-encoding` or `content-transfer-encoding`
+	 * headers after calling this method. They are forced to default values here.
+	 *
+	 * Recommend setting `cache-control` headers before calling on this function.
+	 * If you do, it will add the `no-transform` piece for you, which covers CDNs like Cloudflare.
+	 * If you don't, then be sure to do that yourself whenever you set `cache-control` headers.
+	 *
+	 * Note that {@apache_setenv()} is only possible with `mod_php` and there is no equivalent for
+	 * Apache otherwise, or for LiteSpeed, or Nginx either. A workaround for Apache (outside of `mod_php`)
+	 * is to set `content-encoding: none`; {@see https://o5p.me/NInqKw}.
+	 *
+	 * For LiteSpeed and Nginx we can disable output compression at the server level by setting
+	 * `content-encoding: identity`, which is an RFC standard that means no compression explicitly.
+	 * {@see https://o5p.me/sJbl15} for further details. I've confirmed working on LiteSpeed.
 	 *
 	 * @since        2021-12-15
 	 *
-	 * @return bool True if GZIP disabled successfully.
+	 * @return bool True if output compression disabled successfully.
 	 *
 	 * @see          https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
 	 * @see          https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding
@@ -56,12 +68,21 @@ trait Disable_GZIP_Members {
 	 *
 	 * @noinspection PhpUndefinedFunctionInspection
 	 */
-	public static function disable_gzip() : bool {
+	public static function disable_output_compression() : bool {
 		if ( $set_headers = ! headers_sent() ) {
-			header( 'content-encoding: none' );
+			if ( U\Env::is_apache() ) {
+				header( 'content-encoding: none' );
+			} else { // Nginx, LiteSpeed, others.
+				header( 'content-encoding: identity' );
+			}
 			header( 'transfer-encoding: binary' );
 			header( 'content-transfer-encoding: binary' );
 
+			if ( ! $cache_control = U\HTTP::already_set_header( 'cache-control' ) ) {
+				header( 'cache-control: no-transform' );
+			} elseif ( false === mb_stripos( $cache_control, 'no-transform' ) ) {
+				header( 'cache-control: ' . $cache_control . ', no-transform' );
+			}
 			// Also requires headers not be sent yet; else throws warning.
 			$zlib_output_compression_off = U\Env::can_use_function( 'ini_set' )
 				&& false !== ini_set( 'zlib.output_compression', 'off' ); // phpcs:ignore.
@@ -69,15 +90,18 @@ trait Disable_GZIP_Members {
 			$zlib_output_compression_off = false; // Not possible.
 		}
 		if ( U\Env::is_apache() && U\Env::can_use_function( 'apache_setenv' ) ) {
-			$apache_setenv_no_gzip = apache_setenv( 'no-gzip', '1' ); // phpcs:ignore.
+			$apache_setenv_no_gzip   = apache_setenv( 'no-gzip', '1' );   // phpcs:ignore.
+			$apache_setenv_no_brotli = apache_setenv( 'no-brotli', '1' ); // phpcs:ignore.
 		} else {
-			$apache_setenv_no_gzip = null; // Not applicable.
+			$apache_setenv_no_gzip   = null; // Not applicable.
+			$apache_setenv_no_brotli = null; // Not applicable.
 		}
-		$set_static_var = null !== U\Env::static_var( 'HTTP_GZIP', false );
+		$set_static_var = null !== U\Env::static_var( 'HTTP_COMPRESS', false );
 
 		return $set_headers
 			&& $zlib_output_compression_off
 			&& false !== $apache_setenv_no_gzip
+			&& false !== $apache_setenv_no_brotli
 			&& $set_static_var;
 	}
 }

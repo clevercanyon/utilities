@@ -121,9 +121,9 @@ final class Compiler extends Operations {
 
 			$this->maybe_symlink_local_repos();
 
-			U\CLI::done( '[' . __METHOD__ . '()]: Symlinking complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: Symlinking complete ✔.' );
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}
@@ -152,9 +152,9 @@ final class Compiler extends Operations {
 			$this->maybe_compile_distro_lib_zip();
 			$this->maybe_s3_upload_distro_lib_zip();
 
-			U\CLI::done( '[' . __METHOD__ . '()]: Compilation complete ✔.' );
+			U\CLI::success( '[' . __METHOD__ . '()]: Compilation complete ✔.' );
 		} catch ( \Throwable $throwable ) {
-			U\CLI::error( $throwable->getMessage() );
+			U\CLI::danger_hilite( $throwable->getMessage() );
 			U\CLI::log( $throwable->getTraceAsString() );
 			U\CLI::exit_status( 1 );
 		}

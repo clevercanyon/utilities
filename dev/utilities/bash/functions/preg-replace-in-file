@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# Regarding `-0`; {@see https://unix.stackexchange.com/a/555955/259383}.
+# It causes the search/replace to occur throughout the entire file contents.
+# Without `-0` it would be searching on a line-by-line basis.
+
+function preg-replace-in-file() {
+	local regexp="${1:-}";
+	local replace="${2:-}";
+	local file="${3:-}";
+
+	perl -i -0wpe 's/'"${regexp}"'/'"$(esc-reg-brs "${replace}")"'/ug' "${file}";
+};
+function preg-ireplace-in-file() {
+	local regexp="${1:-}";
+	local replace="${2:-}";
+	local file="${3:-}";
+
+	perl -i -0wpe 's/'"${regexp}"'/'"$(esc-reg-brs "${replace}")"'/uig' "${file}";
+};

@@ -36,6 +36,49 @@ use Clever_Canyon\{Utilities as U};
  */
 trait MIME_Type_Members {
 	/**
+	 * Gets all static file extensions.
+	 *
+	 * @since 2022-02-26
+	 *
+	 * @return array Static file extensions.
+	 */
+	public static function static_exts() : array {
+		static $exts; // Memoize.
+
+		if ( null !== $exts ) {
+			return $exts; // Saves time.
+		}
+		$exts = []; // Initialize.
+
+		foreach ( U\File::$mime_types as $_mime_types ) {
+			foreach ( $_mime_types as $_exts => $_mime_type ) {
+				$exts = array_merge( $exts, explode( '|', $_exts ) );
+			}
+		}
+		$exts = array_unique( $exts );
+		$exts = array_diff( $exts, [
+			'web',
+			'php',
+			'phtml',
+			'shtml',
+			'shtm',
+			'asp',
+			'aspx',
+			'pl',
+			'plx',
+			'cgi',
+			'ppl',
+			'perl',
+		] );
+		foreach ( $exts as $_i => $_ext ) {
+			if ( preg_match( '/^(?:web|php|[ps]?html?|aspx?|plx?|cgi|ppl|perl)(?:[.~_\-]*[0-9]+)$/u', $_ext ) ) {
+				unset( $_ext[ $_i ] ); // Version suffix.
+			}
+		}
+		return $exts = U\Arr::sort_by( 'value', $exts );
+	}
+
+	/**
 	 * Gets a file's MIME type.
 	 *
 	 * @since 2022-01-19

@@ -94,7 +94,7 @@ trait Readline_Members {
 
 				if ( '' === $answer || ( $v8r && ! $v8r( $answer ) ) ) {
 					$answer = null; // Continue iterating.
-					U\CLI::error( 'Invalid. Please try again.' );
+					U\CLI::danger_hilite( 'Invalid. Please try again.' );
 				}
 			}
 			return $answer;
@@ -106,7 +106,7 @@ trait Readline_Members {
 
 				if ( '' !== $answer && ! $v8r( $answer ) ) {
 					$answer = null; // Continue iterating.
-					U\CLI::error( 'Invalid. Please try again.' );
+					U\CLI::danger_hilite( 'Invalid. Please try again.' );
 				}
 			}
 			return $answer;

@@ -45,18 +45,6 @@ trait Output_Members {
 	}
 
 	/**
-	 * Outputs a heading.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'magenta', 'none', 'bright' ]`.
-	 */
-	public static function heading( /* mixed */ $data, /* string|array */ $style = [ 'magenta', 'none', 'bright' ] ) : void {
-		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
-	}
-
-	/**
 	 * Outputs something.
 	 *
 	 * @since 2021-12-15
@@ -69,38 +57,74 @@ trait Output_Members {
 	}
 
 	/**
+	 * Outputs a heading.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param mixed        $data  Output data.
+	 * @param string|array $style Chalk style. Default is `dynamic`.
+	 */
+	public static function heading( /* mixed */ $data, /* string|array */ $style = 'dynamic' ) : void {
+		if ( 'dynamic' === $style ) {
+			$style = U\CLI::is_on_dark_bg()
+				? [ '212', 'none', 'bright' ]
+				: [ '132', 'none', 'bright' ];
+		}
+		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
+	}
+
+	/**
 	 * Outputs a log entry.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'white', 'none', 'dim' ]`.
+	 * @param string|array $style Chalk style. Default is `dynamic`.
 	 */
-	public static function log( /* mixed */ $data, /* string|array */ $style = [ 'white', 'none', 'dim' ] ) : void {
+	public static function log( /* mixed */ $data, /* string|array */ $style = 'dynamic' ) : void {
+		if ( 'dynamic' === $style ) {
+			$style = U\CLI::is_on_dark_bg()
+				? [ '255', 'none', 'dim' ]
+				: [ '232', 'none', 'dim' ];
+		}
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
+	// Colorized output inspired by Bootstrap alerts: `info|warning|danger|success`.
+	// Hilite variants use a background instead, behind white text to grab extra attention.
+
+	// Note: `info` = blue, `warning` = orange, `danger` = red, `success` = green.
+	// {@see https://getbootstrap.com/docs/4.0/components/alerts/}.
+
 	/**
-	 * Outputs a done message.
+	 * Outputs some info.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'green' ]`.
+	 * @param string|array $style Chalk style. Default is `dynamic`.
 	 */
-	public static function done( /* mixed */ $data, /* string|array */ $style = [ 'green' ] ) : void {
+	public static function info( /* mixed */ $data, /* string|array */ $style = 'dynamic' ) : void {
+		if ( 'dynamic' === $style ) {
+			$style = U\CLI::is_on_dark_bg()
+				? [ '39', 'none', 'bright' ]
+				: [ '26', 'none', 'bright' ];
+		}
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
 	/**
-	 * Outputs a notice.
+	 * Outputs some info w/ background hilite.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'white', '26', 'bright' ]`.
+	 * @param string|array $style Chalk style. Default is `dynamic`.
 	 */
-	public static function notice( /* mixed */ $data, /* string|array */ $style = [ 'white', '26', 'bright' ] ) : void {
+	public static function info_hilite( /* mixed */ $data, /* string|array */ $style = 'dynamic' ) : void {
+		if ( 'dynamic' === $style ) {
+			$style = [ '255', '26', 'bright' ];
+		}
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
@@ -110,21 +134,61 @@ trait Output_Members {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'white', '130', 'bright' ]`.
+	 * @param string|array $style Chalk style. Default is `dynamic`.
 	 */
-	public static function warning( /* mixed */ $data, /* string|array */ $style = [ 'white', '130', 'bright' ] ) : void {
+	public static function warning( /* mixed */ $data, /* string|array */ $style = 'dynamic' ) : void {
+		if ( 'dynamic' === $style ) {
+			$style = U\CLI::is_on_dark_bg()
+				? [ '214', 'none', 'bright' ]
+				: [ '130', 'none', 'bright' ];
+		}
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
 	/**
-	 * Outputs an error.
+	 * Outputs a warning w/ background hilite.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'white', '124', 'bright' ]`.
+	 * @param string|array $style Chalk style. Default is `dynamic`.
 	 */
-	public static function error( /* mixed */ $data, /* string|array */ $style = [ 'white', '124', 'bright' ] ) : void {
+	public static function warning_hilite( /* mixed */ $data, /* string|array */ $style = 'dynamic' ) : void {
+		if ( 'dynamic' === $style ) {
+			$style = [ '255', '130', 'bright' ];
+		}
+		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
+	}
+
+	/**
+	 * Outputs a danger.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param mixed        $data  Output data.
+	 * @param string|array $style Chalk style. Default is `dynamic`.
+	 */
+	public static function danger( /* mixed */ $data, /* string|array */ $style = 'dynamic' ) : void {
+		if ( 'dynamic' === $style ) {
+			$style = U\CLI::is_on_dark_bg()
+				? [ '203', 'none', 'bright' ]
+				: [ '124', 'none', 'bright' ];
+		}
+		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
+	}
+
+	/**
+	 * Outputs a danger w/ background hilite.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param mixed        $data  Output data.
+	 * @param string|array $style Chalk style. Default is `dynamic`.
+	 */
+	public static function danger_hilite( /* mixed */ $data, /* string|array */ $style = 'dynamic' ) : void {
+		if ( 'dynamic' === $style ) {
+			$style = [ '255', '124', 'bright' ];
+		}
 		U\CLI::stderr( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 
@@ -134,9 +198,29 @@ trait Output_Members {
 	 * @since 2021-12-15
 	 *
 	 * @param mixed        $data  Output data.
-	 * @param string|array $style Chalk style. Default is `[ 'white', '28', 'bright' ]`.
+	 * @param string|array $style Chalk style. Default is `dynamic`.
 	 */
-	public static function success( /* mixed */ $data, /* string|array */ $style = [ 'white', '28', 'bright' ] ) : void {
+	public static function success( /* mixed */ $data, /* string|array */ $style = 'dynamic' ) : void {
+		if ( 'dynamic' === $style ) {
+			$style = U\CLI::is_on_dark_bg()
+				? [ '41', 'none', 'bright' ]
+				: [ '28', 'none', 'bright' ];
+		}
+		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
+	}
+
+	/**
+	 * Outputs a success w/ background hilite.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param mixed        $data  Output data.
+	 * @param string|array $style Chalk style. Default is `dynamic`.
+	 */
+	public static function success_hilite( /* mixed */ $data, /* string|array */ $style = 'dynamic' ) : void {
+		if ( 'dynamic' === $style ) {
+			$style = [ '255', '28', 'bright' ];
+		}
 		U\CLI::stdout( U\CLI::chalk( U\Str::stringify( $data, true ), $style ) );
 	}
 }
