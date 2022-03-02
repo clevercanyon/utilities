@@ -38,8 +38,9 @@ function stack-trace() {
 	local diagnostic_report='';
 	local exit_status_code="${1:-1}";
 
-	diagnostic_lines+=( '----------------------------------------------------------------------' );
+	echo "${@}";
 
+	diagnostic_lines+=( '----------------------------------------------------------------------' );
 	if [[ -n "${C10N_BASH_STACK_TRACE_SCRIPT_DESCRIPTION:-}" ]]; then
 		diagnostic_lines+=( "${C10N_BASH_STACK_TRACE_SCRIPT_DESCRIPTION}" );
 		diagnostic_lines+=( '----------------------------------------------------------------------' );

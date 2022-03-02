@@ -17,6 +17,6 @@
 # @output string Current UTC timestamp.
 # @return int `0` (true) on success.
 ##
-function time() {
+function current-time() {
 	date --utc +'%s';
 }
