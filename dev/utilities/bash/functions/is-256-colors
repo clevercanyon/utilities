@@ -10,16 +10,16 @@
 ##
 
 ##
-# Is PHPUnit test run?
+# Does terminal support 256 colors?
 #
 # @since 2022-02-28
 #
 # @output void No output.
-# @return int `0` (true) if is PHPUnit test run.
+# @return int `0` (true) if terminal supports 256 colors.
 ##
-function is-phpunit() {
-	if [[ -n "${IS_PHPUNIT:-}" ]]; then
-	    return 0; # True.
+function is-256-colors() {
+	if [[ "${TERM,,}" =~ 256[_\-]?color ]]; then
+		return 0;
 	else
 		return 1;
 	fi;

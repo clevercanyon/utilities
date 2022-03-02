@@ -122,7 +122,7 @@ trait Chalk_Members {
 	public static function chalk( /* mixed */ $data, /* string|array */ $chalk = 'none' ) : string {
 		assert( is_string( $chalk ) || is_array( $chalk ) );
 
-		if ( ! U\Env::is_cli_256c() ) {
+		if ( ! U\Env::is_cli_256_colors() ) {
 			return U\Str::stringify( $data, true );
 		}
 		$esc_sequences = [];

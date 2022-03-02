@@ -10,17 +10,14 @@
 ##
 
 ##
-# Is PHPUnit test run?
+# Can run a command?
 #
 # @since 2022-02-28
 #
-# @output void No output.
-# @return int `0` (true) if is PHPUnit test run.
+# @param string ${1} Command name.
+#
+# @return int `0` (true) if can run command name.
 ##
-function is-phpunit() {
-	if [[ -n "${IS_PHPUNIT:-}" ]]; then
-	    return 0; # True.
-	else
-		return 1;
-	fi;
-}
+function can-run() {
+  command -v "${1}" >/dev/null 2>&1;
+};

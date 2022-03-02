@@ -58,7 +58,7 @@ trait Is_CLI_Members {
 	 *
 	 * @return bool True if CLI w/ 256-color support.
 	 */
-	public static function is_cli_256c() : bool {
+	public static function is_cli_256_colors() : bool {
 		static $is; // Memoize.
 
 		if ( null !== $is ) {

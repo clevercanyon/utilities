@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+##
+# Clever Canyon™ {@see https://clevercanyon.com}
+#
+#  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
+# CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
+# CC      LL      EEEEE    VV   VV  EEEEE   RRRRRR     CC      AA   AA NN N NN  YYYYY  OO   OO NN N NN
+# CC      LL      EE        VV VV   EE      RR  RR     CC      AAAAAAA NN  NNN   YYY   OO   OO NN  NNN
+#  CCCCC  LLLLLLL EEEEEEE    VVV    EEEEEEE RR   RR     CCCCC  AA   AA NN   NN   YYY    OOOO0  NN   NN
+##
+
+##
+# Slack notifier.
+#
+# @since 2022-02-28
+#
+# @param string --text|${1}    Text message.
+#
+# @param string --emoji|${2}   Optional emoji. Default is `foxbot`.
+#                              This must exist in the Slack workspace.
+#
+# @param string --channel|${3} Optional channel ID. Default is `C035W9DQNN4` (clevercanyon/#alerts).
+#
+# @param string --token|${4}   Optional bot API token.
+#                              Default is `${C10N_SLACK_NOTIFY_TOKEN}` environment variable.
+#
+# @output void No output.
+# @return int `0` (true) on success.
+##
+function slack-notify() {
+	local text='';
+	local emoji='';
+	local channel='';
+	local token='';
+
+	eval set -- "$( getopt \
+		--long 'text:,token:,emoji:,channel:' \
+		--options 't:k:e:c:' \
+		-- "${0}" "${@}" \
+	)";
+	while [ "$#" -gt 0 ]; do local _o=${1}; shift;
+		case "${_o}" in
+			--)                      shift; break;;
+			-t | --text)    text="${1}";    shift;;
+			-e | --emoji)   emoji="${1}";   shift;;
+			-c | --channel) channel="${1}"; shift;;
+			-k | --token)   token="${1}";   shift;;
+		esac;
+	done;
+	if [[ -z "${text}" ]]; then text="${1:-}"; fi;
+	if [[ -z "${emoji}" ]]; then emoji="${2:-}"; fi;
+	if [[ -z "${channel}" ]]; then channel="${3:-}"; fi;
+	if [[ -z "${token}" ]]; then token="${4:-}"; fi;
+
+	if [[ -z "${emoji}" ]]; then emoji=foxbot; fi;
+	if [[ -z "${channel}" ]]; then channel=C035W9DQNN4; fi;
+	if [[ -z "${token}" ]]; then token="${C10N_SLACK_NOTIFY_TOKEN:-}"; fi;
+
+	if [[ -z "${text}" || -z "${emoji}" || -z "${channel}" || -z "${token}" ]]; then
+	    return 1; # Not possible.
+	fi;
+	if [[ "${emoji:0:1}" != : ]]; then
+		emoji=:"${emoji}":;
+	fi;
+	local json_data="$(cat <<-ooo
+		{
+			"channel"   : $(json-encode "${channel}"),
+			"icon_emoji": $(json-encode "${emoji}"),
+			"text"      : $(json-encode "${text}"),
+			"parse"     : "none",
+			"mrkdwn"    : true
+		}
+		ooo
+	)";
+	curl --silent --request POST \
+		--header 'authorization: bearer '"${token}" \
+		--header 'content-Type: application/json; charset=utf-8' \
+		--data "${json_data}" https://slack.com/api/chat.postMessage;
+};

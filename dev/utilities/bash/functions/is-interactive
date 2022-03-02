@@ -10,16 +10,16 @@
 ##
 
 ##
-# Is PHPUnit test run?
+# Is shell interactive?
 #
 # @since 2022-02-28
 #
 # @output void No output.
-# @return int `0` (true) if is PHPUnit test run.
+# @return int `0` (true) if shell is interactive.
 ##
-function is-phpunit() {
-	if [[ -n "${IS_PHPUNIT:-}" ]]; then
-	    return 0; # True.
+function is-interactive() {
+	if [[ "${-}" == *i* ]]; then
+		return 0;
 	else
 		return 1;
 	fi;
