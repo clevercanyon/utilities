@@ -32,13 +32,12 @@ set -o pipefail;
 ##
 function stack-trace() {
 	local last_command_status_code=$?;
+	local last_command="${BASH_COMMAND}";
 	set +o xtrace; # Don't trace the tracer.
 
 	local diagnostic_lines=();
 	local diagnostic_report='';
 	local exit_status_code="${1:-1}";
-
-	echo "${@}";
 
 	diagnostic_lines+=( '----------------------------------------------------------------------' );
 	if [[ -n "${C10N_BASH_STACK_TRACE_SCRIPT_DESCRIPTION:-}" ]]; then
@@ -46,7 +45,7 @@ function stack-trace() {
 		diagnostic_lines+=( '----------------------------------------------------------------------' );
 	fi;
 	diagnostic_lines+=( 'Error in '"${BASH_SOURCE[1]}"':'"${BASH_LINENO[0]}" );
-	diagnostic_lines+=( '`'"${BASH_COMMAND}"'` exited with status `'"${last_command_status_code}"'`.' );
+	diagnostic_lines+=( '`'"${last_command}"'` exited with status `'"${last_command_status_code}"'`.' );
 
 	if [[ ${#FUNCNAME[@]} -gt 2 ]]; then
 		diagnostic_lines+=( 'Stack Trace:' );
