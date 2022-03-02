@@ -10,22 +10,23 @@
 ##
 
 ##
-# Loads bash functions.
+# Loads utilities.
 #
 # @since 2022-02-28
 ##
+
 ___cwd="$(pwd)"; # Remember CWD.
-# Change directory for relative paths.
-cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1;
 
-. ./bash/partials/strict-mode;
-. ./bash/partials/shell-options;
+if ! cd "$(dirname "${BASH_SOURCE[0]}")"; then
+	echo -e "\e[38;5;255m\e[48;5;124m\e[1mFailed to CD into: ${BASH_SOURCE[0]}\e[0m\e[49m\e[39m";
+	exit 1; # Exit w/ error status.
+fi;
+. ./bash/partials/strict-mode.bash;
+. ./bash/partials/shell-options.bash;
 
-for ___file in ./bash/functions/**; do
-	# shellcheck source=bash/functions/**;
+for ___file in ./bash/functions/**.bash; do
+	# shellcheck source=bash/functions/**.bash;
 	[[ -f "${___file}" ]] && . "${___file}";
-done; unset ___file;
-
-# Move back to CWD.
-cd "${___cwd}" || exit 1; # Restore.
-unset ___cwd; # Housekeeping.
+done;
+cd "${___cwd}" || exit 1;    # Restore.
+unset ___cwd; unset ___file; # Housekeeping.

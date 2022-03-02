@@ -14,7 +14,7 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 . /wp-docker/host/project/dev/utilities/load.bash;
-. /wp-docker/host/project/dev/utilities/bash/partials/require-root;
+. /wp-docker/host/project/dev/utilities/bash/partials/require-root.bash;
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Define a few variables.
