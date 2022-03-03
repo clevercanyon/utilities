@@ -24,7 +24,8 @@
 		"php-64bit"         : "^7.4 || ^8.0 || ^8.1",
 		"ext-mbstring"      : "*",
 		"ext-json"          : "*",
-		"league/commonmark" : "^2.2"
+		"league/commonmark" : "^2.2",
+		"guzzlehttp/guzzle" : "^7.4.1"
 	},
 	"suggest"           : {
 		"ext-fileinfo"        : "*",

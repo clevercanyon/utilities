@@ -36,30 +36,47 @@ function stack-trace() {
 	set +o xtrace; # Don't trace the tracer.
 
 	local diagnostic_lines=();
+	local slack_diagnostic_lines=();
+
 	local diagnostic_report='';
+	local slack_diagnostic_report='';
+
 	local exit_status_code="${1:-1}";
 
-	diagnostic_lines+=( '----------------------------------------------------------------------' );
+	# Dividing lines are exactly 100 bytes in length.
+	diagnostic_lines+=( '----------------------------------------------------------------------------------------------------' );
 	if [[ -n "${C10N_BASH_STACK_TRACE_SCRIPT_DESCRIPTION:-}" ]]; then
-		diagnostic_lines+=( "${C10N_BASH_STACK_TRACE_SCRIPT_DESCRIPTION}" );
-		diagnostic_lines+=( '----------------------------------------------------------------------' );
+		diagnostic_lines+=(       "${C10N_BASH_STACK_TRACE_SCRIPT_DESCRIPTION}" );
+		diagnostic_lines+=(       '----------------------------------------------------------------------------------------------------' );
 	fi;
-	diagnostic_lines+=( 'Error in '"${BASH_SOURCE[1]}"':'"${BASH_LINENO[0]}" );
-	diagnostic_lines+=( '`'"${last_command}"'` exited with status `'"${last_command_status_code}"'`.' );
+	if [[ -n "${C10N_BASH_STACK_TRACE_SCRIPT_SLACK_DESCRIPTION:-}" ]]; then
+		slack_diagnostic_lines+=( "${C10N_BASH_STACK_TRACE_SCRIPT_SLACK_DESCRIPTION}" );
+		slack_diagnostic_lines+=( '----------------------------------------------------------------------------------------------------' );
+	fi;
+	diagnostic_lines+=(       'Error in '"${BASH_SOURCE[1]}"':'"${BASH_LINENO[0]}" );
+	slack_diagnostic_lines+=( 'Error in '"${BASH_SOURCE[1]}"':'"${BASH_LINENO[0]}" );
+
+	diagnostic_lines+=(       '`'"${last_command}"'` exited with status `'"${last_command_status_code}"'`.' );
+	slack_diagnostic_lines+=( '`'"${last_command}"'` exited with status `'"${last_command_status_code}"'`.' );
 
 	if [[ ${#FUNCNAME[@]} -gt 2 ]]; then
-		diagnostic_lines+=( 'Stack Trace:' );
+		diagnostic_lines+=(       'Stack Trace:' );
+		slack_diagnostic_lines+=( 'Stack Trace:' );
+
 		for (( _i=1; _i < ${#FUNCNAME[@]}-1; _i++ )); do
-			diagnostic_lines+=( " ${_i}: ${BASH_SOURCE[${_i}+1]}:${BASH_LINENO[${_i}]} ${FUNCNAME[${_i}]}(...)" );
+			diagnostic_lines+=(       " ${_i}: ${BASH_SOURCE[${_i}+1]}:${BASH_LINENO[${_i}]} ${FUNCNAME[${_i}]}(...)" );
+			slack_diagnostic_lines+=( " ${_i}: ${BASH_SOURCE[${_i}+1]}:${BASH_LINENO[${_i}]} ${FUNCNAME[${_i}]}(...)" );
 		done;
 	fi;
-	diagnostic_lines+=( 'Exiting with status `'"${exit_status_code}"'`.' );
-	diagnostic_report="$( IFS=$'\n'; echo "${diagnostic_lines[*]}"; )";
+	diagnostic_lines+=(       'Exiting with status `'"${exit_status_code}"'`.' );
+	slack_diagnostic_lines+=( 'Exiting with status `'"${exit_status_code}"'`.' );
+
+	diagnostic_report="$(       IFS=$'\n'; echo "${diagnostic_lines[*]}"; )";
+	slack_diagnostic_report="$( IFS=$'\n'; echo "${slack_diagnostic_report[*]}"; )";
 
 	if [[ "${C10N_BASH_STACK_TRACE_SLACK_NOTIFY:-}" == true && -n "${C10N_SLACK_NOTIFY_TOKEN:-}" ]]; then
-		slack-notify --message="${diagnostic_report}" --emoji=:danger_icon:;
+		slack-notify --message="${slack_diagnostic_report}" --emoji=:danger_icon:;
 	fi;
-	echo "${diagnostic_report}"; # Prints diagnostics.
-	exit "${exit_status_code}";  # Preserves exit status.
+	echo "${diagnostic_report}"; exit "${exit_status_code}";  # Preserves exit status.
 };
 trap stack-trace ERR;

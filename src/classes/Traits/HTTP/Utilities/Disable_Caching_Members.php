@@ -76,7 +76,7 @@ trait Disable_Caching_Members {
 				header_remove( 'etag' );
 				header_remove( 'last-modified' );
 				header( 'expires: Wed, 16 Jun 1976 00:00:00 GMT' );
-				header( 'cache-control: no-cache, must-revalidate, max-age=0' );
+				header( 'cache-control: no-cache, no-store, must-revalidate, max-age=0' );
 			}
 			if ( U\Env::is_apache() && U\Env::can_use_function( 'apache_setenv' ) ) {
 				$apache_setenv_no_cache = apache_setenv( 'no-cache', '1' ); // phpcs:ignore.

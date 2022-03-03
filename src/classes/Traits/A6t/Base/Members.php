@@ -11,6 +11,15 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-25
+ *
+ * @noinspection PhpTraitsUseListInspection
+ * phpcs:disable WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceAfterOpenParenthesis
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
@@ -40,9 +49,11 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\A6t\Stc_Base\Members;
-
-	use U\Traits\A6t\Base\Magic\Constructable_Members;
+	use U\Traits\A6t\Stc_Base\Members,
+		U\Traits\A6t\Base\Magic\Constructable_Members {
+		U\Traits\A6t\Base\Magic\Constructable_Members::__construct
+		insteadof U\Traits\A6t\Stc_Base\Members; // Except `__construct()`.
+	}
 	use U\Traits\A6t\Base\Magic\Destructable_Members;
 	use U\Traits\A6t\Base\Magic\Cloneable_Members;
 

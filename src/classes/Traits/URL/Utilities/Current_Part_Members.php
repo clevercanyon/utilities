@@ -52,6 +52,22 @@ trait Current_Part_Members {
 	}
 
 	/**
+	 * Current protocol.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return string Current protocol.
+	 */
+	public static function current_protocol() : string {
+		static $protocol; // Memoize.
+
+		if ( null !== $protocol ) {
+			return $protocol; // Saves time.
+		}
+		return $protocol = U\Env::var( 'SERVER_PROTOCOL' );
+	}
+
+	/**
 	 * Current scheme.
 	 *
 	 * @since 2021-12-15

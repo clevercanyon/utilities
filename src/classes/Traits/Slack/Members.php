@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\A6t;
+namespace Clever_Canyon\Utilities\Traits\Slack;
 
 /**
  * Utilities.
@@ -28,15 +28,17 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Static base class.
+ * Utility members.
  *
  * @since 2021-12-15
+ *
+ * @see   U\Slack
  */
-abstract class Stc_Base implements U\I7e\Stc_Base {
+trait Members {
 	/**
 	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\A6t\Stc_Base\Members;
+	use U\Traits\Slack\Utilities\Notify_Members;
 }

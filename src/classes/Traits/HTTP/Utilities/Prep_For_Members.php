@@ -62,9 +62,9 @@ trait Prep_For_Members {
 	public static function prep_for_file_download() : bool {
 		$set_time_limit              = U\Env::set_time_limit( 900 );
 		$closed_session              = U\HTTP::close_session();
-		$disabled_caching            = U\HTTP::disable_caching();           // Before disabling output compression.
 		$disabled_robots             = U\HTTP::disable_robots();
-		$disabled_output_compression = U\HTTP::disable_output_compression();
+		$disabled_caching            = U\HTTP::disable_caching();            // Before output compression.
+		$disabled_output_compression = U\HTTP::disable_output_compression(); // After caching has been disabled.
 		$ended_output_buffering      = U\Env::end_output_buffering();
 
 		return $set_time_limit

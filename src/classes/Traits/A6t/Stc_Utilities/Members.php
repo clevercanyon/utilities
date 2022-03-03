@@ -34,4 +34,11 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\I7e\Stc_Utilities
  */
-trait Members { }
+trait Members {
+	/**
+	 * Traits.
+	 *
+	 * @since 2021-12-15
+	 */
+	use U\Traits\A6t\Stc_Base\Magic\Finals\Unconstructable_Members;
+}

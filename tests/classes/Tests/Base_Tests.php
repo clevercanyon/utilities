@@ -46,6 +46,38 @@ use Clever_Canyon\Utilities\{Tests as UT};
  */
 final class Base_Tests extends UT\A6t\Tests {
 	/**
+	 * @covers ::__construct()
+	 */
+	public function test_stc_base_members() : void {
+		$base = new class extends U\A6t\Base {
+			/**
+			 * Constructor.
+			 *
+			 * @since 2022-03-03
+			 */
+			public function __construct() {
+				parent::__construct();
+			}
+
+			/**
+			 * Tests static methods.
+			 *
+			 * @since 2022-03-03
+			 *
+			 * @return bool True on success.
+			 */
+			public function test_stc_methods() : bool {
+				static::cls_cache( __FUNCTION__ );
+				static::cls_cache_clear();
+
+				return method_exists( $this, '__set_state' )
+					&& method_exists( $this, '__callStatic' );
+			}
+		};
+		$this->assertSame( true, $base->test_stc_methods(), $this->message() );
+	}
+
+	/**
 	 * @covers ::props()
 	 * @covers ::own_prop_names()
 	 */
