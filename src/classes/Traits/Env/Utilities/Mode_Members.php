@@ -46,7 +46,7 @@ trait Mode_Members {
 	 * @return bool True if in test mode.
 	 */
 	public static function in_test_mode( /* string|null */ ?string $type = null ) : bool {
-		$test_mode = U\Env::static_var( 'TEST_MODE' );
+		$test_mode = U\Env::static_var( 'C10N_TEST_MODE' );
 		return $test_mode && ( null === $type || $type === $test_mode );
 	}
 
@@ -61,7 +61,7 @@ trait Mode_Members {
 	 * @return bool True if in debug mode.
 	 */
 	public static function in_debug_mode( /* string|null */ ?string $type = null ) : bool {
-		$debug_mode = U\Env::static_var( 'DEBUG_MODE' );
+		$debug_mode = U\Env::static_var( 'C10N_DEBUG_MODE' );
 		return $debug_mode && ( null === $type || $type === $debug_mode );
 	}
 
@@ -78,10 +78,10 @@ trait Mode_Members {
 	public static function set_test_mode( /* string|null */ ?string $type = null ) : bool {
 		$type = $type ?: 'unknown';
 
-		if ( $test_mode = U\Env::static_var( 'TEST_MODE' ) ) {
+		if ( $test_mode = U\Env::static_var( 'C10N_TEST_MODE' ) ) {
 			return $type === $test_mode;
 		}
-		return (bool) U\Env::static_var( 'TEST_MODE', $type );
+		return (bool) U\Env::static_var( 'C10N_TEST_MODE', $type );
 	}
 
 	/**
@@ -97,7 +97,7 @@ trait Mode_Members {
 	public static function set_debug_mode( /* string|null */ ?string $type = null ) : bool {
 		$type = $type ?: 'unknown';
 
-		if ( $debug_mode = U\Env::static_var( 'DEBUG_MODE' ) ) {
+		if ( $debug_mode = U\Env::static_var( 'C10N_DEBUG_MODE' ) ) {
 			return $type === $debug_mode;
 		}
 		if ( ! ( $error_log = ini_get( 'error_log' ) ) ) {
@@ -117,7 +117,7 @@ trait Mode_Members {
 				&& false !== ini_set( 'zend.assertions', '1' )   // phpcs:ignore.
 				&& false !== ini_set( 'assert.exception', '1' ); // phpcs:ignore.
 
-			$set_static_var = null !== U\Env::static_var( 'DEBUG_MODE', $type );
+			$set_static_var = null !== U\Env::static_var( 'C10N_DEBUG_MODE', $type );
 
 			return $defined_constants
 				&& $enabled_assertions
@@ -137,7 +137,7 @@ trait Mode_Members {
 				&& false !== ini_set( 'zend.assertions', '1' )   // phpcs:ignore.
 				&& false !== ini_set( 'assert.exception', '1' ); // phpcs:ignore.
 
-			$set_static_var = null !== U\Env::static_var( 'DEBUG_MODE', $type );
+			$set_static_var = null !== U\Env::static_var( 'C10N_DEBUG_MODE', $type );
 
 			return $enabled_error_reporting
 				&& $enabled_errors

@@ -98,30 +98,30 @@ trait Constructable_Members {
 			'connection_id_salt' => '',
 		];
 		if ( ! $config ) { // Only if no configuration has been given.
-			if ( U\Env::static_var( 'DATABASE_HOST' ) ) {
+			if ( U\Env::static_var( 'C10N_DATABASE_HOST' ) ) {
 				$default_config_options = [
-					'host' => U\Env::static_var( 'DATABASE_HOST' ) ?: $default_config_options[ 'host' ],
-					'port' => U\Env::static_var( 'DATABASE_PORT' ) ?: $default_config_options[ 'port' ],
+					'host' => U\Env::static_var( 'C10N_DATABASE_HOST' ) ?: $default_config_options[ 'host' ],
+					'port' => U\Env::static_var( 'C10N_DATABASE_PORT' ) ?: $default_config_options[ 'port' ],
 
-					'database' => U\Env::static_var( 'DATABASE_NAME' ) ?: $default_config_options[ 'name' ],
-					'username' => U\Env::static_var( 'DATABASE_USERNAME' ) ?: $default_config_options[ 'username' ],
-					'password' => U\Env::static_var( 'DATABASE_PASSWORD' ) ?: $default_config_options[ 'password' ],
+					'database' => U\Env::static_var( 'C10N_DATABASE_NAME' ) ?: $default_config_options[ 'name' ],
+					'username' => U\Env::static_var( 'C10N_DATABASE_USERNAME' ) ?: $default_config_options[ 'username' ],
+					'password' => U\Env::static_var( 'C10N_DATABASE_PASSWORD' ) ?: $default_config_options[ 'password' ],
 
-					'charset' => U\Env::static_var( 'DATABASE_CHARSET' ) ?: $default_config_options[ 'charset' ],
-					'collate' => U\Env::static_var( 'DATABASE_COLLATE' ) ?: $default_config_options[ 'collate' ],
+					'charset' => U\Env::static_var( 'C10N_DATABASE_CHARSET' ) ?: $default_config_options[ 'charset' ],
+					'collate' => U\Env::static_var( 'C10N_DATABASE_COLLATE' ) ?: $default_config_options[ 'collate' ],
 
-					'ssl_enable' => u\if_bool( U\Env::static_var( 'DATABASE_SSL_ENABLE' ), $default_config_options[ 'ssl_enable' ] ),
-					'ssl_verify' => u\if_bool( U\Env::static_var( 'DATABASE_SSL_VERIFY' ), $default_config_options[ 'ssl_verify' ] ),
+					'ssl_enable' => u\if_bool( U\Env::static_var( 'C10N_DATABASE_SSL_ENABLE' ), $default_config_options[ 'ssl_enable' ] ),
+					'ssl_verify' => u\if_bool( U\Env::static_var( 'C10N_DATABASE_SSL_VERIFY' ), $default_config_options[ 'ssl_verify' ] ),
 
-					'ssl_ca_file'  => U\Env::static_var( 'DATABASE_SSL_CA_FILE' ) ?: $default_config_options[ 'ssl_ca_file' ],
-					'ssl_key_file' => U\Env::static_var( 'DATABASE_SSL_KEY_FILE' ) ?: $default_config_options[ 'ssl_key_file' ],
-					'ssl_crt_file' => U\Env::static_var( 'DATABASE_SSL_CRT_FILE' ) ?: $default_config_options[ 'ssl_crt_file' ],
-					'ssl_cipher'   => U\Env::static_var( 'DATABASE_SSL_CIPHER' ) ?: $default_config_options[ 'ssl_cipher' ],
+					'ssl_ca_file'  => U\Env::static_var( 'C10N_DATABASE_SSL_CA_FILE' ) ?: $default_config_options[ 'ssl_ca_file' ],
+					'ssl_key_file' => U\Env::static_var( 'C10N_DATABASE_SSL_KEY_FILE' ) ?: $default_config_options[ 'ssl_key_file' ],
+					'ssl_crt_file' => U\Env::static_var( 'C10N_DATABASE_SSL_CRT_FILE' ) ?: $default_config_options[ 'ssl_crt_file' ],
+					'ssl_cipher'   => U\Env::static_var( 'C10N_DATABASE_SSL_CIPHER' ) ?: $default_config_options[ 'ssl_cipher' ],
 
-					'connection_options' => U\Env::static_var( 'DATABASE_CONNECTION_OPTIONS' ) ?: $default_config_options[ 'connection_options' ],
-					'connection_id_salt' => U\Env::static_var( 'DATABASE_CONNECTION_ID_SALT' ) ?: $default_config_options[ 'connection_id_salt' ],
+					'connection_options' => U\Env::static_var( 'C10N_DATABASE_CONNECTION_OPTIONS' ) ?: $default_config_options[ 'connection_options' ],
+					'connection_id_salt' => U\Env::static_var( 'C10N_DATABASE_CONNECTION_ID_SALT' ) ?: $default_config_options[ 'connection_id_salt' ],
 				];
-			} elseif ( U\Env::var( 'WORDPRESS_DB_HOST' ) ) {
+			} elseif ( U\Env::is_wp_docker() && U\Env::var( 'WORDPRESS_DB_HOST' ) ) {
 				$default_config_options = [
 					'host' => U\Env::var( 'WORDPRESS_DB_HOST' ) ?: $default_config_options[ 'host' ],
 					'port' => U\Env::var( 'WORDPRESS_DB_PORT' ) ?: $default_config_options[ 'port' ],
@@ -144,7 +144,7 @@ trait Constructable_Members {
 					'connection_options' => U\Env::var( 'WORDPRESS_DB_CONNECTION_OPTIONS' ) ?: $default_config_options[ 'connection_options' ],
 					'connection_id_salt' => U\Env::var( 'WORDPRESS_DB_CONNECTION_ID_SALT' ) ?: $default_config_options[ 'connection_id_salt' ],
 				];
-			} elseif ( defined( 'DB_HOST' ) ) {
+			} elseif ( U\Env::is_wordpress() && U\Env::const( 'DB_HOST' ) ) {
 				$default_config_options = [
 					'host' => U\Env::const( 'DB_HOST' ) ?: $default_config_options[ 'host' ],
 					'port' => U\Env::const( 'DB_PORT' ) ?: $default_config_options[ 'port' ],
@@ -224,7 +224,7 @@ trait Constructable_Members {
 		 *   3. Clever Canyon's namespace crux via {@see U\Pkg::namespace_crux()}; identifying this library.
 		 *   4. Clever Canyon's data context based on {@see U\Pkg::data_context()}; e.g., `wps`, `web`, `uid`, etc.
 		 *
-		 *   5. A `connection_id_salt` passed in `$config`; else static env variable `DATABASE_CONNECTION_ID_SALT`.
+		 *   5. A `connection_id_salt` passed in `$config`; else static env variable `C10N_DATABASE_CONNECTION_ID_SALT`.
 		 *      This allows new instances of this class to be given very different connection IDs if desirable.
 		 *
 		 *   6. Connection ID version, which is subject to change when there are substantive code modifications.

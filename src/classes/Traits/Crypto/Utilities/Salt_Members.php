@@ -58,7 +58,7 @@ trait Salt_Members {
 		if ( 'default' !== $type && ! U\Str::is_slug( $type ) ) {
 			throw new U\Fatal_Exception( 'Invalid salt type: `' . $type . '`. Not a valid slug.' );
 		}
-		$salt[ $type ] = U\Env::static_var( 'CRYPTO_SALT_' . mb_strtoupper( U\Str::to_var( $type ) ) );
+		$salt[ $type ] = U\Env::static_var( 'C10N_CRYPTO_SALT_' . mb_strtoupper( U\Str::to_var( $type ) ) );
 
 		if ( ! $salt[ $type ] ) {
 			if ( U\Env::is_wordpress() ) {

@@ -94,7 +94,7 @@ trait Sys_State_Members {
 	 * @see   https://www.gnu.org/prep/standards/html_node/Directory-Variables.html
 	 */
 	protected static function sys_state_generator() : \Generator {
-		if ( $_this_dir = U\Env::static_var( 'SYS_PRIVATE_DIR' ) ) {
+		if ( $_this_dir = U\Env::static_var( 'C10N_SYS_PRIVATE_DIR' ) ) {
 			yield [ $_this_dir, 'autocreate' => true ];
 		}
 		if ( defined( 'C10N_SYS_PRIVATE_DIR' ) && ( $_this_dir = C10N_SYS_PRIVATE_DIR ) ) {

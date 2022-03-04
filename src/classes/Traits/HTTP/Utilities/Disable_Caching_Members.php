@@ -65,7 +65,7 @@ trait Disable_Caching_Members {
 			} else {
 				$apache_setenv_no_cache = null; // Not applicable.
 			}
-			$set_static_var = null !== U\Env::static_var( 'HTTP_CACHE', false );
+			$set_static_var = null !== U\Env::static_var( 'C10N_HTTP_CACHE', false );
 
 			return $defined_constants
 				&& $set_headers
@@ -83,7 +83,7 @@ trait Disable_Caching_Members {
 			} else {
 				$apache_setenv_no_cache = null; // Not applicable.
 			}
-			$set_static_var = null !== U\Env::static_var( 'HTTP_CACHE', false );
+			$set_static_var = null !== U\Env::static_var( 'C10N_HTTP_CACHE', false );
 
 			return $set_headers
 				&& false !== $apache_setenv_no_cache

@@ -89,7 +89,7 @@ trait Config_Robots_Members {
 				fn( array $wp_robots ) => array_merge( $wp_robots, $config ),
 				12 // Hook priority.
 			);
-			$set_static_var = null !== U\Env::static_var( 'HTTP_ROBOTS', $directives );
+			$set_static_var = null !== U\Env::static_var( 'C10N_HTTP_ROBOTS', $directives );
 
 			return $set_headers
 				&& $added_filter
@@ -98,7 +98,7 @@ trait Config_Robots_Members {
 			if ( $set_headers = ! headers_sent() ) {
 				header( 'x-robots-tag: ' . implode( ', ', $directives ) );
 			}
-			$set_static_var = null !== U\Env::static_var( 'HTTP_ROBOTS', $directives );
+			$set_static_var = null !== U\Env::static_var( 'C10N_HTTP_ROBOTS', $directives );
 
 			return $set_headers
 				&& $set_static_var;

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\URL;
+namespace Clever_Canyon\Utilities\A6t;
 
 /**
  * Utilities.
@@ -28,24 +28,15 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Exception handler base class.
  *
  * @since 2021-12-15
- *
- * @see   U\URL
  */
-trait Members {
+abstract class Exception_Handler extends U\A6t\Stc_Base implements U\I7e\Exception_Handler {
 	/**
 	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\URL\Utilities\Assemble_Members;
-	use U\Traits\URL\Utilities\Basic_Auth_Members;
-	use U\Traits\URL\Utilities\Conditional_Members;
-	use U\Traits\URL\Utilities\Current_Part_Members;
-	use U\Traits\URL\Utilities\Current_Var_Members;
-	use U\Traits\URL\Utilities\Parse_Members;
-	use U\Traits\URL\Utilities\Root_Host_Members;
-	use U\Traits\URL\Utilities\Utility_Members;
+	use U\Traits\A6t\Exception_Handler\Members;
 }

@@ -96,7 +96,7 @@ trait Disable_Output_Compression_Members {
 			$apache_setenv_no_gzip   = null; // Not applicable.
 			$apache_setenv_no_brotli = null; // Not applicable.
 		}
-		$set_static_var = null !== U\Env::static_var( 'HTTP_COMPRESS', false );
+		$set_static_var = null !== U\Env::static_var( 'C10N_HTTP_COMPRESS', false );
 
 		return $set_headers
 			&& $zlib_output_compression_off

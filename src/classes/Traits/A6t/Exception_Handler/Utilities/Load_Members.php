@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since 2021-12-25
+ *
+ * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\URL;
+namespace Clever_Canyon\Utilities\Traits\A6t\Exception_Handler\Utilities;
 
 /**
  * Utilities.
@@ -28,24 +36,32 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\URL
+ * @see   U\I7e\Exception_Handler
  */
-trait Members {
+trait Load_Members {
 	/**
-	 * Traits.
+	 * Loads exception handler.
 	 *
-	 * @since 2021-12-15
+	 * Sets error handler.
+	 * Sets shutdown handler.
+	 * Sets exception handler.
+	 *
+	 * @since 2022-03-03
 	 */
-	use U\Traits\URL\Utilities\Assemble_Members;
-	use U\Traits\URL\Utilities\Basic_Auth_Members;
-	use U\Traits\URL\Utilities\Conditional_Members;
-	use U\Traits\URL\Utilities\Current_Part_Members;
-	use U\Traits\URL\Utilities\Current_Var_Members;
-	use U\Traits\URL\Utilities\Parse_Members;
-	use U\Traits\URL\Utilities\Root_Host_Members;
-	use U\Traits\URL\Utilities\Utility_Members;
+	public static function load() : void {
+		static $loaded; // Memoize.
+
+		if ( $loaded ) {
+			return; // Loaded already.
+		}
+		$loaded = true; // Flag as loaded now.
+
+		set_error_handler( [ static::class, 'on_error' ] );
+		register_shutdown_function( [ static::class, 'on_shutdown' ] );
+		set_exception_handler( [ static::class, 'on_exception' ] );
+	}
 }

@@ -97,7 +97,7 @@ trait Sys_Temp_Members {
 	 * @see   https://www.gnu.org/prep/standards/html_node/Directory-Variables.html
 	 */
 	public static function sys_temp_generator() : \Generator {
-		if ( $_this_dir = U\Env::static_var( 'SYS_TEMP_DIR' ) ) {
+		if ( $_this_dir = U\Env::static_var( 'C10N_SYS_TEMP_DIR' ) ) {
 			yield [ $_this_dir, 'autocreate' => true ];
 		}
 		if ( defined( 'C10N_SYS_TEMP_DIR' ) && ( $_this_dir = C10N_SYS_TEMP_DIR ) ) {

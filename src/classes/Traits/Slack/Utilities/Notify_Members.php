@@ -45,15 +45,31 @@ trait Notify_Members {
 	/**
 	 * Slack notifier.
 	 *
+	 * Required Slack app permissions:
+	 * - `chat:write`
+	 * - `chat:write.customize`
+	 * - `chat:write.public`
+	 *
 	 * @since 2022-03-02
 	 *
-	 * @param string $message Message.
+	 * @param string $message Markdown message.
 	 * @param array  $args    Optional arguments.
 	 *
-	 *     string emoji    Optional emoji. Default is static environment var `SLACK_NOTIFY_EMOJI`.
-	 *     string username Optional username. Default is static environment var `SLACK_NOTIFY_EMOJI`.
-	 *     string channel  Optional channel ID. Default is static environment var `SLACK_NOTIFY_CHANNEL`.
-	 *     string token    Optional bot API token. Default is static environment var: `SLACK_NOTIFY_TOKEN`.
+	 *     string emoji    Optional emoji. Overrides default for Slack app.
+	 *                     Default is value of static env var `C10N_SLACK_NOTIFY_EMOJI`.
+	 *                     If empty, Slack will fall back on the icon configured for the app.
+	 *
+	 *     string username Optional username. Overrides default for Slack app.
+	 *                     Default is value of static env var `C10N_SLACK_NOTIFY_USERNAME`.
+	 *                     If empty, Slack will fall back on the username configured for the app.
+	 *
+	 *     string channel  Optional channel ID; i.e., where to send the message.
+	 *                     Default is value of static env var `C10N_SLACK_NOTIFY_CHANNEL`.
+	 *                     Required if static env var is not set. Must have one way or the other.
+	 *
+	 *     string token    Optional bot API token with adequate permissions.
+	 *                     Default is value of static env var: `C10N_SLACK_NOTIFY_TOKEN`.
+	 *                     Required if static env var is not set. Must have one way or the other.
 	 *
 	 * @return bool True on success.
 	 *
@@ -61,27 +77,31 @@ trait Notify_Members {
 	 */
 	public static function notify( string $message, array $args = [] ) : bool {
 		$defaults = [
-			'emoji'    => U\Env::static_var( 'SLACK_NOTIFY_EMOJI' ) ?: '',
-			'username' => U\Env::static_var( 'SLACK_NOTIFY_USERNAME' ) ?: '',
-			'channel'  => U\Env::static_var( 'SLACK_NOTIFY_CHANNEL' ) ?: '',
-			'token'    => U\Env::static_var( 'SLACK_NOTIFY_TOKEN' ) ?: '',
+			'emoji'    => U\Env::static_var( 'C10N_SLACK_NOTIFY_EMOJI' ) ?: '',
+			'username' => U\Env::static_var( 'C10N_SLACK_NOTIFY_USERNAME' ) ?: '',
+			'channel'  => U\Env::static_var( 'C10N_SLACK_NOTIFY_CHANNEL' ) ?: '',
+			'token'    => U\Env::static_var( 'C10N_SLACK_NOTIFY_TOKEN' ) ?: '',
 		];
-		$args     += $defaults;
+		$args     += $defaults; // Merge with defaults.
 
-		if ( ! $message || ! $args[ 'emoji' ] || ! $args[ 'username' ] || ! $args[ 'channel' ] || ! $args[ 'token' ] ) {
-			throw new U\Fatal_Exception( 'Missing required arguments.' );
-		}
-		if ( 0 !== mb_strpos( $args[ 'emoji' ], ':' ) ) {
+		if ( $args[ 'emoji' ] && ':' !== $args[ 'emoji' ][ 0 ] ) {
 			$args[ 'emoji' ] = ':' . $args[ 'emoji' ] . ':';
 		}
+		if ( ! $message || ! $args[ 'channel' ] || ! $args[ 'token' ] ) {
+			throw new U\Fatal_Exception( 'Missing required arguments.' );
+		}
 		$request_data = [
-			'text'       => $message,
-			'icon_emoji' => $args[ 'emoji' ],
-			'username'   => $args[ 'username' ],
-			'channel'    => $args[ 'channel' ],
-			'parse'      => 'none',
-			'mrkdwn'     => true,
+			'text'    => $message,
+			'channel' => $args[ 'channel' ],
+			'parse'   => 'none',
+			'mrkdwn'  => true,
 		];
+		if ( $args[ 'emoji' ] ) {
+			$request_data[ 'icon_emoji' ] = $args[ 'emoji' ];
+		}
+		if ( $args[ 'username' ] ) {
+			$request_data[ 'username' ] = $args[ 'username' ];
+		}
 		try {
 			$guzzle   = new Guzzle\Client();
 			$endpoint = 'https://slack.com/api/chat.postMessage';

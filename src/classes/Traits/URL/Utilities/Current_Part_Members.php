@@ -186,6 +186,22 @@ trait Current_Part_Members {
 	}
 
 	/**
+	 * Current subpath.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return string Current subpath.
+	 */
+	public static function current_subpath() : string {
+		static $subpath; // Memoize.
+
+		if ( null !== $subpath ) {
+			return $subpath; // Saves time.
+		}
+		return $subpath = trim( U\URL::current_path(), '/' );
+	}
+
+	/**
 	 * Current query.
 	 *
 	 * @since 2021-12-15

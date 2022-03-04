@@ -99,9 +99,9 @@ trait Constructable_Members {
 		} else {
 			$default_servers = [ [ 'host' => '127.0.0.1', 'port' => 11211, 'weight' => 0 ] ];
 		}
-		$connection_id_salt = $connection_id_salt ?: U\Env::static_var( 'MEMCACHED_CONNECTION_ID_SALT' ) ?: '';
-		$namespace_salt     = $namespace_salt ?: U\Env::static_var( 'MEMCACHED_NAMESPACE_SALT' ) ?: '';
-		$servers            = $servers ?: U\Env::static_var( 'MEMCACHED_SERVERS' ) ?: $default_servers;
+		$connection_id_salt = $connection_id_salt ?: U\Env::static_var( 'C10N_MEMCACHED_CONNECTION_ID_SALT' ) ?: '';
+		$namespace_salt     = $namespace_salt ?: U\Env::static_var( 'C10N_MEMCACHED_NAMESPACE_SALT' ) ?: '';
+		$servers            = $servers ?: U\Env::static_var( 'C10N_MEMCACHED_SERVERS' ) ?: $default_servers;
 
 		/**
 		 * A possibly-persistent connection ID is a 32-byte {@see U\Crypto::x_sha()} of (6) considerations:
@@ -115,7 +115,7 @@ trait Constructable_Members {
 		 *   3. Clever Canyon's namespace crux via {@see U\Pkg::namespace_crux()}; identifying this library.
 		 *   4. Clever Canyon's data context based on {@see U\Pkg::data_context()}; e.g., `wps`, `web`, `uid`, etc.
 		 *
-		 *   5. A `$connection_id_salt` passed to constructor; else static env variable `MEMCACHED_CONNECTION_ID_SALT`.
+		 *   5. A `$connection_id_salt` passed to constructor; else static env variable `C10N_MEMCACHED_CONNECTION_ID_SALT`.
 		 *      This allows new instances of this class to be given very different connection IDs if desirable.
 		 *
 		 *   6. Connection ID version, which is subject to change when there are substantive code modifications.

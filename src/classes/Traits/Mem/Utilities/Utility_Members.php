@@ -171,7 +171,7 @@ trait Utility_Members {
 				/** Must match {@see U\Mem::$namespace}. */
 				$wp_namespace_prefix = U\Pkg::namespace_crux();
 				$wp_namespace_prefix .= '\\' . U\Pkg::data_context();
-				$wp_namespace_prefix .= '\\' . U\Env::static_var( 'MEMCACHED_NAMESPACE_SALT' );
+				$wp_namespace_prefix .= '\\' . U\Env::static_var( 'C10N_MEMCACHED_NAMESPACE_SALT' );
 				$wp_namespace_prefix = U\Crypto::x_sha( $wp_namespace_prefix, 32 ) . '_';
 			}
 			// Max total key length     = 172 characters; {@see set_transient()}.
@@ -248,7 +248,7 @@ trait Utility_Members {
 			/** Must match {@see U\Mem::$namespace}. */
 			$static_cls_namespace = U\Pkg::namespace_crux();
 			$static_cls_namespace .= '\\' . U\Pkg::data_context();
-			$static_cls_namespace .= '\\' . U\Env::static_var( 'MEMCACHED_NAMESPACE_SALT' );
+			$static_cls_namespace .= '\\' . U\Env::static_var( 'C10N_MEMCACHED_NAMESPACE_SALT' );
 			$static_cls_namespace .= '\\' . __FUNCTION__;
 			$static_cls_namespace = U\Crypto::x_sha( $static_cls_namespace, 32 );
 		}

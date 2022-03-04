@@ -58,7 +58,7 @@ trait Context_Members {
 			$raw_context = &static::cls_cache( [ __FUNCTION__, 'raw' ] );
 		}
 		if ( null === $raw_context ) {
-			if ( $_data_context = U\Env::static_var( 'DATA_CONTEXT' ) ) {
+			if ( $_data_context = U\Env::static_var( 'C10N_DATA_CONTEXT' ) ) {
 				$raw_context = 'svr~' . $_data_context;
 
 			} elseif ( U\Env::is_wordpress() ) {

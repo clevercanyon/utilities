@@ -19,12 +19,23 @@
 #
 # @since 2022-02-28
 #
-# @param string --message|-m|${1}  Text message.
-# @param string --emoji|-e|${2}    Optional emoji. Default is `foxbot`.
-# @param string --username|-u|${3} Optional username. Default is `Foxbot`.
-# @param string --channel|-c|${4}  Optional channel ID. Default is `C035W9DQNN4` (clevercanyon/#alerts).
-# @param string --token|-t|${5}    Optional bot API token.
-#                                  Default is `${C10N_SLACK_NOTIFY_TOKEN}` environment variable.
+# @param string --message|-m|${1}  Markdown message.
+#
+# @param string --emoji|-e|${2}    Optional emoji. Overrides default for Slack app.
+#                                  Default is environment variable `C10N_SLACK_NOTIFY_EMOJI`.
+#                                  If empty, Slack will fall back on the icon configured for the app.
+#
+# @param string --username|-u|${3} Optional username. Overrides default for Slack app.
+#                                  Default is environment variable `C10N_SLACK_NOTIFY_USERNAME`.
+#                                  If empty, Slack will fall back on the username configured for the app.
+#
+# @param string --channel|-c|${4}  Optional channel ID; i.e., where to send the message.
+#                                  Default is environment variable `C10N_SLACK_NOTIFY_CHANNEL`.
+#                                  Required if env var is not set. Must have one way or the other.
+#
+# @param string --token|-t|${5}    Optional bot API token with adequate permissions.
+#                                  Default is environment variable: `C10N_SLACK_NOTIFY_TOKEN`.
+#                                  Required if env var is not set. Must have one way or the other.
 #
 # @output void No output.
 # @return int `0` (true) on success.
@@ -57,32 +68,32 @@ function slack-notify() {
 	if [[ -z "${channel}" ]]; then channel="${4:-}"; fi;
 	if [[ -z "${token}" ]]; then token="${5:-}"; fi;
 
-	if [[ -z "${emoji}" ]]; then emoji=foxbot; fi;
-	if [[ -z "${username}" ]]; then username=Foxbot; fi;
-	if [[ -z "${channel}" ]]; then channel=C035W9DQNN4; fi;
+	if [[ -z "${emoji}" ]]; then emoji="${C10N_SLACK_NOTIFY_EMOJI:-}"; fi;
+	if [[ -z "${username}" ]]; then username="${C10N_SLACK_NOTIFY_USERNAME:-}"; fi;
+	if [[ -z "${channel}" ]]; then channel="${C10N_SLACK_NOTIFY_CHANNEL:-}"; fi;
 	if [[ -z "${token}" ]]; then token="${C10N_SLACK_NOTIFY_TOKEN:-}"; fi;
 
+	if [[ -n "${emoji}" && : != "${emoji:0:1}" ]]; then emoji=:"${emoji}":; fi;
+
 	if [[  -z "${message}" \
-		|| -z "${emoji}" \
-		|| -z "${username}" \
 		|| -z "${channel}" \
 		|| -z "${token}" ]];
 	then
 	    return 1; # Not possible.
 	fi;
-	if [[ "${emoji:0:1}" != : ]]; then emoji=:"${emoji}":; fi;
-
 	local json_data="$(cat <<-ooo
 		{
 			"text"      : $(json-encode "${message}"),
-			"icon_emoji": $(json-encode "${emoji}"),
-			"username"  : $(json-encode "${username}"),
+			$( [[ -n "${emoji}" ]] && echo '"icon_emoji": '"$(json-encode "${emoji}")"',' )
+			$( [[ -n "${username}" ]] && echo '"username"  : '"$(json-encode "${username}")"',' )
 			"channel"   : $(json-encode "${channel}"),
 			"parse"     : "none",
 			"mrkdwn"    : true
 		}
 		ooo
-	)";
+	)"; # Removes empty lines.
+	json_data="$( echo "${json_data}" | awk NF )";
+
 	curl --silent --request POST \
 		--header 'authorization: Bearer '"${token}" \
 		--header 'content-Type: application/json; charset=utf-8' \

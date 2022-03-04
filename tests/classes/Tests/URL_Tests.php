@@ -230,6 +230,13 @@ final class URL_Tests extends UT\A6t\Tests {
 	}
 
 	/**
+	 * @covers ::current_subpath()
+	 */
+	public function test_current_subpath() : void {
+		$this->assertSame( 'foo.bar', U\URL::current_subpath(), $this->message() );
+	}
+
+	/**
 	 * @covers ::current_query()
 	 */
 	public function test_current_query() : void {
@@ -290,6 +297,13 @@ final class URL_Tests extends UT\A6t\Tests {
 	 */
 	public function test_current_post_vars() : void {
 		$this->assertSame( [], U\URL::current_post_vars(), $this->message() );
+	}
+
+	/**
+	 * @covers ::add_query_vars()
+	 */
+	public function test_add_query_vars() : void {
+		$this->assertSame( '/?foo=foo&bar=bar', U\URL::add_query_vars( [ 'foo' => 'foo', 'bar' => 'bar' ], '/' ), $this->message() );
 	}
 
 	/**
