@@ -31,9 +31,11 @@ set -o pipefail;
 # @since 2022-02-28
 ##
 function stack-trace() {
-	local last_command_status_code=$?;
-	local last_command="${BASH_COMMAND}";
-	set +o xtrace; # Don't trace the tracer.
+	set +o xtrace;
+
+	if [[ true == "${stack_traced:-}" ]];
+		then return 0; # One time only.
+	fi; stack_traced=true;
 
 	local diagnostic_lines=();
 	local slack_diagnostic_lines=();
@@ -41,7 +43,8 @@ function stack-trace() {
 	local diagnostic_report='';
 	local slack_diagnostic_report='';
 
-	local exit_status_code="${1:-1}";
+	local last_command="${1:-}";
+	local last_command_status_code="${2:-1}";
 
 	# Dividing lines are exactly 100 bytes in length.
 	diagnostic_lines+=( '----------------------------------------------------------------------------------------------------' );
@@ -68,8 +71,8 @@ function stack-trace() {
 			slack_diagnostic_lines+=( " ${_i}: ${BASH_SOURCE[${_i}+1]}:${BASH_LINENO[${_i}]} ${FUNCNAME[${_i}]}(...)" );
 		done;
 	fi;
-	diagnostic_lines+=(       'Exiting with status `'"${exit_status_code}"'`.' );
-	slack_diagnostic_lines+=( 'Exiting with status `'"${exit_status_code}"'`.' );
+	diagnostic_lines+=(       'Exiting with status `'"${last_command_status_code}"'`.' );
+	slack_diagnostic_lines+=( 'Exiting with status `'"${last_command_status_code}"'`.' );
 
 	diagnostic_report="$(       IFS=$'\n'; echo "${diagnostic_lines[*]}"; )";
 	slack_diagnostic_report="$( IFS=$'\n'; echo "${slack_diagnostic_report[*]}"; )";
@@ -77,6 +80,6 @@ function stack-trace() {
 	if [[ "${C10N_BASH_STACK_TRACE_SLACK_NOTIFY:-}" == true && -n "${C10N_SLACK_NOTIFY_TOKEN:-}" ]]; then
 		slack-notify --message="${slack_diagnostic_report}" --emoji=:danger_icon:;
 	fi;
-	echo "${diagnostic_report}"; exit "${exit_status_code}";  # Preserves exit status.
+	echo "${diagnostic_report}"; exit "${last_command_status_code}"; # Preserves exit status.
 };
-trap stack-trace ERR;
+trap 'stack-trace "${BASH_COMMAND}" "${?}";' ERR;

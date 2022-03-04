@@ -45,6 +45,17 @@ trait Output_Members {
 	}
 
 	/**
+	 * Outputs a horizontal line.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string|array $style Chalk style. Default is `none`.
+	 */
+	public static function horiz_line( /* string|array */ $style = 'none' ) : void {
+		U\CLI::stdout( U\CLI::chalk( '----------------------------------------------------------------------------------------------------' ) );
+	}
+
+	/**
 	 * Outputs something.
 	 *
 	 * @since 2021-12-15

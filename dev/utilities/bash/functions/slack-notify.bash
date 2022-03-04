@@ -94,8 +94,9 @@ function slack-notify() {
 	)"; # Removes empty lines.
 	json_data="$( echo "${json_data}" | awk NF )";
 
-	curl --silent --request POST \
+	curl --silent --show-error --request POST \
 		--header 'authorization: Bearer '"${token}" \
 		--header 'content-Type: application/json; charset=utf-8' \
-		--data "${json_data}" https://slack.com/api/chat.postMessage;
+		--data "${json_data}" https://slack.com/api/chat.postMessage \
+		--output /dev/null;
 };

@@ -13,7 +13,7 @@
 # $ ./dev/libraries/dotfiles/dev/.libs/docker/wp/.dev/certs/generate;
 # ---------------------------------------------------------------------------------------------------------------------
 
-cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1;
+cd "$(dirname "${BASH_SOURCE[0]}")" || false;
 . ../../../../../../../../utilities/load.bash; # Loads utilities.
 
 # Configuration of SSL certs.

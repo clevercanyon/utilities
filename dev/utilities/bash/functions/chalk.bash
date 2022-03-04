@@ -23,6 +23,18 @@
 function chalk-new-line() { echo; };
 
 ##
+# Outputs a horizontal line.
+#
+# @since 2022-02-28
+#
+# @output string Horizontal line.
+# @return int `0` (true) on success.
+##
+function chalk-horiz-line {
+	echo '----------------------------------------------------------------------------------------------------';
+}
+
+##
 # Outputs a string in default color.
 #
 # @since 2022-02-28
