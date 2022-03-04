@@ -40,6 +40,7 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
+	use U\Traits\HTTP\Utilities\Basic_Auth_Members;
 	use U\Traits\HTTP\Utilities\Close_Session_Members;
 	use U\Traits\HTTP\Utilities\Config_Robots_Members;
 	use U\Traits\HTTP\Utilities\Disable_Caching_Members;

@@ -56,7 +56,6 @@ trait Var_Members {
 
 		foreach ( [
 			'APPDATA',
-			'AUTH_TYPE',
 			'CWD',
 			'DOCUMENT_ROOT',
 			'HOME',
@@ -74,7 +73,6 @@ trait Var_Members {
 			'HTTP_X_REAL_IP',
 			'LOCALAPPDATA',
 			'PHP_SELF',
-			'REDIRECT_AUTH_TYPE',
 			'REMOTE_ADDR',
 			'REQUEST_SCHEME',
 			'SCRIPT_FILENAME',
@@ -260,9 +258,6 @@ trait Var_Members {
 				return $value = '' === $value ? '' : U\Fs::normalize( $value );
 
 			// ↓ Lowercase.
-			case 'AUTH_TYPE':
-			case 'REDIRECT_AUTH_TYPE':
-				// ↓ Lowercase.
 			case 'TERM':
 				// ↓ Lowercase.
 			case 'HTTPS':

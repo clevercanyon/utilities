@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\URL\Utilities;
+namespace Clever_Canyon\Utilities\Traits\HTTP\Utilities;
 
 /**
  * Utilities.
@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\URL
+ * @see   U\HTTP
  */
 trait Basic_Auth_Members {
 	/**
@@ -47,12 +47,11 @@ trait Basic_Auth_Members {
 	public static function basic_auth( string $realm, array $valid_users, /* string|null */ ?string $error_document = null ) : void {
 		$is_valid_user = null; // Initialize.
 
-		$auth_type     = U\Env::var( 'AUTH_TYPE' ) ?: U\Env::var( 'REDIRECT_AUTH_TYPE' );
 		$authorization = U\Env::var( 'HTTP_AUTHORIZATION' ) ?: U\Env::var( 'REDIRECT_HTTP_AUTHORIZATION' );
 		$username      = U\Env::var( 'PHP_AUTH_USER' );
 		$password      = U\Env::var( 'PHP_AUTH_PW' );
 
-		if ( 'basic' === $auth_type && $authorization && ( '' === $username || '' === $password ) ) {
+		if ( $authorization && ( '' === $username || '' === $password ) ) {
 			$authorization = mb_substr( $authorization, 6 ); // Remove `Basic `.
 			$authorization = U\Str::base64_decode( $authorization );
 
@@ -60,7 +59,7 @@ trait Basic_Auth_Members {
 				[ $username, $password ] = explode( ':', $authorization, 2 );
 			}
 		}
-		if ( 'basic' === $auth_type && '' !== $username && '' !== $password ) {
+		if ( '' !== $username && '' !== $password ) {
 			foreach ( $valid_users as $_valid_username => $_valid_password ) {
 				if ( hash_equals( $_valid_username, $username ) && hash_equals( $_valid_password, $password ) ) {
 					$is_valid_user = true;

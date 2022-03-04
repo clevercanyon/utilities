@@ -41,7 +41,6 @@ trait Members {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\URL\Utilities\Assemble_Members;
-	use U\Traits\URL\Utilities\Basic_Auth_Members;
 	use U\Traits\URL\Utilities\Conditional_Members;
 	use U\Traits\URL\Utilities\Current_Part_Members;
 	use U\Traits\URL\Utilities\Current_Var_Members;
