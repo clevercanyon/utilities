@@ -49,7 +49,7 @@ services :
             - '../../../../composer.lock:/var/www/html/composer.lock:ro'
 
             - '../../../../package.json:/var/www/html/package.json:ro'
-            - '../../../../package.lock.json:/var/www/html/package.lock.json:ro'
+            - '../../../../package-lock.json:/var/www/html/package-lock.json:ro'
 
             - '../../../../.browserslistrc:/var/www/html/.browserslistrc:ro'
             - '../../../../.cpanel.yml:/var/www/html/.cpanel.yml:ro'
