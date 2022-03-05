@@ -82,6 +82,26 @@ trait Utility_Members {
 	 */
 	public static function on_exception( \Throwable $throwable ) : void {
 		try {
+			$headers_sent = headers_sent();
+
+			if ( ! $headers_sent ) {
+				http_response_code( 500 ); // Internal server error (500).
+			}
+			if ( ! $headers_sent && ( $document_root = U\Env::var( 'DOCUMENT_ROOT' ) ) ) {
+				if ( is_file( $_500_error_document = U\Dir::join( $document_root, '/500.shtml' ) ) ) {
+					if ( U\HTTP::prep_for_output() ) {
+						readfile( $_500_error_document );
+					}
+				} elseif ( is_file( $_500_error_document = U\Dir::join( $document_root, '/500.html' ) ) ) {
+					if ( U\HTTP::prep_for_output() ) {
+						readfile( $_500_error_document );
+					}
+				}
+			}
+			U\HTTP::finish_request(); // Try to end the request now.
+
+			// Notify via Slack and then halt execution explicitly.
+
 			U\Slack::notify(
 				'*[' . __CLASS__ . ']: `' . U\URL::current_host() . '`*' . "\n" .
 				'----------------------------------------------------------------------------------------------------' . "\n" .
@@ -93,8 +113,10 @@ trait Utility_Members {
 				'```',
 				[ 'emoji' => ':danger_icon:' ]
 			);
+			exit(); // Halt execution explicitly.
+
 		} catch ( \Throwable $throwable ) {
-			return; // Fail quietly.
+			exit(); // All we can do is halt explicitly.
 		}
 	}
 }

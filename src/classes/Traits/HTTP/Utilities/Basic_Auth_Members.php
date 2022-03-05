@@ -71,20 +71,24 @@ trait Basic_Auth_Members {
 			return; // All good in this case.
 		}
 		if ( headers_sent() ) {
-			exit(); // All we can do is halt exection.
+			exit(); // All we can do, and must do, is halt exection.
 		}
 		header( 'www-authenticate: Basic realm="' . U\Str::esc_dq( $realm ) . '"' );
 		http_response_code( 401 ); // Unauthorized (401).
 
 		if ( $error_document && is_file( $error_document ) ) {
-			readfile( $error_document );
-
+			if ( U\HTTP::prep_for_output() ) {
+				readfile( $error_document );
+			}
 		} elseif ( null === $error_document && ( $document_root = U\Env::var( 'DOCUMENT_ROOT' ) ) ) {
 			if ( is_file( $_401_error_document = U\Dir::join( $document_root, '/401.shtml' ) ) ) {
-				readfile( $_401_error_document );
-
+				if ( U\HTTP::prep_for_output() ) {
+					readfile( $_401_error_document );
+				}
 			} elseif ( is_file( $_401_error_document = U\Dir::join( $document_root, '/401.html' ) ) ) {
-				readfile( $_401_error_document );
+				if ( U\HTTP::prep_for_output() ) {
+					readfile( $_401_error_document );
+				}
 			}
 		}
 		exit(); // Halt script execution.

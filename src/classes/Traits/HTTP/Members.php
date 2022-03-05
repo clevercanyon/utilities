@@ -45,6 +45,7 @@ trait Members {
 	use U\Traits\HTTP\Utilities\Config_Robots_Members;
 	use U\Traits\HTTP\Utilities\Disable_Caching_Members;
 	use U\Traits\HTTP\Utilities\Disable_Output_Compression_Members;
+	use U\Traits\HTTP\Utilities\Finish_Request_Members;
 	use U\Traits\HTTP\Utilities\Header_Members;
 	use U\Traits\HTTP\Utilities\Prep_For_Members;
 }

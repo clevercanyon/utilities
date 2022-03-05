@@ -36,13 +36,28 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Prep_For_Members {
 	/**
-	 * Prepares for special output via PHP.
+	 * Prepares for output via PHP.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @return bool True if everything prepped successfully.
+	 * @return bool True if prepped successfully.
 	 */
-	public static function prep_for_special_output() : bool {
+	public static function prep_for_output() : bool {
+		$closed_session         = U\HTTP::close_session();
+		$ended_output_buffering = U\Env::end_output_buffering();
+
+		return $closed_session
+			&& $ended_output_buffering;
+	}
+
+	/**
+	 * Prepares for raw output via PHP.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return bool True if prepped successfully.
+	 */
+	public static function prep_for_raw_output() : bool {
 		$closed_session              = U\HTTP::close_session();
 		$disabled_output_compression = U\HTTP::disable_output_compression();
 		$ended_output_buffering      = U\Env::end_output_buffering();
@@ -55,9 +70,13 @@ trait Prep_For_Members {
 	/**
 	 * Prepares for a file download via PHP.
 	 *
+	 * Caching and robots are disabled here because the only time it makes sense to serve
+	 * a file using PHP is when access to the file is behind a paywall or similar.
+	 * So we therefore assume this is a private request/response.
+	 *
 	 * @since 2021-12-15
 	 *
-	 * @return bool True if everything prepped successfully.
+	 * @return bool True if prepped successfully.
 	 */
 	public static function prep_for_file_download() : bool {
 		$set_time_limit              = U\Env::set_time_limit( 900 );

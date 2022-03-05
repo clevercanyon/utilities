@@ -113,14 +113,14 @@ final class HTTP_Tests extends UT\A6t\Tests {
 
 	/**
 	 * @runInSeparateProcess
-	 * @covers ::prep_for_special_output()
+	 * @covers ::prep_for_raw_output()
 	 *
 	 * By default, this function tries to close all out output buffers, which is problematic.
 	 * e.g., PHPUnit complains: 'Test code or tested code did not (only) close its own output buffers.'.
 	 * For that reason, {@see U\Env::end_output_buffering()} will leave OB level `1` intact when testing.
 	 */
-	public function test_prep_for_special_output() : void {
-		$this->assertSame( true, U\HTTP::prep_for_special_output(), $this->message() );
+	public function test_prep_for_raw_output() : void {
+		$this->assertSame( true, U\HTTP::prep_for_raw_output(), $this->message() );
 		$this->assertSame( true, 'off' === ini_get( 'zlib.output_compression' ), $this->message() );
 		$this->assertSame( true, PHP_SESSION_ACTIVE !== session_status(), $this->message() );
 		$this->assertSame( true, 1 === ob_get_level(), $this->message() );
