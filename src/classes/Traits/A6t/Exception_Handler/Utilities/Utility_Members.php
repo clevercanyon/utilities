@@ -82,19 +82,41 @@ trait Utility_Members {
 	 */
 	public static function on_exception( \Throwable $throwable ) : void {
 		try {
-			$headers_sent = headers_sent();
-
-			if ( ! $headers_sent ) {
+			if ( ! headers_sent() ) {
 				http_response_code( 500 ); // Internal server error (500).
-			}
-			if ( ! $headers_sent && ( $document_root = U\Env::var( 'DOCUMENT_ROOT' ) ) ) {
-				if ( is_file( $_500_error_document = U\Dir::join( $document_root, '/500.shtml' ) ) ) {
-					if ( U\HTTP::prep_for_output() ) {
-						readfile( $_500_error_document );
-					}
-				} elseif ( is_file( $_500_error_document = U\Dir::join( $document_root, '/500.html' ) ) ) {
-					if ( U\HTTP::prep_for_output() ) {
-						readfile( $_500_error_document );
+
+				U\HTTP::cache_control( [
+					'disable_page_cache'     => true, // Always disable on exception.
+					'disable_object_cache'   => true, // Always disable on exception.
+					'disable_database_cache' => true, // Always disable on exception.
+				] );
+				if ( ! ( $existing_cache_control_header = U\HTTP::already_set_header( 'cache-control' ) )
+					|| ! preg_match( '/\b(?:private|no-cache|no-store)\b/ui', $existing_cache_control_header ) ) {
+					U\HTTP::cache_control( [
+						// In the browser, cache error documents (for everyone) with a low TTL while awaiting recovery.
+						// The goal (intention) is to have a short TTL in the browser so the site can recover quickly.
+						// What we want to avoid is not caching error documents at all, then getting tons of hits
+						// at a time when there is already a problem with the site.
+
+						'public'                 => true, // Yes, allow it to be cached.
+						'must_revalidate'        => true, // Yes, must revalidate cache data.
+						'max_age'                => 300,  // `300` = 5 minutes in the browser.
+						's_maxage'               => 7200, // `7200` = 2 hours in the edge cache.
+						'stale_while_revalidate' => 300,  // `300` = stale up to 5 minutes.
+						'stale_if_error'         => 300,  // `300` = stale up to 5 minutes.
+					] );
+				}
+				U\HTTP::disable_robots(); // Don't index exceptions.
+
+				if ( $document_root = U\Env::var( 'DOCUMENT_ROOT' ) ) {
+					if ( is_file( $_500_error_document = U\Dir::join( $document_root, '/500.shtml' ) ) ) {
+						if ( U\HTTP::prep_for_output() ) {
+							readfile( $_500_error_document );
+						}
+					} elseif ( is_file( $_500_error_document = U\Dir::join( $document_root, '/500.html' ) ) ) {
+						if ( U\HTTP::prep_for_output() ) {
+							readfile( $_500_error_document );
+						}
 					}
 				}
 			}

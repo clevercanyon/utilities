@@ -43,16 +43,22 @@ trait Basic_Auth_Members {
 	 * @param string      $realm          Basic authentication realm.
 	 * @param array       $valid_users    Associative array of valid usernames & passwords.
 	 * @param string|null $error_document Optional custom error document. Default is `null` (auto-detection).
+	 *
+	 * @throws U\Fatal_Exception If this is called after headers have already been sent.
 	 */
 	public static function basic_auth( string $realm, array $valid_users, /* string|null */ ?string $error_document = null ) : void {
-		$is_valid_user = null; // Initialize.
+		if ( headers_sent() ) {
+			throw new U\Fatal_Exception( 'Headers sent already.' );
+		}
+		U\HTTP::disable_robots();  // Implicitly.
+		U\HTTP::disable_caching(); // Implicitly.
 
+		$username      = U\Env::var( 'PHP_AUTH_USER' ); // If empty, we can parse `HTTP_AUTHORIZATION`.
+		$password      = U\Env::var( 'PHP_AUTH_PW' );   // If empty, we can parse `HTTP_AUTHORIZATION`.
 		$authorization = U\Env::var( 'HTTP_AUTHORIZATION' ) ?: U\Env::var( 'REDIRECT_HTTP_AUTHORIZATION' );
-		$username      = U\Env::var( 'PHP_AUTH_USER' );
-		$password      = U\Env::var( 'PHP_AUTH_PW' );
 
-		if ( $authorization && ( '' === $username || '' === $password ) ) {
-			$authorization = mb_substr( $authorization, 6 ); // Remove `Basic `.
+		if ( ( '' === $username || '' === $password ) && $authorization ) {
+			$authorization = trim( mb_substr( $authorization, 6 /* removes `Basic ` */ ) );
 			$authorization = U\Str::base64_decode( $authorization );
 
 			if ( $authorization && false !== mb_strpos( $authorization, ':' ) ) {
@@ -62,16 +68,9 @@ trait Basic_Auth_Members {
 		if ( '' !== $username && '' !== $password ) {
 			foreach ( $valid_users as $_valid_username => $_valid_password ) {
 				if ( hash_equals( $_valid_username, $username ) && hash_equals( $_valid_password, $password ) ) {
-					$is_valid_user = true;
-					break; // All good in this case.
+					return; // All good in this case.
 				}
-			} // Loop stops on any valid user; shifting to below.
-		}
-		if ( $is_valid_user ) {
-			return; // All good in this case.
-		}
-		if ( headers_sent() ) {
-			exit(); // All we can do, and must do, is halt exection.
+			} // Loop stops on any valid user; returning to caller.
 		}
 		header( 'www-authenticate: Basic realm="' . U\Str::esc_dq( $realm ) . '"' );
 		http_response_code( 401 ); // Unauthorized (401).

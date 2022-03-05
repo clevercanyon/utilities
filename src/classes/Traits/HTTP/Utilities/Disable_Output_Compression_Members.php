@@ -41,7 +41,7 @@ trait Disable_Output_Compression_Members {
 	 * You may need to set `transfer-encoding` or `content-transfer-encoding`
 	 * headers after calling this method. They are forced to default values here.
 	 *
-	 * Recommend setting `cache-control` headers before calling on this function.
+	 * We recommend setting `cache-control` headers before calling this function.
 	 * If you do, it will add the `no-transform` piece for you, which covers CDNs like Cloudflare.
 	 * If you don't, then be sure to do that yourself whenever you set `cache-control` headers.
 	 *
@@ -53,23 +53,24 @@ trait Disable_Output_Compression_Members {
 	 * `content-encoding: identity`, which is an RFC standard that means no compression explicitly.
 	 * {@see https://o5p.me/sJbl15} for further details. I've confirmed working on LiteSpeed.
 	 *
-	 * @since        2021-12-15
+	 * @since 2021-12-15
 	 *
 	 * @return bool True if output compression disabled successfully.
 	 *
-	 * @see          https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
-	 * @see          https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding
-	 * @see          https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
+	 * @see   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
+	 * @see   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding
+	 * @see   https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
 	 *
-	 * @see          https://stackoverflow.com/a/11664307/1219741
-	 * @see          https://www.php.net/manual/en/function.headers-sent.php
-	 * @see          https://www.php.net/manual/en/function.apache-setenv.php
-	 * @see          https://www.php.net/manual/en/zlib.configuration.php#ini.zlib.output-compression
-	 *
-	 * @noinspection PhpUndefinedFunctionInspection
+	 * @see   https://stackoverflow.com/a/11664307/1219741
+	 * @see   https://www.php.net/manual/en/function.headers-sent.php
+	 * @see   https://www.php.net/manual/en/function.apache-setenv.php
+	 * @see   https://www.php.net/manual/en/zlib.configuration.php#ini.zlib.output-compression
 	 */
 	public static function disable_output_compression() : bool {
-		if ( $set_headers = ! headers_sent() ) {
+		$set_headers          = function () : bool {
+			if ( headers_sent() ) {
+				return false; // Not possible.
+			}
 			if ( U\Env::is_apache() ) {
 				header( 'content-encoding: none' );
 			} else { // Nginx, LiteSpeed, others.
@@ -78,30 +79,37 @@ trait Disable_Output_Compression_Members {
 			header( 'transfer-encoding: binary' );
 			header( 'content-transfer-encoding: binary' );
 
-			if ( ! $cache_control = U\HTTP::already_set_header( 'cache-control' ) ) {
+			if ( ! $existing_cache_control_header = U\HTTP::already_set_header( 'cache-control' ) ) {
 				header( 'cache-control: no-transform' );
-			} elseif ( false === mb_stripos( $cache_control, 'no-transform' ) ) {
-				header( 'cache-control: ' . $cache_control . ', no-transform' );
+			} elseif ( false === mb_stripos( $existing_cache_control_header, 'no-transform' ) ) {
+				header( 'cache-control: ' . $existing_cache_control_header . ', no-transform' );
 			}
-			// Also requires headers not be sent yet; else throws warning.
-			$zlib_output_compression_off = U\Env::can_use_function( 'ini_set' )
-				&& false !== ini_set( 'zlib.output_compression', 'off' ); // phpcs:ignore.
-		} else {
-			$zlib_output_compression_off = false; // Not possible.
-		}
-		if ( U\Env::is_apache() && U\Env::can_use_function( 'apache_setenv' ) ) {
-			$apache_setenv_no_gzip   = apache_setenv( 'no-gzip', '1' );   // phpcs:ignore.
-			$apache_setenv_no_brotli = apache_setenv( 'no-brotli', '1' ); // phpcs:ignore.
-		} else {
-			$apache_setenv_no_gzip   = null; // Not applicable.
-			$apache_setenv_no_brotli = null; // Not applicable.
-		}
-		$set_static_var = null !== U\Env::static_var( 'C10N_HTTP_COMPRESS', false );
+			return true; // Always true if we get this far.
+		};
+		$configure_server     = function () : bool {
+			$did_apache_setenv_no_gzip   = null;
+			$did_apache_setenv_no_brotli = null;
 
-		return $set_headers
-			&& $zlib_output_compression_off
-			&& false !== $apache_setenv_no_gzip
-			&& false !== $apache_setenv_no_brotli
-			&& $set_static_var;
+			$did_zlib_output_compression_off = ! headers_sent() && U\Env::can_use_function( 'ini_set' )
+				&& false !== ini_set( 'zlib.output_compression', 'off' ); // phpcs:ignore.
+
+			if ( U\Env::is_apache() && U\Env::can_use_function( 'apache_setenv' ) ) {
+				/** @noinspection PhpUndefinedFunctionInspection */              // phpcs:ignore.
+				$did_apache_setenv_no_gzip = apache_setenv( 'no-gzip', '1' );    // phpcs:ignore.
+
+				/** @noinspection PhpUndefinedFunctionInspection */               // phpcs:ignore.
+				$did_apache_setenv_no_brotli = apache_setenv( 'no-brotli', '1' ); // phpcs:ignore.
+			}
+			return $did_zlib_output_compression_off
+				&& false !== $did_apache_setenv_no_gzip
+				&& false !== $did_apache_setenv_no_brotli;
+		};
+		$did_set_headers      = $set_headers();
+		$did_configure_server = $configure_server();
+		$did_set_static_var   = null !== U\Env::static_var( 'C10N_HTTP_OUTPUT_COMPRESSION', false );
+
+		return $did_set_headers
+			&& $did_configure_server
+			&& $did_set_static_var;
 	}
 }

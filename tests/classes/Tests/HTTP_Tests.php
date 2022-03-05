@@ -47,15 +47,15 @@ use Clever_Canyon\Utilities\{Tests as UT};
 final class HTTP_Tests extends UT\A6t\Tests {
 	/**
 	 * @runInSeparateProcess
-	 * @covers ::config_robots()
+	 * @covers ::robots_control()
 	 *
 	 * Runs in separate process to avoid headers having already been sent by PHPUnit.
 	 * Even so, headers are not actually sent when running PHP CLI, as the SAPI doesn't support headers.
 	 */
-	public function test_config_robots() : void {
+	public function test_robots_control() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
-		$this->assertSame( true, U\HTTP::config_robots( [ '20ec8dee2e364f5d903fd2508d814f9f' => true ] ), $this->message() );
-		$this->assertSame( [ '20ec8dee2e364f5d903fd2508d814f9f' ], U\Env::static_var( 'C10N_HTTP_ROBOTS' ), $this->message() );
+		$this->assertSame( true, U\HTTP::robots_control( [ '20ec8dee2e364f5d903fd2508d814f9f' => true ] ), $this->message() );
+		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_ROBOTS_CONTROL' )->{'20ec8dee2e364f5d903fd2508d814f9f'}, $this->message() );
 	}
 
 	/**
@@ -68,7 +68,9 @@ final class HTTP_Tests extends UT\A6t\Tests {
 	public function test_disable_robots() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
 		$this->assertSame( true, U\HTTP::disable_robots(), $this->message() );
-		$this->assertSame( [ 'none', 'noindex', 'nofollow' ], U\Env::static_var( 'C10N_HTTP_ROBOTS' ), $this->message() );
+		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_ROBOTS_CONTROL' )->none, $this->message() );
+		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_ROBOTS_CONTROL' )->noindex, $this->message() );
+		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_ROBOTS_CONTROL' )->nofollow, $this->message() );
 	}
 
 	/**
@@ -81,7 +83,7 @@ final class HTTP_Tests extends UT\A6t\Tests {
 	public function test_disable_caching() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
 		$this->assertSame( true, U\HTTP::disable_caching(), $this->message() );
-		$this->assertSame( false, U\Env::static_var( 'C10N_HTTP_CACHE' ), $this->message() );
+		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_CACHE_CONTROL' )->no_cache, $this->message() );
 	}
 
 	/**
@@ -124,6 +126,8 @@ final class HTTP_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, 'off' === ini_get( 'zlib.output_compression' ), $this->message() );
 		$this->assertSame( true, PHP_SESSION_ACTIVE !== session_status(), $this->message() );
 		$this->assertSame( true, 1 === ob_get_level(), $this->message() );
+		$this->assertSame( null, U\Env::static_var( 'C10N_HTTP_CACHE_CONTROL' ), $this->message() );
+		$this->assertSame( null, U\Env::static_var( 'C10N_HTTP_ROBOTS_CONTROL' ), $this->message() );
 	}
 
 	/**
@@ -139,7 +143,7 @@ final class HTTP_Tests extends UT\A6t\Tests {
 		$this->assertSame( true, 'off' === ini_get( 'zlib.output_compression' ), $this->message() );
 		$this->assertSame( true, PHP_SESSION_ACTIVE !== session_status(), $this->message() );
 		$this->assertSame( true, 1 === ob_get_level(), $this->message() );
-		$this->assertSame( false, U\Env::static_var( 'C10N_HTTP_CACHE' ), $this->message() );
-		$this->assertSame( [ 'none', 'noindex', 'nofollow' ], U\Env::static_var( 'C10N_HTTP_ROBOTS' ), $this->message() );
+		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_ROBOTS_CONTROL' )->noindex, $this->message() );
+		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_CACHE_CONTROL' )->no_cache, $this->message() );
 	}
 }

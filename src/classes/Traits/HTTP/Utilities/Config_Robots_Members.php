@@ -36,16 +36,14 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Config_Robots_Members {
 	/**
-	 * Disables robots w/ WordPress compat.
+	 * Disables robots.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @return bool True if robots disabled successfully.
-	 *
-	 * @see   https://o5p.me/R99lRZ Google article about `robots.txt` and `x-robots-tag` header.
 	 */
 	public static function disable_robots() : bool {
-		return U\HTTP::config_robots( [
+		return U\HTTP::robots_control( [
 			'none'     => true,
 			'noindex'  => true,
 			'nofollow' => true,
@@ -53,25 +51,30 @@ trait Config_Robots_Members {
 	}
 
 	/**
-	 * Configures robot directives w/ WordPress compat.
+	 * Sets `x-robots-tag` header and configures server.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param array $config Configuration array (associative).
-	 *                      e.g., `[ 'noindex' => true, 'follow' => true ]`.
+	 * @param array $config Robots control configuration settings.
+	 *
+	 *                      There are *many* possibilities.
+	 *                      Here are a couple of quick examples:
+	 *
+	 *                      e.g., `[ 'noindex' => true ]`.
 	 *                      e.g., `[ 'max-image-preview' => 'standard' ]`.
 	 *
-	 * @return bool True if robot directives configured successfully.
+	 * @return bool True if `x-robots-tag` header set, and server configured successfully.
 	 *
 	 * @see   https://o5p.me/F62KS1 WordPress source code for `wp_robots` filter.
 	 * @see   https://o5p.me/R99lRZ Google article about `robots.txt` and `x-robots-tag` header.
+	 * @see   https://o5p.me/6VHpQH Another good article by the folks at SEMrush.
 	 */
-	public static function config_robots( array $config ) : bool {
+	public static function robots_control( array $config ) : bool {
 		$directives = []; // Initialize.
 
 		foreach ( $config as $_directive => $_value ) {
 			if ( ! is_string( $_directive ) ) {
-				continue; // Invalid.
+				continue; // Invalid directive.
 			}
 			if ( is_string( $_value ) ) {
 				$directives[] = $_directive . ':' . $_value;
@@ -80,28 +83,33 @@ trait Config_Robots_Members {
 				$directives[] = $_directive;
 			}
 		}
-		if ( U\Env::is_wordpress() ) {
-			if ( $set_headers = ! headers_sent() ) {
+		$set_header           = function () use ( $directives ) : bool {
+			if ( headers_sent() ) {
+				return false; // Not possible.
+			}
+			if ( $directives ) {
 				header( 'x-robots-tag: ' . implode( ', ', $directives ) );
 			}
-			$added_filter   = add_filter(
-				'wp_robots', // {@see https://o5p.me/oFOH8v}.
-				fn( array $wp_robots ) => array_merge( $wp_robots, $config ),
-				12 // Hook priority.
-			);
-			$set_static_var = null !== U\Env::static_var( 'C10N_HTTP_ROBOTS', $directives );
+			return true; // Always true if we get this far.
+		};
+		$configure_server     = function () use ( $config ) : bool {
+			$did_add_wp_filter = null;
 
-			return $set_headers
-				&& $added_filter
-				&& $set_static_var;
-		} else {
-			if ( $set_headers = ! headers_sent() ) {
-				header( 'x-robots-tag: ' . implode( ', ', $directives ) );
+			if ( U\Env::is_wordpress() ) {
+				$did_add_wp_filter = add_filter(
+					'wp_robots', // {@see https://o5p.me/oFOH8v}.
+					fn( array $wp_robots ) => array_merge( $wp_robots, $config ),
+					12 // Hook priority.
+				);
 			}
-			$set_static_var = null !== U\Env::static_var( 'C10N_HTTP_ROBOTS', $directives );
+			return false !== $did_add_wp_filter;
+		};
+		$did_set_header       = $set_header();
+		$did_configure_server = $configure_server();
+		$did_set_static_var   = null !== U\Env::static_var( 'C10N_HTTP_ROBOTS_CONTROL', (object) $config );
 
-			return $set_headers
-				&& $set_static_var;
-		}
+		return $did_set_header
+			&& $did_configure_server
+			&& $did_set_static_var;
 	}
 }
