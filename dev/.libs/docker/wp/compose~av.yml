@@ -37,3 +37,39 @@ services :
             - 'php-data:/var/www'
             - '../../../../:/var/www/html'
             - '../../../../:/wp-docker/host/project:ro'
+
+            - '../../../../dev:/var/www/html/dev:ro'
+            - '../../../../tests:/var/www/html/tests:ro'
+
+            - '../../../../.git:/var/www/html/.git:ro'
+            - '../../../../vendor:/var/www/html/vendor:ro'
+            - '../../../../node_modules:/var/www/html/node_modules:ro'
+
+            - '../../../../composer.json:/var/www/html/composer.json:ro'
+            - '../../../../composer.lock:/var/www/html/composer.lock:ro'
+
+            - '../../../../package.json:/var/www/html/package.json:ro'
+            - '../../../../package.lock.json:/var/www/html/package.lock.json:ro'
+
+            - '../../../../.browserslistrc:/var/www/html/.browserslistrc:ro'
+            - '../../../../.cpanel.yml:/var/www/html/.cpanel.yml:ro'
+            - '../../../../.eslintrc.cjs:/var/www/html/.eslintrc.cjs:ro'
+            - '../../../../.gitattributes:/var/www/html/.gitattributes:ro'
+            - '../../../../.gitchange:/var/www/html/.gitchange:ro'
+            - '../../../../.gitignore:/var/www/html/.gitignore:ro'
+            - '../../../../.htaccess:/var/www/html/.htaccess:ro'
+            - '../../../../.npmignore:/var/www/html/.npmignore:ro'
+            - '../../../../.phpcs.xml:/var/www/html/.phpcs.xml:ro'
+            - '../../../../.prettierrc.cjs:/var/www/html/.prettierrc.cjs:ro'
+            - '../../../../.run-script:/var/www/html/.run-script:ro'
+            - '../../../../.shellcheckrc:/var/www/html/.shellcheckrc:ro'
+            - '../../../../.stylelintrc.cjs:/var/www/html/.stylelintrc.cjs:ro'
+            - '../../../../.wp-docker:/var/www/html/.wp-docker:ro'
+
+            - '../../../../README.md:/var/www/html/README.md:ro'
+
+            - '../../../../wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins:ro'
+            - '../../../../wp-content/plugins/index.php:/var/www/html/wp-content/plugins/index.php:ro'
+            - '../../../../wp-content/themes/index.php:/var/www/html/wp-content/themes/index.php:ro'
+            - '../../../../wp-content/uploads/index.php:/var/www/html/wp-content/uploads/index.php:ro'
+            - '../../../../wp-content/upgrade/index.php:/var/www/html/wp-content/upgrade/index.php:ro'
