@@ -35,6 +35,7 @@
 		"dev/.libs/docker/wp/config/php.ini"            : "@",
 		"dev/.libs/docker/wp/config/php~prj.ini"        : "@",
 		"dev/.libs/docker/wp/compose.yml"               : "@",
+		"dev/.libs/docker/wp/compose~av.yml"            : "@",
 		"dev/.libs/docker/wp/compose~ci.yml"            : "@",
 		"dev/.libs/docker/wp/compose~prj.yml"           : "@",
 		"dev/.libs/docker/wp/entry.bash"                : "@",
