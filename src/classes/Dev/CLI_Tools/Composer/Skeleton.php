@@ -390,6 +390,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			' - wp-plugin (for release; compiles as a WordPress plugin)' . "\n" .
 			' - wp-theme (for release; compiles as a WordPress theme)' . "\n" .
 			' - wp-website (potentially private; compiles as a WP website)' . "\n" .
+			' - wp-network (potentially private; compiles as a WP network)' . "\n" .
 			' - website (potentially private; compiles as a website)' . "\n\n" .
 
 			'Project Layout:' . "\n" .
@@ -403,7 +404,15 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			true, // Require answer.
 			function ( string $answer ) : bool {
 				return U\Str::is_slug( $answer )
-					&& in_array( $answer, [ 'library', 'distro-lib', 'wp-plugin', 'wp-theme', 'wp-website', 'website' ], true );
+					&& in_array( $answer, [
+						'library',
+						'distro-lib',
+						'wp-plugin',
+						'wp-theme',
+						'wp-website',
+						'wp-network',
+						'website',
+					], true );
 			},
 			'library'
 		);
