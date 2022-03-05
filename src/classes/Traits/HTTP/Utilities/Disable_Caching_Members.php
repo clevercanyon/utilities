@@ -56,9 +56,11 @@ trait Disable_Caching_Members {
 				&& $set_do_not_cache_db_constant;
 
 			if ( $set_headers = ! headers_sent() ) {
+				nocache_headers();
 				header_remove( 'etag' );
+				header_remove( 'expires' );
 				header_remove( 'last-modified' );
-				nocache_headers(); // Headers produced by WP.
+				header( 'cache-control: no-cache, no-store, must-revalidate, max-age=0' );
 			}
 			if ( U\Env::is_apache() && U\Env::can_use_function( 'apache_setenv' ) ) {
 				$apache_setenv_no_cache = apache_setenv( 'no-cache', '1' ); // phpcs:ignore.
@@ -74,8 +76,8 @@ trait Disable_Caching_Members {
 		} else {
 			if ( $set_headers = ! headers_sent() ) {
 				header_remove( 'etag' );
+				header_remove( 'expires' );
 				header_remove( 'last-modified' );
-				header( 'expires: Wed, 16 Jun 1976 00:00:00 GMT' );
 				header( 'cache-control: no-cache, no-store, must-revalidate, max-age=0' );
 			}
 			if ( U\Env::is_apache() && U\Env::can_use_function( 'apache_setenv' ) ) {
