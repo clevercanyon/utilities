@@ -46,13 +46,16 @@ trait Is_Hostery_Members {
 	 * @return bool True if Hostery environment.
 	 */
 	public static function is_hostery( /* string|null */ ?string $env = null ) : bool {
-		static $is = []; // Memoize.
-		$env ??= 'any';
+		static $is = [], $hostery; // Memoize.
+		$env ??= '*';              // Default (any).
 
 		if ( isset( $is[ $env ] ) ) {
 			return $is[ $env ]; // Saves time.
 		}
-		$hostery = U\Env::var( 'HOSTERY' );
-		return $is[ $env ] = $hostery && ( 'any' === $env || $env === $hostery );
+		if ( null === $hostery ) {
+			$hostery = U\Env::var( 'HOSTERY' );
+			$hostery = preg_split( '/\|+/u', $hostery, -1, PREG_SPLIT_NO_EMPTY );
+		}
+		return $is[ $env ] = $hostery && ( '*' === $env || in_array( $env, $hostery, true ) );
 	}
 }

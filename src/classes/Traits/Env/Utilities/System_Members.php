@@ -64,6 +64,6 @@ trait System_Members {
 		if ( null !== $ip ) {
 			return $ip; // Saves time.
 		}
-		return $ip = '127.0.0.1';
+		return $ip = U\Env::server_ip() ?: '127.0.0.1';
 	}
 }

@@ -40,18 +40,26 @@ trait Normalize_Members {
 	 *
 	 * @since 2022-01-21
 	 *
-	 * @param string $ip IPv4 or IPv6 address.
+	 * @param string $ip IPv4 or IPv6 address(es).
+	 *                   Can be given in comma-delimited format.
 	 *
-	 * @return string Normalized IPv4 or IPv6 address.
+	 * @return string Normalized IPv4 or IPv6 address(es).
 	 */
 	public static function normalize( string $ip ) : string {
 		if ( '' === $ip ) {
 			return ''; // Nothing.
 		}
-		$bin = inet_pton( $ip );
-		$ip  = false !== $bin ? inet_ntop( $bin ) : '';
-		$ip  = '' !== $ip ? mb_strtolower( $ip ) : '';
+		$ips = mb_strtolower( trim( $ip ) );
+		$ips = preg_split( '/[\s;,]+/u', $ips, -1, PREG_SPLIT_NO_EMPTY );
 
-		return $ip;
+		foreach ( $ips as $_key => &$_ip ) {
+			$_bin = inet_pton( $_ip );
+			$_ip  = false !== $_bin ? inet_ntop( $_bin ) : '';
+
+			if ( '' === $_ip ) {
+				unset( $ips[ $_key ] );
+			}
+		}
+		return implode( ', ', $ips );
 	}
 }

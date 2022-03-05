@@ -266,10 +266,16 @@ trait Var_Members {
 			case 'HTTP_X_FORWARDED_PROTO':
 				// ↓ Lowercase.
 			case 'SERVER_NAME':
-			case 'SERVER_ADDR':
 			case 'SERVER_ADMIN':
 			case 'SERVER_PROTOCOL':
-				// ↓ Lowercase.
+
+				$value = ( $_s[ $name ] ?? '' ) ?: getenv( $name );
+				$value = (string) $value; // Force string.
+				return $value = '' === $value ? '' : mb_strtolower( $value );
+
+			// ↓ IP normalize.
+			case 'SERVER_ADDR':
+				// ↓ IP normalize.
 			case 'HTTP_CF_CONNECTING_IP':
 			case 'HTTP_X_REAL_IP':
 			case 'HTTP_CLIENT_IP':
@@ -281,9 +287,12 @@ trait Var_Members {
 			case 'HTTP_VIA':
 			case 'REMOTE_ADDR':
 
+				// Note: Some of these are lists of comma-delimited IPs.
+				// The normalization accounts for these being in delimited lists.
+
 				$value = ( $_s[ $name ] ?? '' ) ?: getenv( $name );
 				$value = (string) $value; // Force string.
-				return $value = '' === $value ? '' : mb_strtolower( $value );
+				return $value = '' === $value ? '' : U\IP::normalize( $value );
 
 			// ↓ Normalize.
 			case 'APPDATA':

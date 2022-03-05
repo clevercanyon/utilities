@@ -78,11 +78,11 @@ trait IP_Members {
 	 * @return string Valid user/public IP address; else an empty string.
 	 */
 	protected static function ip_helper( string $ips ) : string {
-		$ips = mb_strtolower( trim( $ips ) );
+		$ips = U\IP::normalize( $ips );
 		$ips = preg_split( '/[\s;,]+/u', $ips, -1, PREG_SPLIT_NO_EMPTY );
 
 		foreach ( $ips as $_ip ) {
-			if ( U\IP::is_public_user( $_ip ) && ( $_ip = U\IP::normalize( $_ip ) ) ) {
+			if ( U\IP::is_public_user( $_ip ) ) {
 				return $_ip; // Normalized IPv4 or IPv6 address.
 			}
 		}

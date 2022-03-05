@@ -341,7 +341,7 @@ final class Env_Tests extends UT\A6t\Tests {
 	 * @covers ::is_hostery()
 	 */
 	public function test_is_hostery_yes() : void {
-		putenv( 'HOSTERY=cpanel' ); // phpcs:ignore.
+		putenv( 'HOSTERY=phpunit|cpanel|php' ); // phpcs:ignore.
 		$this->assertSame( true, U\Env::is_hostery(), $this->message() );
 		$this->assertSame( true, U\Env::is_hostery( 'cpanel' ), $this->message() );
 		$this->assertSame( false, U\Env::is_hostery( 'digitalocean' ), $this->message() );
