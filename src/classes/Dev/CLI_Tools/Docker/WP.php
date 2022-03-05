@@ -763,8 +763,11 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'Shell Access         : $ ./.wp-docker shell 🐳' );
 		U\CLI::log( 'Psysh Access         : $ ./.wp-docker psysh' );
 		U\CLI::log( 'WP-CLI Access        : $ ./.wp-docker cli' );
-		U\CLI::log( 'Project In Container : /wp-docker/host/project' );
-
+		if ( in_array( $this->project->layout, [ 'wp-website', 'wp-network' ], true ) ) {
+			U\CLI::log( 'Project In Container : /wp-docker/host/project|/var/www/html' );
+		} else {
+			U\CLI::log( 'Project In Container : /wp-docker/host/project' );
+		}
 		U\CLI::new_line();
 
 		U\CLI::output( 'Nginx Proxy w/ HTTP & HTTPs Servers' );
@@ -828,7 +831,7 @@ final class WP extends U\A6t\CLI_Tool {
 			return; // Not applicable.
 		}
 		$command_name  = $this->command_name();
-		$symlinks_file = U\Dir::join( $this->project->dir, 'dev/.libs/docker/wp/compose-sym.yml' );
+		$symlinks_file = U\Dir::join( $this->project->dir, 'dev/.libs/docker/wp/.compose~sym.yml' );
 
 		$vendor_org_dir_basename = U\Brand::get( 'c10n', 'slug' );
 		$vendor_org_dir          = U\Dir::join( $this->project->dir, '/vendor/' . $vendor_org_dir_basename );
@@ -838,7 +841,7 @@ final class WP extends U\A6t\CLI_Tool {
 				U\Fs::delete( $symlinks_file, false );
 				break;
 
-			case 'up': // Space indents.
+			case 'up': // *Space* indents.
 				$symlinks_file_contents = <<<'ooo'
 					version  : '3.9'  # {@see https://o5p.me/TtD60s}.
 					services :
@@ -1146,19 +1149,23 @@ final class WP extends U\A6t\CLI_Tool {
 	 * @return array All of the prepared YAML file arguments.
 	 */
 	protected function prepare_yml_file_args() : array {
-		$dir = U\Dir::join( $this->project->dir, '/dev/.libs/docker/wp' );
+		$dir      = U\Dir::join( $this->project->dir, '/dev/.libs/docker/wp' );
+		$av_file  = U\Dir::join( $dir, '/compose~av.yml' );   // Adjusts volumes.
+		$sym_file = U\Dir::join( $dir, '/.compose~sym.yml' ); // Symlinks.
 
 		if ( 'ci' === $this->get_option( 'variant' ) ) {
 			return [
 				[ '--file', U\Dir::join( $dir, '/compose.yml' ) ],
-				( is_file( $sym = U\Dir::join( $dir, '/compose-sym.yml' ) ) ? [ '--file', $sym ] : [] ),
+				( in_array( $this->project->layout, [ 'wp-website', 'wp-network' ], true ) ? [ '--file', $av_file ] : [] ),
+				( is_file( $sym_file ) ? [ '--file', $sym_file ] : [] ),
 				[ '--file', U\Dir::join( $dir, '/compose~ci.yml' ) ],
 				[ '--file', U\Dir::join( $dir, '/compose~prj.yml' ) ],
 			];
 		} else {
 			return [
 				[ '--file', U\Dir::join( $dir, '/compose.yml' ) ],
-				( is_file( $sym = U\Dir::join( $dir, '/compose-sym.yml' ) ) ? [ '--file', $sym ] : [] ),
+				( in_array( $this->project->layout, [ 'wp-website', 'wp-network' ], true ) ? [ '--file', $av_file ] : [] ),
+				( is_file( $sym_file ) ? [ '--file', $sym_file ] : [] ),
 				[ '--file', U\Dir::join( $dir, '/compose~prj.yml' ) ],
 			];
 		}
