@@ -775,8 +775,9 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'Wildcard SSL         : *.' . $nxp_container_fqdn );
 		U\CLI::log( 'HTTP                 : http://' . $nxp_container_fqdn );
 		U\CLI::log( 'HTTPS                : https://' . $nxp_container_fqdn . ' 🌎' );
-		U\CLI::log( 'PHP Info             : https://' . $nxp_container_fqdn . '/info.php' );
-
+		if ( ! in_array( $this->project->layout, [ 'wp-website', 'wp-network' ], true ) ) {
+			U\CLI::log( 'PHP Info             : https://' . $nxp_container_fqdn . '/info.php' );
+		}
 		U\CLI::new_line();
 
 		U\CLI::output( 'WordPress Admin' );
