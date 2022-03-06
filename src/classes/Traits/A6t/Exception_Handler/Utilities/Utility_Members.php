@@ -125,7 +125,7 @@ trait Utility_Members {
 			// Notify via Slack and then halt execution explicitly.
 
 			U\Slack::notify(
-				'*[' . __CLASS__ . ']: `' . U\URL::current_host() . '`*' . "\n" .
+				'*[' . static::class . ']: `' . U\URL::current_host() . '`*' . "\n" .
 				'----------------------------------------------------------------------------------------------------' . "\n" .
 				'URL        : ' . U\URL::current() . "\n" .
 				'Message    : ' . $throwable->getMessage() . "\n" .
