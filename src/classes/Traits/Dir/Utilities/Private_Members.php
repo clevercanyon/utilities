@@ -199,13 +199,12 @@ trait Private_Members {
 		if ( ! is_dir( $c10n_dir ) && ! U\Dir::make( $c10n_dir, [], false, false ) ) {
 			return ''; // Failure; e.g., permissions issue.
 		}
-		// Maybe create `/.c10n/index.{php,htm,html}` files.
+		// Maybe create `/.c10n/index.{php,html}` files.
 
 		$index_php_file  = U\Dir::join( $c10n_dir, '/index.php' );
-		$index_htm_file  = U\Dir::join( $c10n_dir, '/index.htm' );
 		$index_html_file = U\Dir::join( $c10n_dir, '/index.html' );
 
-		foreach ( [ $index_php_file, $index_htm_file, $index_html_file ] as $_index_file ) {
+		foreach ( [ $index_php_file, $index_html_file ] as $_index_file ) {
 			if ( ! is_file( $_index_file )
 				&& ( ! U\File::make( $_index_file, [ null, 0644 ], false, false )
 					|| ! U\File::write( $_index_file, 'Silence is golden.', false ) )
@@ -240,16 +239,19 @@ trait Private_Members {
 				<IfModule authz_core_module>
 					Require all denied
 				</IfModule>
+
 				<IfModule !authz_core_module>
 					<IfModule mod_authz_host.c>
 						Order Deny,Allow
 						Deny from all
 					</IfModule>
 				</IfModule>
+
 				<IfModule rewrite_module>
 					RewriteEngine on
 					RewriteRule .* - [F,L]
 				</IfModule>
+
 				<IfModule !rewrite_module>
 					<IfModule mod_rewrite.c>
 						RewriteEngine on
