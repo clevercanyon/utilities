@@ -60,8 +60,11 @@ trait Load_Members {
 		}
 		$loaded = true; // Flag as loaded now.
 
-		set_error_handler( [ static::class, 'on_error' ] );
+		// Detects errors; including fatals, on shutdown.
 		register_shutdown_function( [ static::class, 'on_shutdown' ] );
+
+		// Handles errors & exceptions.
+		set_error_handler( [ static::class, 'on_error' ] );
 		set_exception_handler( [ static::class, 'on_exception' ] );
 	}
 }

@@ -45,9 +45,19 @@ interface Exception_Handler extends U\I7e\Stc_Base {
 	public static function load() : void;
 
 	/**
-	 * Error handler.
+	 * Shutdown handler.
 	 *
-	 * Converts errors to exceptions.
+	 * @since 2022-03-03
+	 *
+	 * @throws \ErrorException Converts errors to exceptions.
+	 *                         Only on errors that we're reporting.
+	 *
+	 * @see   U\A6t\Exception_Handler::on_error()
+	 */
+	public static function on_shutdown() : void;
+
+	/**
+	 * Error handler.
 	 *
 	 * @since 2022-03-03
 	 *
@@ -56,25 +66,20 @@ interface Exception_Handler extends U\I7e\Stc_Base {
 	 * @param string $file    File error occurred in.
 	 * @param int    $line    Line number error occured on.
 	 *
-	 * @throws \ErrorException On errors we're reporting.
+	 * @return bool `false` when choosing not to handle the error.
+	 *
+	 * @throws \ErrorException Converts errors to exceptions.
+	 *                         Only on errors that we're reporting.
+	 *
+	 * @see   U\A6t\Exception_Handler::on_exception()
 	 */
-	public static function on_error( int $type, string $message, string $file, int $line ) : void;
-
-	/**
-	 * Fatal error detector on shutdown.
-	 *
-	 * Converts fatal errors to exceptions.
-	 *
-	 * @since 2022-03-03
-	 *
-	 * @throws \ErrorException On errors we're reporting.
-	 */
-	public static function on_shutdown() : void;
+	public static function on_error( int $type, string $message, string $file, int $line ) : bool;
 
 	/**
 	 * Exception handler.
 	 *
-	 * Logs and/or reports exceptions.
+	 * There is no way to stop the exception here.
+	 * The only purpose of this function is to handle gracefully.
 	 *
 	 * @since 2022-03-03
 	 *

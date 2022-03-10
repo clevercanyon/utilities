@@ -36,34 +36,14 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Utility_Members {
 	/**
-	 * Error handler.
-	 *
-	 * Converts errors to exceptions.
+	 * Shutdown handler.
 	 *
 	 * @since 2022-03-03
 	 *
-	 * @param int    $type    Type; e.g., `E_ERROR`.
-	 * @param string $message Textual error message.
-	 * @param string $file    File error occurred in.
-	 * @param int    $line    Line number error occured on.
+	 * @throws \ErrorException Converts errors to exceptions.
+	 *                         Only on errors that we're reporting.
 	 *
-	 * @throws \ErrorException On errors we're reporting.
-	 */
-	public static function on_error( int $type, string $message, string $file, int $line ) : void {
-		if ( ! ( error_reporting() & $type ) ) {
-			return; // Not included in error reporting.
-		}
-		throw new \ErrorException( $message, 0, $type, $file, $line );
-	}
-
-	/**
-	 * Fatal error detector on shutdown.
-	 *
-	 * Converts fatal errors to exceptions.
-	 *
-	 * @since 2022-03-03
-	 *
-	 * @throws \ErrorException On errors we're reporting.
+	 * @see   U\A6t\Exception_Handler::on_error()
 	 */
 	public static function on_shutdown() : void {
 		if ( $error = error_get_last() ) {
@@ -72,9 +52,37 @@ trait Utility_Members {
 	}
 
 	/**
+	 * Error handler.
+	 *
+	 * @since 2022-03-03
+	 *
+	 * @param int    $type    Type; e.g., `E_ERROR`.
+	 * @param string $message Textual error message.
+	 * @param string $file    File error occurred in.
+	 * @param int    $line    Line number error occured on.
+	 *
+	 * @return bool `false` when choosing not to handle the error.
+	 *
+	 * @throws \ErrorException Converts errors to exceptions.
+	 *                         Only on errors that we're reporting.
+	 *
+	 * @see   U\A6t\Exception_Handler::on_exception()
+	 */
+	public static function on_error( int $type, string $message, string $file, int $line ) : bool {
+		if ( ! ( error_reporting() & $type ) ) {
+			return false; // Kick it back to PHP's error handler.
+
+		} elseif ( in_array( $type, [ E_NOTICE, E_USER_NOTICE, E_DEPRECATED, E_USER_DEPRECATED ], true ) ) {
+			return false; // Kick it back to PHP's error handler.
+		}
+		throw new \ErrorException( $message, 0, $type, $file, $line );
+	}
+
+	/**
 	 * Exception handler.
 	 *
-	 * Logs and/or reports exceptions.
+	 * There is no way to stop the exception here.
+	 * The only purpose of this function is to handle gracefully.
 	 *
 	 * @since 2022-03-03
 	 *
@@ -120,25 +128,59 @@ trait Utility_Members {
 					}
 				}
 			}
-			U\HTTP::finish_request(); // Try to end the request now.
+			U\HTTP::finish_request(); // Try to end request.
 
-			// Notify via Slack and then halt execution explicitly.
+			// Notify via Slack.
 
-			U\Slack::notify(
-				'*[' . static::class . ']: `' . U\URL::current_host() . '`*' . "\n" .
-				'----------------------------------------------------------------------------------------------------' . "\n" .
-				'URL        : ' . U\URL::current() . "\n" .
-				'Message    : ' . $throwable->getMessage() . "\n" .
-				'Stack Trace: ' . "\n" .
-				'```' . "\n" .
-				$throwable->getTraceAsString() . "\n" .
-				'```',
-				[ 'emoji' => ':danger_icon:' ]
-			);
-			exit(); // Halt execution explicitly.
+			static::slack_notify( $throwable );
 
 		} catch ( \Throwable $throwable ) {
-			exit(); // All we can do is halt explicitly.
+			// Fail softly.
 		}
+	}
+
+	/**
+	 * Posts a Slack notification.
+	 *
+	 * @since 2022-03-10
+	 *
+	 * @param \Throwable $throwable Throwable.
+	 */
+	protected static function slack_notify( \Throwable $throwable ) : void {
+		U\Slack::notify(
+			'*[' . static::class . ']: `' . U\URL::current_host() . '`*' . "\n" .
+			'----------------------------------------------------------------------------------------------------' . "\n" .
+			'```' . "\n" .
+			'Type       : ' . static::exception_type( $throwable ) . "\n" .
+			'Message    : ' . $throwable->getMessage() . "\n" .
+			'URL        : ' . U\URL::current() . "\n\n" .
+			'Stack Trace: ' . "\n" .
+			$throwable->getTraceAsString() . "\n" .
+			'```',
+			[ 'emoji' => ':danger_icon:' ]
+		);
+	}
+
+	/**
+	 * Gets exception type.
+	 *
+	 * @since 2022-03-10
+	 *
+	 * @param \Throwable $throwable Throwable.
+	 *
+	 * @return string Error and/or exception type.
+	 */
+	protected static function exception_type( \Throwable $throwable ) : string {
+		if ( $throwable instanceof \ErrorException ) {
+			$error_severity = $throwable->getSeverity();
+			$core_constants = get_defined_constants( true )[ 'Core' ];
+
+			foreach ( $core_constants as $_name => $_code ) {
+				if ( 0 === mb_strpos( $_name, 'E_' ) && $_code === $error_severity ) {
+					return 'ErrorException::' . $_name;
+				}
+			}
+		}
+		return get_class( $throwable );
 	}
 }
