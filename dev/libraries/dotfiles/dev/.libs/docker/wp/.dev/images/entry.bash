@@ -232,6 +232,7 @@ if [[ ! -f /wp-docker/image/setup-complete ]]; then
 
 	docker-php-ext-install pdo pdo_mysql pcntl gettext calendar;
 	apt-get install libffi-dev --yes && docker-php-ext-install ffi;
+	apt-get install libxml2-dev --yes && docker-php-ext-install soap;
 
 	# -----------------------------------------------------------------------------------------------------------------
 	# Maybe PECL install igbinary and Memcached extensions.
