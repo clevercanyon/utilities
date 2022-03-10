@@ -735,12 +735,17 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::output( 'MySQL Database Server' );
 		U\CLI::log( 'IP Address           : ' . $sql_container_ip );
 		U\CLI::log( 'MySQL (MariaDB)      : ' . $sql_container_fqdn );
+		U\CLI::log( 'Database             : wordpress' );
+		U\CLI::log( 'Username             : wordpress' );
+		U\CLI::log( 'Password             : wordpress' );
 
 		U\CLI::new_line();
 
 		U\CLI::output( 'PhpMyAdmin (PMA) Server' );
 		U\CLI::log( 'IP Address           : ' . $pma_container_ip );
 		U\CLI::log( 'FQDN                 : https://' . $pma_container_fqdn );
+		U\CLI::log( 'Username             : wordpress' );
+		U\CLI::log( 'Password             : wordpress' );
 
 		U\CLI::new_line();
 
