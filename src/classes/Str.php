@@ -41,15 +41,6 @@ final class Str extends U\A6t\Stc_Utilities {
 	use U\Traits\Str\Members;
 
 	/**
-	 * UTF-8 byte-order marker.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @var string `ï»¿`
-	 */
-	public const UTF8_BOM = "\xEF\xBB\xBF";
-
-	/**
 	 * Chars removed by {@see trim()}.
 	 *
 	 * @since 2021-12-15
@@ -59,13 +50,22 @@ final class Str extends U\A6t\Stc_Utilities {
 	public const TRIM_CHARS = " \n\r\t\v\x00";
 
 	/**
+	 * UTF-8 byte-order marker.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @var string `ï»¿`
+	 */
+	public const UTF8_BOM = "\u{0000EF}\u{0000BB}\u{0000BF}";
+
+	/**
 	 * Serialized marker.
 	 *
 	 * @since 2021-12-15
 	 *
 	 * @var string `§Ð¦`
 	 */
-	public const SERIALIZED_MARKER = "\xA7\xD0\xA6";
+	public const SERIALIZED_MARKER = "\u{0000A7}\u{0000D0}\u{0000A6}";
 
 	/**
 	 * Serialized signature separator.
@@ -74,5 +74,5 @@ final class Str extends U\A6t\Stc_Utilities {
 	 *
 	 * @var string `¦¤«§»¤¦`
 	 */
-	public const SERIALIZED_SIGNATURE_SEPARATOR = "\xA6\xA4\xAB\xA7\xBB\xA4\xA6";
+	public const SERIALIZED_SIGNATURE_SEPARATOR = "\u{0000A6}\u{0000A4}\u{0000AB}\u{0000A7}\u{0000BB}\u{0000A4}\u{0000A6}";
 }
