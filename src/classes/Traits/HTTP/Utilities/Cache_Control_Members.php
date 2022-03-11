@@ -34,7 +34,25 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\HTTP
  */
-trait Disable_Caching_Members {
+trait Cache_Control_Members {
+	/**
+	 * Enable caching.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @return bool True if caching enable successfully.
+	 */
+	public static function enable_caching() : bool {
+		return U\HTTP::cache_control( [
+			'public'                 => true,
+			'must_revalidate'        => true,
+			'max_age'                => 31536000,
+			's_maxage'               => 31536000,
+			'stale_while_revalidate' => 604800,
+			'stale_if_error'         => 604800,
+		] );
+	}
+
 	/**
 	 * Disables caching.
 	 *
@@ -121,9 +139,8 @@ trait Disable_Caching_Members {
 				}
 			}
 			if ( $directives ) {
-				if ( isset( $directives[ 'no_store' ] ) ) {
-					header_remove( 'etag' );
-				}
+				header_remove( 'etag' );
+
 				if ( isset( $directives[ 'max_age' ] ) ) {
 					header_remove( 'expires' );
 					header_remove( 'last-modified' );

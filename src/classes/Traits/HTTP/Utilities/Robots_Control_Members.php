@@ -34,7 +34,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\HTTP
  */
-trait Config_Robots_Members {
+trait Robots_Control_Members {
 	/**
 	 * Disables robots.
 	 *

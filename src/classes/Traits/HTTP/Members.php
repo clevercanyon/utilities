@@ -42,8 +42,8 @@ trait Members {
 	 */
 	use U\Traits\HTTP\Utilities\Basic_Auth_Members;
 	use U\Traits\HTTP\Utilities\Close_Session_Members;
-	use U\Traits\HTTP\Utilities\Config_Robots_Members;
-	use U\Traits\HTTP\Utilities\Disable_Caching_Members;
+	use U\Traits\HTTP\Utilities\Robots_Control_Members;
+	use U\Traits\HTTP\Utilities\Cache_Control_Members;
 	use U\Traits\HTTP\Utilities\Disable_Output_Compression_Members;
 	use U\Traits\HTTP\Utilities\Finish_Request_Members;
 	use U\Traits\HTTP\Utilities\Header_Members;
