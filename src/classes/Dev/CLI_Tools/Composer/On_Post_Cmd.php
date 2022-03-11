@@ -189,6 +189,7 @@ final class On_Post_Cmd extends Operations {
 
 			$this->maybe_setup_dotfiles();
 			$this->maybe_run_npm_update();
+			$this->maybe_run_npx_webpack();
 
 			U\CLI::success( '[' . __METHOD__ . '()]: Update complete ✔.' );
 		} catch ( \Throwable $throwable ) {
