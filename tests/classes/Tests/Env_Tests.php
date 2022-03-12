@@ -74,6 +74,19 @@ final class Env_Tests extends UT\A6t\Tests {
 	}
 
 	/**
+	 * @covers ::is_wp_host()
+	 */
+	public function test_is_wp_host() : void {
+		$this->assertSame( false, U\Env::is_wp_host( 'foo-nonexistent.com' ), $this->message() );
+		$this->assertSame( false, U\Env::is_wp_host( 'clevercanyon-utilities.wp:00' ), $this->message() );
+		$this->assertSame(
+			U\Env::is_wordpress() && U\Env::is_wp_docker(),
+			U\Env::is_wp_host( 'clevercanyon-utilities.wp' ),
+			$this->message()
+		);
+	}
+
+	/**
 	 * @covers ::is_web()
 	 *
 	 * @covers ::is_apache()

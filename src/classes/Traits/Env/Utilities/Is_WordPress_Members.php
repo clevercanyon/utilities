@@ -50,4 +50,37 @@ trait Is_WordPress_Members {
 		}
 		return $is = defined( 'WPINC' );
 	}
+
+	/**
+	 * Is a specific WordPress host?
+	 *
+	 * @since 2022-03-12
+	 *
+	 * @param string $host Host to check.
+	 *
+	 * @return bool `true` if is WordPress host.
+	 */
+	public static function is_wp_host( string $host ) : bool {
+		static $is = []; // Memoize.
+
+		if ( false === $is ) {
+			return $is; // Saves time.
+		}
+		if ( ! U\Env::is_wordpress() ) {
+			return $is = false; // Not applicable.
+		}
+		$blog_id = get_current_blog_id();
+		$host    = mb_strtolower( $host );
+
+		if ( isset( $is[ $blog_id ][ $host ] ) ) {
+			return $is[ $blog_id ][ $host ];
+		}
+		$wp_home = U\URL::parse( get_home_url() );
+
+		if ( false !== mb_strpos( $host, ':' ) ) {
+			return $is[ $blog_id ][ $host ] = $wp_home[ 'host' ] . ':' . $wp_home[ 'port' ] === $host;
+		} else {
+			return $is[ $blog_id ][ $host ] = $wp_home[ 'host' ] === $host;
+		}
+	}
 }

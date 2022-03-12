@@ -73,13 +73,13 @@ final class Crypto_Tests extends UT\A6t\Tests {
 	 * @covers ::sha1_key()
 	 */
 	public function test_sha1_key() : void {
-		$this->assertSame( 'a335579258a2f7408a22e881c778d1c86bd5ba12', U\Crypto::sha1_key( '' ), $this->message() );
-		$this->assertSame( '47cc18f19d54b7c007af6ca779b76029b6238391', U\Crypto::sha1_key( [] ), $this->message() );
-		$this->assertSame( '007e504c433d95ad2e0301e2a88f167418cc619e', U\Crypto::sha1_key( null ), $this->message() );
-		$this->assertSame( '9bf32e80145f792f7f13a7798eee9b75ac9adee0', U\Crypto::sha1_key( true ), $this->message() );
-		$this->assertSame( 'df6a91655ea2a5388741181bdb94a963904a0a09', U\Crypto::sha1_key( false ), $this->message() );
-		$this->assertSame( '593ab6b7cad4e10e694dbff4a48015cca60bf829', U\Crypto::sha1_key( [ 1, 2, 3 ] ), $this->message() );
-		$this->assertSame( '885e5a2ad584ca2a5d339d18c6540769882cc9e1', U\Crypto::sha1_key( 'c10n' ), $this->message() );
+		$this->assertSame( 'b1968104bb6fa14ee0cda647fafb0a2c40c1673e', U\Crypto::sha1_key( '' ), $this->message() );
+		$this->assertSame( '93f95dd258be2e7be89aa21d092955d4577f8985', U\Crypto::sha1_key( [] ), $this->message() );
+		$this->assertSame( 'd2bde97d741f1e051187e849e17ec2896ca49a09', U\Crypto::sha1_key( null ), $this->message() );
+		$this->assertSame( '4e87742282cc3e749024bafc367b707defa064bc', U\Crypto::sha1_key( true ), $this->message() );
+		$this->assertSame( 'd882a88e2f04efee84c858ea7e115277dd4e6ead', U\Crypto::sha1_key( false ), $this->message() );
+		$this->assertSame( '20325dcfb61d72dffb5ee01bad8d1690cdd78b35', U\Crypto::sha1_key( [ 1, 2, 3 ] ), $this->message() );
+		$this->assertSame( '055009e82e2d2e4d38f801458f83778189e20e79', U\Crypto::sha1_key( 'c10n' ), $this->message() );
 	}
 
 	/**
