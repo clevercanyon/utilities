@@ -106,8 +106,8 @@ trait Git_Ignore_Members {
 		$re .= '        )';              // End list of matching `.gitignore` entries.
 		$re .= '        (?:$|[\/\\\]+)'; // End of line, or 1+ directory separators.
 
-		$re .= '        |^dev[\/\\\]\.libs[\/\\\]docker[\/\\\]wp[\/\\\]\.env$';            // Or, this specific location.
-		$re .= '        |^dev[\/\\\]\.libs[\/\\\]docker[\/\\\]wp[\/\\\]compose-sym\.yml$'; // Or, this specific location.
+		$re .= '        |^dev[\/\\\]\.libs[\/\\\]docker[\/\\\]wp[\/\\\]\.env$';              // Or, this specific location.
+		$re .= '        |^dev[\/\\\]\.libs[\/\\\]docker[\/\\\]wp[\/\\\]\.compose~sym\.yml$'; // Or, this specific location.
 
 		$re .= '    )'; // End lookahead group.
 
@@ -184,8 +184,8 @@ trait Git_Ignore_Members {
 		$re .= '        )';        // End list of matching `.gitignore` entries.
 		$re .= '        (?:$|/+)'; // End of line, or 1+ directory separators.
 
-		$re .= '        |^dev/\.libs/docker/wp/\.env$';            // Or, this specific location.
-		$re .= '        |^dev/\.libs/docker/wp/compose-sym\.yml$'; // Or, this specific location.
+		$re .= '        |^dev/\.libs/docker/wp/\.env$';              // Or, this specific location.
+		$re .= '        |^dev/\.libs/docker/wp/\.compose~sym\.yml$'; // Or, this specific location.
 
 		$re .= '    )'; // End lookahead group.
 

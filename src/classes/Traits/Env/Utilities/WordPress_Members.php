@@ -34,7 +34,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Env
  */
-trait Is_WordPress_Members {
+trait WordPress_Members {
 	/**
 	 * Is WordPress?
 	 *

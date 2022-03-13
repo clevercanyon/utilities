@@ -55,7 +55,6 @@ trait Members {
 	use U\Traits\Env\Utilities\Is_OS_Members;
 	use U\Traits\Env\Utilities\Is_Robotic_User_Members;
 	use U\Traits\Env\Utilities\Is_Web_Members;
-	use U\Traits\Env\Utilities\Is_WordPress_Members;
 	use U\Traits\Env\Utilities\Lighttpd_Members;
 	use U\Traits\Env\Utilities\LiteSpeed_Members;
 	use U\Traits\Env\Utilities\Mode_Members;
@@ -68,4 +67,5 @@ trait Members {
 	use U\Traits\Env\Utilities\System_Members;
 	use U\Traits\Env\Utilities\Timezone_Members;
 	use U\Traits\Env\Utilities\Var_Members;
+	use U\Traits\Env\Utilities\WordPress_Members;
 }
