@@ -34,7 +34,7 @@ namespace Clever_Canyon\Utilities\Tests\WP_Docker;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use Clever_Canyon\Utilities\{Tests as UT};
+use Clever_Canyon\Utilities\{Tests as U_Tests};
 
 // </editor-fold>
 
@@ -44,7 +44,7 @@ use Clever_Canyon\Utilities\{Tests as UT};
  * @since 2021-12-15
  * @coversDefaultClass \Clever_Canyon\Utilities\MySQL
  */
-final class MySQL_Tests extends UT\A6t\Tests {
+final class MySQL_Tests extends U_Tests\A6t\Base {
 	/**
 	 * @covers ::__construct()
 	 * @covers ::query()

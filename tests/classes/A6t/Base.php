@@ -33,6 +33,7 @@ namespace Clever_Canyon\Utilities\Tests\A6t;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
+use Clever_Canyon\Utilities\{Tests as U_Tests};
 
 // </editor-fold>
 
@@ -41,7 +42,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-abstract class Tests extends \PHPUnit\Framework\TestCase {
+abstract class Base extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Counter.
 	 *

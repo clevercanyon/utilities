@@ -35,7 +35,7 @@ namespace Clever_Canyon\Utilities\Tests;
  * @since 2021-12-15
  */
 use Clever_Canyon\{Utilities as U};
-use Clever_Canyon\Utilities\{Tests as UT};
+use Clever_Canyon\Utilities\{Tests as U_Tests};
 
 // </editor-fold>
 
