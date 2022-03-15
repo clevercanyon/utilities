@@ -284,6 +284,7 @@ services :
             PMA_PORT         : '3306'      # Database container port.
             MYSQL_USER       : 'wordpress' # WordPress database username.
             MYSQL_PASSWORD   : 'wordpress' # WordPress database password.
+            UPLOAD_LIMIT     : '128M'      # PHP max_upload_size.
 
         healthcheck    :
             test     : 'curl --fail http://localhost || exit 1'
