@@ -49,19 +49,6 @@ trait Utility_Members {
 	}
 
 	/**
-	 * Encodes a URL query string variable.
-	 *
-	 * @since 2022-03-04
-	 *
-	 * @param string $var Variable to encode.
-	 *
-	 * @return string Encoded query string variable.
-	 */
-	public static function encode_query_var( string $var ) : string {
-		return str_replace( [ '%2F' ], [ '/' ], rawurlencode( $var ) );
-	}
-
-	/**
 	 * Adds query string variables.
 	 *
 	 * @since 2022-03-04
@@ -85,7 +72,6 @@ trait Utility_Members {
 			$query_vars[ $_name ] = $_value;
 		}
 		$parts[ 'query' ] = http_build_query( $query_vars, '', '&', PHP_QUERY_RFC3986 );
-		$parts[ 'query' ] = str_replace( [ '%2F' ], [ '/' ], $parts[ 'query' ] );
 
 		return U\URL::assemble( $parts );
 	}
@@ -114,7 +100,6 @@ trait Utility_Members {
 			unset( $query_vars[ $_name ] );
 		}
 		$parts[ 'query' ] = http_build_query( $query_vars, '', '&', PHP_QUERY_RFC3986 );
-		$parts[ 'query' ] = str_replace( [ '%2F' ], [ '/' ], $parts[ 'query' ] );
 
 		return U\URL::assemble( $parts );
 	}
