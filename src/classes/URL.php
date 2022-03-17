@@ -39,4 +39,13 @@ final class URL extends U\A6t\Stc_Utilities {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\URL\Members;
+
+	/**
+	 * URL-encoding type for AWS v4.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @see   https://o5p.me/7JgPTd
+	 */
+	public const QUERY_RFC3986_AWS4 = 'query-rfc3986-aws4';
 }

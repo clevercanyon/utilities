@@ -41,6 +41,20 @@ final class Time extends U\A6t\Stc_Utilities {
 	use U\Traits\Time\Members;
 
 	/**
+	 * Ymd format.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const FORMAT_YMD = 'Ymd';
+
+	/**
+	 * ISO-8601 date format for AWS v4.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const FORMAT_ISO_8601_AWS4 = 'Ymd\THis\Z';
+
+	/**
 	 * 1 minute in seconds.
 	 *
 	 * @since 2021-12-15

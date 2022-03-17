@@ -45,6 +45,7 @@ trait Members {
 	use U\Traits\Bundle\Utilities\Get_Prop_Key_Members;
 	use U\Traits\Bundle\Utilities\Map_Members;
 	use U\Traits\Bundle\Utilities\Merge_Members;
+	use U\Traits\Bundle\Utilities\Pluck_Members;
 	use U\Traits\Bundle\Utilities\Resolve_Env_Vars_Members;
 	use U\Traits\Bundle\Utilities\Sort_By_Members;
 	use U\Traits\Bundle\Utilities\Stringify_Members;

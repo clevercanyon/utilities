@@ -300,6 +300,10 @@ final class URL_Tests extends U_Tests\A6t\Base {
 	}
 
 	/**
+	 * @covers ::decode()
+	 * @covers ::encode()
+	 * @covers ::parse_query_str()
+	 * @covers ::build_query_str()
 	 * @covers ::add_query_vars()
 	 */
 	public function test_add_query_vars() : void {
@@ -307,20 +311,14 @@ final class URL_Tests extends U_Tests\A6t\Base {
 	}
 
 	/**
-	 * @covers ::assemble()
+	 * @covers ::decode()
+	 * @covers ::encode()
+	 * @covers ::parse_query_str()
+	 * @covers ::build_query_str()
+	 * @covers ::remove_query_vars()
 	 */
-	public function test_assemble() : void {
-		$parts = [
-			'scheme'   => '//',
-			'user'     => 'foo',
-			'pass'     => 'bar',
-			'host'     => 'example.com',
-			'port'     => '123',
-			'path'     => '/',
-			'query'    => 'foo=foo',
-			'fragment' => 'foo',
-		];
-		$this->assertSame( '//foo:bar@example.com:123/?foo=foo#foo', U\URL::assemble( $parts ), $this->message() );
+	public function test_remove_query_vars() : void {
+		$this->assertSame( '/', U\URL::remove_query_vars( [ 'foo', 'bar' ], '/?foo=foo&bar=bar' ), $this->message() );
 	}
 
 	/**
@@ -343,10 +341,71 @@ final class URL_Tests extends U_Tests\A6t\Base {
 	}
 
 	/**
-	 * @covers ::no_scheme_query_fragment()
+	 * @covers ::build()
 	 */
-	public function test_no_scheme_query_fragment() : void {
-		$no_scheme_query_fragment = U\URL::no_scheme_query_fragment( 'https://foo:bar@example.com:123/?foo=foo#foo' );
-		$this->assertSame( 'foo:bar@example.com:123/', $no_scheme_query_fragment, $this->message() );
+	public function test_build() : void {
+		$parts = [
+			'scheme'   => '//',
+			'user'     => 'foo',
+			'pass'     => 'bar',
+			'host'     => 'example.com',
+			'port'     => '123',
+			'path'     => '/',
+			'query'    => 'foo=foo',
+			'fragment' => 'foo',
+		];
+		$this->assertSame( '//foo:bar@example.com:123/?foo=foo#foo', U\URL::build( $parts ), $this->message() );
+	}
+
+	/**
+	 * @covers ::decode()
+	 * @covers ::parse_query_str()
+	 */
+	public function test_parse_query_str() : void {
+		foreach ( [
+			'foo',
+			'foo=',
+			'foo=bar',
+			'foo=bar+baz',
+			'foo=bar%20baz',
+			'foo=bar&foo=baz',
+			'foo[]=0&foo[]=1',
+			'foo[]=0&foo[]=1&foo[0]=x',
+			'foo[0][0]=0&foo[0][1]=1&foo[0]=bar',
+			'foo%5B%5D=0&foo%5B%5D=1&foo%5B0%5D=x',
+			'foo%5B0%5D%5B0%5D=0&foo%5B0%5D%5B1%5D=1&foo%5B0%5D=bar',
+		] as $_query_str
+		) {
+			parse_str( $_query_str, $query_vars );
+			$this->assertSame( $query_vars, U\URL::parse_query_str( $_query_str, PHP_QUERY_RFC1738 ), $this->message( $_query_str ) );
+		}
+	}
+
+	/**
+	 * @covers ::encode()
+	 * @covers ::build_query_str()
+	 */
+	public function test_build_query_str() : void {
+		foreach ( [
+			'foo',
+			'foo=',
+			'foo=bar',
+			'foo=bar+baz',
+			'foo=bar%20baz',
+			'foo=bar&foo=baz',
+			'foo[]=0&foo[]=1',
+			'foo[]=0&foo[]=1&foo[0]=x',
+			'foo[0][0]=0&foo[0][1]=1&foo[0]=bar',
+			'foo%5B%5D=0&foo%5B%5D=1&foo%5B0%5D=x',
+			'foo%5B0%5D%5B0%5D=0&foo%5B0%5D%5B1%5D=1&foo%5B0%5D=bar',
+		] as $_query_str
+		) {
+			parse_str( $_query_str, $query_vars );
+			$this->assertSame(
+				http_build_query( $query_vars, '', '&', PHP_QUERY_RFC1738 ),
+				U\URL::build_query_str( $query_vars, PHP_QUERY_RFC1738 ),
+				$this->message( $_query_str )
+			);
+		}
 	}
 }

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\File;
+namespace Clever_Canyon\Utilities\Traits\AWS;
 
 /**
  * Utilities.
@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\File
+ * @see   U\AWS
  */
 trait Members {
 	/**
@@ -40,13 +40,6 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\File\Utilities\Content_Disposition_Members;
-	use U\Traits\File\Utilities\Content_Type_Members;
-	use U\Traits\File\Utilities\Ext_Members;
-	use U\Traits\File\Utilities\MIME_Type_Members;
-	use U\Traits\File\Utilities\MIME_Types_Property;
-	use U\Traits\File\Utilities\Make_Members;
-	use U\Traits\File\Utilities\Read_Members;
-	use U\Traits\File\Utilities\Size_Abbr_Members;
-	use U\Traits\File\Utilities\Write_Members;
+	use U\Traits\AWS\Utilities\S3_URL_Members;
+	use U\Traits\AWS\Utilities\S3_Signature_Members;
 }

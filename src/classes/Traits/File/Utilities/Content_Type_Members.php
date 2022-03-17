@@ -55,11 +55,7 @@ trait Content_Type_Members {
 	 *
 	 * @return string MIME type + charset; suitable for `content-type:` header.
 	 */
-	public static function content_type(
-		string $file,
-		/* string|null */ ?string $default = null,
-		/* string|null */ ?string $charset = null
-	) : string {
+	public static function content_type( string $file, /* string|null */ ?string $default = null, /* string|null */ ?string $charset = null ) : string {
 		$charset      ??= null; // See below.
 		$content_type = U\File::mime_type( $file, $default );
 

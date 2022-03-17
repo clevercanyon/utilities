@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\File;
+namespace Clever_Canyon\Utilities;
 
 /**
  * Utilities.
@@ -28,25 +28,15 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * AWS utilities.
  *
  * @since 2021-12-15
- *
- * @see   U\File
  */
-trait Members {
+final class AWS extends U\A6t\Stc_Utilities {
 	/**
 	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\File\Utilities\Content_Disposition_Members;
-	use U\Traits\File\Utilities\Content_Type_Members;
-	use U\Traits\File\Utilities\Ext_Members;
-	use U\Traits\File\Utilities\MIME_Type_Members;
-	use U\Traits\File\Utilities\MIME_Types_Property;
-	use U\Traits\File\Utilities\Make_Members;
-	use U\Traits\File\Utilities\Read_Members;
-	use U\Traits\File\Utilities\Size_Abbr_Members;
-	use U\Traits\File\Utilities\Write_Members;
+	use U\Traits\AWS\Members;
 }

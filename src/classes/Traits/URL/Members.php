@@ -40,11 +40,15 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\URL\Utilities\Assemble_Members;
+	use U\Traits\URL\Utilities\Add_Query_Members;
+	use U\Traits\URL\Utilities\Build_Members;
+	use U\Traits\URL\Utilities\Build_Query_Str_Members;
 	use U\Traits\URL\Utilities\Conditional_Members;
 	use U\Traits\URL\Utilities\Current_Part_Members;
 	use U\Traits\URL\Utilities\Current_Var_Members;
+	use U\Traits\URL\Utilities\Encode_Decode_Members;
 	use U\Traits\URL\Utilities\Parse_Members;
+	use U\Traits\URL\Utilities\Parse_Query_Str_Members;
+	use U\Traits\URL\Utilities\Remove_Query_Members;
 	use U\Traits\URL\Utilities\Root_Host_Members;
-	use U\Traits\URL\Utilities\Utility_Members;
 }

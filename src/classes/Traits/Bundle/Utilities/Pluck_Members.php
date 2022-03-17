@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\File;
+namespace Clever_Canyon\Utilities\Traits\Bundle\Utilities;
 
 /**
  * Utilities.
@@ -32,21 +32,34 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\File
+ * @see   U\Bundle
  */
-trait Members {
+trait Pluck_Members {
 	/**
-	 * Traits.
+	 * Plucks props|keys from a bundle.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-03-16
+	 *
+	 * @param object|array $bundle     Bundle to pluck from.
+	 * @param array        $props_keys Props|keys to pluck from bundle.
+	 *
+	 * @return object|array Bundle with plucked props|keys.
 	 */
-	use U\Traits\File\Utilities\Content_Disposition_Members;
-	use U\Traits\File\Utilities\Content_Type_Members;
-	use U\Traits\File\Utilities\Ext_Members;
-	use U\Traits\File\Utilities\MIME_Type_Members;
-	use U\Traits\File\Utilities\MIME_Types_Property;
-	use U\Traits\File\Utilities\Make_Members;
-	use U\Traits\File\Utilities\Read_Members;
-	use U\Traits\File\Utilities\Size_Abbr_Members;
-	use U\Traits\File\Utilities\Write_Members;
+	public static function pluck( $bundle, array $props_keys ) /* : object|array */ {
+		assert( U\Bundle::is( $bundle ) );
+
+		$is_object = is_object( $bundle );
+		$plucked   = $is_object ? (object) [] : [];
+
+		foreach ( $bundle as $_prop_key => $_value ) {
+			if ( in_array( $_prop_key, $props_keys, true ) ) {
+				if ( $is_object ) {
+					$plucked->{$_prop_key} = $_value;
+				} else {
+					$plucked[ $_prop_key ] = $_value;
+				}
+			}
+		}
+		return $plucked;
+	}
 }

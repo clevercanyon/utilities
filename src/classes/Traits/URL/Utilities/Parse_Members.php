@@ -68,7 +68,7 @@ trait Parse_Members {
 	 *                                   Additionally, `int` and `null` are not converted to strings.
 	 *                                   {@see parse_url()} for further details.
 	 *
-	 * @see   U\URL::assemble()
+	 * @see   U\URL::build()
 	 */
 	public static function parse( string $url, /* int|null */ ?int $component = null, bool $strict = false ) /* : array|string|false|null */ {
 		$component = -1 === $component ? null : $component; // `-1` same as `null`.

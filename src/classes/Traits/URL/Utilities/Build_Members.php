@@ -34,9 +34,9 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\URL
  */
-trait Assemble_Members {
+trait Build_Members {
 	/**
-	 * Assembles a URL.
+	 * Builds a URL.
 	 *
 	 * Opposite of {@see U\URL::parse()}).
 	 *
@@ -48,7 +48,7 @@ trait Assemble_Members {
 	 *
 	 * @see   U\URL::parse()
 	 */
-	public static function assemble( array $parts ) : string {
+	public static function build( array $parts ) : string {
 		$parts = array_map( 'strval', $parts );
 
 		if ( ! empty( $parts[ 'scheme' ] ) ) {
