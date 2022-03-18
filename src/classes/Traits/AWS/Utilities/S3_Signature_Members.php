@@ -103,7 +103,7 @@ trait S3_Signature_Members {
 			$request_method . "\n" .
 			$reqeust_path . "\n" .
 			$request_query . "\n" .
-			implode( "\n", $request_headers ) . "\n" .
+			implode( "\n", $request_headers ) . "\n\n" .
 			implode( ';', array_keys( $request_headers ) ) . "\n" .
 			( 'UNSIGNED-PAYLOAD' === $args[ 'body' ] ? $args[ 'body' ] : hash( 'sha256', $args[ 'body' ] ) );
 
