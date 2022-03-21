@@ -36,13 +36,6 @@ use Clever_Canyon\{Utilities as U};
  */
 trait CLS_Cache_Members {
 	/**
-	 * Static CLS cache.
-	 *
-	 * @since 2021-12-15
-	 */
-	private static array $cls_cache = [];
-
-	/**
 	 * Gets|sets static CLS cache.
 	 *
 	 * It is faster not to use this. Instead, use in-function static variables.

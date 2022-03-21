@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool;
+namespace Clever_Canyon\Utilities\Traits\A6t\Stc_Base\Properties;
 
 /**
  * Utilities.
@@ -32,23 +32,13 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\CLI_Tool
+ * @see   U\I7e\Stc_Base
  */
-trait Members {
+trait Property_Members {
 	/**
-	 * Traits.
+	 * Static CLS cache.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\A6t\CLI_Tool\Magic\Constructable_Members;
-	use U\Traits\A6t\CLI_Tool\Properties\Property_Members;
-
-	use U\Traits\A6t\CLI_Tool\Utilities\Getter_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Setter_Members;
-
-	use U\Traits\A6t\CLI_Tool\Utilities\Builder_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Routing_Members;
-
-	use U\Traits\A6t\CLI_Tool\Utilities\Utility_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Validation_Members;
+	private static array $cls_cache = [];
 }

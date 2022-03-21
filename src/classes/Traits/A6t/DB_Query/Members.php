@@ -41,7 +41,7 @@ trait Members {
 	 * @since 2021-12-28
 	 */
 	use U\Traits\A6t\DB_Query\Magic\Constructable_Members;
-	use U\Traits\A6t\DB_Query\Utilities\Property_Members;
+	use U\Traits\A6t\DB_Query\Properties\Property_Members;
 	use U\Traits\A6t\DB_Query\Magic\Stringable_Members;
 	use U\Traits\A6t\Base\Magic\Readable_Members;
 

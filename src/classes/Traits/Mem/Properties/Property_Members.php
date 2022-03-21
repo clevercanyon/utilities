@@ -13,9 +13,9 @@
 /**
  * Lint configuration.
  *
- * @since        2021-12-15
+ * @since        2021-12-25
  *
- * @noinspection PhpUndefinedMethodInspection
+ * @noinspection PhpComposerExtensionStubsInspection
  */
 
 /**
@@ -24,7 +24,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic;
+namespace Clever_Canyon\Utilities\Traits\Mem\Properties;
 
 /**
  * Utilities.
@@ -36,32 +36,61 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Interface members.
+ * Utility members.
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Base
+ * @see   U\Mem
  */
-trait Uninvokable_Members {
+trait Property_Members {
 	/**
-	 * Handles class invocation.
+	 * Connection ID.
 	 *
-	 * This function is called when invoking an object as a function.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param array ...$args Invocation args.
-	 *
-	 * @return mixed Invocation's return value.
-	 *
-	 * @throws U\Fatal_Exception If called in any way.
-	 *
-	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.invoke
+	 * @since 2020-11-19
 	 */
-	public function __invoke( ...$args ) /* : mixed */ {
-		throw new U\Fatal_Exception(
-			'Any attempt to invoke `' . get_class( $this ) . '`' .
-			' is currently unsupported and therefore not allowed at this time.'
-		);
-	}
+	protected string $connection_id;
+
+	/**
+	 * Namespace.
+	 *
+	 * @since 2020-11-19
+	 */
+	protected string $namespace;
+
+	/**
+	 * Servers.
+	 *
+	 * @since 2020-11-19
+	 */
+	protected array $servers;
+
+	/**
+	 * Memcached.
+	 *
+	 * @since 2020-11-19
+	 */
+	protected \Memcached $memcached;
+
+	/**
+	 * Alive? Default is `null`.
+	 *
+	 * @since 2020-11-19
+	 *
+	 * @var bool|null Default is `null`.
+	 */
+	protected ?bool $is_memcached_alive;
+
+	/**
+	 * Max attempts.
+	 *
+	 * @since 2020-11-19
+	 */
+	protected static int $max_write_attempts = 4;
+
+	/**
+	 * Connection ID version.
+	 *
+	 * @since 2022-01-24
+	 */
+	protected static string $connection_id_version = '1.0.0';
 }

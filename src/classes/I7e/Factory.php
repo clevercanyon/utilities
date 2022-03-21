@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Singleton\Magic;
+namespace Clever_Canyon\Utilities\I7e;
 
 /**
  * Utilities.
@@ -28,21 +28,23 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Interface members.
+ * Factory interface.
  *
  * @since 2021-12-15
- *
- * @see   U\I7e\Singleton
  */
-trait Constructable_Members {
+interface Factory extends U\I7e\Base {
 	/**
-	 * Protected constructor.
+	 * Factory class invocation.
 	 *
-	 * @since        2021-12-15
+	 * @since 2021-12-15
 	 *
-	 * @noinspection PhpMultipleClassDeclarationsInspection
+	 * @param string $class   Fully-qualified class name.
+	 * @param mixed  ...$args Optional args to class constructor.
+	 *                        If passed, a 'new' instance is returned.
+	 *
+	 * @return object Requested class instance.
+	 *
+	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.invoke
 	 */
-	protected function __construct() {
-		parent::__construct();
-	}
+	public function __invoke( string $class, ...$args ) : object;
 }

@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool;
+namespace Clever_Canyon\Utilities;
 
 /**
  * Utilities.
@@ -28,27 +28,22 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Interface members.
+ * Factory class.
  *
  * @since 2021-12-15
- *
- * @see   U\I7e\CLI_Tool
  */
-trait Members {
+final class Factory extends U\A6t\Factory {
 	/**
 	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\A6t\CLI_Tool\Magic\Constructable_Members;
-	use U\Traits\A6t\CLI_Tool\Properties\Property_Members;
+	use U\Traits\Factory\Members;
 
-	use U\Traits\A6t\CLI_Tool\Utilities\Getter_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Setter_Members;
-
-	use U\Traits\A6t\CLI_Tool\Utilities\Builder_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Routing_Members;
-
-	use U\Traits\A6t\CLI_Tool\Utilities\Utility_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Validation_Members;
+	/**
+	 * New keyword {@see U\Factory::__invoke()}.
+	 *
+	 * @since 2021-12-15
+	 */
+	public const NEW = "::keyword-\0new\0::";
 }

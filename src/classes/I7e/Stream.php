@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-interface Stream {
+interface Stream extends U\I7e\Base {
 	/**
 	 * Opens stream.
 	 *

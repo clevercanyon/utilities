@@ -11,12 +11,11 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Declarations & namespace.
+ * Namespace.
  *
  * @since 2021-12-25
  */
-declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Offsets\Utilities;
+namespace PHPSTORM_META;
 
 /**
  * Utilities.
@@ -28,17 +27,11 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Interface members.
+ * Overrides.
  *
  * @since 2021-12-15
- *
- * @see   U\I7e\Offsets
  */
-trait Property_Members {
-	/**
-	 * Offsets container.
-	 *
-	 * @since 2021-12-28
-	 */
-	private array $offsets = [];
-}
+override(
+	U\Traits\A6t\Factory\Magic\Invokable_Members::__invoke(),
+	map( [ '' => '@' ] )
+);

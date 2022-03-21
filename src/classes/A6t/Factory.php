@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Error\Utilities;
+namespace Clever_Canyon\Utilities\A6t;
 
 /**
  * Utilities.
@@ -28,31 +28,15 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Interface members.
+ * Base factory class.
  *
  * @since 2021-12-15
- *
- * @see   U\I7e\Error
  */
-trait Property_Members {
+abstract class Factory extends U\A6t\Base implements U\I7e\Factory {
 	/**
-	 * Stores the list of errors.
+	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
-	protected array $errors = [];
-
-	/**
-	 * Stores the most recently added error data for each error code.
-	 *
-	 * @since 2021-12-15
-	 */
-	protected array $error_data = [];
-
-	/**
-	 * Stores previously added data for error codes, oldest-to-newest by error code.
-	 *
-	 * @since 2021-12-15
-	 */
-	protected array $additional_data = [];
+	use U\Traits\A6t\Factory\Members;
 }

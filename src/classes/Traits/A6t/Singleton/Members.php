@@ -40,7 +40,6 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\A6t\Singleton\Magic\Constructable_Members;
-	use U\Traits\A6t\Singleton\Utilities\Property_Members;
+	use U\Traits\A6t\Singleton\Properties\Property_Members;
 	use U\Traits\A6t\Singleton\Utilities\Instance_Members;
 }

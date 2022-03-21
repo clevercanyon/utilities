@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Stream\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\Error\Properties;
 
 /**
  * Utilities.
@@ -32,59 +32,27 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Stream
+ * @see   U\I7e\Error
  */
 trait Property_Members {
 	/**
-	 * Context.
+	 * Stores the list of errors.
 	 *
 	 * @since 2021-12-15
-	 *
-	 * @var resource|null
-	 *
-	 * @see   https://www.php.net/manual/en/class.streamwrapper.php#streamwrapper.props
 	 */
-	public $context;
+	protected array $errors = [];
 
 	/**
-	 * Wrapper; e.g., `wrapper://`.
+	 * Stores the most recently added error data for each error code.
 	 *
 	 * @since 2021-12-15
 	 */
-	protected string $wrapper;
+	protected array $error_data = [];
 
 	/**
-	 * Wrapper name; e.g., `wrapper`.
+	 * Stores previously added data for error codes, oldest-to-newest by error code.
 	 *
 	 * @since 2021-12-15
 	 */
-	protected string $wrapper_name;
-
-	/**
-	 * Content (arbitrary data).
-	 *
-	 * Default approach is to read/write from this data.
-	 * However, some streams may choose a different approach.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @see   U\Traits\A6t\Stream\Utilities\Open_Members
-	 * @see   U\Traits\A6t\Stream\Utilities\Read_Members
-	 * @see   U\Traits\A6t\Stream\Utilities\Write_Members
-	 */
-	protected string $content;
-
-	/**
-	 * Byte length.
-	 *
-	 * @since 2021-12-15
-	 */
-	protected int $bytes;
-
-	/**
-	 * Byte position.
-	 *
-	 * @since 2021-12-15
-	 */
-	protected int $byte_pos;
+	protected array $additional_data = [];
 }

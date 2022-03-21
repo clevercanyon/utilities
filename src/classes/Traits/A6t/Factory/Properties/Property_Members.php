@@ -11,20 +11,12 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Lint configuration.
- *
- * @since        2021-12-15
- *
- * @noinspection PhpUndefinedMethodInspection
- */
-
-/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Base\Magic\Finals;
+namespace Clever_Canyon\Utilities\Traits\A6t\Factory\Properties;
 
 /**
  * Utilities.
@@ -40,28 +32,15 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Base
+ * @see   U\I7e\Factory
  */
-trait Uninvokable_Members {
+trait Property_Members {
 	/**
-	 * Handles class invocation.
+	 * Factory instances.
 	 *
-	 * This function is called when invoking an object as a function.
+	 * @since 2022-02-24
 	 *
-	 * @since 2021-12-15
-	 *
-	 * @param array ...$args Invocation args.
-	 *
-	 * @return mixed Invocation's return value.
-	 *
-	 * @throws U\Fatal_Exception If called in any way.
-	 *
-	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.invoke
+	 * @var object[]
 	 */
-	final public function __invoke( ...$args ) /* : mixed */ {
-		throw new U\Fatal_Exception(
-			'Any attempt to invoke `' . get_class( $this ) . '`' .
-			' is currently unsupported and therefore not allowed at this time.'
-		);
-	}
+	private array $factory = [];
 }

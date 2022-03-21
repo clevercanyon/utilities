@@ -41,7 +41,7 @@ trait Members {
 	 * @since 2021-12-28
 	 */
 	use U\Traits\A6t\Offsets\Magic\Constructable_Members;
-	use U\Traits\A6t\Offsets\Utilities\Property_Members;
+	use U\Traits\A6t\Offsets\Properties\Property_Members;
 
 	use U\Traits\A6t\Offsets\I7e\Countable_Members;
 	use U\Traits\A6t\Offsets\I7e\ArrayAccess_Members;

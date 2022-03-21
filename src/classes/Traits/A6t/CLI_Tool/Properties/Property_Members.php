@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Base\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Properties;
 
 /**
  * Utilities.
@@ -25,6 +25,13 @@ namespace Clever_Canyon\Utilities\Traits\A6t\Base\Utilities;
  */
 use Clever_Canyon\{Utilities as U};
 
+/**
+ * File-specific.
+ *
+ * @since 2021-12-15
+ */
+use GetOpt\{GetOpt as Parser, Command, Option, Operand};
+
 // </editor-fold>
 
 /**
@@ -32,23 +39,40 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Base
+ * @see   U\I7e\CLI_Tool
  */
 trait Property_Members {
 	/**
-	 * Gets non-static properties, by value.
+	 * Parser.
 	 *
-	 * @since 2021-12-27
-	 *
-	 * @param string|null $filter Optional filter. Default is `null`.
-	 *                            {@see U\Obj::props()} for further details.
-	 *
-	 * @param bool        $clean  Clean property names? Default is `false`.
-	 *                            {@see U\Obj::props()} for further details.
-	 *
-	 * @return array Non-static properties using the given `$filter`.
+	 * @since 2021-12-15
 	 */
-	final public function props( /* string|null */ ?string $filter = null, bool $clean = false ) : array {
-		return U\Obj::props( $this, $filter, $clean );
-	}
+	protected Parser $parser;
+
+	/**
+	 * Parser args.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @var string|array|null
+	 */
+	protected $args_to_parse; /* string|array|null */
+
+	/**
+	 * Required options.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @var Option[] Options.
+	 */
+	protected array $required_options;
+
+	/**
+	 * Required operands.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @var Operand[] Options.
+	 */
+	protected array $required_operands;
 }

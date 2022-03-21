@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool;
+namespace Clever_Canyon\Utilities\Traits\HTTP\Utilities;
 
 /**
  * Utilities.
@@ -28,27 +28,30 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Interface members.
+ * Utility members.
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\CLI_Tool
+ * @see   U\HTTP
  */
-trait Members {
+trait Redirect_Members {
 	/**
-	 * Traits.
+	 * Performs an HTTP redirection.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param string $location Redirect location.
+	 * @param int    $status   Redirect status code. Default is `302`.
+	 * @param bool   $exit     Exit script execution? Default is `true`.
 	 */
-	use U\Traits\A6t\CLI_Tool\Magic\Constructable_Members;
-	use U\Traits\A6t\CLI_Tool\Properties\Property_Members;
-
-	use U\Traits\A6t\CLI_Tool\Utilities\Getter_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Setter_Members;
-
-	use U\Traits\A6t\CLI_Tool\Utilities\Builder_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Routing_Members;
-
-	use U\Traits\A6t\CLI_Tool\Utilities\Utility_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Validation_Members;
+	public static function redirect( string $location, int $status = 302, bool $exit = true ) : void {
+		if ( U\Env::is_wordpress() ) {
+			wp_redirect( $location, $status ); // phpcs:ignore -- redirect ok.
+		} else {
+			header( 'location: ' . $location, true, $status );
+		}
+		if ( $exit ) {
+			exit; // Stop here.
+		}
+	}
 }

@@ -48,4 +48,5 @@ trait Members {
 	use U\Traits\HTTP\Utilities\Finish_Request_Members;
 	use U\Traits\HTTP\Utilities\Header_Members;
 	use U\Traits\HTTP\Utilities\Prep_For_Members;
+	use U\Traits\HTTP\Utilities\Redirect_Members;
 }

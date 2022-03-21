@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\Stream\Properties;
 
 /**
  * Utilities.
@@ -25,13 +25,6 @@ namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool\Utilities;
  */
 use Clever_Canyon\{Utilities as U};
 
-/**
- * File-specific.
- *
- * @since 2021-12-15
- */
-use GetOpt\{GetOpt as Parser, Command, Option, Operand};
-
 // </editor-fold>
 
 /**
@@ -39,40 +32,59 @@ use GetOpt\{GetOpt as Parser, Command, Option, Operand};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\CLI_Tool
+ * @see   U\I7e\Stream
  */
 trait Property_Members {
 	/**
-	 * Parser.
+	 * Context.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @var resource|null
+	 *
+	 * @see   https://www.php.net/manual/en/class.streamwrapper.php#streamwrapper.props
 	 */
-	protected Parser $parser;
+	public $context;
 
 	/**
-	 * Parser args.
+	 * Wrapper; e.g., `wrapper://`.
 	 *
 	 * @since 2021-12-15
-	 *
-	 * @var string|array|null
 	 */
-	protected $args_to_parse; /* string|array|null */
+	protected string $wrapper;
 
 	/**
-	 * Required options.
+	 * Wrapper name; e.g., `wrapper`.
 	 *
 	 * @since 2021-12-15
-	 *
-	 * @var Option[] Options.
 	 */
-	protected array $required_options;
+	protected string $wrapper_name;
 
 	/**
-	 * Required operands.
+	 * Content (arbitrary data).
+	 *
+	 * Default approach is to read/write from this data.
+	 * However, some streams may choose a different approach.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @var Operand[] Options.
+	 * @see   U\Traits\A6t\Stream\Utilities\Open_Members
+	 * @see   U\Traits\A6t\Stream\Utilities\Read_Members
+	 * @see   U\Traits\A6t\Stream\Utilities\Write_Members
 	 */
-	protected array $required_operands;
+	protected string $content;
+
+	/**
+	 * Byte length.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected int $bytes;
+
+	/**
+	 * Byte position.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected int $byte_pos;
 }

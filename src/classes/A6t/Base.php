@@ -32,7 +32,7 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  */
-abstract class Base implements U\I7e\Base {
+abstract class Base extends U\A6t\Stc_Base implements U\I7e\Base {
 	/**
 	 * Traits.
 	 *

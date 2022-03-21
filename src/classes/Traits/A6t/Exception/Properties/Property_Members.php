@@ -11,12 +11,22 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since 2021-12-15
+ *
+ * Leading underscores in this file help us guard against collisions with PHP core in the future.
+ * Using `snake_case()` method names to guard against collisions also. PHP core uses `camelCase()`.
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Singleton\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\Exception\Properties;
 
 /**
  * Utilities.
@@ -32,15 +42,20 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Singleton
+ * @see   U\I7e\Exception
  */
 trait Property_Members {
 	/**
-	 * Single instance.
+	 * Exception code.
 	 *
-	 * @since 2022-02-24
-	 *
-	 * @var U\I7e\Singleton
+	 * @since 2021-12-15
 	 */
-	protected static U\I7e\Singleton $instance;
+	protected string $___code;
+
+	/**
+	 * Exception data.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected object $___data;
 }

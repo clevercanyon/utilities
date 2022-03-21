@@ -110,21 +110,6 @@ interface Base extends U\I7e\Stc_Base, \JsonSerializable {
 	public function __unserialize( array $props ) : void;
 
 	/**
-	 * Handles class invocation.
-	 *
-	 * This function is called when invoking an object as a function.
-	 *
-	 * @since 2021-12-15
-	 *
-	 * @param array ...$args Invocation args.
-	 *
-	 * @return mixed Invocation's return value.
-	 *
-	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.invoke
-	 */
-	public function __invoke( ...$args ); /* : mixed */
-
-	/**
 	 * Tests inaccessible properties.
 	 *
 	 * @since 2021-12-15

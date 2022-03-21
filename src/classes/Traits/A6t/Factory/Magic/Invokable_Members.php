@@ -11,20 +11,12 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Lint configuration.
- *
- * @since        2021-12-25
- *
- * @noinspection PhpComposerExtensionStubsInspection
- */
-
-/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Mem\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\Factory\Magic;
 
 /**
  * Utilities.
@@ -36,61 +28,37 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\Mem
+ * @see   U\I7e\Factory
  */
-trait Property_Members {
+trait Invokable_Members {
 	/**
-	 * Connection ID.
+	 * Factory class invocation.
 	 *
-	 * @since 2020-11-19
+	 * @since 2021-12-15
+	 *
+	 * @param string $class   Fully-qualified class name.
+	 * @param mixed  ...$args Optional args to class constructor.
+	 *                        If passed, a 'new' instance is returned.
+	 *
+	 * @return object Requested class instance.
+	 *
+	 * @see   https://www.php.net/manual/en/language.oop5.magic.php#object.invoke
 	 */
-	protected string $connection_id;
-
-	/**
-	 * Namespace.
-	 *
-	 * @since 2020-11-19
-	 */
-	protected string $namespace;
-
-	/**
-	 * Servers.
-	 *
-	 * @since 2020-11-19
-	 */
-	protected array $servers;
-
-	/**
-	 * Memcached.
-	 *
-	 * @since 2020-11-19
-	 */
-	protected \Memcached $memcached;
-
-	/**
-	 * Alive? Default is `null`.
-	 *
-	 * @since 2020-11-19
-	 *
-	 * @var bool|null Default is `null`.
-	 */
-	protected ?bool $is_memcached_alive;
-
-	/**
-	 * Max attempts.
-	 *
-	 * @since 2020-11-19
-	 */
-	protected static int $max_write_attempts = 4;
-
-	/**
-	 * Connection ID version.
-	 *
-	 * @since 2022-01-24
-	 */
-	protected static string $connection_id_version = '1.0.0';
+	final public function __invoke( string $class, ...$args ) : object {
+		if ( $args ) {
+			if ( U\Factory::NEW === $args[ 0 ] ) {
+				array_shift( $args );
+			}
+			return new $class( $this, ...$args );
+		} else {
+			if ( isset( $this->factory[ $class ] ) ) {
+				return $this->factory[ $class ];
+			}
+			return $this->factory[ $class ] = new $class( $this );
+		}
+	}
 }

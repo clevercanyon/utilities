@@ -43,5 +43,7 @@ trait Members {
 	use U\Traits\A6t\Stc_Base\Magic\Uncallable_Members;
 	use U\Traits\A6t\Stc_Base\Magic\Unconstructable_Members;
 	use U\Traits\A6t\Stc_Base\Magic\Unimportable_Members;
+
+	use U\Traits\A6t\Stc_Base\Properties\Property_Members;
 	use U\Traits\A6t\Stc_Base\Utilities\CLS_Cache_Members;
 }

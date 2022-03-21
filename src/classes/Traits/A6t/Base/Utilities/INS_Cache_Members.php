@@ -36,13 +36,6 @@ use Clever_Canyon\{Utilities as U};
  */
 trait INS_Cache_Members {
 	/**
-	 * Object INS cache.
-	 *
-	 * @since 2021-12-15
-	 */
-	private array $ins_cache = [];
-
-	/**
 	 * Gets|sets object INS cache.
 	 *
 	 * @since 2021-12-15

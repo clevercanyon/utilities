@@ -42,7 +42,7 @@ trait Members {
 	 */
 	use U\Traits\A6t\Stream\Magic\Constructable_Members;
 	use U\Traits\A6t\Stream\Magic\Destructable_Members;
-	use U\Traits\A6t\Stream\Utilities\Property_Members;
+	use U\Traits\A6t\Stream\Properties\Property_Members;
 
 	use U\Traits\A6t\Stream\Utilities\Open_Members;
 	use U\Traits\A6t\Stream\Utilities\Lock_Members;

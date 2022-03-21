@@ -41,7 +41,7 @@ trait Members {
 	 * @since 2021-12-28
 	 */
 	use U\Traits\A6t\Error\Magic\Constructable_Members;
-	use U\Traits\A6t\Error\Utilities\Property_Members;
+	use U\Traits\A6t\Error\Properties\Property_Members;
 
 	use U\Traits\A6t\Error\Utilities\Getter_Members;
 	use U\Traits\A6t\Error\Utilities\Setter_Members;

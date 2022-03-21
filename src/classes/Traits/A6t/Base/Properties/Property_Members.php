@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\CLI_Tool;
+namespace Clever_Canyon\Utilities\Traits\A6t\Base\Properties;
 
 /**
  * Utilities.
@@ -32,23 +32,30 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\CLI_Tool
+ * @see   U\I7e\Base
  */
-trait Members {
+trait Property_Members {
 	/**
-	 * Traits.
+	 * Object INS cache.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\A6t\CLI_Tool\Magic\Constructable_Members;
-	use U\Traits\A6t\CLI_Tool\Properties\Property_Members;
+	private array $ins_cache = [];
 
-	use U\Traits\A6t\CLI_Tool\Utilities\Getter_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Setter_Members;
-
-	use U\Traits\A6t\CLI_Tool\Utilities\Builder_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Routing_Members;
-
-	use U\Traits\A6t\CLI_Tool\Utilities\Utility_Members;
-	use U\Traits\A6t\CLI_Tool\Utilities\Validation_Members;
+	/**
+	 * Gets non-static properties, by value.
+	 *
+	 * @since 2021-12-27
+	 *
+	 * @param string|null $filter Optional filter. Default is `null`.
+	 *                            {@see U\Obj::props()} for further details.
+	 *
+	 * @param bool        $clean  Clean property names? Default is `false`.
+	 *                            {@see U\Obj::props()} for further details.
+	 *
+	 * @return array Non-static properties using the given `$filter`.
+	 */
+	final public function props( /* string|null */ ?string $filter = null, bool $clean = false ) : array {
+		return U\Obj::props( $this, $filter, $clean );
+	}
 }

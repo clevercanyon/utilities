@@ -51,6 +51,6 @@ trait Members {
 	 * @since 2021-12-28
 	 */
 	use U\Traits\A6t\Exception\Magic\Constructable_Members;
-	use U\Traits\A6t\Exception\Utilities\Property_Members;
+	use U\Traits\A6t\Exception\Properties\Property_Members;
 	use U\Traits\A6t\Exception\Utilities\Getter_Members;
 }

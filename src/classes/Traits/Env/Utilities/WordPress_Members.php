@@ -52,6 +52,60 @@ trait WordPress_Members {
 	}
 
 	/**
+	 * Is WooCommerce?
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @return bool True if WooCommerce.
+	 */
+	public static function is_woocommerce() : bool {
+		static $is; // Memoize.
+
+		if ( null !== $is ) {
+			return $is; // Saves time.
+		}
+		return $is = U\Env::is_wp_plugin_active( 'woocommerce/woocommerce.php' );
+	}
+
+	/**
+	 * Is a WordPress plugin active?
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @param string $basename Plugin basename.
+	 *
+	 * @return bool True if WordPress plugin active.
+	 */
+	public static function is_wp_plugin_active( string $basename ) : bool {
+		static $is; // Memoize.
+		$is ??= []; // Initialize.
+
+		if ( isset( $is[ $basename ] ) ) {
+			return $is[ $basename ]; // Saves time.
+		}
+		return $is[ $basename ] = U\Env::is_wordpress() && is_plugin_active( $basename );
+	}
+
+	/**
+	 * Is a WordPress theme active?
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @param string $name Theme template name.
+	 *
+	 * @return bool True if WordPress theme active.
+	 */
+	public static function is_wp_theme_active( string $name ) : bool {
+		static $is; // Memoize.
+		$is ??= []; // Initialize.
+
+		if ( isset( $is[ $name ] ) ) {
+			return $is[ $name ]; // Saves time.
+		}
+		return $is[ $name ] = U\Env::is_wordpress() && get_template() === $name;
+	}
+
+	/**
 	 * Is a specific WordPress host?
 	 *
 	 * @since 2022-03-12
@@ -61,20 +115,23 @@ trait WordPress_Members {
 	 * @return bool `true` if is WordPress host.
 	 */
 	public static function is_wp_host( string $host ) : bool {
-		static $is = []; // Memoize.
+		static $is; // Memoize.
 
 		if ( false === $is ) {
 			return $is; // Saves time.
 		}
 		if ( ! U\Env::is_wordpress() ) {
-			return $is = false; // Not applicable.
+			return $is = false;
 		}
 		$blog_id = get_current_blog_id();
 		$host    = mb_strtolower( $host );
 
 		if ( isset( $is[ $blog_id ][ $host ] ) ) {
-			return $is[ $blog_id ][ $host ];
+			return $is[ $blog_id ][ $host ]; // Saves time.
 		}
+		$is             ??= []; // Initialize.
+		$is[ $blog_id ] ??= []; // Initialize.
+
 		$wp_home = U\URL::parse( get_home_url() );
 
 		if ( false !== mb_strpos( $host, ':' ) ) {

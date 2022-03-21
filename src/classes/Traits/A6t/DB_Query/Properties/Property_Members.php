@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-25
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\A6t\Code_Stream_Closure\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\DB_Query\Properties;
 
 /**
  * Utilities.
@@ -32,13 +40,57 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\I7e\Code_Stream_Closure
+ * @see   U\I7e\DB_Query
  */
 trait Property_Members {
 	/**
-	 * As code.
+	 * PDO type.
 	 *
-	 * @since 2022-02-11
+	 * @since 2021-12-15
 	 */
-	protected string $code;
+	protected string $type;
+
+	/**
+	 * Query string.
+	 *
+	 * @since 2021-12-15
+	 */
+	public string $string;
+
+	/**
+	 * Database.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected U\I7e\Database $db;
+
+	/**
+	 * Prepared values.
+	 *
+	 * @since 2021-12-15
+	 */
+	protected array $prepared_values;
+
+	/**
+	 * Prepared values bound?
+	 *
+	 * @since 2021-12-15
+	 */
+	protected bool $prepared_values_bound;
+
+	/**
+	 * Query executed?
+	 *
+	 * @since 2021-12-15
+	 */
+	protected bool $query_executed;
+
+	/**
+	 * Query statement.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @var \PDOStatement|null Depending on state.
+	 */
+	protected ?\PDOStatement $sm;
 }

@@ -41,7 +41,7 @@ trait Members {
 	 * @since 2021-12-15
 	 */
 	use U\Traits\Mem\Magic\Constructable_Members;
-	use U\Traits\Mem\Utilities\Property_Members;
+	use U\Traits\Mem\Properties\Property_Members;
 
 	use U\Traits\Mem\Utilities\Key_Members;
 	use U\Traits\Mem\Utilities\Server_Members;

@@ -42,6 +42,6 @@ trait Members {
 	 */
 	use U\Traits\A6t\Code_Stream_Closure\Magic\Constructable_Members;
 	use U\Traits\A6t\Code_Stream_Closure\Magic\Serializable_Members;
-	use U\Traits\A6t\Code_Stream_Closure\Utilities\Property_Members;
+	use U\Traits\A6t\Code_Stream_Closure\Properties\Property_Members;
 	use U\Traits\A6t\Code_Stream_Closure\Utilities\Utility_Members;
 }

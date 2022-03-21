@@ -11,15 +11,6 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
- * Lint configuration.
- *
- * @since        2021-12-25
- *
- * @noinspection PhpTraitsUseListInspection
- * phpcs:disable WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceAfterOpenParenthesis
- */
-
-/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
@@ -49,19 +40,13 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\A6t\Stc_Base\Members,
-		U\Traits\A6t\Base\Magic\Constructable_Members {
-		U\Traits\A6t\Base\Magic\Constructable_Members::__construct
-		insteadof U\Traits\A6t\Stc_Base\Members; // Except `__construct()`.
-	}
+	use U\Traits\A6t\Base\Magic\Constructable_Members;
 	use U\Traits\A6t\Base\Magic\Destructable_Members;
 	use U\Traits\A6t\Base\Magic\Cloneable_Members;
 
 	use U\Traits\A6t\Base\Magic\Unreadable_Members;
 	use U\Traits\A6t\Base\Magic\Unwritable_Members;
-
 	use U\Traits\A6t\Base\Magic\Uncallable_Members;
-	use U\Traits\A6t\Base\Magic\Uninvokable_Members;
 
 	use U\Traits\A6t\Base\Magic\Debuggable_Members;
 	use U\Traits\A6t\Base\Magic\Stringable_Members;
@@ -69,7 +54,8 @@ trait Members {
 	use U\Traits\A6t\Base\Magic\Unserializable_Members;
 	use U\Traits\A6t\Base\I7e\JsonSerializable_Members;
 
+	use U\Traits\A6t\Base\Properties\Property_Members;
+
 	use U\Traits\A6t\Base\Utilities\Equals_Members;
-	use U\Traits\A6t\Base\Utilities\Property_Members;
 	use U\Traits\A6t\Base\Utilities\INS_Cache_Members;
 }

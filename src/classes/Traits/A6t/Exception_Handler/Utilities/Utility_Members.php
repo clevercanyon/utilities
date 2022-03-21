@@ -87,6 +87,8 @@ trait Utility_Members {
 	 * @since 2022-03-03
 	 *
 	 * @param \Throwable $throwable Throwable.
+	 *
+	 * @todo  Review output from this function. Should we prepare output? Should we exit?
 	 */
 	public static function on_exception( \Throwable $throwable ) : void {
 		try {
