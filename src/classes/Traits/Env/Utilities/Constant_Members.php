@@ -36,7 +36,7 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Constant_Members {
 	/**
-	 * Gets a constant; if defined.
+	 * Gets a constant.
 	 *
 	 * @since 2021-12-15
 	 *
@@ -52,7 +52,7 @@ trait Constant_Members {
 	}
 
 	/**
-	 * Defines a constant, if not defined already.
+	 * Defines a constant (maybe).
 	 *
 	 * @since 2021-12-15
 	 *
@@ -63,6 +63,8 @@ trait Constant_Members {
 	 *              Otherwise, `true` if a new constant is defined successfully.
 	 */
 	public static function maybe_define( string $name, /* int|float|string|bool|null */ $value ) : bool {
+		assert( null === $value || is_int( $value ) || is_float( $value ) || is_string( $value ) || is_bool( $value ) );
+
 		if ( defined( $name ) ) {
 			return constant( $name ) === $value;
 		}

@@ -40,22 +40,52 @@ trait Is_Hostery_Members {
 	 *
 	 * @since 2021-12-18
 	 *
-	 * @param string|null $env Specific Hostery environment?
-	 *                         Default is `null` (any Hostery environment).
+	 * @param string|null              $prop  Check a specific Hostery environment property?
+	 *                                        Default is `null` (any Hostery environment).
 	 *
-	 * @return bool True if Hostery environment.
+	 *                                        Property descriptions:
+	 *
+	 *                                        * `provider`           e.g., `verpex`.
+	 *                                        * `operating_system`   e.g., `cloudlinux`.
+	 *                                        * `control_panel`      e.g., `cpanel`.
+	 *                                        * `web_server`         e.g., `litespeed`.
+	 *                                        * `environment`        e.g., `production`.
+	 *
+	 * @param string|U\I7e\Regexp|null $value If `$prop` is given, the value to check for. Default is `null`.
+	 *                                        This can be given as a string or {@see U\I7e\Regexp}.
+	 *
+	 * @return bool `true` if is a Hostery environment.
+	 *              If `$prop` is given, `true` if `$prop` matches `$value`.
+	 *
+	 * @see   `clevercanyon/wordpress-sites/wp-content/private/c24s/wp-config/defaults.php`.
 	 */
-	public static function is_hostery( /* string|null */ ?string $env = null ) : bool {
-		static $is = [], $hostery; // Memoize.
-		$env ??= '*';              // Default (any).
+	public static function is_hostery( /* string|null */ ?string $prop = null, /* string|U\I7e\Regexp|null */ $value = null ) : bool {
+		assert( null === $value || is_string( $value ) || $value instanceof U\I7e\Regexp );
 
-		if ( isset( $is[ $env ] ) ) {
-			return $is[ $env ]; // Saves time.
+		static $is, $hostery; // Memoize.
+
+		$prop      ??= '*'; // Default (any).
+		$value     ??= '*'; // Default (any).
+		$value     = '*' === $prop ? '*' : $value;
+		$value_key = $value instanceof U\I7e\Regexp ? get_class( $value ) . ':' . $value : $value;
+
+		if ( isset( $is[ $prop ][ $value_key ] ) ) {
+			return $is[ $prop ][ $value_key ]; // Saves time.
 		}
+		$is          ??= []; // Initialize.
+		$is[ $prop ] ??= []; // Initialize.
+
 		if ( null === $hostery ) {
 			$hostery = U\Env::var( 'HOSTERY' );
-			$hostery = preg_split( '/\|+/u', $hostery, -1, PREG_SPLIT_NO_EMPTY );
+			$hostery = $hostery ? U\Str::json_decode( $hostery ) : null;
+			$hostery = $hostery && is_object( $hostery ) ? $hostery : (object) [];
 		}
-		return $is[ $env ] = $hostery && ( '*' === $env || in_array( $env, $hostery, true ) );
+		if ( '*' === $prop ) {
+			return $is[ $prop ][ $value_key ] = ! U\Obj::empty( $hostery );
+		}
+		if ( $value instanceof U\I7e\Regexp ) {
+			return $is[ $prop ][ $value_key ] = isset( $hostery->{$prop} ) && $value->test( $hostery->{$prop} );
+		}
+		return $is[ $prop ][ $value_key ] = isset( $hostery->{$prop} ) && $hostery->{$prop} === $value;
 	}
 }

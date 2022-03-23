@@ -49,6 +49,29 @@ trait Type_Members {
 	}
 
 	/**
+	 * Sets canonicalized data type.
+	 *
+	 * @since 2022-03-23
+	 *
+	 * @param mixed  $value Value to type.
+	 * @param string $type  Data type to set to.
+	 *
+	 * @return mixed Value converted to canonicalized data type.
+	 *
+	 * @see   `clevercanyon/wordpress-sites/wp-content/private/c24s/wp-config/defaults.php`.
+	 */
+	public static function set_type( /* mixed */ $value, string $type ) /* : mixed */ {
+		$type = U\Data::canonicalize_type( $type );
+
+		if ( 'bool' === $type ) {
+			$value = U\Bln::validate( $value );
+		} else {
+			settype( $value, $type );
+		}
+		return $value;
+	}
+
+	/**
 	 * Cananicalizes a data type.
 	 *
 	 * The goal here is to work out obscure differences between

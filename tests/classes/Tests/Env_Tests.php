@@ -343,9 +343,12 @@ final class Env_Tests extends U_Tests\A6t\Base {
 	}
 
 	/**
+	 * @runInSeparateProcess
 	 * @covers ::is_hostery()
 	 */
-	public function test_is_hostery() : void {
+	public function test_is_hostery_false() : void {
+		putenv( 'HOSTERY' ); // Removes environment variable.
+		$this->assertSame( false, U\Env::is_hostery(), $this->message() );
 		$this->assertSame( false, U\Env::is_hostery(), $this->message() );
 	}
 
@@ -353,10 +356,28 @@ final class Env_Tests extends U_Tests\A6t\Base {
 	 * @runInSeparateProcess
 	 * @covers ::is_hostery()
 	 */
-	public function test_is_hostery_yes() : void {
-		putenv( 'HOSTERY=phpunit|cpanel|php' ); // phpcs:ignore.
+	public function test_is_hostery_true() : void {
+		putenv( 'HOSTERY={"provider":"foo","operating_system":"foo","control_panel":"foo","web_server":"foo","environment":"foo"}' );
+
 		$this->assertSame( true, U\Env::is_hostery(), $this->message() );
-		$this->assertSame( true, U\Env::is_hostery( 'cpanel' ), $this->message() );
-		$this->assertSame( false, U\Env::is_hostery( 'digitalocean' ), $this->message() );
+		$this->assertSame( true, U\Env::is_hostery(), $this->message() );
+
+		$this->assertSame( true, U\Env::is_hostery( 'provider', 'foo' ), $this->message() );
+		$this->assertSame( true, U\Env::is_hostery( 'provider', 'foo' ), $this->message() );
+
+		$this->assertSame( true, U\Env::is_hostery( 'provider', new U\Regexp( '/^foo$/u' ) ), $this->message() );
+		$this->assertSame( true, U\Env::is_hostery( 'provider', new U\Regexp( '/^foo$/u' ) ), $this->message() );
+
+		$this->assertSame( true, U\Env::is_hostery( 'operating_system', 'foo' ), $this->message() );
+		$this->assertSame( true, U\Env::is_hostery( 'operating_system', new U\Regexp( '/^foo$/u' ) ), $this->message() );
+
+		$this->assertSame( true, U\Env::is_hostery( 'control_panel', 'foo' ), $this->message() );
+		$this->assertSame( true, U\Env::is_hostery( 'control_panel', new U\Regexp( '/^foo$/u' ) ), $this->message() );
+
+		$this->assertSame( true, U\Env::is_hostery( 'web_server', 'foo' ), $this->message() );
+		$this->assertSame( true, U\Env::is_hostery( 'web_server', new U\Regexp( '/^foo$/u' ) ), $this->message() );
+
+		$this->assertSame( true, U\Env::is_hostery( 'environment', 'foo' ), $this->message() );
+		$this->assertSame( true, U\Env::is_hostery( 'environment', new U\Regexp( '/^foo$/u' ) ), $this->message() );
 	}
 }

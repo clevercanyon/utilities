@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Obj\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\Regexp\Utilities;
 
 /**
  * Utilities.
@@ -28,29 +28,34 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\Obj
+ * @see   U\I7e\Regexp
  */
-trait Conditional_Members {
+trait Utility_Members {
 	/**
-	 * Object is empty?
+	 * Gets pattern.
 	 *
-	 * @since        2021-12-16
+	 * @since 2022-03-22
 	 *
-	 * @param object $obj Value to check.
-	 *
-	 * @return bool True if object is empty.
-	 *
-	 * @noinspection PhpLoopNeverIteratesInspection
-	 * @noinspection PhpUnusedLocalVariableInspection
+	 * @return string Pattern.
 	 */
-	public static function empty( object $obj ) : bool {
-		foreach ( is_iterable( $obj ) ? $obj : [] as $_v ) {
-			return false; // Not empty.
-		}
-		return empty( U\Obj::props( $obj, 'debug+' ) );
+	public function pattern() : string {
+		return $this->pattern;
+	}
+
+	/**
+	 * Tests a string.
+	 *
+	 * @since 2022-03-22
+	 *
+	 * @param string $str String.
+	 *
+	 * @return bool `true` if `$str` matches.
+	 */
+	public function test( string $str ) : bool {
+		return (bool) preg_match( $this->pattern, $str );
 	}
 }

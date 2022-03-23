@@ -49,6 +49,8 @@ trait Is_Regexp_Members {
 	 * @return bool|string True if it's a valid regular expression.
 	 *                     Valid delimiters are: `/`, `~`, `@`, `;`, `%`, '`', `#`,
 	 *                     which is what {@see https://regex101.com} suggests.
+	 *
+	 * @todo  Consider removing or deprecating this in favor of {@see U\Regexp}.
 	 */
 	public static function is_regexp( string $str, bool $rtn_delimiter = false ) /* : bool|string */ {
 		preg_match( '/^([\/~@;%`#]).*\\1[a-z]*$/ui', $str, $m );

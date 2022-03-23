@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Obj\Utilities;
+namespace Clever_Canyon\Utilities\Traits\A6t\Regexp;
 
 /**
  * Utilities.
@@ -28,29 +28,21 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\Obj
+ * @see   U\I7e\Regexp
  */
-trait Conditional_Members {
+trait Members {
 	/**
-	 * Object is empty?
+	 * Traits.
 	 *
-	 * @since        2021-12-16
-	 *
-	 * @param object $obj Value to check.
-	 *
-	 * @return bool True if object is empty.
-	 *
-	 * @noinspection PhpLoopNeverIteratesInspection
-	 * @noinspection PhpUnusedLocalVariableInspection
+	 * @since 2021-12-15
 	 */
-	public static function empty( object $obj ) : bool {
-		foreach ( is_iterable( $obj ) ? $obj : [] as $_v ) {
-			return false; // Not empty.
-		}
-		return empty( U\Obj::props( $obj, 'debug+' ) );
-	}
+	use U\Traits\A6t\Regexp\Magic\Constructable_Members;
+	use U\Traits\A6t\Regexp\Properties\Property_Members;
+
+	use U\Traits\A6t\Regexp\Magic\Stringable_Members;
+	use U\Traits\A6t\Regexp\Utilities\Utility_Members;
 }

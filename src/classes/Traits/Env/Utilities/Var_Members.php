@@ -116,24 +116,25 @@ trait Var_Members {
 	 *
 	 * @since 2021-12-21
 	 *
-	 * @param string $name Environment variable name.
+	 * @param string $name         Environment variable name.
+	 * @param bool   $update_cache Update cache? Default is `false`.
 	 *
 	 * @return string Environment variable value; else empty string.
 	 *
 	 * @see   U\Env::vars() Before modifying this function.
 	 * @see   U\Dir::sys_temp() Before modifying this function.
 	 * @see   U\User::ip() Before modifying this function.
+	 *
+	 * @see   `clevercanyon/wordpress-sites/wp-content/private/c24s/wp-config/defaults.php`.
 	 */
-	public static function var( string $name ) : string {
+	public static function var( string $name, bool $update_cache = false ) : string {
 		static $cache = []; // Memoize.
 
-		if ( isset( $cache[ $name ] ) ) {
+		if ( ! $update_cache && isset( $cache[ $name ] ) ) {
 			return $cache[ $name ]; // Saves time.
 		}
-		$cache[ $name ] = null;             // Initialize.
+		$cache[ $name ] = '';               // Initialize.
 		$value          =& $cache[ $name ]; // Cache reference.
-
-		$_s = &$_SERVER; // phpcs:ignore.
 
 		switch ( $name ) {
 			case 'USER_ID':
@@ -161,15 +162,15 @@ trait Var_Members {
 					// are just too expensive to run on every single request.
 					// ~ Not implementing for that reason.
 
-					if ( ! $value && '0' !== $value ) { // CLI access.
+					if ( '' === $value ) { // CLI access.
 						$value = U\CLI::try_exec( [ 'id', '--user' ] )->stdout;
 					}
-				} // Note that `'0'` is the `root` user.
-				return $value = (string) $value; // Force string.
+				}
+				return $value; // Note that `0` is the `root` user.
 
 			case 'USER':
 			case 'USER_LC':
-				// Goal is to get the 'effective' user; not 'real' user.
+				// Goal is to get the 'effective' user. Not the 'real' user.
 				// i.e., `$ sudo cmd` should give us an effective `root` user.
 				// Not using `$ logname` or `LOGNAME` environment variable for that reason.
 
@@ -177,31 +178,26 @@ trait Var_Members {
 					return $value = '' === $cache[ 'USER' ] ? '' : mb_strtolower( $cache[ 'USER' ] );
 				}
 				if ( U\Env::is_windows() ) {
-					$value = ( $_s[ 'USERNAME' ] ?? '' ) ?: getenv( 'USERNAME' )
-						?: ( $_s[ 'USER' ] ?? '' ) ?: getenv( 'USER' );
+					$value = U\Env::var_helper( 'USERNAME', 'USER' );
 				} else {
-					$value = ( $_s[ 'USER' ] ?? '' ) ?: getenv( 'USER' )
-						?: ( $_s[ 'USERNAME' ] ?? '' ) ?: getenv( 'USERNAME' );
+					$value = U\Env::var_helper( 'USER', 'USERNAME' );
 
-					if ( ! $value && U\Env::can_use_extension( 'posix' ) && U\Env::can_use_function( 'posix_getpwuid', 'posix_geteuid' ) ) {
+					if ( '' === $value && U\Env::can_use_extension( 'posix' ) && U\Env::can_use_function( 'posix_getpwuid', 'posix_geteuid' ) ) {
 						/** @noinspection PhpComposerExtensionStubsInspection */ // phpcs:ignore.
 						if ( $_posix = posix_getpwuid( posix_geteuid() ) ) {
-							$value = $_posix[ 'name' ] ?? '';
+							$value = (string) ( $_posix[ 'name' ] ?? '' );
 						}
 					}
 				}
-				if ( ! $value && U\Env::is_apache() ) {
-					$value = ( $_s[ 'APACHE_RUN_USER' ] ?? '' ) ?: getenv( 'APACHE_RUN_USER' );
+				if ( '' === $value && U\Env::is_apache() ) {
+					$value = U\Env::var_helper( 'APACHE_RUN_USER' );
 				}
-				if ( ! $value ) { // CLI access.
-					// This works on Windows also.
+				if ( '' === $value ) { // Works on Windows also.
 					$value = U\CLI::try_exec( [ 'whoami' ] )->stdout;
 				}
-				$value = (string) $value; // Force string.
-
 				// On Windows we may end up with `workgroup\user`.
 				// The `workgroup` is pretty much useless; {@see https://o5p.me/uQSC7B}.
-				if ( $value && U\Env::is_windows() && false !== mb_strpos( $value, '\\' ) ) {
+				if ( '' !== $value && U\Env::is_windows() && false !== mb_strpos( $value, '\\' ) ) {
 					$value = mb_substr( mb_strrchr( $value, '\\' ), 1 );
 				}
 				return $value = '' === $value ? '' // ↓ CaSe transform.
@@ -210,51 +206,45 @@ trait Var_Members {
 			case 'HOME':
 
 				if ( U\Env::is_windows() ) {
-					$value = ( $_s[ 'USERPROFILE' ] ?? '' ) ?: getenv( 'USERPROFILE' )
-						?: ( $_s[ 'HOME' ] ?? '' ) ?: getenv( 'HOME' );
+					$value = U\Env::var_helper( 'USERPROFILE', 'HOME' );
 
-					if ( ! $value ) {
-						$_homedrive = ( $_s[ 'HOMEDRIVE' ] ?? '' ) ?: getenv( 'HOMEDRIVE' );
-						$_homepath  = $_homedrive ? ( ( $_s[ 'HOMEPATH' ] ?? '' ) ?: getenv( 'HOMEPATH' ) ) : '';
+					if ( '' === $value ) {
+						$_homedrive = U\Env::var_helper( 'HOMEDRIVE' );
+						$_homepath  = $_homedrive ? U\Env::var_helper( 'HOMEPATH' ) : '';
 
-						if ( $_homedrive && $_homepath ) {
-							$value = $_homedrive . $_homedrive;
+						if ( '' !== $_homedrive && '' !== $_homepath ) {
+							$value = $_homedrive . $_homepath;
 						}
 					}
 				} else {
-					$value = ( $_s[ 'HOME' ] ?? '' ) ?: getenv( 'HOME' );
+					$value = U\Env::var_helper( 'HOME' );
 
-					if ( ! $value && U\Env::can_use_extension( 'posix' ) && U\Env::can_use_function( 'posix_getpwuid', 'posix_geteuid' ) ) {
+					if ( '' === $value && U\Env::can_use_extension( 'posix' ) && U\Env::can_use_function( 'posix_getpwuid', 'posix_geteuid' ) ) {
 						/** @noinspection PhpComposerExtensionStubsInspection */ // phpcs:ignore.
 						if ( $_posix = posix_getpwuid( posix_geteuid() ) ) {
-							$value = $_posix[ 'dir' ] ?? '';
+							$value = (string) ( $_posix[ 'dir' ] ?? '' );
 						}
 					}
 				}
-				$value = (string) $value; // Force string.
 				return $value = '' === $value ? '' : U\Fs::normalize( $value );
 
 			case 'CWD': // Preferred approach.
 			case 'PWD': // POSIX-compliant name.
 
 				if ( U\Env::is_windows() ) {
-					$value = getcwd()
-						?: ( $_s[ 'PWD' ] ?? '' ) ?: getenv( 'PWD' )
-							?: ( $_s[ 'CD' ] ?? '' ) ?: getenv( 'CD' );
+					if ( '' === ( $value = getcwd() ) ) {
+						$value = U\Env::var_helper( 'PWD', 'CD' );
+					}
 				} else {
-					$value = getcwd()
-						?: ( $_s[ 'PWD' ] ?? '' ) ?: getenv( 'PWD' );
+					if ( '' === ( $value = getcwd() ) ) {
+						$value = U\Env::var_helper( 'PWD' );
+					}
 				}
-				$value = (string) $value; // Force string.
 				return $value = '' === $value ? '' : U\Fs::normalize( $value );
 
 			case 'TMPDIR':
 
-				$value = ( $_s[ 'TMPDIR' ] ?? '' ) ?: getenv( 'TMPDIR' )
-					?: ( $_s[ 'TEMP' ] ?? '' ) ?: getenv( 'TEMP' )
-						?: ( $_s[ 'TMP' ] ?? '' ) ?: getenv( 'TMP' );
-
-				$value = (string) $value; // Force string.
+				$value = U\Env::var_helper( 'TMPDIR', 'TEMP', 'TMP' );
 				return $value = '' === $value ? '' : U\Fs::normalize( $value );
 
 			// ↓ Lowercase.
@@ -269,8 +259,7 @@ trait Var_Members {
 			case 'SERVER_ADMIN':
 			case 'SERVER_PROTOCOL':
 
-				$value = ( $_s[ $name ] ?? '' ) ?: getenv( $name );
-				$value = (string) $value; // Force string.
+				$value = U\Env::var_helper( $name );
 				return $value = '' === $value ? '' : mb_strtolower( $value );
 
 			// ↓ IP normalize.
@@ -290,8 +279,7 @@ trait Var_Members {
 				// Note: Some of these are lists of comma-delimited IPs.
 				// The normalization accounts for these being in delimited lists.
 
-				$value = ( $_s[ $name ] ?? '' ) ?: getenv( $name );
-				$value = (string) $value; // Force string.
+				$value = U\Env::var_helper( $name );
 				return $value = '' === $value ? '' : U\IP::normalize( $value );
 
 			// ↓ Normalize.
@@ -308,19 +296,38 @@ trait Var_Members {
 			case 'SCRIPT_FILENAME':// Not WP-CLI friendly.
 			case 'DOCUMENT_ROOT':  // Not WP-CLI friendly.
 
-				if ( 'DOCUMENT_ROOT' === $name ) {
-					$value = ( $_s[ $name ] ?? '' ) ?: getenv( $name )
-						?: U\Env::static_var( 'C10N_' . $name );
-				} else {
-					$value = ( $_s[ $name ] ?? '' ) ?: getenv( $name );
+				$value = U\Env::var_helper( $name );
+
+				if ( '' === $value && 'DOCUMENT_ROOT' === $name ) {
+					$value = (string) U\Env::static_var( 'C10N_' . $name );
 				}
-				$value = (string) $value; // Force string.
 				return $value = '' === $value ? '' : U\Fs::normalize( $value );
 
 			default: // If we have a `$name`.
-
-				$value = $name ? ( ( $_s[ $name ] ?? '' ) ?: getenv( $name ) ) : '';
-				return $value = (string) $value; // Force string.
+				return $value = '' !== $name ? U\Env::var_helper( $name ) : '';
 		}
+	}
+
+	/**
+	 * Helps get environment variable.
+	 *
+	 * @since 2022-03-22
+	 *
+	 * @param string ...$names List of names to scan.
+	 *
+	 * @return string First non-zero-length scalar value as a string; else empty string.
+	 *
+	 * @see   `clevercanyon/wordpress-sites/wp-content/private/c24s/wp-config/defaults.php`.
+	 */
+	protected static function var_helper( string ...$names ) : string {
+		foreach ( $names as $_name ) {
+			if ( isset( $_SERVER[ $_name ] ) && '' !== $_SERVER[ $_name ] && is_scalar( $_SERVER[ $_name ] ) ) {
+				return (string) $_SERVER[ $_name ]; // phpcs:ignore.
+			}
+			if ( false !== ( $_value = getenv( $_name ) ) && '' !== $_value && is_scalar( $_value ) ) {
+				return (string) $_value;
+			}
+		}
+		return '';
 	}
 }

@@ -42,22 +42,18 @@ trait Props_Members {
 	 *
 	 * @param object      $obj    Object to get properties from.
 	 *
-	 * @param string|null $filter Optional filter. Default is `public+`.
+	 * @param string|null $filter Optional filter. Default is `public`.
 	 *
-	 *                            Note: Any of the following filters can also be prefixed with `own:`
-	 *                            to retrieve an object's own properties only; e.g., `own:public...protected`.
+	 *                            Note: Any of the following filters can also be prefixed with `own:` to
+	 *                            retrieve an object's own properties only; e.g., `own:public...protected`.
 	 *
-	 *                            * `public+` (default behavior) returns publicly-accessible non-static properties.
-	 *                              Plus it returns pseudo-properties like `+offsets`, which is technically a private property,
-	 *                              but offsets are publicly-accessible through `[]` syntax in supporting implementations of {@see U\I7e\Offsets}.
-	 *
-	 *                            * `public` returns publicly-accessible non-static properties only.
+	 *                            * `public` (default) returns publicly-accessible non-static properties only.
 	 *                            * `protected` returns protected non-static properties only.
 	 *                            * `private` returns private non-static properties only.
 	 *
 	 *                            * `public...protected` returns public and protected non-static properties.
-	 *                            * `public...private` returns public, protected, and private non-static properties.
 	 *                            * `protected...private` returns protected and private non-static properties.
+	 *                            * `public...private` returns public, protected, and private non-static properties.
 	 *
 	 *                            * `debug` returns public, protected, and private non-static properties. Same as `public...private`.
 	 *                            * `debug+` Includes some internals like `ins_cache`, which is not returned otherwise.
@@ -69,25 +65,18 @@ trait Props_Members {
 	 *                              * Protected properties are always prefixed with `"\0"*"\0"`, just like {@see get_mangled_object_vars()}.
 	 *                              * Private properties are always prefixed with `"\0"[class]"\0"`, just like {@see get_mangled_object_vars()}.
 	 *
-	 *                              * Pseudo-properties are always prefixed with `"\0"+"\0"`, which is a behavior unique to this function.
-	 *                                For example, `public+` returns `"\0"+"\0"offsets` for implementations of {@see U\I7e\Offsets}.
+	 *                            When `$clean` is `true` (please use with caution):
 	 *
-	 *                              * Pseudo-properties are only returned when using the default `public+` filter.
-	 *                                For example, if you ask for `public...private` you will get offsets, but under a different key;
-	 *                                e.g., `"\0"[class]"\0"offsets` instead of the pseudo `"\0"+"\0"offsets` key.
+	 *                              * All prefixes are removed from property names, providing a cleaner read when necessary.
 	 *
-	 *                            When `$clean` is `true` (use with extreme caution):
-	 *
-	 *                              * All prefixes are removed from property names.
-	 *                                Providing a cleaner read when necessary.
-	 *
-	 *                              * When a class has private properties, this may introduce conflicts, just depending on which classes
+	 *                              * When a class has private properties `$clean` may introduce conflicts depending on which classes
 	 *                                (i.e., parent classes) defined those private properties. It's possible for some properties to be lost;
 	 *                                e.g., when a class has two different private properties defined by different classes, but with the same name.
 	 *                                You'll end up with only the last property returned by {@see get_mangled_object_vars()}, and lose the other.
-	 *                                When `$clean` is `true`, they can't both live under the same property name.
 	 *
 	 * @return array All accessible non-static properties using the given `$filter`.
+	 *
+	 * @throws U\Fatal_Exception If an unexpected `$filter` is given.
 	 */
 	public static function props( object $obj, /* string|null */ ?string $filter = null, bool $clean = false ) : array {
 		$props = []; // Initialize.
@@ -95,11 +84,11 @@ trait Props_Members {
 		if ( $filter && 0 === mb_strpos( $filter, 'own:' ) ) {
 			$own            = true;
 			$own_prop_names = U\Obj::own_prop_names( $obj );
-			$filter         = mb_substr( $filter, 4 ) ?: 'public+';
+			$filter         = mb_substr( $filter, 4 ) ?: 'public';
 		} else {
 			$own            = false;
 			$own_prop_names = []; // N/A.
-			$filter         = $filter ?: 'public+';
+			$filter         = $filter ?: 'public';
 		}
 		if ( $own && ! $own_prop_names ) {
 			return []; // Saves time.
@@ -141,23 +130,17 @@ trait Props_Members {
 				}
 				break;
 
+			case 'public...private':
 			case 'debug':
 			case 'debug+':
-			case 'public...private':
 				$props = get_mangled_object_vars( $obj );
 				break;
 
-			case 'public+':
-			default: // Default behavior.
-				$props = get_object_vars( $obj );
-
-				if ( $obj instanceof U\I7e\Offsets ) {
-					$props[ U\Arr::maybe_prefix_key( "\0" . '+' . "\0" . 'offsets', $props, "\0" ) ] = $obj->offsets();
-				}
-				break;
+			default: // Unexpected filter throws exception.
+				throw new U\Fatal_Exception( 'Unexpected `$filter`: `' . $filter . '`.' );
 		}
 		if ( 'debug+' !== $filter ) {
-			// Remove `ins_cache`; uninteresting and super noisy.
+			// Remove `ins_cache`, which is uninteresting & noisy.
 			unset( $props[ "\0" . U\A6t\Base::class . "\0" . 'ins_cache' ] );
 		}
 		if ( $clean ) {

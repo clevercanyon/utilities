@@ -40,7 +40,7 @@ trait Validate_Members {
 	 *
 	 * @since         2022-01-19
 	 *
-	 * @param mixed $value Value to validate as a boolean.
+	 * @param mixed $value  Value to validate as a boolean.
 	 *
 	 * @param bool  $strict Operate in strict mode? Default is `false`.
 	 *
@@ -55,9 +55,12 @@ trait Validate_Members {
 	 * @future-review In PHP 8+, {@see FILTER_VALIDATE_BOOL} is the preferred constant.
 	 */
 	public static function validate( /* mixed */ $value, bool $strict = false ) /* : bool|null */ : ?bool {
-		return filter_var( $value,
-			defined( 'FILTER_VALIDATE_BOOL' ) ? FILTER_VALIDATE_BOOL : FILTER_VALIDATE_BOOLEAN,
-			[ 'flags' => $strict ? FILTER_NULL_ON_FAILURE : 0 ]
-		);
+		static $filter; // Memoize.
+
+		$filter ??= defined( 'FILTER_VALIDATE_BOOL' )
+			? FILTER_VALIDATE_BOOL
+			: FILTER_VALIDATE_BOOLEAN;
+
+		return filter_var( $value, $filter, [ 'flags' => $strict ? FILTER_NULL_ON_FAILURE : 0 ] );
 	}
 }
