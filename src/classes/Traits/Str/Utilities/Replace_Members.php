@@ -129,8 +129,8 @@ trait Replace_Members {
 					}
 				} else {
 					$regexp_flags ??= $is_case_insensitive ? 'ui' : 'u';
-					$_replace     = U\Str::esc_reg_brs( $_replace ); // Escapes backreferences.
-					$_subject     = preg_replace( '/' . U\Str::esc_reg( $_search ) . '/' . $regexp_flags, $_replace, $_subject, $limit, $_rp );
+					$_replace     = U\Str::esc_regexp_back_refs( $_replace ); // Escapes backreferences.
+					$_subject     = preg_replace( '/' . U\Str::esc_regexp( $_search ) . '/' . $regexp_flags, $_replace, $_subject, $limit, $_rp );
 					$count        += $_rp;
 				}
 			}

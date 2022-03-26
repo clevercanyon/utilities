@@ -11,12 +11,20 @@
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
 /**
+ * Lint configuration.
+ *
+ * @since        2021-12-25
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
+ */
+
+/**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Brand;
+namespace Clever_Canyon\Utilities\I7e;
 
 /**
  * Utilities.
@@ -28,19 +36,8 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Brand interface.
  *
  * @since 2021-12-15
- *
- * @see   U\Brand
  */
-trait Members {
-	/**
-	 * Traits.
-	 *
-	 * @since 2021-12-15
-	 */
-	use U\Traits\Brand\Properties\Property_Members;
-	use U\Traits\Brand\Utilities\Formatting_Members;
-	use U\Traits\Brand\Utilities\N7M_Members;
-}
+interface Brand extends U\I7e\Base { }

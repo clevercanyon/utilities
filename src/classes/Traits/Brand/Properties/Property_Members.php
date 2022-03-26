@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Brand;
+namespace Clever_Canyon\Utilities\Traits\Brand\Properties;
 
 /**
  * Utilities.
@@ -34,13 +34,13 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Brand
  */
-trait Members {
+trait Property_Members {
 	/**
-	 * Traits.
+	 * Brand instances.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-03-25
+	 *
+	 * @var U\Brand[] Instances.
 	 */
-	use U\Traits\Brand\Properties\Property_Members;
-	use U\Traits\Brand\Utilities\Formatting_Members;
-	use U\Traits\Brand\Utilities\N7M_Members;
+	protected static array $instances;
 }

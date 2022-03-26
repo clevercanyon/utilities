@@ -62,19 +62,19 @@ final class Str_Escape_Tests extends U_Tests\A6t\Base {
 	}
 
 	/**
-	 * @covers ::esc_reg()
+	 * @covers ::esc_regexp()
 	 */
-	public function test_esc_reg() : void {
-		$this->assertSame( '\\^', U\Str::esc_reg( '^' ), $this->message() );
-		$this->assertSame( '\\/\\[\\]\\/', U\Str::esc_reg( '/[]/' ), $this->message() );
+	public function test_esc_regexp() : void {
+		$this->assertSame( '\\^', U\Str::esc_regexp( '^' ), $this->message() );
+		$this->assertSame( '\\/\\[\\]\\/', U\Str::esc_regexp( '/[]/' ), $this->message() );
 	}
 
 	/**
-	 * @covers ::esc_reg_brs()
+	 * @covers ::esc_regexp_back_refs()
 	 */
-	public function test_esc_reg_brs() : void {
-		$this->assertSame( '\\$', U\Str::esc_reg_brs( '$' ), $this->message() );
-		$this->assertSame( '\\$\\\\', U\Str::esc_reg_brs( '$\\' ), $this->message() );
+	public function test_esc_regexp_back_refs() : void {
+		$this->assertSame( '\\$', U\Str::esc_regexp_back_refs( '$' ), $this->message() );
+		$this->assertSame( '\\$\\\\', U\Str::esc_regexp_back_refs( '$\\' ), $this->message() );
 	}
 
 	/**

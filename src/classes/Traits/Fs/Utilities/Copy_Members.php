@@ -183,8 +183,8 @@ trait Copy_Members {
 		// e.g., from: /foo/bar/foo, to: /foo               (invalid: /foo ...includes /foo/bar/foo).
 		// e.g., from: /foo/bar/foo, to: /foo/bar/foo/bar   (invalid: /foo/bar/foo ...includes /foo/bar/foo/bar).
 
-		if ( preg_match( '/^' . U\Str::esc_reg( $_r->root_to_path ) . '(?:$|\/)/u', $from_path )
-			|| preg_match( '/^' . U\Str::esc_reg( $_r->root_real_to_path ) . '(?:$|\/)/u', $real_from_path )
+		if ( preg_match( '/^' . U\Str::esc_regexp( $_r->root_to_path ) . '(?:$|\/)/u', $from_path )
+			|| preg_match( '/^' . U\Str::esc_regexp( $_r->root_real_to_path ) . '(?:$|\/)/u', $real_from_path )
 		) {
 			throw new U\Fatal_Exception(
 				'Attempting to copy into self. Cannot continue as this results in an infinite loop.' .
@@ -192,8 +192,8 @@ trait Copy_Members {
 				' From: `' . $real_from_path . '`; while considering root to-path: `' . $_r->root_real_to_path . '`.'
 			);
 		} elseif ( ! $_r->will_ignore_rtps
-			&& ( preg_match( '/^' . U\Str::esc_reg( $from_path ) . '(?:$|\/)/u', $to_path )
-				|| preg_match( '/^' . U\Str::esc_reg( $real_from_path ) . '(?:$|\/)/u', $real_to_path ) )
+			&& ( preg_match( '/^' . U\Str::esc_regexp( $from_path ) . '(?:$|\/)/u', $to_path )
+				|| preg_match( '/^' . U\Str::esc_regexp( $real_from_path ) . '(?:$|\/)/u', $real_to_path ) )
 		) {
 			throw new U\Fatal_Exception(
 				'Attempting to copy into self. Cannot continue as this results in an infinite loop.' .

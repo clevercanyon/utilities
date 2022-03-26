@@ -36,13 +36,13 @@ use Clever_Canyon\{Utilities as U};
  */
 trait FSC_Members {
 	/**
-	 * Checks fsc (filesystem component) validity; e.g., `my-fsc`, `.my-fsc`.
+	 * Checks FSC (filesystem component) validity; e.g., `my-fsc`, `.my-fsc`.
 	 *
 	 * @since 2021-12-26
 	 *
 	 * @param string $str String to check.
 	 *
-	 * @return bool True if it's a valid fsc.
+	 * @return bool True if it's a valid FSC.
 	 *
 	 * @see   https://linux.die.net/man/1/pathchk
 	 * @see   https://en.wikipedia.org/wiki/Filename
@@ -52,7 +52,7 @@ trait FSC_Members {
 	}
 
 	/**
-	 * Converts string to fsc (filesystem component); e.g., `my-fsc`, `.my-fsc`.
+	 * Converts string to FSC (filesystem component); e.g., `my-fsc`, `.my-fsc`.
 	 *
 	 * POSIX: {@see https://linux.die.net/man/1/pathchk} utility.
 	 * This follows POSIX (`pathchk`) recommendations, with a few exceptions:
@@ -84,7 +84,8 @@ trait FSC_Members {
 	 *
 	 * @since 2021-12-26
 	 *
-	 * @param string $str    String to convert to fsc.
+	 * @param string $str    String to convert to FSC.
+	 *
 	 * @param bool   $strict Strict definition validations? Default is `true`.
 	 *
 	 *                       * Strict mode validates caSe and maximum of 128 bytes.
@@ -94,10 +95,10 @@ trait FSC_Members {
 	 *                         Loose mode allows up to 255 bytes in length, which is also
 	 *                         the absolute maximum length of {@see U\Str::to_slug()}.
 	 *
-	 *                       * In both modes, fscs exceeding max length in bytes
+	 *                       * In both modes, FSCs exceeding max length in bytes
 	 *                         get converted into a 64-byte {@see U\Crypto::x_sha()}.
 	 *
-	 * @return string String converted to fsc. Always 1...255 bytes in length.
+	 * @return string String converted to FSC. Always 1...255 bytes in length.
 	 *                In strict (default) mode, always 1...128 bytes in length.
 	 *
 	 *                * Except, if `$str` given is zero-length, no conversion is done.
@@ -113,7 +114,7 @@ trait FSC_Members {
 		}
 		$fsc = $str; // Working copy.
 
-		// In case of already being an fsc.
+		// In case of already being an FSC.
 
 		if ( U\Str::is_fsc( $fsc ) ) {
 			return $fsc; // Saves time.
@@ -167,7 +168,7 @@ trait FSC_Members {
 		}
 		// Replace leading hyphens only if it's not a dotfile.
 		// Confirmed using `pathchk`; a leading `.-` passes POSIX compliance.
-		// Main reason to avoid a leading `-` is so an fsc can be passed as a CLI arg;
+		// Main reason to avoid a leading `-` is so an FSC can be passed as a CLI arg;
 		// Otherwise, it's seen as a CLI switch; e.g., `$ pathchk '-foo-bar'` fails miserably.
 
 		if ( ! $is_dotfile && '-' === $fsc[ 0 ] ) {
@@ -178,7 +179,7 @@ trait FSC_Members {
 			);
 		}
 		// Suffix reserved words with an `x`.
-		// Must check basename and full fsc also.
+		// Must check basename and full FSC also.
 		// In loose mode, some caSe juggling is necessary.
 
 		if ( $ext = U\File::ext( $fsc ) ) {

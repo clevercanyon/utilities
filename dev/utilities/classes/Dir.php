@@ -140,8 +140,8 @@ final class Dir {
 		$base_path = D\Fs::normalize( $base_path );
 		$path      = D\Fs::normalize( $path );
 
-		$esc_reg_base_path_no_ts = preg_quote( rtrim( $base_path, '/' ), '/' );
-		$subpath                 = preg_replace( '/^' . $esc_reg_base_path_no_ts . '(?:\/|$)/u', '', $path, 1, $_replacements );
+		$esc_regexp_base_path_no_ts = preg_quote( rtrim( $base_path, '/' ), '/' );
+		$subpath                    = preg_replace( '/^' . $esc_regexp_base_path_no_ts . '(?:\/|$)/u', '', $path, 1, $_replacements );
 
 		if ( 1 !== $_replacements && $throw_on_failure ) {
 			throw new D\Fatal_Exception( // Default behavior.

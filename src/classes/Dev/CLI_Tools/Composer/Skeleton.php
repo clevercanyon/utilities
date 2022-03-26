@@ -635,12 +635,12 @@ final class Skeleton extends U\A6t\CLI_Tool {
 	protected function update_readme_or_docblock_file( string $file ) : void {
 		$file_contents = U\File::read( $file );
 
-		$file_contents = preg_replace( '/\{\{name\s*\:.*?\}\}/uis', U\Str::esc_reg_brs( $this->data->name ), $file_contents );
-		$file_contents = preg_replace( '/\{\{description\s*\:.*?\}\}/uis', U\Str::esc_reg_brs( $this->data->description ), $file_contents );
+		$file_contents = preg_replace( '/\{\{name\s*\:.*?\}\}/uis', U\Str::esc_regexp_back_refs( $this->data->name ), $file_contents );
+		$file_contents = preg_replace( '/\{\{description\s*\:.*?\}\}/uis', U\Str::esc_regexp_back_refs( $this->data->description ), $file_contents );
 
-		$file_contents = preg_replace( '/^(\s*\*\s*Text\s*Domain\s*\:\s*).*\bskeleton\b.*$/uim', '${1}' . U\Str::esc_reg_brs( $this->data->slug ), $file_contents );
-		$file_contents = preg_replace( '/^(\s*\*\s*Description\s*\:\s*).*\bskeleton\b.*$/uim', '${1}' . U\Str::esc_reg_brs( $this->data->description ), $file_contents );
-		$file_contents = preg_replace( '/^(\s*\*\s*[a-z0-9_\-]+\s*URI\s*\:.*\/product\/)[^\v\/]*\bskeleton\b[^\v\/]*(\/update)?$/uim', '${1}' . U\Str::esc_reg_brs( $this->data->slug ) . '${2}', $file_contents );
+		$file_contents = preg_replace( '/^(\s*\*\s*Text\s*Domain\s*\:\s*).*\bskeleton\b.*$/uim', '${1}' . U\Str::esc_regexp_back_refs( $this->data->slug ), $file_contents );
+		$file_contents = preg_replace( '/^(\s*\*\s*Description\s*\:\s*).*\bskeleton\b.*$/uim', '${1}' . U\Str::esc_regexp_back_refs( $this->data->description ), $file_contents );
+		$file_contents = preg_replace( '/^(\s*\*\s*[a-z0-9_\-]+\s*URI\s*\:.*\/product\/)[^\v\/]*\bskeleton\b[^\v\/]*(\/update)?$/uim', '${1}' . U\Str::esc_regexp_back_refs( $this->data->slug ) . '${2}', $file_contents );
 
 		U\File::write( $file, $file_contents );
 	}

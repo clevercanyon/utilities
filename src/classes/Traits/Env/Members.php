@@ -67,5 +67,7 @@ trait Members {
 	use U\Traits\Env\Utilities\System_Members;
 	use U\Traits\Env\Utilities\Timezone_Members;
 	use U\Traits\Env\Utilities\Var_Members;
-	use U\Traits\Env\Utilities\WordPress_Members;
+	use U\Traits\Env\Utilities\WP_Members;
+	use U\Traits\Env\Utilities\WP_Plugin_Members;
+	use U\Traits\Env\Utilities\WP_Theme_Members;
 }

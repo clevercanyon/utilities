@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Brand;
+namespace Clever_Canyon\Utilities\Traits\A6t\Brand;
 
 /**
  * Utilities.
@@ -28,11 +28,11 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\Brand
+ * @see   U\I7e\Brand
  */
 trait Members {
 	/**
@@ -40,7 +40,7 @@ trait Members {
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Brand\Properties\Property_Members;
-	use U\Traits\Brand\Utilities\Formatting_Members;
-	use U\Traits\Brand\Utilities\N7M_Members;
+	use U\Traits\A6t\Brand\Magic\Constructable_Members;
+	use U\Traits\A6t\Brand\Properties\Property_Members;
+	use U\Traits\A6t\Base\Magic\Readable_Members;
 }

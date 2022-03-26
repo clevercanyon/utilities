@@ -43,6 +43,8 @@ trait UUID_V4_Members {
 	 * @param bool $optimize Remove dashes? Default is `true`.
 	 *
 	 * @return string Version 4 UUID (32 bytes optimized, 36 unoptimized).
+	 *
+	 * phpcs:disable WordPress.WP.AlternativeFunctions.rand_mt_rand
 	 */
 	public static function uuid_v4( bool $optimize = true ) : string {
 		try { // Catch issues with {@see random_int()}.
@@ -58,21 +60,21 @@ trait UUID_V4_Members {
 				random_int( 0, 0xffff )
 			);
 		} catch ( \Throwable $throwable ) {
-			$fn_rand = U\Env::is_wordpress()
-				? 'wp_rand' // {@see https://developer.wordpress.org/reference/functions/wp_rand/}.
-				: 'mt_rand'; // {@see https://www.php.net/manual/en/function.mt-rand.php}.
-
-			$uuid_v4 = sprintf(
-				'%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-				$fn_rand( 0, 0xffff ),
-				$fn_rand( 0, 0xffff ),
-				$fn_rand( 0, 0xffff ),
-				$fn_rand( 0, 0x0fff ) | 0x4000,
-				$fn_rand( 0, 0x3fff ) | 0x8000,
-				$fn_rand( 0, 0xffff ),
-				$fn_rand( 0, 0xffff ),
-				$fn_rand( 0, 0xffff )
-			);
+			if ( U\Env::is_wordpress() ) {
+				$uuid_v4 = wp_generate_uuid4();
+			} else {
+				$uuid_v4 = sprintf(
+					'%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+					mt_rand( 0, 0xffff ),
+					mt_rand( 0, 0xffff ),
+					mt_rand( 0, 0xffff ),
+					mt_rand( 0, 0x0fff ) | 0x4000,
+					mt_rand( 0, 0x3fff ) | 0x8000,
+					mt_rand( 0, 0xffff ),
+					mt_rand( 0, 0xffff ),
+					mt_rand( 0, 0xffff )
+				);
+			}
 		}
 		return $optimize ? str_replace( '-', '', $uuid_v4 ) : $uuid_v4;
 	}

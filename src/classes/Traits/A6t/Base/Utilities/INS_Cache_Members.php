@@ -70,10 +70,7 @@ trait INS_Cache_Members {
 	 *               If you set `$value` to `null` explicitly (i.e., to {@see unset()}),
 	 *               you'll get back a useless dummy reference instead of a real cache reference.
 	 */
-	final protected function &ins_cache(
-		/* mixed */ $key_parts,
-		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL
-	) /* : mixed */ {
+	final protected function &ins_cache( /* mixed */ $key_parts, /* mixed */ $value = U\Func::PARAM_DEFAULT_NULL ) /* : mixed */ {
 		assert( ! is_resource( $key_parts ) );
 		assert( ! $key_parts instanceof \Closure );
 

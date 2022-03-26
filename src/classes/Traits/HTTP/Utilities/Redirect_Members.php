@@ -10,6 +10,15 @@
  */
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
+/*
+ * Lint configuration.
+ *
+ * @since 2021-12-25
+ *
+ * WPCS doesn't understand the `never` return type yet.
+ * phpcs:disable Squiz.Commenting.FunctionComment.InvalidNoReturn
+ */
+
 /**
  * Declarations & namespace.
  *
@@ -42,16 +51,27 @@ trait Redirect_Members {
 	 *
 	 * @param string $location Redirect location.
 	 * @param int    $status   Redirect status code. Default is `302`.
-	 * @param bool   $exit     Exit script execution? Default is `true`.
 	 */
-	public static function redirect( string $location, int $status = 302, bool $exit = true ) : void {
+	public static function redirect( string $location, int $status = 302 ) : void {
 		if ( U\Env::is_wordpress() ) {
 			wp_redirect( $location, $status ); // phpcs:ignore -- redirect ok.
 		} else {
 			header( 'location: ' . $location, true, $status );
 		}
-		if ( $exit ) {
-			exit; // Stop here.
-		}
+	}
+
+	/**
+	 * Performs an HTTP redirection & exits.
+	 *
+	 * @since 2021-12-15
+	 *
+	 * @param string $location Redirect location.
+	 * @param int    $status   Redirect status code. Default is `302`.
+	 *
+	 * @return never Halts script execution.
+	 */
+	public static function redirect_exit( string $location, int $status = 302 ) /* : never */ : void {
+		U\HTTP::redirect( $location, $status );
+		exit(); // Halts script execution.
 	}
 }

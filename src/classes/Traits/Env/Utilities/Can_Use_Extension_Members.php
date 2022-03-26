@@ -64,10 +64,7 @@ trait Can_Use_Extension_Members {
 		}
 		if ( null === $cache ) { // Initialize.
 			$cache                    = (object) [ 'can' => [] ];
-			$cache->loaded_extensions = array_merge( get_loaded_extensions( true ), get_loaded_extensions( false ) );
-			$cache->loaded_extensions = defined( 'C10N_LOADED_EXTENSIONS' ) && is_array( C10N_LOADED_EXTENSIONS )
-				? array_merge( $cache->loaded_extensions, C10N_LOADED_EXTENSIONS ) : $cache->loaded_extensions;
-			$cache->loaded_extensions = array_map( 'mb_strtolower', array_unique( $cache->loaded_extensions ) );
+			$cache->loaded_extensions = U\Env::loaded_extensions();
 		}
 		foreach ( array_map( 'mb_strtolower', $extensions ) as $_extension ) {
 			if ( ! $_extension ) {
@@ -87,5 +84,26 @@ trait Can_Use_Extension_Members {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Gets loaded extensions.
+	 *
+	 * Intentionally *not* memoizing loaded extensions here.
+	 * These are already memoized by {@see U\Env::can_use_extension()}.
+	 *
+	 * This method exists as a utility for callers that need direct access.
+	 * Callers should take it upon themselves to memoize if necessary.
+	 *
+	 * @since 2022-03-26
+	 *
+	 * @return array Loaded extensions.
+	 */
+	public static function loaded_extensions() : array {
+		$loaded_extensions = array_merge( get_loaded_extensions( true ), get_loaded_extensions( false ) );
+		$loaded_extensions = array_merge( $loaded_extensions, defined( 'C10N_LOADED_EXTENSIONS' ) ? C10N_LOADED_EXTENSIONS : [] );
+		$loaded_extensions = array_map( 'mb_strtolower', array_unique( $loaded_extensions ) );
+
+		return $loaded_extensions;
 	}
 }

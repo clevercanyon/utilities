@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Brand;
+namespace Clever_Canyon\Utilities\Traits\A6t\Brand\Properties;
 
 /**
  * Utilities.
@@ -28,19 +28,66 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Interface members.
  *
  * @since 2021-12-15
  *
- * @see   U\Brand
+ * @see   U\I7e\Brand
  */
-trait Members {
+trait Property_Members {
 	/**
-	 * Traits.
+	 * Org brand object.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-03-22
 	 */
-	use U\Traits\Brand\Properties\Property_Members;
-	use U\Traits\Brand\Utilities\Formatting_Members;
-	use U\Traits\Brand\Utilities\N7M_Members;
+	protected U\I7e\Brand $org;
+
+	/**
+	 * N7M; e.g., `m5d`.
+	 *
+	 * @since 2022-03-22
+	 */
+	protected string $n7m;
+
+	/**
+	 * Name; e.g., `My Brand`.
+	 *
+	 * @since 2022-03-22
+	 */
+	protected string $name;
+
+	/**
+	 * Namespace; e.g., `My_Brand`.
+	 *
+	 * @since 2022-03-22
+	 */
+	protected string $namespace;
+
+	/**
+	 * Slug; e.g., `my-brand`.
+	 *
+	 * @since 2022-03-22
+	 */
+	protected string $slug;
+
+	/**
+	 * Var; e.g., `my_brand`.
+	 *
+	 * @since 2022-03-22
+	 */
+	protected string $var;
+
+	/**
+	 * Slug prefix; e.g., `my-brand-`.
+	 *
+	 * @since 2022-03-22
+	 */
+	protected string $slug_prefix;
+
+	/**
+	 * Var prefix; e.g., `my_brand_`.
+	 *
+	 * @since 2022-03-22
+	 */
+	protected string $var_prefix;
 }

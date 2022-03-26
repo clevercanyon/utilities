@@ -275,7 +275,7 @@ trait Markup_Members {
 			$default_config[ 'external_link' ] = [
 				'internal_hosts'     => [
 					U\URL::current_host( false ), // Faster matching.
-					'/^(?:.*\.)?' . U\Str::esc_reg( U\URL::current_root_host( false ) ) . '(?:\:[0-9]+)?$/ui',
+					'/^(?:.*\.)?' . U\Str::esc_regexp( U\URL::current_root_host( false ) ) . '(?:\:[0-9]+)?$/ui',
 				],
 				'html_class'         => 'm6d-x-link',
 				'nofollow'           => 'external',

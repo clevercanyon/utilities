@@ -355,6 +355,11 @@ final class URL_Tests extends U_Tests\A6t\Base {
 			'fragment' => 'foo',
 		];
 		$this->assertSame( '//foo:bar@example.com:123/?foo=foo#foo', U\URL::build( $parts ), $this->message() );
+		$this->assertSame( 'foo:bar@example.com:123/?foo=foo#foo', U\URL::build( $parts, [ '-scheme' ] ), $this->message() );
+		$this->assertSame( 'example.com:123/?foo=foo#foo', U\URL::build( $parts, [ '-scheme', '-user', '-pass' ] ), $this->message() );
+		$this->assertSame( 'example.com:123/', U\URL::build( $parts, [ 'host', 'port', 'path' ] ), $this->message() );
+		$this->assertSame( 'example.com/', U\URL::build( $parts, [ 'host', 'path' ] ), $this->message() );
+		$this->assertSame( 'example.com', U\URL::build( $parts, [ 'host' ] ), $this->message() );
 	}
 
 	/**

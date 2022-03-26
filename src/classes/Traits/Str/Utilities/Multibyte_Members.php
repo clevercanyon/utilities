@@ -77,7 +77,7 @@ trait Multibyte_Members {
 		}
 		$parts      = []; // Initialize.
 		$separators = " \t\r\n\f\v" !== $separators
-			? U\Str::esc_reg( $separators )
+			? U\Str::esc_regexp( $separators )
 			: $separators;
 
 		foreach ( preg_split( '/([' . $separators . ']+)/u', $str, -1, PREG_SPLIT_DELIM_CAPTURE ) as $_part ) {

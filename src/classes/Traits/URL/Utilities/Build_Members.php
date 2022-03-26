@@ -42,34 +42,61 @@ trait Build_Members {
 	 *
 	 * @since 2020-11-19
 	 *
-	 * @param array $parts URL parts.
+	 * @param array $parts           URL parts.
+	 *
+	 * @param array $part_directives Optional part directives.
+	 *                               Default is `[]` (includes all parts).
+	 *
+	 *                               e.g., To include specific parts: `[ 'host', 'port', 'path' ]`.
+	 *                               e.g., To exclude specific parts: `[ '-scheme', '-user', '-pass' ]`.
+	 *
+	 *                               * If any directive starts with `-`, then the entire list is treated as a set of exclusions.
+	 *                                 Otherwise, the entire list is treated as a set of inclusions.
 	 *
 	 * @return string Parts in the shape of a URL.
 	 *
 	 * @see   U\URL::parse()
 	 */
-	public static function build( array $parts ) : string {
-		$parts = array_map( 'strval', $parts );
+	public static function build( array $parts, array $part_directives = [] ) : string {
+		$parts                   += [
+			'scheme'   => '',
+			'user'     => '',
+			'pass'     => '',
+			'host'     => '',
+			'port'     => '',
+			'path'     => '',
+			'query'    => '',
+			'fragment' => '',
+		];
+		$parts                   = array_map( 'strval', $parts );
+		$part_directives         = $part_directives ? array_values( $part_directives ) : [];
+		$part_directives_exclude = $part_directives && 0 === mb_strpos( $part_directives[ 0 ], '-' );
 
-		if ( ! empty( $parts[ 'scheme' ] ) ) {
-			if ( '//' === $parts[ 'scheme' ] ) {
-				$scheme = $parts[ 'scheme' ];
-			} else {
-				$scheme = $parts[ 'scheme' ] . '://';
+		$can_include = function ( string $part ) use (
+			$part_directives,
+			$part_directives_exclude
+		) : bool {
+			if ( ! $part_directives ) {
+				return true; // No directives.
 			}
-		} else {
-			$scheme = ''; // No scheme.
-		}
-		$user = isset( $parts[ 'user' ][ 0 ] ) ? $parts[ 'user' ] : '';
-		$pass = isset( $parts[ 'pass' ][ 0 ] ) ? ':' . $parts[ 'pass' ] : '';
-		$pass .= isset( $user[ 0 ] ) || isset( $pass[ 0 ] ) ? '@' : '';
+			if ( $part_directives_exclude ) {
+				return ! in_array( '-' . $part, $part_directives, true );
+			}
+			return in_array( $part, $part_directives, true );
+		};
+		$scheme      = '' !== $parts[ 'scheme' ] && $can_include( 'scheme' )
+			? $parts[ 'scheme' ] . ( '//' !== $parts[ 'scheme' ] ? '://' : '' ) : '';
 
-		$host = isset( $parts[ 'host' ][ 0 ] ) ? $parts[ 'host' ] : '';
-		$port = isset( $parts[ 'port' ][ 0 ] ) ? ':' . $parts[ 'port' ] : '';
+		$user = '' !== $parts[ 'user' ] && $can_include( 'user' ) ? $parts[ 'user' ] : '';
+		$pass = '' !== $parts[ 'pass' ] && $can_include( 'pass' ) ? ':' . $parts[ 'pass' ] : '';
+		$pass .= '' !== $user || '' !== $pass ? '@' : ''; // e.g., `https://user:pass@host/`.
 
-		$path     = isset( $parts[ 'path' ][ 0 ] ) ? $parts[ 'path' ] : '';
-		$query    = isset( $parts[ 'query' ][ 0 ] ) ? '?' . $parts[ 'query' ] : '';
-		$fragment = isset( $parts[ 'fragment' ][ 0 ] ) ? '#' . $parts[ 'fragment' ] : '';
+		$host = '' !== $parts[ 'host' ] && $can_include( 'host' ) ? $parts[ 'host' ] : '';
+		$port = '' !== $parts[ 'port' ] && $can_include( 'port' ) ? ':' . $parts[ 'port' ] : '';
+
+		$path     = '' !== $parts[ 'path' ] && $can_include( 'path' ) ? $parts[ 'path' ] : '';
+		$query    = '' !== $parts[ 'query' ] && $can_include( 'query' ) ? '?' . $parts[ 'query' ] : '';
+		$fragment = '' !== $parts[ 'fragment' ] && $can_include( 'fragment' ) ? '#' . $parts[ 'fragment' ] : '';
 
 		return $scheme . $user . $pass . $host . $port . $path . $query . $fragment;
 	}

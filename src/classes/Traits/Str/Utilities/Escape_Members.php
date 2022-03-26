@@ -71,12 +71,12 @@ trait Escape_Members {
 	 *
 	 * @return string Escaped string.
 	 */
-	public static function esc_reg( string $str, string $delimiter = '/' ) : string {
+	public static function esc_regexp( string $str, string $delimiter = '/' ) : string {
 		return preg_quote( $str, $delimiter );
 	}
 
 	/**
-	 * Escapes regexp backreferences.
+	 * Escapes regexp back-references.
 	 *
 	 * @since 2021-12-25
 	 *
@@ -84,7 +84,7 @@ trait Escape_Members {
 	 *
 	 * @return string Escaped string.
 	 */
-	public static function esc_reg_brs( string $str ) : string {
+	public static function esc_regexp_back_refs( string $str ) : string {
 		return str_replace( [ '\\', '$' ], [ '\\\\', '\$' ], $str );
 	}
 

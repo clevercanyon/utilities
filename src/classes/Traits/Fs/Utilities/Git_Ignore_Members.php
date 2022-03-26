@@ -160,7 +160,7 @@ trait Git_Ignore_Members {
 		$args         = $args + $default_args;
 
 		$re = '';   // Initialize for string concatenation.
-		$re .= U\Str::esc_reg( U\Fs::normalize( $base_path ), '`' );
+		$re .= U\Str::esc_regexp( U\Fs::normalize( $base_path ), '`' );
 
 		$re .= '^'; // Beginning of line, or file path, in this case.
 

@@ -36,64 +36,86 @@ use Clever_Canyon\{Utilities as U};
  */
 trait N7M_Members {
 	/**
-	 * Brands by n7m.
+	 * Brands by N7M.
 	 *
 	 * @since 2022-01-27
 	 *
-	 * @return \Generator|object[] Brands by n7m.
+	 * @return \Generator|U\Brand[] Brands by N7M.
 	 */
 	public static function by_n7m() : \Generator {
 		foreach ( U\Brand::BY_N7M as $_n7m => $_brand ) {
-			yield $_n7m => (object) $_brand;
+			yield $_n7m => U\Brand::factory( $_n7m );
 		}
 	}
 
 	/**
-	 * Gets brand info, by n7m.
+	 * Gets brand info by N7M.
 	 *
 	 * @since         2022-01-19
 	 *
-	 * @param string      $n7m    A brand's n7m (numeronym) to get info for.
-	 *                            {@see U\Brand::BY_N7M} for a list of n7m keys.
+	 * @param string      $n7m    A brand's n7m (numeronym) to get object for.
+	 *                            {@see U\Brand::BY_N7M} for a full list of N7Ms.
 	 *                            {@see https://en.wikipedia.org/wiki/Numeronym}.
 	 *
-	 *                            e.g., Clever Canyon = `c10n` (or `&` self-reference).
-	 *                            e.g., WP Groove     = `w6e`.
-	 *                            e.g., Hostery       = `h5y`.
-	 *
-	 * @param string|null $key    Default is `null` indicating a return object with all keys.
-	 *                            Optionally pass an n7m info key to get; {@see U\Brand::BY_N7M}.
+	 * @param string|null $prop   Default is `null` indicating a return object with all properties.
+	 *                            Optionally pass property to get; {@see U\Traits\A6t\Brand\Properties\Property_Members}.
 	 *
 	 * @param string|null $format Optional format. Default is `null` (raw).
-	 *                            This is only applicable when `$key` is not `null`.
+	 *                            This is only applicable when `$prop` is not `null`.
 	 *                            {@see U\Brand::format_str_helper()} for further details.
 	 *
-	 * @return mixed If `$key` is not `null`, value of `$key` (in desired format); else `null` on failure.
-	 *               If `$key` is `null`, an object containing all keys; else `null` on failure.
+	 * @return U\Brand|mixed If `$prop` is `null`, a {@see U\Brand} object containing all props; else `null` on failure.
+	 *                       If `$prop` is not `null`, value of `$prop` in desired `$format`; else `null` on failure.
 	 */
-	public static function get( string $n7m, /* string|null */ ?string $key = null, /* string|null */ ?string $format = null ) /* mixed */ {
-		$n7m    = '&' === $n7m ? 'c10n' : $n7m;
+	public static function get( string $n7m, /* string|null */ ?string $prop = null, /* string|null */ ?string $format = null ) /* : mixed */ {
+		$brand  = U\Brand::factory( $n7m );
 		$format = $format ?: 'raw'; // Default is `raw`.
 
-		if ( ! $n7m || ! isset( U\Brand::BY_N7M[ $n7m ] ) ) {
-			return null; // Not available.
-		} elseif ( null !== $key && ! isset( U\Brand::BY_N7M[ $n7m ][ $key ] ) ) {
+		if ( ! $brand ) {
+			return null; // Failure.
+		}
+		if ( null === $prop ) {
+			return $brand; // Instance.
+		}
+		if ( ! isset( $brand->{$prop} ) ) {
 			return null; // Not available.
 		}
-		$value = &static::cls_cache( [ __FUNCTION__, $n7m, $key, $format ] );
+		if ( 'raw' === $format || ! is_string( $brand->{$prop} ) ) {
+			return $brand->{$prop}; // Raw property.
+		}
+		$cls_cache_key_parts = [ __FUNCTION__, $brand->n7m, $prop, $format ];
+		$value               = &static::cls_cache( $cls_cache_key_parts );
 
 		if ( null !== $value ) {
 			return $value; // Saves time.
 		}
-		if ( null !== $key ) {
-			$value = U\Brand::BY_N7M[ $n7m ][ $key ];
-			if ( 'raw' !== $format && is_string( $value ) ) {
-				$value = U\Brand::format_str_helper( $value, $format );
-			}
-		} else {
-			$value      = (object) U\Brand::BY_N7M[ $n7m ];
-			$value->org = (object) U\Brand::BY_N7M[ $value->org_n7m ];
+		return $value = U\Brand::format_str_helper( $brand->{$prop}, $format );
+	}
+
+	/**
+	 * Gets brand object by N7M.
+	 *
+	 * @since 2022-01-19
+	 *
+	 * @param string $n7m A brand's n7m (numeronym) to get object for.
+	 *                    {@see U\Brand::BY_N7M} for a full list of N7Ms.
+	 *                    {@see https://en.wikipedia.org/wiki/Numeronym}.
+	 *
+	 * @return U\Brand|null Brand object; else `null` on failure.
+	 */
+	protected static function factory( string $n7m ) /* : U\Brand|null */ : ?U\Brand {
+		$n7m = '&' === $n7m ? 'c10n' : $n7m;
+
+		if ( ! $n7m || ! isset( U\Brand::BY_N7M[ $n7m ] ) ) {
+			return null; // Not available.
 		}
-		return $value;
+		if ( isset( U\Brand::$instances[ $n7m ] ) ) {
+			return U\Brand::$instances[ $n7m ];
+		}
+		$org_n7m                    = U\Brand::BY_N7M[ $n7m ][ 'org_n7m' ];
+		$org                        = null === $org_n7m ? null : U\Brand::factory( $org_n7m );
+		U\Brand::$instances[ $n7m ] = new U\Brand( [ 'org' => $org ] + U\Brand::BY_N7M[ $n7m ] );
+
+		return U\Brand::$instances[ $n7m ];
 	}
 }

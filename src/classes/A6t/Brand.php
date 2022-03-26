@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Brand;
+namespace Clever_Canyon\Utilities\A6t;
 
 /**
  * Utilities.
@@ -28,19 +28,15 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Utility members.
+ * Brand base class.
  *
  * @since 2021-12-15
- *
- * @see   U\Brand
  */
-trait Members {
+abstract class Brand extends U\A6t\Base implements U\I7e\Brand {
 	/**
 	 * Traits.
 	 *
 	 * @since 2021-12-15
 	 */
-	use U\Traits\Brand\Properties\Property_Members;
-	use U\Traits\Brand\Utilities\Formatting_Members;
-	use U\Traits\Brand\Utilities\N7M_Members;
+	use U\Traits\A6t\Brand\Members;
 }

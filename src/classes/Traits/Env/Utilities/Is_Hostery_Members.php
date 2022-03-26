@@ -41,7 +41,7 @@ trait Is_Hostery_Members {
 	 * @since 2021-12-18
 	 *
 	 * @param string|null              $prop  Check a specific Hostery environment property?
-	 *                                        Default is `null` (any Hostery environment).
+	 *                                        Default value is `null` (i.e., any Hostery environment).
 	 *
 	 *                                        Property descriptions:
 	 *
@@ -64,10 +64,12 @@ trait Is_Hostery_Members {
 
 		static $is, $hostery; // Memoize.
 
-		$prop      ??= '*'; // Default (any).
-		$value     ??= '*'; // Default (any).
-		$value     = '*' === $prop ? '*' : $value;
-		$value_key = $value instanceof U\I7e\Regexp ? get_class( $value ) . ':' . $value : $value;
+		$prop  ??= '*'; // Default (any).
+		$value ??= '*'; // Default (any).
+		$value = '*' === $prop ? '*' : $value;
+
+		$is_regexp_value = '*' !== $value && $value instanceof U\I7e\Regexp;
+		$value_key       = $is_regexp_value ? get_class( $value ) . ':' . $value->__toString() : $value;
 
 		if ( isset( $is[ $prop ][ $value_key ] ) ) {
 			return $is[ $prop ][ $value_key ]; // Saves time.
@@ -83,7 +85,7 @@ trait Is_Hostery_Members {
 		if ( '*' === $prop ) {
 			return $is[ $prop ][ $value_key ] = ! U\Obj::empty( $hostery );
 		}
-		if ( $value instanceof U\I7e\Regexp ) {
+		if ( $is_regexp_value ) {
 			return $is[ $prop ][ $value_key ] = isset( $hostery->{$prop} ) && $value->test( $hostery->{$prop} );
 		}
 		return $is[ $prop ][ $value_key ] = isset( $hostery->{$prop} ) && $hostery->{$prop} === $value;

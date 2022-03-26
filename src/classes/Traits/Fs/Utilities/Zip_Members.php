@@ -226,8 +226,8 @@ trait Zip_Members {
 		// From: /foo, to: /foo/bar[/foo.zip]                     (invalid: /foo ...includes /foo/bar).
 
 		if ( ! $_r->will_ignore_rtps
-			&& ( preg_match( '/^' . U\Str::esc_reg( $from_path ) . '(?:$|\/)/u', $to_path )
-				|| preg_match( '/^' . U\Str::esc_reg( $real_from_path ) . '(?:$|\/)/u', $real_to_path ) )
+			&& ( preg_match( '/^' . U\Str::esc_regexp( $from_path ) . '(?:$|\/)/u', $to_path )
+				|| preg_match( '/^' . U\Str::esc_regexp( $real_from_path ) . '(?:$|\/)/u', $real_to_path ) )
 		) {
 			$_r->maybe_close_zip( $is_recursive );
 			throw new U\Fatal_Exception(

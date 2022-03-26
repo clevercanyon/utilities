@@ -34,13 +34,13 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Env
  */
-trait WordPress_Members {
+trait WP_Members {
 	/**
 	 * Is WordPress?
 	 *
 	 * @since 2021-12-18
 	 *
-	 * @return bool True if WordPress.
+	 * @return bool `true` if WordPress.
 	 */
 	public static function is_wordpress() : bool {
 		static $is; // Memoize.
@@ -52,11 +52,22 @@ trait WordPress_Members {
 	}
 
 	/**
+	 * Gets WordPress version.
+	 *
+	 * @since 2021-12-18
+	 *
+	 * @return string WordPress version; else empty string.
+	 */
+	public static function wp_version() : string {
+		return U\Env::is_wordpress() ? get_bloginfo( 'version' ) : '';
+	}
+
+	/**
 	 * Is WooCommerce?
 	 *
 	 * @since 2021-12-18
 	 *
-	 * @return bool True if WooCommerce.
+	 * @return bool `true` if WooCommerce.
 	 */
 	public static function is_woocommerce() : bool {
 		static $is; // Memoize.
@@ -68,41 +79,14 @@ trait WordPress_Members {
 	}
 
 	/**
-	 * Is a WordPress plugin active?
+	 * Gets WooCommerce version.
 	 *
 	 * @since 2021-12-18
 	 *
-	 * @param string $basename Plugin basename.
-	 *
-	 * @return bool True if WordPress plugin active.
+	 * @return string WooCommerce version; else empty string.
 	 */
-	public static function is_wp_plugin_active( string $basename ) : bool {
-		static $is; // Memoize.
-		$is ??= []; // Initialize.
-
-		if ( isset( $is[ $basename ] ) ) {
-			return $is[ $basename ]; // Saves time.
-		}
-		return $is[ $basename ] = U\Env::is_wordpress() && is_plugin_active( $basename );
-	}
-
-	/**
-	 * Is a WordPress theme active?
-	 *
-	 * @since 2021-12-18
-	 *
-	 * @param string $name Theme template name.
-	 *
-	 * @return bool True if WordPress theme active.
-	 */
-	public static function is_wp_theme_active( string $name ) : bool {
-		static $is; // Memoize.
-		$is ??= []; // Initialize.
-
-		if ( isset( $is[ $name ] ) ) {
-			return $is[ $name ]; // Saves time.
-		}
-		return $is[ $name ] = U\Env::is_wordpress() && get_template() === $name;
+	public static function wc_version() : string {
+		return U\Env::is_woocommerce() ? WC()->version : '';
 	}
 
 	/**
@@ -132,8 +116,9 @@ trait WordPress_Members {
 		$is             ??= []; // Initialize.
 		$is[ $blog_id ] ??= []; // Initialize.
 
-		$wp_home = U\URL::parse( get_home_url() );
-
+		if ( ! $wp_home = U\URL::parse( home_url() ) ) {
+			return $is[ $blog_id ][ $host ] = false;
+		}
 		if ( false !== mb_strpos( $host, ':' ) ) {
 			return $is[ $blog_id ][ $host ] = $wp_home[ 'host' ] . ':' . $wp_home[ 'port' ] === $host;
 		} else {

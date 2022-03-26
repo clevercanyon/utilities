@@ -28,11 +28,11 @@ use Clever_Canyon\{Utilities as U};
 // </editor-fold>
 
 /**
- * Brand utilities.
+ * Brand class & utilities.
  *
  * @since 2021-12-15
  */
-final class Brand extends U\A6t\Stc_Utilities {
+final class Brand extends U\A6t\Brand {
 	/**
 	 * Traits.
 	 *
@@ -47,7 +47,7 @@ final class Brand extends U\A6t\Stc_Utilities {
 	 */
 	public const BY_N7M = [
 		'c10n' => [
-			'org_n7m' => 'c10n',
+			'org_n7m' => null,
 			'n7m'     => 'c10n',
 
 			'name'      => 'Clever Canyon',
@@ -58,6 +58,32 @@ final class Brand extends U\A6t\Stc_Utilities {
 
 			'slug_prefix' => 'clevercanyon-',
 			'var_prefix'  => 'clevercanyon_',
+		],
+		'c13v' => [
+			'org_n7m' => 'c10n',
+			'n7m'     => 'c13v',
+
+			'name'      => 'Clever Canyon Dev',
+			'namespace' => 'Clever_Canyon_Dev',
+
+			'slug' => 'clevercanyon-dev',
+			'var'  => 'clevercanyon_dev',
+
+			'slug_prefix' => 'clevercanyon-dev-',
+			'var_prefix'  => 'clevercanyon_dev_',
+		],
+		'h5y'  => [
+			'org_n7m' => 'c10n',
+			'n7m'     => 'h5y',
+
+			'name'      => 'Hostery',
+			'namespace' => 'Hostery',
+
+			'slug' => 'hostery',
+			'var'  => 'hostery',
+
+			'slug_prefix' => 'hostery-',
+			'var_prefix'  => 'hostery_',
 		],
 		'w6e'  => [
 			'org_n7m' => 'c10n',
@@ -72,18 +98,31 @@ final class Brand extends U\A6t\Stc_Utilities {
 			'slug_prefix' => 'wpgroove-',
 			'var_prefix'  => 'wpgroove_',
 		],
-		'h5y'  => [
+		't5a'  => [
 			'org_n7m' => 'c10n',
-			'n7m'     => 'h5y',
+			'n7m'     => 't5a',
 
-			'name'      => 'Hostery',
-			'namespace' => 'Hostery',
+			'name'      => 'Topsica',
+			'namespace' => 'Topsica',
 
-			'slug' => 'hostery',
-			'var'  => 'hostery',
+			'slug' => 'topsica',
+			'var'  => 'topsica',
 
-			'slug_prefix' => 'hostery-',
-			'var_prefix'  => 'hostery_',
+			'slug_prefix' => 'topsica-',
+			'var_prefix'  => 'topsica_',
+		],
+		'w4s'  => [
+			'org_n7m' => 'c10n',
+			'n7m'     => 'w4s',
+
+			'name'      => 'Wobots',
+			'namespace' => 'Wobots',
+
+			'slug' => 'wobots',
+			'var'  => 'wobots',
+
+			'slug_prefix' => 'wobots-',
+			'var_prefix'  => 'wobots_',
 		],
 	];
 }

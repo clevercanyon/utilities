@@ -551,13 +551,13 @@ abstract class Operations extends U\A6t\CLI_Tool {
 		if ( ! is_dir( $distro_dir ) ) {
 			throw new U\Fatal_Exception( 'Failed to zip `./._x/distro` directory. Missing: `' . $distro_dir . '`.' );
 		}
-		$zip_basename = $this->project->slug . '-v' . $this->project->version . '.zip';
-		$zip_path     = U\Dir::join( $this->project->dir, '/._x/distro-zips/' . $zip_basename );
+		$zip_file_name = $this->project->slug . '-v' . $this->project->version . '.zip';
+		$zip_file_path = U\Dir::join( $this->project->dir, '/._x/distro-zips/' . $zip_file_name );
 
-		if ( ! U\Fs::zip_er( $distro_dir . '->' . $this->project->slug, $zip_path ) ) {
-			throw new U\Fatal_Exception( 'Failed to zip: `' . $distro_dir . '->' . $this->project->slug . '`, to: `' . $zip_path . '`.' );
+		if ( ! U\Fs::zip_er( $distro_dir . '->' . $this->project->slug, $zip_file_path ) ) {
+			throw new U\Fatal_Exception( 'Failed to zip: `' . $distro_dir . '->' . $this->project->slug . '`, to: `' . $zip_file_path . '`.' );
 		}
-		U\CLI::log( '[' . __FUNCTION__ . '()]: Zipped: `' . $distro_dir . '`' . "\n" . ' →  `' . $zip_path . '`.' );
+		U\CLI::log( '[' . __FUNCTION__ . '()]: Zipped: `' . $distro_dir . '`' . "\n" . ' →  `' . $zip_file_path . '`.' );
 	}
 
 	/**
@@ -574,36 +574,41 @@ abstract class Operations extends U\A6t\CLI_Tool {
 		if ( ! $this->project->is_distro_lib() ) {
 			return; // Not applicable.
 		}
-		$zip_basename = $this->project->slug . '-v' . $this->project->version . '.zip';
-		$zip_path     = U\Dir::join( $this->project->dir, '/._x/distro-zips/' . $zip_basename );
+		$zip_file_name = $this->project->slug . '-v' . $this->project->version . '.zip';
+		$zip_file_path = U\Dir::join( $this->project->dir, '/._x/distro-zips/' . $zip_file_name );
 
-		if ( ! is_file( $zip_path ) ) {
-			throw new U\Fatal_Exception( 'Missing zip file: `' . $zip_path . '`.' );
+		if ( ! is_file( $zip_file_path ) ) {
+			throw new U\Fatal_Exception( 'Missing zip file: `' . $zip_file_path . '`.' );
 		}
-		$s3_zip_hash           = $this->project->s3_hash_hmac_sha256( $this->project->unbranded_slug . $this->project->version );
-		$s3_zip_file_subpath   = 'cdn/product/' . $this->project->unbranded_slug . '/zips/' . $s3_zip_hash . '/' . $zip_basename;
-		$s3_index_file_subpath = 'cdn/product/' . $this->project->unbranded_slug . '/data/index.json';
+		$s3_zip_file_hash                 = $this->project->s3_hash_hmac_sha256( $this->project->unbranded_slug . $zip_file_name . $this->project->version );
+		$s3_zip_file_subpath              = 'cdn/product/' . $this->project->unbranded_slug . '/files/' . $s3_zip_file_hash . '/' . $zip_file_name;
+		$s3_distro_zips_json_file_subpath = 'cdn/product/' . $this->project->unbranded_slug . '/data/distro-zips.json';
 
 		$s3 = new S3Client( $this->project->s3_bucket_config() );
 
-		// Get index w/ tagged versions.
+		// Get `distro-zips.json` w/ tagged versions.
 
 		try {
-			$_s3r     = $s3->getObject( [
+			$_s3r                = $s3->getObject( [
 				'Bucket' => $this->project->s3_bucket(),
-				'Key'    => $s3_index_file_subpath,
+				'Key'    => $s3_distro_zips_json_file_subpath,
 			] );
-			$s3_index = U\Str::json_decode( (string) $_s3r->get( 'Body' ) );
+			$s3_distro_zips_json = U\Str::json_decode( (string) $_s3r->get( 'Body' ) );
 
-			if ( ! is_object( $s3_index )
-				|| ! isset( $s3_index->versions->tags )
-				|| ! isset( $s3_index->versions->stable_tag )
-				|| ! is_object( $s3_index->versions->tags )
-				|| ! is_string( $s3_index->versions->stable_tag )
+			if ( ! is_object( $s3_distro_zips_json )
+
+				|| ! isset( $s3_distro_zips_json->headers )
+				|| ! is_object( $s3_distro_zips_json->headers )
+
+				|| ! isset( $s3_distro_zips_json->versions->tags )
+				|| ! is_object( $s3_distro_zips_json->versions->tags )
+
+				|| ! isset( $s3_distro_zips_json->versions->stable_tag )
+				|| ! is_string( $s3_distro_zips_json->versions->stable_tag )
 			) {
 				throw new U\Fatal_Exception(
 					'Unable to retrieve valid JSON data from: ' .
-					' `' . U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_index_file_subpath ) . '`.'
+					' `' . U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_distro_zips_json_file_subpath ) . '`.'
 				);
 			}
 		} catch ( \Throwable $throwable ) {
@@ -613,43 +618,46 @@ abstract class Operations extends U\A6t\CLI_Tool {
 			if ( 'NoSuchKey' !== $throwable->getAwsErrorCode() ) {
 				throw $throwable; // Problem.
 			}
-			$s3_index = (object) [
+			$s3_distro_zips_json = (object) [
+				'headers'  => (object) [],
 				'versions' => (object) [
 					'tags'       => (object) [],
 					'stable_tag' => '',
 				],
-			]; // No index file yet, we'll create below.
+			]; // No `distro-zips.json` file yet, we'll create below.
 		}
 		// Upload zip file. Throws exception on failure, which we intentionally do not catch.
 
 		$s3->putObject( [
-			'SourceFile' => $zip_path,
+			'SourceFile' => $zip_file_path,
 			'Bucket'     => $this->project->s3_bucket(),
 			'Key'        => $s3_zip_file_subpath,
 		] );
 		U\CLI::log(
-			'[' . __FUNCTION__ . '()]: Uploaded: `' . $zip_path . '`' . "\n" .
+			'[' . __FUNCTION__ . '()]: Uploaded: `' . $zip_file_path . '`' . "\n" .
 			' →  `' . U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_zip_file_subpath ) . '`.'
 		);
-		// Update index w/ tagged versions.
+		// Update `distro-zips.json` w/ tagged versions.
 		// Throws exception on failure, which we intentionally do not catch.
 
-		$s3_index->versions->tags = (array) $s3_index->versions->tags;
-		$s3_index->versions->tags = array_merge( $s3_index->versions->tags, [ $this->project->version => U\Time::utc() ] );
-
-		uksort( $s3_index->versions->tags, 'version_compare' ); // Example: <https://3v4l.org/QitGb>.
-		$s3_index->versions->tags = array_reverse( $s3_index->versions->tags );
-
-		$s3_index->versions->stable_tag = $this->project->stable_tag;
+		$s3_distro_zips_json->headers                                   = (object) []; // None for now.
+		$s3_distro_zips_json->versions->tags                            = (array) $s3_distro_zips_json->versions->tags;
+		$s3_distro_zips_json->versions->tags[ $this->project->version ] = (object) [
+			'time'    => U\Time::utc(),
+			'version' => $this->project->version,
+		];
+		uksort( $s3_distro_zips_json->versions->tags, 'version_compare' ); // {@see https://3v4l.org/QitGb}.
+		$s3_distro_zips_json->versions->tags       = (object) array_reverse( $s3_distro_zips_json->versions->tags );
+		$s3_distro_zips_json->versions->stable_tag = $this->project->stable_tag;
 
 		$s3->putObject( [
-			'Body'   => U\Str::json_encode( $s3_index ),
+			'Body'   => U\Str::json_encode( $s3_distro_zips_json ),
 			'Bucket' => $this->project->s3_bucket(),
-			'Key'    => $s3_index_file_subpath,
+			'Key'    => $s3_distro_zips_json_file_subpath,
 		] );
 		U\CLI::log(
 			'[' . __FUNCTION__ . '()]: Updated: `' .
-			U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_index_file_subpath ) .
+			U\Dir::join( 's3://' . $this->project->s3_bucket(), '/' . $s3_distro_zips_json_file_subpath ) .
 			'`.'
 		);
 	}

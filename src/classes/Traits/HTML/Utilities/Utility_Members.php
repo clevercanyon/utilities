@@ -63,7 +63,7 @@ trait Utility_Members {
 	public static function starts_with_tag( string $markup, /* string|array */ $tags ) : bool {
 		assert( is_string( $tags ) || is_array( $tags ) );
 
-		$tags_regexp = array_map( [ U\Str::class, 'esc_reg' ], (array) $tags );
+		$tags_regexp = array_map( [ U\Str::class, 'esc_regexp' ], (array) $tags );
 		$tags_regexp = implode( '|', $tags_regexp );
 
 		return (bool) preg_match( '/^\<(?:' . $tags_regexp . ')(?:\s*\/|\s+[^<>]*)?\>/ui', $markup );
@@ -96,7 +96,7 @@ trait Utility_Members {
 		if ( null !== $regexp ) {
 			return $regexp; // Saves time.
 		}
-		$block_tags = array_map( [ U\Str::class, 'esc_reg' ], U\HTML::BLOCK_TAGS );
+		$block_tags = array_map( [ U\Str::class, 'esc_regexp' ], U\HTML::BLOCK_TAGS );
 		return $regexp = implode( '|', $block_tags );
 	}
 }

@@ -78,15 +78,11 @@ trait CLS_Cache_Members {
 	 *               If you set `$value` to `null` explicitly (i.e., to {@see unset()}),
 	 *               you'll get back a useless dummy reference instead of a real cache reference.
 	 */
-	final protected static function &cls_cache(
-		/* mixed */ $key_parts,
-		/* mixed */ $value = U\Func::PARAM_DEFAULT_NULL
-	) /* : mixed */ {
+	final protected static function &cls_cache( /* mixed */ $key_parts, /* mixed */ $value = U\Func::PARAM_DEFAULT_NULL ) /* : mixed */ {
 		assert( ! is_resource( $key_parts ) );
 		assert( ! $key_parts instanceof \Closure );
 
-		$key = U\Crypto::sha1_key( $key_parts );
-
+		$key                                = U\Crypto::sha1_key( $key_parts );
 		static::$cls_cache[ static::class ] ??= [];  // Initialize.
 
 		if ( U\Func::PARAM_DEFAULT_NULL !== $value ) {
