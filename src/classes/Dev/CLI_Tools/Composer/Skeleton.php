@@ -631,6 +631,8 @@ final class Skeleton extends U\A6t\CLI_Tool {
 	 * @since 2022-02-23
 	 *
 	 * @param string $file File path.
+	 *
+	 * @todo  Adjust URI modifier for update URIs.
 	 */
 	protected function update_readme_or_docblock_file( string $file ) : void {
 		$file_contents = U\File::read( $file );
