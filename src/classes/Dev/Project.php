@@ -314,10 +314,10 @@ final class Project extends U\A6t\Base {
 		$this->version    = u\if_string( $this->extra_json_prop( '&.project.data.version' ), '' );
 		$this->stable_tag = u\if_string( $this->extra_json_prop( '&.project.data.stable_tag' ), '' );
 
-		if ( ! $this->version || ! U\Str::is_version( $this->version ) ) {
+		if ( ! $this->version || ! U\Version::is( $this->version ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->version`.' );
 		}
-		if ( ! $this->stable_tag || ! U\Str::is_version( $this->stable_tag ) ) {
+		if ( ! $this->stable_tag || ! U\Version::is( $this->stable_tag ) ) {
 			throw new U\Fatal_Exception( 'Missing or invalid characters in `Project->stable_tag`.' );
 		}
 		// Validate name properties.

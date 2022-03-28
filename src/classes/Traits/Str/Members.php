@@ -50,7 +50,6 @@ trait Members {
 	use U\Traits\Str\Utilities\Is_Regexp_Members;
 	use U\Traits\Str\Utilities\Is_UTF8_Members;
 	use U\Traits\Str\Utilities\Is_Valid_Helper_Members;
-	use U\Traits\Str\Utilities\Is_Version_Members;
 	use U\Traits\Str\Utilities\JSON_Members;
 	use U\Traits\Str\Utilities\Multibyte_Members;
 	use U\Traits\Str\Utilities\N7M_Members;
@@ -62,6 +61,6 @@ trait Members {
 	use U\Traits\Str\Utilities\Slug_Members;
 	use U\Traits\Str\Utilities\Stringify_Members;
 	use U\Traits\Str\Utilities\To_ASCII_Members;
-	use U\Traits\Str\Utilities\Var_Members;
 	use U\Traits\Str\Utilities\Unquote_Members;
+	use U\Traits\Str\Utilities\Var_Members;
 }

@@ -78,8 +78,8 @@ trait WP_Plugin_Members {
 		if ( false === $is ) {
 			return $is; // Saves time.
 		}
-		if ( ! U\Env::is_wordpress() ) {
-			return $is = false;
+		if ( ! U\Env::is_wordpress() || ! is_multisite() ) {
+			return $is = false; // Not applicable.
 		}
 		$is ??= []; // Initialize.
 
@@ -104,7 +104,7 @@ trait WP_Plugin_Members {
 			return $plugins; // Saves time.
 		}
 		if ( ! U\Env::is_wordpress() ) {
-			return $plugins = []; // Not possible.
+			return $plugins = []; // Not applicable.
 		}
 		return $plugins = u\if_array( get_option( 'active_plugins' ), [] );
 	}
@@ -124,7 +124,7 @@ trait WP_Plugin_Members {
 			return $plugins; // Saves time.
 		}
 		if ( ! U\Env::is_wordpress() || ! is_multisite() ) {
-			return $plugins = []; // Not possible.
+			return $plugins = []; // Not applicable.
 		}
 		return $plugins = array_keys( u\if_array( get_site_option( 'active_sitewide_plugins' ), [] ) );
 	}

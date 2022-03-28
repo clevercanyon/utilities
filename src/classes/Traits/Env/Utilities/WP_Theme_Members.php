@@ -43,7 +43,7 @@ trait WP_Theme_Members {
 	 * @param string      $name Theme template|stylesheet name.
 	 *
 	 * @param string|null $type Can be set to `template` or `stylesheet`.
-	 *                          Default is `null`; i.e., checks both template & stylsheet.
+	 *                          Default is `null`, which checks both template & stylsheet.
 	 *
 	 * @return bool `true` if WordPress theme template|stylesheet is active.
 	 *              Returns `true` only if it is the current theme template|stylesheet.
@@ -75,7 +75,7 @@ trait WP_Theme_Members {
 	 * @param string $name Theme template|stylesheet name.
 	 *
 	 * @return bool `true` if WordPress theme template|stylesheet is network-active (i.e., enabled).
-	 *              Does not return `true` if theme template|stylesheet is active otherwise whatsoever.
+	 *              Does not return `true` if theme template|stylesheet is active otherwise.
 	 */
 	public static function is_wp_theme_network_active( string $name ) : bool {
 		static $is; // Memoize.
@@ -83,8 +83,8 @@ trait WP_Theme_Members {
 		if ( false === $is ) {
 			return $is; // Saves time.
 		}
-		if ( ! U\Env::is_wordpress() ) {
-			return $is = false;
+		if ( ! U\Env::is_wordpress() || ! is_multisite() ) {
+			return $is = false; // Not applicable.
 		}
 		$is ??= []; // Initialize.
 
@@ -100,10 +100,10 @@ trait WP_Theme_Members {
 	 * @since 2021-12-18
 	 *
 	 * @param string|null $type Can be set to `template` or `stylesheet`.
-	 *                          Default is `null`; i.e., both template & stylsheet.
+	 *                          Default is `null`, which includes both template & stylsheet.
 	 *
 	 * @return array WordPress active theme template, stylesheet, or both.
-	 *               Return value is dependent on the value of `$type`.
+	 *               Return value is dependent upon the value of `$type`.
 	 */
 	public static function wp_active_themes( /* string|null */ ?string $type = null ) : array {
 		static $themes; // Memoize.
@@ -113,7 +113,7 @@ trait WP_Theme_Members {
 		}
 		if ( ! U\Env::is_wordpress() ) {
 			$themes = false; // Not possible.
-			return [];       // Return empty array.
+			return [];       // Return type array.
 		}
 		$themes ??= []; // Initialize themes by type.
 		$type   = $type && in_array( $type, [ 'template', 'stylesheet' ], true ) ? $type : '';
@@ -142,7 +142,7 @@ trait WP_Theme_Members {
 			return $themes; // Saves time.
 		}
 		if ( ! U\Env::is_wordpress() || ! is_multisite() ) {
-			return $themes = []; // Not possible.
+			return $themes = []; // Not applicable.
 		}
 		return $themes = array_keys( array_filter( u\if_array( get_site_option( 'allowedthemes' ), [] ) ) );
 	}

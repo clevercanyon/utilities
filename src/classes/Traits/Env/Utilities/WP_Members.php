@@ -63,33 +63,6 @@ trait WP_Members {
 	}
 
 	/**
-	 * Is WooCommerce?
-	 *
-	 * @since 2021-12-18
-	 *
-	 * @return bool `true` if WooCommerce.
-	 */
-	public static function is_woocommerce() : bool {
-		static $is; // Memoize.
-
-		if ( null !== $is ) {
-			return $is; // Saves time.
-		}
-		return $is = U\Env::is_wp_plugin_active( 'woocommerce/woocommerce.php' );
-	}
-
-	/**
-	 * Gets WooCommerce version.
-	 *
-	 * @since 2021-12-18
-	 *
-	 * @return string WooCommerce version; else empty string.
-	 */
-	public static function wc_version() : string {
-		return U\Env::is_woocommerce() ? WC()->version : '';
-	}
-
-	/**
 	 * Is a specific WordPress host?
 	 *
 	 * @since 2022-03-12

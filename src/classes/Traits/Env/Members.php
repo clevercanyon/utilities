@@ -70,4 +70,5 @@ trait Members {
 	use U\Traits\Env\Utilities\WP_Members;
 	use U\Traits\Env\Utilities\WP_Plugin_Members;
 	use U\Traits\Env\Utilities\WP_Theme_Members;
+	use U\Traits\Env\Utilities\WP_WC_Members;
 }

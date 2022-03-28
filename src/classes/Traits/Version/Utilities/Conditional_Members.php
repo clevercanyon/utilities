@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Str\Utilities;
+namespace Clever_Canyon\Utilities\Traits\Version\Utilities;
 
 /**
  * Utilities.
@@ -32,19 +32,24 @@ use Clever_Canyon\{Utilities as U};
  *
  * @since 2021-12-15
  *
- * @see   U\Str
+ * @see   U\Version
  */
-trait Is_Version_Members {
+trait Conditional_Members {
 	/**
 	 * Checks version validity; e.g., `1.0.0`.
 	 *
 	 * @since 2021-12-26
 	 *
-	 * @param string $str String to check.
+	 * @param string $str    String to check.
+	 * @param bool   $strict Default is `true`.
 	 *
 	 * @return bool True if it's a valid version.
 	 */
-	public static function is_version( string $str ) : bool {
-		return U\Str::is_valid_helper( $str, 1, 100, '/^[0-9]+(?:\.[0-9]+)*(?:\.(?:dev|alpha|beta|rc)\.[0-9](?:\.[0-9]+)*)?$/u' );
+	public static function is( string $str, bool $strict = true ) : bool {
+		if ( ! $strict ) {
+			return U\Str::is_valid_helper( $str, 1, 100, U\Version::LOOSE_SEMANTIC_REGEXP );
+		} else {
+			return U\Str::is_valid_helper( $str, 1, 100, U\Version::SEMANTIC_REGEXP );
+		}
 	}
 }

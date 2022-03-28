@@ -50,7 +50,7 @@ trait Is_Valid_Helper_Members {
 	 *
 	 * @return bool True if it's a valid string.
 	 */
-	protected static function is_valid_helper(
+	public static function is_valid_helper(
 		string $str,
 		int $min_chars = 2,
 		int $max_chars = 100,
