@@ -59,6 +59,9 @@ trait UTC_Members {
 		static $utc; // Memoize.
 		$utc ??= new \DateTimeZone( 'UTC' );
 
+		if ( 'U' !== $format && U\Env::is_wordpress() ) {
+			return wp_date( $format, strtotime( $str ), $utc );
+		}
 		try {
 			$date_time = new \DateTime( $str, $utc );
 		} catch ( \Exception $exception ) {
