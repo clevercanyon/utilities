@@ -20,6 +20,7 @@
 # Instead of editing this file, please edit `./dev/.libs/docker/wp/compose~prj.yml`.
 #
 # @todo Add MySQL permissions that allow for additional databases to be created.
+# @todo Install the PHP SOAP extension for WooCommerce.
 ##
 
 # ---------------------------------------------------------------------------------------------------------------------

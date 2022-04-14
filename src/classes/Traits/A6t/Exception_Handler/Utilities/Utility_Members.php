@@ -101,7 +101,8 @@ trait Utility_Members {
 					'disable_database_cache' => true, // Always disable on exception.
 				] );
 				if ( ! ( $existing_cache_control_header = U\HTTP::already_set_header( 'cache-control' ) )
-					|| ! preg_match( '/\b(?:private|no-cache|no-store)\b/ui', $existing_cache_control_header ) ) {
+					|| ! preg_match( '/\b(?:private|no-cache|no-store)\b/ui', $existing_cache_control_header )
+				) {
 					U\HTTP::cache_control( [
 						// In the browser, cache error documents (for everyone) with a low TTL while awaiting recovery.
 						// The goal (intention) is to have a short TTL in the browser so the site can recover quickly.
