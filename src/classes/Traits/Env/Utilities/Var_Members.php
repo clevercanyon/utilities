@@ -55,48 +55,48 @@ trait Var_Members {
 		$vars = []; // Initialize.
 
 		foreach ( [
-			'APPDATA',
-			'CWD',
-			'DOCUMENT_ROOT',
-			'HOME',
-			'HTTPS',
-			'HTTP_CF_CONNECTING_IP',
-			'HTTP_CLIENT_IP',
-			'HTTP_FORWARDED',
-			'HTTP_FORWARDED_FOR',
-			'HTTP_HOST',
-			'HTTP_VIA',
-			'HTTP_X_CLUSTER_CLIENT_IP',
-			'HTTP_X_FORWARDED',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_FORWARDED_PROTO',
-			'HTTP_X_REAL_IP',
-			'LOCALAPPDATA',
-			'PHP_SELF',
-			'REMOTE_ADDR',
-			'REQUEST_SCHEME',
-			'SCRIPT_FILENAME',
-			'SCRIPT_NAME',
-			'SERVER_ADDR',
-			'SERVER_ADMIN',
-			'SERVER_NAME',
-			'SERVER_PROTOCOL',
-			'TERM',
-			'TMPDIR',
-			'USER',
 			'USER_ID',
+			'USER',
 			'USER_LC',
+
+			'HOME',
+			'CWD',
+			'PWD',
+			'TMPDIR',
+
+			'TERM',
+			'HTTPS',
+			'HTTP_HOST',
+			'REQUEST_SCHEME',
+			'HTTP_X_FORWARDED_SSL',
+			'HTTP_X_FORWARDED_PROTO',
+			'SERVER_NAME',
+			'SERVER_ADMIN',
+			'SERVER_PROTOCOL',
+
+			'SERVER_ADDR',
+			'HTTP_CF_CONNECTING_IP',
+			'HTTP_TRUE_CLIENT_IP',
+			'HTTP_CLIENT_IP',
+			'HTTP_X_REAL_IP',
+			'HTTP_X_CLUSTER_CLIENT_IP',
+			'HTTP_X_FORWARDED_FOR',
+			'HTTP_VIA',
+			'REMOTE_ADDR',
+
+			'APPDATA',
+			'LOCALAPPDATA',
 			'XDG_CACHE_HOME',
 			'XDG_CONFIG_HOME',
 			'XDG_DATA_HOME',
 			'XDG_STATE_HOME',
+			'PHP_SELF',
+			'SCRIPT_NAME',
+			'SCRIPT_FILENAME',
+			'DOCUMENT_ROOT',
 		] as $_name
 		) {
 			$vars[ $_name ] = U\Env::var( $_name );
-
-			if ( 'CWD' === $_name ) {
-				$vars[ 'PWD' ] = &$vars[ $_name ];
-			}
 		}
 		$vars += $_SERVER + getenv(); // `$_SERVER` precedence.
 		$vars = $others + $vars;      // Others get precedence.
@@ -253,6 +253,7 @@ trait Var_Members {
 			case 'HTTPS':
 			case 'HTTP_HOST':
 			case 'REQUEST_SCHEME':
+			case 'HTTP_X_FORWARDED_SSL':
 			case 'HTTP_X_FORWARDED_PROTO':
 				// ↓ Lowercase.
 			case 'SERVER_NAME':
@@ -266,13 +267,11 @@ trait Var_Members {
 			case 'SERVER_ADDR':
 				// ↓ IP normalize.
 			case 'HTTP_CF_CONNECTING_IP':
-			case 'HTTP_X_REAL_IP':
+			case 'HTTP_TRUE_CLIENT_IP':
 			case 'HTTP_CLIENT_IP':
+			case 'HTTP_X_REAL_IP':
 			case 'HTTP_X_CLUSTER_CLIENT_IP':
 			case 'HTTP_X_FORWARDED_FOR':
-			case 'HTTP_X_FORWARDED':
-			case 'HTTP_FORWARDED_FOR':
-			case 'HTTP_FORWARDED':
 			case 'HTTP_VIA':
 			case 'REMOTE_ADDR':
 

@@ -72,7 +72,7 @@ trait Ext_Members {
 		$ext_type = $default;
 		$ext      = U\File::ext( $file, true );
 
-		foreach ( U\File::$mime_types as $_ext_type => $_mime_types ) {
+		foreach ( U\File::MIME_TYPES as $_ext_type => $_mime_types ) {
 			foreach ( $_mime_types as $_exts => $_mime_type ) {
 				if ( in_array( $ext, explode( '|', $_exts ), true ) ) {
 					$ext_type = $_ext_type;

@@ -44,7 +44,6 @@ trait Members {
 	use U\Traits\File\Utilities\Content_Type_Members;
 	use U\Traits\File\Utilities\Ext_Members;
 	use U\Traits\File\Utilities\MIME_Type_Members;
-	use U\Traits\File\Utilities\MIME_Types_Property;
 	use U\Traits\File\Utilities\Make_Members;
 	use U\Traits\File\Utilities\Read_Members;
 	use U\Traits\File\Utilities\Size_Abbr_Members;

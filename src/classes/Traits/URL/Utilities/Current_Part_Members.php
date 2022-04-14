@@ -81,12 +81,14 @@ trait Current_Part_Members {
 			return $scheme; // Saves time.
 		}
 		$is_https = // Any of these.
-			'443' === U\Env::server_port()
-			|| U\Bln::validate( U\Env::var( 'HTTPS' ) )
+			U\Bln::validate( U\Env::var( 'HTTPS' ) )
+			|| ( U\Env::is_wordpress() && is_ssl() )
+			|| '443' === U\Env::server_port()
+			|| 'https' === U\Env::var( 'REQUEST_SCHEME' )
+			|| 'on' === U\Env::var( 'HTTP_X_FORWARDED_SSL' )
 			|| '443' === U\Env::var( 'HTTP_X_FORWARDED_PORT' )
 			|| 'https' === U\Env::var( 'HTTP_X_FORWARDED_PROTO' )
-			|| false !== mb_stripos( U\Env::var( 'HTTP_CF_VISITOR' ), '"scheme":"https"' )
-			|| ( U\Env::is_wordpress() && is_ssl() );
+			|| preg_match( '/[\'"]scheme[\'"]\s*\:\s*[\'"]https[\'"]/ui', U\Env::var( 'HTTP_CF_VISITOR' ) );
 
 		return $scheme = $is_https ? 'https' : 'http';
 	}
@@ -107,12 +109,13 @@ trait Current_Part_Members {
 	 * @see   https://o5p.me/nui0ZU
 	 */
 	public static function current_host( bool $with_port = true ) : string {
-		static $host = []; // Memoize.
+		static $host; // Memoize.
 		$with_port_key = (int) $with_port;
 
 		if ( isset( $host[ $with_port_key ] ) ) {
 			return $host[ $with_port_key ]; // Saves time.
 		}
+		$host      ??= []; // Initialize.
 		$http_host = U\Env::var( 'HTTP_HOST' );
 
 		if ( ! $with_port && false !== mb_strpos( $http_host, ':' ) ) {
@@ -134,12 +137,14 @@ trait Current_Part_Members {
 	 * @return string Current root host.
 	 */
 	public static function current_root_host( bool $with_port = true ) : string {
-		static $root_host = []; // Memoize.
+		static $root_host; // Memoize.
 		$with_port_key = (int) $with_port;
 
 		if ( isset( $root_host[ $with_port_key ] ) ) {
 			return $root_host[ $with_port_key ]; // Saves time.
 		}
+		$root_host ??= []; // Initialize.
+
 		return $root_host[ $with_port_key ] = U\URL::root_host( '//' . U\URL::current_host(), $with_port );
 	}
 
@@ -243,12 +248,14 @@ trait Current_Part_Members {
 	 * @return string Current URL.
 	 */
 	public static function current( bool $with_query = true ) : string {
-		static $url = []; // Memoize.
+		static $url; // Memoize.
 		$with_query_key = (int) $with_query;
 
 		if ( isset( $url[ $with_query_key ] ) ) {
 			return $url[ $with_query_key ]; // Saves time.
 		}
+		$url ??= []; // Initialize.
+
 		return $url[ $with_query_key ] = U\URL::current_scheme() . '://' . U\URL::current_host() .
 			( $with_query ? U\URL::current_path_query() : U\URL::current_path() );
 	}

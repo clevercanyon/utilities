@@ -78,7 +78,7 @@ trait Is_Hostery_Members {
 		$is[ $prop ] ??= []; // Initialize.
 
 		if ( null === $hostery ) {
-			$hostery = U\Env::var( 'HOSTERY' );
+			$hostery = U\Env::var( 'HOSTERY_WS' );
 			$hostery = $hostery ? U\Str::json_decode( $hostery ) : null;
 			$hostery = $hostery && is_object( $hostery ) ? $hostery : (object) [];
 		}

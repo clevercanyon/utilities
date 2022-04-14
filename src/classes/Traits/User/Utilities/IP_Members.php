@@ -48,13 +48,11 @@ trait IP_Members {
 		}
 		$env_vars = [
 			'HTTP_CF_CONNECTING_IP',
-			'HTTP_X_REAL_IP',
+			'HTTP_TRUE_CLIENT_IP',
 			'HTTP_CLIENT_IP',
+			'HTTP_X_REAL_IP',
 			'HTTP_X_CLUSTER_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_FORWARDED',
-			'HTTP_FORWARDED_FOR',
-			'HTTP_FORWARDED',
 			'HTTP_VIA',
 			'REMOTE_ADDR',
 		];

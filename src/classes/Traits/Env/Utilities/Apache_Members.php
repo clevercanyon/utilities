@@ -99,4 +99,77 @@ trait Apache_Members {
 		}
 		return $version;
 	}
+
+	/**
+	 * Gets Apache static file extensions.
+	 *
+	 * @since 2022-02-26
+	 *
+	 * @return string Apache static file extensions.
+	 */
+	public static function apache_conf_static_exts() : string {
+		return implode( '|', U\File::static_exts() );
+	}
+
+	/**
+	 * Gets Apache encodings.
+	 *
+	 * @since 2022-02-26
+	 *
+	 * @return string Apache encodings.
+	 */
+	public static function apache_conf_encodings() : string {
+		return implode( "\n", [
+			'AddEncoding gzip .gz .tgz .svgz',
+		] );
+	}
+
+	/**
+	 * Gets Apache MIME types.
+	 *
+	 * @since 2022-02-26
+	 *
+	 * @return string Apache MIME types.
+	 */
+	public static function apache_conf_mime_types() : string {
+		$exts_by_type = []; // Initialize.
+		$mime_types   = []; // Initialize.
+
+		foreach ( U\File::MIME_TYPES as $_mime_types ) {
+			foreach ( $_mime_types as $_exts => $_mime_type ) {
+				$_exts                       = explode( '|', $_exts );
+				$exts_by_type[ $_mime_type ] = array_merge( $exts_by_type[ $_mime_type ] ?? [], $_exts );
+			}
+		}
+		$exts_by_type = U\Arr::sort_by( 'key', $exts_by_type );
+
+		foreach ( $exts_by_type as $_mime_type => $_exts ) {
+			$_exts        = array_unique( U\Arr::sort_by( 'value', $_exts ) );
+			$mime_types[] = 'AddType ' . $_mime_type . ' .' . implode( ' .', $_exts );
+		}
+		return implode( "\n", $mime_types );
+	}
+
+	/**
+	 * Gets Apache deflate MIME types.
+	 *
+	 * @since 2022-02-26
+	 *
+	 * @return string Apache deflate MIME types.
+	 */
+	public static function apache_conf_deflate_mime_types() : string {
+		return implode( "\n", [
+			'AddOutputFilterByType DEFLATE text/plain',
+			'AddOutputFilterByType DEFLATE text/html text/xml',
+			'AddOutputFilterByType DEFLATE application/xml-dtd',
+			'AddOutputFilterByType DEFLATE application/xhtml+xml',
+			'AddOutputFilterByType DEFLATE image/x-icon image/svg+xml',
+			'AddOutputFilterByType DEFLATE application/rss+xml application/atom+xml',
+			'AddOutputFilterByType DEFLATE application/xsd+xml application/xslt+xml application/rdf+xml application/ttaf+xml',
+			'AddOutputFilterByType DEFLATE application/x-font-otf application/x-font-ttf application/vnd.ms-fontobject',
+			'AddOutputFilterByType DEFLATE text/css application/javascript application/json application/ld+json',
+			'AddOutputFilterByType DEFLATE text/csv text/tab-separated-values',
+			'AddOutputFilterByType DEFLATE application/x-php-source',
+		] );
+	}
 }

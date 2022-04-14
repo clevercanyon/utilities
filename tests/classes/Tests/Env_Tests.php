@@ -347,7 +347,7 @@ final class Env_Tests extends U_Tests\A6t\Base {
 	 * @covers ::is_hostery()
 	 */
 	public function test_is_hostery_false() : void {
-		putenv( 'HOSTERY' ); // Removes environment variable.
+		putenv( 'HOSTERY_WS' ); // Removes environment variable.
 		$this->assertSame( false, U\Env::is_hostery(), $this->message() );
 		$this->assertSame( false, U\Env::is_hostery(), $this->message() );
 	}
@@ -357,7 +357,7 @@ final class Env_Tests extends U_Tests\A6t\Base {
 	 * @covers ::is_hostery()
 	 */
 	public function test_is_hostery_true() : void {
-		putenv( 'HOSTERY={"provider":"foo","operating_system":"foo","control_panel":"foo","web_server":"foo","environment":"foo"}' );
+		putenv( 'HOSTERY_WS={ "provider":"foo", "operating_system": "foo", "control_panel": "foo", "web_server": "foo", "environment": "foo" }' );
 
 		$this->assertSame( true, U\Env::is_hostery(), $this->message() );
 		$this->assertSame( true, U\Env::is_hostery(), $this->message() );

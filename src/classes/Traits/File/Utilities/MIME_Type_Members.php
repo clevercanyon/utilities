@@ -50,7 +50,7 @@ trait MIME_Type_Members {
 		}
 		$exts = []; // Initialize.
 
-		foreach ( U\File::$mime_types as $_mime_types ) {
+		foreach ( U\File::MIME_TYPES as $_mime_types ) {
 			foreach ( $_mime_types as $_exts => $_mime_type ) {
 				$exts = array_merge( $exts, explode( '|', $_exts ) );
 			}
@@ -59,11 +59,15 @@ trait MIME_Type_Members {
 		$exts = array_diff( $exts, [
 			'web',
 			'php',
+			'phtm',
 			'phtml',
-			'shtml',
+
 			'shtm',
+			'shtml',
+
 			'asp',
 			'aspx',
+
 			'pl',
 			'plx',
 			'cgi',
@@ -96,7 +100,7 @@ trait MIME_Type_Members {
 		if ( ! $ext = U\File::ext( $file, true ) ) {
 			return $default; // Not possible.
 		}
-		foreach ( U\File::$mime_types as $_mime_types ) {
+		foreach ( U\File::MIME_TYPES as $_mime_types ) {
 			foreach ( $_mime_types as $_exts => $_mime_type ) {
 				if ( in_array( $ext, explode( '|', $_exts ), true ) ) {
 					$mime_type = $_mime_type;
