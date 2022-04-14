@@ -101,6 +101,28 @@ trait Apache_Members {
 	}
 
 	/**
+	 * Gets Apache request header names.
+	 *
+	 * @since 2022-02-26
+	 *
+	 * @return string Apache request header names.
+	 */
+	public static function apache_conf_request_header_names() : string {
+		return implode( ', ', U\HTTP::request_header_names() );
+	}
+
+	/**
+	 * Gets Apache response header names.
+	 *
+	 * @since 2022-02-26
+	 *
+	 * @return string Apache response header names.
+	 */
+	public static function apache_conf_response_header_names() : string {
+		return implode( ', ', U\HTTP::response_header_names() );
+	}
+
+	/**
 	 * Gets Apache static file extensions.
 	 *
 	 * @since 2022-02-26
