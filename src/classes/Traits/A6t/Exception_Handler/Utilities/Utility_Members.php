@@ -87,8 +87,6 @@ trait Utility_Members {
 	 * @since 2022-03-03
 	 *
 	 * @param \Throwable $throwable Throwable.
-	 *
-	 * @todo  Review output from this function. Should we prepare output? Should we exit?
 	 */
 	public static function on_exception( \Throwable $throwable ) : void {
 		try {
@@ -100,6 +98,8 @@ trait Utility_Members {
 					'disable_object_cache'   => true, // Always disable on exception.
 					'disable_database_cache' => true, // Always disable on exception.
 				] );
+				U\HTTP::disable_robots(); // Don't index exceptions.
+
 				if ( ! ( $existing_cache_control_header = U\HTTP::already_set_header( 'cache-control' ) )
 					|| ! preg_match( '/\b(?:private|no-cache|no-store)\b/ui', $existing_cache_control_header )
 				) {
@@ -117,15 +117,15 @@ trait Utility_Members {
 						'stale_if_error'         => 300,  // `300` = stale up to 5 minutes.
 					] );
 				}
-				U\HTTP::disable_robots(); // Don't index exceptions.
-
 				if ( $document_root = U\Env::var( 'DOCUMENT_ROOT' ) ) {
 					if ( is_file( $_500_error_document = U\Dir::join( $document_root, '/500.shtml' ) ) ) {
 						if ( U\HTTP::prep_for_output() ) {
+							header( 'content-type: ' . U\File::content_type( $_500_error_document ) );
 							readfile( $_500_error_document );
 						}
 					} elseif ( is_file( $_500_error_document = U\Dir::join( $document_root, '/500.html' ) ) ) {
 						if ( U\HTTP::prep_for_output() ) {
+							header( 'content-type: ' . U\File::content_type( $_500_error_document ) );
 							readfile( $_500_error_document );
 						}
 					}
@@ -133,9 +133,9 @@ trait Utility_Members {
 			}
 			U\HTTP::finish_request(); // Try to end request.
 
-			// Notify via Slack.
+			// Maybe notify via Slack.
 
-			static::slack_notify( $throwable );
+			static::maybe_slack_notify( $throwable );
 
 		} catch ( \Throwable $throwable ) {
 			// Fail softly.
@@ -143,13 +143,16 @@ trait Utility_Members {
 	}
 
 	/**
-	 * Posts a Slack notification.
+	 * Posts a Slack notification (maybe).
 	 *
 	 * @since 2022-03-10
 	 *
 	 * @param \Throwable $throwable Throwable.
 	 */
-	protected static function slack_notify( \Throwable $throwable ) : void {
+	protected static function maybe_slack_notify( \Throwable $throwable ) : void {
+		if ( ! U\Env::static_var( 'C10N_SLACK_NOTIFY_ON_EXCEPTION' ) ) {
+			return; // Not applicable.
+		}
 		U\Slack::notify(
 			'*[' . static::class . ']: `' . U\URL::current_host() . '`*' . "\n" .
 			'----------------------------------------------------------------------------------------------------' . "\n" .

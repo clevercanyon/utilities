@@ -77,15 +77,18 @@ trait Basic_Auth_Members {
 
 		if ( $error_document && is_file( $error_document ) ) {
 			if ( U\HTTP::prep_for_output() ) {
+				header( 'content-type: ' . U\File::content_type( $error_document ) );
 				readfile( $error_document );
 			}
 		} elseif ( null === $error_document && ( $document_root = U\Env::var( 'DOCUMENT_ROOT' ) ) ) {
 			if ( is_file( $_401_error_document = U\Dir::join( $document_root, '/401.shtml' ) ) ) {
 				if ( U\HTTP::prep_for_output() ) {
+					header( 'content-type: ' . U\File::content_type( $_401_error_document ) );
 					readfile( $_401_error_document );
 				}
 			} elseif ( is_file( $_401_error_document = U\Dir::join( $document_root, '/401.html' ) ) ) {
 				if ( U\HTTP::prep_for_output() ) {
+					header( 'content-type: ' . U\File::content_type( $_401_error_document ) );
 					readfile( $_401_error_document );
 				}
 			}
