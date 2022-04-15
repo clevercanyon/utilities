@@ -261,7 +261,6 @@ trait Header_Members {
 			'x-pingback',
 			'x-powered-by',
 			'x-robots-tag',
-			'x-script-debug',
 			'x-server-debug',
 			'x-sourcemap',
 			'x-turbo-charged-by',
