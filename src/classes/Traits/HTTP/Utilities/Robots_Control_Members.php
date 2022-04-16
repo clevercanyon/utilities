@@ -70,6 +70,10 @@ trait Robots_Control_Members {
 	 * @see   https://o5p.me/6VHpQH Another good article by the folks at SEMrush.
 	 */
 	public static function robots_control( array $config ) : bool {
+		if ( headers_sent() ) {
+			return false; // Not possible.
+		}
+
 		$directives = []; // Initialize.
 
 		foreach ( $config as $_directive => $_value ) {
@@ -83,16 +87,29 @@ trait Robots_Control_Members {
 				$directives[] = $_directive;
 			}
 		}
-		$set_header           = function () use ( $directives ) : bool {
-			if ( headers_sent() ) {
-				return false; // Not possible.
-			}
+
+		/**
+		 * Sets `x-robots-tag` header.
+		 *
+		 * @since 2022-04-15
+		 *
+		 * @return bool `true` on success.
+		 */
+		$set_header = function () use ( $directives ) : bool {
 			if ( $directives ) {
 				header( 'x-robots-tag: ' . implode( ', ', $directives ) );
 			}
-			return true; // Always true if we get this far.
+			return true; // Always true.
 		};
-		$configure_server     = function () use ( $config ) : bool {
+
+		/**
+		 * Configures server.
+		 *
+		 * @since 2022-04-15
+		 *
+		 * @return bool `true` on success.
+		 */
+		$configure_server = function () use ( $config ) : bool {
 			$did_add_wp_filter = null;
 
 			if ( U\Env::is_wordpress() ) {
@@ -104,6 +121,7 @@ trait Robots_Control_Members {
 			}
 			return false !== $did_add_wp_filter;
 		};
+
 		$did_set_header       = $set_header();
 		$did_configure_server = $configure_server();
 		$did_set_static_var   = null !== U\Env::static_var( 'C10N_HTTP_ROBOTS_CONTROL', (object) $config );

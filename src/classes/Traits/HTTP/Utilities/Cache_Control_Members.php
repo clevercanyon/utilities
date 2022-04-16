@@ -65,44 +65,57 @@ trait Cache_Control_Members {
 			'disable_page_cache'     => true,
 			'disable_object_cache'   => true,
 			'disable_database_cache' => true,
-
-			'no_cache'        => true,
-			'no_store'        => true,
-			'must_revalidate' => true,
-			'max_age'         => 0,
-			's_maxage'        => 0,
+			'no_store'               => true,
 		] );
 	}
 
 	/**
-	 * Sets `cache-control` header and configures server.
+	 * Sets `cache-control` header and/or disable flags.
 	 *
 	 * @since        2021-12-15
 	 *
 	 * @param array $config Cache-control configuration.
 	 *
-	 *     bool|null `disable_page_cache`     Default is `null`. Set as `true` to disable page caching.
-	 *     bool|null `disable_object_cache`   Default is `null`. Set as `true` to disable object caching.
-	 *     bool|null `disable_database_cache` Default is `null`. Set as `true` to disable database caching.
+	 *     bool|null `disable_page_cache`         Set as `true` to disable page caching. Default is `null`.
+	 *     bool|null `disable_object_cache`       Set as `true` to disable object caching. Default is `null`.
+	 *     bool|null `disable_database_cache`     Set as `true` to disable database caching. Default is `null`.
 	 *
-	 *     array `header` Defaults are all `null`; i.e., `cache-control` header is not set by default.
-	 *                    To learn more about each of these; {@see https://o5p.me/AUuoEk}.
+	 *     Defaults are all `null`. `cache-control` not set by default.
+	 *     To learn more about each of these; {@see https://o5p.me/AUuoEk}.
 	 *
-	 *         bool `public`                  Set as `true` to enable this flag.
-	 *         bool `private`                 Set as `true` to enable this flag.
-	 *         bool `no_cache`                Set as `true` to enable this flag.
-	 *         bool `no_store`                Set as `true` to enable this flag.
-	 *         bool `no_transform`            Set as `true` to enable this flag.
-	 *         bool `must_revalidate`         Set as `true` to enable this flag.
+	 *     bool|null `public`                     Set as `true` to enable this flag. Default is `null`.
+	 *     bool|null `private`                    Set as `true` to enable this flag. Default is `null`.
+	 *     bool|null `no_cache`                   Set as `true` to enable this flag. Default is `null`.
+	 *     bool|null `no_store`                   Set as `true` to enable this flag. Default is `null`.
+	 *     bool|null `no_transform`               Set as `true` to enable this flag. Default is `null`.
+	 *     bool|null `must_revalidate`            Set as `true` to enable this flag. Default is `null`.
 	 *
-	 *         int  `max_age`                 Set as max age, in seconds, to enable.
-	 *         int  `s_maxage`                Set as max age, in seconds, to enable.
-	 *         int  `stale_while_revalidate`  Set as stale time, in seconds, to enable.
-	 *         int  `stale_if_error`          Set as stale time, in seconds, to enable.
+	 *     int|null  `max_age`                    Set as max age, in seconds, to enable. Default is `null`.
+	 *     int|null  `s_maxage`                   Set as max age, in seconds, to enable. Default is `null`.
+	 *     int|null  `stale_while_revalidate`     Set as stale time, in seconds, to enable. Default is `null`.
+	 *     int|null  `stale_if_error`             Set as stale time, in seconds, to enable. Default is `null`.
+	 *
+	 *     Defaults are all `null`. `cdn-cache-control` not set by default.
+	 *     To learn more about each of these; {@see https://o5p.me/AUuoEk}.
+	 *
+	 *     bool|null `cdn_public`                 Set as `true` to enable this flag. Default is `null`.
+	 *     bool|null `cdn_private`                Set as `true` to enable this flag. Default is `null`.
+	 *     bool|null `cdn_no_cache`               Set as `true` to enable this flag. Default is `null`.
+	 *     bool|null `cdn_no_store`               Set as `true` to enable this flag. Default is `null`.
+	 *     bool|null `cdn_no_transform`           Set as `true` to enable this flag. Default is `null`.
+	 *     bool|null `cdn_must_revalidate`        Set as `true` to enable this flag. Default is `null`.
+	 *
+	 *     int|null  `cdn_max_age`                Set as max age, in seconds, to enable. Default is `null`.
+	 *     int|null  `cdn_s_maxage`               Set as max age, in seconds, to enable. Default is `null`.
+	 *     int|null  `cdn_stale_while_revalidate` Set as stale time, in seconds, to enable. Default is `null`.
+	 *     int|null  `cdn_stale_if_error`         Set as stale time, in seconds, to enable. Default is `null`.
 	 *
 	 * @return bool True if `cache-control` header set, and server configured successfully.
 	 */
 	public static function cache_control( array $config = [] ) : bool {
+		if ( headers_sent() ) {
+			return false; // Not possible.
+		}
 		$default_config = [
 			'disable_page_cache'     => null,
 			'disable_object_cache'   => null,
@@ -119,13 +132,29 @@ trait Cache_Control_Members {
 			's_maxage'               => null,
 			'stale_while_revalidate' => null,
 			'stale_if_error'         => null,
-		];
-		$config         += $default_config; // Merge with defaults.
 
-		$set_header           = function () use ( $config ) : bool {
-			if ( headers_sent() ) {
-				return false; // Not possible.
-			}
+			'cdn_public'          => null,
+			'cdn_private'         => null,
+			'cdn_no_cache'        => null,
+			'cdn_no_store'        => null,
+			'cdn_no_transform'    => null,
+			'cdn_must_revalidate' => null,
+
+			'cdn_max_age'                => null,
+			'cdn_s_maxage'               => null,
+			'cdn_stale_while_revalidate' => null,
+			'cdn_stale_if_error'         => null,
+		];
+		$config         += $default_config; // Merge defaults.
+
+		/**
+		 * Sets `cache-control` header.
+		 *
+		 * @since 2022-04-15
+		 *
+		 * @return bool `true` on success.
+		 */
+		$set_header = function () use ( $config ) : bool {
 			$directives = []; // Initialize.
 
 			foreach ( [ 'public', 'private', 'no_cache', 'no_store', 'no_transform', 'must_revalidate' ] as $_flag ) {
@@ -135,7 +164,7 @@ trait Cache_Control_Members {
 			}
 			foreach ( [ 'max_age', 's_maxage', 'stale_while_revalidate', 'stale_if_error' ] as $_time ) {
 				if ( is_numeric( $config[ $_time ] ) ) {
-					$directives[ $_time ] = str_replace( '_', '-', $_flag ) . '=' . $config[ $_time ];
+					$directives[ $_time ] = str_replace( '_', '-', $_time ) . '=' . $config[ $_time ];
 				}
 			}
 			if ( $directives ) {
@@ -147,9 +176,53 @@ trait Cache_Control_Members {
 				}
 				header( 'cache-control: ' . implode( ', ', $directives ) );
 			}
-			return true; // Always true if we get this far.
+			return true; // Always true.
 		};
-		$configure_server     = function () use ( $config ) : bool {
+
+		/**
+		 * Sets `cdn-cache-control` header.
+		 *
+		 * @since 2022-04-15
+		 *
+		 * @return bool `true` on success.
+		 */
+		$set_cdn_header = function () use ( $config ) : bool {
+			$directives = []; // Initialize.
+
+			foreach ( [ 'cdn_public', 'cdn_private', 'cdn_no_cache', 'cdn_no_store', 'cdn_no_transform', 'cdn_must_revalidate' ] as $_flag ) {
+				if ( true === $config[ $_flag ] ) {
+					$directives[ $_flag ] = preg_replace( [ '/^cdn_/u', '/_/u' ], [ '', '-' ], $_flag );
+				}
+			}
+			foreach ( [ 'cdn_max_age', 'cdn_s_maxage', 'cdn_stale_while_revalidate', 'cdn_stale_if_error' ] as $_time ) {
+				if ( is_numeric( $config[ $_time ] ) ) {
+					$directives[ $_time ] = preg_replace( [ '/^cdn_/u', '/_/u' ], [ '', '-' ], $_time ) . '=' . $config[ $_time ];
+				}
+			}
+			if ( $directives ) {
+				header( 'cdn-cache-control: ' . implode( ', ', $directives ) );
+
+				if ( U\Env::is_litespeed() ) {
+					header( 'x-litespeed-cache-control: ' . implode( ', ', $directives ) );
+				}
+			}
+			return true; // Always true.
+		};
+
+		/**
+		 * Sets disable flags.
+		 *
+		 * @since 2022-04-15
+		 *
+		 * @return bool `true` on success.
+		 */
+		$set_disable_flags = function () use ( $config ) : bool {
+			if ( ! $config[ 'disable_page_cache' ]
+				&& ! $config[ 'disable_object_cache' ]
+				&& ! $config[ 'disable_database_cache' ] ) {
+				return true; // Not applicable.
+			}
+			$did_set_cdn_headers        = null;
 			$did_apache_setenv_no_cache = null;
 			$did_set_litespeed_headers  = null;
 
@@ -157,18 +230,21 @@ trait Cache_Control_Members {
 			$did_set_wp_do_not_cache_object_constant = null;
 			$did_set_wp_do_not_cache_db_constant     = null;
 
-			if ( U\Env::is_apache() ) {
-				if ( $config[ 'disable_page_cache' ] && U\Env::can_use_function( 'apache_setenv' ) ) {
+			if ( $config[ 'disable_page_cache' ] ) {
+				$did_set_cdn_headers = true;
+				header( 'cdn-cache-control: no-store' );
+			}
+			if ( $config[ 'disable_page_cache' ] && U\Env::is_litespeed() ) {
+				$did_set_litespeed_headers = true;
+				header( 'x-litespeed-cache-control: no-store' );
+			}
+			if ( $config[ 'disable_page_cache' ] && U\Env::is_apache() ) {
+				if ( U\Env::can_use_function( 'apache_setenv' ) ) {
 					/** @noinspection PhpUndefinedFunctionInspection */             // phpcs:ignore.
 					$did_apache_setenv_no_cache = apache_setenv( 'no-cache', '1' ); // phpcs:ignore.
 				}
 			}
-			if ( U\Env::is_litespeed() ) {
-				if ( $config[ 'disable_page_cache' ] && ( $did_set_litespeed_headers = ! headers_sent() ) ) {
-					header( 'x-litespeed-cache-control: no-cache, no-store, max-age=0, s-maxage=0' );
-				}
-			}
-			if ( U\Env::is_wordpress() ) {
+			if ( U\Env::is_wordpress() ) { // Sets WordPress constants.
 				if ( $config[ 'disable_page_cache' ] ) {
 					$did_set_wp_do_not_cache_page_constant = U\Env::maybe_define( 'DONOTCACHEPAGE', true );
 				}
@@ -179,18 +255,22 @@ trait Cache_Control_Members {
 					$did_set_wp_do_not_cache_db_constant = U\Env::maybe_define( 'DONOTCACHEDB', true );
 				}
 			}
-			return false !== $did_apache_setenv_no_cache
+			return false !== $did_set_cdn_headers
+				&& false !== $did_apache_setenv_no_cache
 				&& false !== $did_set_litespeed_headers
 				&& false !== $did_set_wp_do_not_cache_page_constant
 				&& false !== $did_set_wp_do_not_cache_object_constant
 				&& false !== $did_set_wp_do_not_cache_db_constant;
 		};
-		$did_set_header       = $set_header();
-		$did_configure_server = $configure_server();
-		$did_set_static_var   = null !== U\Env::static_var( 'C10N_HTTP_CACHE_CONTROL', (object) $config );
+
+		$did_set_header        = $set_header();
+		$did_set_cdn_header    = $set_cdn_header();
+		$did_set_disable_flags = $set_disable_flags();
+		$did_set_static_var    = null !== U\Env::static_var( 'C10N_HTTP_CACHE_CONTROL', (object) $config );
 
 		return $did_set_header
-			&& $did_configure_server
+			&& $did_set_cdn_header
+			&& $did_set_disable_flags
 			&& $did_set_static_var;
 	}
 }

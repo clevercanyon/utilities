@@ -67,10 +67,18 @@ trait Disable_Output_Compression_Members {
 	 * @see   https://www.php.net/manual/en/zlib.configuration.php#ini.zlib.output-compression
 	 */
 	public static function disable_output_compression() : bool {
-		$set_headers          = function () : bool {
-			if ( headers_sent() ) {
-				return false; // Not possible.
-			}
+		if ( headers_sent() ) {
+			return false; // Not possible.
+		}
+
+		/**
+		 * Sets headers.
+		 *
+		 * @since 2022-04-15
+		 *
+		 * @return bool `true` on success.
+		 */
+		$set_headers = function () : bool {
 			if ( U\Env::is_apache() ) {
 				header( 'content-encoding: none' );
 			} else { // Nginx, LiteSpeed, others.
@@ -79,18 +87,26 @@ trait Disable_Output_Compression_Members {
 			header( 'transfer-encoding: binary' );
 			header( 'content-transfer-encoding: binary' );
 
-			if ( ! $existing_cache_control_header = U\HTTP::already_set_header( 'cache-control' ) ) {
+			if ( ! $existing_cache_control_header = U\HTTP::response_header( 'cache-control' ) ) {
 				header( 'cache-control: no-transform' );
 			} elseif ( false === mb_stripos( $existing_cache_control_header, 'no-transform' ) ) {
 				header( 'cache-control: ' . $existing_cache_control_header . ', no-transform' );
 			}
 			return true; // Always true if we get this far.
 		};
-		$configure_server     = function () : bool {
+
+		/**
+		 * Configures server.
+		 *
+		 * @since 2022-04-15
+		 *
+		 * @return bool `true` on success.
+		 */
+		$configure_server = function () : bool {
 			$did_apache_setenv_no_gzip   = null;
 			$did_apache_setenv_no_brotli = null;
 
-			$did_zlib_output_compression_off = ! headers_sent() && U\Env::can_use_function( 'ini_set' )
+			$did_zlib_output_compression_off = U\Env::can_use_function( 'ini_set' )
 				&& false !== ini_set( 'zlib.output_compression', 'off' ); // phpcs:ignore.
 
 			if ( U\Env::is_apache() && U\Env::can_use_function( 'apache_setenv' ) ) {
@@ -104,6 +120,7 @@ trait Disable_Output_Compression_Members {
 				&& false !== $did_apache_setenv_no_gzip
 				&& false !== $did_apache_setenv_no_brotli;
 		};
+
 		$did_set_headers      = $set_headers();
 		$did_configure_server = $configure_server();
 		$did_set_static_var   = null !== U\Env::static_var( 'C10N_HTTP_OUTPUT_COMPRESSION', false );

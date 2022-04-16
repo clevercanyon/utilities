@@ -83,7 +83,7 @@ final class HTTP_Tests extends U_Tests\A6t\Base {
 	public function test_disable_caching() : void {
 		$this->assertSame( false, headers_sent(), $this->message() );
 		$this->assertSame( true, U\HTTP::disable_caching(), $this->message() );
-		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_CACHE_CONTROL' )->no_cache, $this->message() );
+		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_CACHE_CONTROL' )->no_store, $this->message() );
 	}
 
 	/**
@@ -144,6 +144,6 @@ final class HTTP_Tests extends U_Tests\A6t\Base {
 		$this->assertSame( true, PHP_SESSION_ACTIVE !== session_status(), $this->message() );
 		$this->assertSame( true, 1 === ob_get_level(), $this->message() );
 		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_ROBOTS_CONTROL' )->noindex, $this->message() );
-		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_CACHE_CONTROL' )->no_cache, $this->message() );
+		$this->assertSame( true, U\Env::static_var( 'C10N_HTTP_CACHE_CONTROL' )->no_store, $this->message() );
 	}
 }

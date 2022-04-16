@@ -93,20 +93,20 @@ trait Utility_Members {
 			if ( ! headers_sent() ) {
 				http_response_code( 500 ); // Internal server error (500).
 
-				U\HTTP::cache_control( [
-					'disable_page_cache'     => true, // Always disable on exception.
-					'disable_object_cache'   => true, // Always disable on exception.
-					'disable_database_cache' => true, // Always disable on exception.
+				U\HTTP::cache_control( [ // Don't cache exceptions.
+					'disable_page_cache'     => true,
+					'disable_object_cache'   => true,
+					'disable_database_cache' => true,
 				] );
 				U\HTTP::disable_robots(); // Don't index exceptions.
 
-				if ( ! ( $existing_cache_control_header = U\HTTP::already_set_header( 'cache-control' ) )
+				if ( ! ( $existing_cache_control_header = U\HTTP::response_header( 'cache-control' ) )
 					|| ! preg_match( '/\b(?:private|no-cache|no-store)\b/ui', $existing_cache_control_header )
 				) {
-					U\HTTP::cache_control( [
+					U\HTTP::cache_control( [ // Do cache exceptions in the browser.
 						// In the browser, cache error documents (for everyone) with a low TTL while awaiting recovery.
 						// The goal (intention) is to have a short TTL in the browser so the site can recover quickly.
-						// What we want to avoid is not caching error documents at all, then getting tons of hits
+						// What we want to avoid is not caching error documents at all, resulting in tons of hits
 						// at a time when there is already a problem with the site.
 
 						'public'                 => true, // Yes, allow it to be cached.

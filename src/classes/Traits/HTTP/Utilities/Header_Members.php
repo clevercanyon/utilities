@@ -36,17 +36,17 @@ use Clever_Canyon\{Utilities as U};
  */
 trait Header_Members {
 	/**
-	 * Gets the value of a header; if it's been set already.
+	 * Gets the value of an existing response header.
 	 *
 	 * @since 2021-12-15
 	 *
-	 * @param string $header Name of header to check.
+	 * @param string $header Header name.
 	 *
-	 * @return string|null String value if header set already; else `null`.
+	 * @return string|null String value if header is set already; else `null`.
 	 *                     It is possible for this to return an empty string, but still be `true`.
 	 *                     Use `! is_null()` to test for a true return value from this function.
 	 */
-	public static function already_set_header( string $header ) /* : string|null */ : ?string {
+	public static function response_header( string $header ) /* : string|null */ : ?string {
 		$header = trim( mb_strtolower( $header ), U\Str::TRIM_CHARS . ':' );
 
 		foreach ( headers_list() as $_header ) {
@@ -189,9 +189,11 @@ trait Header_Members {
 			'allow',
 			'alt-svc',
 			'cache-control',
+			'cdn-cache-control',
 			'cf-cache-status',
 			'cf-ray',
 			'clear-site-data',
+			'cloudflare-cdn-cache-control',
 			'connection',
 			'content-disposition',
 			'content-dpr',
@@ -218,6 +220,7 @@ trait Header_Members {
 			'last-modified',
 			'link',
 			'location',
+			'lsc-cookie',
 			'nel',
 			'permissions-policy',
 			'pragma',
@@ -241,6 +244,7 @@ trait Header_Members {
 			'sourcemap',
 			'status',
 			'strict-transport-security',
+			'surrogate-control',
 			'timing-allow-origin',
 			'tk',
 			'trailer',
@@ -256,6 +260,7 @@ trait Header_Members {
 			'x-download-options',
 			'x-firefox-spdy',
 			'x-frame-options',
+			'x-litespeed-cache',
 			'x-litespeed-cache-control',
 			'x-permitted-cross-domain-policies',
 			'x-pingback',
