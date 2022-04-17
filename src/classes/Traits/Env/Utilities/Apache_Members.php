@@ -154,8 +154,9 @@ trait Apache_Members {
 	 * @return string Apache MIME types.
 	 */
 	public static function apache_conf_mime_types() : string {
-		$exts_by_type = []; // Initialize.
-		$mime_types   = []; // Initialize.
+		$exts_by_type        = []; // Initialize.
+		$mime_types          = []; // Initialize.
+		$max_mime_type_chars = 0;  // Initialize.
 
 		foreach ( U\File::MIME_TYPES as $_mime_types ) {
 			foreach ( $_mime_types as $_exts => $_mime_type ) {
@@ -166,8 +167,14 @@ trait Apache_Members {
 		$exts_by_type = U\Arr::sort_by( 'key', $exts_by_type );
 
 		foreach ( $exts_by_type as $_mime_type => $_exts ) {
+			$max_mime_type_chars = max( $max_mime_type_chars, mb_strlen( 'AddType ' . $_mime_type ) );
+		}
+		foreach ( $exts_by_type as $_mime_type => $_exts ) {
+			$_mime_type_chars = mb_strlen( 'AddType ' . $_mime_type );
+			$_spaces          = str_repeat( ' ', $max_mime_type_chars - $_mime_type_chars + 1 );
+
 			$_exts        = array_unique( U\Arr::sort_by( 'value', $_exts ) );
-			$mime_types[] = 'AddType ' . $_mime_type . ' .' . implode( ' .', $_exts );
+			$mime_types[] = 'AddType ' . $_mime_type . $_spaces . '.' . implode( ' .', $_exts );
 		}
 		return implode( "\n", $mime_types );
 	}

@@ -112,7 +112,8 @@ trait Utility_Members {
 						'public'                 => true, // Yes, allow it to be cached.
 						'must_revalidate'        => true, // Yes, must revalidate cache data.
 						'max_age'                => 300,  // `300` = 5 minutes in the browser.
-						's_maxage'               => 7200, // `7200` = 2 hours in the edge cache.
+						's_maxage'               => 300,  // `300` = 5 minutes in the edge cache.
+						// ^ Cloudflare’s minimum edge cache TTL is 2 hours for their free plan; {@see https://o5p.me/VHjnUQ}.
 						'stale_while_revalidate' => 300,  // `300` = stale up to 5 minutes.
 						'stale_if_error'         => 300,  // `300` = stale up to 5 minutes.
 					] );

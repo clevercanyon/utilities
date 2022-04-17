@@ -46,10 +46,10 @@ trait Cache_Control_Members {
 		return U\HTTP::cache_control( [
 			'public'                 => true,
 			'must_revalidate'        => true,
-			'max_age'                => 31536000,
-			's_maxage'               => 31536000,
-			'stale_while_revalidate' => 604800,
-			'stale_if_error'         => 604800,
+			'max_age'                => 41400,
+			's_maxage'               => 41400,
+			'stale_while_revalidate' => 1800,
+			'stale_if_error'         => 1800,
 		] );
 	}
 

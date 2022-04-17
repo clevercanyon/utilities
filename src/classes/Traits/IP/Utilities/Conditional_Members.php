@@ -114,13 +114,15 @@ trait Conditional_Members {
 	/**
 	 * Checks private IP address validity.
 	 *
-	 * @since 2021-12-26
+	 * @since    2021-12-26
 	 *
 	 * @param string $str String to check.
 	 *
 	 * @return bool True if it's a valid private IP address.
 	 *
-	 * @see   https://o5p.me/9JSgKk
+	 * @see      https://o5p.me/9JSgKk
+	 *
+	 * @internal Regexp equivalent: `^(?:10|127|172\.(?:1[6-9]|2[0-9]|3[01])|192\.168)\.`.
 	 */
 	public static function is_private( string $str ) : bool {
 		return false !== filter_var( $str, FILTER_VALIDATE_IP )

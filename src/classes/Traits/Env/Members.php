@@ -52,6 +52,7 @@ trait Members {
 	use U\Traits\Env\Utilities\Is_Docker_Members;
 	use U\Traits\Env\Utilities\Is_HTTP_Members;
 	use U\Traits\Env\Utilities\Is_Hostery_Members;
+	use U\Traits\Env\Utilities\Is_Localhost_Members;
 	use U\Traits\Env\Utilities\Is_OS_Members;
 	use U\Traits\Env\Utilities\Is_Robotic_User_Members;
 	use U\Traits\Env\Utilities\Is_Web_Members;

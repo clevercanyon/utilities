@@ -9,6 +9,7 @@
 	"devDependencies" : {
 		"@clevercanyon/utilities-dev-npm" : "latest"
 	},
+	"main"            : "./src/index.js",
 	"config"          : {
 		"clevercanyon" : {
 			"&" : { }
