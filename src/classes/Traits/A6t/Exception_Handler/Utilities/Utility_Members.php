@@ -98,8 +98,6 @@ trait Utility_Members {
 					'disable_object_cache'   => true,
 					'disable_database_cache' => true,
 				] );
-				U\HTTP::disable_robots(); // Don't index exceptions.
-
 				if ( ! ( $existing_cache_control_header = U\HTTP::response_header( 'cache-control' ) )
 					|| ! preg_match( '/\b(?:private|no-cache|no-store)\b/ui', $existing_cache_control_header )
 				) {

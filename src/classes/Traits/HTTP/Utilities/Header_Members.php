@@ -281,6 +281,7 @@ trait Header_Members {
 			'want-digest',
 			'warning',
 			'www-authenticate',
+			'x-cdn-vary',
 			'x-content-duration',
 			'x-content-security-policy',
 			'x-content-type-options',
