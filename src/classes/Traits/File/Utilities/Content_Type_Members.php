@@ -63,20 +63,38 @@ trait Content_Type_Members {
 			if ( '' !== $charset ) {
 				$content_type .= '; charset=' . $charset;
 			} // Empty indicates no charset explicitly.
-		} else {
-			switch ( true ) {
-				case ( 'application/hta' === $content_type ):
-				case ( 'application/xml-dtd' === $content_type ):
-				case ( 'application/json' === $content_type ):
-				case ( 'application/javascript' === $content_type ):
-				case ( 'application/x-php-source' === $content_type ):
-				case ( U\Str::begins_with( $content_type, 'text/' ) ):
-				case ( U\Str::ends_with( $content_type, '+xml' ) ):
-				case ( U\Str::ends_with( $content_type, '+json' ) ):
-					$content_type .= '; charset=' . U\Env::charset();
-					break; // Added automatically.
-			}
+
+		} elseif ( $charset = U\File::content_type_charset( $content_type ) ) {
+			$content_type .= '; charset=' . $charset;
 		}
 		return $content_type;
+	}
+
+	/**
+	 * Gets charset for a given MIME content type.
+	 *
+	 * @since 2022-04-17
+	 *
+	 * @param string $content_type MIME content type.
+	 *
+	 * @return string Charset for MIME content type; else empty string.
+	 */
+	public static function content_type_charset( string $content_type ) : string {
+		if ( ! $content_type ) {
+			return ''; // Not applicable.
+		}
+		switch ( true ) {
+			case ( 'application/hta' === $content_type ):
+			case ( 'application/xml-dtd' === $content_type ):
+			case ( 'application/json' === $content_type ):
+			case ( 'application/javascript' === $content_type ):
+			case ( 'application/x-php-source' === $content_type ):
+			case ( 'application/php-archive' === $content_type ):
+			case ( U\Str::begins_with( $content_type, 'text/' ) ):
+			case ( U\Str::ends_with( $content_type, '+xml' ) ):
+			case ( U\Str::ends_with( $content_type, '+json' ) ):
+				return U\Env::charset();
+		}
+		return '';
 	}
 }

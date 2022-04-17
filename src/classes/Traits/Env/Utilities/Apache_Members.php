@@ -147,6 +147,39 @@ trait Apache_Members {
 	}
 
 	/**
+	 * Gets Apache charsets.
+	 *
+	 * @since 2022-02-26
+	 *
+	 * @return string Apache charsets.
+	 */
+	public static function apache_conf_charsets() : string {
+		$charsets          = ''; // Initialize.
+		$exts_by_mime_type = []; // Initialize.
+		$static_utf8_exts  = []; // Initialize.
+
+		foreach ( U\File::MIME_TYPES as $_mime_types ) {
+			foreach ( $_mime_types as $_exts => $_mime_type ) {
+				$_exts                            = explode( '|', $_exts );
+				$exts_by_mime_type[ $_mime_type ] = array_merge( $exts_by_mime_type[ $_mime_type ] ?? [], $_exts );
+			}
+		}
+		foreach ( $exts_by_mime_type as $_mime_type => $_exts ) {
+			if ( 'utf-8' === U\File::content_type_charset( $_mime_type ) ) {
+				$static_utf8_exts = array_merge( $static_utf8_exts, $_exts );
+			}
+		}
+		$static_utf8_exts = array_unique( array_diff( $static_utf8_exts, U\File::dynamic_exts() ) );
+		$static_utf8_exts = U\Arr::sort_by( 'value', $static_utf8_exts );
+
+		foreach ( array_chunk( $static_utf8_exts, 12 ) as $_exts ) {
+			$charsets .= $charsets ? "\t" : 'AddCharset utf-8 ';
+			$charsets .= '.' . implode( ' .', $_exts ) . ' \\' . "\n";
+		}
+		return rtrim( $charsets, U\Str::TRIM_CHARS . '\\' );
+	}
+
+	/**
 	 * Gets Apache MIME types.
 	 *
 	 * @since 2022-02-26
@@ -154,22 +187,22 @@ trait Apache_Members {
 	 * @return string Apache MIME types.
 	 */
 	public static function apache_conf_mime_types() : string {
-		$exts_by_type        = []; // Initialize.
+		$exts_by_mime_type   = []; // Initialize.
 		$mime_types          = []; // Initialize.
 		$max_mime_type_chars = 0;  // Initialize.
 
 		foreach ( U\File::MIME_TYPES as $_mime_types ) {
 			foreach ( $_mime_types as $_exts => $_mime_type ) {
-				$_exts                       = explode( '|', $_exts );
-				$exts_by_type[ $_mime_type ] = array_merge( $exts_by_type[ $_mime_type ] ?? [], $_exts );
+				$_exts                            = explode( '|', $_exts );
+				$exts_by_mime_type[ $_mime_type ] = array_merge( $exts_by_mime_type[ $_mime_type ] ?? [], $_exts );
 			}
 		}
-		$exts_by_type = U\Arr::sort_by( 'key', $exts_by_type );
+		$exts_by_mime_type = U\Arr::sort_by( 'key', $exts_by_mime_type );
 
-		foreach ( $exts_by_type as $_mime_type => $_exts ) {
+		foreach ( $exts_by_mime_type as $_mime_type => $_exts ) {
 			$max_mime_type_chars = max( $max_mime_type_chars, mb_strlen( 'AddType ' . $_mime_type ) );
 		}
-		foreach ( $exts_by_type as $_mime_type => $_exts ) {
+		foreach ( $exts_by_mime_type as $_mime_type => $_exts ) {
 			$_mime_type_chars = mb_strlen( 'AddType ' . $_mime_type );
 			$_spaces          = str_repeat( ' ', $max_mime_type_chars - $_mime_type_chars + 1 );
 

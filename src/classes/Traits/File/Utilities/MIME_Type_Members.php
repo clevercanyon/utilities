@@ -83,6 +83,31 @@ trait MIME_Type_Members {
 	}
 
 	/**
+	 * Gets all dynamic file extensions.
+	 *
+	 * @since 2022-02-26
+	 *
+	 * @return array Dynamic file extensions.
+	 */
+	public static function dynamic_exts() : array {
+		static $exts; // Memoize.
+
+		if ( null !== $exts ) {
+			return $exts; // Saves time.
+		}
+		$exts = []; // Initialize.
+
+		foreach ( U\File::MIME_TYPES as $_mime_types ) {
+			foreach ( $_mime_types as $_exts => $_mime_type ) {
+				$exts = array_merge( $exts, explode( '|', $_exts ) );
+			}
+		}
+		$exts = array_unique( $exts );
+		$exts = array_diff( $exts, U\File::static_exts() );
+		return $exts = U\Arr::sort_by( 'value', $exts );
+	}
+
+	/**
 	 * Gets a file's MIME type.
 	 *
 	 * @since 2022-01-19

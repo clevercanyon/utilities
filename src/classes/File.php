@@ -178,9 +178,9 @@ final class File extends U\A6t\Stc_Utilities {
 		// Misc. XML formats.
 
 		'XML' => [
-			'dtd'   => 'application/xml-dtd',
-			'xhtml' => 'application/xhtml+xml',
-			'xml'   => 'text/xml',
+			'dtd'        => 'application/xml-dtd',
+			'xhtm|xhtml' => 'application/xhtml+xml',
+			'xml'        => 'text/xml',
 		],
 		// Stylesheet formats.
 
