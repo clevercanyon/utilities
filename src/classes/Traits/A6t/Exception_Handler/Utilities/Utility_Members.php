@@ -91,7 +91,7 @@ trait Utility_Members {
 	public static function on_exception( \Throwable $throwable ) : void {
 		try {
 			if ( ! headers_sent() ) {
-				http_response_code( 500 ); // Internal server error (500).
+				U\HTTP::response_status( 500 );
 
 				U\HTTP::cache_control( [ // Don't cache exceptions.
 					'disable_page_cache'     => true,

@@ -56,6 +56,7 @@ trait Redirect_Members {
 		if ( U\Env::is_wordpress() ) {
 			wp_redirect( $location, $status ); // phpcs:ignore -- redirect ok.
 		} else {
+			header( 'status: ' . $status );
 			header( 'location: ' . $location, true, $status );
 		}
 	}

@@ -10,13 +10,22 @@
  */
 // <editor-fold desc="Strict types, namespace, use statements, and other headers.">
 
+/*
+ * Lint configuration.
+ *
+ * @since 2021-12-25
+ *
+ * WPCS doesn't understand the `never` return type yet.
+ * phpcs:disable Squiz.Commenting.FunctionComment.InvalidNoReturn
+ */
+
 /**
  * Declarations & namespace.
  *
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\HTTP;
+namespace Clever_Canyon\Utilities\Traits\HTTP\Utilities;
 
 /**
  * Utilities.
@@ -34,20 +43,24 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\HTTP
  */
-trait Members {
+trait Status_Members {
 	/**
-	 * Traits.
+	 * Sets response status headers.
+	 *
+	 * Need this to be queryable on the Apache/LiteSpeed side of things.
+	 * Settings a `status` header allows for `%{resp:status}` to work in `.htaccess`.
 	 *
 	 * @since 2021-12-15
+	 *
+	 * @param int $status Response status code.
 	 */
-	use U\Traits\HTTP\Utilities\Basic_Auth_Members;
-	use U\Traits\HTTP\Utilities\Cache_Control_Members;
-	use U\Traits\HTTP\Utilities\Close_Session_Members;
-	use U\Traits\HTTP\Utilities\Disable_Output_Compression_Members;
-	use U\Traits\HTTP\Utilities\Finish_Request_Members;
-	use U\Traits\HTTP\Utilities\Header_Members;
-	use U\Traits\HTTP\Utilities\Prep_For_Members;
-	use U\Traits\HTTP\Utilities\Redirect_Members;
-	use U\Traits\HTTP\Utilities\Robots_Control_Members;
-	use U\Traits\HTTP\Utilities\Status_Members;
+	public static function response_status( int $status ) : void {
+		header( 'status: ' . $status );
+
+		if ( U\Env::is_wordpress() ) {
+			status_header( $status );
+		} else {
+			http_response_code( $status );
+		}
+	}
 }

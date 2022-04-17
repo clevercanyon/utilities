@@ -72,8 +72,8 @@ trait Basic_Auth_Members {
 				}
 			} // Loop stops on any valid user; returning to caller.
 		}
+		U\HTTP::response_status( 401 ); // Unauthorized (401).
 		header( 'www-authenticate: Basic realm="' . U\Str::esc_dq( $realm ) . '"' );
-		http_response_code( 401 ); // Unauthorized (401).
 
 		if ( $error_document && is_file( $error_document ) ) {
 			if ( U\HTTP::prep_for_output() ) {
