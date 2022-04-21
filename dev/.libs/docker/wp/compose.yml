@@ -321,6 +321,7 @@ services :
         volumes        :
             - 'nxp-data:/etc/nginx/certs'
             - 'nxp-data:/etc/nginx/vhost.d'
+            - './config/nxp.conf:/etc/nginx/conf.d/z90.conf'
             - '/var/run/docker.sock:/tmp/docker.sock:ro'
 
         environment    : # {@see https://o5p.me/bEtXkH}.

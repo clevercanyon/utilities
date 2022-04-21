@@ -57,7 +57,6 @@ trait MIME_Type_Members {
 		}
 		$exts = array_unique( $exts );
 		$exts = array_diff( $exts, [
-			'web',
 			'php',
 			'phtm',
 			'phtml',
@@ -75,7 +74,7 @@ trait MIME_Type_Members {
 			'perl',
 		] );
 		foreach ( $exts as $_i => $_ext ) {
-			if ( preg_match( '/^(?:web|php|[ps]?html?|aspx?|plx?|cgi|ppl|perl)(?:[.~_\-]*[0-9]+)$/u', $_ext ) ) {
+			if ( preg_match( '/^(?:php|[ps]?html?|aspx?|plx?|cgi|ppl|perl)(?:[.~_\-]*[0-9]+)$/u', $_ext ) ) {
 				unset( $_ext[ $_i ] ); // Version suffix.
 			}
 		}

@@ -158,9 +158,9 @@ final class File extends U\A6t\Stc_Utilities {
 		// PHP formats.
 
 		'PHP' => [
-			'web|php|phtm|phtml' => 'text/html',
-			'phar'               => 'application/php-archive',
-			'phps'               => 'application/x-php-source',
+			'php|phtm|phtml' => 'text/html',
+			'phar'           => 'application/php-archive',
+			'phps'           => 'application/x-php-source',
 		],
 		// HTML formats.
 
@@ -198,7 +198,7 @@ final class File extends U\A6t\Stc_Utilities {
 		// JavaScript formats.
 
 		'JavaScript' => [
-			'js|ejs|cjs|jsx|ts|tjs|tsx' => 'application/javascript',
+			'js|ejs|cjs|mjs|jsx|ts|tjs|tsx' => 'application/javascript',
 		],
 		// Misc. code formats.
 

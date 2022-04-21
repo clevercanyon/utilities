@@ -221,17 +221,14 @@ trait Apache_Members {
 	 */
 	public static function apache_conf_deflate_mime_types() : string {
 		return implode( "\n", [
-			'AddOutputFilterByType DEFLATE text/plain',
-			'AddOutputFilterByType DEFLATE text/html text/xml',
-			'AddOutputFilterByType DEFLATE application/xml-dtd',
-			'AddOutputFilterByType DEFLATE application/xhtml+xml',
-			'AddOutputFilterByType DEFLATE image/x-icon image/svg+xml',
-			'AddOutputFilterByType DEFLATE application/rss+xml application/atom+xml',
+			'AddOutputFilterByType DEFLATE text/plain text/html text/xml application/xml-dtd application/xhtml+xml',
+			'AddOutputFilterByType DEFLATE image/x-icon image/svg+xml application/rss+xml application/atom+xml',
 			'AddOutputFilterByType DEFLATE application/xsd+xml application/xslt+xml application/rdf+xml application/ttaf+xml',
 			'AddOutputFilterByType DEFLATE application/x-font-otf application/x-font-ttf application/vnd.ms-fontobject',
 			'AddOutputFilterByType DEFLATE text/css application/javascript application/json application/ld+json',
+			'AddOutputFilterByType DEFLATE application/php-archive application/x-php-source',
 			'AddOutputFilterByType DEFLATE text/csv text/tab-separated-values',
-			'AddOutputFilterByType DEFLATE application/x-php-source',
+			'AddOutputFilterByType DEFLATE text/x-component application/hta',
 		] );
 	}
 }
