@@ -33,6 +33,9 @@
 		"dev/.libs/docker/wp/certs/root-ca-crt.pem"     : "@",
 		"dev/.libs/docker/wp/certs/root-ca-key.pem"     : "@",
 
+		"dev/.libs/docker/wp/config/nxp.conf"           : "@",
+		"dev/.libs/docker/wp/config/nxp~prj.conf"       : "@",
+
 		"dev/.libs/docker/wp/config/php.ini"            : "@",
 		"dev/.libs/docker/wp/config/php~prj.ini"        : "@",
 
