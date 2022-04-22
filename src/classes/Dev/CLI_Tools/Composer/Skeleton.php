@@ -503,6 +503,11 @@ final class Skeleton extends U\A6t\CLI_Tool {
 				$this->update_composer_json_file( $_composer_json_file->getPathname() );
 			}
 		}
+		foreach ( U\Dir::iterator( $to_dir, '(?:.+\/)?wrangler.toml$' ) as $_wrangler_toml_file ) {
+			if ( $_wrangler_toml_file->isFile() ) {
+				$this->update_wrangler_toml_file( $_wrangler_toml_file->getPathname() );
+			}
+		}
 		foreach ( U\Dir::iterator( $to_dir, '(?:(?:.+\/)?(?:readme\.(?:md|txt|html))|trunk\/(?:plugin|theme)\.php)$' ) as $_readme_file ) {
 			if ( $_readme_file->isFile() ) {
 				$this->update_readme_or_docblock_file( $_readme_file->getPathname() );
@@ -628,6 +633,20 @@ final class Skeleton extends U\A6t\CLI_Tool {
 	}
 
 	/**
+	 * Updates a `wrangler.toml` file.
+	 *
+	 * @since 2022-02-23
+	 *
+	 * @param string $file File path.
+	 */
+	protected function update_wrangler_toml_file( string $file ) : void {
+		$toml = U\File::read( $file );
+		$toml = preg_replace( '/^name\s*\=\s*[^\v]*$/ui', 'name = "' . U\Str::esc_dq( $this->data->slug ) . '"', $toml );
+
+		U\File::write( $file, $toml );
+	}
+
+	/**
 	 * Updates a readme or docblock file.
 	 *
 	 * @since 2022-02-23
@@ -660,7 +679,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		$to_dir                            = $this->data->{'to:prepare_project_dir'};
 		$subpaths_with_skeleton_references = []; // Initialize.
 
-		foreach ( U\Dir::iterator( $to_dir, '.+\.(?:php|js|ejs|cjs|mjs|jsx|ts|ets|cts|mts|tsx|json|json5|scss|css|md|txt|shtml|xhtml|html|xml)$' ) as $_textual_file ) {
+		foreach ( U\Dir::iterator( $to_dir, '.+\.(?:php|js|ejs|cjs|mjs|jsx|ts|ets|cts|mts|tsx|json|json5|yaml|yml|toml|scss|css|md|txt|shtml|xhtml|html|xml)$' ) as $_textual_file ) {
 			if ( $_textual_file->isFile() && false !== mb_stripos( U\File::read( $_textual_file->getPathname() ), 'skeleton' ) ) {
 				$subpaths_with_skeleton_references[] = $_textual_file->getSubPathname();
 			}
