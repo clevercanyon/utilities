@@ -192,13 +192,13 @@ final class File extends U\A6t\Stc_Utilities {
 		// JSON formats.
 
 		'JSON' => [
-			'json'   => 'application/json',
-			'jsonld' => 'application/ld+json',
+			'json|json5' => 'application/json',
+			'jsonld'     => 'application/ld+json',
 		],
 		// JavaScript formats.
 
 		'JavaScript' => [
-			'js|ejs|cjs|mjs|jsx|ts|tjs|tsx' => 'application/javascript',
+			'js|ejs|cjs|mjs|jsx|ts|ets|cts|mts|tsx' => 'application/javascript',
 		],
 		// Misc. code formats.
 
@@ -226,8 +226,8 @@ final class File extends U\A6t\Stc_Utilities {
 		// Misc. config file formats.
 
 		'Configuration' => [
-			'htaccess|htpasswd' => 'text/plain',
-			'ini|cfg|conf'      => 'text/plain',
+			'htaccess|htpasswd'          => 'text/plain',
+			'ini|cfg|conf|yaml|yml|toml' => 'text/plain',
 		],
 		// Translation file formats.
 

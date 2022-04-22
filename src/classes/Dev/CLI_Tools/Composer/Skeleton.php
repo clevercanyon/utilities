@@ -391,7 +391,8 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			' - wp-theme (for release; compiles as a WordPress theme)' . "\n" .
 			' - wp-website (potentially private; compiles as a WP website)' . "\n" .
 			' - wp-network (potentially private; compiles as a WP network)' . "\n" .
-			' - website (potentially private; compiles as a website)' . "\n\n" .
+			' - website (potentially private; compiles as a website)' . "\n" .
+			' - cloudflare-worker (potentially private; compiles as a Cloudflare worker)' . "\n\n" .
 
 			'Project Layout:' . "\n" .
 			'e.g., library' . "\n\n" .
@@ -412,6 +413,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 						'wp-website',
 						'wp-network',
 						'website',
+						'cloudflare-worker',
 					], true );
 			},
 			'library'
@@ -658,7 +660,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		$to_dir                            = $this->data->{'to:prepare_project_dir'};
 		$subpaths_with_skeleton_references = []; // Initialize.
 
-		foreach ( U\Dir::iterator( $to_dir, '.+\.(?:php|c?[tj]s|[tj]sx?|json5?|s?css|md|txt|html|xml)$' ) as $_textual_file ) {
+		foreach ( U\Dir::iterator( $to_dir, '.+\.(?:php|js|ejs|cjs|mjs|jsx|ts|ets|cts|mts|tsx|json|json5|scss|css|md|txt|shtml|xhtml|html|xml)$' ) as $_textual_file ) {
 			if ( $_textual_file->isFile() && false !== mb_stripos( U\File::read( $_textual_file->getPathname() ), 'skeleton' ) ) {
 				$subpaths_with_skeleton_references[] = $_textual_file->getSubPathname();
 			}

@@ -172,7 +172,7 @@ trait Apache_Members {
 		$static_utf8_exts = array_unique( array_diff( $static_utf8_exts, U\File::dynamic_exts() ) );
 		$static_utf8_exts = U\Arr::sort_by( 'value', $static_utf8_exts );
 
-		foreach ( array_chunk( $static_utf8_exts, 12 ) as $_exts ) {
+		foreach ( array_chunk( $static_utf8_exts, 18 ) as $_exts ) {
 			$charsets .= $charsets ? "\t" : 'AddCharset utf-8 ';
 			$charsets .= '.' . implode( ' .', $_exts ) . ' \\' . "\n";
 		}
