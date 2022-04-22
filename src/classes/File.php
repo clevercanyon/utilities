@@ -280,6 +280,13 @@ final class File extends U\A6t\Stc_Utilities {
 			'so'      => 'application/octet-stream',
 			'blend'   => 'application/x-blender',
 		],
+		// Proprietary Google formats.
+
+		'Google' => [
+			'kml' => 'application/vnd.google-earth.kml+xml',
+			'kmz' => 'application/vnd.google-earth.kmz',
+		],
+
 		// Proprietary Adobe formats.
 
 		'Adobe' => [
