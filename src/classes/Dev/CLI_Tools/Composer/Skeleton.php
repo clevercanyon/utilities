@@ -641,7 +641,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 	 */
 	protected function update_wrangler_toml_file( string $file ) : void {
 		$toml = U\File::read( $file );
-		$toml = preg_replace( '/^name\s*\=.*$/ui', 'name = "' . U\Str::esc_dq( $this->data->slug ) . '"', $toml );
+		$toml = preg_replace( '/^name\s*\=.*$/umi', 'name = "' . U\Str::esc_dq( $this->data->slug ) . '"', $toml );
 
 		U\File::write( $file, $toml );
 	}
