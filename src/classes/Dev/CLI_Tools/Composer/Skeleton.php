@@ -392,7 +392,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			' - wp-website (potentially private; compiles as a WP website)' . "\n" .
 			' - wp-network (potentially private; compiles as a WP network)' . "\n" .
 			' - website (potentially private; compiles as a website)' . "\n" .
-			' - cloudflare-worker (potentially private; compiles as a Cloudflare worker)' . "\n\n" .
+			' - cloudflare-worker (potentially private; compiles as a Cloudflare worker)' . "\n" .
 			' - cloudflare-worker-site (potentially private; compiles as a Cloudflare worker site)' . "\n\n" .
 
 			'Project Layout:' . "\n" .
