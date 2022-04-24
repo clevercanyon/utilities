@@ -77,19 +77,21 @@ trait N7M_Members {
 		if ( null === $prop ) {
 			return $brand; // Instance.
 		}
-		if ( ! isset( $brand->{$prop} ) ) {
-			return null; // Not available.
-		}
-		if ( 'raw' === $format || ! is_string( $brand->{$prop} ) ) {
-			return $brand->{$prop}; // Raw property.
-		}
 		$cls_cache_key_parts = [ __FUNCTION__, $brand->n7m, $prop, $format ];
 		$value               = &static::cls_cache( $cls_cache_key_parts );
 
 		if ( null !== $value ) {
 			return $value; // Saves time.
 		}
-		return $value = U\Brand::format_str_helper( $brand->{$prop}, $format );
+		$raw_value = U\Obj::get_prop( $brand, $prop );
+
+		if ( null === $raw_value ) {
+			return null; // Not available.
+		}
+		if ( 'raw' === $format || ! is_string( $raw_value ) ) {
+			return $value = $raw_value; // Raw property value.
+		}
+		return $value = U\Brand::format_str_helper( $raw_value, $format );
 	}
 
 	/**

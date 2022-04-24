@@ -16,7 +16,7 @@
  * @since 2021-12-25
  */
 declare( strict_types = 1 );
-namespace Clever_Canyon\Utilities\Traits\Arr;
+namespace Clever_Canyon\Utilities\Traits\Arr\Utilities;
 
 /**
  * Utilities.
@@ -34,18 +34,24 @@ use Clever_Canyon\{Utilities as U};
  *
  * @see   U\Arr
  */
-trait Members {
+trait Conversion_Members {
 	/**
-	 * Traits.
+	 * Converts array to object deeply.
 	 *
-	 * @since 2021-12-15
+	 * @since 2022-01-09
+	 *
+	 * @param array $arr Array to objectify.
+	 *
+	 * @return object Array converted to an object.
 	 */
-	use U\Traits\Arr\Utilities\Conditional_Members;
-	use U\Traits\Arr\Utilities\Conversion_Members;
-	use U\Traits\Arr\Utilities\Flatten_Members;
-	use U\Traits\Arr\Utilities\Get_Key_Members;
-	use U\Traits\Arr\Utilities\Hash_ID_Members;
-	use U\Traits\Arr\Utilities\Maybe_Prefix_Key_Members;
-	use U\Traits\Arr\Utilities\Sort_By_Members;
-	use U\Traits\Arr\Utilities\Value_First_Last_Members;
+	public static function objectify( array $arr ) : object {
+		$obj = (object) $arr;
+
+		foreach ( $obj as &$_value ) {
+			if ( is_array( $_value ) ) {
+				$_value = U\Arr::objectify( $_value );
+			}
+		}
+		return $obj;
+	}
 }

@@ -58,6 +58,22 @@ final class Brand extends U\A6t\Brand {
 
 			'slug_prefix' => 'clevercanyon-',
 			'var_prefix'  => 'clevercanyon_',
+
+			'aws'        => [
+				's3' => [
+					'bucket'     => 'clevercanyon',
+					'cdn_domain' => 'cdn.clevercanyon.com',
+				],
+			],
+			'google'     => [
+				'analytics' => [
+					'measurement_id' => 'G-Y5BS7MMHMD',
+				],
+			],
+			'cloudflare' => [
+				'account_id' => 'f1176464a976947aa5665d989814a4b1',
+				'zone_id'    => 'f8a39e1ad05c2b452f1e18e699ad2129',
+			],
 		],
 		'c13v' => [
 			'org_n7m' => 'c10n',
@@ -71,6 +87,22 @@ final class Brand extends U\A6t\Brand {
 
 			'slug_prefix' => 'clevercanyon-dev-',
 			'var_prefix'  => 'clevercanyon_dev_',
+
+			'aws'        => [
+				's3' => [
+					'bucket'     => 'clevercanyon-dev',
+					'cdn_domain' => 'cdn-dev.clevercanyon.com',
+				],
+			],
+			'google'     => [
+				'analytics' => [
+					'measurement_id' => 'G-8K3F2ZYNYX',
+				],
+			],
+			'cloudflare' => [
+				'account_id' => '', // Not applicable.
+				'zone_id'    => '', // Not applicable.
+			],
 		],
 		'h5y'  => [
 			'org_n7m' => 'c10n',
@@ -84,6 +116,22 @@ final class Brand extends U\A6t\Brand {
 
 			'slug_prefix' => 'hostery-',
 			'var_prefix'  => 'hostery_',
+
+			'aws'        => [
+				's3' => [
+					'bucket'     => 'hosteryio',
+					'cdn_domain' => 'cdn.hostery.io',
+				],
+			],
+			'google'     => [
+				'analytics' => [
+					'measurement_id' => 'G-W1FL9L1X2R',
+				],
+			],
+			'cloudflare' => [
+				'account_id' => 'f1176464a976947aa5665d989814a4b1',
+				'zone_id'    => '09be03dd47372c24acc67219218ad8c7',
+			],
 		],
 		'w6e'  => [
 			'org_n7m' => 'c10n',
@@ -97,6 +145,22 @@ final class Brand extends U\A6t\Brand {
 
 			'slug_prefix' => 'wpgroove-',
 			'var_prefix'  => 'wpgroove_',
+
+			'aws'        => [
+				's3' => [
+					'bucket'     => 'wpgroove',
+					'cdn_domain' => 'cdn.wpgroove.com',
+				],
+			],
+			'google'     => [
+				'analytics' => [
+					'measurement_id' => 'G-X854GJ28PH',
+				],
+			],
+			'cloudflare' => [
+				'account_id' => 'f1176464a976947aa5665d989814a4b1',
+				'zone_id'    => 'a1f21a353b5c49f27ccbdccb339c410a',
+			],
 		],
 		't5a'  => [
 			'org_n7m' => 'c10n',
@@ -110,6 +174,22 @@ final class Brand extends U\A6t\Brand {
 
 			'slug_prefix' => 'topsica-',
 			'var_prefix'  => 'topsica_',
+
+			'aws'        => [
+				's3' => [
+					'bucket'     => 'topsica',
+					'cdn_domain' => 'cdn.topsica.com',
+				],
+			],
+			'google'     => [
+				'analytics' => [
+					'measurement_id' => 'G-50QQ4HGS37',
+				],
+			],
+			'cloudflare' => [
+				'account_id' => 'f1176464a976947aa5665d989814a4b1',
+				'zone_id'    => '0b1ac32ee94c9bee67eacbcb8065773f',
+			],
 		],
 		'w4s'  => [
 			'org_n7m' => 'c10n',
@@ -123,6 +203,22 @@ final class Brand extends U\A6t\Brand {
 
 			'slug_prefix' => 'wobots-',
 			'var_prefix'  => 'wobots_',
+
+			'aws'        => [
+				's3' => [
+					'bucket'     => 'wobots',
+					'cdn_domain' => 'cdn.wobots.com',
+				],
+			],
+			'google'     => [
+				'analytics' => [
+					'measurement_id' => 'G-3SHM64QZNK',
+				],
+			],
+			'cloudflare' => [
+				'account_id' => 'f1176464a976947aa5665d989814a4b1',
+				'zone_id'    => 'accc8038a3c1f4dc8a060161d3eed763',
+			],
 		],
 	];
 }

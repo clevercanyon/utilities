@@ -391,7 +391,6 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			' - wp-theme (for release; compiles as a WordPress theme)' . "\n" .
 			' - wp-website (potentially private; compiles as a WP website)' . "\n" .
 			' - cloudflare-worker (potentially private; compiles as a Cloudflare worker)' . "\n" .
-			' - cloudflare-workers (potentially private; compiles as a collection of Cloudflare workers)' . "\n" .
 			' - cloudflare-worker-site (potentially private; compiles as a Cloudflare worker site)' . "\n\n" .
 
 			'Project Layout:' . "\n" .
@@ -412,7 +411,6 @@ final class Skeleton extends U\A6t\CLI_Tool {
 						'wp-theme',
 						'wp-website',
 						'cloudflare-worker',
-						'cloudflare-workers',
 						'cloudflare-worker-site',
 					], true );
 			},
@@ -595,7 +593,8 @@ final class Skeleton extends U\A6t\CLI_Tool {
 	 * @param string $file File path.
 	 */
 	protected function update_composer_json_file( string $file ) : void {
-		$json = U\File::read_json_obj( $file );
+		$c10n_org_var = U\Brand::get( '&', 'var' );
+		$json         = U\File::read_json_obj( $file );
 
 		if ( isset( $json->type ) ) {
 			$json->type = $this->data->type;
@@ -603,11 +602,23 @@ final class Skeleton extends U\A6t\CLI_Tool {
 		if ( isset( $json->name ) ) {
 			$json->name = $this->data->pkg_name;
 		}
-		if ( isset( $json->extra->{U\Brand::get( '&', 'var' )}->{'&'}->project->data ) ) {
-			$_data                 = &$json->extra->{U\Brand::get( '&', 'var' )}->{'&'}->project->data;
-			$_data->layout         = $this->data->layout;
-			$_data->namespace_crux = $this->data->namespace_crux;
-			$_data->name           = $this->data->name;
+		$json->extra                         ??= (object) [];
+		$json->extra->{$c10n_org_var}        ??= (object) [];
+		$json->extra->{$c10n_org_var}->{'&'} ??= (object) [];
+
+		$json->extra->{$c10n_org_var}->{'&'}->brand       ??= (object) [];
+		$json->extra->{$c10n_org_var}->{'&'}->brand->data ??= (object) [];
+
+		$json->extra->{$c10n_org_var}->{'&'}->project       ??= (object) [];
+		$json->extra->{$c10n_org_var}->{'&'}->project->data ??= (object) [];
+
+		if ( is_object( $_brand_data = &$json->extra->{$c10n_org_var}->{'&'}->brand->data ) ) {
+			$_brand_data->n7m = $this->data->brand->n7m;
+		}
+		if ( is_object( $_project_data = &$json->extra->{$c10n_org_var}->{'&'}->project->data ) ) {
+			$_project_data->layout         = $this->data->layout;
+			$_project_data->namespace_crux = $this->data->namespace_crux;
+			$_project_data->name           = $this->data->name;
 		}
 		foreach ( [ 'autoload', 'autoload-dev' ] as $_autoload_prop ) {
 			if ( isset( $json->{$_autoload_prop}->{'psr-4'} ) && is_object( $json->{$_autoload_prop}->{'psr-4'} ) ) {
@@ -641,7 +652,10 @@ final class Skeleton extends U\A6t\CLI_Tool {
 	 */
 	protected function update_wrangler_toml_file( string $file ) : void {
 		$toml = U\File::read( $file );
+
 		$toml = preg_replace( '/^name\s*\=.*$/umi', 'name = "' . U\Str::esc_dq( basename( $this->data->pkg_name ) ) . '"', $toml );
+		$toml = preg_replace( '/^account_id\s*\=.*$/umi', 'account_id = "' . U\Str::esc_dq( $this->data->brand->cloudflare->account_id ) . '"', $toml );
+		$toml = preg_replace( '/^zone_id\s*\=.*$/umi', 'zone_id = "' . U\Str::esc_dq( $this->data->brand->cloudflare->zone_id ) . '"', $toml );
 
 		U\File::write( $file, $toml );
 	}

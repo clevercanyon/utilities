@@ -388,7 +388,7 @@ final class Project extends U\A6t\Base {
 			throw new U\Fatal_Exception( '`Project->brand_slug_prefix` (as a brand var prefix) doesn’t match `Project->brand_var_prefix`.' );
 		}
 		if ( ! U\Str::is_namespace_crux( $this->namespace_crux, $this->brand_n7m ) ) {
-			throw new U\Fatal_Exception( 'Missing, invalid, or mismatched L1 brand namespace in `Project->namespace_crux` (`' . $this->namespace_crux . '`) (`' . $this->brand_n7m . '`).' );
+			throw new U\Fatal_Exception( 'Missing, invalid, or mismatched L1 brand namespace in `Project->namespace_crux`.' );
 		}
 		// Now, let's validate project name, slug, and var properties.
 
@@ -809,10 +809,10 @@ final class Project extends U\A6t\Base {
 	 * @throws U\Fatal_Exception On any failure.
 	 */
 	public function s3_bucket() : string {
-		$bucket_prop = '&.brand.aws.s3.bucket';
+		$bucket_prop = 'aws.s3.bucket';
 
-		if ( ! $bucket = strval( $this->extra_json_prop( $bucket_prop ) ) ) {
-			throw new U\Fatal_Exception( 'Missing extra prop: `' . $bucket_prop . '` in: `' . $this->file . '`.' );
+		if ( ! $bucket = U\Brand::get( $this->brand_n7m, $bucket_prop ) ) {
+			throw new U\Fatal_Exception( 'Missing brand prop: `' . $bucket_prop . '` in: `' . $this->brand_n7m . '`.' );
 		}
 		return $bucket;
 	}

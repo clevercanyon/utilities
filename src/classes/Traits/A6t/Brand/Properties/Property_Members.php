@@ -90,4 +90,25 @@ trait Property_Members {
 	 * @since 2022-03-22
 	 */
 	protected string $var_prefix;
+
+	/**
+	 * AWS properties.
+	 *
+	 * @since 2022-03-22
+	 */
+	protected object $aws;
+
+	/**
+	 * Google properties.
+	 *
+	 * @since 2022-03-22
+	 */
+	protected object $google;
+
+	/**
+	 * Cloudflare properties.
+	 *
+	 * @since 2022-03-22
+	 */
+	protected object $cloudflare;
 }

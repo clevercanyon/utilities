@@ -59,11 +59,20 @@ trait Constructable_Members {
 		$this->slug_prefix = $props[ 'slug_prefix' ] ?? '';
 		$this->var_prefix  = $props[ 'var_prefix' ] ?? '';
 
+		$this->aws        = U\Arr::objectify( u\iff_array( $props[ 'aws' ], [] ) );
+		$this->google     = U\Arr::objectify( u\iff_array( $props[ 'google' ], [] ) );
+		$this->cloudflare = U\Arr::objectify( u\iff_array( $props[ 'cloudflare' ], [] ) );
+
 		if ( ! $this->org instanceof U\I7e\Brand ) {
 			throw new U\Fatal_Exception( 'Missing or invalid prop: `org`.' );
 		}
 		foreach ( [ 'n7m', 'name', 'namespace', 'slug', 'var', 'slug_prefix', 'var_prefix' ] as $_prop ) {
 			if ( ! is_string( $this->{$_prop} ) || '' === $this->{$_prop} ) {
+				throw new U\Fatal_Exception( 'Missing or invalid prop: `' . $_prop . '`.' );
+			}
+		}
+		foreach ( [ 'aws', 'google', 'cloudflare' ] as $_prop ) {
+			if ( ! is_object( $this->{$_prop} ) || U\Obj::empty( $this->{$_prop} ) ) {
 				throw new U\Fatal_Exception( 'Missing or invalid prop: `' . $_prop . '`.' );
 			}
 		}

@@ -65,12 +65,6 @@
 				"brand"            : {
 					"data" : {
 						"n7m" : "c10n"
-					},
-					"aws"  : {
-						"s3" : {
-							"bucket"     : "clevercanyon",
-							"cdn_domain" : "cdn.clevercanyon.com"
-						}
 					}
 				},
 				"project"          : {
