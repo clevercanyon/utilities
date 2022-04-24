@@ -388,7 +388,7 @@ final class Project extends U\A6t\Base {
 			throw new U\Fatal_Exception( '`Project->brand_slug_prefix` (as a brand var prefix) doesn’t match `Project->brand_var_prefix`.' );
 		}
 		if ( ! U\Str::is_namespace_crux( $this->namespace_crux, $this->brand_n7m ) ) {
-			throw new U\Fatal_Exception( 'Missing, invalid, or mismatched L1 brand namespace in `Project->namespace_crux`.' );
+			throw new U\Fatal_Exception( 'Missing, invalid, or mismatched L1 brand namespace in `Project->namespace_crux` (`' . $this->namespace_crux . '`) (`' . $this->brand_n7m . '`).' );
 		}
 		// Now, let's validate project name, slug, and var properties.
 
