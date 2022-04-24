@@ -768,7 +768,7 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'Shell Access         : $ ./.wp-docker shell 🐳' );
 		U\CLI::log( 'Psysh Access         : $ ./.wp-docker psysh' );
 		U\CLI::log( 'WP-CLI Access        : $ ./.wp-docker cli' );
-		if ( in_array( $this->project->layout, [ 'wp-website', 'wp-network' ], true ) ) {
+		if ( in_array( $this->project->layout, [ 'wp-website' ], true ) ) {
 			U\CLI::log( 'Project In Container : /wp-docker/host/project|/var/www/html' );
 		} else {
 			U\CLI::log( 'Project In Container : /wp-docker/host/project' );
@@ -780,7 +780,7 @@ final class WP extends U\A6t\CLI_Tool {
 		U\CLI::log( 'Wildcard SSL         : *.' . $nxp_container_fqdn );
 		U\CLI::log( 'HTTP                 : http://' . $nxp_container_fqdn );
 		U\CLI::log( 'HTTPS                : https://' . $nxp_container_fqdn . ' 🌎' );
-		if ( ! in_array( $this->project->layout, [ 'wp-website', 'wp-network' ], true ) ) {
+		if ( ! in_array( $this->project->layout, [ 'wp-website' ], true ) ) {
 			U\CLI::log( 'PHP Info             : https://' . $nxp_container_fqdn . '/info.php' );
 		}
 		U\CLI::new_line();
@@ -1162,7 +1162,7 @@ final class WP extends U\A6t\CLI_Tool {
 		if ( 'ci' === $this->get_option( 'variant' ) ) {
 			return [
 				[ '--file', U\Dir::join( $dir, '/compose.yml' ) ],
-				( in_array( $this->project->layout, [ 'wp-website', 'wp-network' ], true ) ? [ '--file', $av_file ] : [] ),
+				( in_array( $this->project->layout, [ 'wp-website' ], true ) ? [ '--file', $av_file ] : [] ),
 				( is_file( $sym_file ) ? [ '--file', $sym_file ] : [] ),
 				[ '--file', U\Dir::join( $dir, '/compose~ci.yml' ) ],
 				[ '--file', U\Dir::join( $dir, '/compose~prj.yml' ) ],
@@ -1170,7 +1170,7 @@ final class WP extends U\A6t\CLI_Tool {
 		} else {
 			return [
 				[ '--file', U\Dir::join( $dir, '/compose.yml' ) ],
-				( in_array( $this->project->layout, [ 'wp-website', 'wp-network' ], true ) ? [ '--file', $av_file ] : [] ),
+				( in_array( $this->project->layout, [ 'wp-website' ], true ) ? [ '--file', $av_file ] : [] ),
 				( is_file( $sym_file ) ? [ '--file', $sym_file ] : [] ),
 				[ '--file', U\Dir::join( $dir, '/compose~prj.yml' ) ],
 			];

@@ -390,13 +390,12 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			' - wp-plugin (for release; compiles as a WordPress plugin)' . "\n" .
 			' - wp-theme (for release; compiles as a WordPress theme)' . "\n" .
 			' - wp-website (potentially private; compiles as a WP website)' . "\n" .
-			' - wp-network (potentially private; compiles as a WP network)' . "\n" .
-			' - website (potentially private; compiles as a website)' . "\n" .
 			' - cloudflare-worker (potentially private; compiles as a Cloudflare worker)' . "\n" .
+			' - cloudflare-workers (potentially private; compiles as a collection of Cloudflare workers)' . "\n" .
 			' - cloudflare-worker-site (potentially private; compiles as a Cloudflare worker site)' . "\n\n" .
 
 			'Project Layout:' . "\n" .
-			'e.g., library' . "\n\n" .
+			'e.g., library, wp-plugin, cloudflare-worker' . "\n\n" .
 
 			'Project Layouts are a Clever Canyon compilation feature.' . "\n" .
 			'If you’re creating a typical library for use in other projects, just use `library`.' . "\n" .
@@ -412,9 +411,8 @@ final class Skeleton extends U\A6t\CLI_Tool {
 						'wp-plugin',
 						'wp-theme',
 						'wp-website',
-						'wp-network',
-						'website',
 						'cloudflare-worker',
+						'cloudflare-workers',
 						'cloudflare-worker-site',
 					], true );
 			},
