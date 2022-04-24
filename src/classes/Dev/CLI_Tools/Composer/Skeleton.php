@@ -393,6 +393,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 			' - wp-network (potentially private; compiles as a WP network)' . "\n" .
 			' - website (potentially private; compiles as a website)' . "\n" .
 			' - cloudflare-worker (potentially private; compiles as a Cloudflare worker)' . "\n\n" .
+			' - cloudflare-worker-site (potentially private; compiles as a Cloudflare worker site)' . "\n\n" .
 
 			'Project Layout:' . "\n" .
 			'e.g., library' . "\n\n" .
@@ -414,6 +415,7 @@ final class Skeleton extends U\A6t\CLI_Tool {
 						'wp-network',
 						'website',
 						'cloudflare-worker',
+						'cloudflare-worker-site',
 					], true );
 			},
 			'library'
