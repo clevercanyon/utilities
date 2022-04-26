@@ -73,11 +73,12 @@ module.exports = ( env, argv ) => {
 			return; // No entry indexes available.
 		}
 		configs.push( mc.merge( {
-			cache   : false,
-			mode    : 'production',
-			target  : 'browserslist',
-			plugins : [ new miniCss( { filename : '[name].min.css' } ) ],
-			module  : {
+			cache       : false,
+			mode        : 'production',
+			target      : 'browserslist',
+			experiments : { topLevelAwait : true },
+			plugins     : [ new miniCss( { filename : '[name].min.css' } ) ],
+			module      : {
 				rules : [
 					{
 						test : /\.(?:txt|md)$/i,
@@ -118,10 +119,10 @@ module.exports = ( env, argv ) => {
 					},
 				],
 			},
-			entry   : {
+			entry       : {
 				index : entryIndexes,
 			},
-			output  : {
+			output      : {
 				path     : assetsDir + '/webpack',
 				filename : '[name].min.js',
 			},

@@ -108,7 +108,7 @@ trait Apache_Members {
 	 * @return string Apache request header names.
 	 */
 	public static function apache_conf_request_header_names() : string {
-		return implode( ', ', U\HTTP::request_header_names() );
+		return implode( ', ', U\HTTP::REQUEST_HEADER_NAMES );
 	}
 
 	/**
@@ -119,7 +119,7 @@ trait Apache_Members {
 	 * @return string Apache response header names.
 	 */
 	public static function apache_conf_response_header_names() : string {
-		return implode( ', ', U\HTTP::response_header_names() );
+		return implode( ', ', U\HTTP::RESPONSE_HEADER_NAMES );
 	}
 
 	/**
