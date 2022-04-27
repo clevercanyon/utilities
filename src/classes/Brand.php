@@ -67,7 +67,7 @@ final class Brand extends U\A6t\Brand {
 			],
 			'google'     => [
 				'analytics' => [
-					'measurement_id' => 'G-Y5BS7MMHMD',
+					'ga4_gtag_id' => 'G-Y5BS7MMHMD',
 				],
 			],
 			'cloudflare' => [
@@ -96,7 +96,7 @@ final class Brand extends U\A6t\Brand {
 			],
 			'google'     => [
 				'analytics' => [
-					'measurement_id' => 'G-8K3F2ZYNYX',
+					'ga4_gtag_id' => 'G-8K3F2ZYNYX',
 				],
 			],
 			'cloudflare' => [
@@ -125,7 +125,7 @@ final class Brand extends U\A6t\Brand {
 			],
 			'google'     => [
 				'analytics' => [
-					'measurement_id' => 'G-W1FL9L1X2R',
+					'ga4_gtag_id' => 'G-W1FL9L1X2R',
 				],
 			],
 			'cloudflare' => [
@@ -154,7 +154,7 @@ final class Brand extends U\A6t\Brand {
 			],
 			'google'     => [
 				'analytics' => [
-					'measurement_id' => 'G-X854GJ28PH',
+					'ga4_gtag_id' => 'G-X854GJ28PH',
 				],
 			],
 			'cloudflare' => [
@@ -183,7 +183,7 @@ final class Brand extends U\A6t\Brand {
 			],
 			'google'     => [
 				'analytics' => [
-					'measurement_id' => 'G-50QQ4HGS37',
+					'ga4_gtag_id' => 'G-50QQ4HGS37',
 				],
 			],
 			'cloudflare' => [
@@ -212,7 +212,7 @@ final class Brand extends U\A6t\Brand {
 			],
 			'google'     => [
 				'analytics' => [
-					'measurement_id' => 'G-3SHM64QZNK',
+					'ga4_gtag_id' => 'G-3SHM64QZNK',
 				],
 			],
 			'cloudflare' => [

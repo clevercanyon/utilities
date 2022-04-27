@@ -67,17 +67,27 @@ export default class uDOM extends uA6tStcUtilities {
 	}
 
 	/**
-	 * Handles a delegated event by firing a callback.
+	 * Fires a callback on an event.
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {Event}    event    Event.
-	 * @param {string}   selector Selector.
-	 * @param {Function} callback Callback.
+	 * @param {string}   eventName Event name.
+	 *
+	 * @param {string}   selector  Optional selector for delegated events.
+	 *                             This parameter can be bypassed by simply excluding it.
+	 *
+	 * @param {Function} callback  Callback.
 	 */
-	static doDelegatedEvent( event, selector, callback ) {
-		if ( event.target instanceof Element && event.target.matches( selector ) ) {
-			callback( event.target, event );
+	static on( eventName, selector, callback ) {
+		if ( 2 === arguments.length ) {
+			callback = arguments[ 1 ]; // No `selector`.
+			document.addEventListener( eventName, callback );
+		} else {
+			document.addEventListener( eventName, event => {
+				if ( event.target instanceof HTMLElement && event.target.matches( selector ) ) {
+					callback( event );
+				}
+			} );
 		}
 	}
 

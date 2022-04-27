@@ -150,19 +150,4 @@ export default class uEnv extends uA6tStcUtilities {
 			uEnv.isServiceWorker() && typeof caches === 'object'
 			&& typeof caches.default === 'object' && typeof HTMLRewriter === 'function';
 	}
-
-	/**
-	 * Can use Beacon API?
-	 *
-	 * @since 2022-04-25
-	 *
-	 * @returns {boolean} `true` if can use Beacon API.
-	 */
-	static canSendBeacon() {
-		if ( undefined !== uEnv.#cache.canSendBeacon ) {
-			return uEnv.#cache.canSendBeacon;
-		}
-		return uEnv.#cache.canSendBeacon = // Memoize.
-			uEnv.isBrowser() && 'function' === typeof navigator.sendBeacon;
-	}
 }

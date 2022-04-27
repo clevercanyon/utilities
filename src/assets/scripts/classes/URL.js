@@ -461,7 +461,7 @@ export default class uURL extends uA6tStcUtilities {
 		const parsedURL = uURL.parse( url );
 
 		for ( const [ name ] of parsedURL.searchParams ) {
-			if ( /^(?:ut[mx]_[a-z_0-9]+|_g[al]|_ck)$/ui.test( name ) ) {
+			if ( /^(?:ut[mx]_[a-z_0-9]+|_g[al]|(?:gcl|dcl|msclk|fbcl)(?:id|src)|wbraid|_ck)$/ui.test( name ) ) {
 				parsedURL.searchParams.delete( name );
 			}
 		}
