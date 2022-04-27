@@ -62,13 +62,13 @@ export default class uAnalytics extends uA6tBase {
 	#ga4GtagId;
 
 	/**
-	 * CY GDPR script ID; e.g., `ecf9ba42a3e03d5dd3894e6e`.
+	 * Cookie Script GDPR script ID; e.g., `ecf9ba42a3e03d5dd3894e6e`.
 	 *
 	 * @since 2022-04-26
 	 *
 	 * @type {string}
 	 */
-	#cyGDPRScriptId;
+	#csGDPRScriptId;
 
 	/**
 	 * Context; e.g., `web`.
@@ -130,7 +130,7 @@ export default class uAnalytics extends uA6tBase {
 
 		config = Object.assign( {
 			debug          : false,
-			cyGDPRScriptId : '',
+			csGDPRScriptId : '',
 			ga4GtagId      : '',
 			context        : 'web',
 			subContext     : 'site',
@@ -138,7 +138,7 @@ export default class uAnalytics extends uA6tBase {
 		}, config );
 
 		this.#debug          = config.debug;
-		this.#cyGDPRScriptId = config.cyGDPRScriptId;
+		this.#csGDPRScriptId = config.csGDPRScriptId;
 		this.#ga4GtagId      = config.ga4GtagId;
 		this.#context        = config.context;
 		this.#subContext     = config.subContext;
@@ -308,15 +308,15 @@ export default class uAnalytics extends uA6tBase {
 
 		if ( 'US' !== geoData.country ) {
 			this.#gtag( 'consent', 'default', {
-				wait_for_update         : 2000,
+				wait_for_update         : 500,
 				ad_storage              : 'denied',
 				analytics_storage       : 'denied',
 				functionality_storage   : 'denied',
 				personalization_storage : 'denied',
 				security_storage        : 'granted',
 			} );
-			if ( this.#cyGDPRScriptId ) {
-				uDOM.attachScript( 'https://cdn-cookieyes.com/client_data/' + uURL.encode( this.#cyGDPRScriptId ) + '/script.js', { id : 'cookieyes' } );
+			if ( this.#csGDPRScriptId ) {
+				uDOM.attachScript( 'https://cdn.cookie-script.com/s/' + uURL.encode( this.#csGDPRScriptId ) + '.js' );
 			}
 		}
 		// GA4 initialize, configuration, and load JS.
@@ -326,13 +326,12 @@ export default class uAnalytics extends uA6tBase {
 		this.#gtag( 'js', new Date() ); // Fires `gtm.js` event and sets `gtm.start` timer.
 
 		this.#gtag( 'config', this.#ga4GtagId, {
+			groups                           : [ 'default' ],
 			ads_data_redaction               : true,
 			send_page_view                   : false,
 			url_passthrough                  : false,
 			allow_google_signals             : false,
 			allow_ad_personalization_signals : false,
-			cookie_prefix                    : 'utx',
-			groups                           : [ 'default' ],
 			debug_mode                       : this.#debug,
 		} );
 		uDOM.attachScript( 'https://www.googletagmanager.com/gtag/js?id=' + uURL.encode( this.#ga4GtagId ) );
