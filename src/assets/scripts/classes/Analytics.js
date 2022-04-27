@@ -316,7 +316,7 @@ export default class uAnalytics extends uA6tBase {
 				security_storage        : 'granted',
 			} );
 			if ( this.#cyGDPRScriptId ) {
-				uDOM.attachScript( 'https://cdn-cookieyes.com/client_data/' + encodeURIComponent( this.#cyGDPRScriptId ) + '/script.js' );
+				uDOM.attachScript( 'https://cdn-cookieyes.com/client_data/' + uURL.encode( this.#cyGDPRScriptId ) + '/script.js', { id : 'cookieyes' } );
 			}
 		}
 		// GA4 initialize, configuration, and load JS.
@@ -335,7 +335,7 @@ export default class uAnalytics extends uA6tBase {
 			groups                           : [ 'default' ],
 			debug_mode                       : this.#debug,
 		} );
-		uDOM.attachScript( 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent( this.#ga4GtagId ) );
+		uDOM.attachScript( 'https://www.googletagmanager.com/gtag/js?id=' + uURL.encode( this.#ga4GtagId ) );
 
 		// Initialize trackers.
 

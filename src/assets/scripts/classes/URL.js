@@ -26,6 +26,33 @@ import { default as uEnv }             from './Env.js';
  */
 export default class uURL extends uA6tStcUtilities {
 	/**
+	 * RFC 1738 URL encoding strategy.
+	 *
+	 * @since 2022-04-25
+	 *
+	 * @type {string}
+	 */
+	static QUERY_RFC1738 = 'QUERY_RFC1738';
+
+	/**
+	 * RFC 3986 URL encoding strategy.
+	 *
+	 * @since 2022-04-25
+	 *
+	 * @type {string}
+	 */
+	static QUERY_RFC3986 = 'QUERY_RFC3986';
+
+	/**
+	 * RFC 3986 encoding encoding strategy w/ AWS v4 compat.
+	 *
+	 * @since 2022-04-25
+	 *
+	 * @type {string}
+	 */
+	static QUERY_RFC3986_AWS4 = 'QUERY_RFC3986_AWS4';
+
+	/**
 	 * Gets current URL.
 	 *
 	 * @since 2022-04-25
@@ -468,5 +495,65 @@ export default class uURL extends uA6tStcUtilities {
 		parsedURL.searchParams.sort();
 
 		return rtnURL ? parsedURL : parsedURL.toString();
+	}
+
+	/**
+	 * Encodes a URL component.
+	 *
+	 * @since 2022-04-25
+	 *
+	 * @param {string} str      String to encode.
+	 * @param {string} strategy Strategy. Default is {@see uURL.QUERY_RFC3986}.
+	 *                             * Use {@see uURL.QUERY_RFC3986} for {@see rawurlencode()} PHP compatibility.
+	 *                             * Use {@see uURL.QUERY_RFC3986_AWS4} for {@see rawurlencode()} PHP w/ AWS v4 compatibility.
+	 *                             * Use {@see uURL.QUERY_RFC1738} for {@see urlencode()} PHP compatibility.
+	 *
+	 * @return {string} Encoded string.
+	 *
+	 * @see https://locutus.io/php/url/urlencode/
+	 * @see https://locutus.io/php/url/rawurlencode/
+	 */
+	static encode( str, strategy = uURL.QUERY_RFC3986 ) {
+		switch ( strategy ) {
+			case uURL.QUERY_RFC1738:
+				return encodeURIComponent( str ).replace( /[!'()*~]/ug, function ( c ) {
+					return '%' + c.charCodeAt( 0 ).toString( 16 ).toUpperCase();
+				} ).replace( /%20/ug, '+' );
+
+			case uURL.QUERY_RFC3986:
+			case uURL.QUERY_RFC3986_AWS4:
+			default: // Default strategy.
+				return encodeURIComponent( str ).replace( /[!'()*]/g, function ( c ) {
+					return '%' + c.charCodeAt( 0 ).toString( 16 ).toUpperCase();
+				} );
+		}
+	}
+
+	/**
+	 * Decodes a URL component.
+	 *
+	 * @since 2022-04-25
+	 *
+	 * @param {string} str      String to decode.
+	 * @param {string} strategy Strategy. Default is {@see uURL.QUERY_RFC3986}.
+	 *                             * Use {@see uURL.QUERY_RFC3986} for {@see rawurldecode()} PHP compatibility.
+	 *                             * Use {@see uURL.QUERY_RFC3986_AWS4} for {@see rawurldecode()} PHP w/ AWS v4 compatibility.
+	 *                             * Use {@see uURL.QUERY_RFC1738} for {@see urldecode()} PHP compatibility.
+	 *
+	 * @return {string} Decoded string.
+	 *
+	 * @see https://locutus.io/php/url/urldecode/
+	 * @see https://locutus.io/php/url/rawurldecode/
+	 */
+	static decode( str, strategy = uURL.QUERY_RFC3986 ) {
+		switch ( strategy ) {
+			case uURL.QUERY_RFC1738:
+				return decodeURIComponent( str.replace( /%(?![0-9a-f]{2})/ugi, () => '%25' ).replace( /\+/ug, '%20' ) );
+
+			case uURL.QUERY_RFC3986:
+			case uURL.QUERY_RFC3986_AWS4:
+			default: // Default strategy.
+				return decodeURIComponent( str.replace( /%(?![0-9a-f]{2})/ugi, () => '%25' ) );
+		}
 	}
 }

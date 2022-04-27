@@ -53,10 +53,8 @@ trait Encode_Decode_Members {
 			case ( PHP_QUERY_RFC1738 === $strategy ):
 				return urlencode( $str ); // phpcs:ignore -- `urlencode()` ok.
 
-			case ( U\URL::QUERY_RFC3986_AWS4 === $strategy ):
-				return str_replace( [ '%2D', '%2E', '%5F', '%7E' ], [ '-', '.', '_', '~' ], rawurlencode( $str ) );
-
 			case ( PHP_QUERY_RFC3986 === $strategy ):
+			case ( U\URL::QUERY_RFC3986_AWS4 === $strategy ):
 			default: // Default strategy.
 				return rawurlencode( $str );
 		}
@@ -80,8 +78,8 @@ trait Encode_Decode_Members {
 			case ( PHP_QUERY_RFC1738 === $strategy ):
 				return urldecode( $str ); // phpcs:ignore -- `urldecode()` ok.
 
-			case ( U\URL::QUERY_RFC3986_AWS4 === $strategy ):
 			case ( PHP_QUERY_RFC3986 === $strategy ):
+			case ( U\URL::QUERY_RFC3986_AWS4 === $strategy ):
 			default: // Default strategy.
 				return rawurldecode( $str );
 		}

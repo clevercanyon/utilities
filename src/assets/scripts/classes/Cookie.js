@@ -156,7 +156,7 @@ export default class uCookie extends uA6tStcUtilities {
 		// The `httonly` attribute is implied when using JavaScript.
 		// {@see https://stackoverflow.com/a/14691716}.
 
-		document.cookie = encodeURIComponent( name ) + '=' + encodeURIComponent( value ) + domain + path + expires + samesite + secure;
+		document.cookie = uURL.encode( name ) + '=' + uURL.encode( value ) + domain + path + expires + samesite + secure;
 
 		if ( uCookie.#cache.cookies ) {
 			uCookie.#cache.cookies[ name ] = value;
