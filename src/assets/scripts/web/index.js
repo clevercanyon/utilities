@@ -19,7 +19,7 @@
 // </editor-fold>
 
 /**
- * Web utilities.
+ * Web utility exports.
  *
  * @since 2022-04-25
  */

@@ -75,6 +75,7 @@ module.exports = ( env, argv ) => {
 		configs.push( mc.merge( {
 			cache       : false,
 			mode        : 'production',
+			devtool     : 'source-map',
 			target      : 'browserslist',
 			experiments : { topLevelAwait : true },
 			plugins     : [ new miniCss( { filename : '[name].min.css' } ) ],

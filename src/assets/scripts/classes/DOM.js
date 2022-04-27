@@ -47,7 +47,7 @@ export default class uDOM extends uA6tStcUtilities {
 		if ( 'loading' !== document.readyState ) {
 			callback(); // Fires callback immediately.
 		} else {
-			document.addEventListener( 'DOMContentLoaded', callback );
+			document.addEventListener( 'DOMContentLoaded', () => callback() );
 		}
 	}
 
@@ -62,7 +62,7 @@ export default class uDOM extends uA6tStcUtilities {
 		if ( 'complete' === document.readyState ) {
 			callback(); // Fires callback immediately.
 		} else {
-			window.addEventListener( 'load', callback );
+			window.addEventListener( 'load', () => callback() );
 		}
 	}
 
@@ -84,9 +84,12 @@ export default class uDOM extends uA6tStcUtilities {
 			document.addEventListener( eventName, callback );
 		} else {
 			document.addEventListener( eventName, event => {
-				if ( event.target instanceof HTMLElement && event.target.matches( selector ) ) {
-					callback( event );
-				}
+				let target = event.target;
+				do {
+					if ( target.matches( selector ) ) {
+						callback.call( target, event );
+					}
+				} while ( ( target = target.parentNode ) && target != event.currentTarget );
 			} );
 		}
 	}

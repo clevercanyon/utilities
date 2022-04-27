@@ -23,7 +23,7 @@
  *
  * @since 2022-04-25
  */
-export default class StcBase {
+export default class uA6tStcBase {
 	/**
 	 * Constructor.
 	 *

@@ -21,7 +21,7 @@
  *
  * @since 2022-04-25
  */
-import { default as uA6tStcBase } from './StcBase.js';
+// None at this time.
 
 // </editor-fold>
 
@@ -30,7 +30,7 @@ import { default as uA6tStcBase } from './StcBase.js';
  *
  * @since 2022-04-25
  */
-export default class uA6tBase extends uA6tStcBase {
+export default class uA6tBase {
 	/**
 	 * Constructor.
 	 *

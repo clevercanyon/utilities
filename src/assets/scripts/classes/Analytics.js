@@ -16,6 +16,7 @@
  */
 import { default as uA6tBase } from './a6t/Base.js';
 import { default as uEnv }     from './Env.js';
+import { default as uCookie }  from './Cookie.js';
 import { default as uDOM }     from './DOM.js';
 import { default as uURL }     from './URL.js';
 
@@ -34,6 +35,15 @@ export default class uAnalytics extends uA6tBase {
 	}
 
 	/**
+	 * Gtag instance.
+	 *
+	 * @since 2022-04-26
+	 *
+	 * @type {Function}
+	 */
+	#gtag;
+
+	/**
 	 * Enable debug mode?
 	 *
 	 * @since 2022-04-26
@@ -50,6 +60,15 @@ export default class uAnalytics extends uA6tBase {
 	 * @type {string}
 	 */
 	#ga4GtagId;
+
+	/**
+	 * CY GDPR script ID; e.g., `ecf9ba42a3e03d5dd3894e6e`.
+	 *
+	 * @since 2022-04-26
+	 *
+	 * @type {string}
+	 */
+	#cyGDPRScriptId;
 
 	/**
 	 * Context; e.g., `web`.
@@ -76,10 +95,10 @@ export default class uAnalytics extends uA6tBase {
 	 *
 	 * @type {string}
 	 */
-	#userIdHash;
+	#userId;
 
 	/**
-	 * Geolocation.
+	 * Geolocation data.
 	 * {
 	 *     'colo'       : 'ATL',
 	 *     'country'    : 'US',
@@ -97,16 +116,7 @@ export default class uAnalytics extends uA6tBase {
 	 *
 	 * @type {Object}
 	 */
-	#geo; // Loads async.
-
-	/**
-	 * Gtag instance.
-	 *
-	 * @since 2022-04-26
-	 *
-	 * @type {Function}
-	 */
-	#gtag;
+	#geoData;
 
 	/**
 	 * Constructor.
@@ -119,16 +129,21 @@ export default class uAnalytics extends uA6tBase {
 		super(); // Parent constructor.
 
 		config = Object.assign( {
-			debug      : false,
-			ga4GtagId  : '',
-			context    : 'web',
-			subContext : 'site',
-			userIdHash : '',
+			debug          : false,
+			cyGDPRScriptId : '',
+			ga4GtagId      : '',
+			context        : 'web',
+			subContext     : 'site',
+			userId         : '',
 		}, config );
 
-		for ( const [ prop, value ] of Object.entries( config ) ) {
-			this[ '#' + prop ] = value;
-		}
+		this.#debug          = config.debug;
+		this.#cyGDPRScriptId = config.cyGDPRScriptId;
+		this.#ga4GtagId      = config.ga4GtagId;
+		this.#context        = config.context;
+		this.#subContext     = config.subContext;
+		this.#userId         = config.userId;
+
 		if ( ! this.#ga4GtagId ) {
 			throw new Error( 'Missing required property: `ga4GtagId`.' );
 		}
@@ -136,28 +151,26 @@ export default class uAnalytics extends uA6tBase {
 		window.gtag      = window.gtag || function () { window.dataLayer.push( arguments ); };
 		this.#gtag       = window.gtag; // Private reference.
 
-		uDOM.onWinLoaded( this.#load );
+		uDOM.onWinLoaded( () => this.#loadThenInitialize() );
 	}
 
 	/**
-	 * Gets user ID hash; e.g., SHA-256.
+	 * Gets user ID hash.
 	 *
 	 * @since 2022-04-26
 	 *
-	 * @return {Promise<string>} User ID hash; e.g., SHA-256.
+	 * @return {Promise<string>} User ID hash.
 	 */
 	async userId() {
-		return new Promise( resolve => {
-			this.#gtag( 'get', this.#ga4GtagId, 'user_id', resolve );
-		} );
+		return this.#userId; // Async = uniformity.
 	}
 
 	/**
-	 * Gets client ID; e.g., ``.
+	 * Gets client ID.
 	 *
 	 * @since 2022-04-26
 	 *
-	 * @return {Promise<string>} Client ID; e.g., ``.
+	 * @return {Promise<string>} Client ID; e.g., `826737564.1651025377`.
 	 */
 	async clientId() {
 		return new Promise( resolve => {
@@ -166,11 +179,11 @@ export default class uAnalytics extends uA6tBase {
 	}
 
 	/**
-	 * Gets session ID; e.g., ``.
+	 * Gets session ID.
 	 *
 	 * @since 2022-04-26
 	 *
-	 * @return {Promise<string>} Session ID; e.g., ``.
+	 * @return {Promise<string>} Session ID; e.g., `1651031160`.
 	 */
 	async sessionId() {
 		return new Promise( resolve => {
@@ -185,12 +198,13 @@ export default class uAnalytics extends uA6tBase {
 	 *
 	 * @return {Promise<Object>} Geolocation data.
 	 */
-	async geo() {
-		if ( this.#geo ) {
-			return this.#geo;
+	async geoData() {
+		if ( this.#geoData ) {
+			return this.#geoData;
 		}
 		return fetch( 'https://wobots.com/api/ip-geo/v1' )
-			.then( response => this.#geo = response.json() );
+			.then( response => response.json() )
+			.then( json => this.#geoData = json );
 	}
 
 	/**
@@ -199,9 +213,42 @@ export default class uAnalytics extends uA6tBase {
 	 * @since 2022-04-26
 	 *
 	 * @param {Object} props Optional event props.
+	 *
+	 * @return {Promise<boolean>} `true` on success.
 	 */
-	trackPageView( props = {} ) {
-		this.trackEvent( 'page_view', props );
+	async trackPageView( props = {} ) {
+		if ( uURL.getQueryVar( 'utm_source' ) ) {
+			uCookie.set( 'utx_touch', JSON.stringify( this.#utmXQueryVars(), null, 2 ) );
+		}
+		return this.trackEvent( 'page_view', props );
+	}
+
+	/**
+	 * Tracks an `x_click` event.
+	 *
+	 * @since 2022-04-26
+	 *
+	 * @param {Event}  event Click event.
+	 * @param {Object} props Optional event props.
+	 *
+	 * @return {Promise<boolean>} `true` on success.
+	 */
+	async trackClick( event, props = {} ) {
+		const { target : element } = event;
+		const idAttr               = element.getAttribute( 'id' ) || '';
+		const classAttr            = element.getAttribute( 'class' ) || '';
+
+		return this.trackEvent( 'x_click', {
+			x_flex_id     : idAttr || ( /(?:^|\s)click-id=([a-z0-9_-]+)(?:$|\s)/ui.exec( classAttr ) || [] )[ 1 ] || null,
+			x_flex_sub_id : element.getAttribute( 'href' ), // In the case of `<a>` tags.
+
+			x_flex_value     : element.getAttribute( 'title' )
+				|| ( element.innerText || '' ).replace( /\s+/ug, ' ' ).trim()
+				|| element.getAttribute( 'value' ),
+			x_flex_sub_value : element.tagName.toLowerCase(),
+
+			...props,
+		} );
 	}
 
 	/**
@@ -213,33 +260,29 @@ export default class uAnalytics extends uA6tBase {
 	 *                       Please prefix custom event names with `x_`.
 	 *
 	 * @param {Object} props Optional event props.
-	 */
-	trackEvent( name, props = {} ) {
-		this.#gtag( 'event', name, {
-			send_to : this.#ga4GtagId,
-			...this.#utmXQueryVarDimensions(),
-			...props,
-		} );
-	}
-
-	/**
-	 * Tracks an `x_click` event.
 	 *
-	 * @since 2022-04-26
-	 *
-	 * @param {Event} event Click event.
+	 * @return {Promise<boolean>} `true` on success.
 	 */
-	trackClick( event ) {
-		const element = event.target;
-		const attr    = element.getAttribute;
+	async trackEvent( name, props = {} ) {
+		return Promise.all( [ this.userId(), this.clientId(), this.sessionId() ] )
+			.then( ( [ userId, clientId, sessionId ] ) => {
+				this.#gtag( 'event', name, {
+					send_to : [ this.#ga4GtagId ],
 
-		this.trackEvent( 'x_click', {
-			x_flex_id     : attr( 'id' ) || /(?:^|\s)click-id=([a-z0-9_-]+)(?:$|\s)/ui.exec( attr( 'class' ) || '' )[ 1 ] || null,
-			x_flex_sub_id : attr( 'href' ), // In the case of `<a>` tags.
+					x_client_id  : clientId,
+					x_session_id : sessionId,
+					...( userId ? { user_id : userId } : null ),
+					...( userId ? { user_properties : { x_user_id : userId } } : null ),
 
-			x_flex_value     : attr( 'title' ) || ( element.innerText || '' ).replace( /\s+/ug, ' ' ).trim() || attr( 'value' ),
-			x_flex_sub_value : element.tagName.toLowerCase(),
-		} );
+					x_context     : this.#context,
+					x_sub_context : this.#subContext,
+					x_hostname    : uURL.currentHost( false ),
+
+					...this.#utmXQueryVarDimensions(),
+					...props,
+				} );
+				return true;
+			} );
 	}
 
 	/**
@@ -247,8 +290,8 @@ export default class uAnalytics extends uA6tBase {
 	 *
 	 * @since 2022-04-26
 	 */
-	#load() {
-		this.geo().then( this.#initialize );
+	async #loadThenInitialize() {
+		this.geoData().then( () => this.#initialize() );
 	}
 
 	/**
@@ -256,25 +299,26 @@ export default class uAnalytics extends uA6tBase {
 	 *
 	 * @since 2022-04-26
 	 */
-	#initialize() {
-		// GA4 consents.
+	async #initialize() {
+		// Geolocation data.
 
-		this.#gtag( 'consent', 'default', {
-			ad_storage              : 'granted',
-			analytics_storage       : 'granted',
-			functionality_storage   : 'granted',
-			personalization_storage : 'granted',
-			security_storage        : 'granted',
-			region                  : [ 'US' ],
-		} );
-		this.#gtag( 'consent', 'default', {
-			ad_storage              : 'denied',
-			analytics_storage       : 'denied',
-			functionality_storage   : 'denied',
-			personalization_storage : 'denied',
-			security_storage        : 'granted',
-			wait_for_update         : 2000,
-		} );
+		const geoData = await this.geoData();
+
+		// Maybe use GA4 consents.
+
+		if ( 'US' !== geoData.country ) {
+			this.#gtag( 'consent', 'default', {
+				wait_for_update         : 2000,
+				ad_storage              : 'denied',
+				analytics_storage       : 'denied',
+				functionality_storage   : 'denied',
+				personalization_storage : 'denied',
+				security_storage        : 'granted',
+			} );
+			if ( this.#cyGDPRScriptId ) {
+				uDOM.attachScript( 'https://cdn-cookieyes.com/client_data/' + encodeURIComponent( this.#cyGDPRScriptId ) + '/script.js' );
+			}
+		}
 		// GA4 initialize, configuration, and load JS.
 
 		// This must fire *after* `gtag( 'consent', ...` setup.
@@ -282,28 +326,32 @@ export default class uAnalytics extends uA6tBase {
 		this.#gtag( 'js', new Date() ); // Fires `gtm.js` event and sets `gtm.start` timer.
 
 		this.#gtag( 'config', this.#ga4GtagId, {
-			debug_mode                       : this.#debug,
-			send_page_view                   : false,
-			cookie_prefix                    : 'utx_ga4',
 			ads_data_redaction               : true,
+			send_page_view                   : false,
 			url_passthrough                  : false,
 			allow_google_signals             : false,
 			allow_ad_personalization_signals : false,
-
-			user_id         : this.#userIdHash || null,
-			user_properties : { 'x_user_id' : this.#userIdHash || null },
-			custom_map      : { 'x_client_id' : 'clientId', 'x_session_id' : 'sessionId' },
-
-			x_context     : this.#context,
-			x_sub_context : this.#subContext,
-			x_hostname    : uURL.currentHost( false ),
+			cookie_prefix                    : 'utx',
+			groups                           : [ 'default' ],
+			debug_mode                       : this.#debug,
 		} );
 		uDOM.attachScript( 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent( this.#ga4GtagId ) );
 
 		// Initialize trackers.
 
 		this.trackPageView(); // Initial page view.
-		uDOM.on( 'click', 'a, button, input[type="button"], input[type="submit"]', this.trackClick );
+		uDOM.on( 'click', 'a, button, input[type="button"], input[type="submit"]', event => this.trackClick( event ) );
+	}
+
+	/**
+	 * Gets `ut[mx]_*` query variables.
+	 *
+	 * @since 2022-04-26
+	 *
+	 * @return {Object} `ut[mx]_*` query variables.
+	 */
+	#utmXQueryVars() {
+		return uURL.getQueryVars( [ 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utx_ref' ] );
 	}
 
 	/**
@@ -315,7 +363,7 @@ export default class uAnalytics extends uA6tBase {
 	 */
 	#utmXQueryVarDimensions() {
 		const dimensions = {}; // Initialize.
-		const queryVars  = uURL.getQueryVars( [ 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utx_ref' ] );
+		const queryVars  = this.#utmXQueryVars();
 
 		for ( const [ name, value ] of Object.entries( queryVars ) ) {
 			dimensions[ 'x_' + name ] = value;
