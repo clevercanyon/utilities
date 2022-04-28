@@ -304,7 +304,8 @@ export default class uAnalytics extends uA6tBase {
 	 */
 	async #loadThenInitialize() {
 		this.geoData().then( geoData => {
-			if ( 'US' !== geoData.country || this.userHasDoNotTrackHeader() ) {
+			if ( 'US' !== geoData.country || this.userHasDoNotTrackHeader()
+				|| /^\/(?:privacy|cookies?)(?:[_-]policy)?(?:$|\/)/ui.test( uURL.currentPath() ) ) {
 				this.#gtag( 'consent', 'default', {
 					wait_for_update         : 500,
 					ad_storage              : 'denied',
