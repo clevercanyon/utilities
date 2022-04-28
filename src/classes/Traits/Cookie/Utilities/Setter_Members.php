@@ -58,10 +58,11 @@ trait Setter_Members {
 		$options[ 'path' ]    = u\iff_string_ne( $options[ 'path' ], '/' );
 		$options[ 'expires' ] = $time + u\iff_int( $options[ 'expires' ], 31536000 );
 
-		$options[ 'httponly' ] = u\iff_bool( $options[ 'httponly' ], false );
 		$options[ 'samesite' ] = u\iff_string_ne( $options[ 'samesite' ], 'lax' );
 		$options[ 'secure' ]   = u\iff_bool( $options[ 'secure' ], U\URL::current_scheme() === 'https' );
 		$options[ 'secure' ]   = 'none' === mb_strtolower( $options[ 'samesite' ] ) ? true : $options[ 'secure' ];
+
+		$options[ 'httponly' ] = u\iff_bool( $options[ 'httponly' ], false );
 
 		setcookie( $name, $value, $options );
 
