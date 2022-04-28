@@ -286,12 +286,44 @@ export default class uAnalytics extends uA6tBase {
 	}
 
 	/**
+	 * DNT header indicates 'Do Not Track'?
+	 *
+	 * @return {boolean} `true` is DNT header exists.
+	 *
+	 * @see https://o5p.me/Fg9eaO
+	 */
+	userHasDoNotTrackHeader() {
+		return '1' === window.doNotTrack
+			|| ( window.navigator && '1' === window.navigator.doNotTrack );
+	}
+
+	/**
 	 * Loads analytics.
 	 *
 	 * @since 2022-04-26
 	 */
 	async #loadThenInitialize() {
-		this.geoData().then( () => this.#initialize() );
+		this.geoData().then( geoData => {
+			if ( 'US' !== geoData.country || this.userHasDoNotTrackHeader() ) {
+				this.#gtag( 'consent', 'default', {
+					wait_for_update         : 500,
+					ad_storage              : 'denied',
+					analytics_storage       : 'denied',
+					functionality_storage   : 'denied',
+					personalization_storage : 'denied',
+					security_storage        : 'denied',
+				} );
+				if ( this.#csGDPRScriptId ) {
+					// {@see https://cookie-script.com/web-cookie-types}.
+					// {@see https://support.google.com/analytics/answer/9976101?hl=en}.
+					uDOM.attachScript( 'https://cdn.cookie-script.com/s/' + uURL.encode( this.#csGDPRScriptId ) + '.js', {
+						onload : () => this.#initialize(),
+					} );
+				}
+			} else {
+				this.#initialize();
+			}
+		} );
 	}
 
 	/**
@@ -300,25 +332,6 @@ export default class uAnalytics extends uA6tBase {
 	 * @since 2022-04-26
 	 */
 	async #initialize() {
-		// Geolocation data.
-
-		const geoData = await this.geoData();
-
-		// Maybe use GA4 consents.
-
-		if ( 'US' !== geoData.country ) {
-			this.#gtag( 'consent', 'default', {
-				wait_for_update         : 500,
-				ad_storage              : 'denied',
-				analytics_storage       : 'denied',
-				functionality_storage   : 'denied',
-				personalization_storage : 'denied',
-				security_storage        : 'granted',
-			} );
-			if ( this.#csGDPRScriptId ) {
-				uDOM.attachScript( 'https://cdn.cookie-script.com/s/' + uURL.encode( this.#csGDPRScriptId ) + '.js' );
-			}
-		}
 		// GA4 initialize, configuration, and load JS.
 
 		// This must fire *after* `gtag( 'consent', ...` setup.
