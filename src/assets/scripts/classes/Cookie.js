@@ -170,16 +170,15 @@ export default class uCookie extends uA6tStcUtilities {
 	 * @since 2022-04-25
 	 *
 	 * @param {string} name    Cookie name.
-	 * @param {string} value   Optional cookie value. Default is ``.
-	 * @param {Object} options Optional cookie options. Default is `{}`.
+	 * @param {Object} options Optional. Default is `{}`.
 	 *
 	 * @returns {boolean} `true` on success.
 	 */
-	static delete( name, value = '', options = {} ) {
+	static delete( name, options = {} ) {
 		if ( ! uEnv.isBrowser() ) {
 			throw new Error( 'Not in browser.' );
 		}
-		return uCookie.set( name, value, Object.assign( {}, options || {}, { expires : -1 } ) );
+		return uCookie.set( name, '', Object.assign( {}, options || {}, { expires : -1 } ) );
 	}
 
 	/**
@@ -192,6 +191,6 @@ export default class uCookie extends uA6tStcUtilities {
 	 * @returns {boolean} `true` if valid cookie name.
 	 */
 	static isValidName( name ) {
-		return name && /^[a-z0-9_-]+$/i.test( name ) && ! /^(?:domain|path|expires|max-age|samesite|secure|httponly)$/i.test( name );
+		return name && /^[a-z0-9_-]+$/ui.test( name ) && ! /^(?:domain|path|expires|max-age|samesite|secure|httponly)$/ui.test( name );
 	}
 }
