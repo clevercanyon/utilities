@@ -176,8 +176,8 @@ export default class uDOM extends uA6tStcUtilities {
 		const element = document.createElement( tag );
 
 		if ( typeof attrs.onload !== 'undefined' ) {
-			// Set `onload` first, before anything else.
-			element.setAttribute( 'onload', attrs.onload );
+			// This must be set as a property and not as an attribute.
+			element.onload = attrs.onload; // Set first, before anything else.
 		}
 		for ( let attr in attrs ) {
 			if ( 'onload' !== attr ) {
