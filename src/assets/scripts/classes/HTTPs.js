@@ -276,7 +276,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 	static requestIsFromUser( request, isC10n = false ) { // eslint-disable-line no-unused-vars -- `isC10n` ok.
 		return request.headers.has( 'authorization' )
 			|| ( request.headers.has( 'cookie' )
-				&& /\b(?:(?:wordpress_)?logged_in|wp-activate|wp-postpass|(?:wp_)?woocommerce|comment_author)_[^=;]+=\s*"?[^";]/ui.test( request.headers.get( 'cookie' ) ) );
+				&& /(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|logged[_-]in|comment[_-]author)[_-][^=;]+=\s*"?[^";]/ui.test( request.headers.get( 'cookie' ) ) );
 	}
 
 	/**
