@@ -47,6 +47,7 @@
 		"dev/.libs/docker/wp/entry.bash"                : "@",
 		"dev/.libs/docker/wp/entry~prj.bash"            : "@",
 
+		"tsconfig.json"                                 : "@",
 		"package.json"                                  : "@"
 	},
 	"deletion_manifest" : [ ]

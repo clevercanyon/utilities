@@ -1197,16 +1197,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.222.1",
+            "version": "3.222.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "632621d97180e82d3adc1245a7b272774c30dbf5"
+                "reference": "17db4851c065b92e76466d8e6ddef0a7e8367416"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/632621d97180e82d3adc1245a7b272774c30dbf5",
-                "reference": "632621d97180e82d3adc1245a7b272774c30dbf5",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/17db4851c065b92e76466d8e6ddef0a7e8367416",
+                "reference": "17db4851c065b92e76466d8e6ddef0a7e8367416",
                 "shasum": ""
             },
             "require": {
@@ -1282,9 +1282,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.222.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.222.2"
             },
-            "time": "2022-04-28T18:17:24+00:00"
+            "time": "2022-04-29T18:14:00+00:00"
         },
         {
             "name": "clevercanyon/php-scoper",
@@ -1475,12 +1475,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/utilities-dev-npm.git",
-                "reference": "af7aa8a0455a83f1ab3633013123352c01b1bea3"
+                "reference": "d01c9c1cfea13450540320ad980d0de72a42ee4e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/utilities-dev-npm/zipball/af7aa8a0455a83f1ab3633013123352c01b1bea3",
-                "reference": "af7aa8a0455a83f1ab3633013123352c01b1bea3",
+                "url": "https://api.github.com/repos/clevercanyon/utilities-dev-npm/zipball/d01c9c1cfea13450540320ad980d0de72a42ee4e",
+                "reference": "d01c9c1cfea13450540320ad980d0de72a42ee4e",
                 "shasum": ""
             },
             "default-branch": true,
@@ -1501,7 +1501,7 @@
                 "issues": "https://github.com/clevercanyon/utilities-dev-npm/issues",
                 "source": "https://github.com/clevercanyon/utilities-dev-npm/tree/main"
             },
-            "time": "2022-04-16T07:44:53+00:00"
+            "time": "2022-04-30T01:55:07+00:00"
         },
         {
             "name": "composer/package-versions-deprecated",
@@ -5393,5 +5393,5 @@
     "platform-overrides": {
         "php": "7.4.0"
     },
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

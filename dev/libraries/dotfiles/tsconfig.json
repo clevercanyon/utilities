@@ -1,0 +1,14 @@
+{
+	"compilerOptions" : {
+		"target"              : 'es6',
+		"module"              : 'es6',
+
+		"strict"              : true,
+		"allowJs"             : true,
+		"checkJs"             : true,
+
+		"declaration"         : true,
+		"emitDeclarationOnly" : true,
+		"isolatedModules"     : true
+	}
+}
