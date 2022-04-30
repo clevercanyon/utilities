@@ -1,6 +1,6 @@
 {
 	"include"         : [ "src/**/*", "tests/**/*" ],
-	"exclude"         : [ "node_modules/**/*" ],
+	"exclude"         : [ "vendor/**/*", "node_modules/**/*" ],
 	"compilerOptions" : {
 		"target"                       : "es6",
 		"module"                       : "es6",
