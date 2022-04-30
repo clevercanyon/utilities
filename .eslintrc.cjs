@@ -65,7 +65,8 @@ module.exports = {
 				ecmaFeatures    : { jsx : true },
 			},
 			rules         : {
-				'@typescript-eslint/require-await' : 'off',
+				'@typescript-eslint/require-await'          : [ 'off' ],
+				'@typescript-eslint/triple-slash-reference' : [ 'warn', { 'path' : 'never', 'types' : 'always', 'lib' : 'always' } ],
 			},
 		},
 	],
