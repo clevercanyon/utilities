@@ -54,13 +54,15 @@ module.exports = {
 			plugins       : [ '@typescript-eslint' ],
 			extends       : [
 				'eslint:recommended',
-				'plugin:@typescript-eslint/eslint-recommended',
 				'plugin:@typescript-eslint/recommended',
 				'plugin:@typescript-eslint/recommended-requiring-type-checking',
 			],
 			parserOptions : {
 				tsconfigRootDir : __dirname,
 				project         : './tsconfig.json',
+				ecmaVersion     : 'latest',
+				sourceType      : 'module',
+				ecmaFeatures    : { jsx : true },
 			},
 		},
 	],
