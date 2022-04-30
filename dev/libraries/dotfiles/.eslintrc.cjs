@@ -64,6 +64,9 @@ module.exports = {
 				sourceType      : 'module',
 				ecmaFeatures    : { jsx : true },
 			},
+			rules         : {
+				'@typescript-eslint/require-await' : 'off',
+			},
 		},
 	],
 };

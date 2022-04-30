@@ -1475,12 +1475,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/clevercanyon/utilities-dev-npm.git",
-                "reference": "d01c9c1cfea13450540320ad980d0de72a42ee4e"
+                "reference": "4d03891fd9d5ea2d0aa780ef8cbc31471a6720a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clevercanyon/utilities-dev-npm/zipball/d01c9c1cfea13450540320ad980d0de72a42ee4e",
-                "reference": "d01c9c1cfea13450540320ad980d0de72a42ee4e",
+                "url": "https://api.github.com/repos/clevercanyon/utilities-dev-npm/zipball/4d03891fd9d5ea2d0aa780ef8cbc31471a6720a7",
+                "reference": "4d03891fd9d5ea2d0aa780ef8cbc31471a6720a7",
                 "shasum": ""
             },
             "default-branch": true,
@@ -1501,7 +1501,7 @@
                 "issues": "https://github.com/clevercanyon/utilities-dev-npm/issues",
                 "source": "https://github.com/clevercanyon/utilities-dev-npm/tree/main"
             },
-            "time": "2022-04-30T01:55:07+00:00"
+            "time": "2022-04-30T02:57:59+00:00"
         },
         {
             "name": "composer/package-versions-deprecated",
