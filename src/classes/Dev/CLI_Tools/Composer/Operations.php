@@ -208,11 +208,6 @@ abstract class Operations extends U\A6t\CLI_Tool {
 						break; // Do not update. Do NOT overwrite.
 					} // Please note this fallthrough to `default` case.
 
-				case ( 'tsconfig.json' === $_to_subpath ): // Update. Do NOT overwrite.
-					if ( is_file( $_to_path ) ) {
-						break; // We can stop here.
-					} // Please note this fallthrough to `default` case.
-
 				case ( 'package.json' === $_to_subpath ): // Update. Do NOT overwrite.
 					if ( is_file( $_to_path ) ) {
 						// Parse JSON objects.
