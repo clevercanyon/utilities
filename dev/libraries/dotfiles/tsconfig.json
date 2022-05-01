@@ -1,11 +1,11 @@
 {
 	"include"         : [ "src/**/*", "tests/**/*" ],
-	"exclude"         : [ "vendor/**/*", "node_modules/**/*" ],
+	"exclude"         : [ "vendor/**/*", "node_modules/**/*", "jspm_packages/**/*", "bower_components/**/*" ],
 	"compilerOptions" : {
 		"target"                       : "es6",
 		"module"                       : "es6",
 		"moduleResolution"             : "node",
-		"lib"                          : [ "es6" ],
+		"lib"                          : [ "es6", "dom" ],
 
 		"noEmit"                       : true,
 		"strict"                       : true,
@@ -15,8 +15,7 @@
 
 		"typeRoots"                    : [
 			"./node_modules/@types",
-			"./node_modules/@cloudflare",
-			"./typings"
+			"./node_modules/@cloudflare"
 		]
 	}
 }

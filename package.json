@@ -8,6 +8,7 @@
     },
     "devDependencies": {
         "@clevercanyon/utilities-dev-npm": "latest",
+        "@types/crypto-js": "^4.1.1",
         "crypto-js": "^4.1.1"
     },
     "config": {

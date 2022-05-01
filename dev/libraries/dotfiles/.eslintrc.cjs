@@ -29,6 +29,7 @@ module.exports = {
 	},
 	extends       : [ 'eslint:recommended' ],
 	rules         : {
+		'prefer-rest-params'        : [ 'off' ],
 		'space-unary-ops'           : [
 			'warn',
 			{
@@ -65,7 +66,35 @@ module.exports = {
 				ecmaFeatures    : { jsx : true },
 			},
 			rules         : {
+				'prefer-rest-params'        : [ 'off' ],
+				'space-unary-ops'           : [
+					'warn',
+					{
+						words     : true,
+						nonwords  : true,
+						overrides : {
+							'-'  : false,
+							'+'  : false,
+							'--' : false,
+							'++' : false,
+						},
+					},
+				],
+				'space-in-parens'           : [ 'warn', 'always' ],
+				'array-bracket-spacing'     : [ 'warn', 'always' ],
+				'object-curly-spacing'      : [ 'warn', 'always' ],
+				'computed-property-spacing' : [ 'warn', 'always' ],
+
 				'@typescript-eslint/require-await'          : [ 'off' ],
+				'@typescript-eslint/no-inferrable-types'    : [ 'off' ],
+				'@typescript-eslint/ban-ts-comment'         : [
+					'warn', {
+						'ts-check'        : 'allow-with-description',
+						'ts-nocheck'      : 'allow-with-description',
+						'ts-expect-error' : 'allow-with-description',
+						'ts-ignore'       : 'allow-with-description',
+					},
+				],
 				'@typescript-eslint/triple-slash-reference' : [ 'warn', { 'path' : 'never', 'types' : 'always', 'lib' : 'always' } ],
 			},
 		},
