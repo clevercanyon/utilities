@@ -14,7 +14,7 @@
  *
  * @since 2022-04-25
  */
-import { default as uA6tStcBase } from './StcBase.js';
+import { default as uA6tStcBase } from './StcBase';
 
 // </editor-fold>
 

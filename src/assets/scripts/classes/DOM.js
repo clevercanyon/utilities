@@ -14,8 +14,8 @@
  *
  * @since 2022-04-25
  */
-import { default as uA6tStcUtilities } from './a6t/StcUtilities.js';
-import { default as uEnv }             from './Env.js';
+import { default as uA6tStcUtilities } from './a6t/StcUtilities';
+import { default as uEnv }             from './Env';
 
 // </editor-fold>
 

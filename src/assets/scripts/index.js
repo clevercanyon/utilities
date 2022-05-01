@@ -14,7 +14,7 @@
  *
  * @since 2022-04-25
  */
-import * as utilities from './web/index.js';
+import * as utilities from './web/index';
 
 // </editor-fold>
 

@@ -23,12 +23,12 @@
  *
  * @since 2022-04-25
  */
-export { default as Analytics } from '../classes/Analytics.js';
-export { default as Cookie }    from '../classes/Cookie.js';
-export { default as Crypto }    from '../classes/Crypto.js';
-export { default as DOM }       from '../classes/DOM.js';
-export { default as Env }       from '../classes/Env.js';
-export { default as HTTP }      from '../classes/HTTP.js';
-export { default as Str }       from '../classes/Str.js';
-export { default as Time }      from '../classes/Time.js';
-export { default as URL }       from '../classes/URL.js';
+export { default as Analytics } from '../classes/Analytics';
+export { default as Cookie }    from '../classes/Cookie';
+export { default as Crypto }    from '../classes/Crypto';
+export { default as DOM }       from '../classes/DOM';
+export { default as Env }       from '../classes/Env';
+export { default as HTTP }      from '../classes/HTTP';
+export { default as Str }       from '../classes/Str';
+export { default as Time }      from '../classes/Time';
+export { default as URL }       from '../classes/URL';

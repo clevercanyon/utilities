@@ -14,11 +14,11 @@
  *
  * @since 2022-04-26
  */
-import { default as uA6tBase } from './a6t/Base.js';
-import { default as uEnv }     from './Env.js';
-import { default as uCookie }  from './Cookie.js';
-import { default as uDOM }     from './DOM.js';
-import { default as uURL }     from './URL.js';
+import { default as uA6tBase } from './a6t/Base';
+import { default as uEnv }     from './Env';
+import { default as uCookie }  from './Cookie';
+import { default as uDOM }     from './DOM';
+import { default as uURL }     from './URL';
 
 // </editor-fold>
 

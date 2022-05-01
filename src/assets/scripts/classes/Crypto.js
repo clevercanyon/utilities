@@ -14,7 +14,7 @@
  *
  * @since 2022-04-25
  */
-import { default as uA6tStcUtilities } from './a6t/StcUtilities.js';
+import { default as uA6tStcUtilities } from './a6t/StcUtilities';
 import cryptoMd5                       from 'crypto-js/md5';
 import cryptoSha1                      from 'crypto-js/sha1';
 import cryptoSha256                    from 'crypto-js/sha256';
