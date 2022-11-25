@@ -1,0 +1,54 @@
+{
+	"c10n" : {
+		"org_n7m"     : null,
+		"n7m"         : "c10n",
+		"name"        : "Clever Canyon",
+		"namespace"   : "Clever_Canyon",
+		"slug"        : "clevercanyon",
+		"var"         : "clevercanyon",
+		"slug_prefix" : "clevercanyon-",
+		"var_prefix"  : "clevercanyon_",
+		"root_domain" : "clevercanyon.com",
+		"aws"         : {
+			"s3" : {
+				"bucket"     : "clevercanyon",
+				"cdn_domain" : "cdn.clevercanyon.com"
+			}
+		},
+		"google"      : {
+			"analytics" : {
+				"ga4_gtag_id" : "G-Y5BS7MMHMD"
+			}
+		},
+		"cloudflare"  : {
+			"account_id" : "f1176464a976947aa5665d989814a4b1",
+			"zone_id"    : "f8a39e1ad05c2b452f1e18e699ad2129"
+		}
+	},
+	"w4s"  : {
+		"org_n7m"     : "c10n",
+		"n7m"         : "w4s",
+		"name"        : "Wobots",
+		"namespace"   : "Wobots",
+		"slug"        : "wobots",
+		"var"         : "wobots",
+		"slug_prefix" : "wobots-",
+		"var_prefix"  : "wobots_",
+		"root_domain" : "wobots.com",
+		"aws"         : {
+			"s3" : {
+				"bucket"     : "wobots",
+				"cdn_domain" : "cdn.wobots.com"
+			}
+		},
+		"google"      : {
+			"analytics" : {
+				"ga4_gtag_id" : "G-3SHM64QZNK"
+			}
+		},
+		"cloudflare"  : {
+			"account_id" : "f1176464a976947aa5665d989814a4b1",
+			"zone_id"    : "accc8038a3c1f4dc8a060161d3eed763"
+		}
+	}
+}
