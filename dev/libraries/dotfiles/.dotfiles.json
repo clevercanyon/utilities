@@ -5,6 +5,7 @@
 		".gitattributes"                 : "@",
 		".gitignore"                     : "@",
 		".npmignore"                     : "@",
+		".npmrc"                         : "@",
 		".prettierrc.cjs"                : "@",
 		".shellcheckrc"                  : "@",
 		".stylelintrc.cjs"               : "@",

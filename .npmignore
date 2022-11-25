@@ -62,8 +62,6 @@ typings/
 
 # NPM & Yarn
 
-.npmrc
-.yarnrc
 .yarn/
 
 # Vendor
@@ -104,6 +102,7 @@ bower_components/
 
 .git/
 .git-dir/
+.gitconfig
 
 .svn/
 _svn/
@@ -152,13 +151,3 @@ Icon?
 # LFS Storage
 
 /lfs/
-
-# Specifics
-
-/dev/.libs/docker/wp/.env
-/dev/.libs/docker/wp/.compose~sym.yml
-
-# For WordPress sites we want these.
-
-!/wp-includes/**/vendor/
-!/wp-content/**/vendor/

@@ -62,8 +62,6 @@ typings/
 
 # NPM & Yarn
 
-.npmrc
-.yarnrc
 .yarn/
 
 # Vendor

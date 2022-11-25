@@ -60,9 +60,6 @@ typings/
 
 # NPM & Yarn
 
-.npmrc
-.yarnrc
-
 .yarn/*
 !.yarn/cache
 !.yarn/patches
