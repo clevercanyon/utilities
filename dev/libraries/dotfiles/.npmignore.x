@@ -62,7 +62,13 @@ typings/
 
 # NPM & Yarn
 
-.yarn/
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 # Vendor
 
@@ -151,3 +157,6 @@ Icon?
 # LFS Storage
 
 /lfs/
+
+# There are also a few defaults ignored by NPM itself.
+# See: <https://docs.npmjs.com/cli/v8/using-npm/developers?v=true#keeping-files-out-of-your-package>
