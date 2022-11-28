@@ -82,7 +82,7 @@ module.exports = ( env, argv ) => {
 		const distDir = srcDir.replace( /^(\.\/)?(src)(\/|$)/ui, '$1dst$3' );
 
 		const absSrcDir = path.resolve( __dirname, '../../../', srcDir );
-		const absDstDir = path.resolve( __dirname, '../../../', srcDir );
+		const absDstDir = path.resolve( __dirname, '../../../', distDir );
 
 		const absSrcDirIndexes = []; // Initialize indexes.
 
