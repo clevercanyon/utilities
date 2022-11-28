@@ -1,0 +1,98 @@
+[
+	".#*",
+	"._*",
+	".~*",
+
+	"*.log",
+
+	"*~",
+	"*.bak",
+
+	"*.rej",
+	"*.orig",
+	"*.patch",
+	"*.diff",
+
+	".vagrant/",
+
+	"typings/",
+	".tscache/",
+
+	".idea/",
+
+	"*.sublime-project",
+	"*.sublime-workspace",
+
+	"*.nbproject",
+
+	".vscode/",
+	"*.code-workspace",
+
+	"npm-debug.log",
+	".yarn/*",
+	"!.yarn/cache",
+	"!.yarn/patches",
+	"!.yarn/plugins",
+	"!.yarn/releases",
+	"!.yarn/sdks",
+	"!.yarn/versions",
+
+	"vendor/",
+
+	"node_modules/",
+
+	"jspm_packages/",
+
+	"bower_components/",
+
+	".linaria-cache/",
+	".sass-cache/",
+
+	".docker/",
+
+	".elasticbeanstalk/",
+
+	"*.ctags",
+	"*.tags",
+
+	".git/",
+	".git-dir/",
+
+	".svn/",
+	"_svn/",
+
+	"CVS/",
+	".cvsignore",
+
+	".bzr/",
+	".bzrignore",
+
+	".hg/",
+	".hgignore",
+
+	"SCCS/",
+	"RCS/",
+
+	"$RECYCLE.BIN/",
+	"Desktop.ini",
+	"Thumbs.db",
+	"ehthumbs.db",
+
+	".AppleDB",
+	".AppleDouble",
+	".AppleDesktop",
+	".com.apple.timemachine.donotpresent",
+	"Network Trash Folder",
+	"Temporary Items",
+	".LSOverride",
+	".Spotlight-V100",
+	".VolumeIcon.icns",
+	".TemporaryItems",
+	".fseventsd",
+	".DS_Store",
+	".Trashes",
+	".apdisk",
+	"Icon?",
+	"!Icons",
+	"._*"
+]

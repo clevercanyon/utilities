@@ -1,0 +1,16 @@
+{
+	"extends"         : "../../../dev/.files/typescript/config.json",
+	"include"         : [ "./*", "./**/*" ],
+	"compilerOptions" : {
+		"lib"   : [
+			"es2021",
+			"dom",
+			"webworker"
+		],
+		"types" : [
+			"@types/node",
+			"@types/locutus",
+			"@cloudflare/workers-types"
+		]
+	}
+}

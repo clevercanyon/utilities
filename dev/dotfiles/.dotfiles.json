@@ -1,0 +1,26 @@
+{
+	"manifest"         : {
+		"dev/.files/eslint/config.cjs"     : "@",
+		"dev/.files/prettier/config.cjs"   : "@",
+		"dev/.files/stylelint/config.cjs"  : "@",
+		"dev/.files/typescript/config.cjs" : "@",
+
+		"dev/.files/webpack/babel.cjs"     : "@",
+		"dev/.files/webpack/config.cjs"    : "@",
+		"dev/.files/webpack/cssnano.cjs"   : "@",
+		"dev/.files/webpack/postcss.cjs"   : "@",
+		"dev/.files/webpack/tailwind.cjs"  : "@",
+
+		"x.browserslistrc"                 : ".browserslistrc",
+		"x.eslintrc.cjs"                   : ".eslintrc.cjs",
+		"x.gitattributes"                  : ".gitattributes",
+		"x.gitignore"                      : ".gitignore",
+		"x.npmignore"                      : ".npmignore",
+		"x.npmrc"                          : ".npmrc",
+		"x.package.json"                   : "package.json",
+		"x.prettierrc.cjs"                 : ".prettierrc.cjs",
+		"x.shellcheckrc"                   : ".shellcheckrc",
+		"x.stylelintrc.cjs"                : ".stylelintrc.cjs"
+	},
+	"deletionManifest" : [ ]
+}

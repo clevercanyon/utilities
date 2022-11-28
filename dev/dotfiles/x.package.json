@@ -1,0 +1,38 @@
+{
+	"private"         : true,
+	"version"         : "1.0.0",
+	"license"         : "GPL-2.0-or-later",
+	"name"            : "@clevercanyon/[?]",
+	"author"          : {
+		"name" : "Clever Canyon",
+		"url"  : "https://clevercanyon.com"
+	},
+	"main"            : "./dst/webpack/index.min.js",
+	"dependencies"    : { },
+	"devDependencies" : {
+		"@clevercanyon/utilities" : "latest"
+	},
+	"cpu"             : [ "x64", "arm64" ],
+	"os"              : [ "darwin", "linux" ],
+	"engines"         : {
+		"node" : "^18.12.1",
+		"npm"  : "^8.19.2"
+	},
+	"scripts"         : {
+		"webpack" : "npx webpack --config ./dev/.files/webpack/config.cjs"
+	},
+	"config"          : {
+		"c10n" : {
+			"&" : {
+				"webpack"       : {
+					"srcDirs" : [ "./src" ]
+				},
+				"webpack:./src" : {
+					"config" : {
+						"target" : "es2021"
+					}
+				}
+			}
+		}
+	}
+}

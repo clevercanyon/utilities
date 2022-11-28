@@ -1,3 +1,3 @@
 # Clever Canyon: Utilities
 
-Clever Canyon’s web development utilities.
+Clever Canyon’s project development utilities.

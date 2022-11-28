@@ -1,0 +1,11 @@
+{
+	"extends"         : "../../../dev/.files/typescript/config.json",
+	"include"         : [ "./*", "./**/*" ],
+	"compilerOptions" : {
+		"lib"   : [
+			"es2021",
+			"dom"
+		],
+		"types" : [ ]
+	}
+}
