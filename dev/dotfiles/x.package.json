@@ -3,6 +3,8 @@
 	"version"         : "1.0.0",
 	"license"         : "GPL-2.0-or-later",
 	"name"            : "@clevercanyon/[?]",
+	"repository"      : "github:clevercanyon/[?]",
+	"keywords"        : [ "clevercanyon" ],
 	"author"          : {
 		"name" : "Clever Canyon",
 		"url"  : "https://clevercanyon.com"
