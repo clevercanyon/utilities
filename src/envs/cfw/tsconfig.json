@@ -3,11 +3,10 @@
 	"include"         : [ "./*", "./**/*" ],
 	"compilerOptions" : {
 		"lib"   : [
-			"es2021",
-			"webworker"
+			"es2021"
 		],
 		"types" : [
-			"@cloudflare/workers-types"
+			"@cloudflare/workers-types/2022-08-04"
 		]
 	}
 }

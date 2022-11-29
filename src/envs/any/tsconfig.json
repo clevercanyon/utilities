@@ -4,13 +4,12 @@
 	"compilerOptions" : {
 		"lib"   : [
 			"es2021",
-			"dom",
-			"webworker"
+			"dom"
 		],
 		"types" : [
 			"@types/node",
 			"@types/locutus",
-			"@cloudflare/workers-types"
+			"@cloudflare/workers-types/2022-08-04"
 		]
 	}
 }

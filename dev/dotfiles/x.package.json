@@ -13,7 +13,7 @@
 	"main"            : "./dst/webpack/index.min.js",
 	"dependencies"    : { },
 	"devDependencies" : {
-		"@clevercanyon/utilities" : "latest"
+		"@clevercanyon/utilities" : "*"
 	},
 	"cpu"             : [ "x64", "arm64" ],
 	"os"              : [ "darwin", "linux" ],
