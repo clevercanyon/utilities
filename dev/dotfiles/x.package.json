@@ -1,5 +1,6 @@
 {
 	"private"         : true,
+	"type"            : "module",
 	"version"         : "1.0.0",
 	"license"         : "GPL-2.0-or-later",
 	"name"            : "@clevercanyon/[?]",
@@ -17,7 +18,7 @@
 	"cpu"             : [ "x64", "arm64" ],
 	"os"              : [ "darwin", "linux" ],
 	"engines"         : {
-		"node" : "^18.12.1",
+		"node" : "^18.5.0",
 		"npm"  : "^8.19.2"
 	},
 	"scripts"         : {
@@ -31,7 +32,8 @@
 				},
 				"webpack:./src" : {
 					"config" : {
-						"target" : "es2021"
+						"target" : [ "browserslist:any" ],
+						"output" : { "library" : { "type" : "commonjs-static" } }
 					}
 				}
 			}

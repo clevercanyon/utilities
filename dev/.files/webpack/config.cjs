@@ -24,7 +24,8 @@ Example `config.c10n.&.webpack` using `../../../package.json`:
 			"webpack" : {
 				"srcDirs" : [ "./src" ],
 				"config"  : {
-					"target" : "es2021"
+					"target" : [ "browserslist:any" ],
+					"output" : { "library" : { "type" : "" } }
 				}
 			},
 			"webpack:./src": {
@@ -39,7 +40,7 @@ Example src directory structure expected for webpack:
 ../../../src (or any other location):
 	- assets/* (static files)
 	- styles/index.{css,scss}
-	- scripts/index.{js,cjs,jsx,ts,tsx}
+	- scripts/index.{js,cjs,mjs,jsx,ts,tsx}
 	- webpack/ (output directory)
 ------------------------------------------------------------------------------------------------- @formatter:/ignore */
 
@@ -76,6 +77,8 @@ module.exports = ( env, argv ) => {
 	// Now establish a configuration for each src directory.
 
 	( globalData.srcDirs || [] ).forEach( ( srcDir ) => {
+		// Initialize variables.
+
 		if ( ! /^(?:\.\/)?src(?:\/|$)/ui.test( srcDir ) ) {
 			return; // Invalid src directory.
 		}
@@ -83,6 +86,8 @@ module.exports = ( env, argv ) => {
 
 		const absSrcDir = path.resolve( __dirname, '../../../', srcDir );
 		const absDstDir = path.resolve( __dirname, '../../../', distDir );
+
+		// Establish & validate src directory indexes.
 
 		const absSrcDirIndexes = []; // Initialize indexes.
 
@@ -93,7 +98,7 @@ module.exports = ( env, argv ) => {
 			}
 			return true; // Continue.
 		} );
-		[ '.js', '.cjs', '.jsx', '.ts', '.tsx' ].every( ext => {
+		[ '.js', '.cjs', '.mjs', '.jsx', '.ts', '.tsx' ].every( ext => {
 			if ( fs.existsSync( absSrcDir + '/scripts/index' + ext ) ) {
 				absSrcDirIndexes.push( absSrcDir + '/scripts/index' + ext );
 				return false; // Break.
@@ -103,14 +108,16 @@ module.exports = ( env, argv ) => {
 		if ( ! absSrcDirIndexes.length ) {
 			return; // No indexes available.
 		}
+		// Now establish a configuration for this src directory.
+
 		const srcDirConfig = { // Base configuration.
 			cache       : false,
 			mode        : 'production',
 			devtool     : 'source-map',
-			target      : 'es2021',
-			experiments : { topLevelAwait : true },
+			target      : [ 'browserslist:any' ],
+			experiments : { futureDefaults : true },
 			plugins     : [ new miniCss( { filename : '[name].min.css' } ) ],
-			resolve     : { extensions : [ '.js', '.cjs', '.jsx', '.ts', '.tsx', '.json', '.wasm' ] },
+			resolve     : { extensions : [ '.js', '.cjs', '.mjs', '.jsx', '.ts', '.tsx', '.json', '.wasm' ] },
 			module      : {
 				rules : [
 					{
@@ -135,7 +142,7 @@ module.exports = ( env, argv ) => {
 						],
 					},
 					{
-						test    : /\.(?:js|cjs|jsx|ts|tsx)$/ui,
+						test    : /\.(?:js|cjs|mjs|jsx|ts|tsx)$/ui,
 						exclude : [ /\/(?:node_modules\/(?:core-js|webpack\/buildin))\//ui ],
 						use     : [ { loader : 'babel-loader', options : require( './babel.cjs' )( srcDir ) } ],
 					},
@@ -145,6 +152,7 @@ module.exports = ( env, argv ) => {
 				index : absSrcDirIndexes,
 			},
 			output      : {
+				library  : { type : '' },
 				path     : absDstDir + '/webpack',
 				filename : '[name].min.js',
 			},
