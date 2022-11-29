@@ -26,9 +26,7 @@ import { default as uURL }             from './URL';
  *
  * @since 2022-08-13
  */
-interface uHTTPsRequestConfig {
-	isC10n? : boolean;
-}
+interface uHTTPsRequestConfig {}
 
 /**
  * Response config.
@@ -41,7 +39,6 @@ interface uHTTPsResponseConfig {
 	body? : BodyInit | null;
 	headers? : Headers | { [ $ : string ] : string };
 	appendHeaders? : Headers | { [ $ : string ] : string };
-	isC10n? : boolean;
 	enableCORs? : boolean;
 	enableCDN? : boolean;
 }
@@ -62,7 +59,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @return {uHTTPsRequestConfig} HTTP request config.
 	 */
 	public static requestConfig( config : uHTTPsRequestConfig = {} ) : uHTTPsRequestConfig {
-		return Object.assign( { isC10n : false }, config );
+		return Object.assign( {}, config );
 	}
 
 	/**
@@ -76,6 +73,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @return {Response} HTTP response.
 	 */
 	public static prepareRequest( request : Request, config : uHTTPsRequestConfig = {} ) : Request {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `config` ok.
 		config = uHTTPs.requestConfig( config );
 
 		const cleanURL  = uURL.removeCSOQueryVars( request.url );
@@ -85,8 +83,8 @@ export default class uHTTPs extends uA6tStcUtilities {
 			throw 'Parse failure. Invalid request URL.';
 		}
 		const requestHasOrigin     = request.headers.has( 'origin' );
-		const requestIsUserDynamic = uHTTPs.requestIsFromUser( request, config.isC10n )
-			&& uHTTPs.requestPathIsDynamic( request, parsedURL, config.isC10n );
+		const requestIsUserDynamic = uHTTPs.requestIsFromUser( request )
+			&& uHTTPs.requestPathIsDynamic( request, parsedURL );
 
 		if ( requestHasOrigin ) {
 			const _ck = parsedURL.searchParams.get( '_ck' ) || '';
@@ -117,7 +115,6 @@ export default class uHTTPs extends uA6tStcUtilities {
 			body          : null,
 			headers       : {},
 			appendHeaders : {},
-			isC10n        : false,
 			enableCORs    : false,
 			enableCDN     : ! uEnv.isCfw(),
 		}, config );
@@ -217,15 +214,15 @@ export default class uHTTPs extends uA6tStcUtilities {
 			cacheHeaders[ 'cdn-cache-control' ] = 'no-store';
 			cacheHeaders[ 'cache-control' ]     = 'no-store';
 
-		} else if ( uHTTPs.requestPathIsSEORelatedFile( request, parsedURL, config.isC10n ) ) {
+		} else if ( uHTTPs.requestPathIsSEORelatedFile( request, parsedURL ) ) {
 			cacheHeaders[ 'cdn-cache-control' ] = 'public, must-revalidate, max-age=86400, stale-while-revalidate=86400, stale-if-error=86400';
 			cacheHeaders[ 'cache-control' ]     = 'public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=86400, stale-if-error=86400';
 
-		} else if ( uHTTPs.requestPathIsStatic( request, parsedURL, config.isC10n ) && ( config.response?.headers.has( 'etag' ) || config.headers.has( 'etag' ) ) ) {
+		} else if ( uHTTPs.requestPathIsStatic( request, parsedURL ) && ( config.response?.headers.has( 'etag' ) || config.headers.has( 'etag' ) ) ) {
 			cacheHeaders[ 'cdn-cache-control' ] = 'public, must-revalidate, max-age=31536000, stale-while-revalidate=604800, stale-if-error=604800';
 			cacheHeaders[ 'cache-control' ]     = 'public, must-revalidate, max-age=31536000, s-maxage=31536000, stale-while-revalidate=604800, stale-if-error=604800';
 
-		} else if ( uHTTPs.requestPathIsInAdmin( request, parsedURL, config.isC10n ) || uHTTPs.requestIsFromUser( request, config.isC10n ) ) {
+		} else if ( uHTTPs.requestPathIsInAdmin( request, parsedURL ) || uHTTPs.requestIsFromUser( request ) ) {
 			cacheHeaders[ 'cdn-cache-control' ] = 'no-store';
 			cacheHeaders[ 'cache-control' ]     = 'no-store';
 
@@ -246,7 +243,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 		}
 		// Security-related headers.
 
-		if ( config.isC10n ) {
+		if ( uEnv.isC10n() ) {
 			securityHeaders = {
 				'x-frame-options'              : 'SAMEORIGIN',
 				'x-content-type-options'       : 'nosniff',
@@ -286,7 +283,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 				'timing-allow-origin'              : request.headers.has( 'origin' ) ? ( request.headers.get( 'origin' ) || '' ) : '*',
 				'access-control-allow-origin'      : request.headers.has( 'origin' ) ? ( request.headers.get( 'origin' ) || '' ) : '*',
 			};
-		} else if ( uHTTPs.requestPathHasStaticExtension( request, parsedURL, config.isC10n, /[^.]\.(?:eot|otf|ttf|woff)[0-9]*$/ui ) ) {
+		} else if ( uHTTPs.requestPathHasStaticExtension( request, parsedURL, /[^.]\.(?:eot|otf|ttf|woff)[0-9]*$/ui ) ) {
 			corsHeaders = {
 				'access-control-allow-origin' : request.headers.has( 'origin' ) ? ( request.headers.get( 'origin' ) || '' ) : '*',
 			};
@@ -379,13 +376,10 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @since 2022-02-26
 	 *
 	 * @param {Request} request  HTTP request object.
-	 * @param {boolean} [isC10n] Enable c10n-specific scans?
-	 *                           Optional. Default is `false`.
 	 *
 	 * @returns {boolean} `true` if request is coming from an identified user.
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `isC10n` ok.
-	public static requestIsFromUser( request : Request, isC10n : boolean = false ) : boolean {
+	public static requestIsFromUser( request : Request ) : boolean {
 		return request.headers.has( 'authorization' )
 			|| ( request.headers.has( 'cookie' )
 				&& /(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|logged[_-]in|comment[_-]author)[_-][^=;]+=\s*"?[^";]/ui
@@ -401,15 +395,12 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @param {URL|null} [parsedURL] Optional pre-parsed URL.
 	 *                               Default is taken from `request`.
 	 *
-	 * @param {boolean}  isC10n      Enable c10n-specific scans?
-	 *                               Optional. Default is `false`.
-	 *
 	 * @returns {boolean} `true` if request is dynamic.
 	 */
-	public static requestPathIsDynamic( request : Request, parsedURL : URL | null = null, isC10n : boolean = false ) : boolean {
-		return uHTTPs.requestPathHasVirtualBase( request, parsedURL, isC10n )
-			|| uHTTPs.requestPathIsPotentiallyVirtual( request, parsedURL, isC10n )
-			|| ! uHTTPs.requestPathHasStaticExtension( request, parsedURL, isC10n );
+	public static requestPathIsDynamic( request : Request, parsedURL : URL | null = null ) : boolean {
+		return uHTTPs.requestPathHasVirtualBase( request, parsedURL )
+			|| uHTTPs.requestPathIsPotentiallyVirtual( request, parsedURL )
+			|| ! uHTTPs.requestPathHasStaticExtension( request, parsedURL );
 	}
 
 	/**
@@ -421,13 +412,10 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @param {URL|null} parsedURL Optional pre-parsed URL.
 	 *                             Default is taken from `request`.
 	 *
-	 * @param {boolean}  isC10n    Enable c10n-specific scans?
-	 *                             Optional. Default is `false`.
-	 *
 	 * @returns {boolean} `true` if request is static.
 	 */
-	public static requestPathIsStatic( request : Request, parsedURL : URL | null = null, isC10n : boolean = false ) : boolean {
-		return ! uHTTPs.requestPathIsDynamic( request, parsedURL, isC10n );
+	public static requestPathIsStatic( request : Request, parsedURL : URL | null = null ) : boolean {
+		return ! uHTTPs.requestPathIsDynamic( request, parsedURL );
 	}
 
 	/**
@@ -439,13 +427,10 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @param {URL|null} parsedURL Optional pre-parsed URL.
 	 *                             Default is taken from `request`.
 	 *
-	 * @param {boolean}  isC10n    Enable c10n-specific scans?
-	 *                             Optional. Default is `false`.
-	 *
 	 * @returns {boolean} `true` if request path has a virtual base.
 	 */
-	public static requestPathHasVirtualBase( request : Request, parsedURL : URL | null = null, isC10n : boolean = false ) : boolean {
-		if ( ! isC10n ) {
+	public static requestPathHasVirtualBase( request : Request, parsedURL : URL | null = null ) : boolean {
+		if ( ! uEnv.isC10n() ) {
 			return false; // Not applicable.
 		}
 		parsedURL = parsedURL || uURL.parse( request.url );
@@ -465,13 +450,10 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @param {URL|null} parsedURL Optional pre-parsed URL.
 	 *                             Default is taken from `request`.
 	 *
-	 * @param {boolean}  isC10n    Enable c10n-specific scans?
-	 *                             Optional. Default is `false`.
-	 *
 	 * @returns {boolean} `true` if request path is potentially virtual.
 	 */
-	public static requestPathIsPotentiallyVirtual( request : Request, parsedURL : URL | null = null, isC10n : boolean = false ) : boolean {
-		if ( ! isC10n ) {
+	public static requestPathIsPotentiallyVirtual( request : Request, parsedURL : URL | null = null ) : boolean {
+		if ( ! uEnv.isC10n() ) {
 			return false; // Not applicable.
 		}
 		parsedURL = parsedURL || uURL.parse( request.url );
@@ -491,13 +473,9 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @param {URL|null} parsedURL Optional pre-parsed URL.
 	 *                             Default is taken from `request`.
 	 *
-	 * @param {boolean}  isC10n    Enable c10n-specific scans?
-	 *                             Optional. Default is `false`.
-	 *
 	 * @returns {boolean} `true` if request path is potentially a virtual SEO file.
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `isC10n` ok.
-	public static requestPathIsSEORelatedFile( request : Request, parsedURL : URL | null = null, isC10n : boolean = false ) : boolean {
+	public static requestPathIsSEORelatedFile( request : Request, parsedURL : URL | null = null ) : boolean {
 		parsedURL = parsedURL || uURL.parse( request.url );
 
 		if ( ! parsedURL || ! parsedURL.pathname || '/' === parsedURL.pathname ) {
@@ -515,13 +493,9 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @param {URL|null} parsedURL Optional pre-parsed URL.
 	 *                             Default is taken from `request`.
 	 *
-	 * @param {boolean}  isC10n    Enable c10n-specific scans?
-	 *                             Optional. Default is `false`.
-	 *
 	 * @returns {boolean} `true` if request path is in `/(?:wp-)?admin`.
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `isC10n` ok.
-	public static requestPathIsInAdmin( request : Request, parsedURL : URL | null = null, isC10n : boolean = false ) : boolean {
+	public static requestPathIsInAdmin( request : Request, parsedURL : URL | null = null ) : boolean {
 		parsedURL = parsedURL || uURL.parse( request.url );
 
 		if ( ! parsedURL || ! parsedURL.pathname || '/' === parsedURL.pathname ) {
@@ -540,17 +514,13 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @param {URL|null}      [parsedURL]   Optional pre-parsed URL.
 	 *                                      Default is taken from `request`.
 	 *
-	 * @param {boolean=false} [isC10n]      Enable c10n-specific scans?
-	 *                                      Optional. Default is `false`.
-	 *
 	 * @param {Array<string>|RegExp} [exts] Specific extension to look for?
 	 *
 	 * @returns {boolean} `true` if request path has a static file extension.
 	 *
 	 * @internal For static extensions {@see \Clever_Canyon\Utilities\Env\apache_conf_static_exts()}.
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `isC10n` ok.
-	public static requestPathHasStaticExtension( request : Request, parsedURL : URL | null = null, isC10n : boolean = false, exts? : Array<string> | RegExp ) : boolean {
+	public static requestPathHasStaticExtension( request : Request, parsedURL : URL | null = null, exts? : Array<string> | RegExp ) : boolean {
 		parsedURL = parsedURL || uURL.parse( request.url );
 
 		if ( ! parsedURL || ! parsedURL.pathname || '/' === parsedURL.pathname ) {

@@ -34,6 +34,20 @@ export default class uEnv extends uA6tStcUtilities {
 	protected static cache : { [ $ : string ] : unknown } = {};
 
 	/**
+	 * Is Clever Canyon?
+	 *
+	 * @since 2022-04-25
+	 *
+	 * @returns {boolean} `true` if C10N.
+	 */
+	public static isC10n() : boolean {
+		if ( undefined !== uEnv.cache.isC10n ) {
+			return uEnv.cache.isC10n as boolean;
+		} // @ts-ignore `IS_C10N` is ok.
+		return uEnv.cache.isC10n = Boolean( 'IS_C10N' in globalThis && IS_C10N );
+	}
+
+	/**
 	 * Is web?
 	 *
 	 * @since 2022-04-25
@@ -45,8 +59,7 @@ export default class uEnv extends uA6tStcUtilities {
 			return uEnv.cache.isWeb as boolean;
 		}
 		return uEnv.cache.isWeb = // Memoize.
-			typeof Window === 'function'
-			&& globalThis instanceof Window;
+			typeof Window === 'function' && globalThis instanceof Window;
 	}
 
 	/**
@@ -61,8 +74,8 @@ export default class uEnv extends uA6tStcUtilities {
 			return uEnv.cache.isNode as boolean;
 		}
 		return uEnv.cache.isNode = // Memoize.
-			typeof globalThis.process?.versions === 'object'
-			&& typeof process.versions.node !== 'undefined';
+			typeof process === 'object' // Node-specific version check.
+			&& typeof process.versions === 'object' && 'node' in process.versions;
 	}
 
 	/**
@@ -76,7 +89,7 @@ export default class uEnv extends uA6tStcUtilities {
 		if ( undefined !== uEnv.cache.isCfw ) {
 			return uEnv.cache.isCfw as boolean;
 		}
-		return uEnv.cache.isCfw = uEnv.isServiceWorker()
+		return uEnv.cache.isCfw = uEnv.isServiceWorker() // Memoize.
 			&& typeof Navigator === 'function' && typeof navigator === 'object'
 			&& navigator instanceof Navigator && 'Cloudflare-Workers' === navigator.userAgent;
 	}
@@ -93,8 +106,8 @@ export default class uEnv extends uA6tStcUtilities {
 			return uEnv.cache.isWorker as boolean;
 		}
 		return uEnv.cache.isWorker = // Memoize.
-			typeof WorkerGlobalScope === 'function'
-			&& globalThis instanceof WorkerGlobalScope;
+			'WorkerGlobalScope' in globalThis // @ts-ignore `WorkerGlobalScope` is ok.
+			&& typeof WorkerGlobalScope === 'function' && globalThis instanceof WorkerGlobalScope;
 	}
 
 	/**
@@ -109,8 +122,8 @@ export default class uEnv extends uA6tStcUtilities {
 			return uEnv.cache.isDedicatedWorker as boolean;
 		}
 		return uEnv.cache.isDedicatedWorker = // Memoize.
-			typeof DedicatedWorkerGlobalScope === 'function'
-			&& globalThis instanceof DedicatedWorkerGlobalScope;
+			'DedicatedWorkerGlobalScope' in globalThis // @ts-ignore `DedicatedWorkerGlobalScope` is ok.
+			&& typeof DedicatedWorkerGlobalScope === 'function' && globalThis instanceof DedicatedWorkerGlobalScope;
 	}
 
 	/**
@@ -125,8 +138,8 @@ export default class uEnv extends uA6tStcUtilities {
 			return uEnv.cache.isSharedWorker as boolean;
 		}
 		return uEnv.cache.isSharedWorker = // Memoize.
-			typeof SharedWorkerGlobalScope === 'function'
-			&& globalThis instanceof SharedWorkerGlobalScope;
+			'SharedWorkerGlobalScope' in globalThis // @ts-ignore `SharedWorkerGlobalScope` is ok.
+			&& typeof SharedWorkerGlobalScope === 'function' && globalThis instanceof SharedWorkerGlobalScope;
 	}
 
 	/**
@@ -141,7 +154,7 @@ export default class uEnv extends uA6tStcUtilities {
 			return uEnv.cache.isServiceWorker as boolean;
 		}
 		return uEnv.cache.isServiceWorker = // Memoize.
-			typeof ServiceWorkerGlobalScope === 'function'
-			&& globalThis instanceof ServiceWorkerGlobalScope;
+			'ServiceWorkerGlobalScope' in globalThis // @ts-ignore `ServiceWorkerGlobalScope` is ok.
+			&& typeof ServiceWorkerGlobalScope === 'function' && globalThis instanceof ServiceWorkerGlobalScope;
 	}
 }

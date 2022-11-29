@@ -62,6 +62,7 @@ module.exports = {
 		'array-bracket-spacing'     : [ 'warn', 'always' ],
 		'object-curly-spacing'      : [ 'warn', 'always' ],
 		'computed-property-spacing' : [ 'warn', 'always' ],
+		'no-empty'                  : [ 'warn', { allowEmptyCatch : true } ],
 	},
 	overrides     : [
 		{
@@ -98,8 +99,10 @@ module.exports = {
 				'array-bracket-spacing'     : [ 'warn', 'always' ],
 				'object-curly-spacing'      : [ 'warn', 'always' ],
 				'computed-property-spacing' : [ 'warn', 'always' ],
+				'no-empty'                  : [ 'warn', { allowEmptyCatch : true } ],
 
 				'@typescript-eslint/require-await'          : [ 'off' ],
+				'@typescript-eslint/no-empty-interface'     : [ 'off' ],
 				'@typescript-eslint/no-inferrable-types'    : [ 'off' ],
 				'@typescript-eslint/ban-ts-comment'         : [
 					'warn', {
