@@ -14,9 +14,9 @@ Also review `@jaswrks/dotfiles`.
 - `@jaswrks/dotfiles/.subversion/config`
 - `@jaswrks/dotfiles/.subversion/ignore`
 
-Also review `@clevercanyon/skeleton-cfws`.
+Also review `@clevercanyon/skeleton-cfw`.
 
-- `@clevercanyon/skeleton-cfws/wrangler.toml`
+- `@clevercanyon/skeleton-cfw/wrangler.toml`
 - Additionally, please review any project created from this skeleton.
 
 Also review the following settings in PhpStorm.

@@ -15,6 +15,8 @@
  * @since 2022-04-25
  */
 import { default as uA6tStcUtilities } from './a6t/StcUtilities';
+import { default as uObj }             from './Obj';
+import { default as uStr }             from './Str';
 
 // </editor-fold>
 
@@ -28,23 +30,48 @@ export default class uEnv extends uA6tStcUtilities {
 	 * Cache.
 	 *
 	 * @since 2022-04-25
-	 *
-	 * @type {Object} Cache.
 	 */
-	protected static cache : { [ $ : string ] : unknown } = {};
+	protected static cache : {
+		isC10n? : { [ x : string ] : boolean };
+		[ $ : string ] : unknown;
+	} = {};
 
 	/**
 	 * Is Clever Canyon?
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @returns {boolean} `true` if C10N.
+	 * @param {object<string,string>} [tests={}] Optional prop patterns to test for in `isC10n`.
+	 *                                           Each property is treated as a glob pattern that must be found in `isC10n`.
+	 *
+	 * @returns {boolean} `true` if `isC10n` and all tests pass.
 	 */
-	public static isC10n() : boolean {
-		if ( undefined !== uEnv.cache.isC10n ) {
-			return uEnv.cache.isC10n as boolean;
-		} // @ts-ignore `IS_C10N` is ok.
-		return uEnv.cache.isC10n = Boolean( 'IS_C10N' in globalThis && IS_C10N );
+	public static isC10n( tests : { [ x : string ] : string } = {} ) : boolean {
+		uEnv.cache.isC10n ??= {};
+		const cacheKey = JSON.stringify( tests );
+
+		if ( undefined !== uEnv.cache.isC10n[ cacheKey ] ) {
+			return uEnv.cache.isC10n[ cacheKey ];
+		}
+		if ( ! ( 'isC10n' in globalThis ) ) {
+			return uEnv.cache.isC10n[ cacheKey ] = false;
+		}
+		// @ts-ignore `isC10n` environment var is ok.
+		const isC10n = String( globalThis.isC10n || '' );
+
+		if ( uObj.empty( tests ) ) { // No tests?
+			return uEnv.cache.isC10n[ cacheKey ] = true;
+		}
+		// Parses `isC10n` as a query string, which is used to populate `isC10nProps`.
+		// Each property of `tests` is treated as a glob pattern that must be found in `isC10nProps`.
+		const isC10nProps = uObj.props( ( new URL( '?' + String( isC10n ), 'http://c10n' ) ).searchParams );
+
+		for ( const [ prop, pattern ] of Object.entries( tests ) ) {
+			if ( ! uObj.hasOwn( isC10nProps, prop ) || ! uStr.matches( isC10nProps[ prop ], pattern ) ) {
+				return uEnv.cache.isC10n[ cacheKey ] = false;
+			}
+		}
+		return uEnv.cache.isC10n[ cacheKey ] = true;
 	}
 
 	/**

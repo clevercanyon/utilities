@@ -45,6 +45,8 @@
 
 	"bower_components/",
 
+	".wrangler/",
+
 	".linaria-cache/",
 	".sass-cache/",
 

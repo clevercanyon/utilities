@@ -32,8 +32,8 @@ export default class uTime extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {string=U}   format Optional format. Default is `U` (timestamp).
-	 * @param {string=now} str    Optional string to convert to time. Default is `now`.
+	 * @param {string} [format='U'] Optional format. Default is `U` (timestamp).
+	 * @param {string} [str='now']  Optional string to convert to time. Default is `now`.
 	 *
 	 * @returns {string} Current time (UTC timezone).
 	 */
@@ -46,8 +46,8 @@ export default class uTime extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {string=U}   format Optional format. Default is `U` (timestamp).
-	 * @param {string=now} str    Optional string to convert to time. Default is `now`.
+	 * @param {string} [format='U'] Optional format. Default is `U` (timestamp).
+	 * @param {string} [str='now']  Optional string to convert to time. Default is `now`.
 	 *
 	 * @returns {string} Current time (local timezone).
 	 */

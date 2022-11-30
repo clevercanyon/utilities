@@ -23,13 +23,26 @@ import { default as uA6tStcUtilities } from './a6t/StcUtilities';
  *
  * @since 2022-04-25
  */
-export default class uStr extends uA6tStcUtilities {
+export default class uObj extends uA6tStcUtilities {
+	/**
+	 * Checks if object is empty.
+	 *
+	 * @since 2022-04-25
+	 *
+	 * @param {object} obj Object to check.
+	 *
+	 * @returns {boolean} True if empty.
+	 */
+	public static empty( obj : object ) : boolean {
+		return 0 === Object.keys( obj ).length;
+	}
+
 	/**
 	 * Polyfill for `Object.hasOwn()`.
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {object} obj Object to check.
+	 * @param {object} obj  Object to check.
 	 * @param {string} prop Property to check for.
 	 *
 	 * @returns {boolean} True if property exists.
@@ -45,7 +58,11 @@ export default class uStr extends uA6tStcUtilities {
 	 *
 	 * @return object Object's own enumerable string-keyed properties.
 	 */
+	public static props( obj : URLSearchParams ) : { [ $ : string ] : string };
 	public static props( obj : object ) : { [ $ : string ] : unknown } {
+		if ( obj instanceof URLSearchParams ) {
+			return Object.fromEntries( obj.entries() );
+		}
 		return Object.fromEntries( Object.entries( obj ) );
 	}
 }

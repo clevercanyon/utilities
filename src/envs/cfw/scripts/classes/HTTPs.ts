@@ -13,6 +13,8 @@
  * Imports.
  *
  * @since 2022-02-26
+ *
+ * @see https://github.com/cloudflare/kv-asset-handler
  */
 import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
 
@@ -24,7 +26,7 @@ import { default as uHTTPs }           from '../../../any/scripts/classes/HTTPs'
 // </editor-fold>
 
 /**
- * Interfaces.
+ * Routes.
  *
  * @since 2022-02-26
  */
@@ -62,7 +64,7 @@ export default class cHTTPs extends uA6tStcUtilities {
 		if ( ! url ) { // Early return on parse failure.
 			return uHTTPs.prepareResponse( request, { status : 400 } );
 		}
-		if ( uHTTPs.requestPathIsStatic( request ) ) {
+		if ( '__STATIC_CONTENT' in globalThis && uHTTPs.requestPathIsStatic( request ) ) {
 			try { return cHTTPs.handleStatics( url, event ); } catch {}
 		}
 		return cHTTPs.handleDynamics( url, event, routes );
@@ -83,8 +85,11 @@ export default class cHTTPs extends uA6tStcUtilities {
 	public static async handleStatics( url : URL, event : FetchEvent ) : Promise<Response> {
 		const { request } = event; // Extract request prop.
 
-		let response = await getAssetFromKV( event );
-		response     = new Response( response.body, response );
+		let response = await getAssetFromKV( event, {
+			ASSET_NAMESPACE : '__STATIC_CONTENT', // Wrangler default.
+			cacheControl    : { edgeTTL : 31536000, browserTTL : 31536000 },
+		} );
+		response     = new Response( response.body, response ); // Clone of response.
 
 		return uHTTPs.prepareResponse( request, { response } );
 	}

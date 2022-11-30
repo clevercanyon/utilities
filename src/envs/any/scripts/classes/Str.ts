@@ -30,7 +30,7 @@ export default class uStr extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @type {Object} Cache.
+	 * @type {object} Cache.
 	 */
 	protected static cache : { [ $ : string ] : unknown } = {};
 

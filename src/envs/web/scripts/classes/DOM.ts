@@ -29,7 +29,7 @@ export default class wDOM extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {Function} callback Callback.
+	 * @param {function} callback Callback.
 	 */
 	public static onDocReady( callback : () => void ) : void {
 		if ( 'loading' !== document.readyState ) {
@@ -44,7 +44,7 @@ export default class wDOM extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {Function} callback Callback.
+	 * @param {function} callback Callback.
 	 */
 	public static onWinLoaded( callback : () => void ) {
 		if ( 'complete' === document.readyState ) {
@@ -60,8 +60,8 @@ export default class wDOM extends uA6tStcUtilities {
 	 * @since 2022-04-25
 	 *
 	 * @param {string}          eventName          Event name. Required always.
-	 * @param {string|Function} selectorOrCallback Selector for delegated events; else callback.
-	 * @param {Function}        [callback]         Optional third parameter as callback when `selectorOrCallback` is `selector`.
+	 * @param {string|function} selectorOrCallback Selector for delegated events; else callback.
+	 * @param {function}        [callback]         Optional third parameter as callback when `selectorOrCallback` is `selector`.
 	 */
 	public static on( eventName : string, callback : ( $ : Event ) => void ) : void;
 	public static on( eventName : string, selector : string, callback : ( $ : Event ) => void ) : void;
@@ -96,11 +96,11 @@ export default class wDOM extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {Function} callback          Callback.
+	 * @param {function} callback          Callback.
 	 * @param {number}   [delay=100]       Optional delay. Default is `100`.
 	 * @param {boolean}  [immediate=false] Immediate? Default is `false`.
 	 *
-	 * @returns {Function} Debouncer.
+	 * @returns {function} Debouncer.
 	 */
 	public static debounce( callback : () => void, delay : number = 100, immediate : boolean = false ) {
 		let timeout : number | undefined;
@@ -149,7 +149,7 @@ export default class wDOM extends uA6tStcUtilities {
 	 * @since 2022-04-25
 	 *
 	 * @param {string}                                     src     Script source.
-	 * @param {Object<string,Function|string|number|true>} [attrs] Optional attributes. Default is `{}`.
+	 * @param {object<string,function|string|mumber|true>} [attrs] Optional attributes. Default is `{}`.
 	 */
 	public static attachScript( src : string, attrs : { [ $ : string ] : ( ( $ : Event ) => void ) | string | number | true } = {} ) : void {
 		wDOM.attachToBody( wDOM.createElement( 'script', Object.assign( {}, attrs, { src : src, async : true } ) ) );
@@ -161,7 +161,7 @@ export default class wDOM extends uA6tStcUtilities {
 	 * @since 2022-04-25
 	 *
 	 * @param {string}                                     tag     Tag name.
-	 * @param {Object<string,Function|string|number|true>} [attrs] Optional attributes. Default is `{}`.
+	 * @param {object<string,function|string|number|true>} [attrs] Optional attributes. Default is `{}`.
 	 *
 	 * @return {HTMLElement} HTML element.
 	 */

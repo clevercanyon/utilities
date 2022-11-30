@@ -29,8 +29,6 @@ export default class uURL extends uA6tStcUtilities {
 	 * RFC 1738 URL encoding strategy.
 	 *
 	 * @since 2022-04-25
-	 *
-	 * @type {string}
 	 */
 	public static QUERY_RFC1738 = 'QUERY_RFC1738';
 
@@ -38,8 +36,6 @@ export default class uURL extends uA6tStcUtilities {
 	 * RFC 3986 URL encoding strategy.
 	 *
 	 * @since 2022-04-25
-	 *
-	 * @type {string}
 	 */
 	public static QUERY_RFC3986 = 'QUERY_RFC3986';
 
@@ -47,8 +43,6 @@ export default class uURL extends uA6tStcUtilities {
 	 * RFC 3986 encoding encoding strategy w/ AWS v4 compat.
 	 *
 	 * @since 2022-04-25
-	 *
-	 * @type {string}
 	 */
 	public static QUERY_RFC3986_AWS4 = 'QUERY_RFC3986_AWS4';
 
@@ -102,7 +96,7 @@ export default class uURL extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {boolean} [withPort=true] Include port? Default is `true`.
+	 * @param {boolean} [withPort=true] Include port?
 	 *
 	 * @returns {string} Current host.
 	 */
@@ -119,7 +113,7 @@ export default class uURL extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {boolean} [withPort=true] Include port? Default is `true`.
+	 * @param {boolean} [withPort=true] Include port?
 	 *
 	 * @returns {string} Current root host.
 	 */
@@ -212,7 +206,7 @@ export default class uURL extends uA6tStcUtilities {
 	 * @since 2022-04-25
 	 *
 	 * @param {URL|string|null} [host]          Host to parse.
-	 *                                          Optional in browser. Default is {@see uURL.current()}.
+	 *                                          Optional in browser; i.e., default is {@see uURL.current()}.
 	 *
 	 * @param {boolean}         [withPort=true] Include port? Default is `true`.
 	 *
@@ -243,10 +237,10 @@ export default class uURL extends uA6tStcUtilities {
 	 * @since 2022-04-25
 	 *
 	 * @param {URL|string|null} [url]                 URL to parse.
-	 *                                                Optional in browser. Default is {@see uURL.current()}.
+	 *                                                Optional in browser; i.e., default is {@see uURL.current()}.
 	 *
-	 * @param {URL|string|null} [base]                Base URL; i.e., in the case of relative URLs.
-	 *                                                Optional in browser. Default is {@see uURL.current()}.
+	 * @param {URL|string|null} [base]                Base URL. Required in the case of relative URLs.
+	 *                                                Optional in browser; i.e., default is {@see uURL.current()}.
 	 *
 	 * @param {boolean}         [throwOnFailure=true] Throw on failure? Default is `true`.
 	 *
@@ -293,9 +287,9 @@ export default class uURL extends uA6tStcUtilities {
 	 * @param {string}          name  Query string variable name.
 	 *
 	 * @param {URL|string|null} [url] URL from which to parse query string variable.
-	 *                                Optional in browser. Default is {@see uURL.current()}.
+	 *                                Optional in browser; i.e., default is {@see uURL.current()}.
 	 *
-	 * @returns {string|null} `null` if not found; else query {@see string} variable value.
+	 * @returns {string|null} `null` if not found; else query `string` variable value.
 	 */
 	public static getQueryVar( name : string, url? : URL | string | null ) : string | null {
 		const parsedURL = uURL.parse( url );
@@ -311,16 +305,16 @@ export default class uURL extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {Array<string>|URL|string|null} [names=[]] Optional array of query string variable names to get; excluding others.
+	 * @param {array<string>|URL|string|null} [names=[]] Optional array of query string variable names to get; excluding others.
 	 *                                                   Default is `[]`; i.e., get all query string variables.
 	 *
 	 *                                                       * If only one parameter is given and it's not an array,
 	 *                                                         this parameter is treated as the `url` parameter instead of `names`.
 	 *
 	 * @param {URL|string|null} [url]                    URL from which to parse query string variables.
-	 *                                                   Optional in browser. Default is {@see uURL.current()}.
+	 *                                                   Optional in browser; i.e., default is {@see uURL.current()}.
 	 *
-	 * @returns {Object<string,string>} Query string variables.
+	 * @returns {object<string,string>} Query string variables.
 	 */
 	public static getQueryVars( url? : URL | string | null ) : { [ $ : string ] : string };
 	public static getQueryVars( names : Array<string> | URL | string | null, url? : URL | string | null ) : { [ $ : string ] : string };
@@ -360,7 +354,7 @@ export default class uURL extends uA6tStcUtilities {
 	 * @param {string}          value                  Query string variable value.
 	 *
 	 * @param {URL|string|null} [url]                  URL to add query string variable to.
-	 *                                                 Optional in browser. Default is {@see uURL.current()}.
+	 *                                                 Optional in browser; i.e., default is {@see uURL.current()}.
 	 *
 	 * @param {boolean}         [replaceExisting=true] Optional. Default is `true`.
 	 *
@@ -380,10 +374,10 @@ export default class uURL extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {Object<string,string>} vars                   Query string variables to add.
+	 * @param {object<string,string>} vars                   Query string variables to add.
 	 *
 	 * @param {URL|string|null}       [url]                  URL to add query string variables to.
-	 *                                                       Optional in browser. Default is {@see uURL.current()}.
+	 *                                                       Optional in browser; i.e., default is {@see uURL.current()}.
 	 *
 	 * @param {boolean}               [replaceExisting=true] Optional. Default is `true`.
 	 *
@@ -419,7 +413,7 @@ export default class uURL extends uA6tStcUtilities {
 	 * @param {string}          name  Query string variable name.
 	 *
 	 * @param {URL|string|null} [url] URL to remove query string variable from.
-	 *                                Optional in browser. Default is {@see uURL.current()}.
+	 *                                Optional in browser; i.e., default is {@see uURL.current()}.
 	 *
 	 * @returns {URL|string} Updated URL with query string variable removed.
 	 *                       Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
@@ -437,14 +431,14 @@ export default class uURL extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {Array<string>|URL|string|null} [names=[]] Optional array of query string variable names to remove.
+	 * @param {array<string>|URL|string|null} [names=[]] Optional array of query string variable names to remove.
 	 *                                                   Default is `[]`; i.e., remove all query string variables.
 	 *
 	 *                                                       * If only one parameter is given and it's not an array,
 	 *                                                         this parameter is treated as the `url` parameter instead of `names`.
 	 *
 	 * @param {URL|string|null}               [url]      URL to remove query string variables from.
-	 *                                                   Optional in browser. Default is {@see uURL.current()}.
+	 *                                                   Optional in browser; i.e., default is {@see uURL.current()}.
 	 *
 	 * @returns {URL|string} URL with query string variables removed.
 	 *                       Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
@@ -486,7 +480,7 @@ export default class uURL extends uA6tStcUtilities {
 	 * @since 2022-04-25
 	 *
 	 * @param {URL|string|null} [url] URL to remove query string variables from.
-	 *                                Optional in browser. Default is {@see uURL.current()}.
+	 *                                Optional in browser; i.e., default is {@see uURL.current()}.
 	 *
 	 * @returns {URL|string} URL with (client|cache)-side-only query string variables removed.
 	 *                       Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
@@ -517,11 +511,11 @@ export default class uURL extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {string} str        String to encode.
-	 * @param {string} [strategy] Strategy. Default is {@see uURL.QUERY_RFC3986}.
-	 *                            * Use {@see uURL.QUERY_RFC3986} for {@see rawurlencode()} PHP compatibility.
-	 *                            * Use {@see uURL.QUERY_RFC3986_AWS4} for {@see rawurlencode()} PHP w/ AWS v4 compatibility.
-	 *                            * Use {@see uURL.QUERY_RFC1738} for {@see urlencode()} PHP compatibility.
+	 * @param {string} str                             String to encode.
+	 * @param {string} [strategy={uURL.QUERY_RFC3986}] Strategy. Default is {@see uURL.QUERY_RFC3986}.
+	 *                                                 * Use {@see uURL.QUERY_RFC3986} for {@see rawurlencode()} PHP compatibility.
+	 *                                                 * Use {@see uURL.QUERY_RFC3986_AWS4} for {@see rawurlencode()} PHP w/ AWS v4 compatibility.
+	 *                                                 * Use {@see uURL.QUERY_RFC1738} for {@see urlencode()} PHP compatibility.
 	 *
 	 * @return {string} Encoded string.
 	 *
@@ -549,11 +543,11 @@ export default class uURL extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {string} str        String to decode.
-	 * @param {string} [strategy] Strategy. Default is {@see uURL.QUERY_RFC3986}.
-	 *                            * Use {@see uURL.QUERY_RFC3986} for {@see rawurldecode()} PHP compatibility.
-	 *                            * Use {@see uURL.QUERY_RFC3986_AWS4} for {@see rawurldecode()} PHP w/ AWS v4 compatibility.
-	 *                            * Use {@see uURL.QUERY_RFC1738} for {@see urldecode()} PHP compatibility.
+	 * @param {string} str                             String to decode.
+	 * @param {string} [strategy={uURL.QUERY_RFC3986}] Strategy. Default is {@see uURL.QUERY_RFC3986}.
+	 *                                                 * Use {@see uURL.QUERY_RFC3986} for {@see rawurldecode()} PHP compatibility.
+	 *                                                 * Use {@see uURL.QUERY_RFC3986_AWS4} for {@see rawurldecode()} PHP w/ AWS v4 compatibility.
+	 *                                                 * Use {@see uURL.QUERY_RFC1738} for {@see urldecode()} PHP compatibility.
 	 *
 	 * @return {string} Decoded string.
 	 *

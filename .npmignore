@@ -85,6 +85,10 @@ jspm_packages/
 
 bower_components/
 
+# CF Wrangler.
+
+.wrangler/
+
 # Linaria & SASS
 
 .linaria-cache/

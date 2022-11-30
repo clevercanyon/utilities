@@ -14,8 +14,8 @@
  *
  * @since 2022-04-25
  */
-import { default as uA6tBase }  from './a6t/Base';
-import { default as rawBrands } from '../includes/brands';
+import { default as uA6tBase }   from './a6t/Base';
+import { default as uRawBrands } from '../includes/brands';
 
 // </editor-fold>
 
@@ -218,13 +218,13 @@ export default class uBrand extends uA6tBase implements uBrandProps {
 	public static get( n7m : string ) : uBrand | null {
 		n7m = '&' === n7m ? 'c10n' : n7m;
 
-		if ( ! n7m || ! rawBrands[ n7m ] ) {
+		if ( ! n7m || ! uRawBrands[ n7m ] ) {
 			return null; // Not available.
 		}
 		if ( uBrand.instances[ n7m ] ) {
 			return uBrand.instances[ n7m ];
 		}
-		const rawBrand          = rawBrands[ n7m ] as uBrandRawProps;
+		const rawBrand          = uRawBrands[ n7m ] as uBrandRawProps;
 		const rawBrandOrg       = rawBrand.org === n7m ? '' : ( rawBrand.org || '' );
 		uBrand.instances[ n7m ] = new uBrand( { ...rawBrand, org : uBrand.get( rawBrandOrg ) } );
 

@@ -54,7 +54,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {uHTTPsRequestConfig} [config] Optional config options.
+	 * @param {uHTTPsRequestConfig} [config={}] Optional config options.
 	 *
 	 * @return {uHTTPsRequestConfig} HTTP request config.
 	 */
@@ -67,8 +67,8 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {Request}             request  HTTP request object.
-	 * @param {uHTTPsRequestConfig} [config] Optional config options.
+	 * @param {Request}             request     HTTP request object.
+	 * @param {uHTTPsRequestConfig} [config={}] Optional config options.
 	 *
 	 * @return {Response} HTTP response.
 	 */
@@ -104,7 +104,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {uHTTPsResponseConfig} [config] Optional config options.
+	 * @param {uHTTPsResponseConfig} [config={}] Optional config options.
 	 *
 	 * @return {uHTTPsResponseConfig} HTTP response config.
 	 */
@@ -125,8 +125,8 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {Request}              request  HTTP request object.
-	 * @param {uHTTPsResponseConfig} [config] Optional config options.
+	 * @param {Request}              request     HTTP request object.
+	 * @param {uHTTPsResponseConfig} [config={}] Optional config options.
 	 *
 	 * @return {Response} HTTP response.
 	 */
@@ -156,8 +156,8 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {Request}              request  HTTP request object.
-	 * @param {uHTTPsResponseConfig} [config] Optional config options.
+	 * @param {Request}              request     HTTP request object.
+	 * @param {uHTTPsResponseConfig} [config={}] Optional config options.
 	 *
 	 * @return {Headers} HTTP response headers.
 	 */
@@ -207,8 +207,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 		}
 		// Cache control and related headers.
 
-		cacheHeaders[ 'vary' ]       = 'origin, accept, accept-language, accept-encoding';
-		cacheHeaders[ 'x-cdn-vary' ] = '{ "on": { "origin": true, "user-dynamics": true }, "data": { } }';
+		cacheHeaders[ 'vary' ] = 'origin, accept, accept-language, accept-encoding';
 
 		if ( ! uHTTPs.requestHasCacheableMethod( request ) || config.status >= 300 ) {
 			cacheHeaders[ 'cdn-cache-control' ] = 'no-store';
@@ -230,14 +229,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 			cacheHeaders[ 'cdn-cache-control' ] = 'public, must-revalidate, max-age=41400, stale-while-revalidate=1800, stale-if-error=1800';
 			cacheHeaders[ 'cache-control' ]     = 'no-store';
 		}
-		if ( ! config.enableCDN ) {
-			delete existingHeaders[ 'x-cdn-vary' ];
-			delete existingHeaders[ 'cdn-cache-control' ];
-
-			delete cacheHeaders[ 'x-cdn-vary' ];
-			delete cacheHeaders[ 'cdn-cache-control' ];
-
-		} else if ( config.headers.has( 'cache-control' ) ) {
+		if ( ! config.enableCDN || config.headers.has( 'cache-control' ) ) {
 			delete existingHeaders[ 'cdn-cache-control' ];
 			delete cacheHeaders[ 'cdn-cache-control' ];
 		}
@@ -277,9 +269,9 @@ export default class uHTTPs extends uA6tStcUtilities {
 			corsHeaders = {
 				'access-control-max-age'           : '7200',
 				'access-control-allow-credentials' : 'true',
-				'access-control-allow-methods'     : uHTTPs.SUPPORTED_REQUEST_METHODS.join( ', ' ),
-				'access-control-allow-headers'     : uHTTPs.REQUEST_HEADER_NAMES.join( ', ' ),
-				'access-control-expose-headers'    : uHTTPs.RESPONSE_HEADER_NAMES.join( ', ' ),
+				'access-control-allow-methods'     : uHTTPs.supportedRequestMethods.join( ', ' ),
+				'access-control-allow-headers'     : uHTTPs.requestHeaderNames.join( ', ' ),
+				'access-control-expose-headers'    : uHTTPs.responseHeaderNames.join( ', ' ),
 				'timing-allow-origin'              : request.headers.has( 'origin' ) ? ( request.headers.get( 'origin' ) || '' ) : '*',
 				'access-control-allow-origin'      : request.headers.has( 'origin' ) ? ( request.headers.get( 'origin' ) || '' ) : '*',
 			};
@@ -310,7 +302,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @return {string} HTTP response status text.
 	 */
 	public static responseStatusText( status : number ) : string {
-		return uHTTPs.RESPONSE_STATUS_CODES[ String( status ) ] || '';
+		return uHTTPs.responseStatusCodes[ String( status ) ] || '';
 	}
 
 	/**
@@ -323,7 +315,7 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 * @returns {boolean} `true` if request method is supported.
 	 */
 	public static requestMethodSupported( request : Request ) : boolean {
-		return uHTTPs.SUPPORTED_REQUEST_METHODS.indexOf( request.method ) !== -1;
+		return uHTTPs.supportedRequestMethods.indexOf( request.method ) !== -1;
 	}
 
 	/**
@@ -391,9 +383,9 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-02-26
 	 *
-	 * @param {Request}  request     HTTP request object.
-	 * @param {URL|null} [parsedURL] Optional pre-parsed URL.
-	 *                               Default is taken from `request`.
+	 * @param {Request}  request          HTTP request object.
+	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
+	 *                                    Default is taken from `request`.
 	 *
 	 * @returns {boolean} `true` if request is dynamic.
 	 */
@@ -408,9 +400,9 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-02-26
 	 *
-	 * @param {Request}  request   HTTP request object.
-	 * @param {URL|null} parsedURL Optional pre-parsed URL.
-	 *                             Default is taken from `request`.
+	 * @param {Request}  request          HTTP request object.
+	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
+	 *                                    Default is taken from `request`.
 	 *
 	 * @returns {boolean} `true` if request is static.
 	 */
@@ -423,9 +415,9 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-02-26
 	 *
-	 * @param {Request}  request   HTTP request object.
-	 * @param {URL|null} parsedURL Optional pre-parsed URL.
-	 *                             Default is taken from `request`.
+	 * @param {Request}  request          HTTP request object.
+	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
+	 *                                    Default is taken from `request`.
 	 *
 	 * @returns {boolean} `true` if request path has a virtual base.
 	 */
@@ -446,9 +438,9 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-02-26
 	 *
-	 * @param {Request}  request   HTTP request object.
-	 * @param {URL|null} parsedURL Optional pre-parsed URL.
-	 *                             Default is taken from `request`.
+	 * @param {Request}  request          HTTP request object.
+	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
+	 *                                    Default is taken from `request`.
 	 *
 	 * @returns {boolean} `true` if request path is potentially virtual.
 	 */
@@ -469,9 +461,9 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-02-26
 	 *
-	 * @param {Request}  request   HTTP request object.
-	 * @param {URL|null} parsedURL Optional pre-parsed URL.
-	 *                             Default is taken from `request`.
+	 * @param {Request}  request          HTTP request object.
+	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
+	 *                                    Default is taken from `request`.
 	 *
 	 * @returns {boolean} `true` if request path is potentially a virtual SEO file.
 	 */
@@ -489,9 +481,9 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-02-26
 	 *
-	 * @param {Request}  request   HTTP request object.
-	 * @param {URL|null} parsedURL Optional pre-parsed URL.
-	 *                             Default is taken from `request`.
+	 * @param {Request}  request          HTTP request object.
+	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
+	 *                                    Default is taken from `request`.
 	 *
 	 * @returns {boolean} `true` if request path is in `/(?:wp-)?admin`.
 	 */
@@ -510,11 +502,11 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-02-26
 	 *
-	 * @param {Request}       request       HTTP request object.
-	 * @param {URL|null}      [parsedURL]   Optional pre-parsed URL.
+	 * @param {Request}  request            HTTP request object.
+	 * @param {URL|null} [parsedURL=null]   Optional pre-parsed URL.
 	 *                                      Default is taken from `request`.
 	 *
-	 * @param {Array<string>|RegExp} [exts] Specific extension to look for?
+	 * @param {array<string>|RegExp} [exts] Specific extension to look for?
 	 *
 	 * @returns {boolean} `true` if request path has a static file extension.
 	 *
@@ -540,9 +532,9 @@ export default class uHTTPs extends uA6tStcUtilities {
 	/**
 	 * Extracts headers into object properties.
 	 *
-	 * @param {Headers|Object<string,string>} headers Headers.
+	 * @param {Headers|object<string,string>} headers Headers.
 	 *
-	 * @return {Object<string,string>} Own enumerable string-keyed properties.
+	 * @return {object<string,string>} Own enumerable string-keyed properties.
 	 */
 	public static extractHeaders( headers : Headers | { [ $ : string ] : string } ) : { [ $ : string ] : string } {
 		return Object.fromEntries( Object.entries( headers ) );
@@ -553,11 +545,11 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @type {Array.<string>} HTTP request header names.
+	 * @type {array<string>} HTTP request header names.
 	 *
 	 * @see   \Clever_Canyon\Utilities\HTTP::SUPPORTED_REQUEST_METHODS
 	 */
-	public static SUPPORTED_REQUEST_METHODS : Array<string> = [
+	public static supportedRequestMethods : Array<string> = [
 		'OPTIONS',
 		'HEAD',
 		'GET',
@@ -572,13 +564,12 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @type {Array.<string>} HTTP request header names.
+	 * @type {array<string>} HTTP request header names.
 	 *
 	 * @see   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 	 * @see   https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
-	 * @see   \Clever_Canyon\Utilities\HTTP::REQUEST_HEADER_NAMES
 	 */
-	public static REQUEST_HEADER_NAMES : Array<string> = [
+	public static requestHeaderNames : Array<string> = [
 		'a-im',
 		'accept',
 		'accept-charset',
@@ -696,13 +687,12 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @type {Array.<string>} HTTP response header names.
+	 * @type {array<string>} HTTP response header names.
 	 *
 	 * @see   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 	 * @see   https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
-	 * @see   \Clever_Canyon\Utilities\HTTP::RESPONSE_HEADER_NAMES
 	 */
-	public static RESPONSE_HEADER_NAMES : Array<string> = [
+	public static responseHeaderNames : Array<string> = [
 		'accept-ch',
 		'accept-patch',
 		'accept-post',
@@ -788,7 +778,6 @@ export default class uHTTPs extends uA6tStcUtilities {
 		'want-digest',
 		'warning',
 		'www-authenticate',
-		'x-cdn-vary',
 		'x-content-duration',
 		'x-content-security-policy',
 		'x-content-type-options',
@@ -824,12 +813,11 @@ export default class uHTTPs extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @type {Object.<string>} HTTP response status codes.
+	 * @type {object<string,string>} HTTP response status codes.
 	 *
 	 * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-	 * @see \Clever_Canyon\Utilities\HTTP::RESPONSE_STATUS_CODES
 	 */
-	public static RESPONSE_STATUS_CODES : { [ $ : string ] : string } = {
+	public static responseStatusCodes : { [ $ : string ] : string } = {
 		'100' : 'Continue',
 		'101' : 'Switching Protocols',
 		'102' : 'Processing',

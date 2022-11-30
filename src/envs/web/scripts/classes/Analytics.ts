@@ -35,6 +35,20 @@ declare global {
 }
 
 /**
+ * Constructor props.
+ *
+ * @since 2022-08-13
+ */
+interface wAnalyticsConstructorProps {
+	debug? : boolean;
+	csGDPRScriptId? : string;
+	ga4GtagId? : string;
+	context? : string;
+	subContext? : string;
+	userId? : string;
+}
+
+/**
  * Geo data.
  *
  * {
@@ -77,8 +91,6 @@ export default class wAnalytics extends uA6tBase {
 	 * Cache.
 	 *
 	 * @since 2022-04-25
-	 *
-	 * @type {Object} Cache.
 	 */
 	protected cache : {
 		geoData? : wAnalyticsGeoData,
@@ -89,8 +101,6 @@ export default class wAnalytics extends uA6tBase {
 	 * Gtag instance.
 	 *
 	 * @since 2022-04-26
-	 *
-	 * @type {Function}
 	 */
 	protected gtag : ( ...args : Array<unknown> ) => null;
 
@@ -98,8 +108,6 @@ export default class wAnalytics extends uA6tBase {
 	 * Enable debug mode?
 	 *
 	 * @since 2022-04-26
-	 *
-	 * @type {boolean}
 	 */
 	protected debug : boolean;
 
@@ -107,8 +115,6 @@ export default class wAnalytics extends uA6tBase {
 	 * GA4 gtag ID; e.g., `G-8K3F2ZYNYX`.
 	 *
 	 * @since 2022-04-26
-	 *
-	 * @type {string}
 	 */
 	protected ga4GtagId : string;
 
@@ -116,8 +122,6 @@ export default class wAnalytics extends uA6tBase {
 	 * Cookie Script GDPR script ID; e.g., `ecf9ba42a3e03d5dd3894e6e`.
 	 *
 	 * @since 2022-04-26
-	 *
-	 * @type {string}
 	 */
 	protected csGDPRScriptId : string;
 
@@ -125,8 +129,6 @@ export default class wAnalytics extends uA6tBase {
 	 * Context; e.g., `web`.
 	 *
 	 * @since 2022-04-26
-	 *
-	 * @type {string}
 	 */
 	protected context : string;
 
@@ -134,8 +136,6 @@ export default class wAnalytics extends uA6tBase {
 	 * Sub-context; e.g., `site`.
 	 *
 	 * @since 2022-04-26
-	 *
-	 * @type {string}
 	 */
 	protected subContext : string;
 
@@ -143,8 +143,6 @@ export default class wAnalytics extends uA6tBase {
 	 * User ID hash; e.g., SHA-256.
 	 *
 	 * @since 2022-04-26
-	 *
-	 * @type {string}
 	 */
 	protected _userId : string;
 
@@ -153,16 +151,9 @@ export default class wAnalytics extends uA6tBase {
 	 *
 	 * @since 2022-04-26
 	 *
-	 * @param {Object.<boolean|string>} config Configuration.
+	 * @param {wAnalyticsConstructorProps} config Config.
 	 */
-	public constructor( config : {
-		debug? : boolean,
-		csGDPRScriptId? : string,
-		ga4GtagId? : string,
-		context? : string,
-		subContext? : string,
-		userId? : string,
-	} ) {
+	public constructor( config : wAnalyticsConstructorProps ) {
 		super(); // Parent constructor.
 
 		config = Object.assign( {
@@ -233,7 +224,7 @@ export default class wAnalytics extends uA6tBase {
 	 *
 	 * @since 2022-04-26
 	 *
-	 * @return {Promise<Object>} Geolocation data.
+	 * @return {Promise<wAnalyticsGeoData>} Geolocation data.
 	 */
 	public async geoData() : Promise<wAnalyticsGeoData> {
 		if ( this.cache.geoData ) {
@@ -249,7 +240,7 @@ export default class wAnalytics extends uA6tBase {
 	 *
 	 * @since 2022-04-26
 	 *
-	 * @param {Object} props Optional event props.
+	 * @param {object} [props={}] Optional event props.
 	 *
 	 * @return {Promise<boolean>} `true` on success.
 	 */
@@ -265,8 +256,8 @@ export default class wAnalytics extends uA6tBase {
 	 *
 	 * @since 2022-04-26
 	 *
-	 * @param {Event}  event Click event.
-	 * @param {Object} props Optional event props.
+	 * @param {Event}  event      Click event.
+	 * @param {object} [props={}] Optional event props.
 	 *
 	 * @return {Promise<boolean>} `true` on success.
 	 */
@@ -293,10 +284,10 @@ export default class wAnalytics extends uA6tBase {
 	 *
 	 * @since 2022-04-26
 	 *
-	 * @param {string} name  A standard or custom event name.
-	 *                       Please prefix custom event names with `x_`.
+	 * @param {string} name       A standard or custom event name.
+	 *                            Please prefix custom event names with `x_`.
 	 *
-	 * @param {Object} props Optional event props.
+	 * @param {object} [props={}] Optional event props.
 	 *
 	 * @return {Promise<boolean>} `true` on success.
 	 */
@@ -330,7 +321,7 @@ export default class wAnalytics extends uA6tBase {
 	 * @see https://o5p.me/Fg9eaO
 	 */
 	public userHasDoNotTrackHeader() : boolean {
-		return '1' === window.doNotTrack || ( window.navigator && '1' === window.navigator.doNotTrack );
+		return '1' === window.doNotTrack || ( window.navigator && '1' === navigator.doNotTrack );
 	}
 
 	/**
@@ -401,7 +392,7 @@ export default class wAnalytics extends uA6tBase {
 	 *
 	 * @since 2022-04-26
 	 *
-	 * @return {Object} `ut[mx]_*` query variables.
+	 * @return {object} `ut[mx]_*` query variables.
 	 */
 	protected utmXQueryVars() : { [ $ : string ] : string } {
 		return uURL.getQueryVars( [ 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utx_ref' ] );
@@ -412,7 +403,7 @@ export default class wAnalytics extends uA6tBase {
 	 *
 	 * @since 2022-04-26
 	 *
-	 * @return {Object} `x_ut[mx]_*` query variable dimensions.
+	 * @return {object} `x_ut[mx]_*` query variable dimensions.
 	 */
 	protected utmXQueryVarDimensions() : { [ $ : string ] : string } {
 		const dimensions : { [ $ : string ] : string } = {};

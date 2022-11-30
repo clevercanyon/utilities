@@ -22,6 +22,19 @@ import { default as uURL }             from './URL';
 // </editor-fold>
 
 /**
+ * Cookie options.
+ *
+ * @since 2022-04-25
+ */
+interface uCookieOptions {
+	domain? : string;
+	path? : string;
+	expires? : number;
+	samesite? : string;
+	secure? : boolean;
+}
+
+/**
  * Cookie utilities.
  *
  * @since 2022-04-25
@@ -31,8 +44,6 @@ export default class uCookie extends uA6tStcUtilities {
 	 * Cache.
 	 *
 	 * @since 2022-04-25
-	 *
-	 * @type {Object} Cache.
 	 */
 	protected static cache : {
 		cookies? : { [ $ : string ] : string },
@@ -47,7 +58,7 @@ export default class uCookie extends uA6tStcUtilities {
 	 * @param {string} [header] Cookie header to parse.
 	 *                          Optional in browser. Default is `document.cookie`.
 	 *
-	 * @returns {Object<string,string>} Cookies.
+	 * @returns {object<string,string>} Cookies.
 	 */
 	public static parse( header? : string ) : { [ $ : string ] : string } {
 		let cookies : { [ $ : string ] : string } = {};
@@ -131,19 +142,13 @@ export default class uCookie extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {string} name      Cookie name.
-	 * @param {string} value     Cookie value.
-	 * @param {Object} [options] Optional cookie options. Default is `{}`.
+	 * @param {string}         name         Cookie name.
+	 * @param {string}         value        Cookie value.
+	 * @param {uCookieOptions} [options={}] Optional. Default is `{}`.
 	 *
 	 * @returns {boolean} `true` on success.
 	 */
-	public static set( name : string, value : string, options : {
-		domain? : string,
-		path? : string,
-		expires? : number,
-		samesite? : string,
-		secure? : boolean,
-	} = {} ) : boolean {
+	public static set( name : string, value : string, options : uCookieOptions = {} ) : boolean {
 		if ( ! uEnv.isWeb() ) {
 			throw new Error( 'Not in browser.' );
 		}
@@ -180,12 +185,12 @@ export default class uCookie extends uA6tStcUtilities {
 	 *
 	 * @since 2022-04-25
 	 *
-	 * @param {string} name      Cookie name.
-	 * @param {Object} [options] Optional. Default is `{}`.
+	 * @param {string}         name         Cookie name.
+	 * @param {uCookieOptions} [options={}] Optional. Default is `{}`.
 	 *
 	 * @returns {boolean} `true` on success.
 	 */
-	public static delete( name : string, options = {} ) : boolean {
+	public static delete( name : string, options : uCookieOptions = {} ) : boolean {
 		if ( ! uEnv.isWeb() ) {
 			throw new Error( 'Not in browser.' );
 		}
