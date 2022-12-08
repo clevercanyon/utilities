@@ -1,22 +1,22 @@
 /* eslint-env es2021, node */
 
-const path      = require( 'path' );
-const assetsDir = __dirname; // This directory.
-const rootDir   = path.resolve( __dirname, '../../../' );
+const path        = require( 'path' );
+const srcDir      = __dirname; // This directory.
+const projRootDir = path.resolve( __dirname, '../../../' );
 
 module.exports = {
 	root    : true,
-	extends : [ rootDir + '/.eslintrc.cjs' ],
+	extends : [ projRootDir + '/.eslintrc.cjs' ],
 
 	parserOptions : {
-		babelOptions : require( rootDir + '/dev/.files/webpack/babel.cjs' )(
-			'./' + path.relative( rootDir, assetsDir ),
+		babelOptions : require( projRootDir + '/dev/.files/rollup/babel.cjs' )(
+			'./' + path.relative( projRootDir, srcDir ),
 		),
 	},
 	overrides     : [
 		{
-			files         : [ '*.{ts,tsx}', '**/*.{ts,tsx}' ],
-			parserOptions : { tsconfigRootDir : assetsDir },
+			files         : [ '*.{tsx,ts}', '**/*.{tsx,ts}' ],
+			parserOptions : { tsconfigRootDir : srcDir },
 		},
 	],
 };

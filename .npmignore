@@ -1,18 +1,16 @@
 ##
 # NPM ignore file.
 #
-# @since 1.0.0
-#
 # @note NPM is aware of this config file's location.
 # @note Run `npm pack --dry-run` to test configuration.
 #
-# @note This file is locked by `package.json`.
-# Therefore, this file will *not* be updated automatically.
+# @note CUSTOM EDITS ONLY PLEASE!
+# In the future this file will be updated automatically.
+# Only `<custom:start.../custom:end>` will be preserved below.
 ##
 
 ##
 # This part follows `.gitignore` exactly.
-# Except for `.yarn/`, which is excluded entirely.
 ##
 
 # Local
@@ -20,6 +18,7 @@
 .#*
 ._*
 .~*
+*.local
 
 # Logs
 
@@ -37,14 +36,9 @@
 *.patch
 *.diff
 
-# Vagrant
+# Dists
 
-.vagrant/
-
-# TypeScript
-
-typings/
-.tscache/
+dist/
 
 # IntelliJ
 
@@ -64,9 +58,12 @@ typings/
 .vscode/
 *.code-workspace
 
-# NPM & Yarn
+# NPM
 
 npm-debug.log
+
+# Yarn
+
 .yarn/
 
 # Vendor
@@ -85,18 +82,43 @@ jspm_packages/
 
 bower_components/
 
-# CF Wrangler.
+# TypeScript
+
+typings/
+.tscache/
+*.tsbuildinfo
+
+# Vite
+
+.vite/
+
+# Wrangler
 
 .wrangler/
 
-# Linaria & SASS
+# Rollup
+
+.rollup/
+
+# Webpack
+
+.webpack/
+
+# Linaria
 
 .linaria-cache/
+
+# SASS
+
 .sass-cache/
 
 # Docker
 
 .docker/
+
+# Vagrant
+
+.vagrant/
 
 # Elastic Beanstalk
 
@@ -155,7 +177,50 @@ Icon?
 ._*
 
 ##
+# These are in addition to what we have in `.gitignore`.
+##
+
+# GitHub
+
+.github/
+
+# Allow Dists
+
+!dist/
+
+# Source Code
+
+dev/
+docs/
+tests/
+
+.*
+__*/
+
+*.ts
+*.tsx
+!*.d.ts
+*.jsx
+*.ejs
+*.scss
+
+*.test.*
+*.spec.*
+*.readme.*
+
+tsconfig.*
+wrangler.*
+vite.config.*
+tailwind.config.*
+
+##
 # There are also a few items always included and/or excluded by NPM.
 # See: <https://docs.npmjs.com/cli/v9/configuring-npm/package-json#files>
 # See: <https://docs.npmjs.com/cli/v8/using-npm/developers?v=true#keeping-files-out-of-your-package>
 ##
+
+##
+# Customizations
+# <custom:start>
+
+# </custom:end>

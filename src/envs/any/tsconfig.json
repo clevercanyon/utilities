@@ -1,5 +1,6 @@
 {
 	"extends"         : "../../../dev/.files/typescript/config.json",
+	"rootDir"         : "./",
 	"include"         : [ "./*", "./**/*" ],
 	"compilerOptions" : {
 		"lib"   : [
