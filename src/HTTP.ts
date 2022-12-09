@@ -1,90 +1,65 @@
 /**
- * Clever Canyon™ {@see https://clevercanyon.com}
- *
- *  CCCCC  LL      EEEEEEE VV     VV EEEEEEE RRRRRR      CCCCC    AAA   NN   NN YY   YY  OOOOO  NN   NN ™
- * CC      LL      EE      VV     VV EE      RR   RR    CC       AAAAA  NNN  NN YY   YY OO   OO NNN  NN
- * CC      LL      EEEEE    VV   VV  EEEEE   RRRRRR     CC      AA   AA NN N NN  YYYYY  OO   OO NN N NN
- * CC      LL      EE        VV VV   EE      RR  RR     CC      AAAAAAA NN  NNN   YYY   OO   OO NN  NNN
- *  CCCCC  LLLLLLL EEEEEEE    VVV    EEEEEEE RR   RR     CCCCC  AA   AA NN   NN   YYY    OOOO0  NN   NN
+ * Utility class.
  */
-// <editor-fold desc="Imports and other headers.">
 
-/**
- * Imports.
- *
- * @since 2022-04-25
- */
-import { default as uA6tBase } from './a6t/Base';
-import { default as uEnv }     from './Env';
-import { default as uStr }     from './Str';
-import { default as uURL }     from './URL';
-
-// </editor-fold>
+import $Env from './Env';
+import $Str from './Str';
+import $URL from './URL';
 
 /**
  * Request config.
- *
- * @since 2022-08-13
  */
-interface uHTTPsRequestConfig {}
+interface $HTTPRequestConfig {}
 
 /**
  * Response config.
- *
- * @since 2022-08-13
  */
-interface uHTTPsResponseConfig {
+interface $HTTPResponseConfig {
 	response? : Response;
 	status? : number;
 	body? : BodyInit | null;
-	headers? : Headers | { [ $ : string ] : string };
-	appendHeaders? : Headers | { [ $ : string ] : string };
+	headers? : Headers | { [ x : string ] : string };
+	appendHeaders? : Headers | { [ x : string ] : string };
 	enableCORs? : boolean;
 	enableCDN? : boolean;
 }
 
 /**
- * HTTP server utilities.
- *
- * @since 2022-04-25
+ * HTTP utilities.
  */
-export default class uHTTPs extends uA6tBase {
+export default class $HTTP {
 	/**
 	 * HTTP request config.
 	 *
-	 * @since 2022-04-25
+	 * @param config Optional config options.
 	 *
-	 * @param {uHTTPsRequestConfig} [config={}] Optional config options.
-	 *
-	 * @return {uHTTPsRequestConfig} HTTP request config.
+	 * @return HTTP request config.
 	 */
-	public static requestConfig( config : uHTTPsRequestConfig = {} ) : uHTTPsRequestConfig {
+	public static requestConfig( config : $HTTPRequestConfig = {} ) : $HTTPRequestConfig {
 		return Object.assign( {}, config );
 	}
 
 	/**
 	 * Prepares an HTTP request.
 	 *
-	 * @since 2022-04-25
+	 * @param request HTTP request object.
+	 * @param config  Optional config options.
 	 *
-	 * @param {Request}             request     HTTP request object.
-	 * @param {uHTTPsRequestConfig} [config={}] Optional config options.
-	 *
-	 * @return {Response} HTTP response.
+	 * @return HTTP response.
 	 */
-	public static prepareRequest( request : Request, config : uHTTPsRequestConfig = {} ) : Request {
+	public static prepareRequest( request : Request, config : $HTTPRequestConfig = {} ) : Request {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `config` ok.
-		config = uHTTPs.requestConfig( config );
+		config = $HTTP.requestConfig( config );
 
-		const cleanURL  = uURL.removeCSOQueryVars( request.url );
-		const parsedURL = uURL.parse( cleanURL );
+		const cleanURL  = $URL.removeCSOQueryVars( request.url );
+		const parsedURL = $URL.parse( cleanURL );
 
 		if ( ! parsedURL ) {
 			throw 'Parse failure. Invalid request URL.';
 		}
 		const requestHasOrigin     = request.headers.has( 'origin' );
-		const requestIsUserDynamic = uHTTPs.requestIsFromUser( request )
-			&& uHTTPs.requestPathIsDynamic( request, parsedURL );
+		const requestIsUserDynamic = $HTTP.requestIsFromUser( request )
+			&& $HTTP.requestPathIsDynamic( request, parsedURL );
 
 		if ( requestHasOrigin ) {
 			const _ck = parsedURL.searchParams.get( '_ck' ) || '';
@@ -102,13 +77,11 @@ export default class uHTTPs extends uA6tBase {
 	/**
 	 * HTTP response config.
 	 *
-	 * @since 2022-04-25
+	 * @param config Optional config options.
 	 *
-	 * @param {uHTTPsResponseConfig} [config={}] Optional config options.
-	 *
-	 * @return {uHTTPsResponseConfig} HTTP response config.
+	 * @return HTTP response config.
 	 */
-	public static responseConfig( config : uHTTPsResponseConfig = {} ) : uHTTPsResponseConfig {
+	public static responseConfig( config : $HTTPResponseConfig = {} ) : $HTTPResponseConfig {
 		return Object.assign( {
 			response      : null,
 			status        : 500,
@@ -116,56 +89,52 @@ export default class uHTTPs extends uA6tBase {
 			headers       : {},
 			appendHeaders : {},
 			enableCORs    : false,
-			enableCDN     : ! uEnv.isCfw(),
+			enableCDN     : ! $Env.isCfw(),
 		}, config );
 	}
 
 	/**
 	 * Prepares an HTTP response.
 	 *
-	 * @since 2022-04-25
+	 * @param request HTTP request object.
+	 * @param config  Optional config options.
 	 *
-	 * @param {Request}              request     HTTP request object.
-	 * @param {uHTTPsResponseConfig} [config={}] Optional config options.
-	 *
-	 * @return {Response} HTTP response.
+	 * @return HTTP response.
 	 */
-	public static prepareResponse( request : Request, config : uHTTPsResponseConfig = {} ) : Response {
-		config        = uHTTPs.responseConfig( config );
+	public static prepareResponse( request : Request, config : $HTTPResponseConfig = {} ) : Response {
+		config        = $HTTP.responseConfig( config );
 		config.status = config.status || 500;
 
 		if ( config.response ) {
 			config.status = config.response.status,
 				config.body = config.response.body;
 
-			uHTTPs.prepareResponseHeaders( request, config );
+			$HTTP.prepareResponseHeaders( request, config );
 			return config.response; // Configured response.
 		}
 		if ( config.enableCORs && 'OPTIONS' === request.method ) {
 			config.status = 204; // No content for CORs preflight requests.
 		}
-		return new Response( uHTTPs.requestNeedsContentBody( request, config.status ) ? config.body : null, {
+		return new Response( $HTTP.requestNeedsContentBody( request, config.status ) ? config.body : null, {
 			status     : config.status,
-			statusText : uHTTPs.responseStatusText( config.status ),
-			headers    : uHTTPs.prepareResponseHeaders( request, config ),
+			statusText : $HTTP.responseStatusText( config.status ),
+			headers    : $HTTP.prepareResponseHeaders( request, config ),
 		} );
 	}
 
 	/**
 	 * Prepares HTTP response headers.
 	 *
-	 * @since 2022-04-25
+	 * @param request HTTP request object.
+	 * @param config  Optional config options.
 	 *
-	 * @param {Request}              request     HTTP request object.
-	 * @param {uHTTPsResponseConfig} [config={}] Optional config options.
-	 *
-	 * @return {Headers} HTTP response headers.
+	 * @return HTTP response headers.
 	 */
-	public static prepareResponseHeaders( request : Request, config : uHTTPsResponseConfig = {} ) : Headers {
-		config        = uHTTPs.responseConfig( config );
+	public static prepareResponseHeaders( request : Request, config : $HTTPResponseConfig = {} ) : Headers {
+		config        = $HTTP.responseConfig( config );
 		config.status = config.status || 500;
 
-		const parsedURL = uURL.parse( request.url );
+		const parsedURL = $URL.parse( request.url );
 
 		config.headers = config.headers instanceof Headers
 			? config.headers : new Headers( config.headers || {} );
@@ -174,24 +143,24 @@ export default class uHTTPs extends uA6tBase {
 			? config.appendHeaders : new Headers( config.appendHeaders || {} );
 
 		// eslint-disable-next-line prefer-const -- `let` OK.
-		let existingHeaders : { [ $ : string ] : string } = {};
+		let existingHeaders : { [ x : string ] : string } = {};
 
 		// eslint-disable-next-line prefer-const -- `let` OK.
-		let alwaysOnHeaders : { [ $ : string ] : string } = {};
+		let alwaysOnHeaders : { [ x : string ] : string } = {};
 
 		// eslint-disable-next-line prefer-const -- `let` OK.
-		let contentHeaders : { [ $ : string ] : string } = {};
+		let contentHeaders : { [ x : string ] : string } = {};
 
 		// eslint-disable-next-line prefer-const -- `let` OK.
-		let cacheHeaders : { [ $ : string ] : string } = {};
+		let cacheHeaders : { [ x : string ] : string } = {};
 
-		let securityHeaders : { [ $ : string ] : string } = {};
-		let corsHeaders : { [ $ : string ] : string }     = {};
+		let securityHeaders : { [ x : string ] : string } = {};
+		let corsHeaders : { [ x : string ] : string }     = {};
 
 		// Existing response headers.
 
 		if ( config.response ) { // Extracts existing headers.
-			existingHeaders = uHTTPs.extractHeaders( config.response.headers );
+			existingHeaders = $HTTP.extractHeaders( config.response.headers );
 		}
 		// Always-on headers.
 
@@ -202,26 +171,26 @@ export default class uHTTPs extends uA6tBase {
 		}
 		// Content-related headers.
 
-		if ( uHTTPs.requestNeedsContentHeaders( request, config.status || 0 ) ) {
+		if ( $HTTP.requestNeedsContentHeaders( request, config.status || 0 ) ) {
 			contentHeaders[ 'x-ua-compatible' ] = 'IE=edge';
 		}
 		// Cache control and related headers.
 
 		cacheHeaders[ 'vary' ] = 'origin, accept, accept-language, accept-encoding';
 
-		if ( ! uHTTPs.requestHasCacheableMethod( request ) || config.status >= 300 ) {
+		if ( ! $HTTP.requestHasCacheableMethod( request ) || config.status >= 300 ) {
 			cacheHeaders[ 'cdn-cache-control' ] = 'no-store';
 			cacheHeaders[ 'cache-control' ]     = 'no-store';
 
-		} else if ( uHTTPs.requestPathIsSEORelatedFile( request, parsedURL ) ) {
+		} else if ( $HTTP.requestPathIsSEORelatedFile( request, parsedURL ) ) {
 			cacheHeaders[ 'cdn-cache-control' ] = 'public, must-revalidate, max-age=86400, stale-while-revalidate=86400, stale-if-error=86400';
 			cacheHeaders[ 'cache-control' ]     = 'public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=86400, stale-if-error=86400';
 
-		} else if ( uHTTPs.requestPathIsStatic( request, parsedURL ) && ( config.response?.headers.has( 'etag' ) || config.headers.has( 'etag' ) ) ) {
+		} else if ( $HTTP.requestPathIsStatic( request, parsedURL ) && ( config.response?.headers.has( 'etag' ) || config.headers.has( 'etag' ) ) ) {
 			cacheHeaders[ 'cdn-cache-control' ] = 'public, must-revalidate, max-age=31536000, stale-while-revalidate=604800, stale-if-error=604800';
 			cacheHeaders[ 'cache-control' ]     = 'public, must-revalidate, max-age=31536000, s-maxage=31536000, stale-while-revalidate=604800, stale-if-error=604800';
 
-		} else if ( uHTTPs.requestPathIsInAdmin( request, parsedURL ) || uHTTPs.requestIsFromUser( request ) ) {
+		} else if ( $HTTP.requestPathIsInAdmin( request, parsedURL ) || $HTTP.requestIsFromUser( request ) ) {
 			cacheHeaders[ 'cdn-cache-control' ] = 'no-store';
 			cacheHeaders[ 'cache-control' ]     = 'no-store';
 
@@ -235,7 +204,7 @@ export default class uHTTPs extends uA6tBase {
 		}
 		// Security-related headers.
 
-		if ( uEnv.isC10n() ) {
+		if ( $Env.isC10n() ) {
 			securityHeaders = {
 				'x-frame-options'              : 'SAMEORIGIN',
 				'x-content-type-options'       : 'nosniff',
@@ -269,13 +238,13 @@ export default class uHTTPs extends uA6tBase {
 			corsHeaders = {
 				'access-control-max-age'           : '7200',
 				'access-control-allow-credentials' : 'true',
-				'access-control-allow-methods'     : uHTTPs.supportedRequestMethods.join( ', ' ),
-				'access-control-allow-headers'     : uHTTPs.requestHeaderNames.join( ', ' ),
-				'access-control-expose-headers'    : uHTTPs.responseHeaderNames.join( ', ' ),
+				'access-control-allow-methods'     : $HTTP.supportedRequestMethods.join( ', ' ),
+				'access-control-allow-headers'     : $HTTP.requestHeaderNames.join( ', ' ),
+				'access-control-expose-headers'    : $HTTP.responseHeaderNames.join( ', ' ),
 				'timing-allow-origin'              : request.headers.has( 'origin' ) ? ( request.headers.get( 'origin' ) || '' ) : '*',
 				'access-control-allow-origin'      : request.headers.has( 'origin' ) ? ( request.headers.get( 'origin' ) || '' ) : '*',
 			};
-		} else if ( uHTTPs.requestPathHasStaticExtension( request, parsedURL, /[^.]\.(?:eot|otf|ttf|woff)[0-9]*$/ui ) ) {
+		} else if ( $HTTP.requestPathHasStaticExtension( request, parsedURL, /[^.]\.(?:eot|otf|ttf|woff)[0-9]*$/ui ) ) {
 			corsHeaders = {
 				'access-control-allow-origin' : request.headers.has( 'origin' ) ? ( request.headers.get( 'origin' ) || '' ) : '*',
 			};
@@ -297,79 +266,69 @@ export default class uHTTPs extends uA6tBase {
 	/**
 	 * Get HTTP response status text.
 	 *
-	 * @param {number} status HTTP status code.
+	 * @param status HTTP status code.
 	 *
-	 * @return {string} HTTP response status text.
+	 * @return HTTP response status text.
 	 */
 	public static responseStatusText( status : number ) : string {
-		return uHTTPs.responseStatusCodes[ String( status ) ] || '';
+		return $HTTP.responseStatusCodes[ String( status ) ] || '';
 	}
 
 	/**
 	 * Request method supported?
 	 *
-	 * @since 2022-02-26
+	 * @param request HTTP request object.
 	 *
-	 * @param {Request} request HTTP request object.
-	 *
-	 * @returns {boolean} `true` if request method is supported.
+	 * @returns `true` if request method is supported.
 	 */
 	public static requestMethodSupported( request : Request ) : boolean {
-		return uHTTPs.supportedRequestMethods.indexOf( request.method ) !== -1;
+		return $HTTP.supportedRequestMethods.indexOf( request.method ) !== -1;
 	}
 
 	/**
 	 * Request has a cacheable request method?
 	 *
-	 * @since 2022-02-26
+	 * @param request HTTP request object.
 	 *
-	 * @param {Request} request HTTP request object.
-	 *
-	 * @returns {boolean} `true` if request has a cacheable request method.
+	 * @returns `true` if request has a cacheable request method.
 	 */
 	public static requestHasCacheableMethod( request : Request ) : boolean {
-		return uHTTPs.requestMethodSupported( request )
+		return $HTTP.requestMethodSupported( request )
 			&& [ 'HEAD', 'GET' ].indexOf( request.method ) !== -1;
 	}
 
 	/**
 	 * Request method needs content headers?
 	 *
-	 * @since 2022-02-26
+	 * @param request        HTTP request object.
+	 * @param responseStatus HTTP response status code.
 	 *
-	 * @param {Request} request        HTTP request object.
-	 * @param {number}  responseStatus HTTP response status code.
-	 *
-	 * @returns {boolean} `true` if request method needs content headers.
+	 * @returns `true` if request method needs content headers.
 	 */
 	public static requestNeedsContentHeaders( request : Request, responseStatus : number ) : boolean {
-		return responseStatus !== 204 && uHTTPs.requestMethodSupported( request )
+		return responseStatus !== 204 && $HTTP.requestMethodSupported( request )
 			&& [ 'OPTIONS' ].indexOf( request.method ) === -1;
 	}
 
 	/**
 	 * Request method needs content body?
 	 *
-	 * @since 2022-02-26
+	 * @param request        HTTP request object.
+	 * @param responseStatus HTTP response status code.
 	 *
-	 * @param {Request} request        HTTP request object.
-	 * @param {number}  responseStatus HTTP response status code.
-	 *
-	 * @returns {boolean} `true` if request method needs content body.
+	 * @returns `true` if request method needs content body.
 	 */
 	public static requestNeedsContentBody( request : Request, responseStatus : number ) : boolean {
-		return responseStatus !== 204 && uHTTPs.requestMethodSupported( request )
+		return responseStatus !== 204 && $HTTP.requestMethodSupported( request )
 			&& [ 'OPTIONS', 'HEAD' ].indexOf( request.method ) === -1;
 	}
 
 	/**
 	 * Request is coming from an identified user?
 	 *
-	 * @since 2022-02-26
+	 * @param request HTTP request object.
 	 *
-	 * @param {Request} request  HTTP request object.
-	 *
-	 * @returns {boolean} `true` if request is coming from an identified user.
+	 * @returns `true` if request is coming from an identified user.
 	 */
 	public static requestIsFromUser( request : Request ) : boolean {
 		return request.headers.has( 'authorization' )
@@ -381,51 +340,45 @@ export default class uHTTPs extends uA6tBase {
 	/**
 	 * Request is dynamic?
 	 *
-	 * @since 2022-02-26
+	 * @param request   HTTP request object.
+	 * @param parsedURL Optional pre-parsed URL.
+	 *                  Default is taken from `request`.
 	 *
-	 * @param {Request}  request          HTTP request object.
-	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
-	 *                                    Default is taken from `request`.
-	 *
-	 * @returns {boolean} `true` if request is dynamic.
+	 * @returns `true` if request is dynamic.
 	 */
 	public static requestPathIsDynamic( request : Request, parsedURL : URL | null = null ) : boolean {
-		return uHTTPs.requestPathHasVirtualBase( request, parsedURL )
-			|| uHTTPs.requestPathIsPotentiallyVirtual( request, parsedURL )
-			|| ! uHTTPs.requestPathHasStaticExtension( request, parsedURL );
+		return $HTTP.requestPathHasVirtualBase( request, parsedURL )
+			|| $HTTP.requestPathIsPotentiallyVirtual( request, parsedURL )
+			|| ! $HTTP.requestPathHasStaticExtension( request, parsedURL );
 	}
 
 	/**
 	 * Request is static?
 	 *
-	 * @since 2022-02-26
+	 * @param request   HTTP request object.
+	 * @param parsedURL Optional pre-parsed URL.
+	 *                  Default is taken from `request`.
 	 *
-	 * @param {Request}  request          HTTP request object.
-	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
-	 *                                    Default is taken from `request`.
-	 *
-	 * @returns {boolean} `true` if request is static.
+	 * @returns `true` if request is static.
 	 */
 	public static requestPathIsStatic( request : Request, parsedURL : URL | null = null ) : boolean {
-		return ! uHTTPs.requestPathIsDynamic( request, parsedURL );
+		return ! $HTTP.requestPathIsDynamic( request, parsedURL );
 	}
 
 	/**
 	 * Request path has a virtual base?
 	 *
-	 * @since 2022-02-26
+	 * @param request   HTTP request object.
+	 * @param parsedURL Optional pre-parsed URL.
+	 *                  Default is taken from `request`.
 	 *
-	 * @param {Request}  request          HTTP request object.
-	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
-	 *                                    Default is taken from `request`.
-	 *
-	 * @returns {boolean} `true` if request path has a virtual base.
+	 * @returns `true` if request path has a virtual base.
 	 */
 	public static requestPathHasVirtualBase( request : Request, parsedURL : URL | null = null ) : boolean {
-		if ( ! uEnv.isC10n() ) {
+		if ( ! $Env.isC10n() ) {
 			return false; // Not applicable.
 		}
-		parsedURL = parsedURL || uURL.parse( request.url );
+		parsedURL = parsedURL || $URL.parse( request.url );
 
 		if ( ! parsedURL || ! parsedURL.pathname || '/' === parsedURL.pathname ) {
 			return false;
@@ -436,19 +389,17 @@ export default class uHTTPs extends uA6tBase {
 	/**
 	 * Request path is potentially virtual?
 	 *
-	 * @since 2022-02-26
+	 * @param request   HTTP request object.
+	 * @param parsedURL Optional pre-parsed URL.
+	 *                  Default is taken from `request`.
 	 *
-	 * @param {Request}  request          HTTP request object.
-	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
-	 *                                    Default is taken from `request`.
-	 *
-	 * @returns {boolean} `true` if request path is potentially virtual.
+	 * @returns `true` if request path is potentially virtual.
 	 */
 	public static requestPathIsPotentiallyVirtual( request : Request, parsedURL : URL | null = null ) : boolean {
-		if ( ! uEnv.isC10n() ) {
+		if ( ! $Env.isC10n() ) {
 			return false; // Not applicable.
 		}
-		parsedURL = parsedURL || uURL.parse( request.url );
+		parsedURL = parsedURL || $URL.parse( request.url );
 
 		if ( ! parsedURL || ! parsedURL.pathname || '/' === parsedURL.pathname ) {
 			return false;
@@ -459,16 +410,14 @@ export default class uHTTPs extends uA6tBase {
 	/**
 	 * Request path is potentially a virtual SEO file?
 	 *
-	 * @since 2022-02-26
+	 * @param request   HTTP request object.
+	 * @param parsedURL Optional pre-parsed URL.
+	 *                  Default is taken from `request`.
 	 *
-	 * @param {Request}  request          HTTP request object.
-	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
-	 *                                    Default is taken from `request`.
-	 *
-	 * @returns {boolean} `true` if request path is potentially a virtual SEO file.
+	 * @returns `true` if request path is potentially a virtual SEO file.
 	 */
 	public static requestPathIsSEORelatedFile( request : Request, parsedURL : URL | null = null ) : boolean {
-		parsedURL = parsedURL || uURL.parse( request.url );
+		parsedURL = parsedURL || $URL.parse( request.url );
 
 		if ( ! parsedURL || ! parsedURL.pathname || '/' === parsedURL.pathname ) {
 			return false;
@@ -479,16 +428,14 @@ export default class uHTTPs extends uA6tBase {
 	/**
 	 * Request path is in `/(?:wp-)?admin`?
 	 *
-	 * @since 2022-02-26
+	 * @param request   HTTP request object.
+	 * @param parsedURL Optional pre-parsed URL.
+	 *                  Default is taken from `request`.
 	 *
-	 * @param {Request}  request          HTTP request object.
-	 * @param {URL|null} [parsedURL=null] Optional pre-parsed URL.
-	 *                                    Default is taken from `request`.
-	 *
-	 * @returns {boolean} `true` if request path is in `/(?:wp-)?admin`.
+	 * @returns `true` if request path is in `/(?:wp-)?admin`.
 	 */
 	public static requestPathIsInAdmin( request : Request, parsedURL : URL | null = null ) : boolean {
-		parsedURL = parsedURL || uURL.parse( request.url );
+		parsedURL = parsedURL || $URL.parse( request.url );
 
 		if ( ! parsedURL || ! parsedURL.pathname || '/' === parsedURL.pathname ) {
 			return false;
@@ -500,20 +447,16 @@ export default class uHTTPs extends uA6tBase {
 	/**
 	 * Request path has a static file extension?
 	 *
-	 * @since 2022-02-26
+	 * @param request   HTTP request object.
+	 * @param parsedURL Optional pre-parsed URL.
+	 *                  Default is taken from `request`.
 	 *
-	 * @param {Request}  request            HTTP request object.
-	 * @param {URL|null} [parsedURL=null]   Optional pre-parsed URL.
-	 *                                      Default is taken from `request`.
+	 * @param exts      Specific extension to look for?
 	 *
-	 * @param {array<string>|RegExp} [exts] Specific extension to look for?
-	 *
-	 * @returns {boolean} `true` if request path has a static file extension.
-	 *
-	 * @internal For static extensions {@see \Clever_Canyon\Utilities\Env\apache_conf_static_exts()}.
+	 * @returns `true` if request path has a static file extension.
 	 */
 	public static requestPathHasStaticExtension( request : Request, parsedURL : URL | null = null, exts? : Array<string> | RegExp ) : boolean {
-		parsedURL = parsedURL || uURL.parse( request.url );
+		parsedURL = parsedURL || $URL.parse( request.url );
 
 		if ( ! parsedURL || ! parsedURL.pathname || '/' === parsedURL.pathname ) {
 			return false;
@@ -523,7 +466,7 @@ export default class uHTTPs extends uA6tBase {
 		}
 		if ( exts instanceof Array && exts.length ) {
 			return /[^.]\.[^.]+$/u.test( parsedURL.pathname )
-				&& new RegExp( '[^.]\\.(?:' + exts.map( v => uStr.escRegexp( v ) ).join( '|' ) + ')$', 'ui' ).test( parsedURL.pathname );
+				&& new RegExp( '[^.]\\.(?:' + exts.map( v => $Str.escRegexp( v ) ).join( '|' ) + ')$', 'ui' ).test( parsedURL.pathname );
 		}
 		return /[^.]\.[^.]+$/u.test( parsedURL.pathname )
 			&& /[^.]\.(?:3g2|3gp|3gp2|3gpp|7z|aac|ai|apng|app|asc|asf|asx|atom|avi|bash|bat|bin|blend|bmp|c|cc|cfg|cjs|class|com|conf|css|csv|cts|dfxp|divx|dll|dmg|doc|docm|docx|dotm|dotx|dtd|ejs|eot|eps|ets|exe|fla|flac|flv|gif|gtar|gz|gzip|h|heic|hta|htaccess|htc|htm|html|htpasswd|ico|ics|ini|iso|jar|jpe|jpeg|jpg|js|json|json5|jsonld|jsx|key|kml|kmz|log|m4a|m4b|m4v|md|mdb|mid|midi|mjs|mka|mkv|mo|mov|mp3|mp4|mpe|mpeg|mpg|mpp|mts|numbers|odb|odc|odf|odg|odp|ods|odt|oga|ogg|ogv|onepkg|onetmp|onetoc|onetoc2|otf|oxps|pages|pdf|phar|phps|pict|pls|png|po|pot|potm|potx|ppam|pps|ppsm|ppsx|ppt|pptm|pptx|ps|psd|pspimage|qt|ra|ram|rar|rdf|rss|rss-http|rss2|rtf|rtx|scss|sh|sketch|sldm|sldx|so|sql|sqlite|srt|svg|svgz|swf|tar|tgz|tif|tiff|tmpl|toml|tpl|ts|tsv|tsx|ttf|txt|vtt|wav|wax|webm|webp|wm|wma|wmv|wmx|woff|woff2|wp|wpd|wri|xcf|xhtm|xhtml|xla|xlam|xls|xlsb|xlsm|xlsx|xlt|xltm|xltx|xlw|xml|xps|xsd|xsl|xslt|yaml|yml|zip|zsh)$/ui.test( parsedURL.pathname );
@@ -532,22 +475,16 @@ export default class uHTTPs extends uA6tBase {
 	/**
 	 * Extracts headers into object properties.
 	 *
-	 * @param {Headers|object<string,string>} headers Headers.
+	 * @param headers Headers.
 	 *
-	 * @return {object<string,string>} Own enumerable string-keyed properties.
+	 * @return Own enumerable string-keyed properties.
 	 */
-	public static extractHeaders( headers : Headers | { [ $ : string ] : string } ) : { [ $ : string ] : string } {
+	public static extractHeaders( headers : Headers | { [ x : string ] : string } ) : { [ x : string ] : string } {
 		return Object.fromEntries( Object.entries( headers ) );
 	}
 
 	/**
 	 * Supported HTTP request methods.
-	 *
-	 * @since 2022-04-25
-	 *
-	 * @type {array<string>} HTTP request header names.
-	 *
-	 * @see   \Clever_Canyon\Utilities\HTTP::SUPPORTED_REQUEST_METHODS
 	 */
 	public static supportedRequestMethods : Array<string> = [
 		'OPTIONS',
@@ -561,13 +498,6 @@ export default class uHTTPs extends uA6tBase {
 
 	/**
 	 * HTTP request header names.
-	 *
-	 * @since 2022-04-25
-	 *
-	 * @type {array<string>} HTTP request header names.
-	 *
-	 * @see   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
-	 * @see   https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 	 */
 	public static requestHeaderNames : Array<string> = [
 		'a-im',
@@ -684,13 +614,6 @@ export default class uHTTPs extends uA6tBase {
 
 	/**
 	 * HTTP response header names.
-	 *
-	 * @since 2022-04-25
-	 *
-	 * @type {array<string>} HTTP response header names.
-	 *
-	 * @see   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
-	 * @see   https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 	 */
 	public static responseHeaderNames : Array<string> = [
 		'accept-ch',
@@ -810,14 +733,8 @@ export default class uHTTPs extends uA6tBase {
 
 	/**
 	 * HTTP response status codes.
-	 *
-	 * @since 2022-04-25
-	 *
-	 * @type {object<string,string>} HTTP response status codes.
-	 *
-	 * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 	 */
-	public static responseStatusCodes : { [ $ : string ] : string } = {
+	public static responseStatusCodes : { [ x : string ] : string } = {
 		'100' : 'Continue',
 		'101' : 'Switching Protocols',
 		'102' : 'Processing',
