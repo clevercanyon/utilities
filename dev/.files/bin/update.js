@@ -8,16 +8,13 @@
  */
 /* eslint-env es2021, node */
 
-import degit        from 'degit';
-import desm         from 'desm';
-import childProcess from 'node:child_process';
-import crypto       from 'node:crypto';
-import fsp          from 'node:fs/promises';
-import os           from 'node:os';
-import path         from 'node:path';
-import util         from 'node:util';
-
-const exec = util.promisify( childProcess.exec );
+import chalk  from 'chalk';
+import desm   from 'desm';
+import crypto from 'node:crypto';
+import fsp    from 'node:fs/promises';
+import os     from 'node:os';
+import path   from 'node:path';
+import spawn  from 'spawn-please';
 
 ( async () => {
 	/**
@@ -26,28 +23,60 @@ const exec = util.promisify( childProcess.exec );
 	const __dirname = desm( import.meta.url );
 	const projDir   = path.resolve( __dirname, '../../..' );
 
-	const tmpDir            = await fsp.mkdtemp(
-		path.resolve( os.tmpdir(), './' + crypto.randomUUID() ),
-	);
-	const tmpDirUpdaterFile = path.resolve( tmpDir, './dev/.files/bin/updater/index.js' );
+	/**
+	 * Validates environment vars.
+	 */
+	if ( ! process.env.C10N_GITHUB_TOKEN ) {
+		throw new Error( '`C10N_GITHUB_TOKEN` is a required environment variable.' );
+	}
+
+	/**
+	 * Creates temp directory.
+	 */
+	const tmpDir = await fsp.mkdtemp( path.resolve( os.tmpdir(), './' + crypto.randomUUID() ) );
 
 	/**
 	 * Downloads latest skeleton.
 	 */
-	await degit( 'clevercanyon/skeleton' ).clone( tmpDir );
+	console.log( chalk.green( 'Downloading latest `clevercanyon/skeleton`.' ) );
+
+	const skeletonRepoURL = 'https://' + // Requires personal access token.
+		( process.env.C10N_GITHUB_TOKEN || '' ) + '@github.com/clevercanyon/skeleton';
+
+	await spawn( 'git', [ 'clone', '--quiet', '--depth=1', skeletonRepoURL, tmpDir ], {
+		cwd    : projDir, // Displays output while running.
+		stdout : ( buffer ) => console.log( chalk.blue( buffer.toString() ) ),
+		stderr : ( buffer ) => console.log( chalk.redBright( buffer.toString() ) ),
+	} );
+	await fsp.rm( path.resolve( tmpDir, './.git' ), { recursive : true, force : true } );
 
 	/**
-	 * Runs `npm ci` in latest skeleton directory.
+	 * Runs `npm clean-install` in latest skeleton directory.
 	 */
-	await exec( 'npm ci --include=dev', { cwd : tmpDir } );
+	console.log( chalk.green( 'Installing `clevercanyon/skeleton`’s dependencies.' ) );
+
+	await spawn( 'npm', [ 'clean-install', '--include=dev', '--silent' ], {
+		cwd    : tmpDir, // Displays output while running.
+		stdout : ( buffer ) => console.log( chalk.blue( buffer.toString() ) ),
+		stderr : ( buffer ) => console.log( chalk.redBright( buffer.toString() ) ),
+	} );
 
 	/**
 	 * Runs updater using files from latest skeleton.
 	 */
-	await ( await import( tmpDirUpdaterFile ) ).default( { projDir } );
+	console.log( chalk.green( 'Running updater using latest `clevercanyon/skeleton`.' ) );
+
+	await ( await import( path.resolve( tmpDir, './dev/.files/bin/updater/index.js' ) ) ).default( { projDir } );
 
 	/**
-	 * Removes tmp directory.
+	 * Runs cleanup tasks prior to completion.
 	 */
+	console.log( chalk.green( 'Running cleanup tasks.' ) );
+
 	await fsp.rm( tmpDir, { recursive : true, force : true } );
+
+	/**
+	 * Completes update.
+	 */
+	console.log( chalk.green( 'Update complete.' ) );
 } )();
