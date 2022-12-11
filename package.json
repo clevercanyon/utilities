@@ -1,97 +1,96 @@
 {
-	"private": false,
-	"version": "1.0.12",
-	"license": "GPL-3.0-or-later",
-	"name": "@clevercanyon/utilities",
-	"description": "Another great project by Clever Canyon.",
-	"repository": "https://github.com/clevercanyon/utilities",
-	"homepage": "https://github.com/clevercanyon/utilities#readme",
-	"bugs": "https://github.com/clevercanyon/utilities/issues",
-	"funding": "https://github.com/sponsors/clevercanyon",
-	"keywords": [
-		"clevercanyon"
-	],
-	"author": {
-		"name": "Clever Canyon",
-		"url": "https://clevercanyon.com"
-	},
-	"contributors": [],
-	"type": "module",
-	"files": [
-		"/dist"
-	],
-	"bin": {},
-	"imports": {},
-	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
-		}
-	},
-	"sideEffects": [
-		"./src/*.scss",
-		"./src/index.*"
-	],
-	"module": "./dist/index.js",
-	"main": "./dist/index.cjs",
-	"unpkg": "./dist/index.js",
-	"browser": "",
-	"types": "./dist/types/index.d.ts",
-	"dependencies": {
-		"crypto-js": "^4.1.1",
-		"locutus": "^2.0.16",
-		"lodash": "^4.17.21",
-		"minimatch": "^5.1.0"
-	},
-	"optionalDependencies": {},
-	"bundleDependencies": {},
-	"peerDependencies": {},
-	"peerDependenciesMeta": {},
-	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "*",
-		"@cloudflare/workers-types": "^4.20221111.1",
-		"@types/crypto-js": "^4.1.1",
-		"@types/locutus": "^0.0.6",
-		"@types/lodash": "^4.14.191",
-		"@types/minimatch": "^5.1.2",
-		"@types/node": "^18.11.9"
-	},
-	"overrides": {},
-	"cpu": [
-		"x64",
-		"arm64"
-	],
-	"os": [
-		"darwin",
-		"linux"
-	],
-	"engines": {
-		"node": "^19.2.0",
-		"npm": "^8.19.3"
-	},
-	"scripts": {
-		"preview": "npx vite preview",
-		"dev": "npx vite dev --mode=dev",
-		"build:dev": "npx vite build --mode=dev && npx tsc",
-		"build:stage": "npx vite build --mode=stage && npx tsc",
-		"build:prod": "npx vite build --mode=prod && npx tsc",
-		"dotfiles:update": "./dev/.files/bin/update.js"
-	},
-	"workspaces": [],
-	"publishConfig": {
-		"registry": "https://npm.pkg.github.com"
-	},
-	"config": {
-		"c10n": {
-			"&": {
-				"dotfiles": {
-					"lock": []
-				},
-				"build": {
-					"appType": "cma",
-					"targetEnv": "any"
-				}
-			}
-		}
-	}
+    "private": false,
+    "version": "1.0.12",
+    "license": "GPL-3.0-or-later",
+    "name": "@clevercanyon/utilities",
+    "description": "Another great project by Clever Canyon.",
+    "repository": "https://github.com/clevercanyon/utilities",
+    "homepage": "https://github.com/clevercanyon/utilities#readme",
+    "bugs": "https://github.com/clevercanyon/utilities/issues",
+    "funding": "https://github.com/sponsors/clevercanyon",
+    "keywords": [
+        "clevercanyon"
+    ],
+    "author": {
+        "name": "Clever Canyon",
+        "url": "https://clevercanyon.com"
+    },
+    "contributors": [],
+    "type": "module",
+    "files": [
+        "/dist"
+    ],
+    "bin": {},
+    "imports": {},
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "sideEffects": [
+        "./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"
+    ],
+    "module": "./dist/index.js",
+    "main": "./dist/index.cjs",
+    "unpkg": "./dist/index.js",
+    "browser": "",
+    "types": "./dist/types/index.d.ts",
+    "dependencies": {
+        "crypto-js": "^4.1.1",
+        "locutus": "^2.0.16",
+        "lodash": "^4.17.21",
+        "minimatch": "^5.1.0"
+    },
+    "optionalDependencies": {},
+    "bundleDependencies": {},
+    "peerDependencies": {},
+    "peerDependenciesMeta": {},
+    "devDependencies": {
+        "@clevercanyon/skeleton-dev-deps": "*",
+        "@cloudflare/workers-types": "^4.20221111.1",
+        "@types/crypto-js": "^4.1.1",
+        "@types/locutus": "^0.0.6",
+        "@types/lodash": "^4.14.191",
+        "@types/minimatch": "^5.1.2",
+        "@types/node": "^18.11.9"
+    },
+    "overrides": {},
+    "cpu": [
+        "x64",
+        "arm64"
+    ],
+    "os": [
+        "darwin",
+        "linux"
+    ],
+    "engines": {
+        "node": "^19.2.0",
+        "npm": "^8.19.3"
+    },
+    "scripts": {
+        "preview": "npx vite preview",
+        "dev": "npx vite dev --mode=dev",
+        "build:dev": "npx vite build --mode=dev && npx tsc",
+        "build:stage": "npx vite build --mode=stage && npx tsc",
+        "build:prod": "npx vite build --mode=prod && npx tsc",
+        "dotfiles:update": "./dev/.files/bin/update.js"
+    },
+    "workspaces": [],
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com"
+    },
+    "config": {
+        "c10n": {
+            "&": {
+                "dotfiles": {
+                    "lock": []
+                },
+                "build": {
+                    "appType": "cma",
+                    "targetEnv": "any"
+                }
+            }
+        }
+    }
 }
