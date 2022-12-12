@@ -1,3 +1,7 @@
+/**
+ * Utility exports.
+ */
+
 export { default as $Brand } from './Brand';
 export { default as $Cookie } from './Cookie';
 export { default as $Crypto } from './Crypto';

@@ -15,16 +15,9 @@
 	 * Customizations
 	 * <custom:start> */
 
-	"compilerOptions" : {
-		"lib"   : [ "es2021", "dom" ],
-		"types" : [
-			"vite/client",
-			"@types/crypto-js",
-			"@types/locutus",
-			"@types/lodash",
-			"@types/minimatch",
-			"@types/node"
-		]
+	"compilerOptions": {
+		"lib": ["es2021", "dom"],
+		"types": ["vite/client", "@types/crypto-js", "@types/locutus", "@types/lodash", "@types/minimatch", "@types/node"]
 	}
 	/** </custom:end> */
 }
