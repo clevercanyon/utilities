@@ -2,8 +2,8 @@
  * Utility class.
  */
 
-import phpDate      from 'locutus/php/datetime/date';
-import phpGMDate    from 'locutus/php/datetime/gmdate';
+import phpDate from 'locutus/php/datetime/date';
+import phpGMDate from 'locutus/php/datetime/gmdate';
 import phpStrToTime from 'locutus/php/datetime/strtotime';
 
 /**
@@ -18,8 +18,8 @@ export default class $Time {
 	 *
 	 * @returns Current time (UTC timezone).
 	 */
-	public static utc( format : string = 'U', str : string = 'now' ) : string {
-		return phpGMDate( format, phpStrToTime( str ) ) as string;
+	public static utc(format: string = 'U', str: string = 'now'): string {
+		return phpGMDate(format, phpStrToTime(str)) as string;
 	}
 
 	/**
@@ -30,7 +30,7 @@ export default class $Time {
 	 *
 	 * @returns Current time (local timezone).
 	 */
-	public static local( format : string = 'U', str : string = 'now' ) : string {
-		return phpDate( format, phpStrToTime( str ) ) as string;
+	public static local(format: string = 'U', str: string = 'now'): string {
+		return phpDate(format, phpStrToTime(str)) as string;
 	}
 }

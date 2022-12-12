@@ -28,11 +28,11 @@ export default class $URL {
 	 *
 	 * @returns Current URL.
 	 */
-	public static current() : string {
-		if ( $Env.isWeb() ) {
+	public static current(): string {
+		if ($Env.isWeb()) {
 			return location.href;
 		} else {
-			throw new Error( 'Not in browser.' );
+			throw new Error('Not in browser.');
 		}
 	}
 
@@ -41,11 +41,11 @@ export default class $URL {
 	 *
 	 * @returns Current referrer.
 	 */
-	public static currentReferrer() : string {
-		if ( $Env.isWeb() ) {
+	public static currentReferrer(): string {
+		if ($Env.isWeb()) {
 			return document.referrer;
 		} else {
-			throw new Error( 'Not in browser.' );
+			throw new Error('Not in browser.');
 		}
 	}
 
@@ -54,11 +54,11 @@ export default class $URL {
 	 *
 	 * @returns Current scheme.
 	 */
-	public static currentScheme() : string {
-		if ( $Env.isWeb() ) {
-			return location.protocol.toLowerCase().slice( 0, -1 );
+	public static currentScheme(): string {
+		if ($Env.isWeb()) {
+			return location.protocol.toLowerCase().slice(0, -1);
 		} else {
-			throw new Error( 'Not in browser.' );
+			throw new Error('Not in browser.');
 		}
 	}
 
@@ -69,11 +69,11 @@ export default class $URL {
 	 *
 	 * @returns Current host.
 	 */
-	public static currentHost( withPort : boolean = true ) : string {
-		if ( $Env.isWeb() ) {
-			return ( withPort ? location.host : location.hostname ).toLowerCase();
+	public static currentHost(withPort: boolean = true): string {
+		if ($Env.isWeb()) {
+			return (withPort ? location.host : location.hostname).toLowerCase();
 		} else {
-			throw new Error( 'Not in browser.' );
+			throw new Error('Not in browser.');
 		}
 	}
 
@@ -84,11 +84,11 @@ export default class $URL {
 	 *
 	 * @returns Current root host.
 	 */
-	public static currentRootHost( withPort : boolean = true ) : string {
-		if ( $Env.isWeb() ) {
-			return $URL.rootHost( $URL.currentHost( withPort ), withPort );
+	public static currentRootHost(withPort: boolean = true): string {
+		if ($Env.isWeb()) {
+			return $URL.rootHost($URL.currentHost(withPort), withPort);
 		} else {
-			throw new Error( 'Not in browser.' );
+			throw new Error('Not in browser.');
 		}
 	}
 
@@ -97,11 +97,11 @@ export default class $URL {
 	 *
 	 * @returns Current port.
 	 */
-	public static currentPort() : string {
-		if ( $Env.isWeb() ) {
+	public static currentPort(): string {
+		if ($Env.isWeb()) {
 			return location.port;
 		} else {
-			throw new Error( 'Not in browser.' );
+			throw new Error('Not in browser.');
 		}
 	}
 
@@ -110,11 +110,11 @@ export default class $URL {
 	 *
 	 * @returns Current path.
 	 */
-	public static currentPath() : string {
-		if ( $Env.isWeb() ) {
+	public static currentPath(): string {
+		if ($Env.isWeb()) {
 			return location.pathname;
 		} else {
-			throw new Error( 'Not in browser.' );
+			throw new Error('Not in browser.');
 		}
 	}
 
@@ -123,11 +123,11 @@ export default class $URL {
 	 *
 	 * @returns Current subpath.
 	 */
-	public static currentSubpath() : string {
-		if ( $Env.isWeb() ) {
-			return location.pathname.replace( /^\/|\/$/ug, '' );
+	public static currentSubpath(): string {
+		if ($Env.isWeb()) {
+			return location.pathname.replace(/^\/|\/$/gu, '');
 		} else {
-			throw new Error( 'Not in browser.' );
+			throw new Error('Not in browser.');
 		}
 	}
 
@@ -136,11 +136,11 @@ export default class $URL {
 	 *
 	 * @returns Current query string.
 	 */
-	public static currentQuery() : string {
-		if ( $Env.isWeb() ) {
-			return location.search.slice( 1 );
+	public static currentQuery(): string {
+		if ($Env.isWeb()) {
+			return location.search.slice(1);
 		} else {
-			throw new Error( 'Not in browser.' );
+			throw new Error('Not in browser.');
 		}
 	}
 
@@ -149,11 +149,11 @@ export default class $URL {
 	 *
 	 * @returns Current path & query string.
 	 */
-	public static currentPathQuery() : string {
-		if ( $Env.isWeb() ) {
+	public static currentPathQuery(): string {
+		if ($Env.isWeb()) {
 			return location.pathname + location.search;
 		} else {
-			throw new Error( 'Not in browser.' );
+			throw new Error('Not in browser.');
 		}
 	}
 
@@ -167,23 +167,23 @@ export default class $URL {
 	 *
 	 * @returns Root hostname.
 	 */
-	public static rootHost( host? : URL | string | null, withPort : boolean = true ) : string {
-		if ( undefined === host ) {
-			if ( $Env.isWeb() ) {
-				host = $URL.currentHost( withPort );
+	public static rootHost(host?: URL | string | null, withPort: boolean = true): string {
+		if (undefined === host) {
+			if ($Env.isWeb()) {
+				host = $URL.currentHost(withPort);
 			} else {
-				throw new Error( 'Missing required parameter: `host`.' );
+				throw new Error('Missing required parameter: `host`.');
 			}
 		}
-		if ( host instanceof URL ) {
+		if (host instanceof URL) {
 			host = host.host; // Includes port.
 		}
 		host = host || ''; // Force string value.
 
-		if ( ! withPort && host.indexOf( ':' ) !== -1 ) {
-			host = host.slice( 0, host.lastIndexOf( ':' ) );
+		if (!withPort && host.indexOf(':') !== -1) {
+			host = host.slice(0, host.lastIndexOf(':'));
 		}
-		return host.toLowerCase().split( '.' ).slice( -2 ).join( '.' );
+		return host.toLowerCase().split('.').slice(-2).join('.');
 	}
 
 	/**
@@ -200,32 +200,32 @@ export default class $URL {
 	 * @returns {@see URL}; else throws error (or returns {@see null}) on failure.
 	 *          `throwOnFailure` defaults to `true`, resulting in an error on failure.
 	 */
-	public static parse( url? : URL | string | null, base? : URL | string | null, throwOnFailure : boolean = true ) : URL | null {
-		if ( undefined === url ) {
-			if ( $Env.isWeb() ) {
+	public static parse(url?: URL | string | null, base?: URL | string | null, throwOnFailure: boolean = true): URL | null {
+		if (undefined === url) {
+			if ($Env.isWeb()) {
 				url = $URL.current();
 			} else {
-				throw new Error( 'Missing required parameter: `url`.' );
+				throw new Error('Missing required parameter: `url`.');
 			}
 		}
-		if ( undefined === base && $Env.isWeb() ) {
+		if (undefined === base && $Env.isWeb()) {
 			base = $URL.current(); // Current URL as base.
 		}
-		url  = ( url instanceof URL ? url.toString() : url ) || '';
-		base = ( base instanceof URL ? base.toString() : base ) || undefined;
+		url = (url instanceof URL ? url.toString() : url) || '';
+		base = (base instanceof URL ? base.toString() : base) || undefined;
 
-		if ( url && /^\/\//u.test( url ) ) {
+		if (url && /^\/\//u.test(url)) {
 			const scheme = $Env.isWeb() ? $URL.currentScheme() : 'http';
-			url          = url.replace( /^\/\//u, scheme + '://' );
+			url = url.replace(/^\/\//u, scheme + '://');
 		}
-		if ( base && /^\/\//u.test( base ) ) {
+		if (base && /^\/\//u.test(base)) {
 			const scheme = $Env.isWeb() ? $URL.currentScheme() : 'http';
-			base         = base.replace( /^\/\//u, scheme + '://' );
+			base = base.replace(/^\/\//u, scheme + '://');
 		}
 		try {
-			return new URL( url, base );
-		} catch ( error ) {
-			if ( throwOnFailure ) {
+			return new URL(url, base);
+		} catch (error) {
+			if (throwOnFailure) {
 				throw error;
 			}
 			return null;
@@ -242,13 +242,13 @@ export default class $URL {
 	 *
 	 * @returns `null` if not found; else query `string` variable value.
 	 */
-	public static getQueryVar( name : string, url? : URL | string | null ) : string | null {
-		const parsedURL = $URL.parse( url );
+	public static getQueryVar(name: string, url?: URL | string | null): string | null {
+		const parsedURL = $URL.parse(url);
 
-		if ( ! parsedURL || ! parsedURL.searchParams.has( name ) ) {
+		if (!parsedURL || !parsedURL.searchParams.has(name)) {
 			return null; // Null when not exists.
 		}
-		return parsedURL.searchParams.get( name ) || '';
+		return parsedURL.searchParams.get(name) || '';
 	}
 
 	/**
@@ -265,29 +265,31 @@ export default class $URL {
 	 *
 	 * @returns Query string variables.
 	 */
-	public static getQueryVars( url? : URL | string | null ) : { [ x : string ] : string };
-	public static getQueryVars( names : Array<string> | URL | string | null, url? : URL | string | null ) : { [ x : string ] : string };
+	public static getQueryVars(url?: URL | string | null): { [x: string]: string };
+	public static getQueryVars(names: Array<string> | URL | string | null, url?: URL | string | null): { [x: string]: string };
 
-	public static getQueryVars( names : Array<string> | URL | string | null = [], url? : URL | string | null ) : { [ x : string ] : string } {
-		if ( 1 === arguments.length && ! ( arguments[ 0 ] instanceof Array ) ) {
-			url = arguments[ 0 ] as URL | string | null | undefined, names = [];
+	public static getQueryVars(names: Array<string> | URL | string | null = [], url?: URL | string | null): { [x: string]: string } {
+		// eslint-disable-next-line prefer-rest-params
+		if (1 === arguments.length && !(arguments[0] instanceof Array)) {
+			// eslint-disable-next-line prefer-rest-params
+			(url = arguments[0] as URL | string | null | undefined), (names = []);
 		}
-		if ( ! ( names instanceof Array ) ) {
+		if (!(names instanceof Array)) {
 			names = []; // Force array.
 		}
-		const vars : { [ x : string ] : string } = {};
-		const parsedURL                          = $URL.parse( url );
+		const vars: { [x: string]: string } = {};
+		const parsedURL = $URL.parse(url);
 
-		if ( ! parsedURL || ! [ ...parsedURL.searchParams ].length ) {
+		if (!parsedURL || ![...parsedURL.searchParams].length) {
 			return vars; // No query string variables.
 		}
-		for ( const [ name, value ] of parsedURL.searchParams ) {
-			vars[ name ] = value; // Populates variables.
+		for (const [name, value] of parsedURL.searchParams) {
+			vars[name] = value; // Populates variables.
 		}
-		if ( names.length ) {
-			for ( const [ name ] of Object.entries( vars ) ) {
-				if ( names.indexOf( name ) === -1 ) {
-					delete vars[ name ];
+		if (names.length) {
+			for (const [name] of Object.entries(vars)) {
+				if (names.indexOf(name) === -1) {
+					delete vars[name];
 				}
 			}
 		}
@@ -308,12 +310,12 @@ export default class $URL {
 	 * @returns Updated URL with query string variable added.
 	 *          Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
 	 */
-	public static addQueryVar( name : string, value : string, url : URL, replaceExisting : boolean ) : URL;
-	public static addQueryVar( name : string, value : string, url? : string | null, replaceExisting? : boolean ) : string;
-	public static addQueryVar( name : string, value : string, url? : URL | string | null, replaceExisting? : boolean ) : URL | string;
+	public static addQueryVar(name: string, value: string, url: URL, replaceExisting: boolean): URL;
+	public static addQueryVar(name: string, value: string, url?: string | null, replaceExisting?: boolean): string;
+	public static addQueryVar(name: string, value: string, url?: URL | string | null, replaceExisting?: boolean): URL | string;
 
-	public static addQueryVar( name : string, value : string, url? : URL | string | null, replaceExisting : boolean = true ) : URL | string {
-		return $URL.addQueryVars( { [ name ] : value }, url, replaceExisting );
+	public static addQueryVar(name: string, value: string, url?: URL | string | null, replaceExisting: boolean = true): URL | string {
+		return $URL.addQueryVars({ [name]: value }, url, replaceExisting);
 	}
 
 	/**
@@ -329,20 +331,20 @@ export default class $URL {
 	 * @returns URL with query string variables added.
 	 *          Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
 	 */
-	public static addQueryVars( vars : { [ x : string ] : string }, url : URL, replaceExisting : boolean ) : URL;
-	public static addQueryVars( vars : { [ x : string ] : string }, url? : string | null, replaceExisting? : boolean ) : string;
-	public static addQueryVars( vars : { [ x : string ] : string }, url? : URL | string | null, replaceExisting? : boolean ) : URL | string;
+	public static addQueryVars(vars: { [x: string]: string }, url: URL, replaceExisting: boolean): URL;
+	public static addQueryVars(vars: { [x: string]: string }, url?: string | null, replaceExisting?: boolean): string;
+	public static addQueryVars(vars: { [x: string]: string }, url?: URL | string | null, replaceExisting?: boolean): URL | string;
 
-	public static addQueryVars( vars : { [ x : string ] : string }, url? : URL | string | null, replaceExisting : boolean = true ) : URL | string {
-		const rtnURL    = url instanceof URL;
-		const parsedURL = $URL.parse( url );
+	public static addQueryVars(vars: { [x: string]: string }, url?: URL | string | null, replaceExisting: boolean = true): URL | string {
+		const rtnURL = url instanceof URL;
+		const parsedURL = $URL.parse(url);
 
-		if ( ! parsedURL ) {
+		if (!parsedURL) {
 			return url || ''; // Not possible.
 		}
-		for ( const [ name, value ] of Object.entries( vars ) ) {
-			if ( replaceExisting || ! parsedURL.searchParams.has( name ) ) {
-				parsedURL.searchParams.set( name, value );
+		for (const [name, value] of Object.entries(vars)) {
+			if (replaceExisting || !parsedURL.searchParams.has(name)) {
+				parsedURL.searchParams.set(name, value);
 			}
 		}
 		parsedURL.searchParams.sort();
@@ -361,12 +363,12 @@ export default class $URL {
 	 * @returns Updated URL with query string variable removed.
 	 *          Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
 	 */
-	public static removeQueryVar( name : string, url : URL ) : URL;
-	public static removeQueryVar( name : string, url? : string | null ) : string;
-	public static removeQueryVar( name : string, url? : URL | string | null ) : URL | string;
+	public static removeQueryVar(name: string, url: URL): URL;
+	public static removeQueryVar(name: string, url?: string | null): string;
+	public static removeQueryVar(name: string, url?: URL | string | null): URL | string;
 
-	public static removeQueryVar( name : string, url? : URL | string | null ) : URL | string {
-		return $URL.removeQueryVars( [ name ], url );
+	public static removeQueryVar(name: string, url?: URL | string | null): URL | string {
+		return $URL.removeQueryVars([name], url);
 	}
 
 	/**
@@ -384,30 +386,32 @@ export default class $URL {
 	 * @returns URL with query string variables removed.
 	 *          Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
 	 */
-	public static removeQueryVars( url : URL ) : URL;
-	public static removeQueryVars( url? : string | null ) : string;
-	public static removeQueryVars( url? : URL | string | null ) : URL | string;
+	public static removeQueryVars(url: URL): URL;
+	public static removeQueryVars(url?: string | null): string;
+	public static removeQueryVars(url?: URL | string | null): URL | string;
 
-	public static removeQueryVars( names : Array<string>, url : URL ) : URL;
-	public static removeQueryVars( names : Array<string>, url? : string | null ) : string;
-	public static removeQueryVars( names : Array<string>, url? : URL | string | null ) : URL | string;
+	public static removeQueryVars(names: Array<string>, url: URL): URL;
+	public static removeQueryVars(names: Array<string>, url?: string | null): string;
+	public static removeQueryVars(names: Array<string>, url?: URL | string | null): URL | string;
 
-	public static removeQueryVars( names : Array<string> | URL | string | null = [], url? : URL | string | null ) : URL | string {
-		if ( 1 === arguments.length && ! ( arguments[ 0 ] instanceof Array ) ) {
-			url = arguments[ 0 ] as URL | string | null | undefined, names = [];
+	public static removeQueryVars(names: Array<string> | URL | string | null = [], url?: URL | string | null): URL | string {
+		// eslint-disable-next-line prefer-rest-params
+		if (1 === arguments.length && !(arguments[0] instanceof Array)) {
+			// eslint-disable-next-line prefer-rest-params
+			(url = arguments[0] as URL | string | null | undefined), (names = []);
 		}
-		if ( ! ( names instanceof Array ) ) {
+		if (!(names instanceof Array)) {
 			names = []; // Force array.
 		}
-		const rtnURL    = url instanceof URL;
-		const parsedURL = $URL.parse( url );
+		const rtnURL = url instanceof URL;
+		const parsedURL = $URL.parse(url);
 
-		if ( ! parsedURL ) {
+		if (!parsedURL) {
 			return url || ''; // Not possible.
 		}
-		for ( const [ name ] of parsedURL.searchParams ) {
-			if ( ! names.length || names.indexOf( name ) !== -1 ) {
-				parsedURL.searchParams.delete( name );
+		for (const [name] of parsedURL.searchParams) {
+			if (!names.length || names.indexOf(name) !== -1) {
+				parsedURL.searchParams.delete(name);
 			}
 		}
 		parsedURL.searchParams.sort();
@@ -424,20 +428,20 @@ export default class $URL {
 	 * @returns URL with (client|cache)-side-only query string variables removed.
 	 *          Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
 	 */
-	public static removeCSOQueryVars( url : URL ) : URL;
-	public static removeCSOQueryVars( url? : string | null ) : string;
-	public static removeCSOQueryVars( url? : URL | string | null ) : URL | string;
+	public static removeCSOQueryVars(url: URL): URL;
+	public static removeCSOQueryVars(url?: string | null): string;
+	public static removeCSOQueryVars(url?: URL | string | null): URL | string;
 
-	public static removeCSOQueryVars( url? : URL | string | null ) : URL | string {
-		const rtnURL    = url instanceof URL;
-		const parsedURL = $URL.parse( url );
+	public static removeCSOQueryVars(url?: URL | string | null): URL | string {
+		const rtnURL = url instanceof URL;
+		const parsedURL = $URL.parse(url);
 
-		if ( ! parsedURL ) {
+		if (!parsedURL) {
 			return url || ''; // Not possible.
 		}
-		for ( const [ name ] of parsedURL.searchParams ) {
-			if ( /^(?:ut[mx]_[a-z_0-9]+|_g[al]|(?:gcl|dcl|msclk|fbcl)(?:id|src)|wbraid|_ck)$/ui.test( name ) ) {
-				parsedURL.searchParams.delete( name );
+		for (const [name] of parsedURL.searchParams) {
+			if (/^(?:ut[mx]_[a-z_0-9]+|_g[al]|(?:gcl|dcl|msclk|fbcl)(?:id|src)|wbraid|_ck)$/iu.test(name)) {
+				parsedURL.searchParams.delete(name);
 			}
 		}
 		parsedURL.searchParams.sort();
@@ -455,24 +459,26 @@ export default class $URL {
 	 *                 * Use {@see $URL.QUERY_RFC3986_AWS4} for {@see rawurlencode()} PHP w/ AWS v4 compatibility.
 	 *                 * Use {@see $URL.QUERY_RFC1738} for {@see urlencode()} PHP compatibility.
 	 *
-	 * @return Encoded string.
+	 * @returns Encoded string.
 	 *
 	 * @see https://locutus.io/php/url/urlencode/
 	 * @see https://locutus.io/php/url/rawurlencode/
 	 */
-	public static encode( str : string, strategy : string = $URL.QUERY_RFC3986 ) : string {
-		switch ( strategy ) {
+	public static encode(str: string, strategy: string = $URL.QUERY_RFC3986): string {
+		switch (strategy) {
 			case $URL.QUERY_RFC1738:
-				return encodeURIComponent( str ).replace( /[!'()*~]/ug, function ( c ) {
-					return '%' + c.charCodeAt( 0 ).toString( 16 ).toUpperCase();
-				} ).replace( /%20/ug, '+' );
+				return encodeURIComponent(str)
+					.replace(/[!'()*~]/gu, function (c) {
+						return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+					})
+					.replace(/%20/gu, '+');
 
 			case $URL.QUERY_RFC3986:
 			case $URL.QUERY_RFC3986_AWS4:
 			default: // Default strategy.
-				return encodeURIComponent( str ).replace( /[!'()*]/g, function ( c ) {
-					return '%' + c.charCodeAt( 0 ).toString( 16 ).toUpperCase();
-				} );
+				return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+					return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+				});
 		}
 	}
 
@@ -486,20 +492,20 @@ export default class $URL {
 	 *                 * Use {@see $URL.QUERY_RFC3986_AWS4} for {@see rawurldecode()} PHP w/ AWS v4 compatibility.
 	 *                 * Use {@see $URL.QUERY_RFC1738} for {@see urldecode()} PHP compatibility.
 	 *
-	 * @return Decoded string.
+	 * @returns Decoded string.
 	 *
 	 * @see https://locutus.io/php/url/urldecode/
 	 * @see https://locutus.io/php/url/rawurldecode/
 	 */
-	public static decode( str : string, strategy : string = $URL.QUERY_RFC3986 ) : string {
-		switch ( strategy ) {
+	public static decode(str: string, strategy: string = $URL.QUERY_RFC3986): string {
+		switch (strategy) {
 			case $URL.QUERY_RFC1738:
-				return decodeURIComponent( str.replace( /%(?![0-9a-f]{2})/ugi, () => '%25' ).replace( /\+/ug, '%20' ) );
+				return decodeURIComponent(str.replace(/%(?![0-9a-f]{2})/giu, () => '%25').replace(/\+/gu, '%20'));
 
 			case $URL.QUERY_RFC3986:
 			case $URL.QUERY_RFC3986_AWS4:
 			default: // Default strategy.
-				return decodeURIComponent( str.replace( /%(?![0-9a-f]{2})/ugi, () => '%25' ) );
+				return decodeURIComponent(str.replace(/%(?![0-9a-f]{2})/giu, () => '%25'));
 		}
 	}
 }

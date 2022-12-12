@@ -13,8 +13,8 @@ export default class $Obj {
 	 *
 	 * @returns `true` if empty.
 	 */
-	public static empty( obj : object ) : boolean {
-		return 0 === Object.keys( obj ).length;
+	public static empty(obj: object): boolean {
+		return 0 === Object.keys(obj).length;
 	}
 
 	/**
@@ -25,8 +25,8 @@ export default class $Obj {
 	 *
 	 * @returns `true` if property exists.
 	 */
-	public static hasOwn( obj : object, prop : string ) : boolean {
-		return Object.prototype.hasOwnProperty.call( obj, prop );
+	public static hasOwn(obj: object, prop: string): boolean {
+		return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
 	/**
@@ -34,13 +34,13 @@ export default class $Obj {
 	 *
 	 * @param obj Object with props.
 	 *
-	 * @return Object's own enumerable string-keyed properties.
+	 * @returns Object's own enumerable string-keyed properties.
 	 */
-	public static props( obj : URLSearchParams ) : { [ x : string ] : string };
-	public static props( obj : object ) : { [ x : string ] : unknown } {
-		if ( obj instanceof URLSearchParams ) {
-			return Object.fromEntries( obj.entries() );
+	public static props(obj: URLSearchParams): { [x: string]: string };
+	public static props(obj: object): { [x: string]: unknown } {
+		if (obj instanceof URLSearchParams) {
+			return Object.fromEntries(obj.entries());
 		}
-		return Object.fromEntries( Object.entries( obj ) );
+		return Object.fromEntries(Object.entries(obj));
 	}
 }
