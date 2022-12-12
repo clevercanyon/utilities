@@ -42,10 +42,10 @@
 		"lodash": "^4.17.21",
 		"minimatch": "^5.1.0"
 	},
-	"optionalDependencies": {},
-	"bundleDependencies": {},
 	"peerDependencies": {},
 	"peerDependenciesMeta": {},
+	"optionalDependencies": {},
+	"bundleDependencies": [],
 	"devDependencies": {
 		"@clevercanyon/skeleton-dev-deps": "*",
 		"@cloudflare/workers-types": "^4.20221111.1",
