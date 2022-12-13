@@ -16,7 +16,7 @@ export default class $Git {
 	 *
 	 * @see https://git-scm.com/docs/gitignore
 	 */
-	public static ignoreGlobs(ignoreFileContents: string, options = { negate: true }): Array<string> {
+	public static ignoreGlobs(ignoreFileContents: string, options = { negate: false }): Array<string> {
 		const globPatterns = [];
 
 		for (let line of ignoreFileContents.trim().split(/[\r\n]+/u)) {
