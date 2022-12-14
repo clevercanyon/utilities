@@ -17,7 +17,7 @@
 
 	"compilerOptions": {
 		"lib": ["es2021", "dom"],
-		"types": ["vite/client", "@types/crypto-js", "@types/locutus", "@types/lodash", "@types/minimatch", "@types/node"]
+		"types": ["vite/client", "@types/crypto-js", "@types/locutus", "@types/lodash", "@types/micromatch", "@types/node"]
 	}
 	/* </custom:end> */
 }

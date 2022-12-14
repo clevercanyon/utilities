@@ -2,7 +2,7 @@
  * Utility class.
  */
 
-import minimatch from 'minimatch';
+import mm from 'micromatch';
 
 /**
  * String utilities.
@@ -21,9 +21,9 @@ export default class $Str {
 	/**
 	 * Gets size in bytes.
 	 *
-	 * @param str String.
+	 * @param   str String.
 	 *
-	 * @returns Size in bytes.
+	 * @returns     Size in bytes.
 	 */
 	public static bytes(str: string): number {
 		return $Str.encoder.encode(str).length;
@@ -32,9 +32,9 @@ export default class $Str {
 	/**
 	 * Escapes regexp dynamics.
 	 *
-	 * @param str String to escape.
+	 * @param   str String to escape.
 	 *
-	 * @returns Escaped string.
+	 * @returns     Escaped string.
 	 */
 	public static escRegexp(str: string): string {
 		return str.replace(/[.*+?^${}()|[\]\\-]/gu, '\\$&');
@@ -43,9 +43,9 @@ export default class $Str {
 	/**
 	 * Escapes an element selector.
 	 *
-	 * @param str String to escape.
+	 * @param   str String to escape.
 	 *
-	 * @returns Escaped string.
+	 * @returns     Escaped string.
 	 */
 	public static escSelector(str: string): string {
 		return str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/gu, '\\\\$&');
@@ -54,9 +54,9 @@ export default class $Str {
 	/**
 	 * Escapes a string for use in HTML.
 	 *
-	 * @param str String to escape.
+	 * @param   str String to escape.
 	 *
-	 * @returns Escaped string.
+	 * @returns     Escaped string.
 	 */
 	public static escHtml(str: string): string {
 		const entityMap: { [x: string]: string } = {
@@ -74,12 +74,12 @@ export default class $Str {
 	/**
 	 * String matches the given pattern?
 	 *
-	 * @param str     String to test.
-	 * @param pattern Pattern to look for.
+	 * @param   str     String to test.
+	 * @param   pattern Pattern to look for.
 	 *
-	 * @returns True if matches given pattern.
+	 * @returns         True if matches given pattern.
 	 */
 	public static matches(str: string, pattern: string): boolean {
-		return minimatch(str, pattern);
+		return mm.isMatch(str, pattern);
 	}
 }

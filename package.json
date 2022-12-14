@@ -8,18 +8,14 @@
 	"homepage": "https://github.com/clevercanyon/utilities#readme",
 	"bugs": "https://github.com/clevercanyon/utilities/issues",
 	"funding": "https://github.com/sponsors/clevercanyon",
-	"keywords": [
-		"clevercanyon"
-	],
+	"keywords": ["clevercanyon"],
 	"author": {
 		"name": "Clever Canyon",
 		"url": "https://clevercanyon.com"
 	},
 	"contributors": [],
 	"type": "module",
-	"files": [
-		"/dist"
-	],
+	"files": ["/dist"],
 	"bin": {},
 	"imports": {},
 	"exports": {
@@ -28,23 +24,20 @@
 			"require": "./dist/index.cjs"
 		}
 	},
-	"sideEffects": [
-		"./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"
-	],
+	"sideEffects": ["./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
 	"unpkg": "./dist/index.js",
 	"browser": "",
 	"types": "./dist/types/index.d.ts",
-	"dependencies": {},
 	"peerDependencies": {
 		"crypto-js": "^4.1.1",
+		"ignore": "^5.2.1",
 		"locutus": "^2.0.16",
 		"lodash": "^4.17.21",
-		"minimatch": "^5.1.0"
+		"micromatch": "^4.0.5"
 	},
 	"peerDependenciesMeta": {},
-	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
 		"@clevercanyon/skeleton-dev-deps": "*",
@@ -52,18 +45,12 @@
 		"@types/crypto-js": "^4.1.1",
 		"@types/locutus": "^0.0.6",
 		"@types/lodash": "^4.14.191",
-		"@types/minimatch": "^5.1.2",
+		"@types/micromatch": "^4.0.2",
 		"@types/node": "^18.11.9"
 	},
 	"overrides": {},
-	"cpu": [
-		"x64",
-		"arm64"
-	],
-	"os": [
-		"darwin",
-		"linux"
-	],
+	"cpu": ["x64", "arm64"],
+	"os": ["darwin", "linux"],
 	"engines": {
 		"node": "^19.2.0",
 		"npm": "^8.19.3"
