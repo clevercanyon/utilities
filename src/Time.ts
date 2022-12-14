@@ -13,10 +13,10 @@ export default class $Time {
 	/**
 	 * Gets current time (UTC timezone).
 	 *
-	 * @param format Optional format. Default is `U` (timestamp).
-	 * @param str    Optional string to convert to time. Default is `now`.
+	 * @param   format Optional format. Default is `U` (timestamp).
+	 * @param   str    Optional string to convert to time. Default is `now`.
 	 *
-	 * @returns Current time (UTC timezone).
+	 * @returns        Current time (UTC timezone).
 	 */
 	public static utc(format: string = 'U', str: string = 'now'): string {
 		return phpGMDate(format, phpStrToTime(str)) as string;
@@ -25,10 +25,10 @@ export default class $Time {
 	/**
 	 * Gets current time (local timezone).
 	 *
-	 * @param format Optional format. Default is `U` (timestamp).
-	 * @param str    Optional string to convert to time. Default is `now`.
+	 * @param   format Optional format. Default is `U` (timestamp).
+	 * @param   str    Optional string to convert to time. Default is `now`.
 	 *
-	 * @returns Current time (local timezone).
+	 * @returns        Current time (local timezone).
 	 */
 	public static local(format: string = 'U', str: string = 'now'): string {
 		return phpDate(format, phpStrToTime(str)) as string;

@@ -16,9 +16,9 @@ export default class $Crypto {
 	/**
 	 * Generates an MD5 hash.
 	 *
-	 * @param str String to hash.
+	 * @param   str String to hash.
 	 *
-	 * @returns MD5. 32 hexadecimals in length.
+	 * @returns     MD5. 32 hexadecimals in length.
 	 */
 	public static md5(str: string): string {
 		return cryptoHex.stringify(cryptoMD5(str));
@@ -27,9 +27,9 @@ export default class $Crypto {
 	/**
 	 * Generates a SHA-1 hash.
 	 *
-	 * @param str String to hash.
+	 * @param   str String to hash.
 	 *
-	 * @returns SHA-1 hash. 40 hexadecimals in length.
+	 * @returns     SHA-1 hash. 40 hexadecimals in length.
 	 */
 	public static sha1(str: string): string {
 		return cryptoHex.stringify(cryptoSHA1(str));
@@ -38,10 +38,10 @@ export default class $Crypto {
 	/**
 	 * Generates an HMAC SHA-1 hash.
 	 *
-	 * @param str  String to hash.
-	 * @param salt Salt to use in hash.
+	 * @param   str  String to hash.
+	 * @param   salt Salt to use in hash.
 	 *
-	 * @returns HMAC SHA-1 hash. 64 hexadecimals in length.
+	 * @returns      HMAC SHA-1 hash. 64 hexadecimals in length.
 	 */
 	public static hmacSha1(str: string, salt: string): string {
 		return cryptoHex.stringify(cryptoHMACSHA1(str, salt));
@@ -50,9 +50,9 @@ export default class $Crypto {
 	/**
 	 * Generates a SHA-256 hash.
 	 *
-	 * @param str String to hash.
+	 * @param   str String to hash.
 	 *
-	 * @returns SHA-256 hash. 64 hexadecimals in length.
+	 * @returns     SHA-256 hash. 64 hexadecimals in length.
 	 */
 	public static sha256(str: string): string {
 		return cryptoHex.stringify(cryptoSHA256(str));
@@ -61,10 +61,10 @@ export default class $Crypto {
 	/**
 	 * Generates an HMAC SHA-256 hash.
 	 *
-	 * @param str  String to hash.
-	 * @param salt Salt to use in hash.
+	 * @param   str  String to hash.
+	 * @param   salt Salt to use in hash.
 	 *
-	 * @returns HMAC SHA-256 hash. 64 hexadecimals in length.
+	 * @returns      HMAC SHA-256 hash. 64 hexadecimals in length.
 	 */
 	public static hmacSha256(str: string, salt: string): string {
 		return cryptoHex.stringify(cryptoHMACSHA256(str, salt));
@@ -73,9 +73,9 @@ export default class $Crypto {
 	/**
 	 * Generates a v4 UUID.
 	 *
-	 * @param optimize Optimize? Default is `true`.
+	 * @param   optimize Optimize? Default is `true`.
 	 *
-	 * @returns Version 4 UUID (32 bytes optimized, 36 unoptimized).
+	 * @returns          Version 4 UUID (32 bytes optimized, 36 unoptimized).
 	 */
 	public static uuidV4(optimize: boolean = true): string {
 		return optimize ? crypto.randomUUID().replace(/-/gu, '') : crypto.randomUUID();

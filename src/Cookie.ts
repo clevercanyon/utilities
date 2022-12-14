@@ -32,10 +32,9 @@ export default class $Cookie {
 	/**
 	 * Parses a cookie header.
 	 *
-	 * @param header Cookie header to parse.
-	 *               Optional in browser. Default is `document.cookie`.
+	 * @param   header Cookie header to parse. Optional in browser. Default is `document.cookie`.
 	 *
-	 * @returns Cookies, as object props.
+	 * @returns        Cookies, as object props.
 	 */
 	public static parse(header?: string): { [x: string]: string } {
 		let cookies: { [x: string]: string } = {};
@@ -80,9 +79,9 @@ export default class $Cookie {
 	/**
 	 * Cookie exists?
 	 *
-	 * @param name Cookie name.
+	 * @param   name Cookie name.
 	 *
-	 * @returns `true` if cookie exists.
+	 * @returns      `true` if cookie exists.
 	 */
 	public static has(name: string): boolean {
 		if (!$Env.isWeb()) {
@@ -94,9 +93,9 @@ export default class $Cookie {
 	/**
 	 * Gets a cookie value.
 	 *
-	 * @param name Cookie name.
+	 * @param   name Cookie name.
 	 *
-	 * @returns Cookie value; else `null`.
+	 * @returns      Cookie value; else `null`.
 	 */
 	public static get(name: string): string | null {
 		if (!$Env.isWeb()) {
@@ -113,11 +112,11 @@ export default class $Cookie {
 	/**
 	 * Sets a cookie value.
 	 *
-	 * @param name    Cookie name.
-	 * @param value   Cookie value.
-	 * @param options Optional. Default is `{}`.
+	 * @param   name    Cookie name.
+	 * @param   value   Cookie value.
+	 * @param   options Optional. Default is `{}`.
 	 *
-	 * @returns `true` on success.
+	 * @returns         `true` on success.
 	 */
 	public static set(name: string, value: string, options: $CookieOptions = {}): boolean {
 		if (!$Env.isWeb()) {
@@ -154,10 +153,10 @@ export default class $Cookie {
 	/**
 	 * Deletes a cookie.
 	 *
-	 * @param name    Cookie name.
-	 * @param options Optional. Default is `{}`.
+	 * @param   name    Cookie name.
+	 * @param   options Optional. Default is `{}`.
 	 *
-	 * @returns `true` on success.
+	 * @returns         `true` on success.
 	 */
 	public static delete(name: string, options: $CookieOptions = {}): boolean {
 		if (!$Env.isWeb()) {
@@ -169,9 +168,9 @@ export default class $Cookie {
 	/**
 	 * Is a valid cookie name?
 	 *
-	 * @param name Cookie name.
+	 * @param   name Cookie name.
 	 *
-	 * @returns `true` if valid cookie name.
+	 * @returns      `true` if valid cookie name.
 	 */
 	public static isValidName(name: string): boolean {
 		return /^[a-z0-9_-]+$/iu.test(name) && !/^(?:domain|path|expires|max-age|samesite|secure|httponly)$/iu.test(name);

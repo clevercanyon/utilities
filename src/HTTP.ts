@@ -31,9 +31,9 @@ export default class $HTTP {
 	/**
 	 * HTTP request config.
 	 *
-	 * @param config Optional config options.
+	 * @param   config Optional config options.
 	 *
-	 * @returns HTTP request config.
+	 * @returns        HTTP request config.
 	 */
 	public static requestConfig(config: $HTTPRequestConfig = {}): $HTTPRequestConfig {
 		return Object.assign({}, config);
@@ -42,10 +42,10 @@ export default class $HTTP {
 	/**
 	 * Prepares an HTTP request.
 	 *
-	 * @param request HTTP request object.
-	 * @param config  Optional config options.
+	 * @param   request HTTP request object.
+	 * @param   config  Optional config options.
 	 *
-	 * @returns HTTP response.
+	 * @returns         HTTP response.
 	 */
 	public static prepareRequest(request: Request, config: $HTTPRequestConfig = {}): Request {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `config` ok.
@@ -76,9 +76,9 @@ export default class $HTTP {
 	/**
 	 * HTTP response config.
 	 *
-	 * @param config Optional config options.
+	 * @param   config Optional config options.
 	 *
-	 * @returns HTTP response config.
+	 * @returns        HTTP response config.
 	 */
 	public static responseConfig(config: $HTTPResponseConfig = {}): $HTTPResponseConfig {
 		return Object.assign(
@@ -98,10 +98,10 @@ export default class $HTTP {
 	/**
 	 * Prepares an HTTP response.
 	 *
-	 * @param request HTTP request object.
-	 * @param config  Optional config options.
+	 * @param   request HTTP request object.
+	 * @param   config  Optional config options.
 	 *
-	 * @returns HTTP response.
+	 * @returns         HTTP response.
 	 */
 	public static prepareResponse(request: Request, config: $HTTPResponseConfig = {}): Response {
 		config = $HTTP.responseConfig(config);
@@ -126,10 +126,10 @@ export default class $HTTP {
 	/**
 	 * Prepares HTTP response headers.
 	 *
-	 * @param request HTTP request object.
-	 * @param config  Optional config options.
+	 * @param   request HTTP request object.
+	 * @param   config  Optional config options.
 	 *
-	 * @returns HTTP response headers.
+	 * @returns         HTTP response headers.
 	 */
 	public static prepareResponseHeaders(request: Request, config: $HTTPResponseConfig = {}): Headers {
 		config = $HTTP.responseConfig(config);
@@ -286,9 +286,9 @@ export default class $HTTP {
 	/**
 	 * Get HTTP response status text.
 	 *
-	 * @param status HTTP status code.
+	 * @param   status HTTP status code.
 	 *
-	 * @returns HTTP response status text.
+	 * @returns        HTTP response status text.
 	 */
 	public static responseStatusText(status: number): string {
 		return $HTTP.responseStatusCodes[String(status)] || '';
@@ -297,9 +297,9 @@ export default class $HTTP {
 	/**
 	 * Request method supported?
 	 *
-	 * @param request HTTP request object.
+	 * @param   request HTTP request object.
 	 *
-	 * @returns `true` if request method is supported.
+	 * @returns         `true` if request method is supported.
 	 */
 	public static requestMethodSupported(request: Request): boolean {
 		return $HTTP.supportedRequestMethods.indexOf(request.method) !== -1;
@@ -308,9 +308,9 @@ export default class $HTTP {
 	/**
 	 * Request has a cacheable request method?
 	 *
-	 * @param request HTTP request object.
+	 * @param   request HTTP request object.
 	 *
-	 * @returns `true` if request has a cacheable request method.
+	 * @returns         `true` if request has a cacheable request method.
 	 */
 	public static requestHasCacheableMethod(request: Request): boolean {
 		return $HTTP.requestMethodSupported(request) && ['HEAD', 'GET'].indexOf(request.method) !== -1;
@@ -319,10 +319,10 @@ export default class $HTTP {
 	/**
 	 * Request method needs content headers?
 	 *
-	 * @param request        HTTP request object.
-	 * @param responseStatus HTTP response status code.
+	 * @param   request        HTTP request object.
+	 * @param   responseStatus HTTP response status code.
 	 *
-	 * @returns `true` if request method needs content headers.
+	 * @returns                `true` if request method needs content headers.
 	 */
 	public static requestNeedsContentHeaders(request: Request, responseStatus: number): boolean {
 		return responseStatus !== 204 && $HTTP.requestMethodSupported(request) && ['OPTIONS'].indexOf(request.method) === -1;
@@ -331,10 +331,10 @@ export default class $HTTP {
 	/**
 	 * Request method needs content body?
 	 *
-	 * @param request        HTTP request object.
-	 * @param responseStatus HTTP response status code.
+	 * @param   request        HTTP request object.
+	 * @param   responseStatus HTTP response status code.
 	 *
-	 * @returns `true` if request method needs content body.
+	 * @returns                `true` if request method needs content body.
 	 */
 	public static requestNeedsContentBody(request: Request, responseStatus: number): boolean {
 		return responseStatus !== 204 && $HTTP.requestMethodSupported(request) && ['OPTIONS', 'HEAD'].indexOf(request.method) === -1;
@@ -343,9 +343,9 @@ export default class $HTTP {
 	/**
 	 * Request is coming from an identified user?
 	 *
-	 * @param request HTTP request object.
+	 * @param   request HTTP request object.
 	 *
-	 * @returns `true` if request is coming from an identified user.
+	 * @returns         `true` if request is coming from an identified user.
 	 */
 	public static requestIsFromUser(request: Request): boolean {
 		return (
@@ -360,11 +360,10 @@ export default class $HTTP {
 	/**
 	 * Request is dynamic?
 	 *
-	 * @param request   HTTP request object.
-	 * @param parsedURL Optional pre-parsed URL.
-	 *                  Default is taken from `request`.
+	 * @param   request   HTTP request object.
+	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
 	 *
-	 * @returns `true` if request is dynamic.
+	 * @returns           `true` if request is dynamic.
 	 */
 	public static requestPathIsDynamic(request: Request, parsedURL: URL | null = null): boolean {
 		return (
@@ -377,11 +376,10 @@ export default class $HTTP {
 	/**
 	 * Request is static?
 	 *
-	 * @param request   HTTP request object.
-	 * @param parsedURL Optional pre-parsed URL.
-	 *                  Default is taken from `request`.
+	 * @param   request   HTTP request object.
+	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
 	 *
-	 * @returns `true` if request is static.
+	 * @returns           `true` if request is static.
 	 */
 	public static requestPathIsStatic(request: Request, parsedURL: URL | null = null): boolean {
 		return !$HTTP.requestPathIsDynamic(request, parsedURL);
@@ -390,11 +388,10 @@ export default class $HTTP {
 	/**
 	 * Request path has a dynamic base?
 	 *
-	 * @param request   HTTP request object.
-	 * @param parsedURL Optional pre-parsed URL.
-	 *                  Default is taken from `request`.
+	 * @param   request   HTTP request object.
+	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
 	 *
-	 * @returns `true` if request path has a dynamic base.
+	 * @returns           `true` if request path has a dynamic base.
 	 */
 	public static requestPathHasDynamicBase(request: Request, parsedURL: URL | null = null): boolean {
 		if (!$Env.isC10n()) {
@@ -411,11 +408,10 @@ export default class $HTTP {
 	/**
 	 * Request path is potentially dynamic?
 	 *
-	 * @param request   HTTP request object.
-	 * @param parsedURL Optional pre-parsed URL.
-	 *                  Default is taken from `request`.
+	 * @param   request   HTTP request object.
+	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
 	 *
-	 * @returns `true` if request path is potentially dynamic.
+	 * @returns           `true` if request path is potentially dynamic.
 	 */
 	public static requestPathIsPotentiallyDynamic(request: Request, parsedURL: URL | null = null): boolean {
 		if (!$Env.isC10n()) {
@@ -432,11 +428,10 @@ export default class $HTTP {
 	/**
 	 * Request path is an SEO file?
 	 *
-	 * @param request   HTTP request object.
-	 * @param parsedURL Optional pre-parsed URL.
-	 *                  Default is taken from `request`.
+	 * @param   request   HTTP request object.
+	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
 	 *
-	 * @returns `true` if request path is an SEO file.
+	 * @returns           `true` if request path is an SEO file.
 	 */
 	public static requestPathIsSEORelatedFile(request: Request, parsedURL: URL | null = null): boolean {
 		parsedURL = parsedURL || $URL.parse(request.url);
@@ -450,11 +445,10 @@ export default class $HTTP {
 	/**
 	 * Request path is in `/(?:wp-)?admin`?
 	 *
-	 * @param request   HTTP request object.
-	 * @param parsedURL Optional pre-parsed URL.
-	 *                  Default is taken from `request`.
+	 * @param   request   HTTP request object.
+	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
 	 *
-	 * @returns `true` if request path is in `/(?:wp-)?admin`.
+	 * @returns           `true` if request path is in `/(?:wp-)?admin`.
 	 */
 	public static requestPathIsInAdmin(request: Request, parsedURL: URL | null = null): boolean {
 		parsedURL = parsedURL || $URL.parse(request.url);
@@ -468,13 +462,11 @@ export default class $HTTP {
 	/**
 	 * Request path has a static file extension?
 	 *
-	 * @param request   HTTP request object.
-	 * @param parsedURL Optional pre-parsed URL.
-	 *                  Default is taken from `request`.
+	 * @param   request   HTTP request object.
+	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+	 * @param   exts      Specific extension to look for?
 	 *
-	 * @param exts      Specific extension to look for?
-	 *
-	 * @returns `true` if request path has a static file extension.
+	 * @returns           `true` if request path has a static file extension.
 	 */
 	public static requestPathHasStaticExtension(request: Request, parsedURL: URL | null = null, exts?: Array<string> | RegExp): boolean {
 		parsedURL = parsedURL || $URL.parse(request.url);
@@ -499,9 +491,9 @@ export default class $HTTP {
 	/**
 	 * Extracts headers into object properties.
 	 *
-	 * @param headers Headers.
+	 * @param   headers Headers.
 	 *
-	 * @returns Own enumerable string-keyed properties.
+	 * @returns         Own enumerable string-keyed properties.
 	 */
 	public static extractHeaders(headers: Headers | { [x: string]: string }): { [x: string]: string } {
 		return Object.fromEntries(Object.entries(headers));

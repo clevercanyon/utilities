@@ -20,10 +20,10 @@ export default class $Env {
 	/**
 	 * Is Clever Canyon?
 	 *
-	 * @param tests Optional prop patterns to test for in `isC10n`.
-	 *              Each property is treated as a glob pattern that must be found in `isC10n`.
+	 * @param   tests Optional prop patterns to test for in `isC10n`. Each property is treated as a glob pattern that
+	 *   must be found in `isC10n`.
 	 *
-	 * @returns `true` if `isC10n` and all tests pass.
+	 * @returns       `true` if `isC10n` and all tests pass.
 	 */
 	public static isC10n(tests: { [x: string]: string } = {}): boolean {
 		$Env.cache.isC10n ??= {};

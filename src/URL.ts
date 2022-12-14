@@ -65,9 +65,9 @@ export default class $URL {
 	/**
 	 * Gets current host.
 	 *
-	 * @param withPort Include port?
+	 * @param   withPort Include port?
 	 *
-	 * @returns Current host.
+	 * @returns          Current host.
 	 */
 	public static currentHost(withPort: boolean = true): string {
 		if ($Env.isWeb()) {
@@ -80,9 +80,9 @@ export default class $URL {
 	/**
 	 * Gets current root host.
 	 *
-	 * @param withPort Include port?
+	 * @param   withPort Include port?
 	 *
-	 * @returns Current root host.
+	 * @returns          Current root host.
 	 */
 	public static currentRootHost(withPort: boolean = true): string {
 		if ($Env.isWeb()) {
@@ -160,12 +160,10 @@ export default class $URL {
 	/**
 	 * Gets root hostname.
 	 *
-	 * @param host     Host for this method to parse.
-	 *                 Optional in browser; i.e., default is {@see $URL.current()}.
+	 * @param   host     Host for this method to parse. Optional in browser; i.e., default is {@see $URL.current()}.
+	 * @param   withPort Include port? Default is `true`.
 	 *
-	 * @param withPort Include port? Default is `true`.
-	 *
-	 * @returns Root hostname.
+	 * @returns          Root hostname.
 	 */
 	public static rootHost(host?: URL | string | null, withPort: boolean = true): string {
 		if (undefined === host) {
@@ -189,16 +187,14 @@ export default class $URL {
 	/**
 	 * Parses a URL string into a {@see URL}.
 	 *
-	 * @param url            URL for this method to parse.
-	 *                       Optional in browser; i.e., default is {@see $URL.current()}.
+	 * @param   url                     URL for this method to parse. Optional in browser; i.e., default is {@see
+	 *   $URL.current()}.
+	 * @param   base                    Base URL. Required in the case of relative URLs. Optional in browser; i.e.,
+	 *   default is {@see $URL.current()}.
+	 * @param   throwOnFailure          Throw on failure? Default is `true`.
 	 *
-	 * @param base           Base URL. Required in the case of relative URLs.
-	 *                       Optional in browser; i.e., default is {@see $URL.current()}.
-	 *
-	 * @param throwOnFailure Throw on failure? Default is `true`.
-	 *
-	 * @returns {@see URL}; else throws error (or returns {@see null}) on failure.
-	 *          `throwOnFailure` defaults to `true`, resulting in an error on failure.
+	 * @returns {@see URL}                ; else throws error (or returns {@see null}) on failure. `throwOnFailure`
+	 *   defaults to `true`, resulting in an error on failure.
 	 */
 	public static parse(url?: URL | string | null, base?: URL | string | null, throwOnFailure: boolean = true): URL | null {
 		if (undefined === url) {
@@ -235,12 +231,11 @@ export default class $URL {
 	/**
 	 * Gets a query string variable.
 	 *
-	 * @param name  Query string variable name.
+	 * @param   name Query string variable name.
+	 * @param   url  URL from which to parse query string variable. Optional in browser; i.e., default is {@see
+	 *   $URL.current()}.
 	 *
-	 * @param url   URL from which to parse query string variable.
-	 *              Optional in browser; i.e., default is {@see $URL.current()}.
-	 *
-	 * @returns `null` if not found; else query `string` variable value.
+	 * @returns      `null` if not found; else query `string` variable value.
 	 */
 	public static getQueryVar(name: string, url?: URL | string | null): string | null {
 		const parsedURL = $URL.parse(url);
@@ -254,16 +249,13 @@ export default class $URL {
 	/**
 	 * Gets query string variables.
 	 *
-	 * @param names Optional array of query string variable names to get; excluding others.
-	 *              Default is `[]`; i.e., get all query string variables.
+	 * @param   names Optional array of query string variable names to get; excluding others. Default is `[]`; i.e., get
+	 *   all query string variables. If only one parameter is given and it's not an array, this parameter is treated as
+	 *   the `url` parameter instead of `names`.
+	 * @param   url   URL from which to parse query string variables. Optional in browser; i.e., default is {@see
+	 *   $URL.current()}.
 	 *
-	 *              * If only one parameter is given and it's not an array,
-	 *                this parameter is treated as the `url` parameter instead of `names`.
-	 *
-	 * @param url   URL from which to parse query string variables.
-	 *              Optional in browser; i.e., default is {@see $URL.current()}.
-	 *
-	 * @returns Query string variables.
+	 * @returns       Query string variables.
 	 */
 	public static getQueryVars(url?: URL | string | null): { [x: string]: string };
 	public static getQueryVars(names: Array<string> | URL | string | null, url?: URL | string | null): { [x: string]: string };
@@ -299,16 +291,14 @@ export default class $URL {
 	/**
 	 * Adds a query string variable to a URL.
 	 *
-	 * @param name  Query string variable name.
-	 * @param value Query string variable value.
+	 * @param   name            Query string variable name.
+	 * @param   value           Query string variable value.
+	 * @param   url             URL to add query string variable to. Optional in browser; i.e., default is {@see
+	 *   $URL.current()}.
+	 * @param   replaceExisting Optional. Default is `true`.
 	 *
-	 * @param url   URL to add query string variable to.
-	 *              Optional in browser; i.e., default is {@see $URL.current()}.
-	 *
-	 * @param replaceExisting Optional. Default is `true`.
-	 *
-	 * @returns Updated URL with query string variable added.
-	 *          Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
+	 * @returns                 Updated URL with query string variable added. Returns a {@see URL} if input `url` was a
+	 *   {@see URL}; else returns a {@see string}.
 	 */
 	public static addQueryVar(name: string, value: string, url: URL, replaceExisting: boolean): URL;
 	public static addQueryVar(name: string, value: string, url?: string | null, replaceExisting?: boolean): string;
@@ -321,15 +311,13 @@ export default class $URL {
 	/**
 	 * Adds query string variables.
 	 *
-	 * @param vars            Query string variables to add.
+	 * @param   vars            Query string variables to add.
+	 * @param   url             URL to add query string variables to. Optional in browser; i.e., default is {@see
+	 *   $URL.current()}.
+	 * @param   replaceExisting Optional. Default is `true`.
 	 *
-	 * @param url             URL to add query string variables to.
-	 *                        Optional in browser; i.e., default is {@see $URL.current()}.
-	 *
-	 * @param replaceExisting Optional. Default is `true`.
-	 *
-	 * @returns URL with query string variables added.
-	 *          Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
+	 * @returns                 URL with query string variables added. Returns a {@see URL} if input `url` was a {@see
+	 *   URL}; else returns a {@see string}.
 	 */
 	public static addQueryVars(vars: { [x: string]: string }, url: URL, replaceExisting: boolean): URL;
 	public static addQueryVars(vars: { [x: string]: string }, url?: string | null, replaceExisting?: boolean): string;
@@ -355,13 +343,12 @@ export default class $URL {
 	/**
 	 * Removes a query string variable from a URL.
 	 *
-	 * @param name  Query string variable name.
+	 * @param   name Query string variable name.
+	 * @param   url  URL to remove query string variable from. Optional in browser; i.e., default is {@see
+	 *   $URL.current()}.
 	 *
-	 * @param url   URL to remove query string variable from.
-	 *              Optional in browser; i.e., default is {@see $URL.current()}.
-	 *
-	 * @returns Updated URL with query string variable removed.
-	 *          Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
+	 * @returns      Updated URL with query string variable removed. Returns a {@see URL} if input `url` was a {@see
+	 *   URL}; else returns a {@see string}.
 	 */
 	public static removeQueryVar(name: string, url: URL): URL;
 	public static removeQueryVar(name: string, url?: string | null): string;
@@ -374,17 +361,14 @@ export default class $URL {
 	/**
 	 * Removes query string variables.
 	 *
-	 * @param names Optional array of query string variable names to remove.
-	 *              Default is `[]`; i.e., remove all query string variables.
+	 * @param   names Optional array of query string variable names to remove. Default is `[]`; i.e., remove all query
+	 *   string variables. If only one parameter is given and it's not an array, this parameter is treated as the `url`
+	 *   parameter instead of `names`.
+	 * @param   url   URL to remove query string variables from. Optional in browser; i.e., default is {@see
+	 *   $URL.current()}.
 	 *
-	 *              * If only one parameter is given and it's not an array,
-	 *                this parameter is treated as the `url` parameter instead of `names`.
-	 *
-	 * @param url   URL to remove query string variables from.
-	 *              Optional in browser; i.e., default is {@see $URL.current()}.
-	 *
-	 * @returns URL with query string variables removed.
-	 *          Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
+	 * @returns       URL with query string variables removed. Returns a {@see URL} if input `url` was a {@see URL};
+	 *   else returns a {@see string}.
 	 */
 	public static removeQueryVars(url: URL): URL;
 	public static removeQueryVars(url?: string | null): string;
@@ -422,11 +406,11 @@ export default class $URL {
 	/**
 	 * Removes (client|cache)-side-only query string variables.
 	 *
-	 * @param url URL to remove query string variables from.
-	 *            Optional in browser; i.e., default is {@see $URL.current()}.
+	 * @param   url URL to remove query string variables from. Optional in browser; i.e., default is {@see
+	 *   $URL.current()}.
 	 *
-	 * @returns URL with (client|cache)-side-only query string variables removed.
-	 *          Returns a {@see URL} if input `url` was a {@see URL}; else returns a {@see string}.
+	 * @returns     URL with (client|cache)-side-only query string variables removed. Returns a {@see URL} if input
+	 *   `url` was a {@see URL}; else returns a {@see string}.
 	 */
 	public static removeCSOQueryVars(url: URL): URL;
 	public static removeCSOQueryVars(url?: string | null): string;
@@ -452,14 +436,12 @@ export default class $URL {
 	/**
 	 * Encodes a URL component.
 	 *
-	 * @param str      String to encode.
+	 * @param   str      String to encode.
+	 * @param   strategy Strategy. Default is {@see $URL.QUERY_RFC3986}. Use {@see $URL.QUERY_RFC3986} for {@see
+	 *   rawurlencode()} PHP compatibility. Use {@see $URL.QUERY_RFC3986_AWS4} for {@see rawurlencode()} PHP w/ AWS v4
+	 *   compatibility. Use {@see $URL.QUERY_RFC1738} for {@see urlencode()} PHP compatibility.
 	 *
-	 * @param strategy Strategy. Default is {@see $URL.QUERY_RFC3986}.
-	 *                 * Use {@see $URL.QUERY_RFC3986} for {@see rawurlencode()} PHP compatibility.
-	 *                 * Use {@see $URL.QUERY_RFC3986_AWS4} for {@see rawurlencode()} PHP w/ AWS v4 compatibility.
-	 *                 * Use {@see $URL.QUERY_RFC1738} for {@see urlencode()} PHP compatibility.
-	 *
-	 * @returns Encoded string.
+	 * @returns          Encoded string.
 	 *
 	 * @see https://locutus.io/php/url/urlencode/
 	 * @see https://locutus.io/php/url/rawurlencode/
@@ -485,14 +467,12 @@ export default class $URL {
 	/**
 	 * Decodes a URL component.
 	 *
-	 * @param str      String to decode.
+	 * @param   str      String to decode.
+	 * @param   strategy Strategy. Default is {@see $URL.QUERY_RFC3986}. Use {@see $URL.QUERY_RFC3986} for {@see
+	 *   rawurldecode()} PHP compatibility. Use {@see $URL.QUERY_RFC3986_AWS4} for {@see rawurldecode()} PHP w/ AWS v4
+	 *   compatibility. Use {@see $URL.QUERY_RFC1738} for {@see urldecode()} PHP compatibility.
 	 *
-	 * @param strategy Strategy. Default is {@see $URL.QUERY_RFC3986}.
-	 *                 * Use {@see $URL.QUERY_RFC3986} for {@see rawurldecode()} PHP compatibility.
-	 *                 * Use {@see $URL.QUERY_RFC3986_AWS4} for {@see rawurldecode()} PHP w/ AWS v4 compatibility.
-	 *                 * Use {@see $URL.QUERY_RFC1738} for {@see urldecode()} PHP compatibility.
-	 *
-	 * @returns Decoded string.
+	 * @returns          Decoded string.
 	 *
 	 * @see https://locutus.io/php/url/urldecode/
 	 * @see https://locutus.io/php/url/rawurldecode/

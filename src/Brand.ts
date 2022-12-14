@@ -216,9 +216,9 @@ export default class $Brand implements $BrandProps {
 	/**
 	 * Brand factory.
 	 *
-	 * @param n7m Brand numeronym.
+	 * @param   n7m Brand numeronym.
 	 *
-	 * @returns Brand; else `null`.
+	 * @returns     Brand; else `null`.
 	 */
 	public static get(n7m: string): $Brand | null {
 		n7m = '&' === n7m ? 'c10n' : n7m;
