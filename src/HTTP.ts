@@ -108,7 +108,8 @@ export default class $HTTP {
 		config.status = config.status || 500;
 
 		if (config.response) {
-			(config.status = config.response.status), (config.body = config.response.body);
+			config.status = config.response.status;
+			config.body = config.response.body;
 
 			$HTTP.prepareResponseHeaders(request, config);
 			return config.response; // Configured response.
@@ -258,7 +259,7 @@ export default class $HTTP {
 				'timing-allow-origin': request.headers.has('origin') ? request.headers.get('origin') || '' : '*',
 				'access-control-allow-origin': request.headers.has('origin') ? request.headers.get('origin') || '' : '*',
 			};
-		} else if ($HTTP.requestPathHasStaticExtension(request, parsedURL, /[^.]\.(?:eot|otf|ttf|woff)[0-9]*$/iu)) {
+		} else if ($HTTP.requestPathHasStaticExtension(request, parsedURL, /[^/.]\.(?:eot|otf|ttf|woff)[0-9]*$/iu)) {
 			corsHeaders = {
 				'access-control-allow-origin': request.headers.has('origin') ? request.headers.get('origin') || '' : '*',
 			};
@@ -295,13 +296,13 @@ export default class $HTTP {
 	}
 
 	/**
-	 * Request method supported?
+	 * Request has a supported method?
 	 *
 	 * @param   request HTTP request object.
 	 *
-	 * @returns         `true` if request method is supported.
+	 * @returns         `true` if request has a supported method.
 	 */
-	public static requestMethodSupported(request: Request): boolean {
+	public static requestHasSupportedMethod(request: Request): boolean {
 		return $HTTP.supportedRequestMethods.indexOf(request.method) !== -1;
 	}
 
@@ -313,7 +314,7 @@ export default class $HTTP {
 	 * @returns         `true` if request has a cacheable request method.
 	 */
 	public static requestHasCacheableMethod(request: Request): boolean {
-		return $HTTP.requestMethodSupported(request) && ['HEAD', 'GET'].indexOf(request.method) !== -1;
+		return $HTTP.requestHasSupportedMethod(request) && ['HEAD', 'GET'].indexOf(request.method) !== -1;
 	}
 
 	/**
@@ -325,7 +326,7 @@ export default class $HTTP {
 	 * @returns                `true` if request method needs content headers.
 	 */
 	public static requestNeedsContentHeaders(request: Request, responseStatus: number): boolean {
-		return responseStatus !== 204 && $HTTP.requestMethodSupported(request) && ['OPTIONS'].indexOf(request.method) === -1;
+		return responseStatus !== 204 && $HTTP.requestHasSupportedMethod(request) && ['OPTIONS'].indexOf(request.method) === -1;
 	}
 
 	/**
@@ -337,7 +338,7 @@ export default class $HTTP {
 	 * @returns                `true` if request method needs content body.
 	 */
 	public static requestNeedsContentBody(request: Request, responseStatus: number): boolean {
-		return responseStatus !== 204 && $HTTP.requestMethodSupported(request) && ['OPTIONS', 'HEAD'].indexOf(request.method) === -1;
+		return responseStatus !== 204 && $HTTP.requestHasSupportedMethod(request) && ['OPTIONS', 'HEAD'].indexOf(request.method) === -1;
 	}
 
 	/**
@@ -391,7 +392,7 @@ export default class $HTTP {
 		if (/(?:^|\/)\./u.test(parsedURL.pathname) && !/^\.well-known(?:$|\/)/iu.test(parsedURL.pathname)) {
 			return true; // No dotfile paths.
 		}
-		if (/(?:~|\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(parsedURL.pathname)) {
+		if (/(?:~|[^/.]\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(parsedURL.pathname)) {
 			return true; // No backups, copies, logs, or temp paths.
 		}
 		if (/(?:^|\/)(?:[^/]*[._-])?(?:cache|private|logs?|te?mp)(?:$|\/)/iu.test(parsedURL.pathname)) {
@@ -403,7 +404,7 @@ export default class $HTTP {
 		if (/(?:^|\/)(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(parsedURL.pathname)) {
 			return true; // No package management dependencies paths.
 		}
-		if (/\.(?:sh|bash|zsh|php[0-9]?|[ps]html?|aspx?|plx?|cgi|ppl|perl|go|rs|rlib|rb|py|py[icdowz])(?:$|\/)/iu.test(parsedURL.pathname)) {
+		if (/[^/.]\.(?:sh|bash|zsh|php[0-9]?|[ps]html?|aspx?|plx?|cgi|ppl|perl|go|rs|rlib|rb|py|py[icdowz])(?:$|\/)/iu.test(parsedURL.pathname)) {
 			return true; // No server-side script extension paths, including `.[ext]/pathinfo` data.
 		}
 		return false;
@@ -527,14 +528,14 @@ export default class $HTTP {
 			return false; // Not possible, or early return on `/`.
 		}
 		if (exts instanceof RegExp) {
-			return /[^.]\.[^.]+$/u.test(parsedURL.pathname) && exts.test(parsedURL.pathname);
+			return /[^/.]\.[^/.]+$/u.test(parsedURL.pathname) && exts.test(parsedURL.pathname);
 		}
 		if (exts instanceof Array && exts.length) {
-			return /[^.]\.[^.]+$/u.test(parsedURL.pathname) && new RegExp('[^.]\\.(?:' + exts.map((v) => $Str.escRegExp(v)).join('|') + ')$', 'ui').test(parsedURL.pathname);
+			return /[^/.]\.[^/.]+$/u.test(parsedURL.pathname) && new RegExp('[^/.]\\.(?:' + exts.map((v) => $Str.escRegExp(v)).join('|') + ')$', 'ui').test(parsedURL.pathname);
 		}
 		return (
-			/[^.]\.[^.]+$/u.test(parsedURL.pathname) &&
-			/[^.]\.(?:3g2|3gp|3gp2|3gpp|7z|aac|ai|apng|app|asc|asf|asx|atom|avi|bash|bat|bin|blend|bmp|c|cc|cfg|cjs|class|com|conf|css|csv|cts|dfxp|divx|dll|dmg|doc|docm|docx|dotm|dotx|dtd|ejs|eot|eps|ets|exe|fla|flac|flv|gif|gtar|gz|gzip|h|heic|hta|htaccess|htc|htm|html|htpasswd|ico|ics|ini|iso|jar|jpe|jpeg|jpg|js|json|json5|jsonld|jsx|key|kml|kmz|log|m4a|m4b|m4v|md|mdb|mid|midi|mjs|mka|mkv|mo|mov|mp3|mp4|mpe|mpeg|mpg|mpp|mts|numbers|odb|odc|odf|odg|odp|ods|odt|oga|ogg|ogv|onepkg|onetmp|onetoc|onetoc2|otf|oxps|pages|pdf|phar|phps|pict|pls|png|po|pot|potm|potx|ppam|pps|ppsm|ppsx|ppt|pptm|pptx|ps|psd|pspimage|qt|ra|ram|rar|rdf|rss|rss-http|rss2|rtf|rtx|scss|sh|sketch|sldm|sldx|so|sql|sqlite|srt|svg|svgz|swf|tar|tgz|tif|tiff|tmpl|toml|tpl|ts|tsv|tsx|ttf|txt|vtt|wav|wax|webm|webp|wm|wma|wmv|wmx|woff|woff2|wp|wpd|wri|xcf|xhtm|xhtml|xla|xlam|xls|xlsb|xlsm|xlsx|xlt|xltm|xltx|xlw|xml|xps|xsd|xsl|xslt|yaml|yml|zip|zsh)$/iu.test(
+			/[^/.]\.[^/.]+$/u.test(parsedURL.pathname) &&
+			/[^/.]\.(?:3g2|3gp|3gp2|3gpp|7z|aac|ai|apng|app|asc|asf|asx|atom|avi|bash|bat|bin|blend|bmp|c|cc|cfg|cjs|class|com|conf|css|csv|cts|dfxp|divx|dll|dmg|doc|docm|docx|dotm|dotx|dtd|ejs|eot|eps|ets|exe|fla|flac|flv|gif|gtar|gz|gzip|h|heic|hta|htaccess|htc|htm|html|htpasswd|ico|ics|ini|iso|jar|jpe|jpeg|jpg|js|json|json5|jsonld|jsx|key|kml|kmz|log|m4a|m4b|m4v|md|mdb|mid|midi|mjs|mka|mkv|mo|mov|mp3|mp4|mpe|mpeg|mpg|mpp|mts|numbers|odb|odc|odf|odg|odp|ods|odt|oga|ogg|ogv|onepkg|onetmp|onetoc|onetoc2|otf|oxps|pages|pdf|phar|phps|pict|pls|png|po|pot|potm|potx|ppam|pps|ppsm|ppsx|ppt|pptm|pptx|ps|psd|pspimage|qt|ra|ram|rar|rdf|rss|rss-http|rss2|rtf|rtx|scss|sh|sketch|sldm|sldx|so|sql|sqlite|srt|svg|svgz|swf|tar|tgz|tif|tiff|tmpl|toml|tpl|ts|tsv|tsx|ttf|txt|vtt|wav|wax|webm|webp|wm|wma|wmv|wmx|woff|woff2|wp|wpd|wri|xcf|xhtm|xhtml|xla|xlam|xls|xlsb|xlsm|xlsx|xlt|xltm|xltx|xlw|xml|xps|xsd|xsl|xslt|yaml|yml|zip|zsh)$/iu.test(
 				parsedURL.pathname,
 			)
 		);
