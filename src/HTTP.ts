@@ -478,7 +478,7 @@ export default class $HTTP {
 			return /[^.]\.[^.]+$/u.test(parsedURL.pathname) && exts.test(parsedURL.pathname);
 		}
 		if (exts instanceof Array && exts.length) {
-			return /[^.]\.[^.]+$/u.test(parsedURL.pathname) && new RegExp('[^.]\\.(?:' + exts.map((v) => $Str.escRegexp(v)).join('|') + ')$', 'ui').test(parsedURL.pathname);
+			return /[^.]\.[^.]+$/u.test(parsedURL.pathname) && new RegExp('[^.]\\.(?:' + exts.map((v) => $Str.escRegExp(v)).join('|') + ')$', 'ui').test(parsedURL.pathname);
 		}
 		return (
 			/[^.]\.[^.]+$/u.test(parsedURL.pathname) &&

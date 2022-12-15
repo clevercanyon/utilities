@@ -36,7 +36,7 @@ export default class $Str {
 	 *
 	 * @returns     Escaped string.
 	 */
-	public static escRegexp(str: string): string {
+	public static escRegExp(str: string): string {
 		return str.replace(/[.*+?^${}()|[\]\\-]/gu, '\\$&');
 	}
 
