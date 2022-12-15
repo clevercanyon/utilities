@@ -55,7 +55,7 @@ export default class $HTTP {
 		const parsedURL = $URL.parse(cleanURL);
 
 		if (!parsedURL) {
-			throw 'Parse failure. Invalid request URL.';
+			throw new Error('Parse failure. Invalid request URL.');
 		}
 		const requestHasOrigin = request.headers.has('origin');
 		const requestIsUserDynamic = $HTTP.requestIsFromUser(request) && $HTTP.requestPathIsDynamic(request, parsedURL);
@@ -369,7 +369,7 @@ export default class $HTTP {
 		parsedURL = parsedURL || $URL.parse(request.url);
 
 		if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
-			return false;
+			return false; // Not possible, or early return on `/`.
 		}
 		return /\\|\/{2,}|\.{2,}/u.test(parsedURL.pathname);
 	}
@@ -386,26 +386,24 @@ export default class $HTTP {
 		parsedURL = parsedURL || $URL.parse(request.url);
 
 		if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
-			return false;
+			return false; // Not possible, or early return on `/`.
 		}
-		const subPath = parsedURL.pathname.replace(/^\/|\/$/gu, '');
-
-		if (/(?:^|\/)\./u.test(subPath) && !/^\.well-known(?:$|\/)/iu.test(subPath)) {
+		if (/(?:^|\/)\./u.test(parsedURL.pathname) && !/^\.well-known(?:$|\/)/iu.test(parsedURL.pathname)) {
 			return true; // No dotfile paths.
 		}
-		if (/(?:~|\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(subPath)) {
+		if (/(?:~|\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(parsedURL.pathname)) {
 			return true; // No backups, copies, logs, or temp paths.
 		}
-		if (/(?:^|\/)(?:[^/]*[._-])?(?:cache|private|logs?|te?mp)(?:$|\/)/iu.test(subPath)) {
+		if (/(?:^|\/)(?:[^/]*[._-])?(?:cache|private|logs?|te?mp)(?:$|\/)/iu.test(parsedURL.pathname)) {
 			return true; // No cache, private, log, or temp paths.
 		}
-		if (/(?:^|\/)wp[_-]content\/(?:cache|private|mu[_-]plugins|upgrade|uploads\/(?:wc[_-]logs|woocommerce[_-]uploads|lmfwc[_-]files))(?:$|\/)/iu.test(subPath)) {
+		if (/(?:^|\/)wp[_-]content\/(?:cache|private|mu[_-]plugins|upgrade|uploads\/(?:wc[_-]logs|woocommerce[_-]uploads|lmfwc[_-]files))(?:$|\/)/iu.test(parsedURL.pathname)) {
 			return true; // No WP content paths that are private.
 		}
-		if (/(?:^|\/)(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(subPath)) {
+		if (/(?:^|\/)(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(parsedURL.pathname)) {
 			return true; // No package management dependencies paths.
 		}
-		if (/\.(?:sh|bash|zsh|php[0-9]?|[ps]html?|aspx?|plx?|cgi|ppl|perl|go|rs|rlib|rb|py|py[icdowz])(?:$|\/)/iu.test(subPath)) {
+		if (/\.(?:sh|bash|zsh|php[0-9]?|[ps]html?|aspx?|plx?|cgi|ppl|perl|go|rs|rlib|rb|py|py[icdowz])(?:$|\/)/iu.test(parsedURL.pathname)) {
 			return true; // No server-side script extension paths, including `.[ext]/pathinfo` data.
 		}
 		return false;
@@ -454,7 +452,7 @@ export default class $HTTP {
 		parsedURL = parsedURL || $URL.parse(request.url);
 
 		if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
-			return false;
+			return false; // Not possible, or early return on `/`.
 		}
 		return /^\/?(api|wp-json|blog|feed|comments|author|discussion|shop|product|cart|checkout|account)(?:$|\/)/iu.test(parsedURL.pathname);
 	}
@@ -474,7 +472,7 @@ export default class $HTTP {
 		parsedURL = parsedURL || $URL.parse(request.url);
 
 		if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
-			return false;
+			return false; // Not possible, or early return on `/`.
 		}
 		return /(?:^|\/)(?:robots\.txt|locations\.kml|[^/]*sitemap[^/]*\.(?:xml|xsl))$/iu.test(parsedURL.pathname);
 	}
@@ -491,7 +489,7 @@ export default class $HTTP {
 		parsedURL = parsedURL || $URL.parse(request.url);
 
 		if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
-			return false;
+			return false; // Not possible, or early return on `/`.
 		}
 		return /(?:^|\/)(?:favicon\.ico|robots\.txt|locations\.kml|[^/]*sitemap[^/]*\.(?:xml|xsl))$/iu.test(parsedURL.pathname);
 	}
@@ -508,7 +506,7 @@ export default class $HTTP {
 		parsedURL = parsedURL || $URL.parse(request.url);
 
 		if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
-			return false;
+			return false; // Not possible, or early return on `/`.
 		}
 		return /(?:^|\/)(?:wp-)?admin(?:$|\/)/iu.test(parsedURL.pathname) && !/(?:^|\/)wp-admin\/admin-ajax\.php$/iu.test(parsedURL.pathname);
 	}
@@ -526,7 +524,7 @@ export default class $HTTP {
 		parsedURL = parsedURL || $URL.parse(request.url);
 
 		if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
-			return false;
+			return false; // Not possible, or early return on `/`.
 		}
 		if (exts instanceof RegExp) {
 			return /[^.]\.[^.]+$/u.test(parsedURL.pathname) && exts.test(parsedURL.pathname);
