@@ -46,7 +46,7 @@ export default class $Env {
 		const isC10nProps = $Obj.props(new URL('?' + String(isC10n), 'http://c10n').searchParams);
 
 		for (const [prop, pattern] of Object.entries(tests)) {
-			if (!$Obj.hasOwn(isC10nProps, prop) || !$Str.matches(isC10nProps[prop], pattern)) {
+			if (!$Obj.hasOwn(isC10nProps, prop) || !$Str.matches(isC10nProps[prop], pattern, { nocase: true })) {
 				return ($Env.cache.isC10n[cacheKey] = false);
 			}
 		}

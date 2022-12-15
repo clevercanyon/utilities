@@ -358,7 +358,61 @@ export default class $HTTP {
 	}
 
 	/**
-	 * Request is dynamic?
+	 * Request path is invalid?
+	 *
+	 * @param   request   HTTP request object.
+	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+	 *
+	 * @returns           `true` if request path is invalid.
+	 */
+	public static requestPathIsInvalid(request: Request, parsedURL: URL | null = null): boolean {
+		parsedURL = parsedURL || $URL.parse(request.url);
+
+		if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
+			return false;
+		}
+		return /\\|\/{2,}|\.{2,}/u.test(parsedURL.pathname);
+	}
+
+	/**
+	 * Request path is forbidden?
+	 *
+	 * @param   request   HTTP request object.
+	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+	 *
+	 * @returns           `true` if request path is forbidden.
+	 */
+	public static requestPathIsForbidden(request: Request, parsedURL: URL | null = null): boolean {
+		parsedURL = parsedURL || $URL.parse(request.url);
+
+		if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
+			return false;
+		}
+		const subPath = parsedURL.pathname.replace(/^\/|\/$/gu, '');
+
+		if (/(?:^|\/)\./u.test(subPath) && !/^\.well-known(?:$|\/)/iu.test(subPath)) {
+			return true; // No dotfile paths.
+		}
+		if (/(?:~|\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(subPath)) {
+			return true; // No backups, copies, logs, or temp paths.
+		}
+		if (/(?:^|\/)(?:[^/]*[._-])?(?:cache|private|logs?|te?mp)(?:$|\/)/iu.test(subPath)) {
+			return true; // No cache, private, log, or temp paths.
+		}
+		if (/(?:^|\/)wp[_-]content\/(?:cache|private|mu[_-]plugins|upgrade|uploads\/(?:wc[_-]logs|woocommerce[_-]uploads|lmfwc[_-]files))(?:$|\/)/iu.test(subPath)) {
+			return true; // No WP content paths that are private.
+		}
+		if (/(?:^|\/)(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(subPath)) {
+			return true; // No package management dependencies paths.
+		}
+		if (/\.(?:sh|bash|zsh|php[0-9]?|[ps]html?|aspx?|plx?|cgi|ppl|perl|go|rs|rlib|rb|py|py[icdowz])(?:$|\/)/iu.test(subPath)) {
+			return true; // No server-side script extension paths, including `.[ext]/pathinfo` data.
+		}
+		return false;
+	}
+
+	/**
+	 * Request path is dynamic?
 	 *
 	 * @param   request   HTTP request object.
 	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
@@ -374,7 +428,7 @@ export default class $HTTP {
 	}
 
 	/**
-	 * Request is static?
+	 * Request path is static?
 	 *
 	 * @param   request   HTTP request object.
 	 * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
