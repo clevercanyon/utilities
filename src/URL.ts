@@ -187,14 +187,14 @@ export default class $URL {
 	/**
 	 * Parses a URL string into a {@see URL}.
 	 *
-	 * @param   url                     URL for this method to parse. Optional in browser; i.e., default is {@see
+	 * @param   url            URL for this method to parse. Optional in browser; i.e., default is {@see
 	 *   $URL.current()}.
-	 * @param   base                    Base URL. Required in the case of relative URLs. Optional in browser; i.e.,
-	 *   default is {@see $URL.current()}.
-	 * @param   throwOnFailure          Throw on failure? Default is `true`.
+	 * @param   base           Base URL. Required in the case of relative URLs. Optional in browser; i.e., default is
+	 *   {@see $URL.current()}.
+	 * @param   throwOnFailure Throw on failure? Default is `true`.
 	 *
-	 * @returns {@see URL}                ; else throws error (or returns {@see null}) on failure. `throwOnFailure`
-	 *   defaults to `true`, resulting in an error on failure.
+	 * @returns                A {@see URL} instance. On failure this either throws an error or returns `null`.
+	 *   `throwOnFailure` defaults to `true`, resulting in the default behavior being to throw an error on failure.
 	 */
 	public static parse(url?: URL | string | null, base?: URL | string | null, throwOnFailure: boolean = true): URL | null {
 		if (undefined === url) {
