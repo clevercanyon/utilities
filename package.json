@@ -8,34 +8,70 @@
 	"homepage": "https://github.com/clevercanyon/utilities#readme",
 	"bugs": "https://github.com/clevercanyon/utilities/issues",
 	"funding": "https://github.com/sponsors/clevercanyon",
-	"keywords": [
-		"clevercanyon"
-	],
+	"keywords": ["clevercanyon"],
 	"author": {
 		"name": "Clever Canyon",
 		"url": "https://clevercanyon.com"
 	},
 	"contributors": [],
 	"type": "module",
-	"files": [
-		"/dist"
-	],
+	"files": ["/dist"],
 	"bin": {},
 	"imports": {},
 	"exports": {
 		".": {
 			"import": "./dist/index.js",
 			"require": "./dist/index.cjs"
+		},
+		"./brand": {
+			"import": "./dist/brand.js",
+			"require": "./dist/brand.cjs"
+		},
+		"./cookie": {
+			"import": "./dist/cookie.js",
+			"require": "./dist/cookie.cjs"
+		},
+		"./crypto": {
+			"import": "./dist/crypto.js",
+			"require": "./dist/crypto.cjs"
+		},
+		"./env": {
+			"import": "./dist/env.js",
+			"require": "./dist/env.cjs"
+		},
+		"./http": {
+			"import": "./dist/http.js",
+			"require": "./dist/http.cjs"
+		},
+		"./obj": {
+			"import": "./dist/obj.js",
+			"require": "./dist/obj.cjs"
+		},
+		"./str": {
+			"import": "./dist/str.js",
+			"require": "./dist/str.cjs"
+		},
+		"./time": {
+			"import": "./dist/time.js",
+			"require": "./dist/time.cjs"
+		},
+		"./url": {
+			"import": "./dist/url.js",
+			"require": "./dist/url.cjs"
 		}
 	},
-	"sideEffects": [
-		"./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"
-	],
+	"sideEffects": ["./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
-	"unpkg": "./dist/index.js",
 	"browser": "",
+	"unpkg": "./dist/index.js",
 	"types": "./dist/types/index.d.ts",
+	"typesVersions": {
+		">=3.1": {
+			"*": ["./types/*"]
+		}
+	},
+	"dependencies": {},
 	"peerDependencies": {
 		"crypto-js": "^4.1.1",
 		"ignore": "^5.2.1",
@@ -55,14 +91,8 @@
 		"@types/node": "^18.11.9"
 	},
 	"overrides": {},
-	"cpu": [
-		"x64",
-		"arm64"
-	],
-	"os": [
-		"darwin",
-		"linux"
-	],
+	"cpu": ["x64", "arm64"],
+	"os": ["darwin", "linux"],
 	"engines": {
 		"node": "^19.2.0",
 		"npm": "^8.19.3"

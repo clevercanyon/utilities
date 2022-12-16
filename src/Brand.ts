@@ -5,7 +5,7 @@
 /**
  * Brand props.
  */
-interface $BrandBaseProps {
+interface BaseProps {
 	readonly n7m: string;
 
 	readonly name: string;
@@ -35,20 +35,20 @@ interface $BrandBaseProps {
 		readonly zoneId: string;
 	};
 }
-interface $BrandRawProps extends $BrandBaseProps {
+interface RawProps extends BaseProps {
 	readonly org?: string | null;
 }
-interface $BrandConstructorProps extends $BrandBaseProps {
-	readonly org?: $Brand | null;
+interface ConstructorProps extends BaseProps {
+	readonly org?: Brand | null;
 }
-interface $BrandProps extends $BrandBaseProps {
-	readonly org: $Brand;
+interface Props extends BaseProps {
+	readonly org: Brand;
 }
 
 /**
  * Raw brand props by N7M.
  */
-const $rawBrandPropsByN7M: { readonly [x: string]: $BrandRawProps } = {
+const rawPropsByN7M: { readonly [x: string]: RawProps } = {
 	'c10n': {
 		'org': 'c10n',
 		'n7m': 'c10n',
@@ -104,18 +104,18 @@ const $rawBrandPropsByN7M: { readonly [x: string]: $BrandRawProps } = {
 };
 
 /**
+ * Instances.
+ */
+const instances: { [x: string]: Brand } = {};
+
+/**
  * Brand utilities.
  */
-export default class $Brand implements $BrandProps {
-	/**
-	 * Brand instances.
-	 */
-	protected static instances: { [x: string]: $Brand } = {};
-
+export class Brand implements Props {
 	/**
 	 * Org brand object.
 	 */
-	public readonly org: $Brand;
+	public readonly org: Brand;
 
 	/**
 	 * N7M; e.g., `m5d`.
@@ -189,8 +189,8 @@ export default class $Brand implements $BrandProps {
 	 *
 	 * @param props Properties.
 	 */
-	protected constructor(props: $BrandConstructorProps) {
-		if (props.org instanceof $Brand) {
+	public constructor(props: ConstructorProps) {
+		if (props.org instanceof Brand) {
 			this.org = props.org;
 		} else {
 			this.org = this;
@@ -212,27 +212,27 @@ export default class $Brand implements $BrandProps {
 		this.google = props.google;
 		this.cloudflare = props.cloudflare;
 	}
+}
 
-	/**
-	 * Brand factory.
-	 *
-	 * @param   n7m Brand numeronym.
-	 *
-	 * @returns     Brand; else `null`.
-	 */
-	public static get(n7m: string): $Brand | null {
-		n7m = '&' === n7m ? 'c10n' : n7m;
+/**
+ * Brand factory.
+ *
+ * @param   n7m Brand numeronym.
+ *
+ * @returns     Brand; else `null`.
+ */
+export function get(n7m: string): Brand | null {
+	n7m = '&' === n7m ? 'c10n' : n7m;
 
-		if (!n7m || !$rawBrandPropsByN7M[n7m]) {
-			return null; // Not available.
-		}
-		if ($Brand.instances[n7m]) {
-			return $Brand.instances[n7m];
-		}
-		const rawBrand = $rawBrandPropsByN7M[n7m];
-		const rawBrandOrg = rawBrand.org === n7m ? '' : rawBrand.org || '';
-		$Brand.instances[n7m] = new $Brand({ ...rawBrand, org: $Brand.get(rawBrandOrg) });
-
-		return $Brand.instances[n7m]; // Brand instance.
+	if (!n7m || !rawPropsByN7M[n7m]) {
+		return null; // Not available.
 	}
+	if (instances[n7m]) {
+		return instances[n7m];
+	}
+	const rawBrand = rawPropsByN7M[n7m];
+	const rawBrandOrg = rawBrand.org === n7m ? '' : rawBrand.org || '';
+	instances[n7m] = new Brand({ ...rawBrand, org: get(rawBrandOrg) });
+
+	return instances[n7m]; // Brand instance.
 }
