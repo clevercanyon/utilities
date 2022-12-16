@@ -2,12 +2,12 @@
  * Utility exports.
  */
 
-export * as $brand from './brand';
-export * as $cookie from './cookie';
-export * as $crypto from './crypto';
-export * as $env from './env';
-export * as $http from './http';
-export * as $obj from './obj';
-export * as $str from './str';
-export * as $time from './time';
-export * as $url from './url';
+export * as $brand from './brand.js';
+export * as $cookie from './cookie.js';
+export * as $crypto from './crypto.js';
+export * as $env from './env.js';
+export * as $http from './http.js';
+export * as $obj from './obj.js';
+export * as $str from './str.js';
+export * as $time from './time.js';
+export * as $url from './url.js';

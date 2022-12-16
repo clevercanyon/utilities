@@ -2,9 +2,9 @@
  * Utility class.
  */
 
-import { isWeb as envIsWeb } from './env';
-import { hasOwn as objHasOwn } from './obj';
-import { currentRootHost as urlCurrentRootHost, currentScheme as urlCurrentScheme, encode as urlEncode } from './url';
+import { isWeb as envIsWeb } from './env.js';
+import { hasOwn as objHasOwn } from './obj.js';
+import { currentRootHost as urlCurrentRootHost, currentScheme as urlCurrentScheme, encode as urlEncode } from './url.js';
 
 /**
  * Cookie options.

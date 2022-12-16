@@ -2,8 +2,8 @@
  * Utility class.
  */
 
-import { empty as objEmpty, hasOwn as objHasOwn, props as objProps } from './obj';
-import { matches as strMatches } from './str';
+import { empty as objEmpty, hasOwn as objHasOwn, props as objProps } from './obj.js';
+import { matches as strMatches } from './str.js';
 
 /**
  * Polyfills missing types.

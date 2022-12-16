@@ -2,12 +2,12 @@
  * Utility class.
  */
 
-import cryptoHex from 'crypto-js/enc-hex';
-import cryptoHMACSHA1 from 'crypto-js/hmac-sha1';
-import cryptoHMACSHA256 from 'crypto-js/hmac-sha256';
-import cryptoMD5 from 'crypto-js/md5';
-import cryptoSHA1 from 'crypto-js/sha1';
-import cryptoSHA256 from 'crypto-js/sha256';
+import cryptoHex from 'crypto-js/enc-hex.js';
+import cryptoHMACSHA1 from 'crypto-js/hmac-sha1.js';
+import cryptoHMACSHA256 from 'crypto-js/hmac-sha256.js';
+import cryptoMD5 from 'crypto-js/md5.js';
+import cryptoSHA1 from 'crypto-js/sha1.js';
+import cryptoSHA256 from 'crypto-js/sha256.js';
 
 /**
  * Generates an MD5 hash.

@@ -8,65 +8,69 @@
 	"homepage": "https://github.com/clevercanyon/utilities#readme",
 	"bugs": "https://github.com/clevercanyon/utilities/issues",
 	"funding": "https://github.com/sponsors/clevercanyon",
-	"keywords": [
-		"clevercanyon"
-	],
+	"keywords": ["clevercanyon"],
 	"author": {
 		"name": "Clever Canyon",
 		"url": "https://clevercanyon.com"
 	},
 	"contributors": [],
 	"type": "module",
-	"files": [
-		"/dist"
-	],
+	"files": ["/dist"],
 	"bin": {},
 	"imports": {},
 	"exports": {
 		".": {
 			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
+			"require": "./dist/index.cjs",
+			"types": "./dist/types/index.d.ts"
 		},
 		"./brand": {
 			"import": "./dist/brand.js",
-			"require": "./dist/brand.cjs"
+			"require": "./dist/brand.cjs",
+			"types": "./dist/types/brand.d.ts"
 		},
 		"./cookie": {
 			"import": "./dist/cookie.js",
-			"require": "./dist/cookie.cjs"
+			"require": "./dist/cookie.cjs",
+			"types": "./dist/types/cookie.d.ts"
 		},
 		"./crypto": {
 			"import": "./dist/crypto.js",
-			"require": "./dist/crypto.cjs"
+			"require": "./dist/crypto.cjs",
+			"types": "./dist/types/crypto.d.ts"
 		},
 		"./env": {
 			"import": "./dist/env.js",
-			"require": "./dist/env.cjs"
+			"require": "./dist/env.cjs",
+			"types": "./dist/types/env.d.ts"
 		},
 		"./http": {
 			"import": "./dist/http.js",
-			"require": "./dist/http.cjs"
+			"require": "./dist/http.cjs",
+			"types": "./dist/types/http.d.ts"
 		},
 		"./obj": {
 			"import": "./dist/obj.js",
-			"require": "./dist/obj.cjs"
+			"require": "./dist/obj.cjs",
+			"types": "./dist/types/obj.d.ts"
 		},
 		"./str": {
 			"import": "./dist/str.js",
-			"require": "./dist/str.cjs"
+			"require": "./dist/str.cjs",
+			"types": "./dist/types/str.d.ts"
 		},
 		"./time": {
 			"import": "./dist/time.js",
-			"require": "./dist/time.cjs"
+			"require": "./dist/time.cjs",
+			"types": "./dist/types/time.d.ts"
 		},
 		"./url": {
 			"import": "./dist/url.js",
-			"require": "./dist/url.cjs"
+			"require": "./dist/url.cjs",
+			"types": "./dist/types/url.d.ts"
 		}
 	},
-	"sideEffects": [
-		"./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"
-	],
+	"sideEffects": ["./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
 	"browser": "",
@@ -74,9 +78,7 @@
 	"types": "./dist/types/index.d.ts",
 	"typesVersions": {
 		">=3.1": {
-			"./*": [
-				"./dist/types/*"
-			]
+			"./*": ["./dist/types/*"]
 		}
 	},
 	"dependencies": {},
@@ -99,14 +101,8 @@
 		"@types/node": "^18.11.9"
 	},
 	"overrides": {},
-	"cpu": [
-		"x64",
-		"arm64"
-	],
-	"os": [
-		"darwin",
-		"linux"
-	],
+	"cpu": ["x64", "arm64"],
+	"os": ["darwin", "linux"],
 	"engines": {
 		"node": "^19.2.0",
 		"npm": "^8.19.3"

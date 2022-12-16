@@ -2,7 +2,7 @@
  * Utility class.
  */
 
-import { isWeb as envIsWeb } from './env';
+import { isWeb as envIsWeb } from './env.js';
 
 /**
  * RFC 1738 URL encoding strategy.

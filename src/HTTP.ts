@@ -2,9 +2,9 @@
  * Utility class.
  */
 
-import { isC10n as envIsC10n, isCfw as envIsCfw } from './env';
-import { escRegExp as strEscRegExp } from './str';
-import { parse as urlParse, removeCSOQueryVars as urlRemoveCSOQueryVars } from './url';
+import { isC10n as envIsC10n, isCfw as envIsCfw } from './env.js';
+import { escRegExp as strEscRegExp } from './str.js';
+import { parse as urlParse, removeCSOQueryVars as urlRemoveCSOQueryVars } from './url.js';
 
 /**
  * Request config.
