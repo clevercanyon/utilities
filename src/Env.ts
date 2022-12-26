@@ -32,32 +32,32 @@ const cache: {
  * Captures vars.
  */
 if (isNode()) {
-	captureVars(process.env);
+	capture(process.env);
 }
-captureVars(import.meta.env);
+capture(import.meta.env);
 
 /**
- * Captures environment variables.
+ * Captures variables.
  *
- * @param env Environment variables.
+ * @param env Environment vars.
  *
  * @note Order of capture matters.
  * @note Existing variables will *not* be overwritten.
  */
-export function captureVars(env: { [x: string]: unknown }): void {
+export function capture(env: { [x: string]: unknown }): void {
 	for (const [name, value] of Object.entries(env)) {
-		if (!$objꓺhasOwn(vars, name)) setVar(name, value);
+		if (!$objꓺhasOwn(vars, name)) set(name, value);
 	}
 }
 
 /**
- * Gets an environment variable.
+ * Gets a variable.
  *
  * @param   name Variable name.
  *
  * @returns      Variable value.
  */
-export function getVar(name: string): unknown | null {
+export function get(name: string): unknown | null {
 	if ($objꓺhasOwn(vars, name)) {
 		return vars[name];
 	}
@@ -65,12 +65,12 @@ export function getVar(name: string): unknown | null {
 }
 
 /**
- * Sets an environment variable.
+ * Sets a variable.
  *
  * @param name  Variable name.
  * @param value Variable value.
  */
-export function setVar(name: string, value: unknown): void {
+export function set(name: string, value: unknown): void {
 	vars[name] = value;
 }
 
@@ -89,13 +89,13 @@ export function isC10N(tests: { [x: string]: string } = {}): boolean {
 	if (undefined !== cache.isC10N[key]) {
 		return cache.isC10N[key];
 	}
-	if (!getVar('IS_C10N')) {
+	if (!get('IS_C10N')) {
 		return (cache.isC10N[key] = false);
 	}
 	if ($objꓺempty(tests)) {
 		return (cache.isC10N[key] = true);
 	}
-	const isC10NProps = $objꓺprops(new URL('?' + String(getVar('IS_C10N')), 'https://c10n').searchParams);
+	const isC10NProps = $objꓺprops(new URL('?' + String(get('IS_C10N')), 'https://c10n').searchParams);
 
 	for (const [prop, pattern] of Object.entries(tests)) {
 		if (!$objꓺhasOwn(isC10NProps, prop) || !$strꓺmatches(isC10NProps[prop], pattern, { nocase: true })) {
