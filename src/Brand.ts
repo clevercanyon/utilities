@@ -36,7 +36,7 @@ interface BaseProps {
 	};
 }
 interface RawProps extends BaseProps {
-	readonly org?: string | null;
+	readonly org: string;
 }
 interface ConstructorProps extends BaseProps {
 	readonly org?: Brand | null;
@@ -46,9 +46,14 @@ interface Props extends BaseProps {
 }
 
 /**
+ * Brand instances.
+ */
+const instances: { [x: string]: Brand } = {};
+
+/**
  * Raw brand props by N7M.
  */
-const rawPropsByN7M: { readonly [x: string]: RawProps } = {
+const rawProps: { readonly [x: string]: RawProps } = {
 	'c10n': {
 		'org': 'c10n',
 		'n7m': 'c10n',
@@ -102,11 +107,6 @@ const rawPropsByN7M: { readonly [x: string]: RawProps } = {
 		},
 	},
 };
-
-/**
- * Instances.
- */
-const instances: { [x: string]: Brand } = {};
 
 /**
  * Brand utilities.
@@ -215,7 +215,7 @@ export class Brand implements Props {
 }
 
 /**
- * Brand factory.
+ * Gets a brand instance.
  *
  * @param   n7m Brand numeronym.
  *
@@ -224,15 +224,15 @@ export class Brand implements Props {
 export function get(n7m: string): Brand | null {
 	n7m = '&' === n7m ? 'c10n' : n7m;
 
-	if (!n7m || !rawPropsByN7M[n7m]) {
+	if (!n7m || !rawProps[n7m]) {
 		return null; // Not available.
 	}
 	if (instances[n7m]) {
 		return instances[n7m];
 	}
-	const rawBrand = rawPropsByN7M[n7m];
-	const rawBrandOrg = rawBrand.org === n7m ? '' : rawBrand.org || '';
-	instances[n7m] = new Brand({ ...rawBrand, org: get(rawBrandOrg) });
+	const rawBrand = rawProps[n7m];
+	const rawBrandOrg = rawBrand.org === n7m ? '' : rawBrand.org;
 
+	instances[n7m] = new Brand({ ...rawBrand, org: get(rawBrandOrg) });
 	return instances[n7m]; // Brand instance.
 }

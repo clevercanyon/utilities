@@ -2,12 +2,15 @@
  * Utility class.
  */
 
-import cryptoHex from 'crypto-js/enc-hex.js';
-import cryptoHMACSHA1 from 'crypto-js/hmac-sha1.js';
-import cryptoHMACSHA256 from 'crypto-js/hmac-sha256.js';
-import cryptoMD5 from 'crypto-js/md5.js';
-import cryptoSHA1 from 'crypto-js/sha1.js';
-import cryptoSHA256 from 'crypto-js/sha256.js';
+import cryptoJSꓺmd5 from 'crypto-js/md5.js';
+
+import cryptoJSꓺsha1 from 'crypto-js/sha1.js';
+import cryptoJSꓺhmacSHA1 from 'crypto-js/hmac-sha1.js';
+
+import cryptoJSꓺsha256 from 'crypto-js/sha256.js';
+import cryptoJSꓺhmacSHA256 from 'crypto-js/hmac-sha256.js';
+
+import cryptoJSꓺencꓺhex from 'crypto-js/enc-hex.js';
 
 /**
  * Generates an MD5 hash.
@@ -17,7 +20,7 @@ import cryptoSHA256 from 'crypto-js/sha256.js';
  * @returns     MD5. 32 hexadecimals in length.
  */
 export function md5(str: string): string {
-	return cryptoHex.stringify(cryptoMD5(str));
+	return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺmd5(str));
 }
 
 /**
@@ -28,7 +31,7 @@ export function md5(str: string): string {
  * @returns     SHA-1 hash. 40 hexadecimals in length.
  */
 export function sha1(str: string): string {
-	return cryptoHex.stringify(cryptoSHA1(str));
+	return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺsha1(str));
 }
 
 /**
@@ -39,8 +42,8 @@ export function sha1(str: string): string {
  *
  * @returns      HMAC SHA-1 hash. 64 hexadecimals in length.
  */
-export function hmacSha1(str: string, salt: string): string {
-	return cryptoHex.stringify(cryptoHMACSHA1(str, salt));
+export function hmacSHA1(str: string, salt: string): string {
+	return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺhmacSHA1(str, salt));
 }
 
 /**
@@ -51,7 +54,7 @@ export function hmacSha1(str: string, salt: string): string {
  * @returns     SHA-256 hash. 64 hexadecimals in length.
  */
 export function sha256(str: string): string {
-	return cryptoHex.stringify(cryptoSHA256(str));
+	return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺsha256(str));
 }
 
 /**
@@ -62,8 +65,8 @@ export function sha256(str: string): string {
  *
  * @returns      HMAC SHA-256 hash. 64 hexadecimals in length.
  */
-export function hmacSha256(str: string, salt: string): string {
-	return cryptoHex.stringify(cryptoHMACSHA256(str, salt));
+export function hmacSHA256(str: string, salt: string): string {
+	return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺhmacSHA256(str, salt));
 }
 
 /**

@@ -2,9 +2,9 @@
  * Utility class.
  */
 
-import { isC10n as envIsC10n, isCfw as envIsCfw } from './env.js';
-import { escRegExp as strEscRegExp } from './str.js';
-import { parse as urlParse, removeCSOQueryVars as urlRemoveCSOQueryVars } from './url.js';
+import { escRegExp as $strꓺescRegExp } from './str.js';
+import { isC10N as $envꓺisC10N, isCFW as $envꓺisCFW } from './env.js';
+import { parse as $urlꓺparse, removeCSOQueryVars as $urlꓺremoveCSOQueryVars } from './url.js';
 
 /**
  * Request config.
@@ -47,8 +47,8 @@ export function prepareRequest(request: Request, config: RequestConfig = {}): Re
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `config` ok.
 	config = requestConfig(config);
 
-	const cleanURL = urlRemoveCSOQueryVars(request.url);
-	const parsedURL = urlParse(cleanURL);
+	const cleanURL = $urlꓺremoveCSOQueryVars(request.url);
+	const parsedURL = $urlꓺparse(cleanURL);
 
 	if (!parsedURL) {
 		throw new Error('Parse failure. Invalid request URL.');
@@ -85,7 +85,7 @@ export function responseConfig(config: ResponseConfig = {}): ResponseConfig {
 			headers: {},
 			appendHeaders: {},
 			enableCORs: false,
-			enableCDN: !envIsCfw(),
+			enableCDN: !$envꓺisCFW(),
 		},
 		config,
 	);
@@ -132,7 +132,7 @@ export function prepareResponseHeaders(request: Request, config: ResponseConfig 
 	config = responseConfig(config);
 	config.status = config.status || 500;
 
-	const parsedURL = urlParse(request.url);
+	const parsedURL = $urlꓺparse(request.url);
 
 	config.headers = config.headers instanceof Headers ? config.headers : new Headers(config.headers || {});
 	config.appendHeaders = config.appendHeaders instanceof Headers ? config.appendHeaders : new Headers(config.appendHeaders || {});
@@ -194,7 +194,7 @@ export function prepareResponseHeaders(request: Request, config: ResponseConfig 
 	}
 	// Security-related headers.
 
-	if (envIsC10n()) {
+	if ($envꓺisC10N()) {
 		securityHeaders = {
 			'x-frame-options': 'SAMEORIGIN',
 			'x-content-type-options': 'nosniff',
@@ -363,7 +363,7 @@ export function requestIsFromUser(request: Request): boolean {
  * @returns           `true` if request path is invalid.
  */
 export function requestPathIsInvalid(request: Request, parsedURL: URL | null = null): boolean {
-	parsedURL = parsedURL || urlParse(request.url);
+	parsedURL = parsedURL || $urlꓺparse(request.url);
 
 	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
 		return false; // Not possible, or early return on `/`.
@@ -380,7 +380,7 @@ export function requestPathIsInvalid(request: Request, parsedURL: URL | null = n
  * @returns           `true` if request path is forbidden.
  */
 export function requestPathIsForbidden(request: Request, parsedURL: URL | null = null): boolean {
-	parsedURL = parsedURL || urlParse(request.url);
+	parsedURL = parsedURL || $urlꓺparse(request.url);
 
 	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
 		return false; // Not possible, or early return on `/`.
@@ -439,10 +439,10 @@ export function requestPathIsStatic(request: Request, parsedURL: URL | null = nu
  * @returns           `true` if request path has a dynamic base.
  */
 export function requestPathHasDynamicBase(request: Request, parsedURL: URL | null = null): boolean {
-	if (!envIsC10n()) {
+	if (!$envꓺisC10N()) {
 		return false; // Not applicable.
 	}
-	parsedURL = parsedURL || urlParse(request.url);
+	parsedURL = parsedURL || $urlꓺparse(request.url);
 
 	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
 		return false; // Not possible, or early return on `/`.
@@ -459,10 +459,10 @@ export function requestPathHasDynamicBase(request: Request, parsedURL: URL | nul
  * @returns           `true` if request path is potentially dynamic.
  */
 export function requestPathIsPotentiallyDynamic(request: Request, parsedURL: URL | null = null): boolean {
-	if (!envIsC10n()) {
+	if (!$envꓺisC10N()) {
 		return false; // Not applicable.
 	}
-	parsedURL = parsedURL || urlParse(request.url);
+	parsedURL = parsedURL || $urlꓺparse(request.url);
 
 	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
 		return false; // Not possible, or early return on `/`.
@@ -479,7 +479,7 @@ export function requestPathIsPotentiallyDynamic(request: Request, parsedURL: URL
  * @returns           `true` if request path is an SEO file.
  */
 export function requestPathIsSEORelatedFile(request: Request, parsedURL: URL | null = null): boolean {
-	parsedURL = parsedURL || urlParse(request.url);
+	parsedURL = parsedURL || $urlꓺparse(request.url);
 
 	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
 		return false; // Not possible, or early return on `/`.
@@ -496,7 +496,7 @@ export function requestPathIsSEORelatedFile(request: Request, parsedURL: URL | n
  * @returns           `true` if request path is in `/(?:wp-)?admin`.
  */
 export function requestPathIsInAdmin(request: Request, parsedURL: URL | null = null): boolean {
-	parsedURL = parsedURL || urlParse(request.url);
+	parsedURL = parsedURL || $urlꓺparse(request.url);
 
 	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
 		return false; // Not possible, or early return on `/`.
@@ -514,7 +514,7 @@ export function requestPathIsInAdmin(request: Request, parsedURL: URL | null = n
  * @returns           `true` if request path has a static file extension.
  */
 export function requestPathHasStaticExtension(request: Request, parsedURL: URL | null = null, exts?: Array<string> | RegExp): boolean {
-	parsedURL = parsedURL || urlParse(request.url);
+	parsedURL = parsedURL || $urlꓺparse(request.url);
 
 	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
 		return false; // Not possible, or early return on `/`.
@@ -523,7 +523,7 @@ export function requestPathHasStaticExtension(request: Request, parsedURL: URL |
 		return /[^/.]\.[^/.]+$/u.test(parsedURL.pathname) && exts.test(parsedURL.pathname);
 	}
 	if (exts instanceof Array && exts.length) {
-		return /[^/.]\.[^/.]+$/u.test(parsedURL.pathname) && new RegExp('[^/.]\\.(?:' + exts.map((v) => strEscRegExp(v)).join('|') + ')$', 'ui').test(parsedURL.pathname);
+		return /[^/.]\.[^/.]+$/u.test(parsedURL.pathname) && new RegExp('[^/.]\\.(?:' + exts.map((v) => $strꓺescRegExp(v)).join('|') + ')$', 'ui').test(parsedURL.pathname);
 	}
 	return (
 		/[^/.]\.[^/.]+$/u.test(parsedURL.pathname) &&

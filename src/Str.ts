@@ -2,7 +2,7 @@
  * Utility class.
  */
 
-import minimatch from 'minimatch';
+import micromatch from 'micromatch';
 
 /**
  * Text encoder.
@@ -67,10 +67,10 @@ export function escHtml(str: string): string {
  *
  * @param   str     String to test.
  * @param   pattern Pattern to look for.
- * @param   options Optional minimatch options.
+ * @param   options Optional micromatch options.
  *
  * @returns         True if matches given pattern.
  */
-export function matches(str: string, pattern: string, options: minimatch.IOptions = {}): boolean {
-	return minimatch(str, pattern, { dot: true, ...options });
+export function matches(str: string, pattern: string, options: micromatch.Options = {}): boolean {
+	return micromatch.isMatch(str, pattern, { dot: true, ...options });
 }

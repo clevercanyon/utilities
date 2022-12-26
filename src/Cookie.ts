@@ -2,14 +2,19 @@
  * Utility class.
  */
 
-import { isWeb as envIsWeb } from './env.js';
-import { hasOwn as objHasOwn } from './obj.js';
-import { currentRootHost as urlCurrentRootHost, currentScheme as urlCurrentScheme, encode as urlEncode } from './url.js';
+import { isWeb as $envꓺisWeb } from './env.js';
+import { hasOwn as $objꓺhasOwn } from './obj.js';
+import {
+	currentScheme as $urlꓺcurrentScheme, //
+	currentRootHost as $urlꓺcurrentRootHost,
+	encode as $urlꓺencode,
+	decode as $urlꓺdecode,
+} from './url.js';
 
 /**
- * Cookie options.
+ * Options.
  */
-interface Options {
+export interface Options {
 	domain?: string;
 	path?: string;
 	expires?: number;
@@ -18,41 +23,35 @@ interface Options {
 }
 
 /**
- * Cache.
+ * Default web header cookies.
  */
-const cache: {
-	cookies?: { [x: string]: string };
-	[x: string]: unknown;
-} = {};
+let defaultWebHeaderCookies: { [x: string]: string } | undefined;
 
 /**
  * Parses a cookie header.
  *
  * @param   header Cookie header to parse. Optional in browser. Default is `document.cookie`.
  *
- * @returns        Cookies, as object props.
+ * @returns        Parsed cookies; i.e., as object props.
  */
 export function parse(header?: string): { [x: string]: string } {
-	let isWebHeader = null; // Initialize.
+	let isDefaultWebHeader = false; // Initialize.
 	let cookies: { [x: string]: string } = {};
 
 	if (undefined === header) {
-		if (envIsWeb()) {
-			isWebHeader = true;
+		if ($envꓺisWeb()) {
 			header = document.cookie;
+			isDefaultWebHeader = true;
 		} else {
-			throw new Error('Missing required parameter: `header`.');
+			throw new Error('Missing `header`.');
 		}
 	}
-	if (isWebHeader && cache.cookies) {
-		return cache.cookies;
-	}
-	if (isWebHeader) {
-		cache.cookies = {}; // Initialize.
-		cookies = cache.cookies;
-	}
-	if (!header) {
-		return cookies; // Nothing to parse.
+	if (isDefaultWebHeader) {
+		if (defaultWebHeaderCookies) {
+			return { ...defaultWebHeaderCookies };
+		}
+		defaultWebHeaderCookies = {};
+		cookies = defaultWebHeaderCookies;
 	}
 	header.split(/\s*;\s*/).forEach((cookie) => {
 		let name, value; // Initialize.
@@ -64,12 +63,15 @@ export function parse(header?: string): { [x: string]: string } {
 		} else {
 			[name, value] = [cookie, ''];
 		}
+		if ('' === name || !isValidName(name)) {
+			return; // Invalid name.
+		}
 		if (value.startsWith('"') && value.endsWith('"')) {
 			value = value.slice(1, -1);
 		}
-		cookies[decodeURIComponent(name)] = decodeURIComponent(value);
+		cookies[$urlꓺdecode(name)] = $urlꓺdecode(value);
 	});
-	return cookies;
+	return { ...cookies };
 }
 
 /**
@@ -79,11 +81,11 @@ export function parse(header?: string): { [x: string]: string } {
  *
  * @returns      `true` if cookie exists.
  */
-export function has(name: string): boolean {
-	if (!envIsWeb()) {
-		throw new Error('Not in browser.');
+export function exists(name: string): boolean {
+	if (!$envꓺisWeb()) {
+		throw new Error('Not web.');
 	}
-	return objHasOwn(parse(), name);
+	return $objꓺhasOwn(parse(), name);
 }
 
 /**
@@ -94,12 +96,12 @@ export function has(name: string): boolean {
  * @returns      Cookie value; else `null`.
  */
 export function get(name: string): string | null {
-	if (!envIsWeb()) {
-		throw new Error('Not in browser.');
+	if (!$envꓺisWeb()) {
+		throw new Error('Not web.');
 	}
 	const cookies = parse();
 
-	if (!objHasOwn(cookies, name)) {
+	if (!$objꓺhasOwn(cookies, name)) {
 		return null;
 	}
 	return cookies[name] || '';
@@ -115,18 +117,18 @@ export function get(name: string): string | null {
  * @returns         `true` on success.
  */
 export function set(name: string, value: string, options: Options = {}): boolean {
-	if (!envIsWeb()) {
-		throw new Error('Not in browser.');
+	if (!$envꓺisWeb()) {
+		throw new Error('Not web.');
 	}
 	if (!isValidName(name)) {
-		throw new Error('Invalid cookie name: `' + name + '`.');
+		throw new Error('Invalid name: `' + name + '`.');
 	}
-	let domain: string = options.domain || '.' + urlCurrentRootHost(false);
+	let domain: string = options.domain || '.' + $urlꓺcurrentRootHost(false);
 	let path: string = options.path || '/';
 	let expires: number | string = options.expires || 31536000;
 
 	let samesite: string = options.samesite || 'lax';
-	let secure: boolean | string = undefined === options.secure ? 'https' === urlCurrentScheme() : options.secure;
+	let secure: boolean | string = undefined === options.secure ? 'https' === $urlꓺcurrentScheme() : options.secure;
 	secure = 'none' === samesite.toLowerCase() ? true : secure;
 
 	domain = domain ? '; domain=' + domain : '';
@@ -135,13 +137,17 @@ export function set(name: string, value: string, options: Options = {}): boolean
 	samesite = samesite ? '; samesite=' + samesite : '';
 	secure = secure ? '; secure' : '';
 
-	// The `httonly` attribute is implied when using JavaScript.
+	// The `httponly` attribute is implied when using JavaScript.
 	// {@see https://stackoverflow.com/a/14691716}.
 
-	document.cookie = urlEncode(name) + '=' + urlEncode(value) + domain + path + expires + samesite + secure;
+	document.cookie = $urlꓺencode(name) + '=' + $urlꓺencode(value) + domain + path + expires + samesite + secure;
 
-	if (cache.cookies) {
-		cache.cookies[name] = value;
+	if (defaultWebHeaderCookies) {
+		defaultWebHeaderCookies[name] = value;
+
+		if ('' === value && options.expires && options.expires <= -1) {
+			delete defaultWebHeaderCookies[name];
+		}
 	}
 	return true;
 }
@@ -155,8 +161,8 @@ export function set(name: string, value: string, options: Options = {}): boolean
  * @returns         `true` on success.
  */
 export function del(name: string, options: Options = {}): boolean {
-	if (!envIsWeb()) {
-		throw new Error('Not in browser.');
+	if (!$envꓺisWeb()) {
+		throw new Error('Not web.');
 	}
 	return set(name, '', Object.assign({}, options || {}, { expires: -1 }));
 }

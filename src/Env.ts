@@ -2,8 +2,8 @@
  * Utility class.
  */
 
-import { empty as objEmpty, hasOwn as objHasOwn, props as objProps } from './obj.js';
-import { matches as strMatches } from './str.js';
+import { matches as $strꓺmatches } from './str.js';
+import { empty as $objꓺempty, hasOwn as $objꓺhasOwn, props as $objꓺprops } from './obj.js';
 
 /**
  * Polyfills missing types.
@@ -14,47 +14,95 @@ declare function SharedWorkerGlobalScope(): void;
 declare function ServiceWorkerGlobalScope(): void;
 
 /**
- * Cache.
+ * Environment vars.
  */
-const cache: {
-	isC10n?: { [x: string]: boolean };
+const vars: {
 	[x: string]: unknown;
 } = {};
 
 /**
- * Is Clever Canyon?
+ * Environment cache.
+ */
+const cache: {
+	[x: string]: unknown;
+	isC10N?: { [x: string]: boolean };
+} = {};
+
+/**
+ * Captures vars.
+ */
+if (isNode()) {
+	captureVars(process.env);
+}
+captureVars(import.meta.env);
+
+/**
+ * Captures environment variables.
  *
- * @param   tests Optional prop patterns to test for in `isC10n`. Each property is treated as a glob pattern that must
- *   be found in `isC10n`. To test if a prop exists use `*`. Or, to test that it exists and is not empty use `?`.
+ * @param env Environment variables.
+ *
+ * @note Order of capture matters.
+ * @note Existing variables will *not* be overwritten.
+ */
+export function captureVars(env: { [x: string]: unknown }): void {
+	for (const [name, value] of Object.entries(env)) {
+		if (!$objꓺhasOwn(vars, name)) setVar(name, value);
+	}
+}
+
+/**
+ * Gets an environment variable.
+ *
+ * @param   name Variable name.
+ *
+ * @returns      Variable value.
+ */
+export function getVar(name: string): unknown | null {
+	if ($objꓺhasOwn(vars, name)) {
+		return vars[name];
+	}
+	return null; // Unavailable.
+}
+
+/**
+ * Sets an environment variable.
+ *
+ * @param name  Variable name.
+ * @param value Variable value.
+ */
+export function setVar(name: string, value: unknown): void {
+	vars[name] = value;
+}
+
+/**
+ * Is Clever Canyon? i.e., operated by Clever Canyon.
+ *
+ * @param   tests Optional prop patterns to test for. Each property is treated as a glob pattern that must be found. To
+ *   test if a prop simply exists, use `*`. Or, to test that it exists and is not empty use `?`.
  *
  * @returns       `true` if `IS_C10N` and all tests pass.
  */
-export function isC10n(tests: { [x: string]: string } = {}): boolean {
-	cache.isC10n ??= {}; // Initialize.
-	const cacheKey = JSON.stringify(tests);
+export function isC10N(tests: { [x: string]: string } = {}): boolean {
+	cache.isC10N ??= {}; // Initialize.
+	const key = JSON.stringify(tests);
 
-	if (undefined !== cache.isC10n[cacheKey]) {
-		return cache.isC10n[cacheKey];
+	if (undefined !== cache.isC10N[key]) {
+		return cache.isC10N[key];
 	}
-	if (!('IS_C10N' in globalThis)) {
-		return (cache.isC10n[cacheKey] = false);
+	if (!getVar('IS_C10N')) {
+		return (cache.isC10N[key] = false);
 	}
-	// @ts-ignore `isC10n` environment var is ok.
-	const isC10n = String(globalThis.IS_C10N || '');
-
-	if (objEmpty(tests)) {
-		return (cache.isC10n[cacheKey] = true);
+	if ($objꓺempty(tests)) {
+		return (cache.isC10N[key] = true);
 	}
-	// Parses `isC10n` as a query string, which is used to populate `isC10nProps`.
-	// Each property of `tests` is treated as a glob pattern that must be found in `isC10nProps`.
-	const isC10nProps = objProps(new URL('?' + String(isC10n), 'http://c10n').searchParams);
+	const isC10NProps = $objꓺprops(new URL('?' + String(getVar('IS_C10N')), 'https://c10n').searchParams);
 
 	for (const [prop, pattern] of Object.entries(tests)) {
-		if (!objHasOwn(isC10nProps, prop) || !strMatches(isC10nProps[prop], pattern, { nocase: true })) {
-			return (cache.isC10n[cacheKey] = false);
+		if (!$objꓺhasOwn(isC10NProps, prop) || !$strꓺmatches(isC10NProps[prop], pattern, { nocase: true })) {
+			return (cache.isC10N[key] = false);
 		}
 	}
-	return (cache.isC10n[cacheKey] = true);
+	return (cache.isC10N[key] = true);
 }
 
 /**
@@ -86,11 +134,11 @@ export function isNode(): boolean {
  *
  * @returns `true` if CFW.
  */
-export function isCfw(): boolean {
-	if (undefined !== cache.isCfw) {
-		return cache.isCfw as boolean;
+export function isCFW(): boolean {
+	if (undefined !== cache.isCFW) {
+		return cache.isCFW as boolean;
 	}
-	return (cache.isCfw =
+	return (cache.isCFW =
 		isServiceWorker() && typeof Navigator === 'function' && typeof navigator === 'object' && navigator instanceof Navigator && 'Cloudflare-Workers' === navigator.userAgent);
 }
 

@@ -2,7 +2,7 @@
  * Utility class.
  */
 
-import { isWeb as envIsWeb } from './env.js';
+import { isWeb as $envꓺisWeb } from './env.js';
 
 /**
  * RFC 1738 URL encoding strategy.
@@ -25,10 +25,10 @@ export const QUERY_RFC3986_AWS4 = 'QUERY_RFC3986_AWS4';
  * @returns Current URL.
  */
 export function current(): string {
-	if (envIsWeb()) {
+	if ($envꓺisWeb()) {
 		return location.href;
 	} else {
-		throw new Error('Not in browser.');
+		throw new Error('Not web.');
 	}
 }
 
@@ -38,10 +38,10 @@ export function current(): string {
  * @returns Current referrer.
  */
 export function currentReferrer(): string {
-	if (envIsWeb()) {
+	if ($envꓺisWeb()) {
 		return document.referrer;
 	} else {
-		throw new Error('Not in browser.');
+		throw new Error('Not web.');
 	}
 }
 
@@ -51,10 +51,10 @@ export function currentReferrer(): string {
  * @returns Current scheme.
  */
 export function currentScheme(): string {
-	if (envIsWeb()) {
+	if ($envꓺisWeb()) {
 		return location.protocol.toLowerCase().slice(0, -1);
 	} else {
-		throw new Error('Not in browser.');
+		throw new Error('Not web.');
 	}
 }
 
@@ -66,10 +66,10 @@ export function currentScheme(): string {
  * @returns          Current host.
  */
 export function currentHost(withPort: boolean = true): string {
-	if (envIsWeb()) {
+	if ($envꓺisWeb()) {
 		return (withPort ? location.host : location.hostname).toLowerCase();
 	} else {
-		throw new Error('Not in browser.');
+		throw new Error('Not web.');
 	}
 }
 
@@ -81,10 +81,10 @@ export function currentHost(withPort: boolean = true): string {
  * @returns          Current root host.
  */
 export function currentRootHost(withPort: boolean = true): string {
-	if (envIsWeb()) {
+	if ($envꓺisWeb()) {
 		return rootHost(currentHost(withPort), withPort);
 	} else {
-		throw new Error('Not in browser.');
+		throw new Error('Not web.');
 	}
 }
 
@@ -94,10 +94,10 @@ export function currentRootHost(withPort: boolean = true): string {
  * @returns Current port.
  */
 export function currentPort(): string {
-	if (envIsWeb()) {
+	if ($envꓺisWeb()) {
 		return location.port;
 	} else {
-		throw new Error('Not in browser.');
+		throw new Error('Not web.');
 	}
 }
 
@@ -107,10 +107,10 @@ export function currentPort(): string {
  * @returns Current path.
  */
 export function currentPath(): string {
-	if (envIsWeb()) {
+	if ($envꓺisWeb()) {
 		return location.pathname;
 	} else {
-		throw new Error('Not in browser.');
+		throw new Error('Not web.');
 	}
 }
 
@@ -120,10 +120,10 @@ export function currentPath(): string {
  * @returns Current subpath.
  */
 export function currentSubpath(): string {
-	if (envIsWeb()) {
+	if ($envꓺisWeb()) {
 		return location.pathname.replace(/^\/|\/$/gu, '');
 	} else {
-		throw new Error('Not in browser.');
+		throw new Error('Not web.');
 	}
 }
 
@@ -133,10 +133,10 @@ export function currentSubpath(): string {
  * @returns Current query string.
  */
 export function currentQuery(): string {
-	if (envIsWeb()) {
+	if ($envꓺisWeb()) {
 		return location.search.slice(1);
 	} else {
-		throw new Error('Not in browser.');
+		throw new Error('Not web.');
 	}
 }
 
@@ -146,10 +146,10 @@ export function currentQuery(): string {
  * @returns Current path & query string.
  */
 export function currentPathQuery(): string {
-	if (envIsWeb()) {
+	if ($envꓺisWeb()) {
 		return location.pathname + location.search;
 	} else {
-		throw new Error('Not in browser.');
+		throw new Error('Not web.');
 	}
 }
 
@@ -163,10 +163,10 @@ export function currentPathQuery(): string {
  */
 export function rootHost(host?: URL | string | null, withPort: boolean = true): string {
 	if (undefined === host) {
-		if (envIsWeb()) {
+		if ($envꓺisWeb()) {
 			host = currentHost(withPort);
 		} else {
-			throw new Error('Missing required parameter: `host`.');
+			throw new Error('Missing `host`.');
 		}
 	}
 	if (host instanceof URL) {
@@ -193,24 +193,24 @@ export function rootHost(host?: URL | string | null, withPort: boolean = true): 
  */
 export function parse(url?: URL | string | null, base?: URL | string | null, throwOnFailure: boolean = true): URL | null {
 	if (undefined === url) {
-		if (envIsWeb()) {
+		if ($envꓺisWeb()) {
 			url = current();
 		} else {
-			throw new Error('Missing required parameter: `url`.');
+			throw new Error('Missing `url`.');
 		}
 	}
-	if (undefined === base && envIsWeb()) {
+	if (undefined === base && $envꓺisWeb()) {
 		base = current(); // Current URL as base.
 	}
 	url = (url instanceof URL ? url.toString() : url) || '';
 	base = (base instanceof URL ? base.toString() : base) || undefined;
 
 	if (url && /^\/\//u.test(url)) {
-		const scheme = envIsWeb() ? currentScheme() : 'http';
+		const scheme = $envꓺisWeb() ? currentScheme() : 'https';
 		url = url.replace(/^\/\//u, scheme + '://');
 	}
 	if (base && /^\/\//u.test(base)) {
-		const scheme = envIsWeb() ? currentScheme() : 'http';
+		const scheme = $envꓺisWeb() ? currentScheme() : 'https';
 		base = base.replace(/^\/\//u, scheme + '://');
 	}
 	try {
