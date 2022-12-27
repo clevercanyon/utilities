@@ -184,8 +184,7 @@ export function rootHost(host?: URL | string | null, withPort: boolean = true): 
  * Parses a URL string into a {@see URL}.
  *
  * @param   url            URL for this method to parse. Optional in browser; i.e., default is {@see current()}.
- * @param   base           Base URL. Required in the case of relative URLs. Optional in browser; i.e., default is {@see
- *   current()}.
+ * @param   base           Base URL. Required for relative URLs. Optional in browser; i.e., default is {@see current()}.
  * @param   throwOnFailure Throw on failure? Default is `true`.
  *
  * @returns                A {@see URL} instance. On failure this either throws an error or returns `null`.

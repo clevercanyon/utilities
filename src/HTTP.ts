@@ -41,7 +41,7 @@ export function requestConfig(config: RequestConfig = {}): RequestConfig {
  * @param   request HTTP request object.
  * @param   config  Optional config options.
  *
- * @returns         HTTP response.
+ * @returns         HTTP request.
  */
 export function prepareRequest(request: Request, config: RequestConfig = {}): Request {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `config` ok.
@@ -51,7 +51,7 @@ export function prepareRequest(request: Request, config: RequestConfig = {}): Re
 	const parsedURL = $urlꓺparse(cleanURL);
 
 	if (!parsedURL) {
-		throw new Error('Parse failure. Invalid request URL.');
+		return request; // Not possible.
 	}
 	const requestHasOrigin = request.headers.has('origin');
 	const requestIsUserDynamic = requestIsFromUser(request) && requestPathIsDynamic(request, parsedURL);
