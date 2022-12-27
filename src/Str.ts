@@ -63,6 +63,41 @@ export function escHtml(str: string): string {
 }
 
 /**
+ * Parses a string into a value.
+ *
+ * @param   str String to parse.
+ *
+ * @returns     Parsed output value.
+ */
+export function parseValue(str: string): unknown {
+	const ewa = str.endsWith('*');
+	let v: unknown = ewa ? str.slice(0, -1) : str;
+
+	if ('undefined' === v) {
+		v = ewa ? v : undefined;
+	} else if ('null' === v) {
+		v = ewa ? v : null;
+	} else if ('true' === v) {
+		v = ewa ? v : true;
+	} else if ('false' === v) {
+		v = ewa ? v : false;
+	} else if ('NaN' === v) {
+		v = ewa ? v : NaN;
+	} else if ('-Infinity' === v) {
+		v = ewa ? v : -Infinity;
+	} else if ('Infinity' === v) {
+		v = ewa ? v : Infinity;
+	} else if (/^(?:0|-?[1-9][0-9]*)$/u.test(v as string)) {
+		v = ewa ? v : parseInt(v as string, 10);
+	} else if (/^(?:0|-?[1-9][0-9]*)?\.[0-9]+$/u.test(v as string)) {
+		v = ewa ? v : parseFloat(v as string);
+	} else {
+		v = str; // No change.
+	}
+	return v;
+}
+
+/**
  * String matches the given pattern?
  *
  * @param   str     String to test.

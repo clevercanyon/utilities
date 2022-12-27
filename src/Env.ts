@@ -2,7 +2,7 @@
  * Utility class.
  */
 
-import { matches as $strꓺmatches } from './str.js';
+import { parseValue as $strꓺparseValue, matches as $strꓺmatches } from './str.js';
 import { empty as $objꓺempty, hasOwn as $objꓺhasOwn, props as $objꓺprops } from './obj.js';
 
 /**
@@ -71,7 +71,7 @@ export function get(name: string): unknown | null {
  * @param value Variable value.
  */
 export function set(name: string, value: unknown): void {
-	vars[name] = value;
+	vars[name] = typeof value === 'string' ? $strꓺparseValue(value) : value;
 }
 
 /**
