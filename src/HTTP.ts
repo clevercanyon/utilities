@@ -348,7 +348,7 @@ export function requestIsFromUser(request: Request): boolean {
 	return (
 		request.headers.has('authorization') ||
 		(request.headers.has('cookie') &&
-			/(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|logged[_-]in|comment[_-]author)[_-][^=;]+=\s*"?[^";]/iu.test(
+			/(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|logged[_-]in|user|comment[_-]author)[_-][^=;]+=\s*"?[^";]/iu.test(
 				request.headers.get('cookie') || '',
 			))
 	);
