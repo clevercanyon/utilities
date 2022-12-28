@@ -42,31 +42,42 @@ export function requestConfig(config: RequestConfig = {}): RequestConfig {
  * @param   config  Optional config options.
  *
  * @returns         HTTP request.
+ *
+ * @throws          Error {@see Response} on failure.
  */
 export function prepareRequest(request: Request, config: RequestConfig = {}): Request {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- `config` ok.
 	config = requestConfig(config);
 
-	const cleanURL = $urlꓺremoveCSOQueryVars(request.url);
-	const parsedURL = $urlꓺparse(cleanURL);
+	// Removes client-side-only query string variables.
+	const url = $urlꓺparse($urlꓺremoveCSOQueryVars(request.url));
 
-	if (!parsedURL) {
-		return request; // Not possible.
+	if (!url /* Catches unparseable URLs. */) {
+		throw prepareResponse(request, { status: 400 });
+	}
+	if (requestPathIsInvalid(request, url)) {
+		throw prepareResponse(request, { status: 400 });
+	}
+	if (requestPathIsForbidden(request, url)) {
+		throw prepareResponse(request, { status: 403 });
+	}
+	if (!requestHasSupportedMethod(request)) {
+		throw prepareResponse(request, { status: 405 });
 	}
 	const requestHasOrigin = request.headers.has('origin');
-	const requestIsUserDynamic = requestIsFromUser(request) && requestPathIsDynamic(request, parsedURL);
+	const requestIsUserDynamic = requestIsFromUser(request) && requestPathIsDynamic(request, url);
 
 	if (requestHasOrigin) {
-		const _ck = parsedURL.searchParams.get('_ck') || '';
-		parsedURL.searchParams.set('_ck', (_ck ? _ck + ';' : '') + 'origin:' + (request.headers.get('origin') || ''));
+		const _ck = url.searchParams.get('_ck') || '';
+		url.searchParams.set('_ck', (_ck ? _ck + ';' : '') + 'origin:' + (request.headers.get('origin') || ''));
 	}
 	if (requestIsUserDynamic) {
-		const _ck = parsedURL.searchParams.get('_ck') || '';
-		parsedURL.searchParams.set('_ck', (_ck ? _ck + ';' : '') + 'user-dynamic:true');
+		const _ck = url.searchParams.get('_ck') || '';
+		url.searchParams.set('_ck', (_ck ? _ck + ';' : '') + 'user-dynamic:true');
 	}
-	parsedURL.searchParams.sort(); // Query sort optimizes cache.
+	url.searchParams.sort(); // Query sort optimizes cache.
 
-	return new Request(parsedURL.toString(), request);
+	return new Request(url.toString(), request);
 }
 
 /**
@@ -77,18 +88,16 @@ export function prepareRequest(request: Request, config: RequestConfig = {}): Re
  * @returns        HTTP response config.
  */
 export function responseConfig(config: ResponseConfig = {}): ResponseConfig {
-	return Object.assign(
-		{
-			response: null,
-			status: 500,
-			body: null,
-			headers: {},
-			appendHeaders: {},
-			enableCORs: false,
-			enableCDN: !$envꓺisCFW(),
-		},
-		config,
-	);
+	const defaults = {
+		response: null,
+		status: 500,
+		body: null,
+		headers: {},
+		appendHeaders: {},
+		enableCORs: false,
+		enableCDN: !$envꓺisCFW(),
+	};
+	return Object.assign({}, defaults, config);
 }
 
 /**
@@ -132,7 +141,7 @@ export function prepareResponseHeaders(request: Request, config: ResponseConfig 
 	config = responseConfig(config);
 	config.status = config.status || 500;
 
-	const parsedURL = $urlꓺparse(request.url);
+	const url = $urlꓺparse(request.url); // `null` on failure.
 
 	config.headers = config.headers instanceof Headers ? config.headers : new Headers(config.headers || {});
 	config.appendHeaders = config.appendHeaders instanceof Headers ? config.appendHeaders : new Headers(config.appendHeaders || {});
@@ -172,15 +181,15 @@ export function prepareResponseHeaders(request: Request, config: ResponseConfig 
 		cacheHeaders['cdn-cache-control'] = 'no-store';
 		cacheHeaders['cache-control'] = 'no-store';
 		//
-	} else if (requestPathIsSEORelatedFile(request, parsedURL)) {
+	} else if (requestPathIsSEORelatedFile(request, url)) {
 		cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=86400, stale-while-revalidate=86400, stale-if-error=86400';
 		cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=86400, stale-if-error=86400';
 		//
-	} else if (requestPathIsStatic(request, parsedURL) && (config.response?.headers.has('etag') || config.headers.has('etag'))) {
+	} else if (requestPathIsStatic(request, url) && (config.response?.headers.has('etag') || config.headers.has('etag'))) {
 		cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=31536000, stale-while-revalidate=604800, stale-if-error=604800';
 		cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=31536000, s-maxage=31536000, stale-while-revalidate=604800, stale-if-error=604800';
 		//
-	} else if (requestPathIsInAdmin(request, parsedURL) || requestIsFromUser(request)) {
+	} else if (requestPathIsInAdmin(request, url) || requestIsFromUser(request)) {
 		cacheHeaders['cdn-cache-control'] = 'no-store';
 		cacheHeaders['cache-control'] = 'no-store';
 		//
@@ -255,7 +264,7 @@ export function prepareResponseHeaders(request: Request, config: ResponseConfig 
 			'timing-allow-origin': request.headers.has('origin') ? request.headers.get('origin') || '' : '*',
 			'access-control-allow-origin': request.headers.has('origin') ? request.headers.get('origin') || '' : '*',
 		};
-	} else if (requestPathHasStaticExtension(request, parsedURL, /[^/.]\.(?:eot|otf|ttf|woff)[0-9]*$/iu)) {
+	} else if (requestPathHasStaticExtension(request, url, /[^/.]\.(?:eot|otf|ttf|woff)[0-9]*$/iu)) {
 		corsHeaders = {
 			'access-control-allow-origin': request.headers.has('origin') ? request.headers.get('origin') || '' : '*',
 		};
@@ -357,50 +366,50 @@ export function requestIsFromUser(request: Request): boolean {
 /**
  * Request path is invalid?
  *
- * @param   request   HTTP request object.
- * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
- * @returns           `true` if request path is invalid.
+ * @returns         `true` if request path is invalid.
  */
-export function requestPathIsInvalid(request: Request, parsedURL: URL | null = null): boolean {
-	parsedURL = parsedURL || $urlꓺparse(request.url);
+export function requestPathIsInvalid(request: Request, url: URL | null = null): boolean {
+	url = url || $urlꓺparse(request.url);
 
-	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
+	if (!url || !url.pathname || '/' === url.pathname) {
 		return false; // Not possible, or early return on `/`.
 	}
-	return /\\|\/{2,}|\.{2,}/u.test(parsedURL.pathname);
+	return /\\|\/{2,}|\.{2,}/iu.test(url.pathname);
 }
 
 /**
  * Request path is forbidden?
  *
- * @param   request   HTTP request object.
- * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
- * @returns           `true` if request path is forbidden.
+ * @returns         `true` if request path is forbidden.
  */
-export function requestPathIsForbidden(request: Request, parsedURL: URL | null = null): boolean {
-	parsedURL = parsedURL || $urlꓺparse(request.url);
+export function requestPathIsForbidden(request: Request, url: URL | null = null): boolean {
+	url = url || $urlꓺparse(request.url);
 
-	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
+	if (!url || !url.pathname || '/' === url.pathname) {
 		return false; // Not possible, or early return on `/`.
 	}
-	if (/(?:^|\/)\./u.test(parsedURL.pathname) && !/^\.well-known(?:$|\/)/iu.test(parsedURL.pathname)) {
+	if (/(?:^|\/)\./iu.test(url.pathname) && !/^\/\.well-known(?:$|\/)/iu.test(url.pathname)) {
 		return true; // No dotfile paths.
 	}
-	if (/(?:~|[^/.]\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(parsedURL.pathname)) {
+	if (/(?:~|[^/.]\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(url.pathname)) {
 		return true; // No backups, copies, logs, or temp paths.
 	}
-	if (/(?:^|\/)(?:[^/]*[._-])?(?:cache|private|logs?|te?mp)(?:$|\/)/iu.test(parsedURL.pathname)) {
+	if (/(?:^|\/)(?:[^/]*[._-])?(?:cache|private|logs?|te?mp)(?:$|\/)/iu.test(url.pathname)) {
 		return true; // No cache, private, log, or temp paths.
 	}
-	if (/(?:^|\/)wp[_-]content\/(?:cache|private|mu[_-]plugins|upgrade|uploads\/(?:wc[_-]logs|woocommerce[_-]uploads|lmfwc[_-]files))(?:$|\/)/iu.test(parsedURL.pathname)) {
+	if (/(?:^|\/)wp[_-]content\/(?:cache|private|mu[_-]plugins|upgrade|uploads\/(?:wc[_-]logs|woocommerce[_-]uploads|lmfwc[_-]files))(?:$|\/)/iu.test(url.pathname)) {
 		return true; // No WP content paths that are private.
 	}
-	if (/(?:^|\/)(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(parsedURL.pathname)) {
+	if (/(?:^|\/)(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(url.pathname)) {
 		return true; // No package management dependencies paths.
 	}
-	if (/[^/.]\.(?:sh|bash|zsh|php[0-9]?|[ps]html?|aspx?|plx?|cgi|ppl|perl|go|rs|rlib|rb|py|py[icdowz])(?:$|\/)/iu.test(parsedURL.pathname)) {
+	if (/[^/.]\.(?:sh|bash|zsh|php[0-9]?|[ps]html?|aspx?|plx?|cgi|ppl|perl|go|rs|rlib|rb|py|py[icdowz])(?:$|\/)/iu.test(url.pathname)) {
 		return true; // No server-side script extension paths, including `.[ext]/pathinfo` data.
 	}
 	return false;
@@ -409,126 +418,126 @@ export function requestPathIsForbidden(request: Request, parsedURL: URL | null =
 /**
  * Request path is dynamic?
  *
- * @param   request   HTTP request object.
- * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
- * @returns           `true` if request is dynamic.
+ * @returns         `true` if request is dynamic.
  */
-export function requestPathIsDynamic(request: Request, parsedURL: URL | null = null): boolean {
-	return requestPathHasDynamicBase(request, parsedURL) || requestPathIsPotentiallyDynamic(request, parsedURL) || !requestPathHasStaticExtension(request, parsedURL);
+export function requestPathIsDynamic(request: Request, url: URL | null = null): boolean {
+	return requestPathHasDynamicBase(request, url) || requestPathIsPotentiallyDynamic(request, url) || !requestPathHasStaticExtension(request, url);
 }
 
 /**
  * Request path is static?
  *
- * @param   request   HTTP request object.
- * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
- * @returns           `true` if request is static.
+ * @returns         `true` if request is static.
  */
-export function requestPathIsStatic(request: Request, parsedURL: URL | null = null): boolean {
-	return !requestPathIsDynamic(request, parsedURL);
+export function requestPathIsStatic(request: Request, url: URL | null = null): boolean {
+	return !requestPathIsDynamic(request, url);
 }
 
 /**
  * Request path has a dynamic base?
  *
- * @param   request   HTTP request object.
- * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
- * @returns           `true` if request path has a dynamic base.
+ * @returns         `true` if request path has a dynamic base.
  */
-export function requestPathHasDynamicBase(request: Request, parsedURL: URL | null = null): boolean {
+export function requestPathHasDynamicBase(request: Request, url: URL | null = null): boolean {
 	if (!$envꓺisC10N()) {
 		return false; // Not applicable.
 	}
-	parsedURL = parsedURL || $urlꓺparse(request.url);
+	url = url || $urlꓺparse(request.url);
 
-	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
+	if (!url || !url.pathname || '/' === url.pathname) {
 		return false; // Not possible, or early return on `/`.
 	}
-	return /^\/?(api|wp-json|blog|feed|comments|author|discussion|shop|product|cart|checkout|account)(?:$|\/)/iu.test(parsedURL.pathname);
+	return /^\/?(api|wp-json|blog|feed|comments|author|discussion|shop|product|cart|checkout|account)(?:$|\/)/iu.test(url.pathname);
 }
 
 /**
  * Request path is potentially dynamic?
  *
- * @param   request   HTTP request object.
- * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
- * @returns           `true` if request path is potentially dynamic.
+ * @returns         `true` if request path is potentially dynamic.
  */
-export function requestPathIsPotentiallyDynamic(request: Request, parsedURL: URL | null = null): boolean {
+export function requestPathIsPotentiallyDynamic(request: Request, url: URL | null = null): boolean {
 	if (!$envꓺisC10N()) {
 		return false; // Not applicable.
 	}
-	parsedURL = parsedURL || $urlꓺparse(request.url);
+	url = url || $urlꓺparse(request.url);
 
-	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
+	if (!url || !url.pathname || '/' === url.pathname) {
 		return false; // Not possible, or early return on `/`.
 	}
-	return /(?:^|\/)(?:robots\.txt|locations\.kml|[^/]*sitemap[^/]*\.(?:xml|xsl))$/iu.test(parsedURL.pathname);
+	return /(?:^|\/)(?:robots\.txt|locations\.kml|[^/]*sitemap[^/]*\.(?:xml|xsl))$/iu.test(url.pathname);
 }
 
 /**
  * Request path is an SEO file?
  *
- * @param   request   HTTP request object.
- * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
- * @returns           `true` if request path is an SEO file.
+ * @returns         `true` if request path is an SEO file.
  */
-export function requestPathIsSEORelatedFile(request: Request, parsedURL: URL | null = null): boolean {
-	parsedURL = parsedURL || $urlꓺparse(request.url);
+export function requestPathIsSEORelatedFile(request: Request, url: URL | null = null): boolean {
+	url = url || $urlꓺparse(request.url);
 
-	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
+	if (!url || !url.pathname || '/' === url.pathname) {
 		return false; // Not possible, or early return on `/`.
 	}
-	return /(?:^|\/)(?:favicon\.ico|robots\.txt|locations\.kml|[^/]*sitemap[^/]*\.(?:xml|xsl))$/iu.test(parsedURL.pathname);
+	return /(?:^|\/)(?:favicon\.ico|robots\.txt|locations\.kml|[^/]*sitemap[^/]*\.(?:xml|xsl))$/iu.test(url.pathname);
 }
 
 /**
  * Request path is in `/(?:wp-)?admin`?
  *
- * @param   request   HTTP request object.
- * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
- * @returns           `true` if request path is in `/(?:wp-)?admin`.
+ * @returns         `true` if request path is in `/(?:wp-)?admin`.
  */
-export function requestPathIsInAdmin(request: Request, parsedURL: URL | null = null): boolean {
-	parsedURL = parsedURL || $urlꓺparse(request.url);
+export function requestPathIsInAdmin(request: Request, url: URL | null = null): boolean {
+	url = url || $urlꓺparse(request.url);
 
-	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
+	if (!url || !url.pathname || '/' === url.pathname) {
 		return false; // Not possible, or early return on `/`.
 	}
-	return /(?:^|\/)(?:wp-)?admin(?:$|\/)/iu.test(parsedURL.pathname) && !/(?:^|\/)wp-admin\/admin-ajax\.php$/iu.test(parsedURL.pathname);
+	return /(?:^|\/)(?:wp-)?admin(?:$|\/)/iu.test(url.pathname) && !/(?:^|\/)wp-admin\/admin-ajax\.php$/iu.test(url.pathname);
 }
 
 /**
  * Request path has a static file extension?
  *
- * @param   request   HTTP request object.
- * @param   parsedURL Optional pre-parsed URL. Default is taken from `request`.
- * @param   exts      Specific extension to look for?
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ * @param   exts    Specific extension to look for?
  *
- * @returns           `true` if request path has a static file extension.
+ * @returns         `true` if request path has a static file extension.
  */
-export function requestPathHasStaticExtension(request: Request, parsedURL: URL | null = null, exts?: Array<string> | RegExp): boolean {
-	parsedURL = parsedURL || $urlꓺparse(request.url);
+export function requestPathHasStaticExtension(request: Request, url: URL | null = null, exts?: Array<string> | RegExp): boolean {
+	url = url || $urlꓺparse(request.url);
 
-	if (!parsedURL || !parsedURL.pathname || '/' === parsedURL.pathname) {
+	if (!url || !url.pathname || '/' === url.pathname) {
 		return false; // Not possible, or early return on `/`.
 	}
 	if (exts instanceof RegExp) {
-		return /[^/.]\.[^/.]+$/u.test(parsedURL.pathname) && exts.test(parsedURL.pathname);
+		return /[^/.]\.[^/.]+$/u.test(url.pathname) && exts.test(url.pathname);
 	}
 	if (exts instanceof Array && exts.length) {
-		return /[^/.]\.[^/.]+$/u.test(parsedURL.pathname) && new RegExp('[^/.]\\.(?:' + exts.map((v) => $strꓺescRegExp(v)).join('|') + ')$', 'ui').test(parsedURL.pathname);
+		return /[^/.]\.[^/.]+$/u.test(url.pathname) && new RegExp('[^/.]\\.(?:' + exts.map((v) => $strꓺescRegExp(v)).join('|') + ')$', 'ui').test(url.pathname);
 	}
 	return (
-		/[^/.]\.[^/.]+$/u.test(parsedURL.pathname) &&
+		/[^/.]\.[^/.]+$/u.test(url.pathname) &&
 		/[^/.]\.(?:3g2|3gp|3gp2|3gpp|7z|aac|ai|apng|app|asc|asf|asx|atom|avi|bash|bat|bin|blend|bmp|c|cc|cfg|cjs|class|com|conf|css|csv|cts|dfxp|divx|dll|dmg|doc|docm|docx|dotm|dotx|dtd|ejs|eot|eps|ets|exe|fla|flac|flv|gif|gtar|gz|gzip|h|heic|hta|htaccess|htc|htm|html|htpasswd|ico|ics|ini|iso|jar|jpe|jpeg|jpg|js|json|json5|jsonld|jsx|key|kml|kmz|log|m4a|m4b|m4v|md|mdb|mid|midi|mjs|mka|mkv|mo|mov|mp3|mp4|mpe|mpeg|mpg|mpp|mts|numbers|odb|odc|odf|odg|odp|ods|odt|oga|ogg|ogv|onepkg|onetmp|onetoc|onetoc2|otf|oxps|pages|pdf|phar|phps|pict|pls|png|po|pot|potm|potx|ppam|pps|ppsm|ppsx|ppt|pptm|pptx|ps|psd|pspimage|qt|ra|ram|rar|rdf|rss|rss-http|rss2|rtf|rtx|scss|sh|sketch|sldm|sldx|so|sql|sqlite|srt|svg|svgz|swf|tar|tgz|tif|tiff|tmpl|toml|tpl|ts|tsv|tsx|ttf|txt|vtt|wav|wax|webm|webp|wm|wma|wmv|wmx|woff|woff2|wp|wpd|wri|xcf|xhtm|xhtml|xla|xlam|xls|xlsb|xlsm|xlsx|xlt|xltm|xltx|xlw|xml|xps|xsd|xsl|xslt|yaml|yml|zip|zsh)$/iu.test(
-			parsedURL.pathname,
+			url.pathname,
 		)
 	);
 }

@@ -34,7 +34,7 @@ const cache: {
 if (isNode()) {
 	capture(process.env);
 }
-capture(import.meta.env);
+capture(import.meta.env || {});
 
 /**
  * Captures variables.
