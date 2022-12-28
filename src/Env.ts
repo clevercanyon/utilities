@@ -80,7 +80,7 @@ export function set(name: string, value: unknown): void {
  * @param   tests Optional prop patterns to test for. Each property is treated as a glob pattern that must be found. To
  *   test if a prop simply exists, use `*`. Or, to test that it exists and is not empty use `?`.
  *
- * @returns       `true` if `IS_C10N` and all tests pass.
+ * @returns       `true` if `APP_IS_C10N` and all tests pass.
  */
 export function isC10N(tests: { [x: string]: string } = {}): boolean {
 	cache.isC10N ??= {}; // Initialize.
@@ -89,13 +89,13 @@ export function isC10N(tests: { [x: string]: string } = {}): boolean {
 	if (undefined !== cache.isC10N[key]) {
 		return cache.isC10N[key];
 	}
-	if (!get('IS_C10N')) {
+	if (!get('APP_IS_C10N')) {
 		return (cache.isC10N[key] = false);
 	}
 	if ($objꓺempty(tests)) {
 		return (cache.isC10N[key] = true);
 	}
-	const isC10NProps = $objꓺprops(new URL('?' + String(get('IS_C10N')), 'https://c10n').searchParams);
+	const isC10NProps = $objꓺprops(new URL('?' + String(get('APP_IS_C10N')), 'https://c10n').searchParams);
 
 	for (const [prop, pattern] of Object.entries(tests)) {
 		if (!$objꓺhasOwn(isC10NProps, prop) || !$strꓺmatches(isC10NProps[prop], pattern, { nocase: true })) {
