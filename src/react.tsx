@@ -15,21 +15,12 @@ export interface Props {
 export interface AnyProps extends Props {
 	readonly [x: string]: unknown;
 }
-export type Component<P extends Props = Props> = FunctionComponent<P>;
-export type JSXElement<P extends Props = Props> = FunctionComponentJSXElement<P>;
-export type Rendering<P extends Props = Props> = FunctionComponentRendering<P>;
-
-export type FunctionComponent<P extends Props = Props> = React.FunctionComponent<P>;
-export type FunctionComponentJSXElement<P extends Props = Props> = React.ReactElement<P>;
-export type FunctionComponentRendering<P extends Props = Props> = FunctionComponentJSXElement<P> | null;
+export type Component<P extends Props = Props> = React.FunctionComponent<P>;
+export type Element<P extends Props = Props> = React.ReactElement<P>;
+export type Rendering<P extends Props = Props> = Element<P> | null;
 
 export type ClassComponent<P extends Props = Props> = React.ComponentClass<P>;
-export type ClassComponentJSXElement<P extends Props = Props> = React.ReactElement<P>;
-export type ClassComponentRendering<P extends Props = Props> = ClassComponentJSXElement<P> | null;
-
-export type AnyComponent<P extends AnyProps = AnyProps> = FunctionComponent<P> | ClassComponent<P>;
-export type AnyJSXElement<P extends AnyProps = AnyProps> = FunctionComponentJSXElement<P> | ClassComponentJSXElement<P>;
-export type AnyRendering<P extends AnyProps = AnyProps> = FunctionComponentRendering<P> | ClassComponentRendering<P>;
+export type AnyComponent<P extends AnyProps = AnyProps> = Component<P> | ClassComponent<P>;
 
 /**
  * Renders App component into DOM.
@@ -46,7 +37,7 @@ export function domRenderApp(App: AnyComponent, opts: { root?: string | object |
 	if (!root || typeof root === 'string') {
 		root = document.querySelector(root || '#root');
 	}
-	if (!(root instanceof Element)) {
+	if (!(root instanceof globalThis.Element)) {
 		throw new Error('Missing `root: Element`.');
 	}
 	ReactDOM.createRoot(root).render(
