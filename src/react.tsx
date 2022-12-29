@@ -12,15 +12,12 @@ import { isWeb as $envꓺisWeb } from './env.js';
 export interface Props {
 	readonly classes?: string | string[];
 }
-export interface AnyProps extends Props {
-	readonly [x: string]: unknown;
-}
 export type Component<P extends Props = Props> = React.FunctionComponent<P>;
+export type ClassComponent<P extends Props = Props> = React.ComponentClass<P>;
+export type AnyComponent<P extends Props = Props> = Component<P> | ClassComponent<P>;
+
 export type Element<P extends Props = Props> = React.ReactElement<P>;
 export type Rendering<P extends Props = Props> = Element<P> | null;
-
-export type ClassComponent<P extends Props = Props> = React.ComponentClass<P>;
-export type AnyComponent<P extends AnyProps = AnyProps> = Component<P> | ClassComponent<P>;
 
 /**
  * Renders App component into DOM.
@@ -55,7 +52,7 @@ export function domRenderApp(App: AnyComponent, opts: { root?: string | object |
  *
  * @returns         Space separated classes.
  */
-export function classes(classes: string | string[], props: AnyProps): string {
+export function classes(classes: string | string[], props: Props): string {
 	classes = '' === classes ? [] : classes;
 	classes = !Array.isArray(classes) ? Array(classes) : classes;
 
