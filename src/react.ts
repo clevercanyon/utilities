@@ -5,7 +5,7 @@
 /**
  * Props interface.
  */
-interface Props {
+export interface Props {
 	classes?: string | string[];
 }
 
