@@ -2,8 +2,8 @@
  * Utility class.
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom/client';
 import { isWeb as $envꓺisWeb } from './env.js';
 
 /**
@@ -21,6 +21,11 @@ export type Rendering<P extends Props = Props> = Element<P> | null;
 
 export type ClassComponent<P extends Props = Props> = React.ComponentClass<P>;
 export type AnyComponent<P extends AnyProps = AnyProps> = Component<P> | ClassComponent<P>;
+
+/**
+ * Re-export React utils.
+ */
+export { React, ReactDOM };
 
 /**
  * Renders App component into DOM.
