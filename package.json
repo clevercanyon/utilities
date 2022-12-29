@@ -8,18 +8,14 @@
 	"homepage": "https://github.com/clevercanyon/utilities#readme",
 	"bugs": "https://github.com/clevercanyon/utilities/issues",
 	"funding": "https://github.com/sponsors/clevercanyon",
-	"keywords": [
-		"clevercanyon"
-	],
+	"keywords": ["clevercanyon"],
 	"author": {
 		"name": "Clever Canyon",
 		"url": "https://clevercanyon.com"
 	},
 	"contributors": [],
 	"type": "module",
-	"files": [
-		"/dist"
-	],
+	"files": ["/dist"],
 	"bin": {},
 	"imports": {},
 	"exports": {
@@ -58,6 +54,11 @@
 			"require": "./dist/obj.cjs",
 			"types": "./dist/types/obj.d.ts"
 		},
+		"./react": {
+			"import": "./dist/react.js",
+			"require": "./dist/react.cjs",
+			"types": "./dist/types/react.d.ts"
+		},
 		"./str": {
 			"import": "./dist/str.js",
 			"require": "./dist/str.cjs",
@@ -74,9 +75,7 @@
 			"types": "./dist/types/url.d.ts"
 		}
 	},
-	"sideEffects": [
-		"./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"
-	],
+	"sideEffects": ["./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
 	"browser": "",
@@ -84,9 +83,7 @@
 	"types": "./dist/types/index.d.ts",
 	"typesVersions": {
 		">=3.1": {
-			"./*": [
-				"./dist/types/*"
-			]
+			"./*": ["./dist/types/*"]
 		}
 	},
 	"peerDependencies": {
@@ -94,6 +91,8 @@
 		"ignore": "^5.2.1",
 		"locutus": "^2.0.16",
 		"lodash": "^4.17.21",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
 		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.5"
 	},
 	"peerDependenciesMeta": {},
@@ -104,17 +103,13 @@
 		"@types/locutus": "^0.0.6",
 		"@types/lodash": "^4.14.191",
 		"@types/micromatch": "^4.0.2",
-		"@types/node": "^18.11.9"
+		"@types/node": "^18.11.9",
+		"@types/react": "^18.0.26",
+		"@types/react-dom": "^18.0.9"
 	},
 	"overrides": {},
-	"cpu": [
-		"x64",
-		"arm64"
-	],
-	"os": [
-		"darwin",
-		"linux"
-	],
+	"cpu": ["x64", "arm64"],
+	"os": ["darwin", "linux"],
 	"engines": {
 		"node": "^19.2.0",
 		"npm": "^8.19.3"
