@@ -20,6 +20,11 @@ export const QUERY_RFC3986 = 'QUERY_RFC3986';
 export const QUERY_RFC3986_AWS4 = 'QUERY_RFC3986_AWS4';
 
 /**
+ * Prefined errors.
+ */
+const NotWebError = new Error('Not web.');
+
+/**
  * Gets current URL.
  *
  * @returns Current URL.
@@ -28,7 +33,7 @@ export function current(): string {
 	if ($envꓺisWeb()) {
 		return location.href;
 	} else {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
 }
 
@@ -41,7 +46,7 @@ export function currentReferrer(): string {
 	if ($envꓺisWeb()) {
 		return document.referrer;
 	} else {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
 }
 
@@ -54,7 +59,7 @@ export function currentScheme(): string {
 	if ($envꓺisWeb()) {
 		return location.protocol.toLowerCase().slice(0, -1);
 	} else {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
 }
 
@@ -69,7 +74,7 @@ export function currentHost(withPort: boolean = true): string {
 	if ($envꓺisWeb()) {
 		return (withPort ? location.host : location.hostname).toLowerCase();
 	} else {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
 }
 
@@ -84,7 +89,7 @@ export function currentRootHost(withPort: boolean = true): string {
 	if ($envꓺisWeb()) {
 		return rootHost(currentHost(withPort), withPort);
 	} else {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
 }
 
@@ -97,7 +102,7 @@ export function currentPort(): string {
 	if ($envꓺisWeb()) {
 		return location.port;
 	} else {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
 }
 
@@ -110,7 +115,7 @@ export function currentPath(): string {
 	if ($envꓺisWeb()) {
 		return location.pathname;
 	} else {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
 }
 
@@ -123,7 +128,7 @@ export function currentSubpath(): string {
 	if ($envꓺisWeb()) {
 		return location.pathname.replace(/^\/|\/$/gu, '');
 	} else {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
 }
 
@@ -136,7 +141,7 @@ export function currentQuery(): string {
 	if ($envꓺisWeb()) {
 		return location.search.slice(1);
 	} else {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
 }
 
@@ -149,7 +154,7 @@ export function currentPathQuery(): string {
 	if ($envꓺisWeb()) {
 		return location.pathname + location.search;
 	} else {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
 }
 

@@ -2,8 +2,9 @@
  * Utility class.
  */
 
+import { getQueryVars as $urlꓺgetQueryVars } from './url.js';
 import { parseValue as $strꓺparseValue, matches as $strꓺmatches } from './str.js';
-import { empty as $objꓺempty, hasOwn as $objꓺhasOwn, props as $objꓺprops } from './obj.js';
+import { empty as $objꓺempty, hasOwn as $objꓺhasOwn } from './obj.js';
 
 /**
  * Polyfills missing types.
@@ -25,7 +26,7 @@ const vars: {
  */
 const cache: {
 	[x: string]: unknown;
-	isC10N?: { [x: string]: boolean };
+	test?: { [x: string]: { [x: string]: boolean } };
 } = {};
 
 /**
@@ -75,34 +76,48 @@ export function set(name: string, value: unknown): void {
 }
 
 /**
- * Is Clever Canyon? i.e., operated by Clever Canyon.
+ * Tests an environment variable's query vars.
  *
- * @param   tests Optional prop patterns to test for. Each property is treated as a glob pattern that must be found. To
- *   test if a prop simply exists, use `*`. Or, to test that it exists and is not empty use `?`.
+ * @param   ev    Environment variable to run tests on.
+ * @param   tests Optional tests. To test that a variable simply exists, omit `tests`. Each test is treated as a
+ *   caSe-insensitive glob pattern that must be found in the variable's query vars. All tests must pass; i.e., this uses
+ *   AND logic. The use of OR logic can be implemented in calls to this function. To test that a query var simply exists
+ *   use `*`. To test that a query var exists and is not empty use `?*`.
  *
- * @returns       `true` if `APP_IS_C10N` and all tests pass.
+ * @returns       `true` if variable exists and all tests pass.
  */
-export function isC10N(tests: { [x: string]: string } = {}): boolean {
-	cache.isC10N ??= {}; // Initialize.
-	const key = JSON.stringify(tests);
+export function test(ev: string, tests: { [x: string]: string } = {}): boolean {
+	cache.test ??= {};
+	cache.test[ev] ??= {};
 
-	if (undefined !== cache.isC10N[key]) {
-		return cache.isC10N[key];
+	const tk = JSON.stringify(tests);
+
+	if (undefined !== cache.test[ev][tk]) {
+		return cache.test[ev][tk];
 	}
-	if (!get('APP_IS_C10N')) {
-		return (cache.isC10N[key] = false);
+	if (!get(ev) /* variable */) {
+		return (cache.test[ev][tk] = false);
 	}
 	if ($objꓺempty(tests)) {
-		return (cache.isC10N[key] = true);
+		return (cache.test[ev][tk] = true);
 	}
-	const isC10NProps = $objꓺprops(new URL('?' + String(get('APP_IS_C10N')), 'https://c10n').searchParams);
+	const evQVs = $urlꓺgetQueryVars('//is?' + String(get(ev)));
 
-	for (const [prop, pattern] of Object.entries(tests)) {
-		if (!$objꓺhasOwn(isC10NProps, prop) || !$strꓺmatches(isC10NProps[prop], pattern, { nocase: true })) {
-			return (cache.isC10N[key] = false);
+	for (const [qv, glob] of Object.entries(tests)) {
+		if (!$objꓺhasOwn(evQVs, qv) || !$strꓺmatches(evQVs[qv], glob, { nocase: true })) {
+			return (cache.test[ev][tk] = false);
 		}
 	}
-	return (cache.isC10N[key] = true);
+	return (cache.test[ev][tk] = true);
+}
+
+/**
+ * Is operated by Clever Canyon?
+ *
+ * @see test() For further details.
+ */
+export function isC10N(tests: { [x: string]: string } = {}): boolean {
+	return test('APP_IS_C10N', tests);
 }
 
 /**

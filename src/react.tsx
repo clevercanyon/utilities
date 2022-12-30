@@ -7,6 +7,11 @@ import ReactDOM from 'react-dom/client';
 import { isWeb as $envꓺisWeb } from './env.js';
 
 /**
+ * Prefined errors.
+ */
+const NotWebError = new Error('Not web.');
+
+/**
  * React interfaces.
  */
 export interface Props {
@@ -27,15 +32,15 @@ export type Rendering<P extends Props = Props> = Element<P> | null;
  */
 export function domRenderApp(App: AnyComponent, opts: { root?: string | object | null } = {}): void {
 	if (!$envꓺisWeb()) {
-		throw new Error('Not web.');
+		throw NotWebError;
 	}
-	let { root } = opts;
+	let { root } = opts; // DOM node or selector.
 
 	if (!root || typeof root === 'string') {
 		root = document.querySelector(root || '#root');
 	}
 	if (!(root instanceof globalThis.Element)) {
-		throw new Error('Missing `root: Element`.');
+		throw new Error('Missing `root: globalThis.Element`.');
 	}
 	ReactDOM.createRoot(root).render(
 		<React.StrictMode>
