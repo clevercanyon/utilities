@@ -8,18 +8,14 @@
 	"homepage": "https://github.com/clevercanyon/utilities#readme",
 	"bugs": "https://github.com/clevercanyon/utilities/issues",
 	"funding": "https://github.com/sponsors/clevercanyon",
-	"keywords": [
-		"clevercanyon"
-	],
+	"keywords": ["clevercanyon"],
 	"author": {
 		"name": "Clever Canyon",
 		"url": "https://clevercanyon.com"
 	},
 	"contributors": [],
 	"type": "module",
-	"files": [
-		"/dist"
-	],
+	"files": ["/dist"],
 	"bin": {},
 	"imports": {},
 	"exports": {
@@ -79,9 +75,7 @@
 			"types": "./dist/types/url.d.ts"
 		}
 	},
-	"sideEffects": [
-		"./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"
-	],
+	"sideEffects": ["./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
 	"browser": "",
@@ -89,9 +83,7 @@
 	"types": "./dist/types/index.d.ts",
 	"typesVersions": {
 		">=3.1": {
-			"./*": [
-				"./dist/types/*"
-			]
+			"./*": ["./dist/types/*"]
 		}
 	},
 	"peerDependencies": {
@@ -116,14 +108,8 @@
 		"@types/react-dom": "^18.0.9"
 	},
 	"overrides": {},
-	"cpu": [
-		"x64",
-		"arm64"
-	],
-	"os": [
-		"darwin",
-		"linux"
-	],
+	"cpu": ["x64", "arm64"],
+	"os": ["darwin", "linux"],
 	"engines": {
 		"node": "^19.2.0",
 		"npm": "^8.19.3"
@@ -142,9 +128,11 @@
 		"build:prod": "npx vite build --mode=prod && npx tsc",
 		"update:projects": "./dev/.files/bin/update.js projects --update=project",
 		"update:projects:repos": "./dev/.files/bin/update.js projects --update=project --repos",
+		"update:projects:repos:pkgs": "./dev/.files/bin/update.js projects --update=project --repos --pkgs",
 		"update:projects:dotfiles": "./dev/.files/bin/update.js projects --update=dotfiles",
 		"update:project": "./dev/.files/bin/update.js project",
 		"update:project:repos": "./dev/.files/bin/update.js project --repos",
+		"update:project:repos:pkgs": "./dev/.files/bin/update.js project --repos --pkgs",
 		"update:dotfiles": "./dev/.files/bin/update.js dotfiles",
 		"wrangler": "CLOUDFLARE_API_TOKEN=${C10N_CLOUDFLARE_TOKEN} npx wrangler"
 	},
