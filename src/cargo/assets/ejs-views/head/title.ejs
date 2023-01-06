@@ -1,0 +1,5 @@
+<? if ($.title || ($.isBasePath && ($.$build?.env.APP_TITLE || $.$build?.env.APP_NAME))) { ?>
+	<title><?= $.title || $.$build.env.APP_TITLE || $.$build.env.APP_NAME ?></title>
+<? } else { ?>
+	<title></title>
+<? } ?>

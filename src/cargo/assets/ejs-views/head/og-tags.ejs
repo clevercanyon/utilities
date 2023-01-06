@@ -1,0 +1,29 @@
+<? if ($.$build) {
+	const fs = $.$build.require('node:fs');
+	const path = $.$build.require('node:path');
+	const qs = $.$build.require('node:querystring');
+
+	var ogSiteName = $.ogSiteName || $.$build.env.APP_NAME || '';
+	var ogType = $.ogType || 'website';
+	var ogTitle = $.ogTitle || $.title || ($.isBasePath ? $.$build.env.APP_TITLE : '') || '';
+	var ogDesc = $.ogDescription || $.description || ($.isBasePath ? $.$build.env.APP_DESC : '') || '';
+	var ogURL =  $.ogURL || $.canonicalURL || ($.isBasePath ? $.$build.env.APP_BASE_URL : '') || '';
+	var ogImage = $.ogImage || ($.$build.env.APP_BASE_URL && fs.existsSync(path.resolve($.$build.projDir, './src/cargo/assets/brand/og-image.png')) ?
+			$.$build.env.APP_BASE_URL + '/assets/brand/og-image.png?' + qs.encode({ v: $.$build.pkg.version || '' })
+		: '') || '';
+} else {
+	var ogSiteName = $.ogSiteName || '';
+	var ogType = $.ogType || 'website';
+	var ogTitle = $.ogTitle || $.title || '';
+	var ogDesc = $.ogDescription || $.description || '';
+	var ogURL =  $.ogURL || $.canonicalURL || '';
+	var ogImage = $.ogImage || '';
+} ?>
+<? if (ogSiteName && ogType && ogTitle && ogDesc && ogURL && ogImage) { ?>
+	<meta property="og:site_name" content="<?= ogSiteName ?>" />
+	<meta property="og:type" content="<?= ogType ?>" />
+	<meta property="og:title" content="<?= ogTitle ?>" />
+	<meta property="og:description" content="<?= ogDesc ?>" />
+	<meta property="og:url" content="<?= ogURL ?>" />
+	<meta property="og:image" content="<?= ogImage ?>" />
+<? } ?>

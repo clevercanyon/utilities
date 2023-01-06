@@ -1,0 +1,3 @@
+<? if ($.description || ($.isBasePath && $.$build?.env.APP_DESC)) { ?>
+	<meta name="description" content="<?= $.description || $.$build.env.APP_DESC ?>" />
+<? } ?>

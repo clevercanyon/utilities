@@ -1,0 +1,3 @@
+<? if ($.canonicalURL || ($.isBasePath && $.$build?.env.APP_BASE_URL)) { ?>
+	<link rel="canonical" href="<?= $.canonicalURL || $.$build.env.APP_BASE_URL ?>" />
+<? } ?>
