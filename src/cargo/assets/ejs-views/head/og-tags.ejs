@@ -4,8 +4,8 @@
 	const qs = $.$build.require('node:querystring');
 
 	var ogSiteName = $.ogSiteName || $.$build.env.APP_NAME || '';
-	var ogType = $.ogType || 'website';
-	var ogTitle = $.ogTitle || $.title || ($.isBasePath ? $.$build.env.APP_TITLE : '') || '';
+	var ogType = $.ogType || 'website'; // To learn more, see: <https://ogp.me>.
+	var ogTitle = $.ogTitle || $.title || ($.isBasePath ? $.$build.env.APP_TITLE || $.$build.env.APP_NAME : '') || '';
 	var ogDesc = $.ogDescription || $.description || ($.isBasePath ? $.$build.env.APP_DESC : '') || '';
 	var ogURL =  $.ogURL || $.canonicalURL || ($.isBasePath ? $.$build.env.APP_BASE_URL : '') || '';
 	var ogImage = $.ogImage || ($.$build.env.APP_BASE_URL && fs.existsSync(path.resolve($.$build.projDir, './src/cargo/assets/brand/og-image.png')) ?
