@@ -28,7 +28,7 @@ export function bytes(str: string): number {
  * @returns     Escaped string.
  */
 export function escRegExp(str: string): string {
-	return str.replace(/[.*+?^${}()|[\]\\-]/gu, '\\$&');
+	return str.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 }
 
 /**
