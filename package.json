@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.72",
+	"version": "1.0.73",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Another great project by Clever Canyon.",
@@ -94,14 +94,14 @@
 		"ignore": "^5.2.4",
 		"locutus": "^2.0.16",
 		"lodash": "^4.17.21",
-		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.9",
+		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.10",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
 	"peerDependenciesMeta": {},
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.79",
-		"@cloudflare/workers-types": "^4.20221111.1",
+		"@clevercanyon/skeleton-dev-deps": "^1.0.81",
+		"@cloudflare/workers-types": "^4.20230115.0",
 		"@types/crypto-js": "^4.1.1",
 		"@types/locutus": "^0.0.6",
 		"@types/lodash": "^4.14.191",
