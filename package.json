@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.68",
+	"version": "1.0.71",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Another great project by Clever Canyon.",
@@ -135,7 +135,9 @@
 					},
 					"configVersion": "1.0.0"
 				},
-				"npmjs": {}
+				"npmjs": {
+					"configVersions": "1.0.0,1.0.0"
+				}
 			}
 		}
 	}
