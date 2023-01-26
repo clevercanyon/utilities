@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.74",
+	"version": "1.0.75",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Another great project by Clever Canyon.",
@@ -100,7 +100,7 @@
 	},
 	"peerDependenciesMeta": {},
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.82",
+		"@clevercanyon/skeleton-dev-deps": "^1.0.83",
 		"@cloudflare/workers-types": "^4.20230115.0",
 		"@types/crypto-js": "^4.1.1",
 		"@types/locutus": "^0.0.6",
