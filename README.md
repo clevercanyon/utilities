@@ -1,3 +1,3 @@
-# Clever Canyon: Utilities
+# @clevercanyon/utilities
 
 Clever Canyon’s project development utilities.
