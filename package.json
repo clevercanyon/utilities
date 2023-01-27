@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.77",
+	"version": "1.0.78",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Another great project by Clever Canyon.",
@@ -89,18 +89,21 @@
 			"./*": ["./dist/types/*"]
 		}
 	},
+	"dependencies": {},
 	"peerDependencies": {
 		"crypto-js": "^4.1.1",
 		"ignore": "^5.2.4",
 		"locutus": "^2.0.16",
 		"lodash": "^4.17.21",
-		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.10",
+		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.15",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
 	"peerDependenciesMeta": {},
+	"optionalDependencies": {},
+	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.87",
+		"@clevercanyon/skeleton-dev-deps": "^1.0.99",
 		"@cloudflare/workers-types": "^4.20230115.0",
 		"@types/crypto-js": "^4.1.1",
 		"@types/locutus": "^0.0.6",
@@ -111,13 +114,13 @@
 		"@types/react-dom": "^18.0.10"
 	},
 	"overrides": {},
+	"workspaces": [],
 	"cpu": ["x64", "arm64"],
 	"os": ["darwin", "linux"],
 	"engines": {
 		"node": "^19.2.0 || ^19.4.0",
 		"npm": "^8.19.3 || ^9.2.0"
 	},
-	"workspaces": [],
 	"config": {
 		"c10n": {
 			"&": {
@@ -134,7 +137,8 @@
 						"architects": "push"
 					},
 					"labels": {},
-					"configVersion": "1.0.1"
+					"configVersion": "1.0.1",
+					"envsVersion": ""
 				},
 				"npmjs": {
 					"configVersions": "1.0.1,1.0.0"
