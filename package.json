@@ -3,10 +3,10 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.82",
+	"version": "1.0.83",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
-	"description": "Utilities for apps running in any environment.",
+	"description": "Utilities for JavaScript apps running in any environment.",
 	"repository": "https://github.com/clevercanyon/utilities",
 	"homepage": "https://github.com/clevercanyon/utilities#readme",
 	"bugs": "https://github.com/clevercanyon/utilities/issues",
@@ -95,7 +95,7 @@
 		"ignore": "^5.2.4",
 		"locutus": "^2.0.16",
 		"lodash": "^4.17.21",
-		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.18",
+		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.19",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
@@ -103,7 +103,7 @@
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.102",
+		"@clevercanyon/skeleton-dev-deps": "^1.0.103",
 		"@cloudflare/workers-types": "^4.20230115.0",
 		"@types/crypto-js": "^4.1.1",
 		"@types/locutus": "^0.0.6",
@@ -137,11 +137,11 @@
 						"architects": "push"
 					},
 					"labels": {},
-					"configVersion": "1.0.1",
+					"configVersion": "1.0.2",
 					"envsVersion": ""
 				},
 				"npmjs": {
-					"configVersions": "1.0.1,1.0.0"
+					"configVersions": "1.0.2,1.0.2"
 				}
 			}
 		}

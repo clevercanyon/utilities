@@ -1,3 +1,3 @@
 # @clevercanyon/utilities
 
-Utilities for apps running in any environment.
+Utilities for JavaScript apps running in any environment.
