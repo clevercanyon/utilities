@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.79",
+	"version": "1.0.80",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Another great project by Clever Canyon.",
@@ -78,7 +78,7 @@
 			"types": "./dist/types/url.d.ts"
 		}
 	},
-	"sideEffects": ["./src/*.{html,scss,css,tsx,ts,jsx,mjs,js}"],
+	"sideEffects": ["./src/*.{html,scss,ts,tsx}"],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
 	"browser": "",
@@ -95,7 +95,7 @@
 		"ignore": "^5.2.4",
 		"locutus": "^2.0.16",
 		"lodash": "^4.17.21",
-		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.16",
+		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.17",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
@@ -103,7 +103,7 @@
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.100",
+		"@clevercanyon/skeleton-dev-deps": "^1.0.101",
 		"@cloudflare/workers-types": "^4.20230115.0",
 		"@types/crypto-js": "^4.1.1",
 		"@types/locutus": "^0.0.6",
