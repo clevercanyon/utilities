@@ -1,3 +1,3 @@
 # @clevercanyon/utilities
 
-Clever Canyon’s project development utilities.
+Utilities for apps running in any environment.

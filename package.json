@@ -3,10 +3,10 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.81",
+	"version": "1.0.82",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
-	"description": "Another great project by Clever Canyon.",
+	"description": "Utilities for apps running in any environment.",
 	"repository": "https://github.com/clevercanyon/utilities",
 	"homepage": "https://github.com/clevercanyon/utilities#readme",
 	"bugs": "https://github.com/clevercanyon/utilities/issues",
