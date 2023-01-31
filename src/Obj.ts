@@ -2,6 +2,13 @@
  * Utility class.
  */
 
+import mergeChange from 'merge-change';
+
+/**
+ * Merge-change utilities.
+ */
+export const mc: typeof mergeChange = mergeChange;
+
 /**
  * Checks if object is empty.
  *
