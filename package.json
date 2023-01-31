@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.85",
+	"version": "1.0.86",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -109,7 +109,7 @@
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.104",
+		"@clevercanyon/skeleton-dev-deps": "^1.0.105",
 		"@cloudflare/workers-types": "^4.20230115.0",
 		"@types/crypto-js": "^4.1.1",
 		"@types/locutus": "^0.0.6",
