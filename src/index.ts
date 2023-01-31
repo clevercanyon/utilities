@@ -7,6 +7,7 @@ export * as $cookie from './cookie.js';
 export * as $crypto from './crypto.js';
 export * as $env from './env.js';
 export * as $http from './http.js';
+export * as $mm from './mm.js';
 export * as $obj from './obj.js';
 export * as $react from './react.js';
 export * as $str from './str.js';

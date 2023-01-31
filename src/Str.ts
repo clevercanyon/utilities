@@ -2,7 +2,8 @@
  * Utility class.
  */
 
-import micromatch from 'micromatch';
+import { isMatch as $mmꓺisMatch } from './mm.js';
+import type { Options as $mmꓺOptions } from './mm.js';
 
 /**
  * Text encoder.
@@ -106,6 +107,6 @@ export function parseValue(str: string): unknown {
  *
  * @returns         True if matches given pattern.
  */
-export function matches(str: string, pattern: string, options: micromatch.Options = {}): boolean {
-	return micromatch.isMatch(str, pattern, { dot: true, ...options });
+export function matches(str: string, pattern: string, options: $mmꓺOptions = {}): boolean {
+	return $mmꓺisMatch(str, pattern, { dot: true, ...options });
 }
