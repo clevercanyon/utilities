@@ -217,16 +217,23 @@ export class Brand implements Props {
 /**
  * Gets a brand instance.
  *
- * @param   n7m Brand numeronym.
+ * @param   q Brand numeronym (recommended), slug, or var.
  *
- * @returns     Brand; else `null`.
+ * @returns   Brand instance; else `null` on failure to locate.
  */
-export function get(n7m: string): Brand | null {
-	n7m = '&' === n7m ? 'c10n' : n7m;
+export function get(q: string): Brand | null {
+	q = '&' === q ? 'c10n' : q;
 
-	if (!n7m || !rawProps[n7m]) {
+	if (!q) return null; // Not available.
+
+	if (!rawProps[q] /* Not an n7m. Search by `slug|var`. */) {
+		for (const [_n7m, _rawProps] of Object.entries(rawProps)) {
+			if (q === _rawProps.slug || q === _rawProps.var) return get(_n7m);
+		}
 		return null; // Not available.
 	}
+	const n7m = q; // Query is an n7m (numeronym).
+
 	if (instances[n7m]) {
 		return instances[n7m];
 	}
