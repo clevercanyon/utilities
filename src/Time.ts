@@ -1,10 +1,15 @@
 /**
- * Utility class.
+ * Time utilities.
  */
 
 import phpꓺdate from 'locutus/php/datetime/date';
 import phpꓺgmDate from 'locutus/php/datetime/gmdate';
 import phpꓺstrToTime from 'locutus/php/datetime/strtotime';
+
+/**
+ * Extracts lodash utilities.
+ */
+export { default as now } from 'lodash/now.js';
 
 /**
  * Gets current time (UTC timezone).

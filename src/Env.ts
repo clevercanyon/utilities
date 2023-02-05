@@ -1,18 +1,11 @@
 /**
- * Utility class.
+ * Environment utilities.
  */
 
+import { has as $objꓺhas } from './obj.js';
+import { empty as $isꓺempty } from './is.js';
 import { getQueryVars as $urlꓺgetQueryVars } from './url.js';
 import { parseValue as $strꓺparseValue, matches as $strꓺmatches } from './str.js';
-import { empty as $objꓺempty, hasOwn as $objꓺhasOwn } from './obj.js';
-
-/**
- * Polyfills missing types.
- */
-declare function WorkerGlobalScope(): void;
-declare function DedicatedWorkerGlobalScope(): void;
-declare function SharedWorkerGlobalScope(): void;
-declare function ServiceWorkerGlobalScope(): void;
 
 /**
  * Environment vars.
@@ -47,7 +40,7 @@ capture(import.meta.env || {});
  */
 export function capture(env: { [x: string]: unknown }): void {
 	for (const [name, value] of Object.entries(env)) {
-		if (!$objꓺhasOwn(vars, name)) set(name, value);
+		if (!$objꓺhas(vars, name)) set(name, value);
 	}
 }
 
@@ -59,7 +52,7 @@ export function capture(env: { [x: string]: unknown }): void {
  * @returns      Variable value.
  */
 export function get(name: string): unknown | null {
-	if ($objꓺhasOwn(vars, name)) {
+	if ($objꓺhas(vars, name)) {
 		return vars[name];
 	}
 	return null; // Unavailable.
@@ -98,13 +91,13 @@ export function test(ev: string, tests: { [x: string]: string } = {}): boolean {
 	if (!get(ev) /* variable */) {
 		return (cache.test[ev][tk] = false);
 	}
-	if ($objꓺempty(tests)) {
+	if ($isꓺempty(tests)) {
 		return (cache.test[ev][tk] = true);
 	}
 	const evQVs = $urlꓺgetQueryVars('//is?' + String(get(ev)));
 
 	for (const [qv, glob] of Object.entries(tests)) {
-		if (!$objꓺhasOwn(evQVs, qv) || !$strꓺmatches(evQVs[qv], glob, { nocase: true })) {
+		if (!$objꓺhas(evQVs, qv) || !$strꓺmatches(evQVs[qv], glob, { nocase: true })) {
 			return (cache.test[ev][tk] = false);
 		}
 	}

@@ -1,5 +1,5 @@
 /**
- * Utility class.
+ * Brand utilities.
  */
 
 /**

@@ -1,5 +1,5 @@
 /**
- * Utility class.
+ * React utilities.
  */
 
 import React from 'react';

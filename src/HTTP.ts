@@ -1,5 +1,5 @@
 /**
- * Utility class.
+ * HTTP utilities.
  */
 
 import { escRegExp as $strꓺescRegExp } from './str.js';

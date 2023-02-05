@@ -1,14 +1,14 @@
 /**
- * Utility class.
+ * Cookie utilities.
  */
 
+import { has as $objꓺhas } from './obj.js';
 import { isWeb as $envꓺisWeb } from './env.js';
-import { hasOwn as $objꓺhasOwn } from './obj.js';
 import {
-	currentScheme as $urlꓺcurrentScheme, //
-	currentRootHost as $urlꓺcurrentRootHost,
-	encode as $urlꓺencode,
+	encode as $urlꓺencode, //
 	decode as $urlꓺdecode,
+	currentScheme as $urlꓺcurrentScheme,
+	currentRootHost as $urlꓺcurrentRootHost,
 } from './url.js';
 
 /**
@@ -85,7 +85,7 @@ export function exists(name: string): boolean {
 	if (!$envꓺisWeb()) {
 		throw new Error('Not web.');
 	}
-	return $objꓺhasOwn(parse(), name);
+	return $objꓺhas(parse(), name);
 }
 
 /**
@@ -101,7 +101,7 @@ export function get(name: string): string | null {
 	}
 	const cookies = parse();
 
-	if (!$objꓺhasOwn(cookies, name)) {
+	if (!$objꓺhas(cookies, name)) {
 		return null;
 	}
 	return cookies[name] || '';

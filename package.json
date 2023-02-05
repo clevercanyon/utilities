@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.97",
+	"version": "1.0.98",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -81,6 +81,56 @@
 			"import": "./dist/mm.js",
 			"require": "./dist/mm.cjs",
 			"types": "./dist/types/mm.d.ts"
+		},
+		"./lodash": {
+			"import": "./dist/lodash.js",
+			"require": "./dist/lodash.cjs",
+			"types": "./dist/types/lodash.d.ts"
+		},
+		"./arr": {
+			"import": "./dist/arr.js",
+			"require": "./dist/arr.cjs",
+			"types": "./dist/types/arr.d.ts"
+		},
+		"./coll": {
+			"import": "./dist/coll.js",
+			"require": "./dist/coll.cjs",
+			"types": "./dist/types/coll.d.ts"
+		},
+		"./fn": {
+			"import": "./dist/fn.js",
+			"require": "./dist/fn.cjs",
+			"types": "./dist/types/fn.d.ts"
+		},
+		"./is": {
+			"import": "./dist/is.js",
+			"require": "./dist/is.cjs",
+			"types": "./dist/types/is.d.ts"
+		},
+		"./math": {
+			"import": "./dist/math.js",
+			"require": "./dist/math.cjs",
+			"types": "./dist/types/math.d.ts"
+		},
+		"./num": {
+			"import": "./dist/num.js",
+			"require": "./dist/num.cjs",
+			"types": "./dist/types/num.d.ts"
+		},
+		"./seq": {
+			"import": "./dist/seq.js",
+			"require": "./dist/seq.cjs",
+			"types": "./dist/types/seq.d.ts"
+		},
+		"./to": {
+			"import": "./dist/to.js",
+			"require": "./dist/to.cjs",
+			"types": "./dist/types/to.d.ts"
+		},
+		"./u": {
+			"import": "./dist/u.js",
+			"require": "./dist/u.cjs",
+			"types": "./dist/types/u.d.ts"
 		}
 	},
 	"sideEffects": ["./src/*.{html,scss,ts,tsx}"],
@@ -100,8 +150,8 @@
 		"ignore": "^5.2.4",
 		"locutus": "^2.0.16",
 		"lodash": "^4.17.21",
-		"merge-change": "npm:@clevercanyon/merge-change.fork@^1.8.48",
-		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.27",
+		"merge-change": "npm:@clevercanyon/merge-change.fork@^1.8.49",
+		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.29",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
@@ -109,13 +159,13 @@
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.120",
+		"@clevercanyon/skeleton-dev-deps": "^1.0.121",
 		"@cloudflare/workers-types": "^4.20230115.0",
 		"@types/crypto-js": "^4.1.1",
 		"@types/locutus": "^0.0.6",
 		"@types/lodash": "^4.14.191",
 		"@types/micromatch": "^4.0.2",
-		"@types/node": "^18.11.18",
+		"@types/node": "^18.11.19",
 		"@types/react": "^18.0.27",
 		"@types/react-dom": "^18.0.10"
 	},

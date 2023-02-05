@@ -1,31 +1,37 @@
 /**
- * Utility class.
+ * Micromatch utilities.
  */
 
 import mm from 'micromatch';
 
 /**
  * Micromatch types.
+ *
+ * Re-export in case needed by callers.
  */
 export type { Options } from 'micromatch';
 
 /**
  * Micromatch utilities.
+ *
+ * We re-export micromatch utilities from Clever Canyon utilities because we’re using a fork of our own that's not
+ * reliant upon Node built-ins. For this reason, using our fork takes some additional effort due to required aliasing in
+ * `./package.json`. To avoid that ongoing confusion/hassle, we bundle it with our own utilities and re-export here.
  */
-export const match: typeof mm = mm; // Default micromatch API.
 
-export const matcher: typeof mm.matcher = (...args: Parameters<typeof mm.matcher>): ReturnType<typeof mm.matcher> => mm.matcher(...args);
-export const isMatch: typeof mm.isMatch = (...args: Parameters<typeof mm.isMatch>): ReturnType<typeof mm.isMatch> => mm.isMatch(...args);
-export const not: typeof mm.not = (...args: Parameters<typeof mm.not>): ReturnType<typeof mm.not> => mm.not(...args);
-export const contains: typeof mm.contains = (...args: Parameters<typeof mm.contains>): ReturnType<typeof mm.contains> => mm.contains(...args);
-export const matchKeys: typeof mm.matchKeys = (...args: Parameters<typeof mm.matchKeys>): ReturnType<typeof mm.matchKeys> => mm.matchKeys(...args);
-export const some: typeof mm.some = (...args: Parameters<typeof mm.some>): ReturnType<typeof mm.some> => mm.some(...args);
-export const every: typeof mm.every = (...args: Parameters<typeof mm.every>): ReturnType<typeof mm.every> => mm.every(...args);
-export const all: typeof mm.all = (...args: Parameters<typeof mm.all>): ReturnType<typeof mm.all> => mm.all(...args);
-export const capture: typeof mm.capture = (...args: Parameters<typeof mm.capture>): ReturnType<typeof mm.capture> => mm.capture(...args);
-export const makeRe: typeof mm.makeRe = (...args: Parameters<typeof mm.makeRe>): ReturnType<typeof mm.makeRe> => mm.makeRe(...args);
+export const match: typeof mm = mm.bind(null);
+export default match; // Default micromatch API.
 
-// We don't use any of these low-level APIs directly, so excluding.
-// export const scan: typeof mm.scan = (...args: Parameters<typeof mm.scan>): ReturnType<typeof mm.scan> => mm.scan(...args);
-// export const parse: typeof mm.parse = (...args: Parameters<typeof mm.parse>): ReturnType<typeof mm.parse> => mm.parse(...args);
-// export const braces: typeof mm.braces = (...args: Parameters<typeof mm.braces>): ReturnType<typeof mm.braces> => mm.braces(...args);
+export const all: typeof mm.all = mm.all.bind(null);
+export const braces: typeof mm.braces = mm.braces.bind(null);
+export const capture: typeof mm.capture = mm.capture.bind(null);
+export const contains: typeof mm.contains = mm.contains.bind(null);
+export const every: typeof mm.every = mm.every.bind(null);
+export const isMatch: typeof mm.isMatch = mm.isMatch.bind(null);
+export const makeRe: typeof mm.makeRe = mm.makeRe.bind(null);
+export const matcher: typeof mm.matcher = mm.matcher.bind(null);
+export const matchKeys: typeof mm.matchKeys = mm.matchKeys.bind(null);
+export const not: typeof mm.not = mm.not.bind(null);
+export const parse: typeof mm.parse = mm.parse.bind(null);
+export const scan: typeof mm.scan = mm.scan.bind(null);
+export const some: typeof mm.some = mm.some.bind(null);

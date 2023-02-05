@@ -1,5 +1,5 @@
 /**
- * Utility class.
+ * Crypto utilities.
  */
 
 import cryptoJSꓺmd5 from 'crypto-js/md5.js';

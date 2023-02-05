@@ -1,5 +1,5 @@
 /**
- * Utility class.
+ * URL utilities.
  */
 
 import { isWeb as $envꓺisWeb } from './env.js';
