@@ -23,8 +23,7 @@ import {
 	structuredCloneable as $isꓺstructuredCloneable,
 } from './is.js';
 
-// @todo Re-enable.
-//export { default as mc } from './resources/classes/obj/mc.js';
+export { default as mc } from './resources/classes/obj/mc.js';
 
 const plainObjectC9rStr = String(Object); // Plain object constructor, as string.
 

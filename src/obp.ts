@@ -2,10 +2,6 @@
  * Object path utilities.
  */
 
-import type * as $type from './type.js';
-import { hasOwn as $objꓺhasOwn } from './obj.js';
-import { escRegExp as $strꓺescRegExp } from './str.js';
-
 import {
 	array as $isꓺarray,
 	number as $isꓺnumber,
@@ -15,6 +11,10 @@ import {
 	safeObjectPath as $isꓺsafeObjectPath,
 	protoPollutionKey as $isꓺprotoPollutionKey,
 } from './is.js';
+
+import type * as $type from './type.js';
+import { hasOwn as $objꓺhasOwn } from './obj.js';
+import { escRegExp as $strꓺescRegExp } from './str.js';
 
 /**
  * Checks if an object has own or inherited, enumerable or not, path.

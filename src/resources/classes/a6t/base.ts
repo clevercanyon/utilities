@@ -34,14 +34,14 @@ export type C9rProps = {
  */
 export default abstract class Base {
 	/**
+	 * App package name.
+	 */
+	#appPkgName: string;
+
+	/**
 	 * Arbitrary object keys.
 	 */
 	[x: $type.ObjectKey]: unknown;
-
-	/**
-	 * App package name for string tag.
-	 */
-	readonly #appPkgName: string;
 
 	/**
 	 * Object constructor.

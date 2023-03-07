@@ -3,7 +3,6 @@
  */
 
 import $a6tꓺBase from './base.js';
-
 const appPkgName = $$__APP_PKG_NAME__$$;
 
 /**

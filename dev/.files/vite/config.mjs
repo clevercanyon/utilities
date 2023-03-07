@@ -297,7 +297,7 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 			// recommended, because preserving module structure in a final build has performance costs.
 			// However, in builds that are not final (e.g., CMAs with peer dependencies), preserving modules
 			// has performance benefits, as it allows for tree-shaking optimization in final builds.
-			//preserveModules: isCMA && Object.keys(pkg.peerDependencies || {}).length > 0,
+			preserveModules: isCMA && Object.keys(pkg.peerDependencies || {}).length > 0,
 		},
 	};
 	// <https://vitejs.dev/guide/features.html#web-workers>

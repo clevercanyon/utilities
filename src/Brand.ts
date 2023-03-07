@@ -5,7 +5,7 @@
 import $a6tꓺUtility from './resources/classes/a6t/utility.js';
 
 /**
- * Brand props.
+ * Defines types.
  */
 interface BaseProps {
 	readonly n7m: string;
