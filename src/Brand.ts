@@ -2,6 +2,8 @@
  * Brand utilities.
  */
 
+import $a6tꓺUtility from './resources/classes/a6t/utility.js';
+
 /**
  * Brand props.
  */
@@ -38,8 +40,8 @@ interface BaseProps {
 interface RawProps extends BaseProps {
 	readonly org: string;
 }
-interface ConstructorProps extends BaseProps {
-	readonly org?: Brand | null;
+interface C9rProps extends BaseProps {
+	readonly org?: Brand | undefined;
 }
 interface Props extends BaseProps {
 	readonly org: Brand;
@@ -111,56 +113,56 @@ const rawProps: { readonly [x: string]: RawProps } = {
 /**
  * Brand utilities.
  */
-export class Brand implements Props {
+export class Brand extends $a6tꓺUtility implements Props {
 	/**
 	 * Org brand object.
 	 */
-	public readonly org: Brand;
+	public readonly org!: Brand;
 
 	/**
 	 * N7M; e.g., `m5d`.
 	 */
-	public readonly n7m: string;
+	public readonly n7m!: string;
 
 	/**
 	 * Name; e.g., `My Brand`.
 	 */
-	public readonly name: string;
+	public readonly name!: string;
 
 	/**
 	 * Namespace; e.g., `My_Brand`.
 	 */
-	public readonly namespace: string;
+	public readonly namespace!: string;
 
 	/**
 	 * Slug; e.g., `my-brand`.
 	 */
-	public readonly slug: string;
+	public readonly slug!: string;
 
 	/**
 	 * Var; e.g., `my_brand`.
 	 */
-	public readonly var: string;
+	public readonly var!: string;
 
 	/**
 	 * Slug prefix; e.g., `my-brand-`.
 	 */
-	public readonly slugPrefix: string;
+	public readonly slugPrefix!: string;
 
 	/**
 	 * Var prefix; e.g., `my_brand_`.
 	 */
-	public readonly varPrefix: string;
+	public readonly varPrefix!: string;
 
 	/**
 	 * Root domain; e.g., `my-brand.com`.
 	 */
-	public readonly rootDomain: string;
+	public readonly rootDomain!: string;
 
 	/**
 	 * AWS properties.
 	 */
-	public readonly aws: {
+	public readonly aws!: {
 		readonly s3: {
 			readonly bucket: string;
 			readonly cdnDomain: string;
@@ -170,7 +172,7 @@ export class Brand implements Props {
 	/**
 	 * Google properties.
 	 */
-	public readonly google: {
+	public readonly google!: {
 		readonly analytics: {
 			readonly ga4GtagId: string;
 		};
@@ -179,38 +181,22 @@ export class Brand implements Props {
 	/**
 	 * Cloudflare properties.
 	 */
-	public readonly cloudflare: {
+	public readonly cloudflare!: {
 		readonly accountId: string;
 		readonly zoneId: string;
 	};
 
 	/**
-	 * Constructor.
+	 * Object constructor.
 	 *
-	 * @param props Properties.
+	 * @param c9rProps Props or Brand instance.
 	 */
-	public constructor(props: ConstructorProps) {
-		if (props.org instanceof Brand) {
-			this.org = props.org;
-		} else {
+	public constructor(c9rProps: C9rProps | Brand) {
+		super(c9rProps); // Parent constructor.
+
+		if (!(this.org instanceof Brand)) {
 			this.org = this;
 		}
-		this.n7m = props.n7m;
-
-		this.name = props.name;
-		this.namespace = props.namespace;
-
-		this.slug = props.slug;
-		this.var = props.var;
-
-		this.slugPrefix = props.slugPrefix;
-		this.varPrefix = props.varPrefix;
-
-		this.rootDomain = props.rootDomain;
-
-		this.aws = props.aws;
-		this.google = props.google;
-		this.cloudflare = props.cloudflare;
 	}
 }
 
@@ -219,18 +205,19 @@ export class Brand implements Props {
  *
  * @param   q Brand numeronym (recommended), slug, or var.
  *
- * @returns   Brand instance; else `null` on failure to locate.
+ * @returns   Brand instance; else `undefined` on failure to locate.
  */
-export function get(q: string): Brand | null {
+export const get = (q: string): Brand | undefined => {
 	q = '&' === q ? 'c10n' : q;
+	if (!q) return; // Not available.
 
-	if (!q) return null; // Not available.
-
-	if (!rawProps[q] /* Not an n7m. Search by `slug|var`. */) {
+	if (!rawProps[q] /* Not an n7m. Try searching by `slug|var`. */) {
 		for (const [_n7m, _rawProps] of Object.entries(rawProps)) {
-			if (q === _rawProps.slug || q === _rawProps.var) return get(_n7m);
+			if (q === _rawProps.slug || q === _rawProps.var) {
+				if (rawProps[_n7m]) return get(_n7m);
+			}
 		}
-		return null; // Not available.
+		return; // Not available.
 	}
 	const n7m = q; // Query is an n7m (numeronym).
 
@@ -242,4 +229,4 @@ export function get(q: string): Brand | null {
 
 	instances[n7m] = new Brand({ ...rawBrand, org: get(rawBrandOrg) });
 	return instances[n7m]; // Brand instance.
-}
+};

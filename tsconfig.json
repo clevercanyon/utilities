@@ -21,12 +21,11 @@
 			"vite/client",
 			"@cloudflare/workers-types/2022-08-04",
 			"@types/crypto-js",
-			"@types/locutus",
-			"@types/lodash",
 			"@types/micromatch",
 			"@types/node",
 			"@types/react-dom",
-			"@types/react"
+			"@types/react",
+			"@types/semver"
 		]
 	}
 	/* </custom:end> */

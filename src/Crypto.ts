@@ -12,6 +12,8 @@ import cryptoJSꓺhmacSHA256 from 'crypto-js/hmac-sha256.js';
 
 import cryptoJSꓺencꓺhex from 'crypto-js/enc-hex.js';
 
+import { svz as $moizeꓺsvz } from './moize.js';
+
 /**
  * Generates an MD5 hash.
  *
@@ -19,9 +21,12 @@ import cryptoJSꓺencꓺhex from 'crypto-js/enc-hex.js';
  *
  * @returns     MD5. 32 hexadecimals in length.
  */
-export function md5(str: string): string {
-	return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺmd5(str));
-}
+export const md5 = $moizeꓺsvz({ maxSize: 2 })(
+	// Memoized function.
+	(str: string): string => {
+		return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺmd5(str));
+	},
+);
 
 /**
  * Generates a SHA-1 hash.
@@ -30,9 +35,12 @@ export function md5(str: string): string {
  *
  * @returns     SHA-1 hash. 40 hexadecimals in length.
  */
-export function sha1(str: string): string {
-	return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺsha1(str));
-}
+export const sha1 = $moizeꓺsvz({ maxSize: 2 })(
+	// Memoized function.
+	(str: string): string => {
+		return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺsha1(str));
+	},
+);
 
 /**
  * Generates an HMAC SHA-1 hash.
@@ -42,9 +50,12 @@ export function sha1(str: string): string {
  *
  * @returns      HMAC SHA-1 hash. 64 hexadecimals in length.
  */
-export function hmacSHA1(str: string, salt: string): string {
-	return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺhmacSHA1(str, salt));
-}
+export const hmacSHA1 = $moizeꓺsvz({ maxSize: 2 })(
+	// Memoized function.
+	(str: string, salt: string): string => {
+		return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺhmacSHA1(str, salt));
+	},
+);
 
 /**
  * Generates a SHA-256 hash.
@@ -53,9 +64,12 @@ export function hmacSHA1(str: string, salt: string): string {
  *
  * @returns     SHA-256 hash. 64 hexadecimals in length.
  */
-export function sha256(str: string): string {
-	return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺsha256(str));
-}
+export const sha256 = $moizeꓺsvz({ maxSize: 2 })(
+	// Memoized function.
+	(str: string): string => {
+		return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺsha256(str));
+	},
+);
 
 /**
  * Generates an HMAC SHA-256 hash.
@@ -65,9 +79,12 @@ export function sha256(str: string): string {
  *
  * @returns      HMAC SHA-256 hash. 64 hexadecimals in length.
  */
-export function hmacSHA256(str: string, salt: string): string {
-	return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺhmacSHA256(str, salt));
-}
+export const hmacSHA256 = $moizeꓺsvz({ maxSize: 2 })(
+	// Memoized function.
+	(str: string, salt: string): string => {
+		return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺhmacSHA256(str, salt));
+	},
+);
 
 /**
  * Generates a v4 UUID.
@@ -76,6 +93,6 @@ export function hmacSHA256(str: string, salt: string): string {
  *
  * @returns          Version 4 UUID (32 bytes optimized, 36 unoptimized).
  */
-export function uuidV4(optimize: boolean = true): string {
+export const uuidV4 = (optimize: boolean = true): string => {
 	return optimize ? crypto.randomUUID().replace(/-/gu, '') : crypto.randomUUID();
-}
+};

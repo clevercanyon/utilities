@@ -25,9 +25,9 @@ import { ViteEjsPlugin as pluginEJS } from 'vite-plugin-ejs';
 import { ViteMinifyPlugin as pluginMinifyHTML } from 'vite-plugin-minify';
 
 import u from '../bin/includes/utilities.mjs';
-import { $obj, $mm } from '@clevercanyon/utilities';
-import { $glob } from '@clevercanyon/utilities.node';
-import importAliases from './includes/aliases.mjs';
+import importAliases from './includes/import-aliases.mjs';
+import { $str, $obj, $mm } from '../../../node_modules/@clevercanyon/utilities/dist/index.js';
+import { $glob } from '../../../node_modules/@clevercanyon/utilities.node/dist/index.js';
 
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -47,8 +47,10 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 	const projDir = path.resolve(__dirname, '../../..');
 
 	const srcDir = path.resolve(__dirname, '../../../src');
-	const envsDir = path.resolve(__dirname, '../../../dev/.envs');
 	const cargoDir = path.resolve(__dirname, '../../../src/cargo');
+
+	const envsDir = path.resolve(__dirname, '../../../dev/.envs');
+	const logsDir = path.resolve(__dirname, '../../../dev/.logs');
 
 	const distDir = path.resolve(__dirname, '../../../dist');
 	const a16sDir = path.resolve(__dirname, '../../../dist/assets/a16s');
@@ -278,20 +280,126 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 			: mpaIndexes,
 
 		external: [
-			...Object.keys(pkg.peerDependencies || {}),
-			'__STATIC_CONTENT_MANIFEST', // Cloudflare workers.
+			'__STATIC_CONTENT_MANIFEST', // Cloudflare workers use this for static assets.
+			...Object.keys(pkg.peerDependencies || {}).map((k) => new RegExp('^' + $str.escRegExp(k) + '(?:$|/)')),
 		],
 		output: {
 			interop: 'auto', // Matches TypeScript config.
 			exports: 'named', // Matches TypeScript config.
 			esModule: true, // Matches TypeScript config.
 
-			extend: true, // i.e., Global `||` checks.
+			extend: true, // i.e., UMD global `||` checks.
 			noConflict: true, // Like `jQuery.noConflict()`.
+			compact: true, // Minify auto-generated snippets.
+
+			// Preserves module structure in CMAs built explicitly as dependencies.
+			// The expectation is that peers will build w/ this flag set as false, which is
+			// recommended, because preserving module structure in a final build has performance costs.
+			// However, in builds that are not final (e.g., CMAs with peer dependencies), preserving modules
+			// has performance benefits, as it allows for tree-shaking optimization in final builds.
+			//preserveModules: isCMA && Object.keys(pkg.peerDependencies || {}).length > 0,
 		},
 	};
 	// <https://vitejs.dev/guide/features.html#web-workers>
 	const importedWorkerRollupConfig = { ..._.omit(rollupConfig, ['input']) };
+
+	/**
+	 * Vitest config for Vite.
+	 */
+	const vitestExcludes = [
+		'**/.*', //
+		'**/dev/**',
+		'**/dist/**',
+		'**/.yarn/**',
+		'**/vendor/**',
+		'**/node_modules/**',
+		'**/jspm_packages/**',
+		'**/bower_components/**',
+		'**/*.d.{ts,tsx,cts,ctsx,mts,mtsx}',
+	];
+	const vitestIncludes = [
+		'**/*.{test,tests,spec,specs}.{js,jsx,cjs,cjsx,node,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}',
+		'**/{__test__,__tests__,__spec__,__specs__}/**/*.{js,jsx,cjs,cjsx,node,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}',
+	];
+	const vitestTypecheckIncludes = [
+		'**/*.{test,tests,spec,specs}-d.{ts,tsx,cts,ctsx,mts,mtsx}', //
+		'**/{__test__,__tests__,__spec__,__specs__}/**/*-d.{ts,tsx,cts,ctsx,mts,mtsx}',
+	];
+	const vitestBenchIncludes = [
+		'**/*.{bench,benchmark,benchmarks}.{js,jsx,cjs,cjsx,node,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}',
+		'**/{__bench__,__benchmark__,__benchmarks__}/**/*.{js,jsx,cjs,cjsx,node,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}',
+	];
+	const vitestExtensions = ['.js', '.jsx', '.cjs', '.cjsx', '.json', '.node', '.mjs', '.mjsx', '.ts', '.tsx', '.cts', '.ctsx', '.mts', '.mtsx'];
+
+	const vitestConfig = {
+		root: srcDir,
+
+		include: vitestIncludes,
+		css: { include: /.+/u },
+
+		exclude: vitestExcludes,
+		watchExclude: vitestExcludes,
+
+		// @todo Enhance miniflare support.
+		// @todo Add support for testing web workers.
+		environment: ['web'].includes(targetEnv) ? 'jsdom' // <https://o5p.me/Gf9Cy5>.
+			: ['cfp', 'cfw'].includes(targetEnv) ? 'miniflare' // <https://o5p.me/TyF9Ot>.
+			: ['node', 'any'].includes(targetEnv) ? 'node' // <https://o5p.me/Gf9Cy5>.
+			: 'node', // prettier-ignore
+
+		deps: {
+			interopDefault: true,
+			external: ['**/dist/**', '**/node_modules/**'].concat(rollupConfig.external),
+		},
+		cache: { dir: path.resolve(projDir, './node_modules/.vitest') },
+
+		transformMode: {
+			web: [], // See: <https://o5p.me/Nf6MGy> for further details.
+			ssr: [new RegExp('\\.(?:' + vitestExtensions.map((e) => $str.escRegExp(e.slice(1))).join('|') + ')$')],
+		},
+		// See: <https://vitest.dev/api/#test-only>
+		// See: <https://vitest.dev/api/#bench-only>
+		// See: <https://vitest.dev/api/#describe-only>
+		allowOnly: true, // Allows `describe.only`, `test.only`, `bench.only`.
+		passWithNoTests: true, // Pass if there are no tests to run.
+
+		watch: false, // Disable watching by default.
+		forceRerunTriggers: ['**/package.json', '**/vitest.config.*', '**/vite.config.*'],
+
+		reporters: ['verbose'], // Verbose reporting.
+		outputFile: {
+			json: path.resolve(logsDir, './tests/vitest.json'),
+			junit: path.resolve(logsDir, './tests/vitest.junit'),
+			html: path.resolve(logsDir, './tests/vitest/index.html'),
+		},
+		typecheck: {
+			include: vitestTypecheckIncludes,
+			exclude: vitestExcludes,
+		},
+		coverage: {
+			all: true,
+			src: srcDir,
+			include: ['**'],
+			exclude: vitestExcludes //
+				.concat(vitestIncludes)
+				.concat(vitestTypecheckIncludes)
+				.concat(vitestBenchIncludes),
+			extension: vitestExtensions,
+			reporter: ['text', 'html', 'clover', 'json'],
+			reportsDirectory: path.resolve(logsDir, './coverage/vitest'),
+		},
+		benchmark: {
+			include: vitestBenchIncludes,
+			includeSource: vitestIncludes,
+			exclude: vitestExcludes,
+
+			outputFile: {
+				json: path.resolve(logsDir, './benchmarks/vitest.json'),
+				junit: path.resolve(logsDir, './benchmarks/vitest.junit'),
+				html: path.resolve(logsDir, './benchmarks/vitest.html'),
+			},
+		},
+	};
 
 	/**
 	 * Base config for Vite.
@@ -300,9 +408,9 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 	 */
 	const baseConfig = {
 		c10n: { pkg, updatePkg },
-		define: {
-			// Static replacements.
+		define: /* Static replacements. */ {
 			$$__APP_PKG_NAME__$$: JSON.stringify(pkg.name || ''),
+			$$__APP_PKG_OBP__$$: JSON.stringify((pkg.name || '').replace(/\./gu, '\u{1C79}')),
 			$$__APP_PKG_VERSION__$$: JSON.stringify(pkg.version || ''),
 			$$__APP_PKG_REPOSITORY__$$: JSON.stringify(pkg.repository || ''),
 			$$__APP_PKG_HOMEPAGE__$$: JSON.stringify(pkg.homepage || ''),
@@ -313,7 +421,7 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 		base: appBasePath + '/', // Analagous to `<base href="/">` — leading & trailing slash.
 
 		appType: isCMA ? 'custom' : 'mpa', // See: <https://o5p.me/ZcTkEv>.
-		resolve: { alias: importAliases }, // Matches TypeScript config.
+		resolve: { alias: importAliases }, // Matches TypeScript config import aliases.
 
 		envDir: path.relative(srcDir, envsDir), // Relative to `root` directory.
 		envPrefix: appEnvPrefix, // Environment vars w/ this prefix become a part of the app.
@@ -343,10 +451,11 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 			// Note: `a16s` = numeronym for 'acquired resources'.
 
 			ssr: isSSR, // Server-side rendering?
-			...(isSSR ? { ssrManifest: true } : {}),
+			...(isSSR ? { ssrManifest: isDev } : {}),
 
 			sourcemap: isDev, // Enables creation of sourcemaps.
-			manifest: true, // Enables creation of manifest for assets.
+			manifest: isDev, // Enables creation of manifest for assets.
+			minify: isDev ? false : 'esbuild', // See: <https://o5p.me/ZyQ4sv>.
 
 			...(isCMA // Custom-made apps = library code.
 				? {
@@ -360,6 +469,7 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 				: {}),
 			rollupOptions: rollupConfig, // See: <https://o5p.me/5Vupql>.
 		},
+		test: vitestConfig, // Vitest configuration options.
 	};
 
 	/**
