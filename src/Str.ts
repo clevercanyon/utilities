@@ -32,8 +32,8 @@ export type UnquoteOptions = { type?: string };
 /**
  * Exports micromatch utilities.
  */
-export { default as mm } from 'micromatch';
-export type { Options as MMOptions } from 'micromatch';
+export { mm as mm }; // Micromatch.
+export type { MMOptions as MMOptions };
 
 /**
  * Gets length in bytes.

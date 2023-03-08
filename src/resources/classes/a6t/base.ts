@@ -2,24 +2,10 @@
  * Base class.
  */
 
-import {
-	string as $isꓺstring, //
-	object as $isꓺobject,
-} from '../../../is.js';
-
-import {
-	symbols as $toꓺsymbols, //
-	methods as $toꓺmethods,
-} from '../../../to.js';
-
-import {
-	protoC9r as $objꓺprotoC9r, //
-	cloneDeep as $objꓺcloneDeep,
-	keysAndSymbols as $objꓺkeysAndSymbols,
-	keyAndSymbolEntries as $objꓺkeyAndSymbolEntries,
-} from '../../../obj.js';
-
 import type * as $type from '../../../type.js';
+import { string as $isꓺstring, object as $isꓺobject } from '../../../is.js';
+import { symbols as $toꓺsymbols, methods as $toꓺmethods } from '../../../to.js';
+import { protoC9r as $objꓺprotoC9r, cloneDeep as $objꓺcloneDeep, keysAndSymbols as $objꓺkeysAndSymbols, keyAndSymbolEntries as $objꓺkeyAndSymbolEntries } from '../../../obj.js';
 
 /**
  * Defines types.

@@ -2,33 +2,13 @@
  * Utility class.
  */
 
-import {
-	array as $isꓺarray, //
-	string as $isꓺstring,
-	object as $isꓺobject,
-	function as $isꓺfunction,
-	safeObjectPath as $isꓺsafeObjectPath,
-} from '../../../is.js';
-
-import {
-	tag as $objꓺtag, //
-	cloneDeep as $objꓺcloneDeep,
-	keysAndSymbols as $objꓺkeysAndSymbols,
-} from '../../../obj.js';
-
-import {
-	has as $obpꓺhas, //
-	get as $obpꓺget,
-	set as $obpꓺset,
-	unset as $obpꓺunset,
-	defaultTo as $obpꓺdefaultTo,
-	splitPath as $obpꓺsplitPath,
-} from '../../../obp.js';
-
 import $a6tꓺUtility from '../a6t/utility.js';
 import type * as $type from '../../../type.js';
 import { plainFlatObject as $toꓺplainFlatObject } from '../../../to.js';
 import { keysNotEnumerable as $classꓺkeysNotEnumerable } from '../../../class.js';
+import { tag as $objꓺtag, cloneDeep as $objꓺcloneDeep, keysAndSymbols as $objꓺkeysAndSymbols } from '../../../obj.js';
+import { array as $isꓺarray, string as $isꓺstring, object as $isꓺobject, function as $isꓺfunction, safeObjectPath as $isꓺsafeObjectPath } from '../../../is.js';
+import { has as $obpꓺhas, get as $obpꓺget, set as $obpꓺset, unset as $obpꓺunset, defaultTo as $obpꓺdefaultTo, splitPath as $obpꓺsplitPath } from '../../../obp.js';
 
 /**
  * Defines types.

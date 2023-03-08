@@ -10,6 +10,12 @@ import { parseValue as $strꓺparseValue, matches as $strꓺmatches } from './st
 import { get as $obpꓺget, set as $obpꓺset, defaultTo as $obpꓺdefaultTo, unset as $obpꓺunset } from './obp.js';
 import { empty as $isꓺempty, string as $isꓺstring, object as $isꓺobject, function as $isꓺfunction } from './is.js';
 
+let topLevelObp: string = '';
+let topLevelObpSet: boolean = false;
+
+let varsInitialized: boolean = false;
+const vars: { [x: string]: unknown } = {};
+
 const appPkgObp = $$__APP_PKG_OBP__$$;
 
 /**
@@ -18,15 +24,43 @@ const appPkgObp = $$__APP_PKG_OBP__$$;
 export type QVTests = { [x: string]: string | string[] };
 
 /**
- * Environment variables.
+ * Checks if an object path is top-level.
+ *
+ * @param   obp Object path to check.
+ *
+ * @returns     True if object path is top-level.
  */
-const vars: { [x: string]: unknown } = {};
+const isTopLevelObp = (obp: string): boolean => {
+	return !obp.includes('.') || /^@top\./u.test(obp);
+};
 
 /**
- * Holds top-level object path.
+ * Globalizes a top-level object path.
+ *
+ * @param   obp Object path to consider.
+ *
+ * @returns     A potentially globalized top-level object path.
  */
-let topLevelObp: string = appPkgObp;
-let isTopLevelObpSet: boolean = false;
+const globalTopLevelObp = (obp: string): string => {
+	if (!obp.includes('.')) {
+		return '@global.' + obp;
+	}
+	return obp.replace(/^@top\./u, '@global.');
+};
+
+/**
+ * Resolves a top-level object path.
+ *
+ * @param   obp Object path to consider.
+ *
+ * @returns     A potentially resolved top-level object path.
+ */
+const resolveTopLevelObp = (obp: string): string => {
+	if (!obp.includes('.')) {
+		return (topLevelObp || appPkgObp) + '.' + obp;
+	}
+	return obp.replace(/^@top\./u, (topLevelObp || appPkgObp) + '.');
+};
 
 /**
  * Sets top-level object path.
@@ -51,52 +85,38 @@ let isTopLevelObpSet: boolean = false;
  * their own app-specific environment variables. Their choice is made by the formulation of an object path that is
  * passed to one of the utilities in this module. Such as {@see get()}, {@see set()}, {@see unset()}.
  *
- * @param   obp Top-level object path.
- *
- * @returns     True if top-level object path is set, else false.
+ * @param obp Top-level object path.
  */
-export const setTopLevelObp = (obp: string): boolean => {
-	if (!obp || isTopLevelObpSet) {
-		return false; // Invalid, or set already.
+export const setTopLevelObp = (obp: string): void => {
+	if (!obp || topLevelObpSet) {
+		return; // Not empty & once only.
 	}
-	topLevelObp = obp; // Setting it now.
-
-	return (isTopLevelObpSet = true);
+	topLevelObpSet = true; // Setting now.
+	topLevelObp = obp; // Top-level object path.
 };
 
 /**
- * Checks if an object path is top-level.
+ * Initializes environment vars.
  *
- * @param   obp Object path to check.
- *
- * @returns     True if object path is top-level.
+ * Variables are initialized on-demand via {@see get()}, {@see set()}, {@see unset()}, {@see capture()}. It is handled
+ * on-demand in order to avoid issues with circular references being used in the body of this module.
  */
-export const isTopLevelObp = (obp: string): boolean => {
-	return !obp.includes('.') || /^@top\./u.test(obp);
-};
+const initializeVars = (): void => {
+	if (varsInitialized) {
+		return; // Once only.
+	}
+	varsInitialized = true; // Initializing now.
 
-/**
- * Globalizes a top-level object path.
- *
- * @param   obp Object path to consider.
- *
- * @returns     A potentially globalized top-level object path.
- */
-export const globalTopLevelObp = (obp: string): string => {
-	if (!obp.includes('.')) return '@global.' + obp;
-	return obp.replace(/^@top\./u, '@global.');
-};
+	if (isNode() && 'env' in process && $isꓺobject(process.env)) {
+		capture('@global', process.env);
+	} // Global node process environment variables.
 
-/**
- * Resolves a top-level object path.
- *
- * @param   obp Object path to consider.
- *
- * @returns     A potentially resolved top-level object path.
- */
-export const resolveTopLevelObp = (obp: string): string => {
-	if (!obp.includes('.')) return topLevelObp + '.' + obp;
-	return obp.replace(/^@top\./u, topLevelObp + '.');
+	if (isWeb() && 'env' in window && $isꓺobject(window.env)) {
+		capture('@global', window.env); // Non-standard, must be populated by web app.
+	} // Global window environment variables.
+
+	// App-specific environment variables compiled by Vite.
+	capture(appPkgObp, import.meta.env); // Sourced by dotenv files.
 };
 
 /**
@@ -116,6 +136,8 @@ export const resolveTopLevelObp = (obp: string): string => {
  *   - If no value is found by any query, {@see defaultValue} is returned.
  */
 export const get = (leadingObps: string | string[], subObp: string, defaultValue?: unknown): unknown => {
+	if (!varsInitialized) initializeVars();
+
 	for (const leadingObp of $toꓺcastArray(leadingObps)) {
 		const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
 
@@ -142,6 +164,8 @@ export const get = (leadingObps: string | string[], subObp: string, defaultValue
  * @param value      Environment variable value.
  */
 export const set = (leadingObp: string, subObp: string, value: unknown): void => {
+	if (!varsInitialized) initializeVars();
+
 	const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
 	$obpꓺset(vars, resolveTopLevelObp(obp), $isꓺstring(value) ? $strꓺparseValue(value) : value);
 };
@@ -153,6 +177,8 @@ export const set = (leadingObp: string, subObp: string, value: unknown): void =>
  * @param subObp     Object subpath.
  */
 export const unset = (leadingObp: string, subObp: string): void => {
+	if (!varsInitialized) initializeVars();
+
 	const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
 	$obpꓺunset(vars, resolveTopLevelObp(obp));
 };
@@ -167,6 +193,8 @@ export const unset = (leadingObp: string, subObp: string): void => {
  * @param env        Environment variables, by object subpath.
  */
 export const capture = (leadingObp: string, env: object): void => {
+	if (!varsInitialized) initializeVars();
+
 	for (const [subObp, value] of Object.entries(env)) {
 		const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
 		$obpꓺdefaultTo(vars, resolveTopLevelObp(obp), $isꓺstring(value) ? $strꓺparseValue(value) : value);
@@ -316,17 +344,3 @@ export const test = $moizeꓺdeep({ maxSize: 12 })(
 		return true; // Passed all tests.
 	},
 );
-
-/**
- * Captures environment variables.
- */
-if (isNode()) {
-	capture('@global', process.env);
-} // Global node process environment variables.
-
-if (isWeb() && 'env' in window && window.env && typeof window.env === 'object') {
-	capture('@global', window.env); // Non-standard. Populated by our web apps.
-} // Global window environment variables.
-
-// App-specific environment variables compiled by Vite.
-capture(appPkgObp, import.meta.env); // Sourced by dotenv files.
