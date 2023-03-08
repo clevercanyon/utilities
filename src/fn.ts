@@ -40,14 +40,6 @@ type ThrottledFunction<__Fn extends $type.Function> = {
 export const noOp = (): void => undefined;
 
 /**
- * Exports utilities from Fast Equals package.
- *
- * @see https://o5p.me/sgwWQS
- */
-export { createCustomEqual } from 'fast-equals';
-export { createCustomCircularEqual } from 'fast-equals';
-
-/**
  * Tries to invoke a sync or async function.
  *
  * @param   fn           Sync or async function to invoke.

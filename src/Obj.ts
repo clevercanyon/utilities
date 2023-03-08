@@ -2,10 +2,6 @@
  * Object utilities.
  */
 
-import type * as $type from './type.js';
-import { svz as $moizeꓺsvz } from './moize.js';
-import { symbols as $toꓺsymbols } from './to.js';
-
 import {
 	nul as $isꓺnul,
 	set as $isꓺset,
@@ -22,6 +18,10 @@ import {
 	safeObjectKey as $isꓺsafeObjectKey,
 	structuredCloneable as $isꓺstructuredCloneable,
 } from './is.js';
+
+import type * as $type from './type.js';
+import { svz as $moizeꓺsvz } from './moize.js';
+import { symbols as $toꓺsymbols } from './to.js';
 
 export { default as mc } from './resources/classes/obj/mc.js';
 

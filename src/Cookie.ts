@@ -2,18 +2,12 @@
  * Cookie utilities.
  */
 
-import {
-	encode as $urlꓺencode, //
-	decode as $urlꓺdecode,
-	currentScheme as $urlꓺcurrentScheme,
-	currentRootHost as $urlꓺcurrentRootHost,
-} from './url.js';
-
 import * as $type from './type.js';
 import { isWeb as $envꓺisWeb } from './env.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { unquote as $strꓺunquote } from './str.js';
 import { hasOwn as $objꓺhasOwn, assignDefaults as $objꓺassignDefaults } from './obj.js';
+import { encode as $urlꓺencode, decode as $urlꓺdecode, currentScheme as $urlꓺcurrentScheme, currentRootHost as $urlꓺcurrentRootHost } from './url.js';
 
 const documentCookieMap: Map<string, string | undefined> = new Map();
 

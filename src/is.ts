@@ -378,7 +378,7 @@ export { _function as function }; // Must be exported as alias.
  * @note This also returns true for memoized and curried async functions.
  */
 export const asyncFunction = (value: unknown): value is $type.AsyncFunction => {
-	return value instanceof Function && objectOfTag(value, 'AsyncFunction');
+	return _function(value) && objectOfTag(value, 'AsyncFunction');
 };
 
 /**

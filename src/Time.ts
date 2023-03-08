@@ -2,16 +2,10 @@
  * Time utilities.
  */
 
-import {
-	time as $isꓺtime, //
-	date as $isꓺdate,
-	string as $isꓺstring,
-	numeric as $isꓺnumeric,
-} from './is.js';
-
 import type * as $type from './type.js';
 import { symbols as $toꓺsymbols } from './to.js';
 import { hasOwn as $objꓺhasOwn } from './obj.js';
+import { time as $isꓺtime, date as $isꓺdate, string as $isꓺstring, numeric as $isꓺnumeric } from './is.js';
 
 import d3s from 'dayjs';
 import d3sUTC from 'dayjs/plugin/utc.js';

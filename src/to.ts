@@ -3,7 +3,7 @@
  */
 
 import {
-	set as $isꓺset, //
+	set as $isꓺset,
 	map as $isꓺmap,
 	array as $isꓺarray,
 	object as $isꓺobject,
