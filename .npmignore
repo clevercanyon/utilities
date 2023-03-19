@@ -225,6 +225,8 @@ wrangler.*
 
 # Uncompiled sources.
 
+src
+
 *.scss
 !dist/**/*.scss
 
