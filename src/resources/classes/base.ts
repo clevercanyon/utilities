@@ -59,7 +59,7 @@ export const getClass = (): Constructor => {
 		/**
 		 * App package name.
 		 */
-		static appPkgName = $appꓺpkgName;
+		static readonly appPkgName = $appꓺpkgName;
 
 		/**
 		 * Object constructor.

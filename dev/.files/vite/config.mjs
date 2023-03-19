@@ -11,13 +11,9 @@
  */
 /* eslint-env es2021, node */
 
-import _ from 'lodash';
-
 import fs from 'node:fs';
 import path from 'node:path';
-import { dirname } from 'desm';
 import fsp from 'node:fs/promises';
-import archiver from 'archiver';
 
 import { loadEnv } from 'vite';
 import pluginBasicSSL from '@vitejs/plugin-basic-ssl';
@@ -26,8 +22,8 @@ import { ViteMinifyPlugin as pluginMinifyHTML } from 'vite-plugin-minify';
 
 import u from '../bin/includes/utilities.mjs';
 import importAliases from './includes/import-aliases.mjs';
-import { $str, $obj, $mm } from '../../../node_modules/@clevercanyon/utilities/dist/index.js';
-import { $glob } from '../../../node_modules/@clevercanyon/utilities.node/dist/index.js';
+import { $str, $obj, $obp } from '../../../node_modules/@clevercanyon/utilities/dist/index.js';
+import { $path, $glob } from '../../../node_modules/@clevercanyon/utilities.node/dist/index.js';
 
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -43,7 +39,7 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 	/**
 	 * Directory vars.
 	 */
-	const __dirname = dirname(import.meta.url);
+	const __dirname = $path.imuDirname(import.meta.url);
 	const projDir = path.resolve(__dirname, '../../..');
 
 	const srcDir = path.resolve(__dirname, '../../../src');
@@ -74,8 +70,8 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 	/**
 	 * App type, target, path, and related vars.
 	 */
-	const appType = _.get(pkg, 'config.c10n.&.build.appType') || 'cma';
-	const targetEnv = _.get(pkg, 'config.c10n.&.build.targetEnv') || 'any';
+	const appType = $obp.get(pkg, 'config.c10n.&.build.appType') || 'cma';
+	const targetEnv = $obp.get(pkg, 'config.c10n.&.build.targetEnv') || 'any';
 	const appBasePath = env.APP_BASE_PATH || ''; // From environment vars.
 
 	const isMPA = 'mpa' === appType;
@@ -95,8 +91,8 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 	const cmaEntriesSubpaths = cmaEntries.map((absPath) => path.relative(srcDir, absPath));
 	const cmaEntriesSubpathsNoExt = cmaEntriesSubpaths.map((subpath) => subpath.replace(/\.[^.]+$/u, ''));
 
-	const mpaEntryIndexSubpath = mpaIndexesSubPaths.find((subpath) => $mm.isMatch(subpath, 'index.html'));
-	const cmaEntryIndexSubpath = cmaEntriesSubpaths.find((subpath) => $mm.isMatch(subpath, 'index.{ts,tsx}'));
+	const mpaEntryIndexSubpath = mpaIndexesSubPaths.find((subpath) => $str.mm.isMatch(subpath, 'index.html'));
+	const cmaEntryIndexSubpath = cmaEntriesSubpaths.find((subpath) => $str.mm.isMatch(subpath, 'index.{ts,tsx}'));
 	const cmaEntryIndexSubpathNoExt = cmaEntryIndexSubpath.replace(/\.[^.]+$/u, '');
 
 	const isWeb = ['web', 'webw'].includes(targetEnv);
@@ -129,7 +125,6 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 	const updatePkg = {}; // Initialize.
 
 	updatePkg.type = 'module'; // ES module; always.
-	updatePkg.files = ['/dist']; // Dist directory only.
 	updatePkg.exports = {}; // Exports object initialization.
 	updatePkg.sideEffects = ['./src/*.{html,scss,ts,tsx}']; // <https://o5p.me/xVY39g>.
 
@@ -154,7 +149,7 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 			if (cmaEntrySubPathNoExt === cmaEntryIndexSubpathNoExt) {
 				continue; // Don't remap the entry index.
 			}
-			$obj.mc.patch(updatePkg.exports, {
+			$obj.patchDeep(updatePkg.exports, {
 				['./' + cmaEntrySubPathNoExt]: {
 					import: './dist/' + cmaEntrySubPathNoExt + '.js',
 					require: './dist/' + cmaEntrySubPathNoExt + '.cjs',
@@ -181,7 +176,7 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 	} else {
 		updatePkg.type = 'module'; // Always a module when building with Vite.
 		updatePkg.module = updatePkg.main = updatePkg.browser = updatePkg.unpkg = updatePkg.types = '';
-		(updatePkg.exports = null), (updatePkg.files = updatePkg.sideEffects = []), (updatePkg.typesVersions = {});
+		(updatePkg.exports = null), (updatePkg.sideEffects = []), (updatePkg.typesVersions = {});
 	}
 
 	/**
@@ -256,7 +251,7 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 				 * Generates a zip archive containing `./dist` directory.
 				 */
 				if ('build' === command) {
-					const archive = archiver('zip', { zlib: { level: 9 } });
+					const archive = $path.archiver('zip', { zlib: { level: 9 } });
 					archive.pipe(fs.createWriteStream(path.resolve(projDir, './.~dist.zip')));
 					archive.directory(distDir + '/', false);
 					await archive.finalize();
@@ -300,7 +295,7 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 		},
 	};
 	// <https://vitejs.dev/guide/features.html#web-workers>
-	const importedWorkerRollupConfig = { ..._.omit(rollupConfig, ['input']) };
+	const importedWorkerRollupConfig = { ...$obj.omit(rollupConfig, ['input']) };
 
 	/**
 	 * Vitest config for Vite.
