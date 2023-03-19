@@ -61,10 +61,9 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 	const pkg = await u.pkg(); // Parses current `./package.json` file.
 
 	/**
-	 * Mode-related vars.
+	 * Sets node environment.
 	 */
-	const isDev = 'dev' === mode; // Development mode?
-	process.env.NODE_ENV = isDev ? 'development' : 'production'; // <https://o5p.me/DscTVM>.
+	process.env.NODE_ENV = 'dev' === mode ? 'development' : 'production'; // <https://o5p.me/DscTVM>.
 
 	/**
 	 * Environment-related vars.
@@ -223,7 +222,7 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 			},
 		},
 	);
-	const pluginMinifyHTMLConfig = isDev ? null : pluginMinifyHTML();
+	const pluginMinifyHTMLConfig = 'dev' === mode ? null : pluginMinifyHTML();
 
 	const pluginC10NPostProcessConfig = ((postProcessed = false) => {
 		return {
@@ -290,7 +289,7 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 
 			extend: true, // i.e., UMD global `||` checks.
 			noConflict: true, // Like `jQuery.noConflict()`.
-			compact: true, // Minify auto-generated snippets.
+			compact: 'prod' === mode, // Minify auto-generated snippets.
 
 			// Preserves module structure in CMAs built explicitly as dependencies.
 			// The expectation is that peers will build w/ this flag set as false, which is
@@ -319,15 +318,15 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 	];
 	const vitestIncludes = [
 		'**/*.{test,tests,spec,specs}.{js,jsx,cjs,cjsx,node,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}',
-		'**/{__test__,__tests__,__spec__,__specs__}/**/*.{js,jsx,cjs,cjsx,node,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}',
+		'**/{test,tests,spec,specs,__test__,__tests__,__spec__,__specs__}/**/*.{js,jsx,cjs,cjsx,node,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}',
 	];
 	const vitestTypecheckIncludes = [
 		'**/*.{test,tests,spec,specs}-d.{ts,tsx,cts,ctsx,mts,mtsx}', //
-		'**/{__test__,__tests__,__spec__,__specs__}/**/*-d.{ts,tsx,cts,ctsx,mts,mtsx}',
+		'**/{test,tests,spec,specs,__test__,__tests__,__spec__,__specs__}/**/*-d.{ts,tsx,cts,ctsx,mts,mtsx}',
 	];
 	const vitestBenchIncludes = [
 		'**/*.{bench,benchmark,benchmarks}.{js,jsx,cjs,cjsx,node,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}',
-		'**/{__bench__,__benchmark__,__benchmarks__}/**/*.{js,jsx,cjs,cjsx,node,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}',
+		'**/{bench,benchmark,benchmarks,__bench__,__benchmark__,__benchmarks__}/**/*.{js,jsx,cjs,cjsx,node,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}',
 	];
 	const vitestExtensions = ['.js', '.jsx', '.cjs', '.cjsx', '.json', '.node', '.mjs', '.mjsx', '.ts', '.tsx', '.cts', '.ctsx', '.mts', '.mtsx'];
 
@@ -344,9 +343,15 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 		// @todo Add support for testing web workers.
 		environment: ['web'].includes(targetEnv) ? 'jsdom' // <https://o5p.me/Gf9Cy5>.
 			: ['cfp', 'cfw'].includes(targetEnv) ? 'miniflare' // <https://o5p.me/TyF9Ot>.
-			: ['node', 'any'].includes(targetEnv) ? 'node' // <https://o5p.me/Gf9Cy5>.
+			: ['node'].includes(targetEnv) ? 'node' // <https://o5p.me/Gf9Cy5>.
 			: 'node', // prettier-ignore
 
+		// See: <https://o5p.me/8Pjw1d> for `environment`, `environmentMatchGlobs` precedence.
+		environmentMatchGlobs: [
+			['**/*.web.{test,tests,spec,specs}.{' + vitestExtensions.map((e) => e.slice(1)).join(',') + '}', 'jsdom'],
+			['**/*.{cfp,cfw}.{test,tests,spec,specs}.{' + vitestExtensions.map((e) => e.slice(1)).join(',') + '}', 'miniflare'],
+			['**/*.node.{test,tests,spec,specs}.{' + vitestExtensions.map((e) => e.slice(1)).join(',') + '}', 'node'],
+		],
 		deps: {
 			interopDefault: true,
 			external: ['**/dist/**', '**/node_modules/**'].concat(rollupConfig.external),
@@ -410,7 +415,6 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 		c10n: { pkg, updatePkg },
 		define: /* Static replacements. */ {
 			$$__APP_PKG_NAME__$$: JSON.stringify(pkg.name || ''),
-			$$__APP_PKG_OBP__$$: JSON.stringify((pkg.name || '').replace(/\./gu, '\u{1C79}')),
 			$$__APP_PKG_VERSION__$$: JSON.stringify(pkg.version || ''),
 			$$__APP_PKG_REPOSITORY__$$: JSON.stringify(pkg.repository || ''),
 			$$__APP_PKG_HOMEPAGE__$$: JSON.stringify(pkg.homepage || ''),
@@ -451,11 +455,11 @@ export default async ({ mode, command /*, ssrBuild */ }) => {
 			// Note: `a16s` = numeronym for 'acquired resources'.
 
 			ssr: isSSR, // Server-side rendering?
-			...(isSSR ? { ssrManifest: isDev } : {}),
+			...(isSSR ? { ssrManifest: 'dev' === mode } : {}),
 
-			sourcemap: isDev, // Enables creation of sourcemaps.
-			manifest: isDev, // Enables creation of manifest for assets.
-			minify: isDev ? false : 'esbuild', // See: <https://o5p.me/ZyQ4sv>.
+			sourcemap: 'dev' === mode, // Enables creation of sourcemaps.
+			manifest: 'dev' === mode, // Enables creation of manifest for assets.
+			minify: 'dev' === mode ? false : 'esbuild', // See: <https://o5p.me/ZyQ4sv>.
 
 			...(isCMA // Custom-made apps = library code.
 				? {

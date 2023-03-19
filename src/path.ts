@@ -4,7 +4,7 @@
 
 import type { Ignore as GitIgnore } from 'ignore';
 import { default as untypedGitIgnoreFactory } from 'ignore';
-import { assignDefaults as $objꓺassignDefaults } from './obj.js';
+import { defaults as $objꓺdefaults } from './obj.js';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
 const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgnoreFactoryOptions) => GitIgnore;
@@ -12,6 +12,7 @@ const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgno
 /**
  * Defines types.
  */
+export type { GitIgnore };
 export type GitIgnoreOptions = {
 	ignoreCase?: boolean;
 	useDefaultGitIgnores?: boolean;
@@ -53,7 +54,7 @@ export const newGitIgnore = (options?: GitIgnoreOptions): GitIgnore => {
 		useDefaultGitIgnores: true,
 		useDefaultNPMIgnores: false,
 	};
-	const opts = $objꓺassignDefaults({}, options || {}, defaultOpts) as Required<GitIgnoreOptions>;
+	const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<GitIgnoreOptions>;
 	if (opts.useDefaultNPMIgnores /* Already includes git ignores. */) opts.useDefaultGitIgnores = false;
 
 	const gitIgnore = gitIgnoreFactory({ ignorecase: opts.ignoreCase });

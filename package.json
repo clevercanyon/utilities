@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.98",
+	"version": "1.0.99",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -171,6 +171,16 @@
 			"import": "./dist/version.js",
 			"require": "./dist/version.cjs",
 			"types": "./dist/types/version.d.ts"
+		},
+		"./symbol": {
+			"import": "./dist/symbol.js",
+			"require": "./dist/symbol.cjs",
+			"types": "./dist/types/symbol.d.ts"
+		},
+		"./app": {
+			"import": "./dist/app.js",
+			"require": "./dist/app.cjs",
+			"types": "./dist/types/app.d.ts"
 		}
 	},
 	"sideEffects": ["./src/*.{html,scss,ts,tsx}"],
@@ -187,9 +197,10 @@
 	"dependencies": {},
 	"peerDependencies": {
 		"crypto-js": "^4.1.1",
-		"dayjs": "^1.11.7",
 		"fast-equals": "^4.0.3",
 		"ignore": "^5.2.4",
+		"libsodium-wrappers": "^0.7.11",
+		"luxon": "^3.3.0",
 		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.29",
 		"moize": "^6.1.5",
 		"react": "^18.2.0",
@@ -201,10 +212,12 @@
 	"bundleDependencies": [],
 	"devDependencies": {
 		"@clevercanyon/skeleton-dev-deps": "^1.0.127",
-		"@cloudflare/workers-types": "^4.20230221.0",
+		"@cloudflare/workers-types": "^4.20230307.0",
 		"@types/crypto-js": "^4.1.1",
+		"@types/libsodium-wrappers": "^0.7.10",
+		"@types/luxon": "^3.2.0",
 		"@types/micromatch": "^4.0.2",
-		"@types/node": "^18.14.1",
+		"@types/node": "^18.15.3",
 		"@types/react": "^18.0.28",
 		"@types/react-dom": "^18.0.11",
 		"@types/semver": "^7.3.13"

@@ -2,13 +2,31 @@
  * Environment utilities.
  */
 
+import {
+	matches as $strꓺmatches, //
+	parseValue as $strꓺparseValue,
+	obpPartSafe as $strꓺobpPartSafe,
+} from './str.js';
+
+import {
+	get as $obpꓺget, //
+	set as $obpꓺset,
+	unset as $obpꓺunset,
+	defaultTo as $obpꓺdefaultTo,
+} from './obp.js';
+
+import {
+	empty as $isꓺempty, //
+	string as $isꓺstring,
+	object as $isꓺobject,
+	function as $isꓺfunction,
+} from './is.js';
+
+import { svz as $moizeꓺsvz } from './moize.js';
 import { hasOwn as $objꓺhasOwn } from './obj.js';
+import { pkgName as $appꓺpkgName } from './app.js';
 import { castArray as $toꓺcastArray } from './to.js';
 import { getQueryVars as $urlꓺgetQueryVars } from './url.js';
-import { svz as $moizeꓺsvz, deep as $moizeꓺdeep } from './moize.js';
-import { parseValue as $strꓺparseValue, matches as $strꓺmatches } from './str.js';
-import { get as $obpꓺget, set as $obpꓺset, defaultTo as $obpꓺdefaultTo, unset as $obpꓺunset } from './obp.js';
-import { empty as $isꓺempty, string as $isꓺstring, object as $isꓺobject, function as $isꓺfunction } from './is.js';
 
 let topLevelObp: string = '';
 let topLevelObpSet: boolean = false;
@@ -16,12 +34,10 @@ let topLevelObpSet: boolean = false;
 let varsInitialized: boolean = false;
 const vars: { [x: string]: unknown } = {};
 
-const appPkgObp = $$__APP_PKG_OBP__$$;
-
 /**
  * Defines types.
  */
-export type QVTests = { [x: string]: string | string[] };
+export type QVTests = { [x: string]: null | undefined | string | string[] };
 
 /**
  * Checks if an object path is top-level.
@@ -57,9 +73,9 @@ const globalTopLevelObp = (obp: string): string => {
  */
 const resolveTopLevelObp = (obp: string): string => {
 	if (!obp.includes('.')) {
-		return (topLevelObp || appPkgObp) + '.' + obp;
+		return (topLevelObp || $strꓺobpPartSafe($appꓺpkgName)) + '.' + obp;
 	}
-	return obp.replace(/^@top\./u, (topLevelObp || appPkgObp) + '.');
+	return obp.replace(/^@top\./u, (topLevelObp || $strꓺobpPartSafe($appꓺpkgName)) + '.');
 };
 
 /**
@@ -85,14 +101,16 @@ const resolveTopLevelObp = (obp: string): string => {
  * their own app-specific environment variables. Their choice is made by the formulation of an object path that is
  * passed to one of the utilities in this module. Such as {@see get()}, {@see set()}, {@see unset()}.
  *
- * @param obp Top-level object path.
+ * @param rootObp A root object path to use as the top-level object path.
+ *
+ *   - Root object path is sanitized using {@see $str.obpPartSafe()} automtically.
  */
-export const setTopLevelObp = (obp: string): void => {
-	if (!obp || topLevelObpSet) {
-		return; // Not empty & once only.
+export const setTopLevelObp = (rootObp: string): void => {
+	if (topLevelObpSet) {
+		return; // Once only.
 	}
-	topLevelObpSet = true; // Setting now.
-	topLevelObp = obp; // Top-level object path.
+	topLevelObpSet = true;
+	topLevelObp = $strꓺobpPartSafe(rootObp);
 };
 
 /**
@@ -116,7 +134,7 @@ const initializeVars = (): void => {
 	} // Global window environment variables.
 
 	// App-specific environment variables compiled by Vite.
-	capture(appPkgObp, import.meta.env); // Sourced by dotenv files.
+	capture($appꓺpkgName, import.meta.env); // Sourced by dotenv files.
 };
 
 /**
@@ -189,13 +207,17 @@ export const unset = (leadingObp: string, subObp: string): void => {
  * - Order of capture matters.
  * - Existing values are not overwritten.
  *
- * @param leadingObp Leading object path.
+ * @param leadingObp Leading object path; e.g., `@top`.
  * @param env        Environment variables, by object subpath.
  */
 export const capture = (leadingObp: string, env: object): void => {
 	if (!varsInitialized) initializeVars();
 
+	if ('@top' === leadingObp && !topLevelObpSet) {
+		throw new Error('`@top` used in capture before calling `$env.setTopLevelObp()`.');
+	}
 	for (const [subObp, value] of Object.entries(env)) {
+		if (!subObp) continue; // Empty subpath not allowable.
 		const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
 		$obpꓺdefaultTo(vars, resolveTopLevelObp(obp), $isꓺstring(value) ? $strꓺparseValue(value) : value);
 	}
@@ -206,27 +228,41 @@ export const capture = (leadingObp: string, env: object): void => {
  *
  * @note {@see test()} For further details.
  */
-export const isC10n = $moizeꓺdeep({ maxSize: 12 })(
-	// Memoized function.
-	(tests: QVTests = {}): boolean => test('@top', 'APP_IS_C10N', tests),
-);
+export const isC10n = (tests: QVTests = {}): boolean => test('@top', 'APP_IS_C10N', tests);
 
 /**
  * Is web?
  *
- * @returns `true` if web.
+ * @returns `true` if is web.
  */
 export const isWeb = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
 	(): boolean => {
-		return 'Window' in globalThis && $isꓺfunction(Window) && globalThis instanceof Window;
+		return ('Window' in globalThis && $isꓺfunction(Window) && globalThis instanceof Window) || isWebViaJSDOM();
+	},
+);
+
+/**
+ * Is web via JS DOM?
+ *
+ * @returns `true` if is web via JS DOM?
+ */
+export const isWebViaJSDOM = $moizeꓺsvz({ maxSize: 1 })(
+	// Memoized function.
+	(): boolean => {
+		return (
+			'Window' in globalThis && $isꓺfunction(Window) &&
+			'Navigator' in globalThis && $isꓺfunction(Navigator) &&
+			'navigator' in globalThis && $isꓺobject(navigator) &&
+			navigator instanceof Navigator && navigator.userAgent.includes('jsdom/')
+		); // prettier-ignore
 	},
 );
 
 /**
  * Is node?
  *
- * @returns `true` if node.
+ * @returns `true` if is node.
  */
 export const isNode = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -238,13 +274,30 @@ export const isNode = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is Cloudflare worker?
  *
- * @returns `true` if CFW.
+ * @returns `true` if is Cloudflare worker.
  */
 export const isCFW = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
 	(): boolean => {
 		return (
-			isServiceWorker() &&
+			isServiceWorker() && // `ServiceWorkerGlobalScope`.
+			'Navigator' in globalThis && $isꓺfunction(Navigator) &&
+			'navigator' in globalThis && $isꓺobject(navigator) &&
+			navigator instanceof Navigator && 'Cloudflare-Workers' === navigator.userAgent
+		) || isCFWViaMiniflare(); // prettier-ignore
+	},
+);
+
+/**
+ * Is Cloudflare worker via miniflare?
+ *
+ * @returns `true` if is Cloudflare worker via miniflare.
+ */
+export const isCFWViaMiniflare = $moizeꓺsvz({ maxSize: 1 })(
+	// Memoized function.
+	(): boolean => {
+		return (
+			'MINIFLARE' in globalThis && true === MINIFLARE &&
 			'Navigator' in globalThis && $isꓺfunction(Navigator) &&
 			'navigator' in globalThis && $isꓺobject(navigator) &&
 			navigator instanceof Navigator && 'Cloudflare-Workers' === navigator.userAgent
@@ -255,7 +308,7 @@ export const isCFW = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is worker?
  *
- * @returns `true` if worker.
+ * @returns `true` if is worker.
  */
 export const isWorker = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -267,7 +320,7 @@ export const isWorker = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is dedicated worker?
  *
- * @returns `true` if dedicated worker.
+ * @returns `true` if is dedicated worker.
  */
 export const isDedicatedWorker = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -279,7 +332,7 @@ export const isDedicatedWorker = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is shared worker?
  *
- * @returns `true` if shared worker.
+ * @returns `true` if is shared worker.
  */
 export const isSharedWorker = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -291,7 +344,7 @@ export const isSharedWorker = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is service worker?
  *
- * @returns `true` if service worker.
+ * @returns `true` if is service worker.
  */
 export const isServiceWorker = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -309,7 +362,7 @@ export const isServiceWorker = $moizeꓺsvz({ maxSize: 1 })(
  *
  *   Regarding environment variables:
  *
- *   - To simply test that an environment variable is not empty (or `'0'`), simply do not pass any `tests`.
+ *   - To simply test that an environment variable is not empty and not `'0'`, simply do not pass any `tests`.
  *
  *   Regarding query vars within the environment variable’s value:
  *
@@ -318,29 +371,39 @@ export const isServiceWorker = $moizeꓺsvz({ maxSize: 1 })(
  *   logic can be achieved by calling this function multiple times in different ways; e.g., `if ( test() || test() )`.
  *
  *   - To test that a query var simply exists, use `{ [var]: '*' }`.
- *   - To test that a query var exists and is not empty, use `{ [var]: '?*' }`.
+ *   - To test that a query var exists and is not empty, and not `'0'`, use `{ [var]: '?*' }`.
  *
- * @returns             True if environment variable is not empty (or `'0'`), and all tests pass.
+ * @returns             True if environment variable is not empty, not `'0'`, and all tests pass.
  */
-export const test = $moizeꓺdeep({ maxSize: 12 })(
-	// Memoized function.
-	(leadingObps: string | string[], subObp: string, tests?: QVTests): boolean => {
-		const value = get(leadingObps, subObp); // Env var value.
+export const test = (leadingObps: string | string[], subObp: string, tests?: QVTests): boolean => {
+	const value = get(leadingObps, subObp); // Env var value.
 
-		if ($isꓺempty(value, { orZero: true })) {
-			return false; // Env var empty = false.
-		}
-		if ($isꓺempty(tests)) {
-			return true; // Not empty, no tests = true.
-		}
-		const strValue = String(value); // Force string.
-		const qvs = $urlꓺgetQueryVars('http://x?' + strValue);
+	if ($isꓺempty(value, { orZero: true })) {
+		return false; // Env var empty = false.
+	}
+	if ($isꓺempty(tests)) {
+		return true; // Not empty, no tests = true.
+	}
+	const strValue = String(value); // Force string.
+	const qvs = $urlꓺgetQueryVars('http://x?' + strValue);
 
-		for (const [qv, glob] of Object.entries(tests as QVTests)) {
-			if (!$objꓺhasOwn(qvs, qv) || !$strꓺmatches(qvs[qv], glob, { nocase: true })) {
-				return false; // Missing qv, or qv doesn’t pass a test given.
+	for (const [qv, glob] of Object.entries(tests as QVTests)) {
+		if (!$objꓺhasOwn(qvs, qv)) {
+			return false; // Missing qv.
+		}
+		if (!glob || '*' === glob || '**' === glob) {
+			continue; // The qv exists.
+		}
+		if ('?*' === glob || '?**' === glob) {
+			if ($isꓺempty(qvs[qv], { orZero: true })) {
+				return false; // Empty or `'0'`.
+			} else {
+				continue; // Not empty, not `'0'`.
 			}
 		}
-		return true; // Passed all tests.
-	},
-);
+		if (!$strꓺmatches(qvs[qv], glob, { nocase: true })) {
+			return false; // The qv doesn’t pass a test given.
+		}
+	}
+	return true; // Passed all tests.
+};

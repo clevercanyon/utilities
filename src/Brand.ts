@@ -2,55 +2,13 @@
  * Brand utilities.
  */
 
-import $a6tꓺUtility from './resources/classes/a6t/utility.js';
-
-/**
- * Defines types.
- */
-interface BaseProps {
-	readonly n7m: string;
-
-	readonly name: string;
-	readonly namespace: string;
-
-	readonly slug: string;
-	readonly var: string;
-
-	readonly slugPrefix: string;
-	readonly varPrefix: string;
-
-	readonly rootDomain: string;
-
-	readonly aws: {
-		readonly s3: {
-			readonly bucket: string;
-			readonly cdnDomain: string;
-		};
-	};
-	readonly google: {
-		readonly analytics: {
-			readonly ga4GtagId: string;
-		};
-	};
-	readonly cloudflare: {
-		readonly accountId: string;
-		readonly zoneId: string;
-	};
-}
-interface RawProps extends BaseProps {
-	readonly org: string;
-}
-interface C9rProps extends BaseProps {
-	readonly org?: Brand | undefined;
-}
-interface Props extends BaseProps {
-	readonly org: Brand;
-}
+import { getClass } from './resources/classes/brand.js';
+import type { RawProps, Interface } from './resources/classes/brand.js';
 
 /**
  * Brand instances.
  */
-const instances: { [x: string]: Brand } = {};
+const instances: { [x: string]: Interface } = {};
 
 /**
  * Raw brand props by N7M.
@@ -111,105 +69,15 @@ const rawProps: { readonly [x: string]: RawProps } = {
 };
 
 /**
- * Brand utilities.
- */
-export class Brand extends $a6tꓺUtility implements Props {
-	/**
-	 * Org brand object.
-	 */
-	public readonly org!: Brand;
-
-	/**
-	 * N7M; e.g., `m5d`.
-	 */
-	public readonly n7m!: string;
-
-	/**
-	 * Name; e.g., `My Brand`.
-	 */
-	public readonly name!: string;
-
-	/**
-	 * Namespace; e.g., `My_Brand`.
-	 */
-	public readonly namespace!: string;
-
-	/**
-	 * Slug; e.g., `my-brand`.
-	 */
-	public readonly slug!: string;
-
-	/**
-	 * Var; e.g., `my_brand`.
-	 */
-	public readonly var!: string;
-
-	/**
-	 * Slug prefix; e.g., `my-brand-`.
-	 */
-	public readonly slugPrefix!: string;
-
-	/**
-	 * Var prefix; e.g., `my_brand_`.
-	 */
-	public readonly varPrefix!: string;
-
-	/**
-	 * Root domain; e.g., `my-brand.com`.
-	 */
-	public readonly rootDomain!: string;
-
-	/**
-	 * AWS properties.
-	 */
-	public readonly aws!: {
-		readonly s3: {
-			readonly bucket: string;
-			readonly cdnDomain: string;
-		};
-	};
-
-	/**
-	 * Google properties.
-	 */
-	public readonly google!: {
-		readonly analytics: {
-			readonly ga4GtagId: string;
-		};
-	};
-
-	/**
-	 * Cloudflare properties.
-	 */
-	public readonly cloudflare!: {
-		readonly accountId: string;
-		readonly zoneId: string;
-	};
-
-	/**
-	 * Object constructor.
-	 *
-	 * @param c9rProps Props or Brand instance.
-	 */
-	public constructor(c9rProps: C9rProps | Brand) {
-		super(c9rProps); // Parent constructor.
-
-		if (!(this.org instanceof Brand)) {
-			this.org = this;
-		}
-	}
-}
-
-/**
  * Gets a brand instance.
  *
- * @param   q Brand numeronym (recommended), slug, or var.
+ * @param   q Brand numeronym, slug, or var.
  *
- * @returns   Brand instance; else `undefined` on failure to locate.
+ * @returns   Brand {@see Interface}.
  */
-export const get = (q: string): Brand | undefined => {
+export const get = (q: string): Interface => {
 	q = '&' === q ? 'c10n' : q;
-	if (!q) return; // Not available.
+	if (!q) throw new Error('Empty brand query.');
 
 	if (!rawProps[q] /* Not an n7m. Try searching by `slug|var`. */) {
 		for (const [_n7m, _rawProps] of Object.entries(rawProps)) {
@@ -217,16 +85,19 @@ export const get = (q: string): Brand | undefined => {
 				if (rawProps[_n7m]) return get(_n7m);
 			}
 		}
-		return; // Not available.
+		throw new Error('Missing brand: `' + q + '`.');
 	}
-	const n7m = q; // Query is an n7m (numeronym).
+	const n7m = q; // n7m (numeronym).
 
 	if (instances[n7m]) {
 		return instances[n7m];
 	}
-	const rawBrand = rawProps[n7m];
-	const rawBrandOrg = rawBrand.org === n7m ? '' : rawBrand.org;
+	const Brand = getClass(); // Class definition.
 
-	instances[n7m] = new Brand({ ...rawBrand, org: get(rawBrandOrg) });
+	if (rawProps[n7m].org === n7m) {
+		instances[n7m] = new Brand({ ...rawProps[n7m], org: undefined });
+	} else {
+		instances[n7m] = new Brand({ ...rawProps[n7m], org: get(rawProps[n7m].org) });
+	}
 	return instances[n7m]; // Brand instance.
 };

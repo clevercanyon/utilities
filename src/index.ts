@@ -2,6 +2,7 @@
  * All utilities.
  */
 
+export * as $app from './app.js';
 export * as $brand from './brand.js';
 export * as $cookie from './cookie.js';
 export * as $crypto from './crypto.js';
@@ -16,6 +17,7 @@ export * as $obp from './obp.js';
 export * as $path from './path.js';
 export * as $react from './react.js';
 export * as $str from './str.js';
+export * as $symbol from './symbol.js';
 export * as $time from './time.js';
 export * as $to from './to.js';
 export * as $type from './type.js';

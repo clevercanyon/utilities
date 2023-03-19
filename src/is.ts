@@ -2,12 +2,24 @@
  * Conditional utilities.
  */
 
-import type * as $type from './type.js';
-import { svz as $moizeꓺsvz } from './moize.js';
-import { isNode as $envꓺisNode, isWeb as $envꓺisWeb } from './env.js';
-import { tag as $objꓺtag, tags as $objꓺtags, keysAndSymbols as $objꓺkeysAndSymbols } from './obj.js';
+import {
+	isWeb as $envꓺisWeb, //
+	isNode as $envꓺisNode,
+} from './env.js';
 
-const appPkgName = $$__APP_PKG_NAME__$$;
+import {
+	tag as $objꓺtag, //
+	tags as $objꓺtags,
+	keysAndSymbols as $objꓺkeysAndSymbols,
+} from './obj.js';
+
+import { svz as $moizeꓺsvz } from './moize.js';
+import { pkgName as $appꓺpkgName } from './app.js';
+
+import type * as $type from './type.js';
+
+let structuredCloneableObjectTags: string[];
+
 const numericIntegerRegExp = /^(?:0|-?[1-9][0-9]*)$/u;
 const numericFloatRegExp = /^(?:0|-?[1-9][0-9]*)?\.[0-9]+$/u;
 
@@ -187,6 +199,7 @@ export const boolean = (value: unknown): value is boolean => {
  *
  * @note Returns true for `-Infinity`, `Infinity`, which are also numbers.
  * @note Returns false for `NaN`, which is technically a number, but not really.
+ * @note Returns false for bigint values, as those are not numbers.
  */
 export const number = (value: unknown): value is number => {
 	return 'number' === typeof value && !nan(value);
@@ -201,6 +214,7 @@ export const number = (value: unknown): value is number => {
  *
  * @note Returns false for `-Infinity`, `Infinity`, which are not bigints.
  * @note Returns false for `NaN`, which is technically a number, but not a bigint.
+ * @note Returns false for number values, as those are not bigints.
  */
 export const bigint = (value: unknown): value is bigint => {
 	return 'bigint' === typeof value;
@@ -215,6 +229,7 @@ export const bigint = (value: unknown): value is bigint => {
  *
  * @note Returns false for `-Infinity`, `Infinity`, which are not integers.
  * @note Returns false for `NaN`, which is technically a number, but not an integer.
+ * @note Returns true for numbers ending in `.0`, which are actually integers.
  */
 export const integer = (value: unknown): value is number => {
 	return Number.isInteger(value);
@@ -229,6 +244,7 @@ export const integer = (value: unknown): value is number => {
  *
  * @note Returns false for `-Infinity`, `Infinity`, which are not floats.
  * @note Returns false for `NaN`, which is technically a number, but not a float.
+ * @note Returns false for numbers ending in `.0`, which are actually integers.
  */
 export const float = (value: unknown): value is number => {
 	return finite(value) && value % 1 !== 0;
@@ -258,10 +274,11 @@ export const finite = (value: unknown): value is number => {
  *
  * @note Returns true for `-Infinity`, `Infinity`, which are also numbers.
  * @note Returns false for `NaN`, which is technically a number type, but not numeric.
+ * @note Returns false for bigint values, as those are not numbers.
  */
 export const numeric = $moizeꓺsvz({ maxSize: 12 })(
 	// Memoized function.
-	(value: unknown, type?: 'integer' | 'safeInteger' | 'safeLength' | 'float'): value is number | string => {
+	(value: unknown, type?: 'integer' | 'safeInteger' | 'safeArrayKey' | 'float'): value is number | string => {
 		switch (type) {
 			case 'integer':
 				return integer(value) || (string(value) && numericIntegerRegExp.test(value) && integer(Number(value)));
@@ -269,11 +286,11 @@ export const numeric = $moizeꓺsvz({ maxSize: 12 })(
 			case 'safeInteger':
 				return safeInteger(value) || (string(value) && numericIntegerRegExp.test(value) && safeInteger(Number(value)));
 
-			case 'safeLength':
+			case 'safeArrayKey':
 				return safeArrayKey(value) || (string(value) && numericIntegerRegExp.test(value) && safeArrayKey(Number(value)));
 
 			case 'float':
-				return float(value) || (string(value) && numericFloatRegExp.test(value) && float(Number(value)));
+				return float(value) || (string(value) && numericFloatRegExp.test(value) && number(Number(value)));
 		}
 		return number(value) || (string(value) && (numericIntegerRegExp.test(value) || numericFloatRegExp.test(value)) && number(Number(value)));
 	},
@@ -484,7 +501,7 @@ export const error = (value: unknown): value is $type.Error => {
  * @returns       True if value is a brand.
  */
 export const brand = (value: unknown): value is $type.Brand => {
-	return object(value) && objectOfTag(value, appPkgName + '/Brand');
+	return object(value) && objectOfTag(value, $appꓺpkgName + '/Brand');
 };
 
 /**
@@ -495,7 +512,7 @@ export const brand = (value: unknown): value is $type.Brand => {
  * @returns       True if value is a time.
  */
 export const time = (value: unknown): value is $type.Time => {
-	return object(value) && objectOfTag(value, appPkgName + '/Time');
+	return object(value) && objectOfTag(value, $appꓺpkgName + '/Time');
 };
 
 /**
@@ -699,9 +716,8 @@ export const protoPollutionKey = (key: number | string): boolean => {
  * @note See: <https://o5p.me/LKrX3H> for details.
  */
 export const structuredCloneable = (value: unknown): boolean => {
-	return (
-		(primitive(value) && !symbol(value)) ||
-		[
+	if (!structuredCloneableObjectTags) {
+		structuredCloneableObjectTags = [
 			// See: <https://o5p.me/ZzJtat>.
 			'Array',
 			'ArrayBuffer',
@@ -761,6 +777,7 @@ export const structuredCloneable = (value: unknown): boolean => {
 						'VideoFrame',
 				  ]
 				: []),
-		].includes($objꓺtag(value))
-	);
+		];
+	}
+	return (primitive(value) && !symbol(value)) || structuredCloneableObjectTags.includes($objꓺtag(value));
 };

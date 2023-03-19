@@ -2,14 +2,31 @@
  * HTTP utilities.
  */
 
-import * as $type from './type.js';
+import {
+	array as $isꓺarray, //
+	regExp as $isꓺregExp,
+} from './is.js';
+
+import {
+	isCFW as $envꓺisCFW, //
+	isC10n as $envꓺisC10n,
+} from './env.js';
+
+import {
+	hasExt as $pathꓺhasExt, //
+	hasStaticExt as $pathꓺhasStaticExt,
+} from './path.js';
+
+import {
+	parse as $urlꓺparse, //
+	removeCSOQueryVars as $urlꓺremoveCSOQueryVars,
+} from './url.js';
+
 import { svz as $moizeꓺsvz } from './moize.js';
+import { defaults as $objꓺdefaults } from './obj.js';
 import { escRegExp as $strꓺescRegExp } from './str.js';
-import { assignDefaults as $objꓺassignDefaults } from './obj.js';
-import { array as $isꓺarray, regExp as $isꓺregExp } from './is.js';
-import { isC10n as $envꓺisC10n, isCFW as $envꓺisCFW } from './env.js';
-import { hasExt as $pathꓺhasExt, hasStaticExt as $pathꓺhasStaticExt } from './path.js';
-import { parse as $urlꓺparse, removeCSOQueryVars as $urlꓺremoveCSOQueryVars } from './url.js';
+
+import * as $type from './type.js';
 
 /**
  * Defines types.
@@ -27,6 +44,7 @@ export type ResponseConfig = {
 	enableCORs?: boolean;
 	enableCDN?: boolean;
 };
+export type ExtractHeaderOptions = { lowercase?: boolean };
 
 /**
  * HTTP request config.
@@ -35,8 +53,8 @@ export type ResponseConfig = {
  *
  * @returns        HTTP request config.
  */
-export const requestConfig = (config: RequestConfig = {}): RequestConfig => {
-	return $objꓺassignDefaults({}, config, {}) as Required<RequestConfig>;
+export const requestConfig = (config?: RequestConfig): RequestConfig => {
+	return $objꓺdefaults({}, config || {}, {}) as Required<RequestConfig>;
 };
 
 /**
@@ -46,8 +64,8 @@ export const requestConfig = (config: RequestConfig = {}): RequestConfig => {
  *
  * @returns        HTTP response config.
  */
-export const responseConfig = (config: ResponseConfig = {}): Required<ResponseConfig> => {
-	return $objꓺassignDefaults({}, config, {
+export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig> => {
+	return $objꓺdefaults({}, config || {}, {
 		response: null,
 		status: 500,
 		body: null,
@@ -68,7 +86,7 @@ export const responseConfig = (config: ResponseConfig = {}): Required<ResponseCo
  *
  * @throws          Error {@see Response} on failure.
  */
-export const prepareRequest = (request: Request, config: RequestConfig = {}): Request => {
+export const prepareRequest = (request: Request, config?: RequestConfig): Request => {
 	const unusedꓺcfg = requestConfig(config);
 
 	// Removes client-side-only query string variables.
@@ -110,7 +128,7 @@ export const prepareRequest = (request: Request, config: RequestConfig = {}): Re
  *
  * @returns         HTTP response.
  */
-export const prepareResponse = (request: Request, config: ResponseConfig = {}): Response => {
+export const prepareResponse = (request: Request, config?: ResponseConfig): Response => {
 	const cfg = responseConfig(config);
 	cfg.status = cfg.status || 500;
 
@@ -139,7 +157,7 @@ export const prepareResponse = (request: Request, config: ResponseConfig = {}): 
  *
  * @returns         HTTP response headers.
  */
-export const prepareResponseHeaders = (request: Request, config: ResponseConfig = {}): Headers => {
+export const prepareResponseHeaders = (request: Request, config?: ResponseConfig): Headers => {
 	const cfg = responseConfig(config);
 	cfg.status = cfg.status || 500;
 
@@ -284,7 +302,9 @@ export const prepareResponseHeaders = (request: Request, config: ResponseConfig 
 	cfg.appendHeaders.forEach((value, name) => headers.append(name, value));
 
 	if (cfg.response) {
-		cfg.response.headers.forEach((value, name) => cfg.response?.headers.delete(name));
+		for (const name of Object.keys(extractHeaders(cfg.response.headers))) {
+			cfg.response.headers.delete(name); // Clean slate.
+		}
 		headers.forEach((value, name) => cfg.response?.headers.set(name, value));
 	}
 	return headers;
@@ -556,7 +576,7 @@ export const requestPathIsInAdmin = $moizeꓺsvz({ maxSize: 2 })(
 		if (!url || !url.pathname || '/' === url.pathname) {
 			return false; // Not possible, or early return on `/`.
 		}
-		return /(?:^|\/)(?:wp-)?admin(?:$|\/)/iu.test(url.pathname) && !/(?:^|\/)wp-admin\/admin-ajax\.php$/iu.test(url.pathname);
+		return /(?:^|\/)(?:wp[_-])?admin(?:$|\/)/iu.test(url.pathname) && !/(?:^|\/)wp[_-]admin\/admin[_-]ajax\.php$/iu.test(url.pathname);
 	},
 );
 
@@ -588,14 +608,30 @@ export const requestPathHasStaticExtension = $moizeꓺsvz({ maxSize: 2 })(
 );
 
 /**
- * Extracts headers into object properties.
+ * Extracts headers, returning a plain object.
  *
  * @param   headers Headers.
+ * @param   options Default is `{ lowercase: true }`.
  *
- * @returns         Own enumerable string-keyed properties.
+ *   - Note that a {@see Headers} object always contains lowercase keys. Therefore, this option is only applicable when a
+ *       string-keyed object is passed; i.e., if {@see Headers} are passed, this will always return lowercase keys.
+ *
+ * @returns         Extracted headers, as a plain object.
  */
-export const extractHeaders = (headers: Headers | { [x: string]: string }): { [x: string]: string } => {
-	return Object.fromEntries(Object.entries(headers));
+export const extractHeaders = (headers: Headers | { [x: string]: string }, options?: ExtractHeaderOptions): { [x: string]: string } => {
+	const plainObjHeaders: { [x: string]: string } = {};
+	const opts = $objꓺdefaults({}, options || {}, { lowercase: true }) as Required<ExtractHeaderOptions>;
+
+	if (headers instanceof Headers) {
+		headers.forEach((value, name) => {
+			plainObjHeaders[opts.lowercase ? name.toLowerCase() : name] = value;
+		});
+	} else {
+		for (const [name, value] of Object.entries(headers)) {
+			plainObjHeaders[opts.lowercase ? name.toLowerCase() : name] = value;
+		}
+	}
+	return plainObjHeaders;
 };
 
 /**

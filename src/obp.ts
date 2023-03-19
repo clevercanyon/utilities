@@ -12,12 +12,18 @@ import {
 	protoPollutionKey as $isꓺprotoPollutionKey,
 } from './is.js';
 
-import type * as $type from './type.js';
-import { hasOwn as $objꓺhasOwn } from './obj.js';
+import {
+	hasOwn as $objꓺhasOwn, //
+	cloneDeep as $objꓺcloneDeep,
+} from './obj.js';
+
+import { castArray as $toꓺcastArray } from './to.js';
 import { escRegExp as $strꓺescRegExp } from './str.js';
 
+import type * as $type from './type.js';
+
 /**
- * Checks if an object has own or inherited, enumerable or not, path.
+ * Checks if an object has own or inherited, enumerable or not, object path.
  *
  * @param   objValue  Object to search in.
  * @param   path      Object path in `objValue`.
@@ -43,7 +49,7 @@ export const has = (objValue: unknown, path: $type.ObjectPath | $type.ObjectPath
 };
 
 /**
- * Gets an object’s own or inherited, enumerable or not, path value.
+ * Gets an object’s own or inherited, enumerable or not, object path value.
  *
  * @param   objValue     Object to search in.
  * @param   path         Object path in `objValue`.
@@ -70,7 +76,7 @@ export const get = (objValue: unknown, path: $type.ObjectPath | $type.ObjectPath
 };
 
 /**
- * Sets an object’s own or inherited, enumerable or not, path value.
+ * Sets an object’s own or inherited, enumerable or not, object path value.
  *
  * @param objValue  Object to search in.
  * @param path      Object path in `objValue`.
@@ -107,7 +113,7 @@ export const set = (objValue: unknown, path: $type.ObjectPath | $type.ObjectPath
 };
 
 /**
- * Sets an object’s own or inherited, enumerable or not, path default value.
+ * Sets an object’s own or inherited, enumerable or not, object path default value.
  *
  * @param objValue  Object to search in.
  * @param path      Object path in `objValue`.
@@ -121,14 +127,14 @@ export const defaultTo = (objValue: unknown, path: $type.ObjectPath | $type.Obje
 };
 
 /**
- * Unsets an object’s own or inherited, enumerable or not, path value.
+ * Unsets an object’s own or inherited, enumerable or not, object path.
  *
  * @param objValue  Object to search in.
  * @param path      Object path in `objValue`.
  * @param separator Object path separator. Default is `.`.
  *
  * @note Object paths do not support symbol keys whatsoever.
- * @note The use of `*` only unsets array keys, or end-own enumerable string keys.
+ * @note The use of `*` only unsets array keys and/or end-own enumerable string keys.
  */
 export const unset = (objValue: unknown, path: $type.ObjectPath | $type.ObjectPath[], separator: string = '.'): void => {
 	if (!$isꓺobject(objValue)) {
@@ -149,12 +155,12 @@ export const unset = (objValue: unknown, path: $type.ObjectPath | $type.ObjectPa
 			objValue.splice(0, objValue.length);
 			//
 		} /* Note: `Object.keys()` returns end-own enumerable string keys; i.e., of current `objValue`. */ else {
-			for (const key of Object.keys(objValue)) {
-				delete objValue[key]; // Note: Preserves symbol keys.
+			for (const key of Array.from(Object.keys(objValue))) {
+				delete objValue[key]; // Note: Does not unset symbol keys.
 			}
 		}
 	} else if (1 === path.length) {
-		if ($isꓺarray(objValue) && $isꓺnumeric(currentPath, 'safeLength')) {
+		if ($isꓺarray(objValue) && $isꓺnumeric(currentPath, 'safeArrayKey')) {
 			objValue.splice(Number(currentPath), 1);
 		} else {
 			delete objValue[currentPath];
@@ -166,6 +172,102 @@ export const unset = (objValue: unknown, path: $type.ObjectPath | $type.ObjectPa
 			unset(objValue[currentPath], path.slice(1), separator);
 		}
 	}
+};
+
+/**
+ * Leaves an object’s own or inherited, enumerable or not, object path(s).
+ *
+ * @param objValue  Object to search in.
+ * @param paths     Object path(s) in `objValue`.
+ * @param separator Object path separator. Default is `.`.
+ *
+ * @note Object paths do not support symbol keys whatsoever.
+ * @note You can target (i.e., leave) own or inherited, enumerable or not, object paths; unsetting all others.
+ *       However, when unsetting all others, this only unsets array keys and/or end-own enumerable string keys.
+ *       i.e., It doesn’t unset (get rid of) end-inherited keys, non-enumerable keys, or symbol keys.
+ */
+export const leave = (objValue: unknown, paths: $type.ObjectPath | $type.ObjectPath[], separator: string = '.'): void => {
+	if (!$isꓺobject(objValue)) {
+		return; // Nothing more to do.
+	}
+	const leavePaths: { [x: $type.ObjectPath]: $type.ObjectPath[] } = {};
+
+	for (const path of $toꓺcastArray(paths)) {
+		if (!$isꓺsafeObjectPath(path)) {
+			throw new Error('Invalid object path. Got: `' + String(path) + '`.');
+		}
+		let leavePath: $type.ObjectPath = path;
+		let subPaths: $type.ObjectPath[] = [];
+
+		if ($isꓺstring(path) /* Split path into parts. */) {
+			[leavePath, ...subPaths] = splitPath(path, separator);
+		}
+		if (!leavePaths[leavePath]) {
+			leavePaths[leavePath] = []; // Initialize.
+		}
+		if (subPaths.length) {
+			leavePaths[leavePath].push(subPaths.join(separator));
+		}
+	}
+	if ($isꓺarray(objValue)) {
+		for (let key = objValue.length - 1; key >= 0; key--) {
+			if (!(key in leavePaths)) {
+				objValue.splice(key, 1); // Not leaving this key.
+				//
+			} else if (leavePaths[key].length && $isꓺobject(objValue[key])) {
+				leave(objValue[key], leavePaths[key], separator);
+			}
+		}
+	} /* Note: `Object.keys()` returns end-own enumerable string keys; i.e., of current `objValue`. */ else {
+		for (const key of Array.from(Object.keys(objValue)) /* Preserves symbol keys. */) {
+			if (!(key in leavePaths)) {
+				delete objValue[key]; // Not leaving this key.
+				//
+			} else if (leavePaths[key].length && $isꓺobject(objValue[key])) {
+				leave(objValue[key], leavePaths[key], separator);
+			}
+		}
+	}
+};
+
+/**
+ * Omits an object’s own or inherited, enumerable or not, object path(s).
+ *
+ * @param objValue  Object to search in.
+ * @param paths     Object path(s) in `objValue`.
+ * @param separator Object path separator. Default is `.`.
+ *
+ * @note Object paths do not support symbol keys whatsoever.
+ * @note The use of `*` only omits array keys and/or end-own enumerable string keys.
+ */
+export const omit = <Type>(objValue: Type, paths: $type.ObjectPath | $type.ObjectPath[], separator: string = '.'): Type => {
+	const objClone: Type = $objꓺcloneDeep(objValue) as Type;
+
+	for (const path of $toꓺcastArray(paths)) {
+		unset(objClone, path, separator); // Leverages `unset` utility.
+	}
+	return objClone;
+};
+
+/**
+ * Picks an object’s own or inherited, enumerable or not, object path(s).
+ *
+ * @param objValue  Object to search in.
+ * @param paths     Object path(s) in `objValue`.
+ * @param separator Object path separator. Default is `.`.
+ *
+ * @note Object paths do not support symbol keys whatsoever.
+ * @note You can target (i.e., pick) own or inherited, enumerable or not, object paths; unsetting all others.
+ *       However, when unsetting all others, this only unsets array keys and/or end-own enumerable string keys.
+ *       i.e., It doesn’t unset (get rid of) end-inherited keys, non-enumerable keys, or symbol keys.
+ */
+export const pick = <Type>(objValue: Type, paths: $type.ObjectPath | $type.ObjectPath[], separator: string = '.'): Type => {
+	const objClone: Type = $objꓺcloneDeep(objValue) as Type;
+
+	// Leverages `leave` utility.
+	leave(objClone, paths, separator);
+
+	return objClone;
 };
 
 /**

@@ -2,12 +2,17 @@
  * React utilities.
  */
 
+import {
+	string as $isꓺstring, //
+	element as $isꓺelement,
+} from './is.js';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
 import { isWeb as $envꓺisWeb } from './env.js';
+import { defaults as $objꓺdefaults } from './obj.js';
 import { castArray as $toꓺcastArray } from './to.js';
-import { assignDefaults as $objꓺassignDefaults } from './obj.js';
-import { string as $isꓺstring, element as $isꓺelement } from './is.js';
 
 /**
  * Defines types.
@@ -34,7 +39,7 @@ export const domRenderApp = (App: AnyComponent, options: DOMRenderOptions = {}):
 	if (!$envꓺisWeb()) {
 		throw new Error('Not web.');
 	}
-	const opts = $objꓺassignDefaults({}, options, { root: '#root' }) as Required<DOMRenderOptions>;
+	const opts = $objꓺdefaults({}, options, { root: '#root' }) as Required<DOMRenderOptions>;
 	let { root } = opts; // DOM node or selector.
 
 	if (root && $isꓺstring(root)) {

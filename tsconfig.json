@@ -21,6 +21,8 @@
 			"vite/client",
 			"@cloudflare/workers-types/2022-08-04",
 			"@types/crypto-js",
+			"@types/libsodium-wrappers",
+			"@types/luxon",
 			"@types/micromatch",
 			"@types/node",
 			"@types/react-dom",

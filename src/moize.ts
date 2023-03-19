@@ -2,11 +2,14 @@
  * Memoization utilities.
  */
 
+import {
+	circularDeepEqual, //
+	circularShallowEqual,
+} from 'fast-equals';
+
 import untypedMoize from 'moize';
 import type { Moize } from 'moize';
-import { circularDeepEqual, circularShallowEqual } from 'fast-equals';
 
-const fiveMinutes = 1000 * 60 * 5;
 const moize = untypedMoize as unknown as Moize;
 
 /**
@@ -20,11 +23,11 @@ const moize = untypedMoize as unknown as Moize;
  */
 export const $ = moize; // Full set of utilities.
 
-export const svz = moize({ maxAge: fiveMinutes, updateExpire: true }); // Same value zero.
-export const svzAsync = moize({ isPromise: true, maxAge: fiveMinutes, updateExpire: true });
+export const svz = moize({ updateExpire: true }); // Same value zero.
+export const svzAsync = moize({ isPromise: true, updateExpire: true });
 
-export const deep = moize({ isDeepEqual: true, matchesArg: circularDeepEqual, maxAge: fiveMinutes, updateExpire: true });
-export const deepAsync = moize({ isPromise: true, isDeepEqual: true, matchesArg: circularDeepEqual, maxAge: fiveMinutes, updateExpire: true });
+export const shallow = moize({ isShallowEqual: true, matchesArg: circularShallowEqual, updateExpire: true });
+export const shallowAsync = moize({ isPromise: true, isShallowEqual: true, matchesArg: circularShallowEqual, updateExpire: true });
 
-export const shallow = moize({ isShallowEqual: true, matchesArg: circularShallowEqual, maxAge: fiveMinutes, updateExpire: true });
-export const shallowAsync = moize({ isPromise: true, isShallowEqual: true, matchesArg: circularShallowEqual, maxAge: fiveMinutes, updateExpire: true });
+export const deep = moize({ isDeepEqual: true, matchesArg: circularDeepEqual, updateExpire: true });
+export const deepAsync = moize({ isPromise: true, isDeepEqual: true, matchesArg: circularDeepEqual, updateExpire: true });

@@ -14,16 +14,26 @@ import {
 	promise as $isꓺpromise,
 	function as $isꓺfunction,
 	plainObject as $isꓺplainObject,
-	safeArrayKey as $isꓺsafeArrayKey,
-	safeObjectKey as $isꓺsafeObjectKey,
 	structuredCloneable as $isꓺstructuredCloneable,
 } from './is.js';
 
-import type * as $type from './type.js';
-import { svz as $moizeꓺsvz } from './moize.js';
-import { symbols as $toꓺsymbols } from './to.js';
+import {
+	objTag as $symbolꓺobjTag, //
+	objToClone as $symbolꓺobjToClone,
+} from './symbol.js';
 
-export { default as mc } from './resources/classes/obj/mc.js';
+import { svz as $moizeꓺsvz } from './moize.js';
+import { getClass as $classꓺgetMC } from './resources/classes/obj-mc.js';
+
+import type {
+	Handler as MCHandler, //
+	Interface as MCInterface,
+} from './resources/classes/obj-mc.js';
+
+import type * as $type from './type.js';
+
+let mc: MCInterface; // Object MC class instance.
+let mcInitialized: boolean = false; // Once only.
 
 const plainObjectC9rStr = String(Object); // Plain object constructor, as string.
 
@@ -75,12 +85,12 @@ export type ToCloneSymbolFn = <Type extends object = object>(data: CloneFnData) 
 export const tag = $moizeꓺsvz({ maxSize: 64 })(
 	// Memoized function.
 	(value: unknown): string => {
-		let tag = $isꓺobject(value) ? String(value[$toꓺsymbols.tag] || '') : '';
+		let tag = $isꓺobject(value) ? String(value[$symbolꓺobjTag] || '') : '';
 		if (!tag) tag = Object.prototype.toString.call(value).slice(8, -1);
 
 		if ('Object' === tag) {
 			const __proto__ = $isꓺproto(value) ? value : proto(value);
-			const __proto__c9r = __proto__ && hasOwn(__proto__, 'constructor') && $isꓺfunction(__proto__.constructor) ? __proto__.constructor : null;
+			const __proto__c9r = __proto__ && hasOwn(__proto__, 'constructor') ? __proto__.constructor : null;
 
 			if (__proto__ && (!__proto__c9r || !(__proto__c9r instanceof __proto__c9r) || String(__proto__c9r) !== plainObjectC9rStr)) {
 				if (__proto__c9r?.name) {
@@ -124,6 +134,17 @@ export const tags = (value: unknown, deepTags?: Set<string>): string[] => {
 };
 
 /**
+ * Gets a value’s constructor.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       Value’s constructor, else undefined.
+ */
+export const c9r = (value: unknown): $type.ClassC9r | undefined => {
+	return ($isꓺobject(value) && (value?.constructor as $type.ClassC9r)) || undefined;
+};
+
+/**
  * Works as an alias of {@see Object.getPrototypeOf()}.
  *
  * This variant also supports going up multiple prototype levels.
@@ -131,7 +152,7 @@ export const tags = (value: unknown, deepTags?: Set<string>): string[] => {
  * @param   value    Value to consider.
  * @param   levelsUp Levels up. Default is `1`.
  *
- * @returns          Prototype of value; else `undefined`.
+ * @returns          Prototype of value, else undefined.
  */
 export const proto = (value: unknown, levelsUp: number = 1): $type.Object | undefined => {
 	let __proto__: unknown; // Initialize.
@@ -152,7 +173,7 @@ export const proto = (value: unknown, levelsUp: number = 1): $type.Object | unde
  * @param   value    Value to consider.
  * @param   levelsUp Levels up. Default is `1`.
  *
- * @returns          Value’s constructor; else `undefined`.
+ * @returns          Value’s constructor, else undefined.
  */
 export const protoC9r = (value: unknown, levelsUp: number = 1): $type.ClassC9r | undefined => {
 	return (proto(value, levelsUp)?.constructor as $type.ClassC9r) || undefined;
@@ -306,7 +327,7 @@ export const assignComplete = (target: unknown, ...assignValues: unknown[]): $ty
  *
  * @returns                  Mutated `target` object.
  */
-export const assignDefaults = (target: unknown, ...defaultValues: unknown[]): $type.Object => {
+export const defaults = (target: unknown, ...defaultValues: unknown[]): $type.Object => {
 	const objTarget = Object(target) as $type.Object;
 
 	for (const defaults of defaultValues) {
@@ -368,7 +389,7 @@ export const assignDefaults = (target: unknown, ...defaultValues: unknown[]): $t
  * @note See: <https://web.dev/structured-clone/> regarding {@see structuredClone()}.
  */
 export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: Map<object, object> = new Map()): Type | $type.Object => {
-	const opts = assignDefaults({}, options, { with: undefined, transfer: [] }) as Required<CloneOptions>;
+	const opts = defaults({}, options, { with: undefined, transfer: [] }) as Required<CloneOptions>;
 
 	if (!$isꓺobject(value) || $isꓺfunction(value) || $isꓺpromise(value)) {
 		return value as Type | $type.Object; // Unnecessary; e.g., primitive; or impossible.
@@ -380,8 +401,8 @@ export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: M
 			return clone as Type | $type.Object;
 		}
 	}
-	if (value[$toꓺsymbols.clone] && $isꓺfunction(value[$toꓺsymbols.clone])) {
-		const clone = (value[$toꓺsymbols.clone] as ToCloneSymbolFn)({ deep: false, opts, circular, inDeep: false });
+	if (value[$symbolꓺobjToClone] && $isꓺfunction(value[$symbolꓺobjToClone])) {
+		const clone = (value[$symbolꓺobjToClone] as $type.ObjToCloneSymbolFn)({ deep: false, opts, circular, inDeep: false });
 
 		if ($isꓺobject(clone)) {
 			return clone as Type | $type.Object;
@@ -467,7 +488,7 @@ export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: M
  * @note See: <https://web.dev/structured-clone/> regarding {@see structuredClone()}.
  */
 export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circular: Map<object, object> = new Map(), inDeep: boolean = false): Type | $type.Object => {
-	const opts = !inDeep ? (assignDefaults({}, options, { with: undefined, transfer: [] }) as Required<CloneOptions>) : (options as Required<CloneOptions>);
+	const opts = !inDeep ? (defaults({}, options, { with: undefined, transfer: [] }) as Required<CloneOptions>) : (options as Required<CloneOptions>);
 
 	if (!$isꓺobject(value) || $isꓺfunction(value) || $isꓺpromise(value)) {
 		return value as Type | $type.Object; // Unnecessary; e.g., primitive; or impossible.
@@ -483,8 +504,8 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
 			return clone as Type | $type.Object;
 		}
 	}
-	if (value[$toꓺsymbols.clone] && $isꓺfunction(value[$toꓺsymbols.clone])) {
-		const clone = (value[$toꓺsymbols.clone] as ToCloneSymbolFn)({ deep: true, opts, circular, inDeep });
+	if (value[$symbolꓺobjToClone] && $isꓺfunction(value[$symbolꓺobjToClone])) {
+		const clone = (value[$symbolꓺobjToClone] as $type.ObjToCloneSymbolFn)({ deep: true, opts, circular, inDeep });
 
 		if ($isꓺobject(clone)) {
 			circular.set(value, clone);
@@ -561,6 +582,236 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
 };
 
 /**
+ * Initializes {@see mc} instance.
+ */
+const mcInitialize = (): void => {
+	if (mcInitialized) return; // Once only.
+	mcInitialized = true; // Initializing now.
+
+	const Class = $classꓺgetMC(); // Object MC.
+	mc = new Class(); // Object MC class instance.
+};
+
+/**
+ * Creates a custom MC instance.
+ *
+ * @returns {@see MCInterface} Instance.
+ *
+ * @note `../docs/resources/classes/obj-mc.md` for further details.
+ */
+export const mcCustom = (): MCInterface => {
+	if (!mcInitialized) mcInitialize();
+	return mc.newInstance();
+};
+
+/**
+ * ```js
+ * $obj.mergeDeep(target, ...merges);
+ * ```
+ *
+ * Lossless merge with **deep cloning of arrays and plain objects**, and without changing the `target` object. Great for
+ * creating or extending objects deeply. New instances are created deeply with all `...merges` being deep-cloned prior
+ * to merging into a `target` object derivation; i.e., the `target` object is not mutated by reference.
+ *
+ * This produces a deep clone of arrays and plain objects only. The `$obj.mergeDeep()` and `$obj.patchDeep()` utilities
+ * are typically the most popular merge types, as they each produce a lossless merge. There is no data lost because
+ * object types that are not arrays or plain objects are simply transferred in by reference.
+ *
+ * This type of merge makes no guarantees regarding the immutability of any `...merges`, and in fact, if declarative
+ * operations are used in any of the `...merges`, it is possible that mutations will occur within them. For example, if
+ * anything that’s not an array or plain object is simply transferred into `target` and then declaratively operated on.
+ *
+ * @param   target    Target object.
+ * @param   ...merges Objects to merge.
+ *
+ * @returns           Deep clone of all merged objects.
+ *
+ * @note `../docs/resources/classes/obj-mc.md` for further details.
+ */
+export const mergeDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+	if (!mcInitialized) mcInitialize();
+	return mc.mergeDeep(...args);
+}) as MCHandler;
+
+/**
+ * ```js
+ * $obj.mergeClonesDeep(target, ...merges);
+ * ```
+ *
+ * Lossy merge with **deep cloning of all compatible object types**, and without changing the `target` object. New
+ * instances are created deeply with all `...merges` being deep-cloned prior to merging into a `target` object
+ * derivation; i.e., the `target` object is not mutated by reference.
+ *
+ * This kind of merge is lossy because deep-cloning is sometimes lossy.
+ *
+ * Underneath, this uses `$obj.cloneDeep()` on object types that are not arrays or plain objects. Instead of simply
+ * being transferred in by reference like `$obj.mergeDeep()` does, they are instead cloned deeply with
+ * `$obj.cloneDeep()`, and then transferred in by reference to the deep clone.
+ *
+ * This type of merge guarantees immutability of all compatible object types in any `...merges`, because there is deep
+ * cloning of all compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
+ *
+ * @param   target    Target object.
+ * @param   ...merges Objects to merge.
+ *
+ * @returns           Deep clone of all merged objects.
+ *
+ * @note `../docs/resources/classes/obj-mc.md` for further details.
+ */
+export const mergeClonesDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+	if (!mcInitialized) mcInitialize();
+	return mc.mergeClonesDeep(...args);
+}) as MCHandler;
+
+/**
+ * ```js
+ * $obj.patchDeep(target, ...patches);
+ * ```
+ *
+ * Works exactly the same as `$obj.mergeDeep()`, except it mutates the `target` object by reference.
+ *
+ * Lossless merge with **deep cloning of arrays and plain objects**, mutating the `target` object by reference. Great
+ * for creating or extending objects deeply. New instances are created deeply with all `...patches` being deep-cloned
+ * prior to merging into a `target` object; i.e., the `target` object is mutated by reference.
+ *
+ * This produces a deep clone of arrays and plain objects only. The `$obj.mergeDeep()` and `$obj.patchDeep()` utilities
+ * are typically the most popular, as they each produce a lossless merge. There is no data lost because object types
+ * that are not arrays or plain objects are simply transferred in by reference.
+ *
+ * This type of merge makes no guarantees regarding the immutability of any `...patches`, and in fact, if declarative
+ * operations are used in any of the `...patches`, it is possible that mutations will occur within them. For example, if
+ * anything that’s not an array or plain object is simply transferred into `target` and then declaratively operated on.
+ *
+ * @param   target     Target object.
+ * @param   ...patches Objects to merge.
+ *
+ * @returns            Patched target object, by reference.
+ *
+ * @note `../docs/resources/classes/obj-mc.md` for further details.
+ */
+export const patchDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+	if (!mcInitialized) mcInitialize();
+	return mc.patchDeep(...args);
+}) as MCHandler;
+
+/**
+ * ```js
+ * $obj.patchClonesDeep(target, ...patches);
+ * ```
+ *
+ * Works exactly the same as `$obj.mergeClonesDeep()`, except it mutates the `target` object by reference.
+ *
+ * Lossy merge with **deep cloning of all compatible object types**, mutating the `target` object by reference. New
+ * instances are created deeply with all `...patches` being deep-cloned prior to merging into a `target` object; i.e.,
+ * the `target` object is mutated by reference. This kind of merge is lossy because deep-cloning is sometimes lossy.
+ *
+ * Underneath, this uses `$obj.cloneDeep()` on object types that are not arrays or plain objects. Instead of simply
+ * being transferred in by reference like `$obj.patchDeep()` does, they are instead cloned deeply with
+ * `$obj.cloneDeep()`, and then transferred in by reference to the deep clone.
+ *
+ * This type of merge guarantees immutability of all compatible object types in any `...patches`, because there is deep
+ * cloning of all compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
+ *
+ * @param   target     Target object.
+ * @param   ...patches Objects to merge.
+ *
+ * @returns            Patched target object, by reference.
+ *
+ * @note `../docs/resources/classes/obj-mc.md` for further details.
+ */
+export const patchClonesDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+	if (!mcInitialized) mcInitialize();
+	return mc.patchClonesDeep(...args);
+}) as MCHandler;
+
+/**
+ * ```js
+ * $obj.updateDeep(target, ...updates);
+ * ```
+ *
+ * Lossy **immutable merge** with **deep cloning of all compatible object types required to maintain immutability**, and
+ * without changing the `target` object, because `target` and all `...updates` are treated as immutable objects. Great
+ * for updating state. New instances are created deeply with all `...updates` being deep-cloned prior to merging into a
+ * `target` object derivation, but **only when there are differences** introduced by the `...updates`.
+ *
+ * The `target` object is not mutated by reference. Rather, if there are differences, a deep clone of the `target` with
+ * all `...updates` having been merged in, is returned. Otherwise, the `target` object is returned unchanged, by
+ * reference; i.e., when none of the `...updates` introduce changes. Thus, the return value can be tested to easily
+ * determine if changes were introduced.
+ *
+ * Underneath, this uses `$is.deepEqual()` to check for differences, and `$obj.cloneDeep()` is used on object types that
+ * are not arrays or plain objects. This kind of merge is lossy because deep-cloning is necessary to ensure
+ * immutability, and deep-cloning is sometimes lossy, depending on the object types being deep-cloned.
+ *
+ * `$is.deepEqual()` uses `Object.keys()` and therefore does not consider symbol keys.
+ *
+ * This type of merge guarantees immutability of all compatible object types in any `...updates`, because there is deep
+ * cloning of all compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
+ *
+ * This utility is currently identical to `$obj.updateClonesDeep()`. However, in general, if deep-cloning is
+ * mission-critical, the `$obj.updateClonesDeep()` variant is recommened, as it may evolve in the future to operate more
+ * favorably toward deep-cloning vs. this `$obj.updateDeep()` utility, which uses deep-cloning only when it must in
+ * order to maintain immutability.
+ *
+ * @param   target     Target object.
+ * @param   ...updates Objects to merge.
+ *
+ * @returns            If there are differences, a new version of `target` object with all of the updates.
+ *
+ *   - However, if no differences, this returns the original `target` object by reference, which allows `target` to be
+ *       compared to the return value of this function in order to determine if changes occurred or not.
+ *
+ * @note `../docs/resources/classes/obj-mc.md` for further details.
+ */
+export const updateDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+	if (!mcInitialized) mcInitialize();
+	return mc.updateDeep(...args);
+}) as MCHandler;
+
+/**
+ * ```js
+ * $obj.updateClonesDeep(target, ...updates);
+ * ```
+ *
+ * Lossy **immutable merge** with **deep cloning of all compatible object types**, and without changing the `target`
+ * object, because `target` and all `...updates` are treated as immutable objects. Great for updating state. New
+ * instances are created deeply with all `...updates` being deep-cloned prior to merging into a `target` object
+ * derivation, but **only when there are differences** introduced by the `...updates`.
+ *
+ * The `target` object is not mutated by reference. Rather, if there are differences, a deep clone of the `target` with
+ * all `...updates` having been merged in, is returned. Otherwise, the `target` object is returned unchanged, by
+ * reference; i.e., when none of the `...updates` introduce changes. Thus, the return value can be tested to easily
+ * determine if changes were introduced.
+ *
+ * Underneath, this uses `$is.deepEqual()` to check for differences, and `$obj.cloneDeep()` is used on object types that
+ * are not arrays or plain objects. This kind of merge is lossy because deep-cloning is necessary to ensure
+ * immutability, and deep-cloning is sometimes lossy, depending on the object types handled by `$obj.cloneDeep()`.
+ *
+ * `$is.deepEqual()` uses `Object.keys()` and therefore does not consider symbol keys.
+ *
+ * This type of merge guarantees immutability of all compatible object types in any `...updates`, because there is deep
+ * cloning of all compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
+ *
+ * This utility is currently identical to `$obj.updateDeep()`. However, in general, if deep-cloning is mission-critical,
+ * this variant is recommened, as it may evolve in the future to operate more favorably toward deep-cloning vs.
+ * `$obj.updateDeep()`, which uses deep-cloning only when it must in order to maintain immutability.
+ *
+ * @param   target     Target object.
+ * @param   ...updates Objects to merge.
+ *
+ * @returns            If there are differences, a new version of `target` object with all of the updates.
+ *
+ *   - However, if no differences, this returns the original `target` object by reference, which allows `target` to be
+ *       compared to the return value of this function in order to determine if changes occurred or not.
+ *
+ * @note `../docs/resources/classes/obj-mc.md` for further details.
+ */
+export const updateClonesDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+	if (!mcInitialized) mcInitialize();
+	return mc.updateClonesDeep(...args);
+}) as MCHandler;
+
+/**
  * Maps all values in an object (by default, a shallow clone) to a callback function.
  *
  * Fully supported object types include sets, maps, arrays, and plain objects. Everything else is potentially converted
@@ -582,11 +833,11 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
  * @note Like {@see Array.prototype.map()}, this produces a shallow clone by default. To map by reference, set `{ byReference: true }`.
  */
 export const map = <Type>(value: Type, callbackFn: (value: unknown, key?: unknown) => unknown, options: MapOptions = {}): Type | $type.Object => {
-	const opts = assignDefaults({}, options, { byReference: false, skipReadonly: false }) as Required<MapOptions>;
+	const opts = defaults({}, options, { byReference: false, skipReadonly: true }) as Required<MapOptions>;
 	const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
 	if ($isꓺset(objValue)) {
-		for (const value of objValue) {
+		for (const value of Array.from(objValue)) {
 			objValue.delete(value);
 			objValue.add(callbackFn(value));
 		}
@@ -625,7 +876,7 @@ export const map = <Type>(value: Type, callbackFn: (value: unknown, key?: unknow
  * @returns         Object (a shallow clone, by default) without specific keys.
  */
 export const omit = <Type>(value: Type, keys: unknown[], options: OmitOptions = {}): Type | $type.Object => {
-	const opts = assignDefaults({}, options, { byReference: false, skipReadonly: false }) as Required<OmitOptions>;
+	const opts = defaults({}, options, { byReference: false, skipReadonly: false }) as Required<OmitOptions>;
 	const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
 	if ($isꓺset(objValue)) {
@@ -637,15 +888,15 @@ export const omit = <Type>(value: Type, keys: unknown[], options: OmitOptions = 
 			objValue.delete(key);
 		}
 	} else if ($isꓺarray(objValue)) {
-		for (const key of keys.filter($isꓺsafeArrayKey)) {
-			if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key)?.writable) {
-				objValue.splice(key, 1);
+		for (const key of keys.sort().reverse()) {
+			if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key as number)?.writable) {
+				objValue.splice(key as number, 1);
 			} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
 		}
 	} else {
-		for (const key of keys.filter($isꓺsafeObjectKey)) {
-			if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key)?.writable) {
-				delete objValue[key];
+		for (const key of keys.sort().reverse()) {
+			if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key as $type.ObjectPath)?.writable) {
+				delete objValue[key as $type.ObjectPath];
 			} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
 		}
 	}
@@ -685,7 +936,7 @@ export const unset = <Type>(value: Type, keys: unknown[], options: UnsetOptions 
  * @returns         Object (a shallow clone, by default) with specific keys only.
  */
 export const pick = <Type>(value: Type, keys: unknown[], options: PickOptions = {}): Type | $type.Object => {
-	const opts = assignDefaults({}, options, { byReference: false, skipReadonly: false }) as Required<PickOptions>;
+	const opts = defaults({}, options, { byReference: false, skipReadonly: false }) as Required<PickOptions>;
 	const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
 	if ($isꓺset(objValue)) {
@@ -697,13 +948,13 @@ export const pick = <Type>(value: Type, keys: unknown[], options: PickOptions = 
 			if (!keys.includes(key)) objValue.delete(key);
 		}
 	} else if ($isꓺarray(objValue)) {
-		for (let key = 0; key < objValue.length; key++) {
+		for (let key = objValue.length - 1; key >= 0; key--) {
 			if (!keys.includes(key) && (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key)?.writable)) {
 				objValue.splice(key, 1);
 			} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
 		}
 	} else {
-		for (const key of keysAndSymbols(objValue)) {
+		for (const key of keysAndSymbols(objValue).sort().reverse()) {
 			if (!keys.includes(key) && (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key)?.writable)) {
 				delete objValue[key];
 			} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.

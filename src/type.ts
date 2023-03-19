@@ -2,26 +2,27 @@
  * Common types.
  */
 
+export type ObjectKey = PropertyKey;
+export type ObjectPath = number | string;
+
 export type { $Object as Object };
 export type { $Function as Function };
 export type { $AsyncFunction as AsyncFunction };
 
-export type ObjectKey = PropertyKey;
-export type ObjectPath = number | string;
-
+export type { Interface as Base } from './resources/classes/base.js';
+export type { Interface as Brand } from './resources/classes/brand.js';
+export type { DateTime as Time } from 'luxon';
 export type { $Error as Error };
-export type { Brand } from './brand.js';
-export type { Dayjs as Time } from 'dayjs';
 
 export type TypedArray<Type extends $TypedArray = $TypedArray> = Type;
 export type ObjectEntries<Type extends object = $Object> = [keyof Type, Type[keyof Type]][];
 
-export type ToAppPkgNameFn = () => string;
-export type ToTagFn = () => string;
-export type ToStringTagFn = () => string;
-export type ToPlainSymbolFn = () => unknown;
-export type { ToCloneSymbolFn } from './obj.js';
-export type ToJSONFn = (key?: Omit<ObjectKey, symbol>) => unknown;
+export type ObjTagFn = () => string;
+export type ObjStringTagFn = () => string;
+
+export type ObjToPlainSymbolFn = () => unknown;
+export type ObjToJSONFn = (key?: Omit<ObjectKey, symbol>) => unknown;
+export type { ToCloneSymbolFn as ObjToCloneSymbolFn } from './obj.js';
 
 export type Primitive = null | undefined | boolean | number | bigint | string | symbol;
 
@@ -56,6 +57,7 @@ export type RemainingParameters<__Provided extends unknown[], __Expected extends
 /**
  * Private utilities used by this file.
  */
+
 type $Keyable = { [x: ObjectKey]: unknown };
 type $Object<Type extends object = $Keyable> = Type & $Keyable;
 

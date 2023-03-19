@@ -2,12 +2,23 @@
  * Cookie utilities.
  */
 
-import * as $type from './type.js';
+import {
+	hasOwn as $objꓺhasOwn, //
+	defaults as $objꓺdefaults,
+} from './obj.js';
+
+import {
+	encode as $urlꓺencode, //
+	decode as $urlꓺdecode,
+	currentScheme as $urlꓺcurrentScheme,
+	currentRootHost as $urlꓺcurrentRootHost,
+} from './url.js';
+
 import { isWeb as $envꓺisWeb } from './env.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { unquote as $strꓺunquote } from './str.js';
-import { hasOwn as $objꓺhasOwn, assignDefaults as $objꓺassignDefaults } from './obj.js';
-import { encode as $urlꓺencode, decode as $urlꓺdecode, currentScheme as $urlꓺcurrentScheme, currentRootHost as $urlꓺcurrentRootHost } from './url.js';
+
+import * as $type from './type.js';
 
 const documentCookieMap: Map<string, string | undefined> = new Map();
 
@@ -126,7 +137,7 @@ export const set = (name: string, value: string, options: Options = {}): void =>
 	if (!nameIsValid(name)) {
 		throw new Error('Invalid name: `' + name + '`.');
 	}
-	const opts = $objꓺassignDefaults({}, options, {
+	const opts = $objꓺdefaults({}, options, {
 		domain: '.' + $urlꓺcurrentRootHost({ withPort: false }),
 		path: '/',
 		expires: 31536000,

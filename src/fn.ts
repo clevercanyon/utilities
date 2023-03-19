@@ -2,9 +2,17 @@
  * Function utilities.
  */
 
+import {
+	error as $isꓺerror, //
+	asyncFunction as $isꓺasyncFunction,
+} from './is.js';
+
+import {
+	tag as $objꓺtag, //
+	defaults as $objꓺdefaults,
+} from './obj.js';
+
 import * as $type from './type.js';
-import { asyncFunction as $isꓺasyncFunction, error as $isꓺerror } from './is.js';
-import { tag as $objꓺtag, assignDefaults as $objꓺassignDefaults } from './obj.js';
 
 /**
  * Defines types.
@@ -25,6 +33,7 @@ type CurriedReturn<__Fn extends $type.Function, __Provided extends unknown[]> = 
 		: // Else, invocation return value.
 		  ReturnType<__Fn>;
 
+export type TryOptions = { throwOnError?: boolean };
 export type ThrottleOptions = ThrottleDebounceCommonOptions & { debounceMode?: boolean };
 export type DebounceOptions = ThrottleDebounceCommonOptions; // Nothing more to add at this time.
 type ThrottleDebounceCommonOptions = { leadingEdge?: boolean; waitTime?: number; trailingEdge?: boolean };
@@ -42,25 +51,29 @@ export const noOp = (): void => undefined;
 /**
  * Tries to invoke a sync or async function.
  *
- * @param   fn           Sync or async function to invoke.
- * @param   catchReturn  Optional default return value on error.
- * @param   throwOnError Throw on error? Default is undefined, equating to false.
+ * @param   fn          Sync or async function to invoke.
+ * @param   catchReturn Optional default return value on error.
+ * @param   options     Default is `{ throwOnError: false }`.
  *
- *   - Note: It only makes sense to pass `throwOnError` whenever there’s a `catchReturn` value. Otherwise, there is no point
- *       in using this utility to begin with; i.e., if you’re going to throw an error, there’s no need to ‘try’.
+ *   - It only makes sense to set `{ throwOnError: true }` whenever there’s a `catchReturn` value. Otherwise, there is no
+ *       point in using this utility to begin with; i.e., if you’re going to throw an error, there’s no need to ‘try’.
  *
- * @returns              Invocation return value, else `catchReturn` value (if passed), else {@see Error}.
+ * @returns             Invocation return value, else `catchReturn` value (if passed), else {@see Error}.
  */
 function _try<Fn extends $type.Function>(fn: Fn): TryFunction<Fn, $type.Error>;
-function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn: CatchReturn, throwOnError?: boolean): TryFunction<Fn, CatchReturn>;
-function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: CatchReturn, throwOnError?: boolean): TryFunction<Fn, CatchReturn | $type.Error> {
+function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn: CatchReturn, options?: TryOptions): TryFunction<Fn, CatchReturn>;
+
+function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: CatchReturn, options?: TryOptions): TryFunction<Fn, CatchReturn | $type.Error> {
+	const useCatchReturn = arguments.length >= 2; // Use `catchReturn` value as default?
+	const opts = $objꓺdefaults({}, options || {}, { throwOnError: false }) as Required<TryOptions>;
+
 	if ($isꓺasyncFunction(fn)) {
 		return async function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>) {
 			try {
 				return await fn.apply(this, args);
 			} catch (thrown) {
-				if (throwOnError) throw thrown;
-				if (arguments.length >= 2) return catchReturn;
+				if (opts.throwOnError) throw thrown;
+				if (useCatchReturn) return catchReturn;
 				return $isꓺerror(thrown) ? thrown : new Error($objꓺtag(thrown));
 			}
 		} as TryFunction<Fn, CatchReturn | $type.Error>;
@@ -69,8 +82,8 @@ function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: Catc
 			try {
 				return fn.apply(this, args);
 			} catch (thrown) {
-				if (throwOnError) throw thrown;
-				if (arguments.length >= 2) return catchReturn;
+				if (opts.throwOnError) throw thrown;
+				if (useCatchReturn) return catchReturn;
 				return $isꓺerror(thrown) ? thrown : new Error($objꓺtag(thrown));
 			}
 		} as TryFunction<Fn, CatchReturn | $type.Error>;
@@ -112,7 +125,7 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
  * @returns         Throttled sync or async function.
  */
 export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOptions): ThrottledFunction<Fn> => {
-	const opts = $objꓺassignDefaults({}, options || {}, { leadingEdge: true, waitTime: 750, trailingEdge: true, debounceMode: false }) as Required<ThrottleOptions>;
+	const opts = $objꓺdefaults({}, options || {}, { leadingEdge: true, waitTime: 750, trailingEdge: true, debounceMode: false }) as Required<ThrottleOptions>;
 
 	let promises: {
 		resolve: (fnRtn: ReturnType<Fn>) => void;

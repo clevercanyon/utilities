@@ -2,11 +2,19 @@
  * URL utilities.
  */
 
+import {
+	url as $isꓺurl, //
+	array as $isꓺarray,
+} from './is.js';
+
+import {
+	svz as $moizeꓺsvz, //
+	deep as $moizeꓺdeep,
+} from './moize.js';
+
 import { try as $fnꓺtry } from './fn.js';
 import { isWeb as $envꓺisWeb } from './env.js';
-import { array as $isꓺarray, url as $isꓺurl } from './is.js';
-import { assignDefaults as $objꓺassignDefaults } from './obj.js';
-import { svz as $moizeꓺsvz, deep as $moizeꓺdeep } from './moize.js';
+import { defaults as $objꓺdefaults } from './obj.js';
 
 /**
  * Defines types.
@@ -91,7 +99,7 @@ export const currentHost = $moizeꓺdeep({ maxSize: 2 })(
 		if (!$envꓺisWeb()) {
 			throw new Error('Not web.');
 		}
-		const opts = $objꓺassignDefaults({}, options, { withPort: true }) as Required<CurrentHostOptions>;
+		const opts = $objꓺdefaults({}, options, { withPort: true }) as Required<CurrentHostOptions>;
 		return (opts.withPort ? location.host : location.hostname).toLowerCase();
 	},
 );
@@ -109,7 +117,7 @@ export const currentRootHost = $moizeꓺdeep({ maxSize: 2 })(
 		if (!$envꓺisWeb()) {
 			throw new Error('Not web.');
 		}
-		const opts = $objꓺassignDefaults({}, options, { withPort: true }) as Required<CurrentRootHostOptions>;
+		const opts = $objꓺdefaults({}, options, { withPort: true }) as Required<CurrentRootHostOptions>;
 		return rootHost(currentHost({ withPort: opts.withPort }), { withPort: opts.withPort });
 	},
 );
@@ -208,7 +216,7 @@ export const rootHost = $moizeꓺdeep({ maxSize: 12 })({
 })(
 	// Memoized function.
 	(host?: URL | string, options: RootHostOptions = {}): string => {
-		const opts = $objꓺassignDefaults({}, options, { withPort: true }) as Required<RootHostOptions>;
+		const opts = $objꓺdefaults({}, options, { withPort: true }) as Required<RootHostOptions>;
 
 		if (undefined === host) {
 			if ($envꓺisWeb()) {
@@ -249,7 +257,7 @@ export const rootHost = $moizeꓺdeep({ maxSize: 12 })({
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
 export const parse = (url?: URL | string, base?: URL | string, options: ParseOptions = {}): URL | undefined => {
-	const opts = $objꓺassignDefaults({}, options, { throwOnError: true }) as Required<ParseOptions>;
+	const opts = $objꓺdefaults({}, options, { throwOnError: true }) as Required<ParseOptions>;
 
 	if (undefined === url) {
 		if ($envꓺisWeb()) {
@@ -270,7 +278,7 @@ export const parse = (url?: URL | string, base?: URL | string, options: ParseOpt
 	if (strBase && /^\/\//u.test(strBase)) {
 		strBase = strBase.replace(/^\/\//u, ($envꓺisWeb() ? currentScheme() : 'https') + '://');
 	}
-	return $fnꓺtry(() => new URL(strURL, strBase || undefined), undefined, opts.throwOnError)();
+	return $fnꓺtry(() => new URL(strURL, strBase || undefined), undefined, { throwOnError: opts.throwOnError })();
 };
 
 /**
@@ -339,7 +347,7 @@ function _getQueryVars(names: string[] | URL | string = [], url?: URL | string):
 		vars[name] = value; // Populates variables.
 	}
 	if (names.length) {
-		for (const [name] of Object.entries(vars)) {
+		for (const name of Array.from(Object.keys(vars))) {
 			if (!names.includes(name)) delete vars[name];
 		}
 	}
@@ -397,7 +405,7 @@ export function addQueryVars(vars: { [x: string]: string }, url?: string, option
 export function addQueryVars(vars: { [x: string]: string }, url?: URL | string, options?: AddQueryVarOptions): URL | string;
 
 export function addQueryVars(vars: { [x: string]: string }, url?: URL | string, options?: AddQueryVarOptions): URL | string {
-	const opts = $objꓺassignDefaults({}, options || {}, { replaceExisting: true }) as Required<AddQueryVarOptions>;
+	const opts = $objꓺdefaults({}, options || {}, { replaceExisting: true }) as Required<AddQueryVarOptions>;
 
 	const rtnObjURL = $isꓺurl(url);
 	const objURL = parse(url);
@@ -479,7 +487,7 @@ export function removeQueryVars(names: string[] | URL | string = [], url?: URL |
 	if (!objURL) {
 		return url || ''; // Not possible.
 	}
-	for (const [name] of objURL.searchParams) {
+	for (const name of Array.from(objURL.searchParams.keys())) {
 		if (!names.length || names.indexOf(name) !== -1) {
 			objURL.searchParams.delete(name);
 		}
@@ -513,7 +521,7 @@ export function removeCSOQueryVars(url?: URL | string): URL | string {
 	if (!objURL) {
 		return url || ''; // Not possible.
 	}
-	for (const [name] of objURL.searchParams) {
+	for (const name of Array.from(objURL.searchParams.keys())) {
 		if (/^(?:ut[mx]_[a-z_0-9]+|_g[al]|(?:gcl|dcl|msclk|fbcl)(?:id|src)|wbraid|_ck)$/iu.test(name)) {
 			objURL.searchParams.delete(name);
 		}
