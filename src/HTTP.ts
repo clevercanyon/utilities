@@ -26,14 +26,11 @@ import { svz as $moizeꓺsvz } from './moize.js';
 import { defaults as $objꓺdefaults } from './obj.js';
 import { escRegExp as $strꓺescRegExp } from './str.js';
 
-import * as $type from './type.js';
-
 /**
  * Defines types.
  */
 export type RequestConfig = {
 	// For future review.
-	[x: $type.ObjectKey]: undefined;
 };
 export type ResponseConfig = {
 	response?: Response;

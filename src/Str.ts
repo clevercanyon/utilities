@@ -426,7 +426,7 @@ export const parseValue = (str: string): unknown => {
  * @returns         True if `str` matches any `pattern`.
  */
 export const matches = (str: string, pattern: string | string[], options?: MMOptions): boolean => {
-	return mm.isMatch(str, pattern, $objꓺdefaults({}, options || {}, { dot: true }));
+	return mm.isMatch(str, pattern, $objꓺdefaults({}, options || {}, { dot: true }) as MMOptions);
 };
 
 /**

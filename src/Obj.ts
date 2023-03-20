@@ -264,25 +264,32 @@ export const keyAndSymbolEntries = (value: unknown): $type.ObjectEntries => {
  * In the case of `target` not being an object, it is cast as an object. In such a case, it will not be mutated by
  * reference, and thus, callers will need to use the return value from this function.
  *
- * @param   target          Target object.
- * @param   ...assignValues Values to assign.
+ * @param   target    Target object.
+ * @param   ...values Values to assign.
  *
- * @returns                 Mutated `target` object.
+ * @returns           Mutated `target` object.
  *
+ * @note This method has better typings than {@see Object.assign()}.
  * @note This method can be helpful in some cases as an alternative to {@see clone()}.
  */
-export const assign = (target: unknown, ...assignValues: unknown[]): $type.Object => {
+export function _assign<TypeA, TypeB>(target: TypeA, ...values: [TypeB]): Record<keyof TypeA | keyof TypeB, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+export function _assign<TypeA, TypeB, TypeC>(target: TypeA, ...values: [TypeB, TypeC]): Record<keyof TypeA | keyof TypeB | keyof TypeC, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+export function _assign<TypeA, TypeB, TypeC, TypeD>(target: TypeA, ...values: [TypeB, TypeC, TypeD]): Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+export function _assign<TypeA, TypeB, TypeC, TypeD, TypeE>(target: TypeA, ...values: [TypeB, TypeC, TypeD, TypeE]): Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD | keyof TypeE, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+
+export function _assign<TypeA, TypeB>(target: TypeA, ...values: [TypeB]): Record<keyof TypeA | keyof TypeB, TypeA extends object ? TypeA : $type.Object> {
 	const objTarget = Object(target) as $type.Object;
 
-	for (const values of assignValues) {
-		const objValues = Object(values) as $type.Object;
+	for (const value of values) {
+		const objValue = Object(value) as $type.Object;
 
-		for (const key of keysAndSymbols(objValues)) {
-			objTarget[key] = objValues[key];
+		for (const key of keysAndSymbols(objValue)) {
+			objTarget[key] = objValue[key];
 		}
 	}
-	return objTarget;
-};
+	return objTarget as Record<keyof TypeA | keyof TypeB, TypeA extends object ? TypeA : $type.Object>;
+}
+export { _assign as assign };
 
 /**
  * Similar to {@see Object.assign()}, but this assigns complete descriptors.
@@ -293,25 +300,32 @@ export const assign = (target: unknown, ...assignValues: unknown[]): $type.Objec
  * In the case of `target` not being an object, it is cast as an object. In such a case, it will not be mutated by
  * reference, and thus, callers will need to use the return value from this function.
  *
- * @param   target          Target object.
- * @param   ...assignValues Values to assign.
+ * @param   target    Target object.
+ * @param   ...values Values to assign.
  *
- * @returns                 Mutated `target` object.
+ * @returns           Mutated `target` object.
  *
+ * @note This method has better typings than {@see Object.assign()}.
  * @note This method can be helpful in some cases; e.g., as an alternative to {@see clone()}.
  */
-export const assignComplete = (target: unknown, ...assignValues: unknown[]): $type.Object => {
+export function _assignComplete<TypeA, TypeB>(target: TypeA, ...values: [TypeB]): Record<keyof TypeA | keyof TypeB, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+export function _assignComplete<TypeA, TypeB, TypeC>(target: TypeA, ...values: [TypeB, TypeC]): Record<keyof TypeA | keyof TypeB | keyof TypeC, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+export function _assignComplete<TypeA, TypeB, TypeC, TypeD>(target: TypeA, ...values: [TypeB, TypeC, TypeD]): Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+export function _assignComplete<TypeA, TypeB, TypeC, TypeD, TypeE>(target: TypeA, ...values: [TypeB, TypeC, TypeD, TypeE]): Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD | keyof TypeE, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+
+export function _assignComplete<TypeA, TypeB>(target: TypeA, ...values: unknown[]): Record<keyof TypeA | keyof TypeB, TypeA extends object ? TypeA : $type.Object> {
 	const objTarget = Object(target) as $type.Object;
 
-	for (const values of assignValues) {
-		const objValues = Object(values) as $type.Object;
+	for (const value of values) {
+		const objValue = Object(value) as $type.Object;
 
-		for (const key of keysAndSymbols(objValues)) {
-			Object.defineProperty(objTarget, key, { ...Object.getOwnPropertyDescriptor(objValues, key) });
+		for (const key of keysAndSymbols(objValue)) {
+			Object.defineProperty(objTarget, key, { ...Object.getOwnPropertyDescriptor(objValue, key) });
 		}
 	}
-	return objTarget;
-};
+	return objTarget as Record<keyof TypeA | keyof TypeB, TypeA extends object ? TypeA : $type.Object>;
+}
+export { _assignComplete as assignComplete };
 
 /**
  * Mimics {@see Object.assign()}, but assigns default values only.
@@ -322,26 +336,35 @@ export const assignComplete = (target: unknown, ...assignValues: unknown[]): $ty
  * In the case of `target` not being an object, it is cast as an object. In such a case, it will not be mutated by
  * reference, and thus, callers will need to use the return value from this function.
  *
- * @param   target           Target object.
- * @param   ...defaultValues Default values.
+ * @param   target    Target object.
+ * @param   ...values Default values.
  *
- * @returns                  Mutated `target` object.
+ * @returns           Mutated `target` object.
+ *
+ * @note This method has better typings than {@see Object.assign()}.
+ * @note Unlike {@see Object.assign()}, this only sets undefined values from left to right.
  */
-export const defaults = (target: unknown, ...defaultValues: unknown[]): $type.Object => {
+export function _defaults<TypeA, TypeB>(target: TypeA, ...values: [TypeB]): Record<keyof TypeA | keyof TypeB, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+export function _defaults<TypeA, TypeB, TypeC>(target: TypeA, ...values: [TypeB, TypeC]): Record<keyof TypeA | keyof TypeB | keyof TypeC, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+export function _defaults<TypeA, TypeB, TypeC, TypeD>(target: TypeA, ...values: [TypeB, TypeC, TypeD]): Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+export function _defaults<TypeA, TypeB, TypeC, TypeD, TypeE>(target: TypeA, ...values: [TypeB, TypeC, TypeD, TypeE]): Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD | keyof TypeE, TypeA extends object ? TypeA : $type.Object>; // prettier-ignore
+
+export function _defaults<TypeA, TypeB>(target: TypeA, ...values: [TypeB]): Record<keyof TypeA | keyof TypeB, TypeA extends object ? TypeA : $type.Object> {
 	const objTarget = Object(target) as $type.Object;
 
-	for (const defaults of defaultValues) {
-		const objDefaults = Object(defaults) as $type.Object;
+	for (const value of values) {
+		const objValue = Object(value) as $type.Object;
 
-		for (const key of keysAndSymbols(objDefaults)) {
+		for (const key of keysAndSymbols(objValue)) {
 			if (undefined !== objTarget[key] && hasOwn(objTarget, key)) {
 				continue; // Target already has own key !== `undefined`.
 			}
-			objTarget[key] = objDefaults[key];
+			objTarget[key] = objValue[key];
 		}
 	}
-	return objTarget;
-};
+	return objTarget as Record<keyof TypeA | keyof TypeB, TypeA extends object ? TypeA : $type.Object>;
+}
+export { _defaults as defaults };
 
 /**
  * Produces a shallow clone of input value.
@@ -389,7 +412,7 @@ export const defaults = (target: unknown, ...defaultValues: unknown[]): $type.Ob
  * @note See: <https://web.dev/structured-clone/> regarding {@see structuredClone()}.
  */
 export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: Map<object, object> = new Map()): Type | $type.Object => {
-	const opts = defaults({}, options, { with: undefined, transfer: [] }) as Required<CloneOptions>;
+	const opts = _defaults({}, options, { with: undefined, transfer: [] }) as Required<CloneOptions>;
 
 	if (!$isꓺobject(value) || $isꓺfunction(value) || $isꓺpromise(value)) {
 		return value as Type | $type.Object; // Unnecessary; e.g., primitive; or impossible.
@@ -488,7 +511,7 @@ export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: M
  * @note See: <https://web.dev/structured-clone/> regarding {@see structuredClone()}.
  */
 export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circular: Map<object, object> = new Map(), inDeep: boolean = false): Type | $type.Object => {
-	const opts = !inDeep ? (defaults({}, options, { with: undefined, transfer: [] }) as Required<CloneOptions>) : (options as Required<CloneOptions>);
+	const opts = !inDeep ? (_defaults({}, options, { with: undefined, transfer: [] }) as Required<CloneOptions>) : (options as Required<CloneOptions>);
 
 	if (!$isꓺobject(value) || $isꓺfunction(value) || $isꓺpromise(value)) {
 		return value as Type | $type.Object; // Unnecessary; e.g., primitive; or impossible.
@@ -832,8 +855,8 @@ export const updateClonesDeep = ((...args: Parameters<MCHandler>): ReturnType<MC
  *
  * @note Like {@see Array.prototype.map()}, this produces a shallow clone by default. To map by reference, set `{ byReference: true }`.
  */
-export const map = <Type>(value: Type, callbackFn: (value: unknown, key?: unknown) => unknown, options: MapOptions = {}): Type | $type.Object => {
-	const opts = defaults({}, options, { byReference: false, skipReadonly: true }) as Required<MapOptions>;
+export const map = <Type>(value: Type, callbackFn: (value: unknown, key?: unknown) => unknown, options?: MapOptions): Type extends object ? Type : $type.Object => {
+	const opts = _defaults({}, options || {}, { byReference: false, skipReadonly: true }) as Required<MapOptions>;
 	const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
 	if ($isꓺset(objValue)) {
@@ -858,7 +881,7 @@ export const map = <Type>(value: Type, callbackFn: (value: unknown, key?: unknow
 			} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
 		}
 	}
-	return objValue;
+	return objValue as Type extends object ? Type : $type.Object;
 };
 
 /**
@@ -875,8 +898,12 @@ export const map = <Type>(value: Type, callbackFn: (value: unknown, key?: unknow
  *
  * @returns         Object (a shallow clone, by default) without specific keys.
  */
-export const omit = <Type>(value: Type, keys: unknown[], options: OmitOptions = {}): Type | $type.Object => {
-	const opts = defaults({}, options, { byReference: false, skipReadonly: false }) as Required<OmitOptions>;
+export function _omit<Type extends Set<unknown> | Map<unknown, unknown>>(value: Type, keys: unknown[], options?: OmitOptions): Type;
+export function _omit<Type extends object, Key extends keyof Type>(value: Type, keys: Key[], options?: OmitOptions): Omit<Type, Key>;
+export function _omit<Type>(value: Type, keys: unknown[], options?: OmitOptions): Type extends object ? Type : $type.Object;
+
+export function _omit<Type>(value: Type, keys: unknown[], options?: OmitOptions): Type extends object ? Type : $type.Object {
+	const opts = _defaults({}, options || {}, { byReference: false, skipReadonly: false }) as Required<OmitOptions>;
 	const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
 	if ($isꓺset(objValue)) {
@@ -900,11 +927,12 @@ export const omit = <Type>(value: Type, keys: unknown[], options: OmitOptions = 
 			} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
 		}
 	}
-	return objValue;
-};
+	return objValue as Type extends object ? Type : $type.Object;
+}
+export { _omit as omit };
 
 /**
- * Unsets specific object keys (by default, by reference).
+ * Unsets specific object keys (by reference, by default).
  *
  * Fully supported object types include sets, maps, arrays, and plain objects. Everything else is potentially converted
  * into, and returned as, a plain set, map, array, or object; depending on the object’s cloneability.
@@ -915,11 +943,16 @@ export const omit = <Type>(value: Type, keys: unknown[], options: OmitOptions = 
  * @param   keys    Keys, or, in the case of a {@see Set}, values, to unset.
  * @param   options Options. Default is `{ byReference: true }`.
  *
- * @returns         Object (by default, by reference) without specific keys.
+ * @returns         Object (by reference, by default) without specific keys.
  */
-export const unset = <Type>(value: Type, keys: unknown[], options: UnsetOptions = {}): Type | $type.Object => {
-	return omit(value, keys, { byReference: true, ...options } as OmitOptions);
-};
+export function _unset<Type extends Set<unknown> | Map<unknown, unknown>>(value: Type, keys: unknown[], options?: UnsetOptions): Type;
+export function _unset<Type extends object, Key extends keyof Type>(value: Type, keys: Key[], options?: UnsetOptions): Omit<Type, Key>;
+export function _unset<Type>(value: Type, keys: unknown[], options?: UnsetOptions): Type extends object ? Type : $type.Object;
+
+export function _unset<Type>(value: Type, keys: unknown[], options?: UnsetOptions): Type extends object ? Type : $type.Object {
+	return _omit(value, keys, { byReference: true, ...(options || {}) } as OmitOptions) as Type extends object ? Type : $type.Object;
+}
+export { _unset as unset };
 
 /**
  * Picks specific keys from an object (by default, a shallow clone) — unsetting all others.
@@ -935,8 +968,12 @@ export const unset = <Type>(value: Type, keys: unknown[], options: UnsetOptions 
  *
  * @returns         Object (a shallow clone, by default) with specific keys only.
  */
-export const pick = <Type>(value: Type, keys: unknown[], options: PickOptions = {}): Type | $type.Object => {
-	const opts = defaults({}, options, { byReference: false, skipReadonly: false }) as Required<PickOptions>;
+export function _pick<Type extends Set<unknown> | Map<unknown, unknown>>(value: Type, keys: unknown[], options?: PickOptions): Type;
+export function _pick<Type extends object, Key extends keyof Type>(value: Type, keys: Key[], options?: PickOptions): Pick<Type, Key>;
+export function _pick<Type>(value: Type, keys: unknown[], options?: PickOptions): Type extends object ? Type : $type.Object;
+
+export function _pick<Type>(value: Type, keys: unknown[], options?: PickOptions): Type extends object ? Type : $type.Object {
+	const opts = _defaults({}, options || {}, { byReference: false, skipReadonly: false }) as Required<PickOptions>;
 	const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
 	if ($isꓺset(objValue)) {
@@ -960,11 +997,12 @@ export const pick = <Type>(value: Type, keys: unknown[], options: PickOptions = 
 			} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
 		}
 	}
-	return objValue;
-};
+	return objValue as Type extends object ? Type : $type.Object;
+}
+export { _pick as pick };
 
 /**
- * Leaves specific object keys (by default, by reference) — unsetting all others.
+ * Leaves specific object keys (by reference, by default) — unsetting all others.
  *
  * Fully supported object types include sets, maps, arrays, and plain objects. Everything else is potentially converted
  * into, and returned as, a plain set, map, array, or object; depending on the object’s cloneability.
@@ -975,8 +1013,13 @@ export const pick = <Type>(value: Type, keys: unknown[], options: PickOptions = 
  * @param   keys    Keys, or, in the case of a {@see Set}, values, to leave.
  * @param   options Options. Default is `{ byReference: true }`.
  *
- * @returns         Object (by default, by reference) with specific keys only.
+ * @returns         Object (by reference, by default) with specific keys only.
  */
-export const leave = <Type>(value: Type, keys: unknown[], options: LeaveOptions = {}): Type | $type.Object => {
-	return pick(value, keys, { byReference: true, ...options } as PickOptions);
-};
+export function _leave<Type extends Set<unknown> | Map<unknown, unknown>>(value: Type, keys: unknown[], options?: LeaveOptions): Type;
+export function _leave<Type extends object, Key extends keyof Type>(value: Type, keys: Key[], options?: LeaveOptions): Pick<Type, Key>;
+export function _leave<Type>(value: Type, keys: unknown[], options?: LeaveOptions): Type extends object ? Type : $type.Object;
+
+export function _leave<Type>(value: Type, keys: unknown[], options?: LeaveOptions): Type extends object ? Type : $type.Object {
+	return _pick(value, keys, { byReference: true, ...(options || {}) } as PickOptions) as Type extends object ? Type : $type.Object;
+}
+export { _leave as leave };
