@@ -17,9 +17,9 @@ import { castArray as $toꓺcastArray } from './to.js';
 /**
  * Defines types.
  */
-export interface Props {
+export type Props = {
 	readonly classes?: string | string[];
-}
+};
 export type Component<P extends Props = Props> = React.FunctionComponent<P>;
 export type ClassComponent<P extends Props = Props> = React.ComponentClass<P>;
 export type AnyComponent<P extends Props = Props> = Component<P> | ClassComponent<P>;
