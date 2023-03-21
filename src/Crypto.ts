@@ -2,7 +2,6 @@
  * Crypto utilities.
  */
 
-import sodium from 'libsodium-wrappers';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { defaults as $objꓺdefaults } from './obj.js';
 
@@ -19,11 +18,6 @@ import cryptoJSꓺhmacSHA256 from 'crypto-js/hmac-sha256.js';
  * Defines types.
  */
 export type UUIDV4Options = { dashes?: boolean };
-
-/**
- * Exports sodium wrappers.
- */
-export { sodium }; // Crypto utilities.
 
 /**
  * Generates an MD5 hash.
