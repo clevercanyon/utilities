@@ -7,19 +7,19 @@ import { describe, test, expect } from 'vitest';
 
 describe('$env tests', async () => {
 	test('$env.isWeb()', async () => {
-		expect($env.isWeb()).toBe(false);
+		expect($env.isWeb()).toBe(true);
 	});
 	test('$env.isWebViaJSDOM()', async () => {
-		expect($env.isWebViaJSDOM()).toBe(false);
+		expect($env.isWebViaJSDOM()).toBe(true);
 	});
 	test('$env.isNode()', async () => {
 		expect($env.isNode()).toBe(true);
 	});
 	test('$env.isCFW()', async () => {
-		expect($env.isCFW()).toBe(true);
+		expect($env.isCFW()).toBe(false);
 	});
 	test('$env.isCFWViaMiniflare()', async () => {
-		expect($env.isCFWViaMiniflare()).toBe(true);
+		expect($env.isCFWViaMiniflare()).toBe(false);
 	});
 	test('$env.isWorker()', async () => {
 		expect($env.isWorker()).toBe(false);

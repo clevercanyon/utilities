@@ -25,6 +25,7 @@ const wordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p
 /**
  * Defines types.
  */
+export type TrimOptions = { left?: boolean; right?: boolean };
 export type ClipOptions = { maxBytes?: number; maxChars?: number; indicator?: string };
 export type SplitWordOptions = { whitespaceOnly?: boolean };
 
@@ -155,14 +156,86 @@ export const obpPartSafe = (str: string): string => {
 };
 
 /**
+ * Trims whitespace, and optionally, specific characters, from a string.
+ *
+ * @param   str             String to trim.
+ * @param   additionalChars Additional characters to trim.
+ *
+ *   - Whitespace is always trimmed, regardless.
+ *
+ * @param   options         Default is `{ left: true, right: true }`.
+ *
+ * @returns                 Trimmed string.
+ */
+export const trim = (str: string, additionalChars?: string, options?: TrimOptions): string => {
+	const opts = $objꓺdefaults({}, options || {}, { left: true, right: true }) as Required<TrimOptions>;
+
+	let regExp: RegExp; // Initialize.
+
+	if (additionalChars) {
+		const escAdditionalChars = escRegExp(additionalChars);
+
+		if (opts.left && !opts.right) {
+			regExp = new RegExp('^[\\s' + escAdditionalChars + ']+', 'gu');
+			//
+		} else if (opts.right && !opts.left) {
+			regExp = new RegExp('[\\s' + escAdditionalChars + ']+$', 'gu');
+			//
+		} else {
+			regExp = new RegExp('^[\\s' + escAdditionalChars + ']+|[\\s' + escAdditionalChars + ']+$', 'gu');
+		}
+	} else {
+		if (opts.left && !opts.right) {
+			regExp = /^\s+/gu;
+			//
+		} else if (opts.right && !opts.left) {
+			regExp = /\s+$/gu;
+			//
+		} else {
+			regExp = /^\s+|\s+$/gu;
+		}
+	}
+	return str.replace(regExp, '');
+};
+
+/**
+ * Left-trims whitespace, and optionally, specific characters, from a string.
+ *
+ * @param   str             String to left-trim.
+ * @param   additionalChars Additional characters to left-trim.
+ *
+ *   - Whitespace is always left-trimmed, regardless.
+ *
+ * @param   options         `{ left: true, right: false }` are enforced options.
+ *
+ * @returns                 Left-trimmed string.
+ */
+export const lTrim = (str: string, additionalChars?: string, options?: TrimOptions): string => {
+	return trim(str, additionalChars, { ...(options || {}), left: true, right: false });
+};
+
+/**
+ * Right-trims whitespace, and optionally, specific characters, from a string.
+ *
+ * @param   str             String to right-trim.
+ * @param   additionalChars Additional characters to right-trim.
+ *
+ *   - Whitespace is always right-trimmed, regardless.
+ *
+ * @param   options         `{ left: false, right: true }` are enforced options.
+ *
+ * @returns                 Right-trimmed string.
+ */
+export const rTrim = (str: string, additionalChars?: string, options?: TrimOptions): string => {
+	return trim(str, additionalChars, { ...(options || {}), left: false, right: true });
+};
+
+/**
  * Clips a string to a specified length.
  *
  * @param   str String to potentially clip.
  *
  * @returns     Possibly clipped string.
- *
- * @review Consider enhancing this by clipping in the middle.
- * @review Using `maxBytes` on a string with multibyte chars can result in broken chars.
  */
 export const clip = (str: string, options?: ClipOptions): string => {
 	const opts = $objꓺdefaults({}, options || {}, { maxBytes: Infinity, maxChars: Infinity, indicator: '[…]' }) as Required<ClipOptions>;
