@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.119",
+	"version": "1.0.120",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -26,20 +26,20 @@
 			"require": "./dist/index.cjs",
 			"types": "./dist/types/index.d.ts"
 		},
-		"./arr": {
-			"import": "./dist/arr.js",
-			"require": "./dist/arr.cjs",
-			"types": "./dist/types/arr.d.ts"
+		"./app": {
+			"import": "./dist/app.js",
+			"require": "./dist/app.cjs",
+			"types": "./dist/types/app.d.ts"
 		},
 		"./brand": {
 			"import": "./dist/brand.js",
 			"require": "./dist/brand.cjs",
 			"types": "./dist/types/brand.d.ts"
 		},
-		"./coll": {
-			"import": "./dist/coll.js",
-			"require": "./dist/coll.cjs",
-			"types": "./dist/types/coll.d.ts"
+		"./class": {
+			"import": "./dist/class.js",
+			"require": "./dist/class.cjs",
+			"types": "./dist/types/class.d.ts"
 		},
 		"./cookie": {
 			"import": "./dist/cookie.js",
@@ -71,40 +71,40 @@
 			"require": "./dist/is.cjs",
 			"types": "./dist/types/is.d.ts"
 		},
-		"./math": {
-			"import": "./dist/math.js",
-			"require": "./dist/math.cjs",
-			"types": "./dist/types/math.d.ts"
-		},
-		"./mm": {
-			"import": "./dist/mm.js",
-			"require": "./dist/mm.cjs",
-			"types": "./dist/types/mm.d.ts"
-		},
-		"./num": {
-			"import": "./dist/num.js",
-			"require": "./dist/num.cjs",
-			"types": "./dist/types/num.d.ts"
+		"./moize": {
+			"import": "./dist/moize.js",
+			"require": "./dist/moize.cjs",
+			"types": "./dist/types/moize.d.ts"
 		},
 		"./obj": {
 			"import": "./dist/obj.js",
 			"require": "./dist/obj.cjs",
 			"types": "./dist/types/obj.d.ts"
 		},
+		"./obp": {
+			"import": "./dist/obp.js",
+			"require": "./dist/obp.cjs",
+			"types": "./dist/types/obp.d.ts"
+		},
+		"./path": {
+			"import": "./dist/path.js",
+			"require": "./dist/path.cjs",
+			"types": "./dist/types/path.d.ts"
+		},
 		"./react": {
 			"import": "./dist/react.js",
 			"require": "./dist/react.cjs",
 			"types": "./dist/types/react.d.ts"
 		},
-		"./seq": {
-			"import": "./dist/seq.js",
-			"require": "./dist/seq.cjs",
-			"types": "./dist/types/seq.d.ts"
-		},
 		"./str": {
 			"import": "./dist/str.js",
 			"require": "./dist/str.cjs",
 			"types": "./dist/types/str.d.ts"
+		},
+		"./symbol": {
+			"import": "./dist/symbol.js",
+			"require": "./dist/symbol.cjs",
+			"types": "./dist/types/symbol.d.ts"
 		},
 		"./time": {
 			"import": "./dist/time.js",
@@ -116,172 +116,17 @@
 			"require": "./dist/to.cjs",
 			"types": "./dist/types/to.d.ts"
 		},
-		"./u": {
-			"import": "./dist/u.js",
-			"require": "./dist/u.cjs",
-			"types": "./dist/types/u.d.ts"
+		"./type": {
+			"import": "./dist/type.js",
+			"require": "./dist/type.cjs",
+			"types": "./dist/types/type.d.ts"
 		},
 		"./url": {
 			"import": "./dist/url.js",
 			"require": "./dist/url.cjs",
 			"types": "./dist/types/url.d.ts"
 		},
-		"./cln": {
-			"import": "./dist/cln.js",
-			"require": "./dist/cln.cjs",
-			"types": "./dist/types/cln.d.ts"
-		},
-		"./type": {
-			"import": "./dist/type.js",
-			"require": "./dist/type.cjs",
-			"types": "./dist/types/type.d.ts"
-		},
-		"./dec": {
-			"import": "./dist/dec.js",
-			"require": "./dist/dec.cjs",
-			"types": "./dist/types/dec.d.ts"
-		},
-		"./objp": {
-			"import": "./dist/objp.js",
-			"require": "./dist/objp.cjs",
-			"types": "./dist/types/objp.d.ts"
-		},
-		"./path": {
-			"import": "./dist/path.js",
-			"require": "./dist/path.cjs",
-			"types": "./dist/types/path.d.ts"
-		},
-		"./obp": {
-			"import": "./dist/obp.js",
-			"require": "./dist/obp.cjs",
-			"types": "./dist/types/obp.d.ts"
-		},
-		"./moize": {
-			"import": "./dist/moize.js",
-			"require": "./dist/moize.cjs",
-			"types": "./dist/types/moize.d.ts"
-		},
-		"./class": {
-			"import": "./dist/class.js",
-			"require": "./dist/class.cjs",
-			"types": "./dist/types/class.d.ts"
-		},
 		"./version": {
-			"import": "./dist/version.js",
-			"require": "./dist/version.cjs",
-			"types": "./dist/types/version.d.ts"
-		},
-		"./symbol": {
-			"import": "./dist/symbol.js",
-			"require": "./dist/symbol.cjs",
-			"types": "./dist/types/symbol.d.ts"
-		},
-		"./app": {
-			"import": "./dist/app.js",
-			"require": "./dist/app.cjs",
-			"types": "./dist/types/app.d.ts"
-		},
-		"/app": {
-			"import": "./dist/app.js",
-			"require": "./dist/app.cjs",
-			"types": "./dist/types/app.d.ts"
-		},
-		"/brand": {
-			"import": "./dist/brand.js",
-			"require": "./dist/brand.cjs",
-			"types": "./dist/types/brand.d.ts"
-		},
-		"/class": {
-			"import": "./dist/class.js",
-			"require": "./dist/class.cjs",
-			"types": "./dist/types/class.d.ts"
-		},
-		"/cookie": {
-			"import": "./dist/cookie.js",
-			"require": "./dist/cookie.cjs",
-			"types": "./dist/types/cookie.d.ts"
-		},
-		"/crypto": {
-			"import": "./dist/crypto.js",
-			"require": "./dist/crypto.cjs",
-			"types": "./dist/types/crypto.d.ts"
-		},
-		"/env": {
-			"import": "./dist/env.js",
-			"require": "./dist/env.cjs",
-			"types": "./dist/types/env.d.ts"
-		},
-		"/fn": {
-			"import": "./dist/fn.js",
-			"require": "./dist/fn.cjs",
-			"types": "./dist/types/fn.d.ts"
-		},
-		"/http": {
-			"import": "./dist/http.js",
-			"require": "./dist/http.cjs",
-			"types": "./dist/types/http.d.ts"
-		},
-		"/is": {
-			"import": "./dist/is.js",
-			"require": "./dist/is.cjs",
-			"types": "./dist/types/is.d.ts"
-		},
-		"/moize": {
-			"import": "./dist/moize.js",
-			"require": "./dist/moize.cjs",
-			"types": "./dist/types/moize.d.ts"
-		},
-		"/obj": {
-			"import": "./dist/obj.js",
-			"require": "./dist/obj.cjs",
-			"types": "./dist/types/obj.d.ts"
-		},
-		"/obp": {
-			"import": "./dist/obp.js",
-			"require": "./dist/obp.cjs",
-			"types": "./dist/types/obp.d.ts"
-		},
-		"/path": {
-			"import": "./dist/path.js",
-			"require": "./dist/path.cjs",
-			"types": "./dist/types/path.d.ts"
-		},
-		"/react": {
-			"import": "./dist/react.js",
-			"require": "./dist/react.cjs",
-			"types": "./dist/types/react.d.ts"
-		},
-		"/str": {
-			"import": "./dist/str.js",
-			"require": "./dist/str.cjs",
-			"types": "./dist/types/str.d.ts"
-		},
-		"/symbol": {
-			"import": "./dist/symbol.js",
-			"require": "./dist/symbol.cjs",
-			"types": "./dist/types/symbol.d.ts"
-		},
-		"/time": {
-			"import": "./dist/time.js",
-			"require": "./dist/time.cjs",
-			"types": "./dist/types/time.d.ts"
-		},
-		"/to": {
-			"import": "./dist/to.js",
-			"require": "./dist/to.cjs",
-			"types": "./dist/types/to.d.ts"
-		},
-		"/type": {
-			"import": "./dist/type.js",
-			"require": "./dist/type.cjs",
-			"types": "./dist/types/type.d.ts"
-		},
-		"/url": {
-			"import": "./dist/url.js",
-			"require": "./dist/url.cjs",
-			"types": "./dist/types/url.d.ts"
-		},
-		"/version": {
 			"import": "./dist/version.js",
 			"require": "./dist/version.cjs",
 			"types": "./dist/types/version.d.ts"
