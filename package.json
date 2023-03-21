@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.115",
+	"version": "1.0.116",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -199,7 +199,7 @@
 		"fast-equals": "^4.0.3",
 		"ignore": "^5.2.4",
 		"luxon": "^3.3.0",
-		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.35",
+		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.36",
 		"moize": "^6.1.5",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
@@ -209,7 +209,7 @@
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.138",
+		"@clevercanyon/skeleton-dev-deps": "^1.0.141",
 		"@cloudflare/workers-types": "^4.20230307.0",
 		"@types/crypto-js": "^4.1.1",
 		"@types/luxon": "^3.2.0",
