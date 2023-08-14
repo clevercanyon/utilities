@@ -47,7 +47,7 @@ env.dev.build.command = "npx @clevercanyon/madrun build --mode=dev"
 # Customizations.
 # <custom:start>
 
-name = "clevercanyon-utilities"
-routes = ["clevercanyon.utilities/*"]
+name = "utilities"
+route = { pattern = "utilities", custom_domain = true }
 
 # </custom:end>

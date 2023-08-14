@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.124",
+	"version": "1.0.126",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -132,7 +132,30 @@
 			"types": "./dist/types/version.d.ts"
 		}
 	},
-	"sideEffects": ["./src/*.{html,scss,ts,tsx}"],
+	"sideEffects": [
+		"./src/app.ts",
+		"./src/brand.ts",
+		"./src/class.ts",
+		"./src/cookie.ts",
+		"./src/crypto.ts",
+		"./src/env.ts",
+		"./src/fn.ts",
+		"./src/http.ts",
+		"./src/index.ts",
+		"./src/is.ts",
+		"./src/moize.ts",
+		"./src/obj.ts",
+		"./src/obp.ts",
+		"./src/path.ts",
+		"./src/react.tsx",
+		"./src/str.ts",
+		"./src/symbol.ts",
+		"./src/time.ts",
+		"./src/to.ts",
+		"./src/type.ts",
+		"./src/url.ts",
+		"./src/version.ts"
+	],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
 	"browser": "",
@@ -145,29 +168,23 @@
 	},
 	"dependencies": {},
 	"peerDependencies": {
+		"@headlessui/react": "^1.7.16",
+		"@heroicons/react": "^2.0.18",
 		"crypto-js": "^4.1.1",
 		"fast-equals": "^4.0.3",
 		"ignore": "^5.2.4",
-		"luxon": "^3.3.0",
+		"luxon": "^3.4.0",
 		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.39",
-		"moize": "^6.1.5",
+		"moize": "^6.1.6",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"semver": "^7.3.8"
+		"semver": "^7.5.4"
 	},
 	"peerDependenciesMeta": {},
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.144",
-		"@cloudflare/workers-types": "^4.20230307.0",
-		"@types/crypto-js": "^4.1.1",
-		"@types/luxon": "^3.2.0",
-		"@types/micromatch": "^4.0.2",
-		"@types/node": "^18.15.5",
-		"@types/react": "^18.0.28",
-		"@types/react-dom": "^18.0.11",
-		"@types/semver": "^7.3.13"
+		"@clevercanyon/skeleton-dev-deps": "^1.0.149"
 	},
 	"overrides": {},
 	"cpu": ["x64", "arm64"],
@@ -184,7 +201,13 @@
 				},
 				"build": {
 					"appType": "cma",
-					"targetEnv": "any"
+					"targetEnv": "any",
+					"entryFiles": ["./src/*.{ts,tsx}", "./src/react/**/index.{ts,tsx}"]
+				},
+				"ssrBuild": {
+					"appType": "",
+					"targetEnv": "",
+					"entryFiles": []
 				},
 				"github": {
 					"teams": {

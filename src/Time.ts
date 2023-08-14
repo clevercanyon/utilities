@@ -228,7 +228,7 @@ export const parse = (from: From = 'now', options?: ParseOptions): $type.Time =>
 		time = Time.fromJSDate(from);
 		//
 	} else if ($isꓺtime(from)) {
-		time = Time.fromISO(from.toISO());
+		time = Time.fromISO(from.toISO() || '');
 		//
 	} else if ($isꓺplainObject(from)) {
 		time = Time.fromObject(from, { zone: 'utc' });
