@@ -25,8 +25,6 @@
 			"@types/luxon",
 			"@types/micromatch",
 			"@types/node",
-			"@types/react-dom",
-			"@types/react",
 			"@types/semver"
 		]
 	}

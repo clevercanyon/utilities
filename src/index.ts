@@ -15,7 +15,7 @@ export * as $moize from './moize.js';
 export * as $obj from './obj.js';
 export * as $obp from './obp.js';
 export * as $path from './path.js';
-export * as $react from './react.js';
+export * as $preact from './preact.js';
 export * as $str from './str.js';
 export * as $symbol from './symbol.js';
 export * as $time from './time.js';

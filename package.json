@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.128",
+	"version": "1.0.129",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -91,10 +91,10 @@
 			"require": "./dist/path.cjs",
 			"types": "./dist/types/path.d.ts"
 		},
-		"./react": {
-			"import": "./dist/react.js",
-			"require": "./dist/react.cjs",
-			"types": "./dist/types/react.d.ts"
+		"./preact": {
+			"import": "./dist/preact.js",
+			"require": "./dist/preact.cjs",
+			"types": "./dist/types/preact.d.ts"
 		},
 		"./str": {
 			"import": "./dist/str.js",
@@ -147,7 +147,7 @@
 		"./src/obj.ts",
 		"./src/obp.ts",
 		"./src/path.ts",
-		"./src/react.tsx",
+		"./src/preact.tsx",
 		"./src/str.ts",
 		"./src/symbol.ts",
 		"./src/time.ts",
@@ -176,15 +176,14 @@
 		"luxon": "^3.4.0",
 		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.39",
 		"moize": "^6.1.6",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
+		"preact": "^10.16.0",
 		"semver": "^7.5.4"
 	},
 	"peerDependenciesMeta": {},
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.151"
+		"@clevercanyon/skeleton-dev-deps": "^1.0.154"
 	},
 	"overrides": {},
 	"cpu": ["x64", "arm64"],
@@ -202,7 +201,7 @@
 				"build": {
 					"appType": "cma",
 					"targetEnv": "any",
-					"entryFiles": ["./src/*.{ts,tsx}", "./src/react/**/index.{ts,tsx}"]
+					"entryFiles": ["./src/*.{ts,tsx}", "./src/preact/**/index.{ts,tsx}"]
 				},
 				"ssrBuild": {
 					"appType": "",
