@@ -17,7 +17,7 @@
 		"lib": ["es2021", "dom"],
 		"types": [
 			"vite/client",
-			"@cloudflare/workers-types/2022-08-04",
+			"@cloudflare/workers-types/experimental",
 			"@types/crypto-js",
 			"@types/libsodium-wrappers",
 			"@types/luxon",
