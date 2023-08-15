@@ -450,6 +450,24 @@ export const snakeCase = (str: string, options?: SnakeCaseOptions): string => {
 };
 
 /**
+ * Dedents a multiline string; e.g., from template literals.
+ *
+ * @param   str String to modify.
+ *
+ * @returns     Modified, dedented string.
+ *
+ * @note Inspired by `tiny-dedent` package <https://o5p.me/vaonuB>.
+ */
+export const dedent = (str: string): string => {
+	str = str.replace(/^[ \t]*\r?\n/u, ''); // Trims leading newline.
+
+	const indent = /^[ \t]+/mu.exec(str); // Detects and trims indentations.
+	if (indent) str = str.replace(new RegExp('^' + indent[0], 'gmu'), '');
+
+	return str.replace(/\r?\n[ \t]*$/u, ''); // Trims trailing newline.
+};
+
+/**
  * Parses a string into a value.
  *
  * @param   str String to parse.

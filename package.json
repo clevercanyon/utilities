@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.129",
+	"version": "1.0.130",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -176,14 +176,15 @@
 		"luxon": "^3.4.0",
 		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.39",
 		"moize": "^6.1.6",
-		"preact": "^10.16.0",
-		"semver": "^7.5.4"
+		"preact": "^10.17.0",
+		"semver": "^7.5.4",
+		"wouter-preact": "^2.11.0"
 	},
 	"peerDependenciesMeta": {},
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.154"
+		"@clevercanyon/skeleton-dev-deps": "^1.0.155"
 	},
 	"overrides": {},
 	"cpu": ["x64", "arm64"],

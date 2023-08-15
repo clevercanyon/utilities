@@ -22,9 +22,17 @@ import {
 	removeCSOQueryVars as $urlꓺremoveCSOQueryVars,
 } from './url.js';
 
-import { svz as $moizeꓺsvz } from './moize.js';
+import {
+	dedent as $strꓺdedent, //
+	escRegExp as $strꓺescRegExp,
+} from './str.js';
+
+import {
+	svz as $moizeꓺsvz, //
+	deep as $moizeꓺdeep,
+} from './moize.js';
+
 import { defaults as $objꓺdefaults } from './obj.js';
-import { escRegExp as $strꓺescRegExp } from './str.js';
 
 /**
  * Defines types.
@@ -42,6 +50,7 @@ export type ResponseConfig = {
 	enableCDN?: boolean;
 };
 export type ExtractHeaderOptions = { lowercase?: boolean };
+export type CFPHeaderOptions = { appType: string; isC10n?: boolean };
 
 /**
  * HTTP request config.
@@ -87,7 +96,7 @@ export const prepareRequest = (request: Request, config?: RequestConfig): Reques
 	const unusedꓺcfg = requestConfig(config);
 
 	// Removes client-side-only query string variables.
-	const url = $urlꓺparse($urlꓺremoveCSOQueryVars(request.url));
+	const url = $urlꓺparse($urlꓺremoveCSOQueryVars(request.url), undefined, { throwOnError: false });
 
 	if (!url /* Catches unparseable URLs. */) {
 		throw prepareResponse(request, { status: 400 });
@@ -158,7 +167,7 @@ export const prepareResponseHeaders = (request: Request, config?: ResponseConfig
 	const cfg = responseConfig(config);
 	cfg.status = cfg.status || 500;
 
-	const url = $urlꓺparse(request.url); // `null` on failure.
+	const url = $urlꓺparse(request.url); // Throws on failure.
 
 	cfg.headers = cfg.headers instanceof Headers ? cfg.headers : new Headers(cfg.headers || {});
 	cfg.appendHeaders = cfg.appendHeaders instanceof Headers ? cfg.appendHeaders : new Headers(cfg.appendHeaders || {});
@@ -166,7 +175,6 @@ export const prepareResponseHeaders = (request: Request, config?: ResponseConfig
 	let existingHeaders: { [x: string]: string } = {};
 
 	const alwaysOnHeaders: { [x: string]: string } = {};
-	const contentHeaders: { [x: string]: string } = {};
 	const cacheHeaders: { [x: string]: string } = {};
 
 	let securityHeaders: { [x: string]: string } = {};
@@ -183,11 +191,6 @@ export const prepareResponseHeaders = (request: Request, config?: ResponseConfig
 
 	if (503 === cfg.status) {
 		alwaysOnHeaders['retry-after'] = '300';
-	}
-	// Content-related headers.
-
-	if (requestNeedsContentHeaders(request, cfg.status || 0)) {
-		contentHeaders['x-ua-compatible'] = 'IE=edge';
 	}
 	// Cache control and related headers.
 
@@ -220,53 +223,9 @@ export const prepareResponseHeaders = (request: Request, config?: ResponseConfig
 	// Security-related headers.
 
 	if ($envꓺisC10n()) {
-		securityHeaders = {
-			'x-frame-options': 'SAMEORIGIN',
-			'x-content-type-options': 'nosniff',
-			'cross-origin-embedder-policy': 'unsafe-none',
-			'cross-origin-opener-policy': 'same-origin',
-			'cross-origin-resource-policy': 'same-origin',
-			'referrer-policy': 'strict-origin-when-cross-origin',
-			'strict-transport-security': 'max-age=15552000; includeSubDomains; preload',
-			'content-security-policy':
-				"report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp; upgrade-insecure-requests; base-uri 'self'; frame-ancestors 'self';" +
-				" default-src * data: blob: mediastream: 'report-sample'; style-src * data: blob: 'unsafe-inline' 'report-sample'; object-src 'none';" +
-				" script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample' *.clevercanyon.com *.wobots.com *.stripe.com *.cloudflare.com" +
-				' *.cloudflareinsights.com *.google.com *.googletagmanager.com *.google-analytics.com *.googleadservices.com googleads.g.doubleclick.net *.cookie-script.com;',
-			'permissions-policy':
-				'accelerometer=(self), ambient-light-sensor=(self), autoplay=(self), battery=(self), camera=(self), clipboard-read=(self), clipboard-write=(self), conversion-measurement=(self),' +
-				' cross-origin-isolated=(self), display-capture=(self), document-domain=(self), encrypted-media=(self), execution-while-not-rendered=(self), execution-while-out-of-viewport=(self),' +
-				' focus-without-user-activation=(self), fullscreen=(self), gamepad=(self), geolocation=(self), gyroscope=(self), hid=(self), idle-detection=(self), interest-cohort=(self),' +
-				' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), navigation-override=(self), payment=(self "https://js.stripe.com" "https://pay.google.com"),' +
-				' picture-in-picture=(self), publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), speaker-selection=(self), sync-script=(self), sync-xhr=(self),' +
-				' trust-token-redemption=(self), usb=(self), vertical-scroll=(self), web-share=(self), window-placement=(self), xr-spatial-tracking=(self)',
-
-			'nel': '{ "report_to": "default", "max_age": 31536000, "include_subdomains": true }',
-			'expect-ct': 'max-age=604800, report-uri="https://clevercanyon.report-uri.com/r/d/ct/reportOnly"',
-			'report-to':
-				'{ "group": "default", "max_age": 31536000, "endpoints": [ { "url": "https://clevercanyon.report-uri.com/a/d/g" } ], "include_subdomains": true },' +
-				' { "group": "csp", "max_age": 31536000, "endpoints": [ { "url": "https://clevercanyon.report-uri.com/r/d/csp/enforce" } ], "include_subdomains": true }',
-		};
+		securityHeaders = { ...c10nSecurityHeaders };
 	} else {
-		securityHeaders = {
-			'x-frame-options': 'SAMEORIGIN',
-			'x-content-type-options': 'nosniff',
-			'cross-origin-embedder-policy': 'unsafe-none',
-			'cross-origin-opener-policy': 'same-origin',
-			'cross-origin-resource-policy': 'same-origin',
-			'referrer-policy': 'strict-origin-when-cross-origin',
-			'content-security-policy':
-				"base-uri 'self'; frame-ancestors 'self'; default-src * data: blob: mediastream: 'report-sample'; style-src * data: blob: 'unsafe-inline' 'report-sample';" +
-				" object-src 'none'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample' *clevercanyon.com *.wobots.com *.stripe.com *.cloudflare.com *.cloudflareinsights.com" +
-				' *.google.com *.googletagmanager.com *.google-analytics.com *.googleadservices.com googleads.g.doubleclick.net *.cookie-script.com;',
-			'permissions-policy':
-				'accelerometer=(self), ambient-light-sensor=(self), autoplay=(self), battery=(self), camera=(self), clipboard-read=(self), clipboard-write=(self), conversion-measurement=(self),' +
-				' cross-origin-isolated=(self), display-capture=(self), document-domain=(self), encrypted-media=(self), execution-while-not-rendered=(self), execution-while-out-of-viewport=(self),' +
-				' focus-without-user-activation=(self), fullscreen=(self), gamepad=(self), geolocation=(self), gyroscope=(self), hid=(self), idle-detection=(self), interest-cohort=(self),' +
-				' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), navigation-override=(self), payment=(self "https://js.stripe.com" "https://pay.google.com"),' +
-				' picture-in-picture=(self), publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), speaker-selection=(self), sync-script=(self), sync-xhr=(self),' +
-				' trust-token-redemption=(self), usb=(self), vertical-scroll=(self), web-share=(self), window-placement=(self), xr-spatial-tracking=(self)',
-		};
+		securityHeaders = { ...defaultSecurityHeaders };
 	}
 	// CORs-related headers.
 
@@ -290,7 +249,6 @@ export const prepareResponseHeaders = (request: Request, config?: ResponseConfig
 	const headers = new Headers({
 		...existingHeaders,
 		...alwaysOnHeaders,
-		...contentHeaders,
 		...cacheHeaders,
 		...securityHeaders,
 		...corsHeaders,
@@ -306,6 +264,53 @@ export const prepareResponseHeaders = (request: Request, config?: ResponseConfig
 	}
 	return headers;
 };
+
+/**
+ * Prepares default headers for a Cloudflare Pages site.
+ *
+ * @param   appType Application type; e.g., `spa`, `mpa`.
+ *
+ * @returns         Default headers for a Cloudflare Pages site.
+ */
+export const prepareCFPDefaultHeaders = $moizeꓺdeep({ maxSize: 2 })(
+	// Memoized function.
+	(options: CFPHeaderOptions): string => {
+		const opts = $objꓺdefaults({}, options, { appType: '', isC10n: false }) as Required<CFPHeaderOptions>;
+
+		if (!['spa', 'mpa'].includes(opts.appType)) {
+			return ''; // Not applicable.
+		}
+		let securityHeaders = ''; // Initializes security headers.
+
+		for (const [name, value] of Object.entries(opts.isC10n ? c10nSecurityHeaders : defaultSecurityHeaders)) {
+			securityHeaders += (securityHeaders ? '\n  ' : '') + name + ': ' + value;
+		}
+		return $strꓺdedent(`
+			/*
+			  ${securityHeaders}
+			  vary: origin, accept, accept-language, accept-encoding
+
+			/assets/*
+			  access-control-allow-origin: *
+			  cache-control: public, must-revalidate, max-age=31536000, s-maxage=31536000, stale-while-revalidate=604800, stale-if-error=604800
+
+			/sitemaps/*.xml
+			  access-control-allow-origin: *
+			  cache-control: public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=86400, stale-if-error=86400
+
+			/robots.txt
+			  access-control-allow-origin: *
+			  cache-control: public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=86400, stale-if-error=86400
+
+			/sitemap.xml
+			  access-control-allow-origin: *
+			  cache-control: public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=86400, stale-if-error=86400
+
+			https://*.pages.dev/*
+			  x-robots-tag: noindex, nofollow
+		`);
+	},
+);
 
 /**
  * Get HTTP response status text.
@@ -392,7 +397,7 @@ export const requestIsFromUser = $moizeꓺsvz({ maxSize: 2 })(
 		return (
 			request.headers.has('authorization') ||
 			(request.headers.has('cookie') &&
-				/(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|logged[_-]in|user|comment[_-]author)[_-][^=;]+=\s*"?[^";]/iu.test(
+				/(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|logged[_-]in|user|(?:comment[_-])?author)[_-][^=;]+=\s*"?[^";]/iu.test(
 					request.headers.get('cookie') || '',
 				))
 		);
@@ -533,7 +538,7 @@ export const requestPathIsPotentiallyDynamic = $moizeꓺsvz({ maxSize: 2 })(
 		if (!url || !url.pathname || '/' === url.pathname) {
 			return false; // Not possible, or early return on `/`.
 		}
-		return /(?:^|\/)(?:robots\.txt|locations\.kml|[^/]*sitemap[^/]*\.(?:xml|xsl))$/iu.test(url.pathname);
+		return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml)$/iu.test(url.pathname);
 	},
 );
 
@@ -553,7 +558,7 @@ export const requestPathIsSEORelatedFile = $moizeꓺsvz({ maxSize: 2 })(
 		if (!url || !url.pathname || '/' === url.pathname) {
 			return false; // Not possible, or early return on `/`.
 		}
-		return /(?:^|\/)(?:favicon\.ico|robots\.txt|locations\.kml|[^/]*sitemap[^/]*\.(?:xml|xsl))$/iu.test(url.pathname);
+		return /(?:^|\/)(?:favicon\.ico|robots\.txt|[^/]*sitemap[^/]*\.xml)$/iu.test(url.pathname);
 	},
 );
 
@@ -939,4 +944,58 @@ export const responseStatusCodes: { [x: string]: string } = {
 	'507': 'Insufficient Storage',
 	'510': 'Not Extended',
 	'511': 'Network Authentication Required',
+};
+
+/**
+ * C10n security headers.
+ */
+const c10nSecurityHeaders: { [x: string]: string } = {
+	'x-frame-options': 'SAMEORIGIN',
+	'x-content-type-options': 'nosniff',
+	'cross-origin-embedder-policy': 'unsafe-none',
+	'cross-origin-opener-policy': 'same-origin',
+	'cross-origin-resource-policy': 'same-origin',
+	'referrer-policy': 'strict-origin-when-cross-origin',
+	'strict-transport-security': 'max-age=15552000; includeSubDomains; preload',
+	'content-security-policy':
+		'report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp; upgrade-insecure-requests;' +
+		" base-uri 'self'; frame-ancestors 'self'; default-src * data: blob: mediastream: 'report-sample'; style-src * data: blob: 'unsafe-inline' 'report-sample';" +
+		" object-src 'none'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample' *.clevercanyon.com *.hop.gdn *.cloudflare.com *.stripe.com" +
+		' *.cloudflareinsights.com *.google.com *.googletagmanager.com *.google-analytics.com *.googleadservices.com googleads.g.doubleclick.net *.cookie-script.com;',
+	'permissions-policy':
+		'accelerometer=(self), ambient-light-sensor=(self), autoplay=(self), battery=(self), camera=(self), clipboard-read=(self), clipboard-write=(self), conversion-measurement=(self),' +
+		' cross-origin-isolated=(self), display-capture=(self), document-domain=(self), encrypted-media=(self), execution-while-not-rendered=(self), execution-while-out-of-viewport=(self),' +
+		' focus-without-user-activation=(self), fullscreen=(self), gamepad=(self), geolocation=(self), gyroscope=(self), hid=(self), idle-detection=(self), interest-cohort=(self),' +
+		' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), navigation-override=(self), payment=(self "https://js.stripe.com" "https://pay.google.com"),' +
+		' picture-in-picture=(self), publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), speaker-selection=(self), sync-script=(self), sync-xhr=(self),' +
+		' trust-token-redemption=(self), usb=(self), vertical-scroll=(self), web-share=(self), window-placement=(self), xr-spatial-tracking=(self)',
+
+	'nel': '{ "report_to": "default", "max_age": 31536000, "include_subdomains": true }',
+	'expect-ct': 'max-age=604800, report-uri="https://clevercanyon.report-uri.com/r/d/ct/reportOnly"',
+	'report-to':
+		'{ "group": "default", "max_age": 31536000, "endpoints": [ { "url": "https://clevercanyon.report-uri.com/a/d/g" } ], "include_subdomains": true },' +
+		' { "group": "csp", "max_age": 31536000, "endpoints": [ { "url": "https://clevercanyon.report-uri.com/r/d/csp/enforce" } ], "include_subdomains": true }',
+};
+
+/**
+ * Default security headers.
+ */
+const defaultSecurityHeaders: { [x: string]: string } = {
+	'x-frame-options': 'SAMEORIGIN',
+	'x-content-type-options': 'nosniff',
+	'cross-origin-embedder-policy': 'unsafe-none',
+	'cross-origin-opener-policy': 'same-origin',
+	'cross-origin-resource-policy': 'same-origin',
+	'referrer-policy': 'strict-origin-when-cross-origin',
+	'content-security-policy':
+		"base-uri 'self'; frame-ancestors 'self'; default-src * data: blob: mediastream: 'report-sample'; style-src * data: blob: 'unsafe-inline' 'report-sample';" +
+		" object-src 'none'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample' *.clevercanyon.com *.hop.gdn *.cloudflare.com *.stripe.com" +
+		' *.cloudflareinsights.com *.google.com *.googletagmanager.com *.google-analytics.com *.googleadservices.com googleads.g.doubleclick.net *.cookie-script.com;',
+	'permissions-policy':
+		'accelerometer=(self), ambient-light-sensor=(self), autoplay=(self), battery=(self), camera=(self), clipboard-read=(self), clipboard-write=(self), conversion-measurement=(self),' +
+		' cross-origin-isolated=(self), display-capture=(self), document-domain=(self), encrypted-media=(self), execution-while-not-rendered=(self), execution-while-out-of-viewport=(self),' +
+		' focus-without-user-activation=(self), fullscreen=(self), gamepad=(self), geolocation=(self), gyroscope=(self), hid=(self), idle-detection=(self), interest-cohort=(self),' +
+		' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), navigation-override=(self), payment=(self "https://js.stripe.com" "https://pay.google.com"),' +
+		' picture-in-picture=(self), publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), speaker-selection=(self), sync-script=(self), sync-xhr=(self),' +
+		' trust-token-redemption=(self), usb=(self), vertical-scroll=(self), web-share=(self), window-placement=(self), xr-spatial-tracking=(self)',
 };
