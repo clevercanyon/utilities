@@ -2,8 +2,8 @@
  * Preact API.
  */
 
-import * as $preact from '../../../preact.js';
-import { defaults as $objꓺdefaults } from '../../../obj.js';
+import * as $preact from '../../preact.js';
+import { defaults as $objꓺdefaults } from '../../obj.js';
 import { render as preactꓺrenderToString } from 'preact-render-to-string';
 
 /**
