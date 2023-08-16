@@ -14,9 +14,7 @@ export type Props = {
 export type Component<P extends Props = Props> = Preact.FunctionComponent<P>;
 export type ClassComponent<P extends Props = Props> = Preact.ComponentClass<P>;
 export type AnyComponent<P extends Props = Props> = Component<P> | ClassComponent<P>;
-
-export type Element<P extends Props = Props> = Preact.JSX.ElementType<P>;
-export type Rendering<P extends Props = Props> = Element<P> | null;
+export type Element<P extends Props = Props> = Preact.VNode<P>;
 
 /**
  * Formats component classes.
