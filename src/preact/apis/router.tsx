@@ -4,9 +4,9 @@
 
 import {
 	Router, //
+	Switch,
 	Route,
 	Link,
-	Switch,
 	Redirect,
 	useRoute,
 	useLocation,
@@ -16,7 +16,7 @@ import {
 /**
  * Exports Wouter components.
  */
-export { Router, Route, Link, Switch, Redirect };
+export { Router, Switch, Route, Link, Redirect };
 
 /**
  * Exports Wouter APIs.

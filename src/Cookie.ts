@@ -11,7 +11,7 @@ import {
 	encode as $urlꓺencode, //
 	decode as $urlꓺdecode,
 	currentScheme as $urlꓺcurrentScheme,
-	currentRootHost as $urlꓺcurrentRootHost,
+	currentHost as $urlꓺcurrentHost,
 } from './url.js';
 
 import { isWeb as $envꓺisWeb } from './env.js';
@@ -138,7 +138,7 @@ export const set = (name: string, value: string, options: Options = {}): void =>
 		throw new Error('Invalid name: `' + name + '`.');
 	}
 	const opts = $objꓺdefaults({}, options, {
-		domain: '.' + $urlꓺcurrentRootHost({ withPort: false }),
+		domain: $urlꓺcurrentHost({ withPort: false }),
 		path: '/',
 		expires: 31536000,
 		samesite: 'lax',

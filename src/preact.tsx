@@ -21,6 +21,11 @@ export type Context = object; // Nothing to inherit from preact types.
 export type State = object; // Nothing to inherit from preact types.
 
 /**
+ * Exports frequently-used exports provided by `preact/compat`.
+ */
+export { Suspense, lazy } from 'preact/compat';
+
+/**
  * Formats component classes.
  *
  * @param   classes Prefix class(es).

@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.141",
+	"version": "1.0.143",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -208,6 +208,7 @@
 		"moize": "^6.1.6",
 		"preact": "^10.17.0",
 		"preact-render-to-string": "^6.2.1",
+		"preact-ssr-prepass": "^1.2.0",
 		"semver": "^7.5.4",
 		"wouter-preact": "^2.11.0"
 	},
