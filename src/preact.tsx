@@ -1,22 +1,14 @@
 /**
  * Preact utilities.
+ *
+ * This file is intentionally lightweight. It contains only the most basic Preact utilities. The reason is because we do
+ * a glob import of this entire suite of Preact utilities across many projects. Doing a glob import is how we keep our
+ * individual `.tsx` files easy to create and maintain. Therefore, if you're planning to add a new Preact utility,
+ * please consider building it as a new Preact API instead; i.e., tuck it into `./preact/apis`.
  */
-
-import {
-	Router, //
-	Route,
-	Link,
-	Switch,
-	Redirect,
-	useRoute,
-	useLocation,
-	useRouter,
-} from 'wouter-preact';
 
 import preact from 'preact';
 import { castArray as $toꓺcastArray } from './to.js';
-import { defaults as $objꓺdefaults } from './obj.js';
-import { render as preactꓺrenderToString } from 'preact-render-to-string';
 
 /**
  * Defines types.
@@ -27,18 +19,6 @@ export type Props<P extends object = object> = preact.RenderableProps<P & { clas
 
 export type Context = object; // Nothing to inherit from preact types.
 export type State = object; // Nothing to inherit from preact types.
-
-export type RenderToStringOptions = { context?: Context };
-
-/**
- * Exports Wouter components.
- */
-export { Router, Route, Link, Switch, Redirect };
-
-/**
- * Exports Wouter APIs.
- */
-export { useRoute, useLocation, useRouter };
 
 /**
  * Formats component classes.
@@ -55,17 +35,4 @@ export const classes = (classes: string | string[], props: Props): string => {
 	propClasses = $toꓺcastArray('' === propClasses ? [] : propClasses);
 
 	return [...new Set(classes.concat(propClasses))].join(' ');
-};
-
-/**
- * Renders vNode tree as a string.
- *
- * @param   vNode   VNode to render as a string.
- * @param   options Options (all optional); {@see RenderToStringOptions}.
- *
- * @returns         VNode tree rendered as a string.
- */
-export const renderToString = (vNode: VNode, options?: RenderToStringOptions): string => {
-	const opts = $objꓺdefaults({}, options || {}, { context: {} }) as Required<RenderToStringOptions>;
-	return preactꓺrenderToString(vNode, opts.context);
 };

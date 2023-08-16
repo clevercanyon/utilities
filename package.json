@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.138",
+	"version": "1.0.139",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -131,6 +131,11 @@
 			"require": "./dist/version.cjs",
 			"types": "./dist/types/version.d.ts"
 		},
+		"./preact/apis": {
+			"import": "./dist/preact/apis.js",
+			"require": "./dist/preact/apis.cjs",
+			"types": "./dist/types/preact/apis.d.ts"
+		},
 		"./preact/components": {
 			"import": "./dist/preact/components.js",
 			"require": "./dist/preact/components.cjs",
@@ -140,6 +145,16 @@
 			"import": "./dist/preact/layouts.js",
 			"require": "./dist/preact/layouts.cjs",
 			"types": "./dist/types/preact/layouts.d.ts"
+		},
+		"./preact/apis/router/index": {
+			"import": "./dist/preact/apis/router/index.js",
+			"require": "./dist/preact/apis/router/index.cjs",
+			"types": "./dist/types/preact/apis/router/index.d.ts"
+		},
+		"./preact/apis/ssr/index": {
+			"import": "./dist/preact/apis/ssr/index.js",
+			"require": "./dist/preact/apis/ssr/index.cjs",
+			"types": "./dist/types/preact/apis/ssr/index.d.ts"
 		}
 	},
 	"sideEffects": [
@@ -165,8 +180,11 @@
 		"./src/type.ts",
 		"./src/url.ts",
 		"./src/version.ts",
+		"./src/preact/apis.ts",
 		"./src/preact/components.ts",
-		"./src/preact/layouts.ts"
+		"./src/preact/layouts.ts",
+		"./src/preact/apis/router/index.tsx",
+		"./src/preact/apis/ssr/index.tsx"
 	],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
@@ -215,7 +233,7 @@
 				"build": {
 					"appType": "cma",
 					"targetEnv": "any",
-					"entryFiles": ["./src/*.{ts,tsx}", "./src/preact/*.{ts,tsx}"]
+					"entryFiles": ["./src/*.{ts,tsx}", "./src/preact/*.{ts,tsx}", "./src/preact/apis/*/index.{ts,tsx}"]
 				},
 				"ssrBuild": {
 					"appType": "",

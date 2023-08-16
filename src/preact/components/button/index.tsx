@@ -2,12 +2,16 @@
  * Preact component.
  */
 
-import * as $preact from '../../../preact.js';
+import {
+	VNode as $preactꓺVNode, //
+	Props as $preactꓺProps,
+	classes as $preactꓺclasses,
+} from '../../../preact.js';
 
 /**
  * Props interface.
  */
-export interface Props extends $preact.Props {}
+export interface Props extends $preactꓺProps {}
 
 /**
  * Renders component.
@@ -16,6 +20,6 @@ export interface Props extends $preact.Props {}
  *
  * @returns       VNode / JSX element tree.
  */
-export default (props: Props = {}): $preact.VNode<Props> => {
-	return <button class={$preact.classes('', props)}>{props.children}</button>;
+export default (props: Props = {}): $preactꓺVNode<Props> => {
+	return <button class={$preactꓺclasses('', props)}>{props.children}</button>;
 };
