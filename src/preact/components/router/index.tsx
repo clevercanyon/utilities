@@ -32,6 +32,7 @@ const Component = (props: Props = {}): $preact.VNode<Props> => {
 /**
  * Exports the rest of our ISO APIs.
  */
+export type { LocationProps, RouteProps } from '../../apis/iso.js';
 export { Route, useLocation, useRoute, lazy, prerender, hydrate } from '../../apis/iso.js';
 
 /**

@@ -2,4 +2,5 @@
  * Preact API.
  */
 
-export { Location, ErrorBoundary, Router, Route, useLocation, useRoute, lazy, prerender, hydrate } from '@clevercanyon/preact-iso.fork';
+export * from '@clevercanyon/preact-iso.fork';
+export type { LocationProps, RouteProps } from '@clevercanyon/preact-iso.fork';
