@@ -40,32 +40,6 @@ const rawProps: { readonly [x: string]: RawProps } = {
 			'zoneId': 'f8a39e1ad05c2b452f1e18e699ad2129',
 		},
 	},
-	'w4s': {
-		'org': 'c10n',
-		'n7m': 'w4s',
-		'name': 'Wobots',
-		'namespace': 'Wobots',
-		'slug': 'wobots',
-		'var': 'wobots',
-		'slugPrefix': 'wobots-',
-		'varPrefix': 'wobots_',
-		'rootDomain': 'wobots.com',
-		'aws': {
-			's3': {
-				'bucket': 'wobots',
-				'cdnDomain': 'cdn.wobots.com',
-			},
-		},
-		'google': {
-			'analytics': {
-				'ga4GtagId': 'G-3SHM64QZNK',
-			},
-		},
-		'cloudflare': {
-			'accountId': 'f1176464a976947aa5665d989814a4b1',
-			'zoneId': 'accc8038a3c1f4dc8a060161d3eed763',
-		},
-	},
 };
 
 /**

@@ -7,37 +7,30 @@
  * please consider building it as a new Preact API instead; i.e., tuck it into `./preact/apis`.
  */
 
-import preact from 'preact';
+import type * as preact from 'preact';
 import { castArray as $toꓺcastArray } from './to.js';
 
 /**
  * Defines types.
  */
 export type VNode<P extends Props = Props> = preact.VNode<P>;
-export type Component<P extends Props = Props, S extends State = State> = preact.AnyComponent<P, S>;
+export type Component<P extends Props = Props, S extends object = object> = preact.AnyComponent<P, S>;
 export type Props<P extends object = object> = preact.RenderableProps<P & { classes?: string | string[] }>;
-
-export type Context = object; // Nothing to inherit from preact types.
-export type State = object; // Nothing to inherit from preact types.
-
-/**
- * Exports frequently-used exports provided by `preact/compat`.
- */
-export { Suspense, lazy } from 'preact/compat';
 
 /**
  * Formats component classes.
  *
- * @param   classes Prefix class(es).
- * @param   props   Component props.
+ * @param   classes      Prefix class(es).
+ * @param   otherClasses Other class(es); e.g., from component props.
  *
- * @returns         Space separated classes.
+ * @returns              Space separated classes.
  */
-export const classes = (classes: string | string[], props: Props): string => {
-	let propClasses = props.classes || [];
+export const classes = (classes?: string | string[], otherClasses?: string | string[]): string => {
+	classes = classes || [];
+	otherClasses = otherClasses || [];
 
 	classes = $toꓺcastArray('' === classes ? [] : classes);
-	propClasses = $toꓺcastArray('' === propClasses ? [] : propClasses);
+	otherClasses = $toꓺcastArray('' === otherClasses ? [] : otherClasses);
 
-	return [...new Set(classes.concat(propClasses))].join(' ');
+	return [...new Set(classes.concat(otherClasses))].join(' ');
 };

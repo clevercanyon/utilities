@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.143",
+	"version": "1.0.145",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -141,15 +141,10 @@
 			"require": "./dist/preact/components.cjs",
 			"types": "./dist/types/preact/components.d.ts"
 		},
-		"./preact/layouts": {
-			"import": "./dist/preact/layouts.js",
-			"require": "./dist/preact/layouts.cjs",
-			"types": "./dist/types/preact/layouts.d.ts"
-		},
-		"./preact/apis/router": {
-			"import": "./dist/preact/apis/router.js",
-			"require": "./dist/preact/apis/router.cjs",
-			"types": "./dist/types/preact/apis/router.d.ts"
+		"./preact/apis/iso": {
+			"import": "./dist/preact/apis/iso.js",
+			"require": "./dist/preact/apis/iso.cjs",
+			"types": "./dist/types/preact/apis/iso.d.ts"
 		},
 		"./preact/apis/ssr": {
 			"import": "./dist/preact/apis/ssr.js",
@@ -182,8 +177,7 @@
 		"./src/version.ts",
 		"./src/preact/apis.ts",
 		"./src/preact/components.ts",
-		"./src/preact/layouts.ts",
-		"./src/preact/apis/router.tsx",
+		"./src/preact/apis/iso.tsx",
 		"./src/preact/apis/ssr.tsx"
 	],
 	"module": "./dist/index.js",
@@ -198,7 +192,8 @@
 	},
 	"dependencies": {},
 	"peerDependencies": {
-		"@headlessui/react": "^1.7.16",
+		"@clevercanyon/preact-iso.fork": "^2.3.13",
+		"@headlessui/react": "^1.7.17",
 		"@heroicons/react": "^2.0.18",
 		"crypto-js": "^4.1.1",
 		"fast-equals": "^4.0.3",
@@ -206,17 +201,15 @@
 		"luxon": "^3.4.0",
 		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.40",
 		"moize": "^6.1.6",
-		"preact": "^10.17.0",
+		"preact": "^10.17.1",
 		"preact-render-to-string": "^6.2.1",
-		"preact-ssr-prepass": "^1.2.0",
-		"semver": "^7.5.4",
-		"wouter-preact": "^2.11.0"
+		"semver": "^7.5.4"
 	},
 	"peerDependenciesMeta": {},
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.157"
+		"@clevercanyon/skeleton-dev-deps": "^1.0.159"
 	},
 	"overrides": {},
 	"cpu": ["x64", "arm64"],
