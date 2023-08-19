@@ -9,9 +9,9 @@ import { omit as $objꓺomit } from '../../obj.js';
 /**
  * Props interface.
  */
-export interface Props extends $preact.Props {
+export type Props = $preact.Props<{
 	bodyClasses?: string | string[];
-}
+}>;
 
 /**
  * Renders component.
@@ -24,7 +24,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 	const { state, updateState } = useHTML();
 
 	updateState({
-		...$objꓺomit(props, ['classes', 'children']),
+		...$objꓺomit(props, ['classes', 'children', 'ref']),
 		bodyClasses: props.classes || [],
 	});
 	return <body class={$preact.classes(state.bodyClasses)}>{props.children}</body>;

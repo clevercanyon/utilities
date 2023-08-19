@@ -9,7 +9,7 @@ import { omit as $objꓺomit } from '../../obj.js';
 /**
  * Props interface.
  */
-export interface Props extends $preact.Props {
+export type Props = $preact.Props<{
 	headClasses?: string | string[];
 
 	charset?: string;
@@ -34,7 +34,7 @@ export interface Props extends $preact.Props {
 
 	style?: string;
 	script?: string;
-}
+}>;
 
 /**
  * Renders component.
@@ -47,7 +47,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 	const { state, updateState } = useHTML();
 
 	updateState({
-		...$objꓺomit(props, ['classes', 'children']),
+		...$objꓺomit(props, ['classes', 'children', 'ref']),
 		headClasses: props.classes || [],
 		charset: props.charset || 'utf-8',
 		viewport: props.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',

@@ -20,7 +20,8 @@ import type { Props as BodyProps } from './body.js';
  */
 export type State = {
 	lang?: string;
-} & HeadProps & BodyProps; // prettier-ignore
+} & Exclude<HeadProps, 'children' | 'ref'> &
+	Exclude<BodyProps, 'children' | 'ref'>;
 
 export type Props = $preact.Props<State>;
 
@@ -50,7 +51,7 @@ const stateReducer = (state: State, updates: State): State => {
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
 	const [state, updateState] = useReducer(stateReducer, {
-		...$objꓺomit(props, ['children']),
+		...$objꓺomit(props, ['children', 'ref']),
 		lang: props.lang || 'en',
 	} as State);
 

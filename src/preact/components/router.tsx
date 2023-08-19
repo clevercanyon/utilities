@@ -9,9 +9,9 @@ import { Location, ErrorBoundary, Router, useLocation } from '../apis/iso.js';
 /**
  * Props interface.
  */
-export interface Props extends $preact.Props {
+export type Props = $preact.Props<{
 	url?: string; // Required for server-side prerendering.
-}
+}>;
 
 /**
  * Renders component.
