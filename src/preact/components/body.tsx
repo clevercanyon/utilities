@@ -2,9 +2,9 @@
  * Preact component.
  */
 
-import { useHTML } from '../html/index.js';
-import * as $preact from '../../../preact.js';
-import { omit as $objꓺomit } from '../../../obj.js';
+import { useHTML } from './html.js';
+import * as $preact from '../../preact.js';
+import { omit as $objꓺomit } from '../../obj.js';
 
 /**
  * Props interface.

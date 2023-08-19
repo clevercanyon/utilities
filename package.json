@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.147",
+	"version": "1.0.148",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -131,16 +131,6 @@
 			"require": "./dist/version.cjs",
 			"types": "./dist/types/version.d.ts"
 		},
-		"./preact/apis": {
-			"import": "./dist/preact/apis.js",
-			"require": "./dist/preact/apis.cjs",
-			"types": "./dist/types/preact/apis.d.ts"
-		},
-		"./preact/components": {
-			"import": "./dist/preact/components.js",
-			"require": "./dist/preact/components.cjs",
-			"types": "./dist/types/preact/components.d.ts"
-		},
 		"./preact/apis/iso": {
 			"import": "./dist/preact/apis/iso.js",
 			"require": "./dist/preact/apis/iso.cjs",
@@ -150,6 +140,26 @@
 			"import": "./dist/preact/apis/ssr.js",
 			"require": "./dist/preact/apis/ssr.cjs",
 			"types": "./dist/types/preact/apis/ssr.d.ts"
+		},
+		"./preact/components/body": {
+			"import": "./dist/preact/components/body.js",
+			"require": "./dist/preact/components/body.cjs",
+			"types": "./dist/types/preact/components/body.d.ts"
+		},
+		"./preact/components/head": {
+			"import": "./dist/preact/components/head.js",
+			"require": "./dist/preact/components/head.cjs",
+			"types": "./dist/types/preact/components/head.d.ts"
+		},
+		"./preact/components/html": {
+			"import": "./dist/preact/components/html.js",
+			"require": "./dist/preact/components/html.cjs",
+			"types": "./dist/types/preact/components/html.d.ts"
+		},
+		"./preact/components/router": {
+			"import": "./dist/preact/components/router.js",
+			"require": "./dist/preact/components/router.cjs",
+			"types": "./dist/types/preact/components/router.d.ts"
 		}
 	},
 	"sideEffects": [
@@ -175,10 +185,12 @@
 		"./src/type.ts",
 		"./src/url.ts",
 		"./src/version.ts",
-		"./src/preact/apis.ts",
-		"./src/preact/components.ts",
 		"./src/preact/apis/iso.tsx",
-		"./src/preact/apis/ssr.tsx"
+		"./src/preact/apis/ssr.tsx",
+		"./src/preact/components/body.tsx",
+		"./src/preact/components/head.tsx",
+		"./src/preact/components/html.tsx",
+		"./src/preact/components/router.tsx"
 	],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
@@ -227,7 +239,7 @@
 				"build": {
 					"appType": "cma",
 					"targetEnv": "any",
-					"entryFiles": ["./src/*.{ts,tsx}", "./src/preact/*.{ts,tsx}", "./src/preact/apis/*.{ts,tsx}"]
+					"entryFiles": ["./src/*.{ts,tsx}", "./src/preact/*/*.{ts,tsx}"]
 				},
 				"ssrBuild": {
 					"appType": "",

@@ -2,9 +2,9 @@
  * Preact component.
  */
 
-import * as $preact from '../../../preact.js';
-import { empty as $isꓺempty } from '../../../is.js';
-import { Location, ErrorBoundary, Router, useLocation } from '../../apis/iso.js';
+import * as $preact from '../../preact.js';
+import { empty as $isꓺempty } from '../../is.js';
+import { Location, ErrorBoundary, Router, useLocation } from '../apis/iso.js';
 
 /**
  * Props interface.
@@ -32,8 +32,8 @@ const Component = (props: Props = {}): $preact.VNode<Props> => {
 /**
  * Exports the rest of our ISO APIs.
  */
-export type { LocationProps, RouteProps } from '../../apis/iso.js';
-export { Route, useLocation, useRoute, lazy, prerender, hydrate } from '../../apis/iso.js';
+export type { LocationProps, RouteProps } from '../apis/iso.js';
+export { Route, useLocation, useRoute, lazy, prerender, hydrate } from '../apis/iso.js';
 
 /**
  * Exports component by name.

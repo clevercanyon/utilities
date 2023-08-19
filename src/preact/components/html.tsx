@@ -5,15 +5,15 @@
 import {
 	omit as $objꓺomit, //
 	updateDeep as $objꓺupdateDeep,
-} from '../../../obj.js';
+} from '../../obj.js';
 
 import { createContext } from 'preact';
-import * as $preact from '../../../preact.js';
+import * as $preact from '../../preact.js';
 import { useReducer, useContext } from 'preact/hooks';
 
 import type { Dispatch } from 'preact/hooks';
-import type { Props as HeadProps } from '../head/index.js';
-import type { Props as BodyProps } from '../body/index.js';
+import type { Props as HeadProps } from './head.js';
+import type { Props as BodyProps } from './body.js';
 
 /**
  * Defines types.
