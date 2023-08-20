@@ -415,7 +415,7 @@ export const requestIsFromUser = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsInvalid = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request | cfw.Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL | cfw.URL): boolean => {
 		url = url || $urlꓺparse(request.url);
 
 		if (!url || !url.pathname || '/' === url.pathname) {
@@ -435,7 +435,7 @@ export const requestPathIsInvalid = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsForbidden = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request | cfw.Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL | cfw.URL): boolean => {
 		url = url || $urlꓺparse(request.url);
 
 		if (!url || !url.pathname || '/' === url.pathname) {
@@ -473,7 +473,7 @@ export const requestPathIsForbidden = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsDynamic = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request | cfw.Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL | cfw.URL): boolean => {
 		return (
 			requestPathHasDynamicBase(request, url) || //
 			requestPathIsPotentiallyDynamic(request, url) ||
@@ -492,7 +492,7 @@ export const requestPathIsDynamic = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsStatic = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request | cfw.Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL | cfw.URL): boolean => {
 		return !requestPathIsDynamic(request, url);
 	},
 );
@@ -507,7 +507,7 @@ export const requestPathIsStatic = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathHasDynamicBase = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request | cfw.Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL | cfw.URL): boolean => {
 		if (!$envꓺisC10n()) {
 			return false; // Not applicable.
 		}
@@ -530,7 +530,7 @@ export const requestPathHasDynamicBase = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsPotentiallyDynamic = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request | cfw.Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL | cfw.URL): boolean => {
 		if (!$envꓺisC10n()) {
 			return false; // Not applicable.
 		}
@@ -553,7 +553,7 @@ export const requestPathIsPotentiallyDynamic = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsSEORelatedFile = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request | cfw.Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL | cfw.URL): boolean => {
 		url = url || $urlꓺparse(request.url);
 
 		if (!url || !url.pathname || '/' === url.pathname) {
@@ -573,7 +573,7 @@ export const requestPathIsSEORelatedFile = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsInAdmin = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request | cfw.Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL | cfw.URL): boolean => {
 		url = url || $urlꓺparse(request.url);
 
 		if (!url || !url.pathname || '/' === url.pathname) {
@@ -594,7 +594,7 @@ export const requestPathIsInAdmin = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathHasStaticExtension = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request | cfw.Request, url?: URL, exts?: string[] | RegExp): boolean => {
+	(request: Request | cfw.Request, url?: URL | cfw.URL, exts?: string[] | RegExp): boolean => {
 		url = url || $urlꓺparse(request.url);
 
 		if (!url || !url.pathname || '/' === url.pathname) {

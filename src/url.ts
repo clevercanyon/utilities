@@ -15,6 +15,7 @@ import {
 import { try as $fnꓺtry } from './fn.js';
 import { isWeb as $envꓺisWeb } from './env.js';
 import { defaults as $objꓺdefaults } from './obj.js';
+import type * as cfw from '@cloudflare/workers-types/experimental';
 
 /**
  * Defines types.
@@ -215,7 +216,7 @@ export const rootHost = $moizeꓺdeep({ maxSize: 12 })({
 	},
 })(
 	// Memoized function.
-	(host?: URL | string, options: RootHostOptions = {}): string => {
+	(host?: URL | cfw.URL | string, options: RootHostOptions = {}): string => {
 		const opts = $objꓺdefaults({}, options, { withPort: true }) as Required<RootHostOptions>;
 
 		if (undefined === host) {
@@ -256,7 +257,7 @@ export const rootHost = $moizeꓺdeep({ maxSize: 12 })({
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export const parse = (url?: URL | string, base?: URL | string, options: ParseOptions = {}): URL | undefined => {
+export const parse = (url?: URL | cfw.URL | string, base?: URL | cfw.URL | string, options: ParseOptions = {}): URL | cfw.URL | undefined => {
 	const opts = $objꓺdefaults({}, options, { throwOnError: true }) as Required<ParseOptions>;
 
 	if (undefined === url) {
@@ -298,7 +299,7 @@ export const getQueryVar = $moizeꓺsvz({ maxSize: 24 })({
 	},
 })(
 	// Memoized function.
-	(name: string, url?: URL | string): string | undefined => {
+	(name: string, url?: URL | cfw.URL | string): string | undefined => {
 		const objURL = parse(url);
 
 		if (!objURL || !objURL.searchParams.has(name)) {
@@ -325,14 +326,14 @@ export const getQueryVar = $moizeꓺsvz({ maxSize: 24 })({
  *
  * @note This function is memoized. Thus, return object keys are readonly.
  */
-function _getQueryVars(url?: URL | string): { readonly [x: string]: string };
-function _getQueryVars(names: string[] | URL | string, url?: URL | string): { readonly [x: string]: string };
+function _getQueryVars(url?: URL | cfw.URL | string): { readonly [x: string]: string };
+function _getQueryVars(names: string[] | URL | cfw.URL | string, url?: URL | cfw.URL | string): { readonly [x: string]: string };
 
-function _getQueryVars(names: string[] | URL | string = [], url?: URL | string): { readonly [x: string]: string } {
+function _getQueryVars(names: string[] | URL | cfw.URL | string = [], url?: URL | cfw.URL | string): { readonly [x: string]: string } {
 	// eslint-disable-next-line prefer-rest-params
 	if (1 === arguments.length && !$isꓺarray(arguments[0])) {
 		// eslint-disable-next-line prefer-rest-params
-		(names = []), (url = arguments[0] as undefined | URL | string);
+		(names = []), (url = arguments[0] as undefined | URL | cfw.URL | string);
 	}
 	if (!$isꓺarray(names)) {
 		names = []; // Force array.
@@ -376,11 +377,11 @@ export const getQueryVars = $moizeꓺdeep({ maxSize: 24 })({
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export function addQueryVar(name: string, value: string, url: URL, options?: AddQueryVarOptions): URL;
+export function addQueryVar(name: string, value: string, url: URL | cfw.URL, options?: AddQueryVarOptions): URL | cfw.URL;
 export function addQueryVar(name: string, value: string, url?: string, options?: AddQueryVarOptions): string;
-export function addQueryVar(name: string, value: string, url?: URL | string, options?: AddQueryVarOptions): URL | string;
+export function addQueryVar(name: string, value: string, url?: URL | cfw.URL | string, options?: AddQueryVarOptions): URL | cfw.URL | string;
 
-export function addQueryVar(name: string, value: string, url?: URL | string, options?: AddQueryVarOptions): URL | string {
+export function addQueryVar(name: string, value: string, url?: URL | cfw.URL | string, options?: AddQueryVarOptions): URL | cfw.URL | string {
 	return addQueryVars({ [name]: value }, url, options);
 }
 
@@ -400,11 +401,11 @@ export function addQueryVar(name: string, value: string, url?: URL | string, opt
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export function addQueryVars(vars: { [x: string]: string }, url: URL, options?: AddQueryVarOptions): URL;
+export function addQueryVars(vars: { [x: string]: string }, url: URL | cfw.URL, options?: AddQueryVarOptions): URL | cfw.URL;
 export function addQueryVars(vars: { [x: string]: string }, url?: string, options?: AddQueryVarOptions): string;
-export function addQueryVars(vars: { [x: string]: string }, url?: URL | string, options?: AddQueryVarOptions): URL | string;
+export function addQueryVars(vars: { [x: string]: string }, url?: URL | cfw.URL | string, options?: AddQueryVarOptions): URL | cfw.URL | string;
 
-export function addQueryVars(vars: { [x: string]: string }, url?: URL | string, options?: AddQueryVarOptions): URL | string {
+export function addQueryVars(vars: { [x: string]: string }, url?: URL | cfw.URL | string, options?: AddQueryVarOptions): URL | cfw.URL | string {
 	const opts = $objꓺdefaults({}, options || {}, { replaceExisting: true }) as Required<AddQueryVarOptions>;
 
 	const rtnObjURL = $isꓺurl(url);
@@ -437,11 +438,11 @@ export function addQueryVars(vars: { [x: string]: string }, url?: URL | string, 
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export function removeQueryVar(name: string, url: URL): URL;
+export function removeQueryVar(name: string, url: URL | cfw.URL): URL | cfw.URL;
 export function removeQueryVar(name: string, url?: string): string;
-export function removeQueryVar(name: string, url?: URL | string): URL | string;
+export function removeQueryVar(name: string, url?: URL | cfw.URL | string): URL | cfw.URL | string;
 
-export function removeQueryVar(name: string, url?: URL | string): URL | string {
+export function removeQueryVar(name: string, url?: URL | cfw.URL | string): URL | cfw.URL | string {
 	return removeQueryVars([name], url);
 }
 
@@ -464,19 +465,19 @@ export function removeQueryVar(name: string, url?: URL | string): URL | string {
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export function removeQueryVars(url: URL): URL;
+export function removeQueryVars(url: URL | cfw.URL): URL | cfw.URL;
 export function removeQueryVars(url?: string): string;
-export function removeQueryVars(url?: URL | string): URL | string;
+export function removeQueryVars(url?: URL | cfw.URL | string): URL | cfw.URL | string;
 
-export function removeQueryVars(names: string[], url: URL): URL;
+export function removeQueryVars(names: string[], url: URL | cfw.URL): URL | cfw.URL;
 export function removeQueryVars(names: string[], url?: string): string;
-export function removeQueryVars(names: string[], url?: URL | string): URL | string;
+export function removeQueryVars(names: string[], url?: URL | cfw.URL | string): URL | cfw.URL | string;
 
-export function removeQueryVars(names: string[] | URL | string = [], url?: URL | string): URL | string {
+export function removeQueryVars(names: string[] | URL | cfw.URL | string = [], url?: URL | cfw.URL | string): URL | cfw.URL | string {
 	// eslint-disable-next-line prefer-rest-params
 	if (1 === arguments.length && !$isꓺarray(arguments[0])) {
 		// eslint-disable-next-line prefer-rest-params
-		(names = []), (url = arguments[0] as undefined | URL | string);
+		(names = []), (url = arguments[0] as undefined | URL | cfw.URL | string);
 	}
 	if (!$isꓺarray(names)) {
 		names = []; // Force array.
@@ -510,11 +511,11 @@ export function removeQueryVars(names: string[] | URL | string = [], url?: URL |
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export function removeCSOQueryVars(url: URL): URL;
+export function removeCSOQueryVars(url: URL | cfw.URL): URL | cfw.URL;
 export function removeCSOQueryVars(url?: string): string;
-export function removeCSOQueryVars(url?: URL | string): URL | string;
+export function removeCSOQueryVars(url?: URL | cfw.URL | string): URL | cfw.URL | string;
 
-export function removeCSOQueryVars(url?: URL | string): URL | string {
+export function removeCSOQueryVars(url?: URL | cfw.URL | string): URL | cfw.URL | string {
 	const rtnObjURL = $isꓺurl(url);
 	const objURL = parse(url);
 
