@@ -240,7 +240,7 @@ const prepareResponseHeaders = (request: Request | cfw.Request, url: URL | cfw.U
 			cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=86400, stale-if-error=86400';
 			cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=86400, stale-while-revalidate=86400, stale-if-error=86400';
 			//
-		} else if (requestPathIsStatic(request, url) && cfg.headers.has('etag')) {
+		} else if (requestPathIsStatic(request, url)) {
 			cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=31536000, s-maxage=31536000, stale-while-revalidate=604800, stale-if-error=604800';
 			cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=31536000, stale-while-revalidate=604800, stale-if-error=604800';
 			//
@@ -382,12 +382,16 @@ export const requestNeedsContentBody = $moizeꓺsvz({ maxSize: 2 })(
 export const requestIsFromUser = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
 	(request: Request | cfw.Request): boolean => {
+		if (request.headers.has('authorization')) {
+			return true; // Authorization header.
+		}
+		if (!request.headers.has('cookie')) {
+			return false; // No cookies.
+		}
+		const cookie = request.headers.get('cookie') || ''; // Encoded cookies.
 		return (
-			request.headers.has('authorization') ||
-			(request.headers.has('cookie') &&
-				/(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|logged[_-]in|user|(?:comment[_-])?author)[_-][^=;]+=\s*"?[^";]/iu.test(
-					request.headers.get('cookie') || '',
-				))
+			/(?:^\s*|;\s*)(?:logged[_-]in|user|author)(?:[_-][^=;]+)?=\s*"?[^";]/iu.test(cookie) ||
+			/(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|comment[_-]author)(?:[_-][^=;]+)=\s*"?[^";]/iu.test(cookie)
 		);
 	},
 );
@@ -503,7 +507,7 @@ export const requestPathHasDynamicBase = $moizeꓺsvz({ maxSize: 2 })(
 		if (!url || !url.pathname || '/' === url.pathname) {
 			return false; // Not possible, or early return on `/`.
 		}
-		return /^\/?(api|wp-json|blog|feed|comments|author|discussion|shop|product|cart|checkout|account)(?:$|\/)/iu.test(url.pathname);
+		return /^\/?(api|wp-json)(?:$|\/)/iu.test(url.pathname);
 	},
 );
 
@@ -526,7 +530,7 @@ export const requestPathIsPotentiallyDynamic = $moizeꓺsvz({ maxSize: 2 })(
 		if (!url || !url.pathname || '/' === url.pathname) {
 			return false; // Not possible, or early return on `/`.
 		}
-		return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml)$/iu.test(url.pathname);
+		return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml|sitemaps\/.*\.xml)$/iu.test(url.pathname);
 	},
 );
 
@@ -546,7 +550,7 @@ export const requestPathIsSEORelatedFile = $moizeꓺsvz({ maxSize: 2 })(
 		if (!url || !url.pathname || '/' === url.pathname) {
 			return false; // Not possible, or early return on `/`.
 		}
-		return /(?:^|\/)(?:favicon\.ico|robots\.txt|[^/]*sitemap[^/]*\.xml)$/iu.test(url.pathname);
+		return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml|sitemaps\/.*\.xml|favicon\.ico)$/iu.test(url.pathname);
 	},
 );
 
