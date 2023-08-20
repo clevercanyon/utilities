@@ -472,6 +472,17 @@ export const typedArray = (value: unknown): value is $type.TypedArray => {
 };
 
 /**
+ * Checks if value is a data view.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is a data view.
+ */
+export const dataView = (value: unknown): value is DataView => {
+	return value instanceof DataView;
+};
+
+/**
  * Checks if value is a buffer.
  *
  * @param   value Value to consider.
@@ -480,6 +491,17 @@ export const typedArray = (value: unknown): value is $type.TypedArray => {
  */
 export const buffer = (value: unknown): value is Buffer => {
 	return $envꓺisNode() && Buffer.isBuffer(value);
+};
+
+/**
+ * Checks if value is a blob.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is a blob.
+ */
+export const blob = (value: unknown): value is Blob => {
+	return value instanceof Blob;
 };
 
 /**

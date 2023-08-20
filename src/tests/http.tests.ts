@@ -21,7 +21,6 @@ describe('$http tests', async () => {
 		});
 		expect(
 			$http.responseConfig({
-				response: new Response(),
 				status: 200,
 				body: 'abc',
 				headers: { a: 'a', b: 'b', c: 'c' },
@@ -30,7 +29,6 @@ describe('$http tests', async () => {
 				enableCDN: false,
 			}),
 		).toStrictEqual({
-			response: new Response(),
 			status: 200,
 			body: 'abc',
 			headers: { a: 'a', b: 'b', c: 'c' },
