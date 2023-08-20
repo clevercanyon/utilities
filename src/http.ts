@@ -33,6 +33,7 @@ import {
 } from './moize.js';
 
 import { defaults as $objꓺdefaults } from './obj.js';
+import type * as cfw from '@cloudflare/workers-types/experimental';
 
 /**
  * Defines types.
@@ -41,11 +42,11 @@ export type RequestConfig = {
 	// For future review.
 };
 export type ResponseConfig = {
-	response?: Response;
+	response?: Response | cfw.Response;
 	status?: number;
-	body?: BodyInit | null;
-	headers?: Headers | { [x: string]: string };
-	appendHeaders?: Headers | { [x: string]: string };
+	body?: BodyInit | cfw.BodyInit | null;
+	headers?: Headers | cfw.Headers | { [x: string]: string };
+	appendHeaders?: Headers | cfw.Headers | { [x: string]: string };
 	enableCORs?: boolean;
 	enableCDN?: boolean;
 };
@@ -92,7 +93,7 @@ export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig
  *
  * @throws          Error {@see Response} on failure.
  */
-export const prepareRequest = (request: Request, config?: RequestConfig): Request => {
+export const prepareRequest = (request: Request | cfw.Request, config?: RequestConfig): Request | cfw.Request => {
 	const unusedꓺcfg = requestConfig(config);
 
 	// Removes client-side-only query string variables.
@@ -123,7 +124,7 @@ export const prepareRequest = (request: Request, config?: RequestConfig): Reques
 	}
 	url.searchParams.sort(); // Query sort optimizes cache.
 
-	return new Request(url.toString(), request);
+	return new Request(url.toString(), request as Request);
 };
 
 /**
@@ -134,7 +135,7 @@ export const prepareRequest = (request: Request, config?: RequestConfig): Reques
  *
  * @returns         HTTP response.
  */
-export const prepareResponse = (request: Request, config?: ResponseConfig): Response => {
+export const prepareResponse = (request: Request | cfw.Request, config?: ResponseConfig): Response | cfw.Response => {
 	const cfg = responseConfig(config);
 	cfg.status = cfg.status || 500;
 
@@ -148,7 +149,7 @@ export const prepareResponse = (request: Request, config?: ResponseConfig): Resp
 	if (cfg.enableCORs && 'OPTIONS' === request.method) {
 		cfg.status = 204; // No content for CORs preflight requests.
 	}
-	return new Response(requestNeedsContentBody(request, cfg.status) ? cfg.body : null, {
+	return new Response(requestNeedsContentBody(request, cfg.status) ? (cfg.body as BodyInit | null) : null, {
 		status: cfg.status,
 		statusText: responseStatusText(cfg.status),
 		headers: prepareResponseHeaders(request, cfg),
@@ -163,7 +164,7 @@ export const prepareResponse = (request: Request, config?: ResponseConfig): Resp
  *
  * @returns         HTTP response headers.
  */
-export const prepareResponseHeaders = (request: Request, config?: ResponseConfig): Headers => {
+export const prepareResponseHeaders = (request: Request | cfw.Request, config?: ResponseConfig): Headers | cfw.Headers => {
 	const cfg = responseConfig(config);
 	cfg.status = cfg.status || 500;
 
@@ -335,7 +336,7 @@ export const responseStatusText = $moizeꓺsvz({ maxSize: 12 })(
  */
 export const requestHasSupportedMethod = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request): boolean => {
+	(request: Request | cfw.Request): boolean => {
 		return supportedRequestMethods.includes(request.method);
 	},
 );
@@ -349,7 +350,7 @@ export const requestHasSupportedMethod = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestHasCacheableMethod = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request): boolean => {
+	(request: Request | cfw.Request): boolean => {
 		return requestHasSupportedMethod(request) && ['HEAD', 'GET'].includes(request.method);
 	},
 );
@@ -364,7 +365,7 @@ export const requestHasCacheableMethod = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestNeedsContentHeaders = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, responseStatus: number): boolean => {
+	(request: Request | cfw.Request, responseStatus: number): boolean => {
 		return responseStatus !== 204 && requestHasSupportedMethod(request) && !['OPTIONS'].includes(request.method);
 	},
 );
@@ -379,7 +380,7 @@ export const requestNeedsContentHeaders = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestNeedsContentBody = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, responseStatus: number): boolean => {
+	(request: Request | cfw.Request, responseStatus: number): boolean => {
 		return responseStatus !== 204 && requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method);
 	},
 );
@@ -393,7 +394,7 @@ export const requestNeedsContentBody = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestIsFromUser = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request): boolean => {
+	(request: Request | cfw.Request): boolean => {
 		return (
 			request.headers.has('authorization') ||
 			(request.headers.has('cookie') &&
@@ -414,7 +415,7 @@ export const requestIsFromUser = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsInvalid = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL): boolean => {
 		url = url || $urlꓺparse(request.url);
 
 		if (!url || !url.pathname || '/' === url.pathname) {
@@ -434,7 +435,7 @@ export const requestPathIsInvalid = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsForbidden = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL): boolean => {
 		url = url || $urlꓺparse(request.url);
 
 		if (!url || !url.pathname || '/' === url.pathname) {
@@ -472,7 +473,7 @@ export const requestPathIsForbidden = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsDynamic = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL): boolean => {
 		return (
 			requestPathHasDynamicBase(request, url) || //
 			requestPathIsPotentiallyDynamic(request, url) ||
@@ -491,7 +492,7 @@ export const requestPathIsDynamic = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsStatic = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL): boolean => {
 		return !requestPathIsDynamic(request, url);
 	},
 );
@@ -506,7 +507,7 @@ export const requestPathIsStatic = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathHasDynamicBase = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL): boolean => {
 		if (!$envꓺisC10n()) {
 			return false; // Not applicable.
 		}
@@ -529,7 +530,7 @@ export const requestPathHasDynamicBase = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsPotentiallyDynamic = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL): boolean => {
 		if (!$envꓺisC10n()) {
 			return false; // Not applicable.
 		}
@@ -552,7 +553,7 @@ export const requestPathIsPotentiallyDynamic = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsSEORelatedFile = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL): boolean => {
 		url = url || $urlꓺparse(request.url);
 
 		if (!url || !url.pathname || '/' === url.pathname) {
@@ -572,7 +573,7 @@ export const requestPathIsSEORelatedFile = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathIsInAdmin = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, url?: URL): boolean => {
+	(request: Request | cfw.Request, url?: URL): boolean => {
 		url = url || $urlꓺparse(request.url);
 
 		if (!url || !url.pathname || '/' === url.pathname) {
@@ -593,7 +594,7 @@ export const requestPathIsInAdmin = $moizeꓺsvz({ maxSize: 2 })(
  */
 export const requestPathHasStaticExtension = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(request: Request, url?: URL, exts?: string[] | RegExp): boolean => {
+	(request: Request | cfw.Request, url?: URL, exts?: string[] | RegExp): boolean => {
 		url = url || $urlꓺparse(request.url);
 
 		if (!url || !url.pathname || '/' === url.pathname) {
@@ -620,7 +621,7 @@ export const requestPathHasStaticExtension = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         Extracted headers, as a plain object.
  */
-export const extractHeaders = (headers: Headers | { [x: string]: string }, options?: ExtractHeaderOptions): { [x: string]: string } => {
+export const extractHeaders = (headers: Headers | cfw.Headers | { [x: string]: string }, options?: ExtractHeaderOptions): { [x: string]: string } => {
 	const plainObjHeaders: { [x: string]: string } = {};
 	const opts = $objꓺdefaults({}, options || {}, { lowercase: true }) as Required<ExtractHeaderOptions>;
 
@@ -629,7 +630,7 @@ export const extractHeaders = (headers: Headers | { [x: string]: string }, optio
 			plainObjHeaders[opts.lowercase ? name.toLowerCase() : name] = value;
 		});
 	} else {
-		for (const [name, value] of Object.entries(headers)) {
+		for (const [name, value] of Object.entries(headers as { [x: string]: string })) {
 			plainObjHeaders[opts.lowercase ? name.toLowerCase() : name] = value;
 		}
 	}

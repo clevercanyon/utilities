@@ -295,7 +295,7 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 				/**
 				 * Generates typescript type declaration file(s).
 				 */
-				if ('build' === command && !(['spa', 'mpa'].includes(appType) && ['cfp'].includes(targetEnv))) {
+				if ('build' === command /* Also does important type checking at build time. */) {
 					await u.spawn('npx', ['tsc', '--emitDeclarationOnly']);
 				}
 
@@ -303,8 +303,8 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 				 * Deletes a few files that interfere with apps running on Cloudflare Pages.
 				 */
 				if ('build' === command && ['spa', 'mpa'].includes(appType) && ['cfp'].includes(targetEnv)) {
-					for (const file of await $glob.promise(['types', 'index.*'], { cwd: distDir })) {
-						await fsp.rm(file, { force: true, recursive: true });
+					for (const fileOrDir of await $glob.promise(['types', '.env.vault', 'index.*'], { cwd: distDir, onlyFiles: false })) {
+						await fsp.rm(fileOrDir, { force: true, recursive: true });
 					}
 				}
 
