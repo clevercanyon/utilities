@@ -4,6 +4,7 @@
 
 import {
 	array as $isꓺarray, //
+	string as $isꓺstring,
 	regExp as $isꓺregExp,
 } from './is.js';
 
@@ -25,6 +26,7 @@ import {
 import {
 	dedent as $strꓺdedent, //
 	escRegExp as $strꓺescRegExp,
+	byteLength as $strꓺbyteLength,
 } from './str.js';
 
 import {
@@ -176,6 +178,7 @@ export const prepareResponseHeaders = (request: Request | cfw.Request, config?: 
 	let existingHeaders: { [x: string]: string } = {};
 
 	const alwaysOnHeaders: { [x: string]: string } = {};
+	const contentHeaders: { [x: string]: string } = {};
 	const cacheHeaders: { [x: string]: string } = {};
 
 	let securityHeaders: { [x: string]: string } = {};
@@ -192,6 +195,11 @@ export const prepareResponseHeaders = (request: Request | cfw.Request, config?: 
 
 	if (503 === cfg.status) {
 		alwaysOnHeaders['retry-after'] = '300';
+	}
+	// Content-related headers.
+
+	if (cfg.body && $isꓺstring(cfg.body)) {
+		contentHeaders['content-length'] = $strꓺbyteLength(cfg.body).toString();
 	}
 	// Cache control and related headers.
 
@@ -250,6 +258,7 @@ export const prepareResponseHeaders = (request: Request | cfw.Request, config?: 
 	const headers = new Headers({
 		...existingHeaders,
 		...alwaysOnHeaders,
+		...contentHeaders,
 		...cacheHeaders,
 		...securityHeaders,
 		...corsHeaders,
@@ -261,7 +270,7 @@ export const prepareResponseHeaders = (request: Request | cfw.Request, config?: 
 		for (const name of Object.keys(extractHeaders(cfg.response.headers))) {
 			cfg.response.headers.delete(name); // Clean slate.
 		}
-		headers.forEach((value, name) => cfg.response?.headers.set(name, value));
+		headers.forEach((value, name) => cfg.response.headers.set(name, value));
 	}
 	return headers;
 };

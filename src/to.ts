@@ -22,6 +22,28 @@ import { keyAndSymbolEntries as $objꓺkeyAndSymbolEntries } from './obj.js';
 import type * as $type from './type.js';
 
 /**
+ * Converts any value into JSON.
+ *
+ * @param   value Value to convert into JSON.
+ *
+ * @returns       JSON (i.e., string value).
+ */
+export const json = <Type>(value: Type): string => {
+	return JSON.stringify(value);
+};
+
+/**
+ * Converts any value into pretty JSON.
+ *
+ * @param   value Value to convert into pretty JSON.
+ *
+ * @returns       Pretty JSON (i.e., string value).
+ */
+export const prettyJSON = <Type>(value: Type): string => {
+	return JSON.stringify(value, null, 4);
+};
+
+/**
  * Casts any value as an array.
  *
  * @param   value Value to cast as an array.
