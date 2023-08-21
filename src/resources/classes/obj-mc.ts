@@ -43,7 +43,7 @@ let Class: Constructor; // Class definition cache.
 export type Constructor = {
 	new (): Interface;
 };
-export interface Interface extends $classꓺUtilityInterface {
+export type Interface = $classꓺUtilityInterface & {
 	newInstance(): Interface;
 
 	readonly kinds: {
@@ -67,7 +67,7 @@ export interface Interface extends $classꓺUtilityInterface {
 
 	addMerge(tagA: string, tagB: string, callback: MergeCallback): MergeCallback | undefined;
 	addOperation(name: string, callback: OperationCallback): OperationCallback | undefined;
-}
+};
 export type Kind = 'mergeDeep' | 'mergeClonesDeep' | 'patchDeep' | 'patchClonesDeep' | 'updateDeep' | 'updateClonesDeep';
 export type CircularMap = Map<unknown, Map<unknown, unknown>> & { [x: symbol]: boolean };
 

@@ -18,7 +18,7 @@ import { isWeb as $envꓺisWeb } from './env.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { unquote as $strꓺunquote } from './str.js';
 
-import * as $type from './type.js';
+import type * as $type from './type.js';
 
 const documentCookieMap: Map<string, string | undefined> = new Map();
 

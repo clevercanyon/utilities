@@ -31,7 +31,7 @@ export type Constructor = {
 	appPkgName: string; // App package name.
 	new (props?: object | Interface): Interface;
 };
-export interface Interface {
+export type Interface = {
 	[x: $type.ObjectKey]: unknown;
 
 	get [$symbolꓺobjTag](): ReturnType<$type.ObjTagFn>;
@@ -40,7 +40,7 @@ export interface Interface {
 	[$symbolꓺobjToPlain](): ReturnType<$type.ObjToPlainSymbolFn>;
 	[$symbolꓺobjToJSON](): ReturnType<$type.ObjToJSONFn>;
 	[$symbolꓺobjToClone]({ deep, opts, circular }: Parameters<$type.ObjToCloneSymbolFn>[0]): ReturnType<$type.ObjToCloneSymbolFn>;
-}
+};
 
 /**
  * Base class factory.
@@ -59,7 +59,7 @@ export const getClass = (): Constructor => {
 		/**
 		 * App package name.
 		 */
-		static readonly appPkgName = $appꓺpkgName;
+		public static readonly appPkgName = $appꓺpkgName;
 
 		/**
 		 * Object constructor.

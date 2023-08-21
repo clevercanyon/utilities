@@ -9,34 +9,31 @@ import {
 
 import { createContext } from 'preact';
 import * as $preact from '../../preact.js';
+import { getFetcher } from '../apis/iso.js';
 import { useReducer, useContext } from 'preact/hooks';
 
 import type { Dispatch } from 'preact/hooks';
-import type { Props as HeadProps } from './head.js';
-import type { Props as BodyProps } from './body.js';
 
 /**
  * Defines types.
  */
 export type State = {
-	lang?: string;
-} & Exclude<HeadProps, 'children' | 'ref'> &
-	Exclude<BodyProps, 'children' | 'ref'>;
-
+	fetcher?: object;
+};
 export type Props = $preact.Props<State>;
 
 /**
- * HTML context.
+ * Data context.
  */
 const Context = createContext({} as { state: State; updateState: Dispatch<State> });
 
 /**
- * HTML context hooks.
+ * Data context hooks.
  */
-export const useHTML = (): { state: State; updateState: Dispatch<State> } => useContext(Context);
+export const useData = (): { state: State; updateState: Dispatch<State> } => useContext(Context);
 
 /**
- * HTML state reducer.
+ * Data state reducer.
  */
 const stateReducer = (state: State, updates: State): State => {
 	return $objꓺupdateDeep(state, updates) as unknown as State;
@@ -52,14 +49,8 @@ const stateReducer = (state: State, updates: State): State => {
 export default (props: Props = {}): $preact.VNode<Props> => {
 	const [state, updateState] = useReducer(stateReducer, {
 		...$objꓺomit(props, ['children', 'ref']),
-		lang: props.lang || 'en',
+		fetcher: props.fetcher || getFetcher(),
 	} as State);
 
-	return (
-		<Context.Provider value={{ state, updateState }}>
-			<html lang={state.lang} class={$preact.classes(state.classes)}>
-				{props.children}
-			</html>
-		</Context.Provider>
-	);
+	return <Context.Provider value={{ state, updateState }}>{props.children}</Context.Provider>;
 };

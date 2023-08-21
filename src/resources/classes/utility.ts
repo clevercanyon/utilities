@@ -14,7 +14,7 @@ let Class: Constructor; // Class definition cache.
 export type Constructor = {
 	new (props?: object | Interface): Interface;
 };
-export interface Interface extends $classꓺBaseInterface {}
+export type Interface = $classꓺBaseInterface;
 
 /**
  * Utility class factory.
@@ -28,7 +28,7 @@ export const getClass = (): Constructor => {
 		/**
 		 * App package name.
 		 */
-		static readonly appPkgName = $appꓺpkgName;
+		public static readonly appPkgName = $appꓺpkgName;
 
 		/**
 		 * Object constructor.
@@ -36,7 +36,7 @@ export const getClass = (): Constructor => {
 		 * @param props Props or {@see Interface} instance.
 		 */
 		public constructor(props?: object | Interface) {
-			super(props);
+			super(props); // Parent constructor.
 		}
 	};
 	return Object.defineProperty(Class, 'name', {

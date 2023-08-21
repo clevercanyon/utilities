@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.158",
+	"version": "1.0.160",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -146,6 +146,11 @@
 			"require": "./dist/preact/components/body.cjs",
 			"types": "./dist/types/preact/components/body.d.ts"
 		},
+		"./preact/components/data": {
+			"import": "./dist/preact/components/data.js",
+			"require": "./dist/preact/components/data.cjs",
+			"types": "./dist/types/preact/components/data.d.ts"
+		},
 		"./preact/components/head": {
 			"import": "./dist/preact/components/head.js",
 			"require": "./dist/preact/components/head.cjs",
@@ -188,6 +193,7 @@
 		"./src/preact/apis/iso.tsx",
 		"./src/preact/apis/ssr.tsx",
 		"./src/preact/components/body.tsx",
+		"./src/preact/components/data.tsx",
 		"./src/preact/components/head.tsx",
 		"./src/preact/components/html.tsx",
 		"./src/preact/components/router.tsx"
@@ -204,7 +210,7 @@
 	},
 	"dependencies": {},
 	"peerDependencies": {
-		"@clevercanyon/preact-iso.fork": "^2.3.13",
+		"@clevercanyon/preact-iso.fork": "^2.3.18",
 		"@headlessui/react": "^1.7.17",
 		"@heroicons/react": "^2.0.18",
 		"crypto-js": "^4.1.1",

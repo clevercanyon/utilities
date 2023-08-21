@@ -10,7 +10,7 @@ let Class: Constructor; // Class definition cache.
 /**
  * Defines types.
  */
-export interface BaseProps {
+export type BaseProps = {
 	readonly n7m: string;
 
 	readonly name: string;
@@ -39,16 +39,16 @@ export interface BaseProps {
 		readonly accountId: string;
 		readonly zoneId: string;
 	};
-}
-export interface RawProps extends BaseProps {
+};
+export type RawProps = BaseProps & {
 	readonly org: string;
-}
-export interface Props extends BaseProps {
+};
+export type Props = BaseProps & {
 	readonly org: Interface;
-}
-export interface C9rProps extends BaseProps {
+};
+export type C9rProps = BaseProps & {
 	readonly org?: Interface | undefined;
-}
+};
 export type Constructor = {
 	new (props: C9rProps | Interface): Interface;
 };

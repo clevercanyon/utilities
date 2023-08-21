@@ -12,7 +12,7 @@ import {
 	defaults as $objꓺdefaults,
 } from './obj.js';
 
-import * as $type from './type.js';
+import type * as $type from './type.js';
 
 /**
  * Defines types.
