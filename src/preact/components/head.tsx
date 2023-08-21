@@ -114,7 +114,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 			)}
 			{head.stylePath && <link rel='stylesheet' media='all' href={head.stylePath} />}
 			{head.scriptPath && <script type='module' src={head.scriptPath}></script>}
-			{!$envꓺisWeb() && state.fetcher && state.fetcher.containerCacheToScriptTag()}
+			{!$envꓺisWeb() && head.scriptPath && state.fetcher && state.fetcher.containerCacheToScriptTag()}
 
 			{props.children}
 		</head>
