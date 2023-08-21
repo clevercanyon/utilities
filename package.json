@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.160",
+	"version": "1.0.161",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -136,11 +136,6 @@
 			"require": "./dist/preact/apis/iso.cjs",
 			"types": "./dist/types/preact/apis/iso.d.ts"
 		},
-		"./preact/apis/ssr": {
-			"import": "./dist/preact/apis/ssr.js",
-			"require": "./dist/preact/apis/ssr.cjs",
-			"types": "./dist/types/preact/apis/ssr.d.ts"
-		},
 		"./preact/components/body": {
 			"import": "./dist/preact/components/body.js",
 			"require": "./dist/preact/components/body.cjs",
@@ -191,7 +186,6 @@
 		"./src/url.ts",
 		"./src/version.ts",
 		"./src/preact/apis/iso.tsx",
-		"./src/preact/apis/ssr.tsx",
 		"./src/preact/components/body.tsx",
 		"./src/preact/components/data.tsx",
 		"./src/preact/components/head.tsx",
