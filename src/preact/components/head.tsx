@@ -35,8 +35,8 @@ export type State = {
 	ogURL?: string;
 	ogImage?: string;
 
-	style?: string;
-	script?: string;
+	stylePath?: string;
+	scriptPath?: string;
 };
 export type PartialState = Partial<State>;
 export type Props = $preact.Props<PartialState>;
@@ -112,8 +112,8 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 					<meta property='og:image' content={head.ogImage} />
 				</>
 			)}
-			{head.style && <link rel='stylesheet' media='all' href={head.style} />}
-			{head.script && <script type='module' src={head.script}></script>}
+			{head.stylePath && <link rel='stylesheet' media='all' href={head.stylePath} />}
+			{head.scriptPath && <script type='module' src={head.scriptPath}></script>}
 			{!$envꓺisWeb() && state.fetcher && state.fetcher.containerCacheToScriptTag()}
 
 			{props.children}
