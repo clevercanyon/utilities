@@ -5,7 +5,7 @@
 import { useData } from './data.js';
 import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
-import { get as $envꓺget } from '../../env.js';
+import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
 
 /**
  * Defines types.
@@ -114,6 +114,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 			)}
 			{head.style && <link rel='stylesheet' media='all' href={head.style} />}
 			{head.script && <script type='module' src={head.script}></script>}
+			{!$envꓺisWeb() && state.fetcher && state.fetcher.containerCacheToScriptTag()}
 
 			{props.children}
 		</head>

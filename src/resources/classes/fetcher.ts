@@ -34,18 +34,17 @@ export type Interface = Props &
 		fetch(...args: Parameters<Container['pseudoFetch']>): ReturnType<Container['pseudoFetch']>;
 	};
 export type Container = $type.Object<{
-	cache: Map<string, FetchCacheObject>;
+	cache: Map<string, CachedObject>;
 	nativeFetch: typeof fetch;
 	pseudoFetch: typeof fetch;
 }>;
-export type FetchCacheObject = {
+export type CachedObject = {
 	body: string;
 	options: {
 		status: number;
 		headers: [string, string][];
 	};
 };
-
 
 /**
  * Fetcher class factory.
@@ -134,37 +133,26 @@ export const getClass = (): Constructor => {
 			const hash = $cryptoꓺmd5($toꓺjson(args));
 
 			if (this.container.cache.has(hash)) {
-				const { body, options } = this.container.cache.get(hash) as FetchCacheObject;
-				return new Response(body, options);
+				const cache = this.container.cache.get(hash) as CachedObject;
+				return new Response(cache.body, cache.options);
 			}
+			const response = await this.container.nativeFetch(...args);
 
-			const fetchResponse = await this.container.nativeFetch(...args);; // @todo is this the proper fetch method to await?
+			const contentType = (response.headers.get('content-type') as string).split(';')[0].toLowerCase();
+			const allowedMimeTypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
 
-			const allowedMimeTypes = [
-				'text/plain',
-				'application/json',
-				'application/ld+json',
-				'image/svg+xml',
-				'application/xml',
-				'text/xml',
-			];
-
-			if (!allowedMimeTypes.includes(fetchResponse.headers.get('content-type') as string)) {
-				return fetchResponse; // Don't cache responses from fetch requests that might be non-stringifyable.
+			if (!allowedMimeTypes.includes(contentType)) {
+				return response; // Don't cache responses from fetch requests that might be non-stringifyable.
 			}
-
-			const responseRecord = {
-				body: await fetchResponse.text(), // Response body stored in plain text, JSON.stringify compatible.
+			const cache = {
+				body: await response.text(), // Response body stored in plain text, JSON.stringify compatible.
 				options: {
-					status: fetchResponse.status,
-					headers: [
-						['content-type', fetchResponse.headers.get('content-type')],
-					] as [string, string][],
-				}
+					status: response.status,
+					headers: [['content-type', response.headers.get('content-type')]] as [string, string][],
+				},
 			};
-
-			this.container.cache.set(hash, responseRecord);
-			return new Response(responseRecord.body, responseRecord.options);
+			this.container.cache.set(hash, cache);
+			return new Response(cache.body, cache.options);
 		}
 	};
 	return Object.defineProperty(Class, 'name', {
