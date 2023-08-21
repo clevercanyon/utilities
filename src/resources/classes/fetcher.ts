@@ -34,12 +34,10 @@ export type Interface = Props &
 		fetch(...args: Parameters<Container['pseudoFetch']>): ReturnType<Container['pseudoFetch']>;
 	};
 export type Container = $type.Object<{
-	cache: Map<string, string>;
+	cache: Map<string, FetchCacheObject>;
 	nativeFetch: typeof fetch;
 	pseudoFetch: typeof fetch;
 }>;
-export type Interface = Props & $classꓺUtilityInterface;
-
 export type FetchCacheObject = {
 	body: string;
 	options: {
