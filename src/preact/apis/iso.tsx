@@ -9,6 +9,11 @@ let fetcherInitialized: boolean = false; // Once only.
 let fetcher: $fetcherꓺInterface; // Fetcher class instance.
 
 /**
+ * Exports fetcher type.
+ */
+export type { $fetcherꓺInterface as Fetcher };
+
+/**
  * Exports preact ISO utilities.
  */
 export * from '@clevercanyon/preact-iso.fork';

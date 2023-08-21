@@ -37,7 +37,33 @@ const rawProps: { readonly [x: string]: RawProps } = {
 		},
 		'cloudflare': {
 			'accountId': 'f1176464a976947aa5665d989814a4b1',
-			'zoneId': 'f8a39e1ad05c2b452f1e18e699ad2129',
+			'zoneId': 'a53c8701e8dffd42e05c53010869f580',
+		},
+	},
+	'hop': {
+		'org': 'c10n',
+		'n7m': 'h1p',
+		'name': 'Hop',
+		'namespace': 'Hop',
+		'slug': 'hop',
+		'var': 'hop',
+		'slugPrefix': 'hop-',
+		'varPrefix': 'hop_',
+		'rootDomain': 'hop.gdn',
+		'aws': {
+			's3': {
+				'bucket': 'hop-gdn',
+				'cdnDomain': 'cdn.hop.gdn',
+			},
+		},
+		'google': {
+			'analytics': {
+				'ga4GtagId': 'G-Y5BS7MMHMD',
+			},
+		},
+		'cloudflare': {
+			'accountId': 'f1176464a976947aa5665d989814a4b1',
+			'zoneId': 'a53c8701e8dffd42e05c53010869f580',
 		},
 	},
 };

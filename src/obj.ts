@@ -432,23 +432,23 @@ export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: M
 		}
 	}
 	switch (true) {
+		case $isꓺplainObject(value): {
+			return { ...(value as unknown as $type.Object) } as Type;
+		}
+		case $isꓺmap(value): {
+			return new Map(value as unknown as Map<unknown, unknown>) as Type;
+		}
+		case $isꓺset(value): {
+			return new Set(value as unknown as Set<unknown>) as Type;
+		}
+		case $isꓺarray(value): {
+			return [...(value as unknown as unknown[])] as Type;
+		}
 		case $isꓺurl(value): {
 			return new URL(value as unknown as URL) as Type;
 		}
 		case $isꓺnode(value): {
 			return (value as unknown as Node).cloneNode(true) as Type;
-		}
-		case $isꓺset(value): {
-			return new Set(value as unknown as Set<unknown>) as Type;
-		}
-		case $isꓺmap(value): {
-			return new Map(value as unknown as Map<unknown, unknown>) as Type;
-		}
-		case $isꓺarray(value): {
-			return [...(value as unknown as unknown[])] as Type;
-		}
-		case $isꓺplainObject(value): {
-			return { ...(value as unknown as $type.Object) } as Type;
 		}
 		case $isꓺstructuredCloneable(value): {
 			try {
@@ -536,22 +536,12 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
 		}
 	}
 	switch (true) {
-		case $isꓺurl(value): {
-			const clone = new URL(value as unknown as URL);
-			circular.set(value, clone);
-			return clone as Type;
-		}
-		case $isꓺnode(value): {
-			const clone = (value as unknown as Node).cloneNode(true);
-			circular.set(value, clone);
-			return clone as Type;
-		}
-		case $isꓺset(value): {
-			const clone: Set<unknown> = new Set();
+		case $isꓺplainObject(value): {
+			const clone: $type.Object = {};
 			circular.set(value, clone);
 
-			for (const _value of value as unknown as Set<unknown>) {
-				clone.add(cloneDeep(_value, opts, circular, true));
+			for (const [key, keyValue] of keyAndSymbolEntries(value)) {
+				clone[key] = cloneDeep(keyValue, opts, circular, true);
 			}
 			return clone as Type;
 		}
@@ -564,6 +554,15 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
 			}
 			return clone as Type;
 		}
+		case $isꓺset(value): {
+			const clone: Set<unknown> = new Set();
+			circular.set(value, clone);
+
+			for (const _value of value as unknown as Set<unknown>) {
+				clone.add(cloneDeep(_value, opts, circular, true));
+			}
+			return clone as Type;
+		}
 		case $isꓺarray(value): {
 			const clone: unknown[] = [];
 			circular.set(value, clone);
@@ -573,13 +572,14 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
 			}
 			return clone as Type;
 		}
-		case $isꓺplainObject(value): {
-			const clone: $type.Object = {};
+		case $isꓺurl(value): {
+			const clone = new URL(value as unknown as URL);
 			circular.set(value, clone);
-
-			for (const [key, keyValue] of keyAndSymbolEntries(value)) {
-				clone[key] = cloneDeep(keyValue, opts, circular, true);
-			}
+			return clone as Type;
+		}
+		case $isꓺnode(value): {
+			const clone = (value as unknown as Node).cloneNode(true);
+			circular.set(value, clone);
 			return clone as Type;
 		}
 		case $isꓺstructuredCloneable(value): {

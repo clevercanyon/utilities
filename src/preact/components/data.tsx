@@ -2,40 +2,48 @@
  * Preact component.
  */
 
-import {
-	omit as $objꓺomit, //
-	updateDeep as $objꓺupdateDeep,
-} from '../../obj.js';
-
 import { createContext } from 'preact';
 import * as $preact from '../../preact.js';
-import { getFetcher } from '../apis/iso.js';
 import { useReducer, useContext } from 'preact/hooks';
+import { updateDeep as $objꓺupdateDeep } from '../../obj.js';
+import { getFetcher as $preactꓺisoꓺgetFetcher } from '../apis/iso.js';
 
 import type { Dispatch } from 'preact/hooks';
+import type { Fetcher as $preactꓺisoꓺFetcher } from '../apis/iso.js';
+import type { State as HTMLState, PartialState as HTMLPartialState } from './html.js';
 
 /**
  * Defines types.
  */
 export type State = {
-	fetcher?: object;
+	fetcher: $preactꓺisoꓺFetcher;
+	html: HTMLState; // Includes head & body.
 };
-export type Props = $preact.Props<State>;
+export type PartialState = {
+	fetcher?: $preactꓺisoꓺFetcher;
+	html?: HTMLPartialState; // Includes head & body.
+};
+export type Props = Exclude<$preact.Props<Exclude<PartialState, 'html'>>, 'classes'>;
+
+export type ContextProps = {
+	state: State;
+	updateState: Dispatch<PartialState>;
+};
 
 /**
- * Data context.
+ * Defines data context.
  */
-const Context = createContext({} as { state: State; updateState: Dispatch<State> });
+const Context = createContext({} as ContextProps);
 
 /**
- * Data context hooks.
+ * Defines data context hook.
  */
-export const useData = (): { state: State; updateState: Dispatch<State> } => useContext(Context);
+export const useData = (): Readonly<ContextProps> => useContext(Context);
 
 /**
- * Data state reducer.
+ * Reduces state updates.
  */
-const stateReducer = (state: State, updates: State): State => {
+const updateStateReducer = (state: State, updates: PartialState): State => {
 	return $objꓺupdateDeep(state, updates) as unknown as State;
 };
 
@@ -47,10 +55,12 @@ const stateReducer = (state: State, updates: State): State => {
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const [state, updateState] = useReducer(stateReducer, {
-		...$objꓺomit(props, ['children', 'ref']),
-		fetcher: props.fetcher || getFetcher(),
-	} as State);
+	const [state, updateState] = useReducer(updateStateReducer, {
+		...$preact.cleanProps(props),
+		fetcher: props.fetcher || $preactꓺisoꓺgetFetcher(),
+		html: { head: {}, body: {} }, // Initial HTML state.
+	});
+	state.fetcher.replaceNativeFetch(); // Replaces native fetch.
 
 	return <Context.Provider value={{ state, updateState }}>{props.children}</Context.Provider>;
 };

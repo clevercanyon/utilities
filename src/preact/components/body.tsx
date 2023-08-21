@@ -2,16 +2,17 @@
  * Preact component.
  */
 
-import { useHTML } from './html.js';
+import { useData } from './data.js';
 import * as $preact from '../../preact.js';
-import { omit as $objꓺomit } from '../../obj.js';
 
 /**
- * Props interface.
+ * Defines types.
  */
-export type Props = $preact.Props<{
-	bodyClasses?: string | string[];
-}>;
+export type State = {
+	classes?: string | string[];
+};
+export type PartialState = Partial<State>;
+export type Props = $preact.Props<PartialState>;
 
 /**
  * Renders component.
@@ -21,11 +22,7 @@ export type Props = $preact.Props<{
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const { state, updateState } = useHTML();
-
-	updateState({
-		...$objꓺomit(props, ['classes', 'children', 'ref']),
-		bodyClasses: props.classes || [],
-	});
-	return <body class={$preact.classes(state.bodyClasses)}>{props.children}</body>;
+	const { state, updateState } = useData();
+	updateState({ html: { body: { ...$preact.cleanProps(props) } } });
+	return <body class={$preact.classes(state.html.body.classes)}>{props.children}</body>;
 };

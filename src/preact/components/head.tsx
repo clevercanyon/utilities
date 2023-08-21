@@ -2,23 +2,26 @@
  * Preact component.
  */
 
-import { useHTML } from './html.js';
+import { useData } from './data.js';
+import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
-import { omit as $objꓺomit } from '../../obj.js';
+import { get as $envꓺget } from '../../env.js';
 
 /**
- * Props interface.
+ * Defines types.
  */
-export type Props = $preact.Props<{
-	headClasses?: string | string[];
+export type State = {
+	classes?: string | string[];
 
 	charset?: string;
 	viewport?: string;
 
 	robots?: string;
 	canonical?: string;
+	siteName?: string;
 
 	title?: string;
+	titleSuffix?: string;
 	description?: string;
 	author?: string;
 
@@ -34,7 +37,9 @@ export type Props = $preact.Props<{
 
 	style?: string;
 	script?: string;
-}>;
+};
+export type PartialState = Partial<State>;
+export type Props = $preact.Props<PartialState>;
 
 /**
  * Renders component.
@@ -44,41 +49,71 @@ export type Props = $preact.Props<{
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const { state, updateState } = useHTML();
+	const location = useLocation();
+	const appBaseURL = $envꓺget('@top', 'APP_BASE_URL', '') as string;
 
+	const { state, updateState } = useData();
+	const { head } = state.html; // Head config.
+
+	let title = props.title || location.url.hostname;
+	const defaultDescription = 'Take the tiger by the tail.';
+
+	if ('' !== head.titleSuffix) {
+		if (head.titleSuffix || head.siteName) {
+			title += ' • ' + ((head.titleSuffix || head.siteName) as string);
+		}
+	}
 	updateState({
-		...$objꓺomit(props, ['classes', 'children', 'ref']),
-		headClasses: props.classes || [],
-		charset: props.charset || 'utf-8',
-		viewport: props.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',
+		html: {
+			head: {
+				...$preact.cleanProps(props),
+
+				charset: props.charset || 'utf-8',
+				viewport: props.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',
+
+				title, // See title generation above.
+				description: props.description || defaultDescription,
+				canonical: props.canonical || location.canonicalURL.toString(),
+
+				pngIcon: props.pngIcon || appBaseURL + '/assets/site/icon.png',
+				svgIcon: props.svgIcon || appBaseURL + '/assets/site/icon.svg',
+
+				ogSiteName: props.ogSiteName || props.siteName || location.url.hostname,
+				ogType: props.ogType || 'website',
+				ogTitle: props.ogTitle || title,
+				ogDescription: props.ogDescription || props.description || defaultDescription,
+				ogURL: props.ogURL || props.canonical || location.canonicalURL.toString(),
+				ogImage: props.ogImage || appBaseURL + '/assets/site/og-image.png',
+			},
+		},
 	});
 	return (
-		<head class={$preact.classes(state.headClasses)}>
-			{state.charset && <meta charSet={state.charset} />}
-			{state.viewport && <meta name='viewport' content={state.viewport} />}
+		<head class={$preact.classes(head.classes)}>
+			{head.charset && <meta charSet={head.charset} />}
+			{head.viewport && <meta name='viewport' content={head.viewport} />}
 
-			{state.robots && <meta name='robots' content={state.robots} />}
-			{state.canonical && <link rel='canonical' href={state.canonical} />}
+			{head.robots && <meta name='robots' content={head.robots} />}
+			{head.canonical && <link rel='canonical' href={head.canonical} />}
 
-			{state.title && <title>{state.title}</title>}
-			{state.description && <meta name='description' content={state.description} />}
-			{state.author && <meta name='author' content={state.author} />}
+			{head.title && <title>{head.title}</title>}
+			{head.description && <meta name='description' content={head.description} />}
+			{head.author && <meta name='author' content={head.author} />}
 
-			{state.pngIcon && <link rel='icon' href={state.pngIcon} type='image/png' />}
-			{state.svgIcon && <link rel='icon' href={state.svgIcon} type='image/svg+xml' />}
+			{head.pngIcon && <link rel='icon' href={head.pngIcon} type='image/png' />}
+			{head.svgIcon && <link rel='icon' href={head.svgIcon} type='image/svg+xml' />}
 
-			{state.ogSiteName && state.ogType && state.ogTitle && state.ogDescription && state.ogURL && state.ogImage && (
+			{head.ogSiteName && head.ogType && head.ogTitle && head.ogDescription && head.ogURL && head.ogImage && (
 				<>
-					<meta property='og:site_name' content={state.ogSiteName} />
-					<meta property='og:type' content={state.ogType} />
-					<meta property='og:title' content={state.ogTitle} />
-					<meta property='og:description' content={state.ogDescription} />
-					<meta property='og:url' content={state.ogURL} />
-					<meta property='og:image' content={state.ogImage} />
+					<meta property='og:site_name' content={head.ogSiteName} />
+					<meta property='og:type' content={head.ogType} />
+					<meta property='og:title' content={head.ogTitle} />
+					<meta property='og:description' content={head.ogDescription} />
+					<meta property='og:url' content={head.ogURL} />
+					<meta property='og:image' content={head.ogImage} />
 				</>
 			)}
-			{state.style && <link rel='stylesheet' media='all' href={state.style} />}
-			{state.script && <script type='module' src={state.script}></script>}
+			{head.style && <link rel='stylesheet' media='all' href={head.style} />}
+			{head.script && <script type='module' src={head.script}></script>}
 
 			{props.children}
 		</head>

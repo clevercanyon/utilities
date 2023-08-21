@@ -2,45 +2,33 @@
  * Preact component.
  */
 
-import {
-	omit as $objꓺomit, //
-	updateDeep as $objꓺupdateDeep,
-} from '../../obj.js';
-
-import { createContext } from 'preact';
 import * as $preact from '../../preact.js';
-import { useReducer, useContext } from 'preact/hooks';
+import { useData } from './data.js';
 
-import type { Dispatch } from 'preact/hooks';
-import type { Props as HeadProps } from './head.js';
-import type { Props as BodyProps } from './body.js';
+import type { State as HeadState, PartialState as HeadPartialState, Props as HeadProps } from './head.js';
+import type { State as BodyState, PartialState as BodyPartialState, Props as BodyProps } from './body.js';
 
 /**
  * Defines types.
  */
 export type State = {
+	classes?: string | string[];
 	lang?: string;
-} & Exclude<HeadProps, 'children' | 'ref'> &
-	Exclude<BodyProps, 'children' | 'ref'>;
-
-export type Props = $preact.Props<State>;
-
-/**
- * HTML context.
- */
-const Context = createContext({} as { state: State; updateState: Dispatch<State> });
-
-/**
- * HTML context hooks.
- */
-export const useHTML = (): { state: State; updateState: Dispatch<State> } => useContext(Context);
-
-/**
- * HTML state reducer.
- */
-const stateReducer = (state: State, updates: State): State => {
-	return $objꓺupdateDeep(state, updates) as unknown as State;
+	head: HeadState;
+	body: BodyState;
 };
+export type PartialState = {
+	classes?: string | string[];
+	lang?: string;
+	head?: HeadPartialState;
+	body?: BodyPartialState;
+};
+export type Props = $preact.Props<
+	PartialState & {
+		head?: HeadProps;
+		body?: BodyProps;
+	}
+>;
 
 /**
  * Renders component.
@@ -50,16 +38,19 @@ const stateReducer = (state: State, updates: State): State => {
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const [state, updateState] = useReducer(stateReducer, {
-		...$objꓺomit(props, ['children', 'ref']),
-		lang: props.lang || 'en',
-	} as State);
+	const { state, updateState } = useData();
 
+	updateState({
+		html: {
+			...$preact.cleanProps(props),
+			lang: props.lang || 'en',
+			head: props.head || {}, // Initial head state.
+			body: props.body || {}, // Initial body state.
+		},
+	});
 	return (
-		<Context.Provider value={{ state, updateState }}>
-			<html lang={state.lang} class={$preact.classes(state.classes)}>
-				{props.children}
-			</html>
-		</Context.Provider>
+		<html lang={state.html.lang} class={$preact.classes(state.html.classes)}>
+			{props.children}
+		</html>
 	);
 };

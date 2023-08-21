@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.161",
+	"version": "1.0.162",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -204,7 +204,7 @@
 	},
 	"dependencies": {},
 	"peerDependencies": {
-		"@clevercanyon/preact-iso.fork": "^2.3.18",
+		"@clevercanyon/preact-iso.fork": "^2.3.19",
 		"@headlessui/react": "^1.7.17",
 		"@heroicons/react": "^2.0.18",
 		"crypto-js": "^4.1.1",

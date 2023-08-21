@@ -25,11 +25,17 @@ export type C9rProps = {
 export type Constructor = {
 	new (props?: C9rProps): Interface;
 };
-export type Interface = Props & $classꓺUtilityInterface;
-
+export type Interface = Props &
+	$classꓺUtilityInterface & {
+		replaceNativeFetch(): void;
+		restoreNativeFetch(): void;
+		containerCacheToScriptTag(): string;
+		fetch(...args: Parameters<Container['pseudoFetch']>): ReturnType<Container['pseudoFetch']>;
+	};
 export type Container = $type.Object<{
 	cache: Map<string, string>;
-	fetch: (...args: Parameters<typeof fetch>) => ReturnType<typeof fetch>;
+	nativeFetch: typeof fetch;
+	pseudoFetch: typeof fetch;
 }>;
 
 /**
@@ -70,13 +76,28 @@ export const getClass = (): Constructor => {
 				throw new Error('Missing container.');
 			}
 			this.container.cache = this.container.cache || new Map();
-			this.container.fetch = ((...args) => this.fetch(...args)) as Container['fetch'];
+			this.container.nativeFetch = globalThis.fetch; // Stores a reference to native fetch.
+			this.container.pseudoFetch = ((...args) => this.fetch(...(args as Parameters<Container['pseudoFetch']>))) as Container['pseudoFetch'];
 		}
 
 		/**
-		 * Converts container into a script tag.
+		 * Replaces native fetch.
+		 */
+		public replaceNativeFetch(): void {
+			globalThis.fetch = this.container.pseudoFetch;
+		}
+
+		/**
+		 * Restores native fetch.
+		 */
+		public restoreNativeFetch(): void {
+			globalThis.fetch = this.container.nativeFetch;
+		}
+
+		/**
+		 * Converts container cache into an embeddable script tag.
 		 *
-		 * @returns Container cache as a script tag.
+		 * @returns Container cache as an embeddable script tag.
 		 */
 		public containerCacheToScriptTag(): string {
 			let containerObpVar = 'globalThis';
@@ -100,9 +121,9 @@ export const getClass = (): Constructor => {
 		 *
 		 * @returns      Same as {@see fetch()} native function.
 		 */
-		public async fetch(...args: Parameters<typeof fetch>): ReturnType<typeof fetch> {
+		public async fetch(...args: Parameters<Container['pseudoFetch']>): ReturnType<Container['pseudoFetch']> {
 			// @todo Caching reads and write using `this.container.cache`.
-			return fetch(...args);
+			return this.container.nativeFetch(...args);
 		}
 	};
 	return Object.defineProperty(Class, 'name', {
