@@ -5,7 +5,7 @@
 import type * as $type from '../../type.js';
 import { json as $toꓺjson } from '../../to.js';
 import { number as $isꓺnumber } from '../../is.js';
-import { md5 as cryptoꓺmd5 } from '../../crypto.js';
+import { md5 as $cryptoꓺmd5 } from '../../crypto.js';
 import { objTag as $symbolꓺobjTag } from '../../symbol.js';
 import { getClass as $classꓺgetUtility } from './utility.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
@@ -40,14 +40,13 @@ export type Container = $type.Object<{
 }>;
 export type Interface = Props & $classꓺUtilityInterface;
 
-export type FetchCacheObject = $type.Object<{
+export type FetchCacheObject = {
 	body: string;
 	options: {
 		status: number;
-		statusText: string;
 		headers: [string, string][];
 	};
-}>;
+};
 
 
 /**
@@ -134,22 +133,34 @@ export const getClass = (): Constructor => {
 		 * @returns      Same as {@see fetch()} native function.
 		 */
 		public async fetch(...args: Parameters<typeof fetch>): ReturnType<typeof fetch> {
-			const hash = cryptoꓺmd5(JSON.stringify(args));
+			const hash = $cryptoꓺmd5($toꓺjson(args));
 
 			if (this.container.cache.has(hash)) {
-				const { body, options } = this.container.cache.get(hash) || { body: '', options: {} };
+				const { body, options } = this.container.cache.get(hash) as FetchCacheObject;
 				return new Response(body, options);
 			}
 
 			const fetchResponse = await this.container.nativeFetch(...args);; // @todo is this the proper fetch method to await?
 
+			const allowedMimeTypes = [
+				'text/plain',
+				'application/json',
+				'application/ld+json',
+				'image/svg+xml',
+				'application/xml',
+				'text/xml',
+			];
+
+			if (!allowedMimeTypes.includes(fetchResponse.headers.get('content-type') as string)) {
+				return fetchResponse; // Don't cache responses from fetch requests that might be non-stringifyable.
+			}
+
 			const responseRecord = {
-				body: await fetchResponse.text(),
+				body: await fetchResponse.text(), // Response body stored in plain text, JSON.stringify compatible.
 				options: {
 					status: fetchResponse.status,
-					statusText: fetchResponse.statusText,
 					headers: [
-						['Content-Type', fetchResponse.headers.get('Content-Type') || 'text/plain'],
+						['content-type', fetchResponse.headers.get('content-type')],
 					] as [string, string][],
 				}
 			};
