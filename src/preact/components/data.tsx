@@ -6,7 +6,6 @@ import { createContext } from 'preact';
 import * as $preact from '../../preact.js';
 import { useReducer, useContext } from 'preact/hooks';
 import { updateDeep as $objꓺupdateDeep } from '../../obj.js';
-import { getFetcher as $preactꓺisoꓺgetFetcher } from '../apis/iso.js';
 
 import type { Dispatch } from 'preact/hooks';
 import type { Fetcher as $preactꓺisoꓺFetcher } from '../apis/iso.js';
@@ -16,7 +15,7 @@ import type { State as HTMLState, PartialState as HTMLPartialState } from './htm
  * Defines types.
  */
 export type State = {
-	fetcher: $preactꓺisoꓺFetcher;
+	fetcher?: $preactꓺisoꓺFetcher;
 	html: HTMLState; // Includes head & body.
 };
 export type PartialState = {
@@ -57,10 +56,7 @@ const updateStateReducer = (state: State, updates: PartialState): State => {
 export default (props: Props = {}): $preact.VNode<Props> => {
 	const [state, updateState] = useReducer(updateStateReducer, {
 		...$preact.cleanProps(props),
-		fetcher: props.fetcher || $preactꓺisoꓺgetFetcher(),
 		html: { head: {}, body: {} }, // Initial HTML state.
 	});
-	state.fetcher.replaceNativeFetch(); // Replaces native fetch.
-
 	return <Context.Provider value={{ state, updateState }}>{props.children}</Context.Provider>;
 };

@@ -21,6 +21,7 @@ export type Props = {
 	readonly containerObp: $type.ObjectPath;
 };
 export type C9rProps = {
+	readonly autoReplaceNativeFetch: boolean;
 	readonly containerObp?: $type.ObjectPath;
 };
 export type Constructor = {
@@ -86,6 +87,10 @@ export const getClass = (): Constructor => {
 			this.container.cache = this.container.cache || new Map();
 			this.container.nativeFetch = globalThis.fetch; // Stores a reference to native fetch.
 			this.container.pseudoFetch = ((...args) => this.fetch(...(args as Parameters<Container['pseudoFetch']>))) as Container['pseudoFetch'];
+
+			if (this.autoReplaceNativeFetch) {
+				this.replaceNativeFetch();
+			}
 		}
 
 		/**

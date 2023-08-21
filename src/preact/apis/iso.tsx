@@ -27,15 +27,15 @@ export const initializeFetcher = (): void => {
 	fetcherInitialized = true;
 
 	const Class = $fetcherꓺgetClass();
-	fetcher = new Class();
+	fetcher = new Class({ autoReplaceNativeFetch: true });
 };
 
 /**
- * Creates a custom fetcher instance.
+ * Replaces native fetch and returns fetcher instance.
  *
  * @returns {@see $fetcherꓺInterface} Instance.
  */
-export const getFetcher = (): $fetcherꓺInterface => {
+export const replaceNativeFetch = (): $fetcherꓺInterface => {
 	if (!fetcherInitialized) initializeFetcher();
 	return fetcher; // Fetcher class instance.
 };
