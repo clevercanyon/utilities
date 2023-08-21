@@ -5,6 +5,7 @@
 import type * as $type from '../../type.js';
 import { json as $toꓺjson } from '../../to.js';
 import { number as $isꓺnumber } from '../../is.js';
+import { md5 as cryptoꓺmd5 } from '../../crypto.js';
 import { objTag as $symbolꓺobjTag } from '../../symbol.js';
 import { getClass as $classꓺgetUtility } from './utility.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
@@ -37,6 +38,17 @@ export type Container = $type.Object<{
 	nativeFetch: typeof fetch;
 	pseudoFetch: typeof fetch;
 }>;
+export type Interface = Props & $classꓺUtilityInterface;
+
+export type FetchCacheObject = $type.Object<{
+	body: string;
+	options: {
+		status: number;
+		statusText: string;
+		headers: [string, string][];
+	};
+}>;
+
 
 /**
  * Fetcher class factory.
@@ -121,9 +133,29 @@ export const getClass = (): Constructor => {
 		 *
 		 * @returns      Same as {@see fetch()} native function.
 		 */
-		public async fetch(...args: Parameters<Container['pseudoFetch']>): ReturnType<Container['pseudoFetch']> {
-			// @todo Caching reads and write using `this.container.cache`.
-			return this.container.nativeFetch(...args);
+		public async fetch(...args: Parameters<typeof fetch>): ReturnType<typeof fetch> {
+			const hash = cryptoꓺmd5(JSON.stringify(args));
+
+			if (this.container.cache.has(hash)) {
+				const { body, options } = this.container.cache.get(hash) || { body: '', options: {} };
+				return new Response(body, options);
+			}
+
+			const fetchResponse = await this.container.nativeFetch(...args);; // @todo is this the proper fetch method to await?
+
+			const responseRecord = {
+				body: await fetchResponse.text(),
+				options: {
+					status: fetchResponse.status,
+					statusText: fetchResponse.statusText,
+					headers: [
+						['Content-Type', fetchResponse.headers.get('Content-Type') || 'text/plain'],
+					] as [string, string][],
+				}
+			};
+
+			this.container.cache.set(hash, responseRecord);
+			return new Response(responseRecord.body, responseRecord.options);
 		}
 	};
 	return Object.defineProperty(Class, 'name', {
