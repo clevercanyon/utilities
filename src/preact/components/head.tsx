@@ -2,10 +2,14 @@
  * Preact component.
  */
 
+import {
+	get as $envꓺget, //
+	isWeb as $envꓺisWeb,
+} from '../../env.js';
+
 import { useData } from './data.js';
 import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
-import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
 
 /**
  * Defines types.
@@ -75,15 +79,15 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 				description: props.description || defaultDescription,
 				canonical: props.canonical || location.canonicalURL.toString(),
 
-				pngIcon: props.pngIcon || appBaseURL + '/assets/site/icon.png',
-				svgIcon: props.svgIcon || appBaseURL + '/assets/site/icon.svg',
+				pngIcon: props.pngIcon || appBaseURL + '/assets/icon.png',
+				svgIcon: props.svgIcon || appBaseURL + '/assets/icon.svg',
 
 				ogSiteName: props.ogSiteName || props.siteName || location.url.hostname,
 				ogType: props.ogType || 'website',
 				ogTitle: props.ogTitle || title,
 				ogDescription: props.ogDescription || props.description || defaultDescription,
 				ogURL: props.ogURL || props.canonical || location.canonicalURL.toString(),
-				ogImage: props.ogImage || appBaseURL + '/assets/site/og-image.png',
+				ogImage: props.ogImage || appBaseURL + '/assets/og-image.png',
 			},
 		},
 	});

@@ -35,11 +35,11 @@ export type Interface = Props &
 		fetch(...args: Parameters<Container['pseudoFetch']>): ReturnType<Container['pseudoFetch']>;
 	};
 export type Container = $type.Object<{
-	cache: Map<string, CachedObject>;
+	cache: Map<string, CacheEntry>;
 	nativeFetch: typeof fetch;
 	pseudoFetch: typeof fetch;
 }>;
-export type CachedObject = {
+export type CacheEntry = {
 	body: string;
 	options: {
 		status: number;
@@ -138,26 +138,26 @@ export const getClass = (): Constructor => {
 			const hash = $cryptoꓺmd5($toꓺjson(args));
 
 			if (this.container.cache.has(hash)) {
-				const cache = this.container.cache.get(hash) as CachedObject;
-				return new Response(cache.body, cache.options);
+				const cacheEntry = this.container.cache.get(hash) as CacheEntry;
+				return new Response(cacheEntry.body, cacheEntry.options);
 			}
 			const response = await this.container.nativeFetch(...args);
 
 			const contentType = (response.headers.get('content-type') as string).split(';')[0].toLowerCase();
-			const allowedMimeTypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
+			const allowedContentTypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
 
-			if (!allowedMimeTypes.includes(contentType)) {
+			if (!allowedContentTypes.includes(contentType)) {
 				return response; // Don't cache responses from fetch requests that might be non-stringifyable.
 			}
-			const cache = {
+			const cacheEntry: CacheEntry = {
 				body: await response.text(), // Response body stored in plain text, JSON.stringify compatible.
 				options: {
 					status: response.status,
 					headers: [['content-type', response.headers.get('content-type')]] as [string, string][],
 				},
 			};
-			this.container.cache.set(hash, cache);
-			return new Response(cache.body, cache.options);
+			this.container.cache.set(hash, cacheEntry);
+			return new Response(cacheEntry.body, cacheEntry.options);
 		}
 	};
 	return Object.defineProperty(Class, 'name', {
