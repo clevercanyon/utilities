@@ -45,7 +45,7 @@ export default (/* props: Props = {} */): $preact.VNode<Props> => {
 						{'Please '}
 						{/* eslint-disable */}
 						{/* @ts-ignore ... onClick intentionally stringified here. */}
-						<a href='#' onClick={'event.preventDefault(); history.back();'}>
+						<a href='#' onClick={'event.preventDefault(); event.stopImmediatePropagation(); history.back();'}>
 							{'go back'}
 						</a>
 						{/* eslint-enable */}
