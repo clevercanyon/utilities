@@ -6,11 +6,12 @@ import HTML from './html.js';
 import Head from './head.js';
 import Body from './body.js';
 import * as $preact from '../../preact.js';
+import type { RouteProps } from './router.js';
 
 /**
  * Defines types.
  */
-export type Props = $preact.Props;
+export type Props = $preact.Props<Partial<RouteProps>>;
 
 /**
  * Renders component.
