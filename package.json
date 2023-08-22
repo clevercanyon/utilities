@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.172",
+	"version": "1.0.173",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -222,7 +222,7 @@
 		"crypto-js": "^4.1.1",
 		"fast-equals": "^4.0.3",
 		"ignore": "^5.2.4",
-		"luxon": "^3.4.0",
+		"luxon": "^3.4.1",
 		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.42",
 		"moize": "^6.1.6",
 		"preact": "^10.17.1",
