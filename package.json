@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.166",
+	"version": "1.0.167",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -131,11 +131,6 @@
 			"require": "./dist/version.cjs",
 			"types": "./dist/types/version.d.ts"
 		},
-		"./preact/apis/iso": {
-			"import": "./dist/preact/apis/iso.js",
-			"require": "./dist/preact/apis/iso.cjs",
-			"types": "./dist/types/preact/apis/iso.d.ts"
-		},
 		"./preact/components/body": {
 			"import": "./dist/preact/components/body.js",
 			"require": "./dist/preact/components/body.cjs",
@@ -160,6 +155,11 @@
 			"import": "./dist/preact/components/router.js",
 			"require": "./dist/preact/components/router.cjs",
 			"types": "./dist/types/preact/components/router.d.ts"
+		},
+		"./preact/apis/iso": {
+			"import": "./dist/preact/apis/iso.js",
+			"require": "./dist/preact/apis/iso.cjs",
+			"types": "./dist/types/preact/apis/iso.d.ts"
 		}
 	},
 	"sideEffects": [
@@ -185,12 +185,12 @@
 		"./src/type.ts",
 		"./src/url.ts",
 		"./src/version.ts",
-		"./src/preact/apis/iso.tsx",
 		"./src/preact/components/body.tsx",
 		"./src/preact/components/data.tsx",
 		"./src/preact/components/head.tsx",
 		"./src/preact/components/html.tsx",
-		"./src/preact/components/router.tsx"
+		"./src/preact/components/router.tsx",
+		"./src/preact/apis/iso.tsx"
 	],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
@@ -211,7 +211,7 @@
 		"fast-equals": "^4.0.3",
 		"ignore": "^5.2.4",
 		"luxon": "^3.4.0",
-		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.40",
+		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.41",
 		"moize": "^6.1.6",
 		"preact": "^10.17.1",
 		"preact-render-to-string": "^6.2.1",
@@ -221,7 +221,7 @@
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.160"
+		"@clevercanyon/skeleton-dev-deps": "^1.0.161"
 	},
 	"overrides": {},
 	"cpu": ["x64", "arm64"],
