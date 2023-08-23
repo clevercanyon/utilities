@@ -95,12 +95,3 @@ export const dataToScriptCode = (): string => {
 
 	return scriptCode;
 };
-
-/**
- * Converts global into an embeddable script tag.
- *
- * @returns Global as an embeddable script tag; for SSR.
- */
-export const dataToScriptTag = (): string => {
-	return '<script>' + dataToScriptCode() + '</script>';
-};

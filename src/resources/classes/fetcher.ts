@@ -32,7 +32,6 @@ export type Interface = Props &
 		replaceNativeFetch(): void;
 		restoreNativeFetch(): void;
 		globalToScriptCode(): string;
-		globalToScriptTag(): string;
 		fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']>;
 	};
 export type Global = $type.Object<{
@@ -118,15 +117,6 @@ export const getClass = (): Constructor => {
 			scriptCode += ' ' + code.set + '.cache = ' + $toꓺjson(this.global.cache) + ';';
 
 			return scriptCode;
-		}
-
-		/**
-		 * Converts global into an embeddable script tag.
-		 *
-		 * @returns Global as an embeddable script tag; i.e., for SSR.
-		 */
-		public globalToScriptTag(): string {
-			return '<script>' + this.globalToScriptCode() + '</script>';
 		}
 
 		/**
