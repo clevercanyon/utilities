@@ -42,7 +42,7 @@ const plainObjectC9rStr = String(Object); // Plain object constructor, as string
  */
 export type MapOptions = { byReference?: boolean; skipReadonly?: boolean };
 
-export type OmitOptions = { byReference?: boolean; skipReadonly?: boolean };
+export type OmitOptions = { byReference?: boolean; skipReadonly?: boolean; undefinedValues?: boolean };
 export type UnsetOptions = OmitOptions; // Same as `OmitOptions`.
 
 export type PickOptions = { byReference?: boolean; skipReadonly?: boolean };
@@ -903,16 +903,24 @@ export function _omit<Type extends object, Key extends keyof Type>(value: Type, 
 export function _omit<Type>(value: Type, keys: unknown[], options?: OmitOptions): Type extends object ? Type : $type.Object;
 
 export function _omit<Type>(value: Type, keys: unknown[], options?: OmitOptions): Type extends object ? Type : $type.Object {
-	const opts = _defaults({}, options || {}, { byReference: false, skipReadonly: false }) as Required<OmitOptions>;
+	const opts = _defaults({}, options || {}, { byReference: false, skipReadonly: false, undefinedValues: false }) as Required<OmitOptions>;
 	const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
 	if ($isꓺset(objValue)) {
 		for (const value of keys) {
 			objValue.delete(value);
 		}
+		if (opts.undefinedValues) {
+			objValue.delete(undefined);
+		}
 	} else if ($isꓺmap(objValue)) {
 		for (const key of keys) {
 			objValue.delete(key);
+		}
+		if (opts.undefinedValues) {
+			for (const [key, value] of objValue) {
+				if (undefined === value) objValue.delete(key);
+			}
 		}
 	} else if ($isꓺarray(objValue)) {
 		for (const key of keys.sort().reverse()) {
@@ -920,11 +928,25 @@ export function _omit<Type>(value: Type, keys: unknown[], options?: OmitOptions)
 				objValue.splice(key as number, 1);
 			} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
 		}
+		if (opts.undefinedValues) {
+			for (let key = objValue.length - 1; key >= 0; key--) {
+				if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key)?.writable) {
+					if (undefined === objValue[key]) objValue.splice(key, 1);
+				} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
+			}
+		}
 	} else {
 		for (const key of keys.sort().reverse()) {
 			if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key as $type.ObjectPath)?.writable) {
 				delete objValue[key as $type.ObjectPath];
 			} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
+		}
+		if (opts.undefinedValues) {
+			for (const key of keysAndSymbols(objValue)) {
+				if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key)?.writable) {
+					if (undefined === objValue[key]) delete objValue[key];
+				} // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
+			}
 		}
 	}
 	return objValue as Type extends object ? Type : $type.Object;

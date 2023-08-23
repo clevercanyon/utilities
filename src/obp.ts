@@ -17,10 +17,18 @@ import {
 	cloneDeep as $objꓺcloneDeep,
 } from './obj.js';
 
-import { castArray as $toꓺcastArray } from './to.js';
-import { escRegExp as $strꓺescRegExp } from './str.js';
+import {
+	quote as $strꓺquote, //
+	escRegExp as $strꓺescRegExp,
+} from './str.js';
 
 import type * as $type from './type.js';
+import { castArray as $toꓺcastArray } from './to.js';
+
+/**
+ * Defines types.
+ */
+export type Code = { init: string; set: string };
 
 /**
  * Checks if an object has own or inherited, enumerable or not, object path.
@@ -319,4 +327,26 @@ export const splitPath = (path: $type.ObjectPath | $type.ObjectPath[], separator
 		});
 	}
 	throw new Error('Invalid object path. Got: `' + String(path) + '`.');
+};
+
+/**
+ * Returns code for initializing and setting an object path.
+ *
+ * @param   path      Object path; e.g., `a.b.c[0]`.
+ * @param   separator Object path separator. Default is `.`.
+ *
+ * @returns           A two-part object containing: `{ init: string; set: string }`.
+ *
+ * @note Object paths do not support symbol keys whatsoever.
+ * @note An array path should **not** be passed directly. Internal use only.
+ */
+export const toCode = (path: $type.ObjectPath | $type.ObjectPath[], separator: string = '.'): Code => {
+	let init = ''; // Initialize.
+	let set = 'globalThis'; // Initialize.
+
+	for (let parts = splitPath(path, separator), i = 0; i < parts.length; i++) {
+		set += $isꓺnumber(parts[i]) ? '[' + String(parts[i]) + ']' : '[' + $strꓺquote(String(parts[i])) + ']';
+		init += (init ? ' ' : '') + set + ' = ' + set + ' || {};';
+	}
+	return { init, set };
 };

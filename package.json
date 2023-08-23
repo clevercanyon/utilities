@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "restricted"
 	},
-	"version": "1.0.173",
+	"version": "1.0.174",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -233,7 +233,7 @@
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/skeleton-dev-deps": "^1.0.162"
+		"@clevercanyon/skeleton-dev-deps": "^1.0.163"
 	},
 	"overrides": {},
 	"cpu": ["x64", "arm64"],

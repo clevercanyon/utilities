@@ -44,8 +44,8 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 		html: {
 			...$preact.cleanProps(props),
 			lang: props.lang || 'en',
-			head: props.head || {}, // Initial head state.
-			body: props.body || {}, // Initial body state.
+			head: props.head || {}, // Initial `<Head>` state.
+			body: props.body || {}, // Initial `<Body>` state.
 		},
 	});
 	return (

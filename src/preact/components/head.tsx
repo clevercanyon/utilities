@@ -7,9 +7,9 @@ import {
 	isWeb as $envꓺisWeb,
 } from '../../env.js';
 
-import { useData } from './data.js';
 import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
+import { useData, dataToScriptTag } from './data.js';
 
 /**
  * Defines types.
@@ -39,8 +39,8 @@ export type State = {
 	ogURL?: string;
 	ogImage?: string;
 
-	stylePath?: string;
-	scriptPath?: string;
+	styleURL?: string;
+	scriptURL?: string;
 };
 export type PartialState = Partial<State>;
 export type Props = $preact.Props<PartialState>;
@@ -116,9 +116,10 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 					<meta property='og:image' content={head.ogImage} />
 				</>
 			)}
-			{head.stylePath && <link rel='stylesheet' media='all' href={head.stylePath} />}
-			{head.scriptPath && <script type='module' src={head.scriptPath}></script>}
-			{!$envꓺisWeb() && head.scriptPath && state.fetcher && state.fetcher.containerCacheToScriptTag()}
+			{head.styleURL && <link rel='stylesheet' href={head.styleURL} media='all' />}
+
+			{!$envꓺisWeb() && head.scriptURL && dataToScriptTag()}
+			{head.scriptURL && <script type='module' src={head.scriptURL}></script>}
 
 			{props.children}
 		</head>

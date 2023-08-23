@@ -26,9 +26,11 @@ export type InheritedProps = 'key' | 'jsx' | 'ref' | 'children';
  * @param   clean Optional. Aside from inherited props, also remove these.
  *
  * @returns       A clone of {props} stripped of inherited props and any others to {clean}.
+ *
+ * @note This also removes props with undefined values.
  */
 export const cleanProps = <Type extends Props, Key extends keyof Type>(props: Type, clean?: Key[]): Omit<Type, Key> => {
-	return $objꓺomit(props, ['key', 'jsx', 'ref', 'children'].concat((clean || []) as string[]) as Key[]);
+	return $objꓺomit(props, ['key', 'jsx', 'ref', 'children'].concat((clean || []) as string[]) as Key[], { undefinedValues: true });
 };
 
 /**

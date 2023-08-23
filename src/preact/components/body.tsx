@@ -24,5 +24,6 @@ export type Props = $preact.Props<PartialState>;
 export default (props: Props = {}): $preact.VNode<Props> => {
 	const { state, updateState } = useData();
 	updateState({ html: { body: { ...$preact.cleanProps(props) } } });
+
 	return <body class={$preact.classes(state.html.body.classes)}>{props.children}</body>;
 };

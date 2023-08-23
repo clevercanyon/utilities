@@ -4,12 +4,12 @@
 
 import type * as $type from '../../type.js';
 import { json as $toꓺjson } from '../../to.js';
-import { number as $isꓺnumber } from '../../is.js';
 import { md5 as $cryptoꓺmd5 } from '../../crypto.js';
-import { objTag as $symbolꓺobjTag } from '../../symbol.js';
+import { pkgName as $appꓺpkgName } from '../../app.js';
 import { getClass as $classꓺgetUtility } from './utility.js';
+import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
+import { get as $obpꓺget, toCode as $obpꓺtoCode } from '../../obp.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
-import { get as $obpꓺget, splitPath as $obpꓺsplitPath } from '../../obp.js';
 
 let Class: Constructor; // Class definition cache.
 
@@ -17,12 +17,12 @@ let Class: Constructor; // Class definition cache.
  * Defines types.
  */
 export type Props = {
-	readonly container: Container;
-	readonly containerObp: $type.ObjectPath;
+	readonly global: Global;
+	readonly globalObp: $type.ObjectPath;
 };
 export type C9rProps = {
+	readonly globalObp?: $type.ObjectPath;
 	readonly autoReplaceNativeFetch: boolean;
-	readonly containerObp?: $type.ObjectPath;
 };
 export type Constructor = {
 	new (props?: C9rProps): Interface;
@@ -31,15 +31,16 @@ export type Interface = Props &
 	$classꓺUtilityInterface & {
 		replaceNativeFetch(): void;
 		restoreNativeFetch(): void;
-		containerCacheToScriptTag(): string;
-		fetch(...args: Parameters<Container['pseudoFetch']>): ReturnType<Container['pseudoFetch']>;
+		globalToScriptCode(): string;
+		globalToScriptTag(): string;
+		fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']>;
 	};
-export type Container = $type.Object<{
-	cache: Map<string, CacheEntry>;
+export type Global = $type.Object<{
+	cache: Map<string, GlobalCacheEntry>;
 	nativeFetch: typeof fetch;
 	pseudoFetch: typeof fetch;
 }>;
-export type CacheEntry = {
+export type GlobalCacheEntry = {
 	body: string;
 	options: {
 		status: number;
@@ -57,14 +58,14 @@ export const getClass = (): Constructor => {
 
 	Class = class extends $classꓺgetUtility() implements Interface {
 		/**
-		 * Container object.
+		 * Global object.
 		 */
-		public readonly container: Container;
+		public readonly global: Global;
 
 		/**
-		 * Container object path.
+		 * Global object path.
 		 */
-		public readonly containerObp: $type.ObjectPath;
+		public readonly globalObp: $type.ObjectPath;
 
 		/**
 		 * Object constructor.
@@ -75,18 +76,16 @@ export const getClass = (): Constructor => {
 			super(props); // Parent constructor.
 
 			if (props instanceof Class) {
-				this.container = props.container;
-				this.containerObp = props.containerObp;
+				this.global = props.global;
+				this.globalObp = props.globalObp;
 				return; // Stop here; there's nothing more to do.
 			}
-			this.containerObp = (props as C9rProps).containerObp || this[$symbolꓺobjTag];
+			this.globalObp = (props as C9rProps).globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.fetcher';
+			this.global = $obpꓺget(globalThis, this.globalObp, {}) as Global;
 
-			if (!(this.container = $obpꓺget(globalThis, this.containerObp) as Container)) {
-				throw new Error('Missing container.');
-			}
-			this.container.cache = this.container.cache || new Map();
-			this.container.nativeFetch = globalThis.fetch; // Stores a reference to native fetch.
-			this.container.pseudoFetch = ((...args) => this.fetch(...(args as Parameters<Container['pseudoFetch']>))) as Container['pseudoFetch'];
+			this.global.cache = this.global.cache || new Map();
+			this.global.nativeFetch = globalThis.fetch; // Stores a reference to native fetch.
+			this.global.pseudoFetch = ((...args) => this.fetch(...(args as Parameters<Global['pseudoFetch']>))) as Global['pseudoFetch'];
 
 			if (this.autoReplaceNativeFetch) {
 				this.replaceNativeFetch();
@@ -97,38 +96,41 @@ export const getClass = (): Constructor => {
 		 * Replaces native fetch.
 		 */
 		public replaceNativeFetch(): void {
-			globalThis.fetch = this.container.pseudoFetch;
+			globalThis.fetch = this.global.pseudoFetch;
 		}
 
 		/**
 		 * Restores native fetch.
 		 */
 		public restoreNativeFetch(): void {
-			globalThis.fetch = this.container.nativeFetch;
+			globalThis.fetch = this.global.nativeFetch;
 		}
 
 		/**
-		 * Converts container cache into an embeddable script tag.
+		 * Converts global into embeddable script code.
 		 *
-		 * @returns Container cache as an embeddable script tag.
+		 * @returns Global as embeddable script code; i.e., for SSR.
 		 */
-		public containerCacheToScriptTag(): string {
-			let containerObpVar = 'globalThis';
-			const parts = $obpꓺsplitPath(this.containerObp);
+		public globalToScriptCode(): string {
+			const code = $obpꓺtoCode(this.globalObp);
 
-			let scriptTag = '<script>'; // Initialize.
-			for (let i = 0; i < parts.length; i++) {
-				containerObpVar += $isꓺnumber(parts[i]) ? '[' + String(parts[i]) + ']' : "['" + String(parts[i]) + "']";
-				scriptTag += '\t\n' + containerObpVar + ' = ' + containerObpVar + ' || {};';
-			}
-			scriptTag += '\t\n' + containerObpVar + '.cache = ' + $toꓺjson(this.container.cache) + ';';
-			scriptTag += '\n' + '</script>';
+			let scriptCode = code.init; // Initialize.
+			scriptCode += ' ' + code.set + '.cache = ' + $toꓺjson(this.global.cache) + ';';
 
-			return scriptTag;
+			return scriptCode;
 		}
 
 		/**
-		 * Used to wrap native `fetch()` in JS.
+		 * Converts global into an embeddable script tag.
+		 *
+		 * @returns Global as an embeddable script tag; i.e., for SSR.
+		 */
+		public globalToScriptTag(): string {
+			return '<script>' + this.globalToScriptCode() + '</script>';
+		}
+
+		/**
+		 * Used to wrap native {@see fetch()} in JS.
 		 *
 		 * @param   args Same as {@see fetch()} native function.
 		 *
@@ -137,27 +139,23 @@ export const getClass = (): Constructor => {
 		public async fetch(...args: Parameters<typeof fetch>): ReturnType<typeof fetch> {
 			const hash = $cryptoꓺmd5($toꓺjson(args));
 
-			if (this.container.cache.has(hash)) {
-				const cacheEntry = this.container.cache.get(hash) as CacheEntry;
-				return new Response(cacheEntry.body, cacheEntry.options);
+			if (this.global.cache.has(hash)) {
+				const globalCacheEntry = this.global.cache.get(hash) as GlobalCacheEntry;
+				return new Response(globalCacheEntry.body, globalCacheEntry.options);
 			}
-			const response = await this.container.nativeFetch(...args);
+			const response = await this.global.nativeFetch(...args);
+			const contentType = (response.headers.get('content-type') || '').toLowerCase();
+			const allowedTextMIMETypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
 
-			const contentType = (response.headers.get('content-type') as string).split(';')[0].toLowerCase();
-			const allowedContentTypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
-
-			if (!allowedContentTypes.includes(contentType)) {
-				return response; // Don't cache responses from fetch requests that might be non-stringifyable.
+			if (!allowedTextMIMETypes.includes(contentType.split(';')[0])) {
+				return response; // Don't cache responses that aren't text-based; i.e., not in list above.
 			}
-			const cacheEntry: CacheEntry = {
-				body: await response.text(), // Response body stored in plain text, JSON.stringify compatible.
-				options: {
-					status: response.status,
-					headers: [['content-type', response.headers.get('content-type')]] as [string, string][],
-				},
+			const globalCacheEntry: GlobalCacheEntry = {
+				body: await response.text(), // Body as plain text.
+				options: { status: response.status, headers: [['content-type', contentType]] },
 			};
-			this.container.cache.set(hash, cacheEntry);
-			return new Response(cacheEntry.body, cacheEntry.options);
+			this.global.cache.set(hash, globalCacheEntry);
+			return new Response(globalCacheEntry.body, globalCacheEntry.options);
 		}
 	};
 	return Object.defineProperty(Class, 'name', {

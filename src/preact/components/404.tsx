@@ -7,6 +7,7 @@ import Head from './head.js';
 import Body from './body.js';
 import * as $preact from '../../preact.js';
 import type { RouteProps } from './router.js';
+import { isWeb as $envꓺisWeb } from '../../env.js';
 
 /**
  * Defines types.
@@ -30,8 +31,10 @@ export default (/* props: Props = {} */): $preact.VNode<Props> => {
 				robots={'noindex, nofollow'}
 				title={'404 Error: Not Found'}
 				description={'The resource you are looking for could not be found.'}
-				stylePath={'https://cdn.clevercanyon.com/assets/uploads/404.css'}
-			/>
+				{...(!$envꓺisWeb() ? { scriptURL: '' } : {})}
+			>
+				<link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
+			</Head>
 			<Body>
 				<div class='noise' />
 				<div class='overlay' />

@@ -2,11 +2,15 @@
  * Preact API.
  */
 
+import { pkgName as $appꓺpkgName } from '../../app.js';
+import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import { getClass as $fetcherꓺgetClass } from '../../resources/classes/fetcher.js';
 import type { Interface as $fetcherꓺInterface } from '../../resources/classes/fetcher.js';
 
-let fetcherInitialized: boolean = false; // Once only.
-let fetcher: $fetcherꓺInterface; // Fetcher class instance.
+/**
+ * Singleton fetcher class instance.
+ */
+let fetcher: $fetcherꓺInterface | undefined;
 
 /**
  * Exports fetcher type.
@@ -20,22 +24,18 @@ export * from '@clevercanyon/preact-iso.fork';
 export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext } from '@clevercanyon/preact-iso.fork/router';
 
 /**
- * Initializes {@see $fetcherꓺInterface} instance.
- */
-export const initializeFetcher = (): void => {
-	if (fetcherInitialized) return;
-	fetcherInitialized = true;
-
-	const Class = $fetcherꓺgetClass();
-	fetcher = new Class({ autoReplaceNativeFetch: true });
-};
-
-/**
  * Replaces native fetch and returns fetcher instance.
  *
  * @returns {@see $fetcherꓺInterface} Instance.
  */
 export const replaceNativeFetch = (): $fetcherꓺInterface => {
-	if (!fetcherInitialized) initializeFetcher();
+	if (!fetcher) {
+		const Class = $fetcherꓺgetClass();
+
+		fetcher = new Class({
+			autoReplaceNativeFetch: true,
+			globalObp: $strꓺobpPartSafe($appꓺpkgName) + '.preactFetcher',
+		});
+	}
 	return fetcher; // Fetcher class instance.
 };

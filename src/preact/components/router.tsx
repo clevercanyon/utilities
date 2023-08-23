@@ -22,7 +22,7 @@ export type Props = $preact.Props<Partial<DataProps> & Partial<LocationProps> & 
  *
  * @returns       VNode / JSX element tree.
  */
-const Component = (props: Props = {}): $preact.VNode<Props> => {
+export default (props: Props = {}): $preact.VNode<Props> => {
 	return !$isꓺempty(useData()) ? (
 		<ErrorBoundary>
 			<Router onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
@@ -30,7 +30,7 @@ const Component = (props: Props = {}): $preact.VNode<Props> => {
 			</Router>
 		</ErrorBoundary>
 	) : (
-		<Data fetcher={props.fetcher}>
+		<Data globalObp={props.globalObp} html={props.html} fetcher={props.fetcher}>
 			<Location url={props.url}>
 				<ErrorBoundary>
 					<Router onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
@@ -45,15 +45,4 @@ const Component = (props: Props = {}): $preact.VNode<Props> => {
 /**
  * Exports the rest of our ISO APIs.
  */
-export { Route, useLocation, useRoute, lazy, prerender, hydrate } from '../apis/iso.js';
-export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext } from '../apis/iso.js';
-
-/**
- * Exports component by name.
- */
-export { Component as Router };
-
-/**
- * Default export.
- */
-export default Component;
+export * from '../apis/iso.js';
