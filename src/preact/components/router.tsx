@@ -23,7 +23,7 @@ export type Props = $preact.Props<Partial<DataProps> & Partial<LocationProps> & 
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	return !$isꓺempty(useData()) ? (
+	return !$isꓺempty(useData().state) ? (
 		<ErrorBoundary>
 			<Router onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
 				{props.children}
