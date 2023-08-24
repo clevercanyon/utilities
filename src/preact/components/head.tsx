@@ -57,8 +57,11 @@ export type Props = $preact.Props<PartialState>;
 export default (props: Props = {}): $preact.VNode<Props> => {
 	const location = useLocation();
 	const { state, updateState } = useData();
-	const { head } = state.html; // Head config.
 
+	if (!location.url || !state || !updateState) {
+		throw new Error('Missing location|state.');
+	}
+	const { head } = state.html; // Head config.
 	const appBaseURL = $envꓺget('@top', 'APP_BASE_URL', '') as string;
 
 	let title = props.title || location.url.hostname;

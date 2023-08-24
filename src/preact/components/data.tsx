@@ -83,7 +83,11 @@ export default (props: Props = {}): $preact.VNode<Props> => {
  * @returns Global as embeddable script code; for SSR.
  */
 export const dataGlobalToScriptCode = (): string => {
-	const { state } = useData();
+	const { state, updateState } = useData();
+
+	if (!state || !updateState) {
+		throw new Error('Missing state.');
+	}
 	const code = $obpꓺtoCode(state.globalObp);
 
 	let scriptCode = code.init; // Initialize.

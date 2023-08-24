@@ -61,16 +61,19 @@ export const replaceNativeFetch = (): $fetcherꓺInterface => {
  * @param   opts Prerender options.
  *
  * @returns      Prerendered SPA component.
+ *
+ * @note Server-side use only.
  */
 export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<string> => {
 	const url = opts.request.url; // From HTTP request data.
-
 	const appBaseURL = $envꓺget('@top', 'APP_BASE_URL', '') as string;
+
+	// Gathered from build manifest provided by Vite.
 	const mainStyleBundle = appBaseURL + '/' + opts.appManifest['index.html'].css[0];
 	const mainScriptBundle = appBaseURL + '/' + opts.appManifest['index.html'].file;
 
 	const $preactꓺisoꓺfetcher = replaceNativeFetch();
-	const str =
+	const doctypeHTMLMarkup =
 		'<!DOCTYPE html>' +
 		(
 			await preactꓺisoꓺprerender(opts.App, {
@@ -83,14 +86,16 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<string> =
 		).html; // HTML5 markup.
 	$preactꓺisoꓺfetcher.restoreNativeFetch();
 
-	return str; // As HTML5 markup.
+	return doctypeHTMLMarkup;
 };
 
 /**
  * Hydrates SPA component on client-side.
  *
  * @param opts Hydration options.
+ *
+ * @note Client-side use only.
  */
-export const hydrateSPA = async (opts: HydrateSPAOptions): Promise<void> => {
+export const hydrateSPA = (opts: HydrateSPAOptions): void => {
 	replaceNativeFetch(), preactꓺisoꓺhydrate(opts.App, document);
 };

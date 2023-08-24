@@ -231,9 +231,9 @@ export const capture = (leadingObp: string, env: object): void => {
 export const isC10n = (tests: QVTests = {}): boolean => test('@top', 'APP_IS_C10N', tests);
 
 /**
- * Is web?
+ * Is web browser?
  *
- * @returns `true` if is web.
+ * @returns True if is web.
  */
 export const isWeb = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -243,9 +243,21 @@ export const isWeb = $moizeꓺsvz({ maxSize: 1 })(
 );
 
 /**
- * Is web via JS DOM?
+ * Is web browser under `//localhost`?
  *
- * @returns `true` if is web via JS DOM?
+ * @returns True if is web browser under `//localhost`.
+ */
+export const isLocalWeb = $moizeꓺsvz({ maxSize: 1 })(
+	// Memoized function.
+	(): boolean => {
+		return isWeb() && 'localhost' === location.hostname;
+	},
+);
+
+/**
+ * Is web browser via JS DOM?
+ *
+ * @returns True if is web browser via JS DOM?
  */
 export const isWebViaJSDOM = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -262,7 +274,7 @@ export const isWebViaJSDOM = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is node?
  *
- * @returns `true` if is node.
+ * @returns True if is node.
  */
 export const isNode = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -274,7 +286,7 @@ export const isNode = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is Cloudflare worker?
  *
- * @returns `true` if is Cloudflare worker.
+ * @returns True if is Cloudflare worker.
  */
 export const isCFW = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -291,7 +303,7 @@ export const isCFW = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is Cloudflare worker via miniflare?
  *
- * @returns `true` if is Cloudflare worker via miniflare.
+ * @returns True if is Cloudflare worker via miniflare.
  */
 export const isCFWViaMiniflare = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -308,7 +320,7 @@ export const isCFWViaMiniflare = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is worker?
  *
- * @returns `true` if is worker.
+ * @returns True if is worker.
  */
 export const isWorker = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -320,7 +332,7 @@ export const isWorker = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is dedicated worker?
  *
- * @returns `true` if is dedicated worker.
+ * @returns True if is dedicated worker.
  */
 export const isDedicatedWorker = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -332,7 +344,7 @@ export const isDedicatedWorker = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is shared worker?
  *
- * @returns `true` if is shared worker.
+ * @returns True if is shared worker.
  */
 export const isSharedWorker = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
@@ -344,7 +356,7 @@ export const isSharedWorker = $moizeꓺsvz({ maxSize: 1 })(
 /**
  * Is service worker?
  *
- * @returns `true` if is service worker.
+ * @returns True if is service worker.
  */
 export const isServiceWorker = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.

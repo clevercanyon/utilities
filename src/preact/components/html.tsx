@@ -40,6 +40,9 @@ export type Props = $preact.Props<
 export default (props: Props = {}): $preact.VNode<Props> => {
 	const { state, updateState } = useData();
 
+	if (!state || !updateState) {
+		throw new Error('Missing state.');
+	}
 	updateState({
 		html: {
 			...$preact.cleanProps(props),
