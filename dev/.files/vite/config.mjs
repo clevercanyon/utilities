@@ -377,7 +377,6 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 		// See <https://o5p.me/Wk8Fm9>.
 		jsxFactory: 'h',
 		jsxFragment: 'Fragment',
-		jsxInject: `import { h } from 'preact'`,
 
 		legalComments: 'none', // See <https://o5p.me/DZKXwX>.
 	};
