@@ -4,6 +4,7 @@
 
 import type * as $type from '../../type.js';
 import { json as $toꓺjson } from '../../to.js';
+import { isWeb as $envꓺisWeb } from '../../env.js';
 import { md5 as $cryptoꓺmd5 } from '../../crypto.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { getClass as $classꓺgetUtility } from './utility.js';
@@ -134,6 +135,8 @@ export const getClass = (): Constructor => {
 				return new Response(globalCacheEntry.body, globalCacheEntry.options);
 			}
 			const response = await this.global.nativeFetch(...args);
+			if ($envꓺisWeb()) return response; // No cache writes client side.
+
 			const contentType = (response.headers.get('content-type') || '').toLowerCase();
 			const allowedTextMIMETypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
 
