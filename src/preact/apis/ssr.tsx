@@ -12,7 +12,7 @@ import type { Props as RouterProps } from '../components/router.js';
 /**
  * Defines types.
  */
-export type PrerenderAppToStringOptions = {
+export type PrerenderSPAToStringOptions = {
 	request: Request | cfw.Request;
 	appManifest: { 'index.html': { css: string[]; file: string } };
 	App: $preact.Component<$preact.Props<RouterProps>>;
@@ -24,26 +24,24 @@ export type PrerenderAppToStringOptions = {
 export { default as renderToString } from 'preact-render-to-string';
 
 /**
- * Prerenders app component on server-side, to a string.
+ * Prerenders SPA component on server-side, to a string.
  *
  * @param   opts Prerender options.
  *
- * @returns      Prerendered app component, as a string.
+ * @returns      Prerendered SPA component, as a string.
  */
-export const prerenderAppToString = async (opts: PrerenderAppToStringOptions): Promise<string> => {
+export const prerenderSPAToString = async (opts: PrerenderSPAToStringOptions): Promise<string> => {
 	// Defines current absolute full URL.
-	const url = opts.request?.url || '';
+	const url = opts.request.url; // From HTTP request.
 
 	// Locates app's base URL, for use below.
 	const appBaseURL = $envꓺget('@top', 'APP_BASE_URL', '') as string;
 
 	// Defines main style bundle as absolute full URL.
-	let mainStyleBundle = (opts.appManifest['index.html']?.css || [])[0] || '';
-	mainStyleBundle = mainStyleBundle ? appBaseURL + '/' + mainStyleBundle : '';
+	const mainStyleBundle = appBaseURL + '/' + opts.appManifest['index.html'].css[0];
 
 	// Defines main script bundle as absolute full URL.
-	let mainScriptBundle = opts.appManifest['index.html']?.file || '';
-	mainScriptBundle = mainScriptBundle ? appBaseURL + '/' + mainScriptBundle : '';
+	const mainScriptBundle = appBaseURL + '/' + opts.appManifest['index.html'].file;
 
 	// Replaces native fetch with ISO fetcher.
 	const $preactꓺisoꓺfetcher = $preactꓺiso.replaceNativeFetch();
