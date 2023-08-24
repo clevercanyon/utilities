@@ -31,7 +31,7 @@ export default (/* props: Props = {} */): $preact.VNode<Props> => {
 				robots={'noindex, nofollow'}
 				title={'404 Error: Not Found'}
 				description={'The resource you are looking for could not be found.'}
-				{...(!$envꓺisWeb() ? { scriptURL: '' } : {})}
+				{...(!$envꓺisWeb() ? { mainScriptBundle: '' } : {})}
 			>
 				<link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
 			</Head>

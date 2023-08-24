@@ -11,6 +11,8 @@ import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
 import { useData, dataGlobalToScriptCode } from './data.js';
 
+import type * as cfw from '@cloudflare/workers-types/experimental';
+
 /**
  * Defines types.
  */
@@ -21,7 +23,7 @@ export type State = {
 	viewport?: string;
 
 	robots?: string;
-	canonical?: string;
+	canonical?: URL | cfw.URL | string;
 	siteName?: string;
 
 	title?: string;
@@ -29,18 +31,18 @@ export type State = {
 	description?: string;
 	author?: string;
 
-	pngIcon?: string;
-	svgIcon?: string;
+	pngIcon?: URL | cfw.URL | string;
+	svgIcon?: URL | cfw.URL | string;
 
 	ogSiteName?: string;
 	ogType?: string;
 	ogTitle?: string;
 	ogDescription?: string;
-	ogURL?: string;
-	ogImage?: string;
+	ogURL?: URL | cfw.URL | string;
+	ogImage?: URL | cfw.URL | string;
 
-	styleURL?: string;
-	scriptURL?: string;
+	mainStyleBundle?: URL | cfw.URL | string;
+	mainScriptBundle?: URL | cfw.URL | string;
 };
 export type PartialState = Partial<State>;
 export type Props = $preact.Props<PartialState>;
@@ -54,10 +56,10 @@ export type Props = $preact.Props<PartialState>;
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
 	const location = useLocation();
-	const appBaseURL = $envꓺget('@top', 'APP_BASE_URL', '') as string;
-
 	const { state, updateState } = useData();
 	const { head } = state.html; // Head config.
+
+	const appBaseURL = $envꓺget('@top', 'APP_BASE_URL', '') as string;
 
 	let title = props.title || location.url.hostname;
 	const defaultDescription = 'Take the tiger by the tail.';
@@ -77,7 +79,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 
 				title, // See title generation above.
 				description: props.description || defaultDescription,
-				canonical: props.canonical || location.canonicalURL.toString(),
+				canonical: props.canonical || location.canonicalURL,
 
 				pngIcon: props.pngIcon || appBaseURL + '/assets/icon.png',
 				svgIcon: props.svgIcon || appBaseURL + '/assets/icon.svg',
@@ -86,7 +88,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 				ogType: props.ogType || 'website',
 				ogTitle: props.ogTitle || title,
 				ogDescription: props.ogDescription || props.description || defaultDescription,
-				ogURL: props.ogURL || props.canonical || location.canonicalURL.toString(),
+				ogURL: props.ogURL || props.canonical || location.canonicalURL,
 				ogImage: props.ogImage || appBaseURL + '/assets/og-image.png',
 			},
 		},
@@ -97,14 +99,14 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 			{head.viewport && <meta name='viewport' content={head.viewport} />}
 
 			{head.robots && <meta name='robots' content={head.robots} />}
-			{head.canonical && <link rel='canonical' href={head.canonical} />}
+			{head.canonical && <link rel='canonical' href={head.canonical.toString()} />}
 
 			{head.title && <title>{head.title}</title>}
 			{head.description && <meta name='description' content={head.description} />}
 			{head.author && <meta name='author' content={head.author} />}
 
-			{head.pngIcon && <link rel='icon' href={head.pngIcon} type='image/png' />}
-			{head.svgIcon && <link rel='icon' href={head.svgIcon} type='image/svg+xml' />}
+			{head.pngIcon && <link rel='icon' href={head.pngIcon.toString()} type='image/png' />}
+			{head.svgIcon && <link rel='icon' href={head.svgIcon.toString()} type='image/svg+xml' />}
 
 			{head.ogSiteName && head.ogType && head.ogTitle && head.ogDescription && head.ogURL && head.ogImage && (
 				<>
@@ -112,14 +114,14 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 					<meta property='og:type' content={head.ogType} />
 					<meta property='og:title' content={head.ogTitle} />
 					<meta property='og:description' content={head.ogDescription} />
-					<meta property='og:url' content={head.ogURL} />
-					<meta property='og:image' content={head.ogImage} />
+					<meta property='og:url' content={head.ogURL.toString()} />
+					<meta property='og:image' content={head.ogImage.toString()} />
 				</>
 			)}
-			{head.styleURL && <link rel='stylesheet' href={head.styleURL} media='all' />}
+			{head.mainStyleBundle && <link rel='stylesheet' href={head.mainStyleBundle.toString()} media='all' />}
 
-			{!$envꓺisWeb() && head.scriptURL && <script>{dataGlobalToScriptCode()}</script>}
-			{head.scriptURL && <script type='module' src={head.scriptURL}></script>}
+			{!$envꓺisWeb() && head.mainScriptBundle && <script>{dataGlobalToScriptCode()}</script>}
+			{head.mainScriptBundle && <script type='module' src={head.mainScriptBundle.toString()}></script>}
 
 			{props.children}
 		</head>

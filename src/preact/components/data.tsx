@@ -66,16 +66,13 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 	const [state, updateState] = useReducer(updateStateReducer, {
 		...$preact.cleanProps(globalProps),
 		...$preact.cleanProps(props),
+
 		globalObp: globalObp, // Calculated above.
-		html: {
-			head: {
-				// Routes using the `<Head>` component can choose to set `scriptURL` to an empty string during SSR renders.
-				// Emptying `styleURL` makes no sense. Emptying `scriptURL` does, in some cases; e.g., if a route is purely static.
-				// So, for example, for a purely static route you could do: `<Head {...(!$env.isWeb() ? { scriptURL: '' } : {})} />`.
-				// See `./404.tsx` as an example where `scriptURL` is updated to an empty string during server-side renders.
-			},
-			body: {},
-		},
+
+		// Routes using the `<Head>` component can choose to set `scriptBundle` to an empty string during SSR renders.
+		// So, for example, for a purely static route you could do: `<Head {...(!$env.isWeb() ? { scriptBundle: '' } : {})} />`.
+		// See `./404.tsx` as an example where `scriptBundle` is updated to an empty string during server-side renders.
+		html: { head: {}, body: {} },
 	});
 	return <Context.Provider value={{ state, updateState }}>{props.children}</Context.Provider>;
 };
