@@ -17,7 +17,7 @@ import { castArray as $toꓺcastArray } from './to.js';
 export type VNode<P extends Props = Props> = preact.VNode<P>;
 export type Component<P extends Props = Props, S extends object = object> = preact.AnyComponent<P, S>;
 export type Props<P extends object = object> = preact.RenderableProps<P & { classes?: string | string[] }>;
-export type InheritedProps = 'key' | 'jsx' | 'ref' | 'children';
+export type InheritedProps = 'key' | 'jsx' | 'dangerouslySetInnerHTML' | 'ref' | 'children';
 
 /**
  * Cleans VNode props.
@@ -30,7 +30,7 @@ export type InheritedProps = 'key' | 'jsx' | 'ref' | 'children';
  * @note This also removes props with undefined values.
  */
 export const cleanProps = <Type extends Props, Key extends keyof Type>(props: Type, clean?: Key[]): Omit<Type, Key> => {
-	return $objꓺomit(props, ['key', 'jsx', 'ref', 'children'].concat((clean || []) as string[]) as Key[], { undefinedValues: true });
+	return $objꓺomit(props, ['key', 'jsx', 'dangerouslySetInnerHTML', 'ref', 'children'].concat((clean || []) as string[]) as Key[], { undefinedValues: true });
 };
 
 /**

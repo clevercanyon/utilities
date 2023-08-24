@@ -20,15 +20,15 @@ import type { State as HTMLState, PartialState as HTMLPartialState } from './htm
  */
 export type State = {
 	globalObp: string;
-	html: HTMLState; // <Head> & <Body>.
+	html: HTMLState;
 	fetcher?: $preactꓺisoꓺFetcher;
 };
 export type PartialState = {
 	globalObp?: string;
-	html?: HTMLPartialState; // <Head> & <Body>.
+	html?: HTMLPartialState;
 	fetcher?: $preactꓺisoꓺFetcher;
 };
-export type Props = Exclude<$preact.Props<PartialState>, 'classes'>;
+export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
 
 export type ContextProps = {
 	state: State;
@@ -73,8 +73,8 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 				// Emptying `styleURL` makes no sense. Emptying `scriptURL` does, in some cases; e.g., if a route is purely static.
 				// So, for example, for a purely static route you could do: `<Head {...(!$env.isWeb() ? { scriptURL: '' } : {})} />`.
 				// See `./404.tsx` as an example where `scriptURL` is updated to an empty string during server-side renders.
-			}, // Initial `<Head>` state.
-			body: {}, // Initial `<Body>` state.
+			},
+			body: {},
 		},
 	});
 	return <Context.Provider value={{ state, updateState }}>{props.children}</Context.Provider>;
@@ -85,7 +85,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
  *
  * @returns Global as embeddable script code; for SSR.
  */
-export const dataToScriptCode = (): string => {
+export const dataGlobalToScriptCode = (): string => {
 	const { state } = useData();
 	const code = $obpꓺtoCode(state.globalObp);
 

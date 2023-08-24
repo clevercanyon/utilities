@@ -9,7 +9,7 @@ import {
 
 import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
-import { useData, dataToScriptCode } from './data.js';
+import { useData, dataGlobalToScriptCode } from './data.js';
 
 /**
  * Defines types.
@@ -118,7 +118,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 			)}
 			{head.styleURL && <link rel='stylesheet' href={head.styleURL} media='all' />}
 
-			{!$envꓺisWeb() && head.scriptURL && <script>{dataToScriptCode()}</script>}
+			{!$envꓺisWeb() && head.scriptURL && <script>{dataGlobalToScriptCode()}</script>}
 			{head.scriptURL && <script type='module' src={head.scriptURL}></script>}
 
 			{props.children}
