@@ -12,25 +12,20 @@ import type { Props as RouterProps } from '../components/router.js';
 /**
  * Defines types.
  */
-export type PrerenderSPAToStringOptions = {
+export type PrerenderSPAOptions = {
 	request: Request | cfw.Request;
 	appManifest: { 'index.html': { css: string[]; file: string } };
 	App: $preact.Component<$preact.Props<RouterProps>>;
 };
 
 /**
- * Exports render-to-string utility.
- */
-export { default as renderToString } from 'preact-render-to-string';
-
-/**
- * Prerenders SPA component on server-side, to a string.
+ * Prerenders SPA component on server-side.
  *
  * @param   opts Prerender options.
  *
- * @returns      Prerendered SPA component, as a string.
+ * @returns      Prerendered SPA component.
  */
-export const prerenderSPAToString = async (opts: PrerenderSPAToStringOptions): Promise<string> => {
+export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<string> => {
 	// Defines current absolute full URL.
 	const url = opts.request.url; // From HTTP request.
 
@@ -64,3 +59,8 @@ export const prerenderSPAToString = async (opts: PrerenderSPAToStringOptions): P
 
 	return str; // As HTML markup for response body.
 };
+
+/**
+ * Exports render-to-string utility.
+ */
+export { default as renderToString } from 'preact-render-to-string';
