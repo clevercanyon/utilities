@@ -30,7 +30,7 @@ export { default as renderToString } from 'preact-render-to-string';
  *
  * @returns      Prerendered app component, as a string.
  */
-export const prerenderAppToString = async (opts: PrerenderAppToStringOptions) => {
+export const prerenderAppToString = async (opts: PrerenderAppToStringOptions): Promise<string> => {
 	// Defines current absolute full URL.
 	const url = opts.request?.url || '';
 
