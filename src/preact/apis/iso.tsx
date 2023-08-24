@@ -2,20 +2,35 @@
  * Preact API.
  */
 
+import * as $preact from '../../preact.js';
+import { get as $envꓺget } from '../../env.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import { getClass as $fetcherꓺgetClass } from '../../resources/classes/fetcher.js';
+import { hydrate as preactꓺisoꓺhydrate, prerender as preactꓺisoꓺprerender } from '@clevercanyon/preact-iso.fork';
+
+import type * as cfw from '@cloudflare/workers-types/experimental';
+import type { Props as RouterProps } from '../components/router.js';
 import type { Interface as $fetcherꓺInterface } from '../../resources/classes/fetcher.js';
 
 /**
- * Singleton fetcher class instance.
+ * Contains fetcher.
  */
 let fetcher: $fetcherꓺInterface | undefined;
 
 /**
- * Exports fetcher type.
+ * Defines types.
  */
 export type { $fetcherꓺInterface as Fetcher };
+
+export type PrerenderSPAOptions = {
+	request: Request | cfw.Request;
+	appManifest: { 'index.html': { css: string[]; file: string } };
+	App: $preact.Component<$preact.Props<RouterProps>>;
+};
+export type HydrateSPAOptions = {
+	App: $preact.Component<$preact.Props<RouterProps>>;
+};
 
 /**
  * Exports preact ISO utilities.
@@ -38,4 +53,44 @@ export const replaceNativeFetch = (): $fetcherꓺInterface => {
 		});
 	}
 	return fetcher; // Fetcher class instance.
+};
+
+/**
+ * Prerenders SPA component on server-side.
+ *
+ * @param   opts Prerender options.
+ *
+ * @returns      Prerendered SPA component.
+ */
+export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<string> => {
+	const url = opts.request.url; // From HTTP request data.
+
+	const appBaseURL = $envꓺget('@top', 'APP_BASE_URL', '') as string;
+	const mainStyleBundle = appBaseURL + '/' + opts.appManifest['index.html'].css[0];
+	const mainScriptBundle = appBaseURL + '/' + opts.appManifest['index.html'].file;
+
+	const $preactꓺisoꓺfetcher = replaceNativeFetch();
+	const str =
+		'<!DOCTYPE html>' +
+		(
+			await preactꓺisoꓺprerender(opts.App, {
+				props: {
+					url, // Must be an absolute full URL.
+					html: { head: { mainStyleBundle, mainScriptBundle } },
+					fetcher: $preactꓺisoꓺfetcher, // Preact ISO fetcher.
+				},
+			})
+		).html; // HTML5 markup.
+	$preactꓺisoꓺfetcher.restoreNativeFetch();
+
+	return str; // As HTML5 markup.
+};
+
+/**
+ * Hydrates SPA component on client-side.
+ *
+ * @param opts Hydration options.
+ */
+export const hydrateSPA = async (opts: HydrateSPAOptions): Promise<void> => {
+	replaceNativeFetch(), preactꓺisoꓺhydrate(opts.App, document);
 };
