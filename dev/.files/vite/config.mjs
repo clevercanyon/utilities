@@ -72,20 +72,21 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 	/**
 	 * Environment-related vars.
 	 */
-	const appEnvPrefix = 'APP_'; // Part of app.
-	const env = loadEnv(mode, envsDir, appEnvPrefix);
+	let appEnvPrefixes = ['APP_']; // Part of app.
+	if (isSSRBuild) appEnvPrefixes.push('SSR_APP_');
+	const env = loadEnv(mode, envsDir, appEnvPrefixes);
 
 	const staticDefs = {
-		['$$__' + appEnvPrefix + 'PKG_NAME__$$']: pkg.name || '',
-		['$$__' + appEnvPrefix + 'PKG_VERSION__$$']: pkg.version || '',
-		['$$__' + appEnvPrefix + 'PKG_REPOSITORY__$$']: pkg.repository || '',
-		['$$__' + appEnvPrefix + 'PKG_HOMEPAGE__$$']: pkg.homepage || '',
-		['$$__' + appEnvPrefix + 'PKG_BUGS__$$']: pkg.bugs || '',
+		['$$__' + appEnvPrefixes[0] + 'PKG_NAME__$$']: pkg.name || '',
+		['$$__' + appEnvPrefixes[0] + 'PKG_VERSION__$$']: pkg.version || '',
+		['$$__' + appEnvPrefixes[0] + 'PKG_REPOSITORY__$$']: pkg.repository || '',
+		['$$__' + appEnvPrefixes[0] + 'PKG_HOMEPAGE__$$']: pkg.homepage || '',
+		['$$__' + appEnvPrefixes[0] + 'PKG_BUGS__$$']: pkg.bugs || '',
 	};
-	staticDefs['$$__' + appEnvPrefix + 'BUILD_TIME_YMD__$$'] = $time.parse('now').toSQLDate() || '';
+	staticDefs['$$__' + appEnvPrefixes[0] + 'BUILD_TIME_YMD__$$'] = $time.parse('now').toSQLDate() || '';
 
 	Object.keys(env) // Add string env vars to static defines.
-		.filter((key) => new RegExp('^' + $str.escRegExp(appEnvPrefix), 'u').test(key))
+		.filter((key) => new RegExp('^(?:' + appEnvPrefixes.map((v) => $str.escRegExp(v)).join('|') + ')', 'u').test(key))
 		.forEach((key) => ($is.string(env[key]) ? (staticDefs['$$__' + key + '__$$'] = env[key]) : null));
 
 	/**
@@ -94,11 +95,11 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 	const appBaseURL = env.APP_BASE_URL || ''; // e.g., `https://example.com/base`.
 	const appBasePath = env.APP_BASE_PATH || ''; // e.g., `/base`.
 
-	let libName = (pkg.name || '').toLowerCase();
-	libName = libName.replace(/\bclevercanyon\b/gu, 'c10n');
-	libName = libName.replace(/@/gu, '').replace(/\./gu, '-').replace(/\/+/gu, '.');
-	libName = libName.replace(/[^a-z.0-9]([^.])/gu, (m0, m1) => m1.toUpperCase());
-	libName = libName.replace(/^\.|\.$/u, '');
+	let appUMDName = (pkg.name || '').toLowerCase();
+	appUMDName = appUMDName.replace(/\bclevercanyon\b/gu, 'c10n');
+	appUMDName = appUMDName.replace(/@/gu, '').replace(/\./gu, '-').replace(/\/+/gu, '.');
+	appUMDName = appUMDName.replace(/[^a-z.0-9]([^.])/gu, (m0, m1) => m1.toUpperCase());
+	appUMDName = appUMDName.replace(/^\.|\.$/u, '');
 
 	const appType = $obp.get(pkg, 'config.c10n.&.' + (isSSRBuild ? 'ssrBuild' : 'build') + '.appType') || 'cma';
 	const targetEnv = $obp.get(pkg, 'config.c10n.&.' + (isSSRBuild ? 'ssrBuild' : 'build') + '.targetEnv') || 'any';
@@ -113,15 +114,25 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 	const appEntriesAsSrcSubpathsNoExt = appEntriesAsSrcSubpaths.map((subpath) => subpath.replace(/\.[^.]+$/u, ''));
 
 	/**
+	 * Configuration data needed below.
+	 */
+	const useLibMode = ['cma', 'lib'].includes(appType);
+	const peerDepKeys = Object.keys(pkg.peerDependencies || {});
+	const targetEnvIsServer = ['cfw', 'node'].includes(targetEnv);
+	const useMinifier = 'dev' !== mode && !['lib'].includes(appType);
+	const preserveModules = ['lib'].includes(appType) && appEntries.length > 1;
+	const useUMD = !isSSRBuild && !targetEnvIsServer && !preserveModules && !peerDepKeys.length && useLibMode && 1 === appEntries.length;
+
+	/**
 	 * Validates all of the above.
 	 */
-	if (!pkg.name || !libName) {
+	if (!pkg.name || !appUMDName) {
 		throw new Error('Apps must have a name.');
 	}
 	if (!appEntryFiles.length || !appEntries.length) {
 		throw new Error('Apps must have at least one entry point.');
 	}
-	if (isSSRBuild && !['cfw', 'node'].includes(targetEnv)) {
+	if (isSSRBuild && !targetEnvIsServer) {
 		throw new Error('SSR builds must target an SSR environment.');
 	}
 	if (!['dev', 'ci', 'stage', 'prod'].includes(mode)) {
@@ -170,10 +181,13 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 				const appEntryIndexAsSrcSubpath = appEntriesAsSrcSubpaths.find((subpath) => $str.mm.isMatch(subpath, 'index.{ts,tsx}'));
 				const appEntryIndexAsSrcSubpathNoExt = appEntryIndexAsSrcSubpath.replace(/\.[^.]+$/u, '');
 
-				if (!appEntryIndexAsSrcSubpath || !appEntryIndexAsSrcSubpathNoExt) {
+				if (['cma'].includes(appType) && (!appEntryIndexAsSrcSubpath || !appEntryIndexAsSrcSubpathNoExt)) {
 					throw new Error('Custom apps must have an `./index.{ts,tsx}` entry point.');
+					//
+				} else if (['lib'].includes(appType) && (!appEntryIndexAsSrcSubpath || !appEntryIndexAsSrcSubpathNoExt)) {
+					throw new Error('Library apps must have an `./index.{ts,tsx}` entry point.');
 				}
-				if (!['cfw', 'node'].includes(targetEnv) && ['lib'].includes(appType) && 1 === appEntries.length) {
+				if (useUMD) {
 					updatePkg.exports = {
 						'.': {
 							import: './dist/' + appEntryIndexAsSrcSubpathNoExt + '.js',
@@ -381,7 +395,6 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 		// See <https://o5p.me/Wk8Fm9>.
 		jsx: 'automatic', // Matches TypeScript config.
 		jsxImportSource: 'preact', // Matches TypeScript config.
-
 		legalComments: 'none', // See <https://o5p.me/DZKXwX>.
 	};
 
@@ -398,8 +411,8 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 		input: appEntries,
 
 		external: [
-			'__STATIC_CONTENT_MANIFEST', // Cloudflare workers use this for static assets.
-			...Object.keys(pkg.peerDependencies || {}).map((k) => new RegExp('^' + $str.escRegExp(k) + '(?:$|[/?])')),
+			...peerDepKeys.map((k) => new RegExp('^' + $str.escRegExp(k) + '(?:$|[/?])')),
+			'__STATIC_CONTENT_MANIFEST', // Cloudflare worker sites use this for static assets.
 		],
 		output: {
 			interop: 'auto', // Matches TypeScript config.
@@ -408,7 +421,7 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 
 			extend: true, // i.e., UMD global `||` checks.
 			noConflict: true, // Behaves the same as `jQuery.noConflict()`.
-			compact: 'dev' === mode || ['lib'].includes(appType) ? false : true,
+			compact: useMinifier, // Minify wrapper code generated by rollup?
 
 			// By default, special chars in a path like `[[name]].js` get changed to `__name__.js`.
 			// This prevents that by enforcing a custom sanitizer. See: <https://o5p.me/Y2fNf9> for details.
@@ -419,14 +432,14 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 			entryFileNames: (entry) => {
 				// This function doesn’t have access to the current output format, unfortunately.
 				// However, we are setting `build.lib.formats` explicitly in the configuration below.
-				// Therefore, we know `es` comes first, followed by either `cjs` or `umd` output entries.
+				// Therefore, we know `es` comes first, followed by either `umd` or `cjs` output entries.
 				// So, entry counters make it possible to infer build output format, based on sequence.
 
 				const entryKey = JSON.stringify(entry); // JSON serialization.
 				const entryCounter = Number(rollupEntryCounters.get(entryKey) || 0) + 1;
 
-				const entryFormat = entryCounter > 1 ? 'cjs|umd' : 'es';
-				const entryExt = 'cjs|umd' === entryFormat ? 'cjs' : 'js';
+				const entryFormat = entryCounter > 1 ? (useUMD ? 'umd' : 'cjs') : 'es';
+				const entryExt = 'umd' === entryFormat ? 'umd.cjs' : 'cjs' === entryFormat ? 'cjs' : 'js';
 
 				rollupEntryCounters.set(entryKey, entryCounter); // Updates counter.
 
@@ -443,29 +456,29 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 			chunkFileNames: (chunk) => {
 				// This function doesn’t have access to the current output format, unfortunately.
 				// However, we are setting `build.lib.formats` explicitly in the configuration below.
-				// Therefore, we know `es` comes first, followed by either `cjs` or `umd` output chunks.
+				// Therefore, we know `es` comes first, followed by either `umd` or `cjs` output chunks.
 				// So, chunk counters make it possible to infer build output format, based on sequence.
 
 				const chunkKey = JSON.stringify(chunk); // JSON serialization.
 				const chunkCounter = Number(rollupChunkCounters.get(chunkKey) || 0) + 1;
 
-				const chunkFormat = chunkCounter > 1 ? 'cjs|umd' : 'es';
-				const chunkExt = 'cjs|umd' === chunkFormat ? 'cjs' : 'js';
+				const chunkFormat = chunkCounter > 1 ? (useUMD ? 'umd' : 'cjs') : 'es';
+				const chunkExt = 'umd' === chunkFormat ? 'umd.cjs' : 'cjs' === chunkFormat ? 'cjs' : 'js';
 
 				rollupChunkCounters.set(chunkKey, chunkCounter); // Updates counter.
 				return path.join(path.relative(distDir, a16sDir), '[name]-[hash].' + chunkExt);
 			},
 			assetFileNames: (/* asset */) => path.join(path.relative(distDir, a16sDir), '[name]-[hash].[ext]'),
 
-			// Preserves module structure in CMAs built explicitly as libraries.
-			// The expectation is that peers will build w/ this flag set as false, which is
+			// Preserves module structure in apps built explicitly as multi-entry libraries.
+			// The expectation is that its peers will build w/ this flag set as false, which is
 			// recommended, because preserving module structure in a final build has performance costs.
-			// However, in builds that are not final (e.g., CMAs with peer dependencies), preserving modules
+			// However, in builds that are not final (e.g., apps with peer dependencies), preserving modules
 			// has performance benefits, as it allows for tree-shaking optimization in final builds.
-			...(['lib'].includes(appType) ? { preserveModules: true } : {}),
+			...(preserveModules ? { preserveModules: true } : {}),
 
 			// Cannot inline dynamic imports when `preserveModules` is enabled, so set as `false` explicitly.
-			...(['lib'].includes(appType) ? { inlineDynamicImports: false } : {}),
+			...(preserveModules ? { inlineDynamicImports: false } : {}),
 		},
 	};
 	// <https://vitejs.dev/guide/features.html#web-workers>
@@ -581,12 +594,12 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 		resolve: { alias: importAliases }, // Matches TypeScript config import aliases.
 
 		envDir: path.relative(srcDir, envsDir), // Relative to `root` directory.
-		envPrefix: appEnvPrefix, // Environment vars w/ this prefix become a part of the app.
+		envPrefix: appEnvPrefixes, // Env vars w/ these prefixes become part of the app.
 
 		server: { open: true, https: true }, // Vite dev server.
 		plugins, // Additional Vite plugins that were configured above.
 
-		...(['cfw', 'node'].includes(targetEnv) // <https://vitejs.dev/config/ssr-options.html>.
+		...(targetEnvIsServer // Target environment is server-side?
 			? {
 					ssr: {
 						noExternal: ['cfw'].includes(targetEnv),
@@ -609,20 +622,20 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 			assetsDir: path.relative(distDir, a16sDir), // Relative to `outDir` directory.
 			// Note: `a16s` is a numeronym for 'acquired resources'; i.e. via imports.
 
-			ssr: ['cfw', 'node'].includes(targetEnv), // Server-side rendering?
+			ssr: targetEnvIsServer, // Target environment is server-side?
 
 			manifest: !isSSRBuild, // Enables creation of manifest (for assets).
 			sourcemap: 'dev' === mode, // Enables creation of sourcemaps (for debugging).
 
-			minify: 'dev' === mode || ['lib'].includes(appType) ? false : 'esbuild',
+			minify: useMinifier ? 'esbuild' : false, // Minify userland code?
 			modulePreload: false, // Disable. DOM injections conflict with our SPAs.
 
-			...(['lib'].includes(appType) // A library consumed by others.
+			...(useLibMode // Use library mode in Vite, with specific formats?
 				? {
 						lib: {
-							name: libName, // Name of UMD window global var.
+							name: appUMDName, // Name of UMD window global var.
 							entry: appEntries, // Should match up with `rollupOptions.input`.
-							formats: isSSRBuild ? ['es'] : 1 === appEntries.length ? ['es', 'umd'] : ['es', 'cjs'],
+							formats: isSSRBuild ? ['es'] : useUMD ? ['es', 'umd'] : ['es', 'cjs'],
 						},
 				  }
 				: {}),

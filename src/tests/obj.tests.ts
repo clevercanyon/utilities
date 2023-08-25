@@ -567,7 +567,7 @@ describe('$obj tests', async () => {
 					'dependencies': {},
 					'description': 'Another great project by Owner.',
 					'devDependencies': {},
-					'devDependenciesꓺ@owner/skeleton-dev-deps': '*',
+					'devDependenciesꓺ@owner/dev-deps': '*',
 					'engines': {},
 					'exports': null,
 					'files': [],
@@ -706,7 +706,7 @@ describe('$obj tests', async () => {
 					'optionalDependencies': {},
 					'bundleDependencies': [],
 					'devDependencies': {
-						'@owner/skeleton-dev-deps': '*',
+						'@owner/dev-deps': '*',
 					},
 					'overrides': {},
 					'workspaces': [],
