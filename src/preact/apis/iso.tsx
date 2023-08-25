@@ -30,7 +30,7 @@ export type PrerenderSPAOptions = {
 	appManifest: { 'index.html': { css: string[]; file: string } };
 	App: $preact.Component<$preact.Props<RouterProps>>;
 };
-export type HydrativeRenderSPAOptions = {
+export type HydrativelyRenderSPAOptions = {
 	App: $preact.Component<$preact.Props<RouterProps>>;
 };
 
@@ -94,11 +94,11 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<string> =
 /**
  * Hydratively renders SPA component on client-side.
  *
- * @param opts Hydrative render SPA options; {@see HydrativeRenderSPAOptions}.
+ * @param opts Hydrative render SPA options; {@see HydrativelyRenderSPAOptions}.
  *
  * @note Client-side use only.
  */
-export const hydrativeRenderSPA = (opts: HydrativeRenderSPAOptions): void => {
+export const hydrativelyRenderSPA = (opts: HydrativelyRenderSPAOptions): void => {
 	if (document.querySelector('html[data-preact-iso]')) {
 		replaceNativeFetch(), preactꓺisoꓺhydrate(opts.App, document);
 	} else {
