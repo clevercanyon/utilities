@@ -3,6 +3,8 @@
  */
 
 import * as $preact from '../../preact.js';
+import { render as preactꓺrender } from 'preact';
+
 import { get as $envꓺget } from '../../env.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
@@ -28,7 +30,7 @@ export type PrerenderSPAOptions = {
 	appManifest: { 'index.html': { css: string[]; file: string } };
 	App: $preact.Component<$preact.Props<RouterProps>>;
 };
-export type HydrateSPAOptions = {
+export type HydrativeRenderSPAOptions = {
 	App: $preact.Component<$preact.Props<RouterProps>>;
 };
 
@@ -58,7 +60,7 @@ export const replaceNativeFetch = (): $fetcherꓺInterface => {
 /**
  * Prerenders SPA component on server-side.
  *
- * @param   opts Prerender options.
+ * @param   opts Prerender SPA options; {@see PrerenderSPAOptions}.
  *
  * @returns      Prerendered SPA component.
  *
@@ -90,12 +92,16 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<string> =
 };
 
 /**
- * Hydrates SPA component on client-side.
+ * Hydratively renders SPA component on client-side.
  *
- * @param opts Hydration options.
+ * @param opts Hydrative render SPA options; {@see HydrativeRenderSPAOptions}.
  *
  * @note Client-side use only.
  */
-export const hydrateSPA = (opts: HydrateSPAOptions): void => {
-	replaceNativeFetch(), preactꓺisoꓺhydrate(opts.App, document);
+export const hydrativeRenderSPA = (opts: HydrativeRenderSPAOptions): void => {
+	if (document.querySelector('html[data-preact-iso]')) {
+		replaceNativeFetch(), preactꓺisoꓺhydrate(opts.App, document);
+	} else {
+		replaceNativeFetch(), preactꓺrender(opts.App, document);
+	}
 };

@@ -250,7 +250,7 @@ export const isWeb = $moizeꓺsvz({ maxSize: 1 })(
 export const isLocalWeb = $moizeꓺsvz({ maxSize: 1 })(
 	// Memoized function.
 	(): boolean => {
-		return isWeb() && 'localhost' === location.hostname;
+		return isWeb() && ['localhost', '127.0.0.1'].includes(location.hostname);
 	},
 );
 

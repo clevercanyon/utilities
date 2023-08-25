@@ -2,8 +2,8 @@
  * Preact component.
  */
 
-import * as $preact from '../../preact.js';
 import { useData } from './data.js';
+import * as $preact from '../../preact.js';
 
 import type { State as HeadState, PartialState as HeadPartialState, Props as HeadProps } from './head.js';
 import type { State as BodyState, PartialState as BodyPartialState, Props as BodyProps } from './body.js';
@@ -52,7 +52,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 		},
 	});
 	return (
-		<html lang={state.html.lang} class={$preact.classes(state.html.classes)}>
+		<html lang={state.html.lang} class={$preact.classes(state.html.classes)} data-preact-iso>
 			{props.children}
 		</html>
 	);
