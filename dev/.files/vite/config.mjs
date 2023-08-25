@@ -20,6 +20,7 @@ import pluginBasicSSL from '@vitejs/plugin-basic-ssl';
 import { ViteEjsPlugin as pluginEJS } from 'vite-plugin-ejs';
 import { ViteMinifyPlugin as pluginMinifyHTML } from 'vite-plugin-minify';
 
+import * as preact from 'preact';
 import u from '../bin/includes/utilities.mjs';
 import importAliases from './includes/import-aliases.mjs';
 import { $fs, $glob } from '../../../node_modules/@clevercanyon/utilities.node/dist/index.js';
@@ -54,8 +55,8 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 	const logsDir = path.resolve(__dirname, '../../../dev/.logs');
 
 	// In the case of doing a secondary SSR build, we need to separate the SSR assets from the client-side assets.
-	// The special folder `node_modules` was selected because it's ignored by the Wrangler CLI; see <https://o5p.me/EqPjmv>.
-	// Wrangler compiles all of the SSR assets (wherever they live) when it does it's own bundling of the `./dist` directory.
+	// The special folder `node_modules` was selected because it's ignored by Wrangler CLI; see <https://o5p.me/EqPjmv>.
+	// Wrangler compiles all SSR assets (wherever they live) when it does it's own bundling of the `./dist` directory.
 	const a16sDir = path.resolve(__dirname, '../../../dist' + (isSSRBuild ? '/node_modules' : '') + '/assets/a16s');
 
 	/**
@@ -93,11 +94,11 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 	const appBaseURL = env.APP_BASE_URL || ''; // e.g., `https://example.com/base`.
 	const appBasePath = env.APP_BASE_PATH || ''; // e.g., `/base`.
 
-	let appLibName = (pkg.name || '').toLowerCase();
-	appLibName = appLibName.replace(/\bclevercanyon\b/gu, 'c10n');
-	appLibName = appLibName.replace(/@/gu, '').replace(/\./gu, '-').replace(/\/+/gu, '.');
-	appLibName = appLibName.replace(/[^a-z.0-9]([^.])/gu, (m0, m1) => m1.toUpperCase());
-	appLibName = appLibName.replace(/^\.|\.$/u, '');
+	let libName = (pkg.name || '').toLowerCase();
+	libName = libName.replace(/\bclevercanyon\b/gu, 'c10n');
+	libName = libName.replace(/@/gu, '').replace(/\./gu, '-').replace(/\/+/gu, '.');
+	libName = libName.replace(/[^a-z.0-9]([^.])/gu, (m0, m1) => m1.toUpperCase());
+	libName = libName.replace(/^\.|\.$/u, '');
 
 	const appType = $obp.get(pkg, 'config.c10n.&.' + (isSSRBuild ? 'ssrBuild' : 'build') + '.appType') || 'cma';
 	const targetEnv = $obp.get(pkg, 'config.c10n.&.' + (isSSRBuild ? 'ssrBuild' : 'build') + '.targetEnv') || 'any';
@@ -111,26 +112,22 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 	const appEntriesAsSrcSubpaths = appEntries.map((absPath) => path.relative(srcDir, absPath));
 	const appEntriesAsSrcSubpathsNoExt = appEntriesAsSrcSubpaths.map((subpath) => subpath.replace(/\.[^.]+$/u, ''));
 
-	const isTargetEnvSSR = ['cfw', 'node'].includes(targetEnv); // Target environment requires server-side rendering?
-	const isLib = ['cma'].includes(appType) && appEntries.length > 1 && Object.keys(pkg.peerDependencies || {}).length > 0;
-	const shouldMinify = 'dev' === mode || isLib ? false : true; // Should minify output files?
-
 	/**
 	 * Validates all of the above.
 	 */
-	if (!pkg.name || !appLibName) {
+	if (!pkg.name || !libName) {
 		throw new Error('Apps must have a name.');
 	}
 	if (!appEntryFiles.length || !appEntries.length) {
 		throw new Error('Apps must have at least one entry point.');
 	}
-	if (isSSRBuild && !isTargetEnvSSR) {
+	if (isSSRBuild && !['cfw', 'node'].includes(targetEnv)) {
 		throw new Error('SSR builds must target an SSR environment.');
 	}
 	if (!['dev', 'ci', 'stage', 'prod'].includes(mode)) {
 		throw new Error('Required `mode` is missing or invalid. Expecting `dev|ci|stage|prod`.');
 	}
-	if (!['spa', 'mpa', 'cma'].includes(appType)) {
+	if (!['spa', 'mpa', 'cma', 'lib'].includes(appType)) {
 		throw new Error('Must have a valid `config.c10n.&.build.appType` in `package.json`.');
 	}
 	if (['spa', 'mpa'].includes(appType) && !appBaseURL) {
@@ -154,14 +151,29 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 		updatePkg.sideEffects = []; // <https://o5p.me/xVY39g>.
 
 		switch (true /* Conditional case handlers. */) {
-			case ['cma'].includes(appType): {
+			case ['spa', 'mpa'].includes(appType): {
+				const appEntryIndexAsSrcSubpath = appEntriesAsSrcSubpaths.find((subpath) => $str.mm.isMatch(subpath, 'index.html'));
+				const appEntryIndexAsSrcSubpathNoExt = appEntryIndexAsSrcSubpath.replace(/\.[^.]+$/u, '');
+
+				if (['spa'].includes(appType) && (!appEntryIndexAsSrcSubpath || !appEntryIndexAsSrcSubpathNoExt)) {
+					throw new Error('Single-page apps must have an `./index.html` entry point.');
+					//
+				} else if (['mpa'].includes(appType) && (!appEntryIndexAsSrcSubpath || !appEntryIndexAsSrcSubpathNoExt)) {
+					throw new Error('Multipage apps must have an `./index.html` entry point.');
+				}
+				(updatePkg.exports = null), (updatePkg.typesVersions = {});
+				updatePkg.module = updatePkg.main = updatePkg.browser = updatePkg.unpkg = updatePkg.types = '';
+
+				break; // Stop here.
+			}
+			case ['cma', 'lib'].includes(appType): {
 				const appEntryIndexAsSrcSubpath = appEntriesAsSrcSubpaths.find((subpath) => $str.mm.isMatch(subpath, 'index.{ts,tsx}'));
 				const appEntryIndexAsSrcSubpathNoExt = appEntryIndexAsSrcSubpath.replace(/\.[^.]+$/u, '');
 
 				if (!appEntryIndexAsSrcSubpath || !appEntryIndexAsSrcSubpathNoExt) {
 					throw new Error('Custom apps must have an `./index.{ts,tsx}` entry point.');
 				}
-				if (!isTargetEnvSSR && isLib && 1 === appEntries.length) {
+				if (!['cfw', 'node'].includes(targetEnv) && ['lib'].includes(appType) && 1 === appEntries.length) {
 					updatePkg.exports = {
 						'.': {
 							import: './dist/' + appEntryIndexAsSrcSubpathNoExt + '.js',
@@ -207,21 +219,6 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 						});
 					}
 				}
-				break; // Stop here.
-			}
-			case ['spa', 'mpa'].includes(appType): {
-				const appEntryIndexAsSrcSubpath = appEntriesAsSrcSubpaths.find((subpath) => $str.mm.isMatch(subpath, 'index.html'));
-				const appEntryIndexAsSrcSubpathNoExt = appEntryIndexAsSrcSubpath.replace(/\.[^.]+$/u, '');
-
-				if (['spa'].includes(appType) && (!appEntryIndexAsSrcSubpath || !appEntryIndexAsSrcSubpathNoExt)) {
-					throw new Error('Single-page apps must have an `./index.html` entry point.');
-					//
-				} else if (['mpa'].includes(appType) && (!appEntryIndexAsSrcSubpath || !appEntryIndexAsSrcSubpathNoExt)) {
-					throw new Error('Multipage apps must have an `./index.html` entry point.');
-				}
-				(updatePkg.exports = null), (updatePkg.typesVersions = {});
-				updatePkg.module = updatePkg.main = updatePkg.browser = updatePkg.unpkg = updatePkg.types = '';
-
 				break; // Stop here.
 			}
 			default: {
@@ -335,7 +332,7 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 							fileContents = fileContents.replace('$$__APP_CFP_DEFAULT_HEADERS__$$', cfpDefaultHeaders);
 						}
 						if (['404.html'].includes(fileRelPath)) {
-							const cfpDefault404 = '<!DOCTYPE html>' + $preactꓺrenderToString($preactꓺ404ꓺStandAlone);
+							const cfpDefault404 = '<!DOCTYPE html>' + $preactꓺrenderToString(preact.h($preactꓺ404ꓺStandAlone));
 							fileContents = fileContents.replace('$$__APP_CFP_DEFAULT_404_HTML__$$', cfpDefault404);
 						}
 						if (['_headers', '_redirects', 'robots.txt'].includes(fileRelPath)) {
@@ -411,7 +408,7 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 
 			extend: true, // i.e., UMD global `||` checks.
 			noConflict: true, // Behaves the same as `jQuery.noConflict()`.
-			compact: shouldMinify ? true : false, // Minify auto-generated snippets?
+			compact: 'dev' === mode || ['lib'].includes(appType) ? false : true,
 
 			// By default, special chars in a path like `[[name]].js` get changed to `__name__.js`.
 			// This prevents that by enforcing a custom sanitizer. See: <https://o5p.me/Y2fNf9> for details.
@@ -465,10 +462,10 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 			// recommended, because preserving module structure in a final build has performance costs.
 			// However, in builds that are not final (e.g., CMAs with peer dependencies), preserving modules
 			// has performance benefits, as it allows for tree-shaking optimization in final builds.
-			...(isLib ? { preserveModules: true } : {}),
+			...(['lib'].includes(appType) ? { preserveModules: true } : {}),
 
 			// Cannot inline dynamic imports when `preserveModules` is enabled, so set as `false` explicitly.
-			...(isLib ? { inlineDynamicImports: false } : {}),
+			...(['lib'].includes(appType) ? { inlineDynamicImports: false } : {}),
 		},
 	};
 	// <https://vitejs.dev/guide/features.html#web-workers>
@@ -589,7 +586,7 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 		server: { open: true, https: true }, // Vite dev server.
 		plugins, // Additional Vite plugins that were configured above.
 
-		...(isTargetEnvSSR // <https://vitejs.dev/config/ssr-options.html>.
+		...(['cfw', 'node'].includes(targetEnv) // <https://vitejs.dev/config/ssr-options.html>.
 			? {
 					ssr: {
 						noExternal: ['cfw'].includes(targetEnv),
@@ -612,18 +609,18 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
 			assetsDir: path.relative(distDir, a16sDir), // Relative to `outDir` directory.
 			// Note: `a16s` is a numeronym for 'acquired resources'; i.e. via imports.
 
-			ssr: isTargetEnvSSR ? true : false, // Server-side rendering?
+			ssr: ['cfw', 'node'].includes(targetEnv), // Server-side rendering?
 
 			manifest: !isSSRBuild, // Enables creation of manifest (for assets).
 			sourcemap: 'dev' === mode, // Enables creation of sourcemaps (for debugging).
 
-			minify: shouldMinify ? 'esbuild' : false, // See: <https://o5p.me/ZyQ4sv>.
-			...(isTargetEnvSSR ? { modulePreload: { resolveDependencies: () => [] } } : {}),
+			minify: 'dev' === mode || ['lib'].includes(appType) ? false : 'esbuild',
+			modulePreload: false, // Disable. DOM injections conflict with our SPAs.
 
-			...(isLib // Custom-made app built as a library consumed by others.
+			...(['lib'].includes(appType) // A library consumed by others.
 				? {
 						lib: {
-							name: appLibName, // Name of UMD window global var.
+							name: libName, // Name of UMD window global var.
 							entry: appEntries, // Should match up with `rollupOptions.input`.
 							formats: isSSRBuild ? ['es'] : 1 === appEntries.length ? ['es', 'umd'] : ['es', 'cjs'],
 						},
