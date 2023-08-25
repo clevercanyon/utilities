@@ -2,37 +2,17 @@
  * Crypto utilities.
  */
 
-import { svz as $moizeꓺsvz } from './moize.js';
 import { defaults as $objꓺdefaults } from './obj.js';
+import { svz as $moizeꓺsvz, svzAsync as $moizeꓺsvzAsync } from './moize.js';
 
-import cryptoJSꓺmd5 from 'crypto-js/md5.js';
-import cryptoJSꓺencꓺhex from 'crypto-js/enc-hex.js';
-
-import cryptoJSꓺsha1 from 'crypto-js/sha1.js';
-import cryptoJSꓺhmacSHA1 from 'crypto-js/hmac-sha1.js';
-
-import cryptoJSꓺsha256 from 'crypto-js/sha256.js';
-import cryptoJSꓺhmacSHA256 from 'crypto-js/hmac-sha256.js';
+const textEncoder: TextEncoder = new TextEncoder();
 
 /**
  * Defines types.
  */
 export type UUIDV4Options = { dashes?: boolean };
 export type RandomStringOptions = { type?: string; byteDictionary?: string };
-
-/**
- * Generates an MD5 hash.
- *
- * @param   str String to hash.
- *
- * @returns     MD5. 32 hexadecimals in length.
- */
-export const md5 = $moizeꓺsvz({ maxSize: 2 })(
-	// Memoized function.
-	(str: string): string => {
-		return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺmd5(str));
-	},
-);
+export type HashAlgorithm = 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
 
 /**
  * Generates a SHA-1 hash.
@@ -41,26 +21,22 @@ export const md5 = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns     SHA-1 hash. 40 hexadecimals in length.
  */
-export const sha1 = $moizeꓺsvz({ maxSize: 2 })(
+export const sha1 = $moizeꓺsvzAsync({ maxSize: 2 })(
 	// Memoized function.
-	(str: string): string => {
-		return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺsha1(str));
-	},
+	async (str: string): Promise<string> => buildHash('sha-1', str),
 );
 
 /**
  * Generates an HMAC SHA-1 hash.
  *
- * @param   str  String to hash.
- * @param   salt Salt to use in hash.
+ * @param   str String to hash.
+ * @param   key Key to use when hashing.
  *
- * @returns      HMAC SHA-1 hash. 64 hexadecimals in length.
+ * @returns     HMAC SHA-1 hash. 40 hexadecimals in length.
  */
-export const hmacSHA1 = $moizeꓺsvz({ maxSize: 2 })(
+export const hmacSHA1 = $moizeꓺsvzAsync({ maxSize: 2 })(
 	// Memoized function.
-	(str: string, salt: string): string => {
-		return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺhmacSHA1(str, salt));
-	},
+	async (str: string, key: string): Promise<string> => buildHMACHash('sha-1', str, key),
 );
 
 /**
@@ -70,49 +46,83 @@ export const hmacSHA1 = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns     SHA-256 hash. 64 hexadecimals in length.
  */
-export const sha256 = $moizeꓺsvz({ maxSize: 2 })(
+export const sha256 = $moizeꓺsvzAsync({ maxSize: 2 })(
 	// Memoized function.
-	(str: string): string => {
-		return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺsha256(str));
-	},
+	async (str: string): Promise<string> => buildHash('sha-256', str),
 );
 
 /**
  * Generates an HMAC SHA-256 hash.
  *
- * @param   str  String to hash.
- * @param   salt Salt to use in hash.
+ * @param   str String to hash.
+ * @param   key Key to use when hashing.
  *
- * @returns      HMAC SHA-256 hash. 64 hexadecimals in length.
+ * @returns     HMAC SHA-256 hash. 64 hexadecimals in length.
  */
 export const hmacSHA256 = $moizeꓺsvz({ maxSize: 2 })(
 	// Memoized function.
-	(str: string, salt: string): string => {
-		return cryptoJSꓺencꓺhex.stringify(cryptoJSꓺhmacSHA256(str, salt));
-	},
+	async (str: string, key: string): Promise<string> => buildHMACHash('sha-256', str, key),
 );
 
 /**
- * Generates a v4 UUID.
+ * Generates a SHA-384 hash.
  *
- * @param   options Default is `{ dashes: false }`.
+ * @param   str String to hash.
  *
- * @returns         Version 4 UUID (32 bytes w/o dashes, 36 bytes with dashes).
+ * @returns     SHA-384 hash. 96 hexadecimals in length.
  */
-export const uuidV4 = (options?: UUIDV4Options): string => {
-	const opts = $objꓺdefaults({}, options || {}, { dashes: false }) as Required<UUIDV4Options>;
-	return opts.dashes ? crypto.randomUUID() : crypto.randomUUID().replace(/-/gu, '');
-};
+export const sha384 = $moizeꓺsvzAsync({ maxSize: 2 })(
+	// Memoized function.
+	async (str: string): Promise<string> => buildHash('sha-384', str),
+);
+
+/**
+ * Generates an HMAC SHA-384 hash.
+ *
+ * @param   str String to hash.
+ * @param   key Key to use when hashing.
+ *
+ * @returns     HMAC SHA-384 hash. 96 hexadecimals in length.
+ */
+export const hmacSHA384 = $moizeꓺsvz({ maxSize: 2 })(
+	// Memoized function.
+	async (str: string, key: string): Promise<string> => buildHMACHash('sha-384', str, key),
+);
+
+/**
+ * Generates a SHA-512 hash.
+ *
+ * @param   str String to hash.
+ *
+ * @returns     SHA-512 hash. 128 hexadecimals in length.
+ */
+export const sha512 = $moizeꓺsvzAsync({ maxSize: 2 })(
+	// Memoized function.
+	async (str: string): Promise<string> => buildHash('sha-512', str),
+);
+
+/**
+ * Generates an HMAC SHA-512 hash.
+ *
+ * @param   str String to hash.
+ * @param   key Key to use when hashing.
+ *
+ * @returns     HMAC SHA-512 hash. 128 hexadecimals in length.
+ */
+export const hmacSHA512 = $moizeꓺsvz({ maxSize: 2 })(
+	// Memoized function.
+	async (str: string, key: string): Promise<string> => buildHMACHash('sha-512', str, key),
+);
 
 /**
  * Random number generator.
  *
- * @param   min Minimum value.
- * @param   max Maximum value.
+ * @param   min Minimum value. Default is `1`. Can be set to `0` if desirable.
+ * @param   max Maximum value. Default is {@see Number.MAX_SAFE_INTEGER}.
  *
  * @returns     Random number between `min` and `max` inclusive.
  */
-export const randomNumber = (min: number = 0, max: number = 2147483647): number => {
+export const randomNumber = (min: number = 1, max: number = Number.MAX_SAFE_INTEGER): number => {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
@@ -283,10 +293,58 @@ export const randomString = (byteLength: number = 32, options?: RandomStringOpti
 		}
 	}
 	if (byteDictionary.length <= 1) {
-		throw new Error('Nothing to randomize.');
+		throw new Error('Byte dictionary length is `<= 1`.');
 	}
 	for (let i = 0; i < byteLength; i++) {
-		str += byteDictionary.slice(randomNumber(0, byteDictionary.length - 1), 1);
+		str += byteDictionary.at(randomNumber(0, byteDictionary.length - 1));
 	}
 	return str;
+};
+
+/**
+ * Generates a v4 UUID.
+ *
+ * @param   options Default is `{ dashes: false }`.
+ *
+ * @returns         Version 4 UUID (32 bytes w/o dashes, 36 bytes with dashes).
+ */
+export const uuidV4 = (options?: UUIDV4Options): string => {
+	const opts = $objꓺdefaults({}, options || {}, { dashes: false }) as Required<UUIDV4Options>;
+	return opts.dashes ? crypto.randomUUID() : crypto.randomUUID().replace(/-/gu, '');
+};
+
+/**
+ * Converts an array buffer to hexadecimals.
+ *
+ * @param   buffer Any {@see ArrayBuffer}.
+ *
+ * @returns        Stringified buffer as hexadecimals.
+ */
+const bufferToHex = (buffer: ArrayBuffer): string => {
+	return Array.from(new Uint8Array(buffer))
+		.map((bin) => bin.toString(16).padStart(2, '0'))
+		.join('');
+};
+
+/**
+ * Builds a hash using a specified algorithm.
+ *
+ * @param   algo Please {@see HashAlgorithm} for details.
+ *
+ * @returns      Hash promise, of variable length, based on selected algorithm.
+ */
+const buildHash = async (algo: HashAlgorithm, str: string): Promise<string> => {
+	return bufferToHex(await crypto.subtle.digest(algo, textEncoder.encode(str)));
+};
+
+/**
+ * Builds an HMAC keyed hash using a specified algorithm.
+ *
+ * @param   algo Please {@see HashAlgorithm} for details.
+ *
+ * @returns      HMAC keyed hash promise, of variable length, based on selected algorithm.
+ */
+const buildHMACHash = async (algo: HashAlgorithm, str: string, key: string): Promise<string> => {
+	const cryptoKey = await crypto.subtle.importKey('raw', textEncoder.encode(key || '\0'), { name: 'hmac', hash: { name: algo } }, false, ['sign', 'verify']);
+	return bufferToHex(await crypto.subtle.sign('hmac', cryptoKey, textEncoder.encode(str)));
 };

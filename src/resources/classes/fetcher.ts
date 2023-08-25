@@ -5,7 +5,7 @@
 import type * as $type from '../../type.js';
 import { json as $toꓺjson } from '../../to.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
-import { md5 as $cryptoꓺmd5 } from '../../crypto.js';
+import { sha1 as $cryptoꓺsha1 } from '../../crypto.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { getClass as $classꓺgetUtility } from './utility.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
@@ -128,7 +128,7 @@ export const getClass = (): Constructor => {
 		 * @returns      Same as {@see fetch()} native function.
 		 */
 		public async fetch(...args: Parameters<typeof fetch>): ReturnType<typeof fetch> {
-			const hash = $cryptoꓺmd5($toꓺjson(args));
+			const hash = await $cryptoꓺsha1($toꓺjson(args));
 
 			if (this.global.cache.has(hash)) {
 				const globalCacheEntry = this.global.cache.get(hash) as GlobalCacheEntry;

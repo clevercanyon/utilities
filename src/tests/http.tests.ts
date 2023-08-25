@@ -7,38 +7,43 @@ import { describe, test, expect } from 'vitest';
 
 describe('$http tests', async () => {
 	test('$http.requestConfig()', async () => {
-		expect($http.requestConfig()).toStrictEqual({});
+		expect($http.requestConfig()).toStrictEqual({
+			enableRewrites: false,
+		});
 	});
 	test('$http.responseConfig()', async () => {
 		expect($http.responseConfig()).toStrictEqual({
-			response: null,
-			status: 500,
-			body: null,
-			headers: {},
-			appendHeaders: {},
+			status: 405,
 			enableCORs: false,
 			enableCDN: true,
+			maxAge: null,
+			cdnMaxAge: null,
+			headers: {},
+			appendHeaders: {},
+			body: null,
 		});
 		expect(
 			$http.responseConfig({
 				status: 200,
-				body: 'abc',
-				headers: { a: 'a', b: 'b', c: 'c' },
-				appendHeaders: { d: 'd', e: 'e', f: 'f' },
 				enableCORs: true,
 				enableCDN: false,
+				headers: { a: 'a', b: 'b', c: 'c' },
+				appendHeaders: { d: 'd', e: 'e', f: 'f' },
+				body: 'abc',
 			}),
 		).toStrictEqual({
 			status: 200,
-			body: 'abc',
-			headers: { a: 'a', b: 'b', c: 'c' },
-			appendHeaders: { d: 'd', e: 'e', f: 'f' },
 			enableCORs: true,
 			enableCDN: false,
+			maxAge: null,
+			cdnMaxAge: null,
+			headers: { a: 'a', b: 'b', c: 'c' },
+			appendHeaders: { d: 'd', e: 'e', f: 'f' },
+			body: 'abc',
 		});
 	});
 	test('$http.prepareRequest()', async () => {
-		const request1 = $http.prepareRequest(new Request('https://example.com/?utx_abc=abc&utm_abc=abc&xyz=xyz&abc=abc'));
+		const request1 = $http.prepareRequest(new Request('https://example.com/?utx_abc=abc&utm_abc=abc&xyz=xyz&abc=abc'), { enableRewrites: true });
 		expect(request1).toBeInstanceOf(Request);
 		expect(request1.url.toString()).toBe('https://example.com/?abc=abc&xyz=xyz');
 	});
@@ -52,7 +57,7 @@ describe('$http tests', async () => {
 		expect(response1.headers.get('b')).toBe('b');
 		expect(response1.headers.get('c')).toBe('c, c');
 		expect(response1.headers.get('vary')).toBe('abc');
-		expect(response1.headers.get('x-ua-compatible')).toBe('IE=edge, abc');
+		expect(response1.headers.get('x-ua-compatible')).toBe('abc');
 		expect(response1.headers.get('x-frame-options')).toBe('SAMEORIGIN');
 	});
 	test('$http.responseStatusText()', async () => {
@@ -109,7 +114,7 @@ describe('$http tests', async () => {
 	test('$http.requestIsFromUser()', async () => {
 		expect($http.requestIsFromUser(new Request('https://example.com/'))).toBe(false);
 		expect($http.requestIsFromUser(new Request('https://example.com/', { headers: { cookie: 'abc' } }))).toBe(false);
-		expect($http.requestIsFromUser(new Request('https://example.com/', { headers: { cookie: 'user=abc' } }))).toBe(false);
+		expect($http.requestIsFromUser(new Request('https://example.com/', { headers: { cookie: 'user=abc' } }))).toBe(true);
 		expect($http.requestIsFromUser(new Request('https://example.com/', { headers: { cookie: 'user_id=abc' } }))).toBe(true);
 		expect($http.requestIsFromUser(new Request('https://example.com/', { headers: { authorization: 'abc' } }))).toBe(true);
 	});
@@ -238,7 +243,6 @@ describe('$http tests', async () => {
 		expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemap-index.xml'))).toBe(true);
 		expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemap2.xml'))).toBe(true);
 		expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemapAbc.xml'))).toBe(true);
-		expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/locations.kml'))).toBe(true);
 	});
 	test('$http.requestPathIsInAdmin()', async () => {
 		expect($http.requestPathIsInAdmin(new Request('https://example.com/'))).toBe(false);

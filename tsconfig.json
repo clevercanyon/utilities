@@ -15,16 +15,7 @@
 
 	"compilerOptions": {
 		"lib": ["es2021", "dom"],
-		"types": [
-			"vite/client",
-			"@cloudflare/workers-types/experimental",
-			"@types/crypto-js",
-			"@types/libsodium-wrappers",
-			"@types/luxon",
-			"@types/micromatch",
-			"@types/node",
-			"@types/semver"
-		]
+		"types": ["vite/client", "@cloudflare/workers-types/experimental", "@types/libsodium-wrappers", "@types/luxon", "@types/micromatch", "@types/node", "@types/semver"]
 	}
 	/* </custom:end> */
 }
