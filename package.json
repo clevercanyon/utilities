@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"version": "1.0.202",
+	"version": "1.0.203",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -131,16 +131,6 @@
 			"require": "./dist/version.cjs",
 			"types": "./dist/types/version.d.ts"
 		},
-		"./preact/apis/iso": {
-			"import": "./dist/preact/apis/iso.js",
-			"require": "./dist/preact/apis/iso.cjs",
-			"types": "./dist/types/preact/apis/iso.d.ts"
-		},
-		"./preact/apis/ssr": {
-			"import": "./dist/preact/apis/ssr.js",
-			"require": "./dist/preact/apis/ssr.cjs",
-			"types": "./dist/types/preact/apis/ssr.d.ts"
-		},
 		"./preact/components/404": {
 			"import": "./dist/preact/components/404.js",
 			"require": "./dist/preact/components/404.cjs",
@@ -170,6 +160,16 @@
 			"import": "./dist/preact/components/router.js",
 			"require": "./dist/preact/components/router.cjs",
 			"types": "./dist/types/preact/components/router.d.ts"
+		},
+		"./preact/apis/iso": {
+			"import": "./dist/preact/apis/iso.js",
+			"require": "./dist/preact/apis/iso.cjs",
+			"types": "./dist/types/preact/apis/iso.d.ts"
+		},
+		"./preact/apis/ssr": {
+			"import": "./dist/preact/apis/ssr.js",
+			"require": "./dist/preact/apis/ssr.cjs",
+			"types": "./dist/types/preact/apis/ssr.d.ts"
 		}
 	},
 	"sideEffects": [
@@ -195,14 +195,14 @@
 		"./src/type.ts",
 		"./src/url.ts",
 		"./src/version.ts",
-		"./src/preact/apis/iso.tsx",
-		"./src/preact/apis/ssr.tsx",
 		"./src/preact/components/404.tsx",
 		"./src/preact/components/body.tsx",
 		"./src/preact/components/data.tsx",
 		"./src/preact/components/head.tsx",
 		"./src/preact/components/html.tsx",
-		"./src/preact/components/router.tsx"
+		"./src/preact/components/router.tsx",
+		"./src/preact/apis/iso.tsx",
+		"./src/preact/apis/ssr.tsx"
 	],
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
@@ -216,13 +216,13 @@
 	},
 	"dependencies": {},
 	"peerDependencies": {
-		"@clevercanyon/preact-iso.fork": "^2.3.25",
+		"@clevercanyon/preact-iso.fork": "^2.3.26",
 		"@headlessui/react": "^1.7.17",
 		"@heroicons/react": "^2.0.18",
 		"fast-equals": "^4.0.3",
 		"ignore": "^5.2.4",
-		"luxon": "^3.4.1",
-		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.45",
+		"luxon": "^3.4.2",
+		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.46",
 		"moize": "^6.1.6",
 		"preact": "^10.17.1",
 		"preact-render-to-string": "^6.2.1",
@@ -232,7 +232,7 @@
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/dev-deps": "^1.0.175"
+		"@clevercanyon/dev-deps": "^1.0.176"
 	},
 	"overrides": {},
 	"cpu": ["x64", "arm64"],
@@ -263,11 +263,11 @@
 						"architects": "push"
 					},
 					"labels": {},
-					"configVersion": "1.0.3",
+					"configVersion": "1.0.9",
 					"envsVersion": ""
 				},
 				"npmjs": {
-					"configVersions": "1.0.3,1.0.3"
+					"configVersions": "1.0.9,1.0.9"
 				}
 			}
 		}
