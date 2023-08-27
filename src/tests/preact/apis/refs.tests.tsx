@@ -54,8 +54,8 @@ describe('preact useRef tests', async () => {
 
 	test('useRef', async () => {
 		// Refs get updated here
-		$preactꓺssr.renderToString(<TestComponent />);
-		$preactꓺssr.renderToString(<TestComponent />);
+		<TestComponent />;
+		<TestComponent />;
 		const finalRender = $preactꓺssr.renderToString(<TestComponent />);
 
 		console.log('final render', finalRender.toString());
