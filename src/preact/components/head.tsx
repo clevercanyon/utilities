@@ -9,6 +9,8 @@ import {
 
 import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
+import { rTrim as $strꓺrTrim } from '../../str.js';
+import { tryParse as $urlꓺtryParse } from '../../url.js';
 import { useData, dataGlobalToScriptCode } from './data.js';
 
 import type * as $type from '../../type.js';
@@ -62,7 +64,10 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 		throw new Error('Missing location|state.');
 	}
 	const { head } = state.html; // Head config.
-	const appBaseURL = $envꓺget('@top', 'APP_BASE_URL', '') as string;
+
+	const appBaseURL = $urlꓺtryParse(String($envꓺget('@top', 'APP_BASE_URL', '')));
+	if (!appBaseURL) throw new Error('Missing or invalid `APP_BASE_URL` environment variable.');
+	const appBaseURLStr = $strꓺrTrim(appBaseURL.toString(), '/');
 
 	let title = props.title || location.url.hostname;
 	const defaultDescription = 'Take the tiger by the tail.';
@@ -84,15 +89,15 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 				description: props.description || defaultDescription,
 				canonical: props.canonical || location.canonicalURL,
 
-				pngIcon: props.pngIcon || appBaseURL + '/assets/icon.png',
-				svgIcon: props.svgIcon || appBaseURL + '/assets/icon.svg',
+				pngIcon: props.pngIcon || appBaseURLStr + '/assets/icon.png',
+				svgIcon: props.svgIcon || appBaseURLStr + '/assets/icon.svg',
 
 				ogSiteName: props.ogSiteName || props.siteName || location.url.hostname,
 				ogType: props.ogType || 'website',
 				ogTitle: props.ogTitle || title,
 				ogDescription: props.ogDescription || props.description || defaultDescription,
 				ogURL: props.ogURL || props.canonical || location.canonicalURL,
-				ogImage: props.ogImage || appBaseURL + '/assets/og-image.png',
+				ogImage: props.ogImage || appBaseURLStr + '/assets/og-image.png',
 			},
 		},
 	});

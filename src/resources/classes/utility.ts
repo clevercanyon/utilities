@@ -7,7 +7,7 @@ import { getClass as $classꓺgetBase } from './base.js';
 
 import type { Interface as $classꓺBaseInterface } from './base.js';
 
-let Class: Constructor; // Class definition cache.
+let Class: Constructor | undefined; // Class definition cache.
 
 /**
  * Defines types.

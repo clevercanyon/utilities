@@ -5,7 +5,7 @@
 import { getClass as $classꓺgetUtility } from './utility.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
 
-let Class: Constructor; // Class definition cache.
+let Class: Constructor | undefined; // Class definition cache.
 
 /**
  * Defines types.
@@ -171,7 +171,7 @@ export const getClass = (): Constructor => {
 		public constructor(props: C9rProps | Interface) {
 			super(props); // Parent constructor.
 
-			if (!(this.org instanceof Class)) {
+			if (!(this.org instanceof (Class as Constructor))) {
 				this.org = this; // Circular.
 			}
 		}

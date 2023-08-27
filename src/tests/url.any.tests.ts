@@ -15,6 +15,11 @@ describe('$url tests', async () => {
 		expect(($url.parse('https://abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
 		expect(($url.parse('//abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
 	});
+	test('$url.tryParse()', async () => {
+		expect(($url.parse(new URL('https://abc.tld/path/xyz.ext')) as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
+		expect(($url.parse('https://abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
+		expect(($url.parse('//abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
+	});
 	test('$url.getQueryVar()', async () => {
 		expect($url.getQueryVar('abc', 'https://abc.tld/path/xyz.ext?abc')).toBe('');
 		expect($url.getQueryVar('abc', 'https://abc.tld/path/xyz.ext?abc=a.b.c')).toBe('a.b.c');

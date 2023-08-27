@@ -26,6 +26,7 @@ export type CurrentRootHostOptions = { withPort?: boolean };
 
 export type RootHostOptions = { withPort?: boolean };
 export type ParseOptions = { throwOnError?: boolean };
+export type TryParseOptions = Omit<ParseOptions, 'throwOnError'>;
 export type AddQueryVarOptions = { replaceExisting?: boolean };
 
 /**
@@ -254,7 +255,7 @@ export const rootHost = $moizeꓺdeep({ maxSize: 12 })({
  *
  * @returns         A {@see URL} instance. On failure this either throws an error or returns `undefined`.
  *
- *   - `throwOnError` defaults to `true`, resulting in the default behavior being to throw on error.
+ *   - `throwOnError` defaults to `true`. {@see tryParse()} for the opposite default behavior.
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
@@ -281,6 +282,21 @@ export const parse = (url?: URL | $type.cfw.URL | string, base?: URL | $type.cfw
 		strBase = strBase.replace(/^\/\//u, ($envꓺisWeb() ? currentScheme() : 'https') + '://');
 	}
 	return $fnꓺtry(() => new URL(strURL, strBase || undefined), undefined, { throwOnError: opts.throwOnError })();
+};
+
+/**
+ * Tries to parse a URL string into a {@see URL}.
+ *
+ * @param   url     URL for this method to parse.
+ * @param   base    Base URL. Required for relative URLs.
+ * @param   options Options (all optional) — `{ throwOnError: false }` is always on.
+ *
+ * @returns         A {@see URL} instance, else `undefined` on failure.
+ *
+ * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
+ */
+export const tryParse = (url?: URL | $type.cfw.URL | string, base?: URL | $type.cfw.URL | string, options: TryParseOptions = {}): URL | $type.cfw.URL | undefined => {
+	return parse(url, base, { ...options, throwOnError: false });
 };
 
 /**

@@ -5,10 +5,11 @@
 import * as $preact from '../../preact.js';
 import { render as preactꓺrender } from 'preact';
 
-import { get as $envꓺget } from '../../env.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
-import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
+import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
+import { parse as $urlꓺparse, tryParse as $urlꓺtryParse } from '../../url.js';
 import { getClass as $fetcherꓺgetClass } from '../../resources/classes/fetcher.js';
+import { rTrim as $strꓺrTrim, obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import { hydrate as preactꓺisoꓺhydrate, prerender as preactꓺisoꓺprerender } from '@clevercanyon/preact-iso.fork';
 
 import type * as $type from '../../type.js';
@@ -37,7 +38,7 @@ export type HydrativelyRenderSPAOptions = {
 /**
  * Exports preact ISO utilities.
  */
-export * from '@clevercanyon/preact-iso.fork';
+export { Location, ErrorBoundary, Router, Route, useLocation, useRoute, lazy } from '@clevercanyon/preact-iso.fork';
 export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext } from '@clevercanyon/preact-iso.fork/router';
 
 /**
@@ -47,11 +48,11 @@ export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteCont
  */
 export const replaceNativeFetch = (): $fetcherꓺInterface => {
 	if (!fetcher) {
-		const Class = $fetcherꓺgetClass();
+		const Fetcher = $fetcherꓺgetClass();
 
-		fetcher = new Class({
+		fetcher = new Fetcher({
 			autoReplaceNativeFetch: true,
-			globalObp: $strꓺobpPartSafe($appꓺpkgName) + '.preactFetcher',
+			globalObp: $strꓺobpPartSafe($appꓺpkgName) + '.preactISOFetcher',
 		});
 	}
 	return fetcher; // Fetcher class instance.
@@ -67,17 +68,22 @@ export const replaceNativeFetch = (): $fetcherꓺInterface => {
  * @note Server-side use only.
  */
 export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<string> => {
-	const url = opts.request.url; // From HTTP request data.
-	const appBaseURL = $envꓺget('@top', 'APP_BASE_URL', '') as string;
+	if ($envꓺisWeb()) throw new Error('Is web.');
 
-	// Gathered from build manifest provided by Vite.
-	const mainStyleBundle = appBaseURL + '/' + opts.appManifest['index.html'].css[0];
-	const mainScriptBundle = appBaseURL + '/' + opts.appManifest['index.html'].file;
+	const url = $urlꓺtryParse(opts.request.url);
+	if (!url) throw new Error('Invalid request URL.');
+
+	const appBaseURL = $urlꓺtryParse(String($envꓺget('@top', 'APP_BASE_URL', '')));
+	if (!appBaseURL) throw new Error('Missing or invalid `APP_BASE_URL` environment variable.');
+	const appBaseURLStr = $strꓺrTrim(appBaseURL.toString(), '/');
+
+	const mainStyleBundle = $urlꓺparse(appBaseURLStr + '/' + opts.appManifest['index.html'].css[0]);
+	const mainScriptBundle = $urlꓺparse(appBaseURLStr + '/' + opts.appManifest['index.html'].file);
 
 	const $preactꓺisoꓺfetcher = replaceNativeFetch();
 	const doctypeHTMLMarkup =
 		'<!DOCTYPE html>' +
-		(
+		((
 			await preactꓺisoꓺprerender(opts.App, {
 				props: {
 					url, // Must be an absolute full URL.
@@ -85,7 +91,7 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<string> =
 					fetcher: $preactꓺisoꓺfetcher, // Preact ISO fetcher.
 				},
 			})
-		).html; // HTML5 markup.
+		).html || ''); // HTML5 markup.
 	$preactꓺisoꓺfetcher.restoreNativeFetch();
 
 	return doctypeHTMLMarkup;
@@ -99,6 +105,8 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<string> =
  * @note Client-side use only.
  */
 export const hydrativelyRenderSPA = (opts: HydrativelyRenderSPAOptions): void => {
+	if (!$envꓺisWeb()) throw new Error('Not web.');
+
 	if (document.querySelector('html[data-preact-iso]')) {
 		replaceNativeFetch(), preactꓺisoꓺhydrate(opts.App, document);
 	} else {

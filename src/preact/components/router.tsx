@@ -3,9 +3,9 @@
  */
 
 import * as $preact from '../../preact.js';
+import { default as Data } from './data.js';
 import { empty as $isꓺempty } from '../../is.js';
-import { default as Data, useData } from './data.js';
-import { Location, ErrorBoundary, Router } from '../apis/iso.js';
+import { Location, ErrorBoundary, Router, useRoute } from '../apis/iso.js';
 
 import type { Props as DataProps } from './data.js';
 import type { LocationProps, RouterProps } from '../apis/iso.js';
@@ -23,13 +23,7 @@ export type Props = $preact.Props<Partial<DataProps> & Partial<LocationProps> & 
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	return !$isꓺempty(useData()) ? (
-		<ErrorBoundary>
-			<Router onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
-				{props.children}
-			</Router>
-		</ErrorBoundary>
-	) : (
+	return $isꓺempty(useRoute()) ? (
 		<Data globalObp={props.globalObp} html={props.html} fetcher={props.fetcher}>
 			<Location url={props.url}>
 				<ErrorBoundary>
@@ -39,6 +33,12 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 				</ErrorBoundary>
 			</Location>
 		</Data>
+	) : (
+		<ErrorBoundary>
+			<Router onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
+				{props.children}
+			</Router>
+		</ErrorBoundary>
 	);
 };
 

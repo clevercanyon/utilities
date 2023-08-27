@@ -26,6 +26,7 @@ import {
 
 import {
 	parse as $urlꓺparse, //
+	tryParse as $urlꓺtryParse,
 	removeCSOQueryVars as $urlꓺremoveCSOQueryVars,
 } from './url.js';
 
@@ -98,7 +99,7 @@ export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig
  */
 export const prepareRequest = (request: Request | $type.cfw.Request, config?: RequestConfig): Request | $type.cfw.Request => {
 	const cfg = requestConfig(config); // Prepares config object values.
-	let url = $urlꓺparse(request.url, undefined, { throwOnError: false });
+	let url = $urlꓺtryParse(request.url); // Tries to parse. Errors caught below.
 
 	if (!url /* Catches unparseable URLs. */) {
 		throw prepareResponse(request, { status: 400 });
@@ -116,7 +117,7 @@ export const prepareRequest = (request: Request | $type.cfw.Request, config?: Re
 		const originalURL = url; // For comparison w/ headers added below.
 
 		url = $urlꓺremoveCSOQueryVars(originalURL); // Removes (client|cache)-side-only query vars.
-		url = $urlꓺparse(url, undefined, { throwOnError: false }); // Errors caught below.
+		url = $urlꓺtryParse(url); // Tries to parse. Errors caught below.
 
 		if (!url /* Catches unparseable URLs. */) {
 			throw prepareResponse(request, { status: 400 });
@@ -142,7 +143,7 @@ export const prepareRequest = (request: Request | $type.cfw.Request, config?: Re
  */
 export const prepareResponse = (request: Request | $type.cfw.Request, config?: ResponseConfig): Response | $type.cfw.Response => {
 	const cfg = responseConfig(config); // Prepares config object values.
-	const url = $urlꓺparse(request.url, undefined, { throwOnError: false });
+	const url = $urlꓺtryParse(request.url); // Tries to parse. Errors caught below.
 
 	if (!url /* Catches unparseable URLs. */) {
 		cfg.status = 400; // Bad request status.

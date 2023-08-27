@@ -35,7 +35,7 @@ import { getClass as $classꓺgetUtility } from './utility.js';
 import type * as $type from '../../type.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
 
-let Class: Constructor; // Class definition cache.
+let Class: Constructor | undefined; // Class definition cache.
 
 /**
  * Defines types.
@@ -180,7 +180,7 @@ export const getClass = (): Constructor => {
 		 * @returns Newly created class instance.
 		 */
 		public newInstance(): Interface {
-			return new Class();
+			return new (Class as Constructor)();
 		}
 
 		/**

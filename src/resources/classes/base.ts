@@ -22,7 +22,7 @@ import { pkgName as $appꓺpkgName } from '../../app.js';
 
 import type * as $type from '../../type.js';
 
-let Class: Constructor; // Class definition cache.
+let Class: Constructor | undefined; // Class definition cache.
 
 /**
  * Defines types.

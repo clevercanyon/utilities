@@ -13,7 +13,7 @@ import { get as $obpꓺget, toCode as $obpꓺtoCode } from '../../obp.js';
 import type * as $type from '../../type.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
 
-let Class: Constructor; // Class definition cache.
+let Class: Constructor | undefined; // Class definition cache.
 
 /**
  * Defines types.
@@ -77,7 +77,7 @@ export const getClass = (): Constructor => {
 		public constructor(props?: C9rProps | Interface) {
 			super(props); // Parent constructor.
 
-			if (props instanceof Class) {
+			if (props instanceof (Class as Constructor)) {
 				this.global = props.global;
 				this.globalObp = props.globalObp;
 				return; // Stop here; there's nothing more to do.
