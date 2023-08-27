@@ -7,31 +7,31 @@ import * as $preactꓺssr from '../../../preact/apis/ssr.js';
 import { describe, test, expect } from 'vitest';
 
 describe('preact useRef tests', async () => {
-	let ref1: MutableRef<string>, ref2: MutableRef<string>, renderCount: MutableRef<number>;
-	let testValue: number, setTestValue;
+	let yesRef: MutableRef<string>, noRef: MutableRef<string>, countRef: MutableRef<number>;
+	let countState: number, setCountState;
 
 	function TestComponent() {
-		ref1 = useRef('yes');
-		ref2 = useRef('no');
+		yesRef = useRef('yes');
+		noRef = useRef('no');
 
-		renderCount = useRef(0);
-		expect(renderCount.current).toEqual(0);
+		countRef = useRef(0);
+		expect(countRef.current).toEqual(0);
 
-		[testValue, setTestValue] = useState(0);
+		[countState, setCountState] = useState(0);
 
-		const initialRefs = [ref1, ref2];
-		const initialResult = `${ref1.current}+${ref2.current}`;
+		const initialRefs = [yesRef, noRef];
+		const initialResult = `${yesRef.current}+${noRef.current}`;
 
-		expect(ref1.current).toEqual('yes');
-		expect(ref2.current).toEqual('no');
+		expect(yesRef.current).toEqual('yes');
+		expect(noRef.current).toEqual('no');
 
-		setTestValue(testValue + 1);
+		setCountState(countState + 1);
 
-		ref1.current = 'hell yes';
-		ref2.current = 'hell no';
-		renderCount.current = renderCount.current + 1; // Always sets renderCount to 1. Never changes.
+		yesRef.current = 'hell yes';
+		noRef.current = 'hell no';
+		countRef.current = countRef.current + 1; // Always sets renderCount to 1. Never changes.
 
-		const afterResult = `${ref1.current}+${ref2.current}`;
+		const afterResult = `${yesRef.current}+${noRef.current}`;
 
 		// Neither of these can be always true as the function rerenders.
 		// expect(test).toEqual(0);
@@ -39,32 +39,25 @@ describe('preact useRef tests', async () => {
 
 		// But these values are always the same.
 		expect(initialResult).not.toEqual(afterResult);
-		expect(initialRefs[0]).toEqual(ref1);
-		expect(initialRefs[1]).toEqual(ref2);
-		expect(renderCount.current).toEqual(1);
+		expect(initialRefs[0]).toEqual(yesRef);
+		expect(initialRefs[1]).toEqual(noRef);
+		expect(countRef.current).toEqual(1);
 
-		console.log('renderCount', renderCount.current, testValue);
+		console.log('renderCount', countRef.current, countState);
 
 		return (
 			<>
-				{ref1.current} | {ref2.current} | {renderCount.current} | {testValue}
+				{yesRef.current} | {noRef.current} | {countRef.current} | {countState}
 			</>
 		);
 	}
 
 	test('useRef', async () => {
-		// Refs get updated here
 		<TestComponent />;
 		<TestComponent />;
 		const finalRender = $preactꓺssr.renderToString(<TestComponent />);
 
-		console.log('final render', finalRender.toString());
-		expect(finalRender).toContain('1');
-
-		await new Promise((resolve) => {
-			setTimeout(resolve, 500);
-		});
-
-		console.log(ref1, ref2, renderCount);
+		console.log('final render', finalRender);
+		expect(finalRender).toContain('1'); // countRef.current is always 1, no matter how many times rerendered.
 	});
 });
