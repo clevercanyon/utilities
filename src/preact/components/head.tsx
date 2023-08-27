@@ -11,7 +11,7 @@ import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
 import { useData, dataGlobalToScriptCode } from './data.js';
 
-import type * as cfw from '@cloudflare/workers-types/experimental';
+import type * as $type from '../../type.js';
 
 /**
  * Defines types.
@@ -23,7 +23,7 @@ export type State = {
 	viewport?: string;
 
 	robots?: string;
-	canonical?: URL | cfw.URL | string;
+	canonical?: URL | $type.cfw.URL | string;
 	siteName?: string;
 
 	title?: string;
@@ -31,18 +31,18 @@ export type State = {
 	description?: string;
 	author?: string;
 
-	pngIcon?: URL | cfw.URL | string;
-	svgIcon?: URL | cfw.URL | string;
+	pngIcon?: URL | $type.cfw.URL | string;
+	svgIcon?: URL | $type.cfw.URL | string;
 
 	ogSiteName?: string;
 	ogType?: string;
 	ogTitle?: string;
 	ogDescription?: string;
-	ogURL?: URL | cfw.URL | string;
-	ogImage?: URL | cfw.URL | string;
+	ogURL?: URL | $type.cfw.URL | string;
+	ogImage?: URL | $type.cfw.URL | string;
 
-	mainStyleBundle?: URL | cfw.URL | string;
-	mainScriptBundle?: URL | cfw.URL | string;
+	mainStyleBundle?: URL | $type.cfw.URL | string;
+	mainScriptBundle?: URL | $type.cfw.URL | string;
 };
 export type PartialState = Partial<State>;
 export type Props = $preact.Props<PartialState>;

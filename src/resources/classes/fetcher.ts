@@ -2,7 +2,6 @@
  * Fetcher utility class.
  */
 
-import type * as $type from '../../type.js';
 import { json as $toꓺjson } from '../../to.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
 import { sha1 as $cryptoꓺsha1 } from '../../crypto.js';
@@ -10,6 +9,8 @@ import { pkgName as $appꓺpkgName } from '../../app.js';
 import { getClass as $classꓺgetUtility } from './utility.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import { get as $obpꓺget, toCode as $obpꓺtoCode } from '../../obp.js';
+
+import type * as $type from '../../type.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
 
 let Class: Constructor; // Class definition cache.
@@ -17,28 +18,29 @@ let Class: Constructor; // Class definition cache.
 /**
  * Defines types.
  */
-export type Props = {
-	readonly global: Global;
-	readonly globalObp: $type.ObjectPath;
-};
 export type C9rProps = {
 	readonly globalObp?: $type.ObjectPath;
-	readonly autoReplaceNativeFetch: boolean;
+	readonly autoReplaceNativeFetch?: boolean;
 };
 export type Constructor = {
 	new (props?: C9rProps): Interface;
 };
-export type Interface = Props &
-	$classꓺUtilityInterface & {
-		replaceNativeFetch(): void;
-		restoreNativeFetch(): void;
-		globalToScriptCode(): string;
-		fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']>;
-	};
+export declare class Interface extends $classꓺUtilityInterface {
+	public readonly global: Global;
+	public readonly globalObp: $type.ObjectPath;
+
+	public constructor(props?: C9rProps);
+
+	public replaceNativeFetch(): void;
+	public restoreNativeFetch(): void;
+	public globalToScriptCode(): string;
+
+	public fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']>;
+}
 export type Global = $type.Object<{
 	cache: Map<string, GlobalCacheEntry>;
-	nativeFetch: typeof fetch;
-	pseudoFetch: typeof fetch;
+	nativeFetch: (...args: Parameters<typeof fetch>) => ReturnType<typeof fetch>;
+	pseudoFetch: (...args: Parameters<typeof fetch | typeof $type.cfw.fetch>) => Promise<Response | $type.cfw.Response>;
 }>;
 export type GlobalCacheEntry = {
 	body: string;
@@ -80,12 +82,12 @@ export const getClass = (): Constructor => {
 				this.globalObp = props.globalObp;
 				return; // Stop here; there's nothing more to do.
 			}
-			this.globalObp = (props as C9rProps).globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.fetcher';
+			this.globalObp = (props || {}).globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.fetcher';
 			this.global = $obpꓺget(globalThis, this.globalObp, {}) as Global;
 
 			this.global.cache = this.global.cache || new Map();
-			this.global.nativeFetch = globalThis.fetch; // Stores a reference to native fetch.
-			this.global.pseudoFetch = ((...args) => this.fetch(...(args as Parameters<Global['pseudoFetch']>))) as Global['pseudoFetch'];
+			this.global.nativeFetch = globalThis.fetch; // Stores a reference to current native fetch.
+			this.global.pseudoFetch = async (...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> => this.fetch(...args);
 
 			if (this.autoReplaceNativeFetch) {
 				this.replaceNativeFetch();
@@ -96,14 +98,17 @@ export const getClass = (): Constructor => {
 		 * Replaces native fetch.
 		 */
 		public replaceNativeFetch(): void {
-			globalThis.fetch = this.global.pseudoFetch;
+			// Sets `nativeFetch` again, in case it was swapped since constructor ran; e.g., when unit testing.
+			this.global.nativeFetch = globalThis.fetch; // Stores a reference to current native fetch.
+
+			globalThis.fetch = this.global.pseudoFetch as typeof fetch;
 		}
 
 		/**
 		 * Restores native fetch.
 		 */
 		public restoreNativeFetch(): void {
-			globalThis.fetch = this.global.nativeFetch;
+			globalThis.fetch = this.global.nativeFetch as typeof fetch;
 		}
 
 		/**
@@ -127,14 +132,14 @@ export const getClass = (): Constructor => {
 		 *
 		 * @returns      Same as {@see fetch()} native function.
 		 */
-		public async fetch(...args: Parameters<typeof fetch>): ReturnType<typeof fetch> {
+		public async fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> {
 			const hash = await $cryptoꓺsha1($toꓺjson(args));
 
 			if (this.global.cache.has(hash)) {
 				const globalCacheEntry = this.global.cache.get(hash) as GlobalCacheEntry;
 				return new Response(globalCacheEntry.body, globalCacheEntry.options);
 			}
-			const response = await this.global.nativeFetch(...args);
+			const response = await this.global.nativeFetch(...(args as Parameters<Global['nativeFetch']>));
 			if ($envꓺisWeb()) return response; // No cache writes client side.
 
 			const contentType = (response.headers.get('content-type') || '').toLowerCase();

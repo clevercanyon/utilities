@@ -28,19 +28,22 @@ let Class: Constructor; // Class definition cache.
  * Defines types.
  */
 export type Constructor = {
-	appPkgName: string; // App package name.
+	readonly appPkgName: string;
 	new (props?: object | Interface): Interface;
 };
-export type Interface = {
+export declare class Interface {
 	[x: $type.ObjectKey]: unknown;
 
-	get [$symbolꓺobjTag](): ReturnType<$type.ObjTagFn>;
-	get [$symbolꓺobjStringTag](): ReturnType<$type.ObjStringTagFn>;
+	public static readonly appPkgName: string;
+	public constructor(props?: object | Interface);
 
-	[$symbolꓺobjToPlain](): ReturnType<$type.ObjToPlainSymbolFn>;
-	[$symbolꓺobjToJSON](): ReturnType<$type.ObjToJSONFn>;
-	[$symbolꓺobjToClone]({ deep, opts, circular }: Parameters<$type.ObjToCloneSymbolFn>[0]): ReturnType<$type.ObjToCloneSymbolFn>;
-};
+	public get [$symbolꓺobjTag](): ReturnType<$type.ObjTagFn>;
+	public get [$symbolꓺobjStringTag](): ReturnType<$type.ObjStringTagFn>;
+
+	public [$symbolꓺobjToPlain](): ReturnType<$type.ObjToPlainSymbolFn>;
+	public [$symbolꓺobjToJSON](): ReturnType<$type.ObjToJSONFn>;
+	public [$symbolꓺobjToClone]({ deep, opts, circular }: Parameters<$type.ObjToCloneSymbolFn>[0]): ReturnType<$type.ObjToCloneSymbolFn>;
+}
 
 /**
  * Base class factory.

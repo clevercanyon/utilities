@@ -43,10 +43,8 @@ let Class: Constructor; // Class definition cache.
 export type Constructor = {
 	new (): Interface;
 };
-export type Interface = $classꓺUtilityInterface & {
-	newInstance(): Interface;
-
-	readonly kinds: {
+export declare class Interface extends $classꓺUtilityInterface {
+	public readonly kinds: {
 		MERGE_DEEP: Kind;
 		MERGE_CLONES_DEEP: Kind;
 
@@ -56,18 +54,22 @@ export type Interface = $classꓺUtilityInterface & {
 		UPDATE_DEEP: Kind;
 		UPDATE_CLONES_DEEP: Kind;
 	};
-	readonly mergeDeep: Handler;
-	readonly mergeClonesDeep: Handler;
+	public readonly mergeDeep: Handler;
+	public readonly mergeClonesDeep: Handler;
 
-	readonly patchDeep: Handler;
-	readonly patchClonesDeep: Handler;
+	public readonly patchDeep: Handler;
+	public readonly patchClonesDeep: Handler;
 
-	readonly updateDeep: Handler;
-	readonly updateClonesDeep: Handler;
+	public readonly updateDeep: Handler;
+	public readonly updateClonesDeep: Handler;
 
-	addMerge(tagA: string, tagB: string, callback: MergeCallback): MergeCallback | undefined;
-	addOperation(name: string, callback: OperationCallback): OperationCallback | undefined;
-};
+	public constructor();
+
+	public newInstance(): Interface;
+
+	public addMerge(tagA: string, tagB: string, callback: MergeCallback): MergeCallback | undefined;
+	public addOperation(name: string, callback: OperationCallback): OperationCallback | undefined;
+}
 export type Kind = 'mergeDeep' | 'mergeClonesDeep' | 'patchDeep' | 'patchClonesDeep' | 'updateDeep' | 'updateClonesDeep';
 export type CircularMap = Map<unknown, Map<unknown, unknown>> & { [x: symbol]: boolean };
 

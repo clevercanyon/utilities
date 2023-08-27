@@ -4,6 +4,7 @@
 
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { getClass as $classꓺgetBase } from './base.js';
+
 import type { Interface as $classꓺBaseInterface } from './base.js';
 
 let Class: Constructor; // Class definition cache.
@@ -12,9 +13,13 @@ let Class: Constructor; // Class definition cache.
  * Defines types.
  */
 export type Constructor = {
+	readonly appPkgName: string;
 	new (props?: object | Interface): Interface;
 };
-export type Interface = $classꓺBaseInterface;
+export declare class Interface extends $classꓺBaseInterface {
+	public static readonly appPkgName: string;
+	public constructor(props?: object | Interface);
+}
 
 /**
  * Utility class factory.

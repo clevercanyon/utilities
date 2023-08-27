@@ -10,7 +10,7 @@ import { default as Router, RouterProps, Route, lazy } from '../../../preact/com
 describe('$preactꓺiso tests', async () => {
 	test('$preactꓺiso.prerenderSPA()', async () => {
 		const markup = await $preactꓺiso.prerenderSPA({
-			request: new Request('https://localhost'),
+			request: new Request('http://x'),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App: (props: RouterProps): $preact.VNode<RouterProps> => {
 				return (

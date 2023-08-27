@@ -11,7 +11,7 @@ import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import { getClass as $fetcherꓺgetClass } from '../../resources/classes/fetcher.js';
 import { hydrate as preactꓺisoꓺhydrate, prerender as preactꓺisoꓺprerender } from '@clevercanyon/preact-iso.fork';
 
-import type * as cfw from '@cloudflare/workers-types/experimental';
+import type * as $type from '../../type.js';
 import type { Props as RouterProps } from '../components/router.js';
 import type { Interface as $fetcherꓺInterface } from '../../resources/classes/fetcher.js';
 
@@ -26,7 +26,7 @@ let fetcher: $fetcherꓺInterface | undefined;
 export type { $fetcherꓺInterface as Fetcher };
 
 export type PrerenderSPAOptions = {
-	request: Request | cfw.Request;
+	request: Request | $type.cfw.Request;
 	appManifest: { 'index.html': { css: string[]; file: string } };
 	App: $preact.Component<$preact.Props<RouterProps>>;
 };

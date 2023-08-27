@@ -10,7 +10,7 @@ let Class: Constructor; // Class definition cache.
 /**
  * Defines types.
  */
-export type BaseProps = {
+type BaseProps = {
 	readonly n7m: string;
 
 	readonly name: string;
@@ -43,16 +43,44 @@ export type BaseProps = {
 export type RawProps = BaseProps & {
 	readonly org: string;
 };
-export type Props = BaseProps & {
-	readonly org: Interface;
-};
 export type C9rProps = BaseProps & {
 	readonly org?: Interface | undefined;
 };
 export type Constructor = {
 	new (props: C9rProps | Interface): Interface;
 };
-export type Interface = Props & $classꓺUtilityInterface;
+export declare class Interface extends $classꓺUtilityInterface {
+	public readonly org: Interface;
+	public readonly n7m: string;
+
+	public readonly name: string;
+	public readonly namespace: string;
+
+	public readonly slug: string;
+	public readonly var: string;
+
+	public readonly slugPrefix: string;
+	public readonly varPrefix: string;
+
+	public readonly rootDomain: string;
+
+	public readonly aws: {
+		readonly s3: {
+			readonly bucket: string;
+			readonly cdnDomain: string;
+		};
+	};
+	public readonly google: {
+		readonly analytics: {
+			readonly ga4GtagId: string;
+		};
+	};
+	public readonly cloudflare: {
+		readonly accountId: string;
+		readonly zoneId: string;
+	};
+	public constructor(props: C9rProps | Interface);
+}
 
 /**
  * Brand class factory.
