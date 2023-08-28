@@ -10,12 +10,12 @@ import { default as _404 } from '../../../preact/components/404.js';
 import { default as Router, Route } from '../../../preact/components/router.js';
 
 describe('<Router> tests', async () => {
-	$envꓺset('@top', 'APP_BASE_URL', 'http://x');
+	$envꓺset('@top', 'APP_BASE_URL', 'http://x.tld');
 
 	test('<Router>', async () => {
 		expect(
 			$preactꓺssr.renderToString(
-				<Router url='http://x'>
+				<Router url='http://x.tld'>
 					<Route default component={_404} />
 				</Router>,
 			),

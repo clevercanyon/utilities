@@ -8,13 +8,14 @@ import Body from './body.js';
 import * as $preact from '../../preact.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
 
-import type { RouteProps } from './router.js';
+import { useRoute } from './router.js';
+import type { RouteContextAsProps } from './router.js';
 
 /**
  * Defines types.
  */
-export type Props = $preact.Props<Partial<RouteProps>>;
-export type StandAloneProps = $preact.Props; // None at this time.
+export type Props = Omit<$preact.Props<RouteContextAsProps>, 'classes'>;
+export type StandAloneProps = Omit<$preact.Props, 'classes'>; // None at this time.
 
 /**
  * Renders component.
@@ -22,8 +23,11 @@ export type StandAloneProps = $preact.Props; // None at this time.
  * @param   props Component props.
  *
  * @returns       VNode / JSX element tree.
+ *
+ * @note No SSR `mainScriptBundle`, as this is a purely static page.
  */
-const Component = (/* props: Props = {} */): $preact.VNode<Props> => {
+const Component = (unusedꓺprops: Props): $preact.VNode<Props> => {
+	const unusedꓺroute = useRoute();
 	return (
 		<HTML>
 			<Head

@@ -24,10 +24,10 @@ describe('Fetcher tests', async () => {
 
 		// Performs fetches against the mock.
 
-		await globalThis.fetch('http://a');
-		await globalThis.fetch('http://b');
-		await globalThis.fetch('http://c');
-		await globalThis.fetch('http://a');
+		await globalThis.fetch('http://a.tld/');
+		await globalThis.fetch('http://b.tld/');
+		await globalThis.fetch('http://c.tld/');
+		await globalThis.fetch('http://a.tld/');
 
 		expect(fetcher.global.cache.size).toBe(0);
 		expect(globalFetchMock).toHaveBeenCalledTimes(4);
@@ -38,10 +38,10 @@ describe('Fetcher tests', async () => {
 
 		// Performs fetches against the mock.
 
-		await globalThis.fetch('http://x');
-		await globalThis.fetch('http://y');
-		await globalThis.fetch('http://z');
-		await globalThis.fetch('http://x');
+		await globalThis.fetch('http://x.tld/');
+		await globalThis.fetch('http://y.tld/');
+		await globalThis.fetch('http://z.tld/');
+		await globalThis.fetch('http://x.tld/');
 
 		expect(fetcher.global.cache.size).toBe(0);
 		expect(globalFetchMock).toHaveBeenCalledTimes(8);

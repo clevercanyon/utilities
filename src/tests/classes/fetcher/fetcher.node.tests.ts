@@ -25,17 +25,17 @@ describe('Fetcher tests', async () => {
 
 		// Performs fetches against the mock.
 
-		await globalThis.fetch('http://a');
-		await globalThis.fetch('http://b');
-		await globalThis.fetch('http://c');
-		await globalThis.fetch('http://a');
+		await globalThis.fetch('http://a.tld/');
+		await globalThis.fetch('http://b.tld/');
+		await globalThis.fetch('http://c.tld/');
+		await globalThis.fetch('http://a.tld/');
 
 		expect(fetcher.global.cache.size).toBe(3);
 		expect(globalFetchMock).toHaveBeenCalledTimes(3);
 
-		expect(fetcher.global.cache.get('5440e9cf0ce93ece9a5314ef9e638c7f47a5b483')).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
-		expect(fetcher.global.cache.get('f87103cdb29d41b508ea8399c8d10bb10c1e17d5')).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
-		expect(fetcher.global.cache.get('84009dd61f2458d24e1d63e177f85ab94310828f')).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
+		expect(fetcher.global.cache.get('8bda1366754d87cfe1ee93cd190c29c8a93c9015')).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
+		expect(fetcher.global.cache.get('93a570d7f8fb175c7d6a255f48b2730f79f00365')).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
+		expect(fetcher.global.cache.get('35381d33ad7f3bece934225019c135a51d8be3f3')).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
 
 		// Restores native fetch.
 
@@ -43,10 +43,10 @@ describe('Fetcher tests', async () => {
 
 		// Performs fetches against the mock.
 
-		await globalThis.fetch('http://x');
-		await globalThis.fetch('http://y');
-		await globalThis.fetch('http://z');
-		await globalThis.fetch('http://x');
+		await globalThis.fetch('http://x.tld/');
+		await globalThis.fetch('http://y.tld/');
+		await globalThis.fetch('http://z.tld/');
+		await globalThis.fetch('http://x.tld/');
 
 		expect(fetcher.global.cache.size).toBe(3);
 		expect(globalFetchMock).toHaveBeenCalledTimes(7);

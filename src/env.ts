@@ -397,7 +397,7 @@ export const test = (leadingObps: string | string[], subObp: string, tests?: QVT
 		return true; // Not empty, no tests = true.
 	}
 	const strValue = String(value); // Force string.
-	const qvs = $urlꓺgetQueryVars('http://x?' + strValue);
+	const qvs = $urlꓺgetQueryVars('http://x.tld/?' + strValue);
 
 	for (const [qv, glob] of Object.entries(tests as QVTests)) {
 		if (!$objꓺhasOwn(qvs, qv)) {

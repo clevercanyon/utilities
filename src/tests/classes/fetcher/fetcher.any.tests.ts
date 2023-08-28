@@ -41,7 +41,7 @@ describe('Fetcher tests', async () => {
 		// Enables fetcher; i.e., replacing native fetch.
 
 		fetcher.replaceNativeFetch();
-		await globalThis.fetch('http://x');
+		await globalThis.fetch('http://x.tld/');
 
 		expect(globalFetchMock).toHaveBeenCalledTimes(1);
 		expect(fetcherꓺfetchMock).toHaveBeenCalledTimes(1);
@@ -54,7 +54,7 @@ describe('Fetcher tests', async () => {
 		// Restores native fetch; i.e., reversing previous.
 
 		fetcher.restoreNativeFetch();
-		await globalThis.fetch('http://x');
+		await globalThis.fetch('http://x.tld/');
 
 		expect(globalFetchMock).toHaveBeenCalledTimes(2);
 		expect(fetcherꓺfetchMock).toHaveBeenCalledTimes(1);

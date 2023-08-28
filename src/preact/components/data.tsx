@@ -7,9 +7,9 @@ import * as $preact from '../../preact.js';
 import { json as $toꓺjson } from '../../to.js';
 import { useReducer, useContext } from 'preact/hooks';
 import { pkgName as $appꓺpkgName } from '../../app.js';
-import { updateDeep as $objꓺupdateDeep } from '../../obj.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import { get as $obpꓺget, toCode as $obpꓺtoCode } from '../../obp.js';
+import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
 
 import type { Dispatch } from 'preact/hooks';
 import type { Fetcher as $preactꓺisoꓺFetcher } from '../apis/iso.js';
@@ -60,20 +60,17 @@ const updateStateReducer = (state: State, updates: PartialState): State => {
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const globalObp = props.globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.preactData';
+	const globalObp = props.globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.preactISOData';
 	const globalProps = $obpꓺget(globalThis, globalObp, {}) as Props;
 
-	const [state, updateState] = useReducer(updateStateReducer, {
-		...$preact.cleanProps(globalProps),
-		...$preact.cleanProps(props),
+	const initialState = $objꓺmergeDeep(
+		$preact.cleanProps(props), //
+		$preact.cleanProps(globalProps),
+		{ globalObp, html: { head: {}, body: {} } },
+	) as unknown as State; // Initial global date-state.
 
-		globalObp: globalObp, // Calculated above.
+	const [state, updateState] = useReducer(updateStateReducer, initialState);
 
-		// Routes using the `<Head>` component can choose to set `scriptBundle` to an empty string during SSR renders.
-		// So, for example, for a purely static route you could do: `<Head {...(!$env.isWeb() ? { scriptBundle: '' } : {})} />`.
-		// See `./404.tsx` as an example where `scriptBundle` is updated to an empty string during server-side renders.
-		html: { head: {}, body: {} },
-	});
 	return <Context.Provider value={{ state, updateState }}>{props.children}</Context.Provider>;
 };
 
@@ -83,11 +80,9 @@ export default (props: Props = {}): $preact.VNode<Props> => {
  * @returns Global as embeddable script code; for SSR.
  */
 export const dataGlobalToScriptCode = (): string => {
-	const { state, updateState } = useData();
+	const { state } = useData();
+	if (!state) throw new Error('Data context missing.');
 
-	if (!state || !updateState) {
-		throw new Error('Missing state.');
-	}
 	const code = $obpꓺtoCode(state.globalObp);
 
 	let scriptCode = code.init; // Initialize.

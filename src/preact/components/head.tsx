@@ -2,16 +2,13 @@
  * Preact component.
  */
 
-import {
-	get as $envꓺget, //
-	isWeb as $envꓺisWeb,
-} from '../../env.js';
-
 import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
 import { rTrim as $strꓺrTrim } from '../../str.js';
 import { tryParse as $urlꓺtryParse } from '../../url.js';
+import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
 import { useData, dataGlobalToScriptCode } from './data.js';
+import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
 
 import type * as $type from '../../type.js';
 
@@ -19,8 +16,6 @@ import type * as $type from '../../type.js';
  * Defines types.
  */
 export type State = {
-	classes?: string | string[];
-
 	charset?: string;
 	viewport?: string;
 
@@ -47,7 +42,7 @@ export type State = {
 	mainScriptBundle?: URL | $type.cfw.URL | string;
 };
 export type PartialState = Partial<State>;
-export type Props = $preact.Props<PartialState>;
+export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
 
 /**
  * Renders component.
@@ -57,79 +52,88 @@ export type Props = $preact.Props<PartialState>;
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const location = useLocation();
-	const { state, updateState } = useData();
+	const { state: dataState } = useData();
+	if (!dataState) throw new Error('Data context missing.');
 
-	if (!location.url || !state || !updateState) {
-		throw new Error('Missing location|state.');
-	}
-	const { head } = state.html; // Head config.
+	const location = useLocation();
+	if (!location) throw new Error('Location context missing.');
+
+	const partialState = $objꓺmergeDeep(
+		$preact.cleanProps(props), //
+		dataState.html?.head,
+	) as unknown as PartialState;
 
 	const appBaseURL = $urlꓺtryParse(String($envꓺget('@top', 'APP_BASE_URL', '')));
-	if (!appBaseURL) throw new Error('Missing or invalid `APP_BASE_URL` environment variable.');
-	const appBaseURLStr = $strꓺrTrim(appBaseURL.toString(), '/');
+	if (!appBaseURL) throw new Error('Missing or invalid `APP_BASE_URL` env var.');
+	const appBaseURLPrefix = $strꓺrTrim(appBaseURL.toString(), '/');
 
-	let title = props.title || location.url.hostname;
+	let title = partialState.title || location.url.hostname;
 	const defaultDescription = 'Take the tiger by the tail.';
 
-	if ('' !== head.titleSuffix) {
-		if (head.titleSuffix || head.siteName) {
-			title += ' • ' + ((head.titleSuffix || head.siteName) as string);
+	if ('' !== partialState.titleSuffix) {
+		if (partialState.titleSuffix || partialState.siteName) {
+			title += ' • ' + ((partialState.titleSuffix || partialState.siteName) as string);
 		}
 	}
-	updateState({
-		html: {
-			head: {
-				...$preact.cleanProps(props),
+	const state: State = {
+		...partialState,
 
-				charset: props.charset || 'utf-8',
-				viewport: props.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',
+		charset: partialState.charset || 'utf-8',
+		viewport: partialState.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',
 
-				title, // See title generation above.
-				description: props.description || defaultDescription,
-				canonical: props.canonical || location.canonicalURL,
+		title, // See title generation above.
+		description: partialState.description || defaultDescription,
+		canonical: partialState.canonical || location.canonicalURL,
 
-				pngIcon: props.pngIcon || appBaseURLStr + '/assets/icon.png',
-				svgIcon: props.svgIcon || appBaseURLStr + '/assets/icon.svg',
+		pngIcon: partialState.pngIcon || appBaseURLPrefix + '/assets/icon.png',
+		svgIcon: partialState.svgIcon || appBaseURLPrefix + '/assets/icon.svg',
 
-				ogSiteName: props.ogSiteName || props.siteName || location.url.hostname,
-				ogType: props.ogType || 'website',
-				ogTitle: props.ogTitle || title,
-				ogDescription: props.ogDescription || props.description || defaultDescription,
-				ogURL: props.ogURL || props.canonical || location.canonicalURL,
-				ogImage: props.ogImage || appBaseURLStr + '/assets/og-image.png',
-			},
-		},
-	});
+		ogSiteName: partialState.ogSiteName || partialState.siteName || location.url.hostname,
+		ogType: partialState.ogType || 'website',
+		ogTitle: partialState.ogTitle || title,
+		ogDescription: partialState.ogDescription || partialState.description || defaultDescription,
+		ogURL: partialState.ogURL || partialState.canonical || location.canonicalURL,
+		ogImage: partialState.ogImage || appBaseURLPrefix + '/assets/og-image.png',
+
+		// This particular prop takes precedence over global data-state. Only when it's set to `''` in a server-side render.
+		// The reason is because this particular property is added to our global data-state dynamically at the topmost ISO `<App>` layer.
+		// So by the time the `<Head>` component is rendered farther down the tree, `mainScriptBundle` is already in global data-state.
+		// Routes using the `<Head>` component can choose to set `mainScriptBundle` to an empty string during server-side renders.
+		// So, for example, for a purely static route you could do: `<Head {...(!$env.isWeb() ? { mainScriptBundle: '' } : {})} />`.
+		// See `./404.tsx` as an example where `mainScriptBundle` is updated to an empty string during server-side renders.
+		// The objective is to allow specific routes to choose not to load the main script bundle for purely static pages.
+
+		mainScriptBundle: '' === props.mainScriptBundle && !$envꓺisWeb() ? '' : partialState.mainScriptBundle,
+	};
 	return (
-		<head class={$preact.classes(head.classes)}>
-			{head.charset && <meta charSet={head.charset} />}
-			{head.viewport && <meta name='viewport' content={head.viewport} />}
+		<head>
+			{state.charset && <meta charSet={state.charset} />}
+			{state.viewport && <meta name='viewport' content={state.viewport} />}
 
-			{head.robots && <meta name='robots' content={head.robots} />}
-			{head.canonical && <link rel='canonical' href={head.canonical.toString()} />}
+			{state.robots && <meta name='robots' content={state.robots} />}
+			{state.canonical && <link rel='canonical' href={state.canonical.toString()} />}
 
-			{head.title && <title>{head.title}</title>}
-			{head.description && <meta name='description' content={head.description} />}
-			{head.author && <meta name='author' content={head.author} />}
+			{state.title && <title>{state.title}</title>}
+			{state.description && <meta name='description' content={state.description} />}
+			{state.author && <meta name='author' content={state.author} />}
 
-			{head.pngIcon && <link rel='icon' href={head.pngIcon.toString()} type='image/png' />}
-			{head.svgIcon && <link rel='icon' href={head.svgIcon.toString()} type='image/svg+xml' />}
+			{state.pngIcon && <link rel='icon' href={state.pngIcon.toString()} type='image/png' />}
+			{state.svgIcon && <link rel='icon' href={state.svgIcon.toString()} type='image/svg+xml' />}
 
-			{head.ogSiteName && head.ogType && head.ogTitle && head.ogDescription && head.ogURL && head.ogImage && (
+			{state.ogSiteName && state.ogType && state.ogTitle && state.ogDescription && state.ogURL && state.ogImage && (
 				<>
-					<meta property='og:site_name' content={head.ogSiteName} />
-					<meta property='og:type' content={head.ogType} />
-					<meta property='og:title' content={head.ogTitle} />
-					<meta property='og:description' content={head.ogDescription} />
-					<meta property='og:url' content={head.ogURL.toString()} />
-					<meta property='og:image' content={head.ogImage.toString()} />
+					<meta property='og:site_name' content={state.ogSiteName} />
+					<meta property='og:type' content={state.ogType} />
+					<meta property='og:title' content={state.ogTitle} />
+					<meta property='og:description' content={state.ogDescription} />
+					<meta property='og:url' content={state.ogURL.toString()} />
+					<meta property='og:image' content={state.ogImage.toString()} />
 				</>
 			)}
-			{head.mainStyleBundle && <link rel='stylesheet' href={head.mainStyleBundle.toString()} media='all' />}
+			{state.mainStyleBundle && <link rel='stylesheet' href={state.mainStyleBundle.toString()} media='all' />}
 
-			{!$envꓺisWeb() && head.mainScriptBundle && <script>{dataGlobalToScriptCode()}</script>}
-			{head.mainScriptBundle && <script type='module' src={head.mainScriptBundle.toString()}></script>}
+			{!$envꓺisWeb() && state.mainScriptBundle && <script dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
+			{state.mainScriptBundle && <script type='module' src={state.mainScriptBundle.toString()}></script>}
 
 			{props.children}
 		</head>

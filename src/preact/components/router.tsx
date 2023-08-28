@@ -13,7 +13,12 @@ import type { LocationProps, RouterProps } from '../apis/iso.js';
 /**
  * Defines types.
  */
-export type Props = $preact.Props<Partial<DataProps> & Partial<LocationProps> & RouterProps>;
+export type Props = Omit<$preact.Props<Partial<DataProps> & Partial<LocationProps> & RouterProps>, 'classes'>;
+
+/**
+ * Exports our ISO API.
+ */
+export * from '../apis/iso.js';
 
 /**
  * Renders component.
@@ -41,8 +46,3 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 		</ErrorBoundary>
 	);
 };
-
-/**
- * Exports the rest of our ISO APIs.
- */
-export * from '../apis/iso.js';

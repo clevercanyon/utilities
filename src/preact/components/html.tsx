@@ -4,6 +4,7 @@
 
 import { useData } from './data.js';
 import * as $preact from '../../preact.js';
+import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
 
 import type { State as HeadState, PartialState as HeadPartialState, Props as HeadProps } from './head.js';
 import type { State as BodyState, PartialState as BodyPartialState, Props as BodyProps } from './body.js';
@@ -38,21 +39,22 @@ export type Props = $preact.Props<
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const { state, updateState } = useData();
+	const { state: dataState } = useData();
+	if (!dataState) throw new Error('Data context missing.');
 
-	if (!state || !updateState) {
-		throw new Error('Missing state.');
-	}
-	updateState({
-		html: {
-			...$preact.cleanProps(props),
-			lang: props.lang || 'en',
-			head: props.head || {},
-			body: props.body || {},
-		},
-	});
+	const partialState = $objꓺmergeDeep(
+		$preact.cleanProps(props), //
+		dataState.html,
+	) as unknown as PartialState;
+
+	const state: State = {
+		...partialState,
+		lang: partialState.lang || 'en',
+		head: partialState.head || {},
+		body: partialState.body || {},
+	};
 	return (
-		<html lang={state.html.lang} class={$preact.classes(state.html.classes)} data-preact-iso>
+		<html lang={state.lang} class={$preact.classes(state.classes)} data-preact-iso>
 			{props.children}
 		</html>
 	);

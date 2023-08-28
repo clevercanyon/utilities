@@ -4,6 +4,7 @@
 
 import { useData } from './data.js';
 import * as $preact from '../../preact.js';
+import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
 
 /**
  * Defines types.
@@ -22,12 +23,15 @@ export type Props = $preact.Props<PartialState>;
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const { state, updateState } = useData();
+	const { state: dataState } = useData();
+	if (!dataState) throw new Error('Data context missing.');
 
-	if (!state || !updateState) {
-		throw new Error('Missing state.');
-	}
-	updateState({ html: { body: { ...$preact.cleanProps(props) } } });
+	const partialState = $objꓺmergeDeep(
+		$preact.cleanProps(props), //
+		dataState.html?.body,
+	) as unknown as PartialState;
 
-	return <body class={$preact.classes(state.html.body.classes)}>{props.children}</body>;
+	const state: State = { ...partialState };
+
+	return <body class={$preact.classes(state.classes)}>{props.children}</body>;
 };

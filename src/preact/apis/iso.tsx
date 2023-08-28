@@ -39,7 +39,7 @@ export type HydrativelyRenderSPAOptions = {
  * Exports preact ISO utilities.
  */
 export { Location, ErrorBoundary, Router, Route, useLocation, useRoute, lazy } from '@clevercanyon/preact-iso.fork';
-export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext } from '@clevercanyon/preact-iso.fork/router';
+export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext, RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';
 
 /**
  * Replaces native fetch and returns fetcher instance.
@@ -74,11 +74,11 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<string> =
 	if (!url) throw new Error('Invalid request URL.');
 
 	const appBaseURL = $urlꓺtryParse(String($envꓺget('@top', 'APP_BASE_URL', '')));
-	if (!appBaseURL) throw new Error('Missing or invalid `APP_BASE_URL` environment variable.');
-	const appBaseURLStr = $strꓺrTrim(appBaseURL.toString(), '/');
+	if (!appBaseURL) throw new Error('Missing or invalid `APP_BASE_URL` env var.');
+	const appBaseURLPrefix = $strꓺrTrim(appBaseURL.toString(), '/');
 
-	const mainStyleBundle = $urlꓺparse(appBaseURLStr + '/' + opts.appManifest['index.html'].css[0]);
-	const mainScriptBundle = $urlꓺparse(appBaseURLStr + '/' + opts.appManifest['index.html'].file);
+	const mainStyleBundle = $urlꓺparse(appBaseURLPrefix + '/' + opts.appManifest['index.html'].css[0]);
+	const mainScriptBundle = $urlꓺparse(appBaseURLPrefix + '/' + opts.appManifest['index.html'].file);
 
 	const $preactꓺisoꓺfetcher = replaceNativeFetch();
 	const doctypeHTMLMarkup =
