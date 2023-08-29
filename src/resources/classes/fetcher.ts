@@ -8,7 +8,7 @@ import { sha1 as $cryptoꓺsha1 } from '../../crypto.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { getClass as $classꓺgetUtility } from './utility.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
-import { get as $obpꓺget, toCode as $obpꓺtoCode } from '../../obp.js';
+import { get as $obpꓺget, toScriptCode as $obpꓺtoScriptCode } from '../../obp.js';
 
 import type * as $type from '../../type.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
@@ -117,10 +117,10 @@ export const getClass = (): Constructor => {
 		 * @returns Global as embeddable script code; i.e., for SSR.
 		 */
 		public globalToScriptCode(): string {
-			const code = $obpꓺtoCode(this.globalObp);
+			const globalObpScriptCode = $obpꓺtoScriptCode(this.globalObp);
 
-			let scriptCode = code.init; // Initialize.
-			scriptCode += ' ' + code.set + '.cache = ' + $toꓺjson(this.global.cache) + ';';
+			let scriptCode = globalObpScriptCode.init; // Initialize.
+			scriptCode += ' ' + globalObpScriptCode.set + '.cache = ' + $toꓺjson(this.global.cache) + ';';
 
 			return scriptCode;
 		}

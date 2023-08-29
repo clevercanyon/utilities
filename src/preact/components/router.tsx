@@ -13,7 +13,7 @@ import type { LocationProps, RouterProps } from '../apis/iso.js';
 /**
  * Defines types.
  */
-export type Props = Omit<$preact.Props<Partial<DataProps> & Partial<LocationProps> & RouterProps>, 'classes'>;
+export type Props = Omit<$preact.Props<LocationProps & DataProps & RouterProps>, 'classes'>;
 
 /**
  * Exports our ISO API.
@@ -29,15 +29,15 @@ export * from '../apis/iso.js';
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
 	return $isꓺempty(useRoute()) ? (
-		<Data globalObp={props.globalObp} html={props.html} fetcher={props.fetcher}>
-			<Location url={props.url}>
+		<Location url={props.url}>
+			<Data globalObp={props.globalObp} html={props.html} fetcher={props.fetcher}>
 				<ErrorBoundary>
 					<Router onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
 						{props.children}
 					</Router>
 				</ErrorBoundary>
-			</Location>
-		</Data>
+			</Data>
+		</Location>
 	) : (
 		<ErrorBoundary>
 			<Router onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>

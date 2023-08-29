@@ -15,7 +15,7 @@ import { castArray as $toꓺcastArray } from './to.js';
  * Defines types.
  */
 export type VNode<P extends Props = Props> = preact.VNode<P>;
-export type Component<P extends Props = Props, S extends object = object> = preact.AnyComponent<P, S>;
+export type Component<P extends Props = Props> = preact.FunctionComponent<P>;
 export type Props<P extends object = object> = preact.RenderableProps<P & { classes?: string | string[] }>;
 export type InheritedProps = 'key' | 'jsx' | 'dangerouslySetInnerHTML' | 'ref' | 'children';
 

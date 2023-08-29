@@ -340,7 +340,7 @@ export const splitPath = (path: $type.ObjectPath | $type.ObjectPath[], separator
  * @note Object paths do not support symbol keys whatsoever.
  * @note An array path should **not** be passed directly. Internal use only.
  */
-export const toCode = (path: $type.ObjectPath | $type.ObjectPath[], separator: string = '.'): Code => {
+export const toScriptCode = (path: $type.ObjectPath | $type.ObjectPath[], separator: string = '.'): Code => {
 	let init = ''; // Initialize.
 	let set = 'globalThis'; // Initialize.
 

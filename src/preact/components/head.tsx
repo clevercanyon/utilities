@@ -4,8 +4,6 @@
 
 import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
-import { rTrim as $strꓺrTrim } from '../../str.js';
-import { tryParse as $urlꓺtryParse } from '../../url.js';
 import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
 import { useData, dataGlobalToScriptCode } from './data.js';
 import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
@@ -52,22 +50,21 @@ export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const { state: dataState } = useData();
-	if (!dataState) throw new Error('Data context missing.');
+	const { state: locState } = useLocation();
+	if (!locState) throw new Error('Missing location context.');
 
-	const location = useLocation();
-	if (!location) throw new Error('Location context missing.');
+	const { state: dataState } = useData();
+	if (!dataState) throw new Error('Missing data context.');
 
 	const partialState = $objꓺmergeDeep(
 		$preact.cleanProps(props), //
 		dataState.html?.head,
 	) as unknown as PartialState;
 
-	const appBaseURL = $urlꓺtryParse(String($envꓺget('@top', 'APP_BASE_URL', '')));
-	if (!appBaseURL) throw new Error('Missing or invalid `APP_BASE_URL` env var.');
-	const appBaseURLPrefix = $strꓺrTrim(appBaseURL.toString(), '/');
+	const appBaseURL = String($envꓺget('@top', 'APP_BASE_URL', ''));
+	const appBasePath = String($envꓺget('@top', 'APP_BASE_PATH', ''));
 
-	let title = partialState.title || location.url.hostname;
+	let title = partialState.title || locState.url.hostname;
 	const defaultDescription = 'Take the tiger by the tail.';
 
 	if ('' !== partialState.titleSuffix) {
@@ -83,26 +80,27 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 
 		title, // See title generation above.
 		description: partialState.description || defaultDescription,
-		canonical: partialState.canonical || location.canonicalURL,
+		canonical: partialState.canonical || locState.canonicalURL,
 
-		pngIcon: partialState.pngIcon || appBaseURLPrefix + '/assets/icon.png',
-		svgIcon: partialState.svgIcon || appBaseURLPrefix + '/assets/icon.svg',
+		pngIcon: partialState.pngIcon || appBasePath + '/assets/icon.png',
+		svgIcon: partialState.svgIcon || appBasePath + '/assets/icon.svg',
 
-		ogSiteName: partialState.ogSiteName || partialState.siteName || location.url.hostname,
+		ogSiteName: partialState.ogSiteName || partialState.siteName || locState.url.hostname,
 		ogType: partialState.ogType || 'website',
 		ogTitle: partialState.ogTitle || title,
 		ogDescription: partialState.ogDescription || partialState.description || defaultDescription,
-		ogURL: partialState.ogURL || partialState.canonical || location.canonicalURL,
-		ogImage: partialState.ogImage || appBaseURLPrefix + '/assets/og-image.png',
+		ogURL: partialState.ogURL || partialState.canonical || locState.canonicalURL,
+		ogImage: partialState.ogImage || appBaseURL + '/assets/og-image.png',
 
-		// This particular prop takes precedence over global data-state. Only when it's set to `''` in a server-side render.
-		// The reason is because this particular property is added to our global data-state dynamically at the topmost ISO `<App>` layer.
-		// So by the time the `<Head>` component is rendered farther down the tree, `mainScriptBundle` is already in global data-state.
-		// Routes using the `<Head>` component can choose to set `mainScriptBundle` to an empty string during server-side renders.
+		// These particular props take precedence over global data-state. Only when they’re set to `''` in a server-side render.
+		// The reason is because these particular properties are added to our global data-state dynamically at the topmost ISO `<App>` layer.
+		// So by the time the `<Head>` component is rendered farther down the tree, they’ve already made their way in global data-state.
+		// Routes using `<Head>` can choose to set `mainStyleBundle|mainScriptBundle` to an empty string during server-side renders.
 		// So, for example, for a purely static route you could do: `<Head {...(!$env.isWeb() ? { mainScriptBundle: '' } : {})} />`.
 		// See `./404.tsx` as an example where `mainScriptBundle` is updated to an empty string during server-side renders.
 		// The objective is to allow specific routes to choose not to load the main script bundle for purely static pages.
 
+		mainStyleBundle: '' === props.mainStyleBundle && !$envꓺisWeb() ? '' : partialState.mainStyleBundle,
 		mainScriptBundle: '' === props.mainScriptBundle && !$envꓺisWeb() ? '' : partialState.mainScriptBundle,
 	};
 	return (

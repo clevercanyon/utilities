@@ -24,7 +24,7 @@ export type Props = $preact.Props<PartialState>;
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
 	const { state: dataState } = useData();
-	if (!dataState) throw new Error('Data context missing.');
+	if (!dataState) throw new Error('Missing data context.');
 
 	const partialState = $objꓺmergeDeep(
 		$preact.cleanProps(props), //

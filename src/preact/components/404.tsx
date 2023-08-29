@@ -5,17 +5,17 @@
 import HTML from './html.js';
 import Head from './head.js';
 import Body from './body.js';
+import { useHTTPStatus } from './data.js';
 import * as $preact from '../../preact.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
 
-import { useRoute } from './router.js';
 import type { RouteContextAsProps } from './router.js';
 
 /**
  * Defines types.
  */
 export type Props = Omit<$preact.Props<RouteContextAsProps>, 'classes'>;
-export type StandAloneProps = Omit<$preact.Props, 'classes'>; // None at this time.
+export type StandAloneProps = Omit<$preact.Props, 'classes'>;
 
 /**
  * Renders component.
@@ -24,17 +24,19 @@ export type StandAloneProps = Omit<$preact.Props, 'classes'>; // None at this ti
  *
  * @returns       VNode / JSX element tree.
  *
- * @note No SSR `mainScriptBundle`, as this is a purely static page.
+ * @note No SSR style/script bundles, as this is a purely static page.
  */
 const Component = (unusedꓺprops: Props): $preact.VNode<Props> => {
-	const unusedꓺroute = useRoute();
+	const { updateState: updateHTTPStatus } = useHTTPStatus();
+	updateHTTPStatus(404); // Record status being a 404 error.
+
 	return (
 		<HTML>
 			<Head
 				robots={'noindex, nofollow'}
 				title={'404 Error: Not Found'}
 				description={'The resource you are looking for could not be found.'}
-				{...(!$envꓺisWeb() ? { mainScriptBundle: '' } : {})}
+				{...(!$envꓺisWeb() ? { mainStyleBundle: '', mainScriptBundle: '' } : {})}
 			>
 				<link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
 			</Head>
