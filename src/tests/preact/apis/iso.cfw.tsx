@@ -24,7 +24,7 @@ import type { RouteContextAsProps } from '../../../preact/components/router.js';
 - Test client-side hydration.
 */
 describe('$preactꓺiso tests', async () => {
-	$envꓺset('@top', 'APP_BASE_URL', 'http://x.tld');
+	$envꓺset('@top', 'APP_BASE_URL', 'http://x.tld'); // @todo Restore this after tests run.
 
 	const App = (props: RouterProps): $preact.VNode<RouterProps> => {
 		return (
