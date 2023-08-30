@@ -5,6 +5,7 @@
 import HTML from './html.js';
 import Head from './head.js';
 import Body from './body.js';
+
 import { useHTTPStatus } from './data.js';
 import * as $preact from '../../preact.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
@@ -26,7 +27,7 @@ export type StandAloneProps = Omit<$preact.Props, 'classes'>;
  *
  * @note No SSR style/script bundles, as this is a purely static page.
  */
-const Component = (unusedꓺprops: Props): $preact.VNode<Props> => {
+export default (unusedꓺprops: Props): $preact.VNode<Props> => {
 	const { updateState: updateHTTPStatus } = useHTTPStatus();
 	updateHTTPStatus(404); // Record status being a 404 error.
 
@@ -57,7 +58,7 @@ const Component = (unusedꓺprops: Props): $preact.VNode<Props> => {
  * @note This component should be easy to render as a string and then for it be easily
  * dropped into any system, serving as a 404 error page; e.g., for a Cloudflare Pages site.
  */
-export const StandAlone = (/* props: StandAloneProps = {} */): $preact.VNode<StandAloneProps> => {
+export const StandAlone = (unusedꓺprops: StandAloneProps = {}): $preact.VNode<StandAloneProps> => {
 	return (
 		<html lang={'en'}>
 			<head>
@@ -110,8 +111,3 @@ const CommonBodyContents = (): $preact.VNode => {
 		</>
 	);
 };
-
-/**
- * Default export.
- */
-export default Component;

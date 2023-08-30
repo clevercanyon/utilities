@@ -5,10 +5,12 @@
 import * as $preact from '../../preact.js';
 import { render as preactꓺrender } from 'preact';
 
+import { renderToString } from './ssr.js';
 import { useHTTPStatus } from '../components/data.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
+import { StandAlone as StandAlone404 } from '../components/404.js';
 import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
 import { getClass as $fetcherꓺgetClass } from '../../resources/classes/fetcher.js';
 import { hydrate as preactꓺisoꓺhydrate, prerender as preactꓺisoꓺprerender } from '@clevercanyon/preact-iso.fork';
@@ -37,12 +39,6 @@ export type HydrativelyRenderSPAOptions = {
 	App: $preact.Component<RouterProps>;
 	props?: Omit<RouterProps, 'url' | 'fetcher'>;
 };
-
-/**
- * Exports preact ISO utilities.
- */
-export { Location, ErrorBoundary, Router, Route, useLocation, useRoute, lazy } from '@clevercanyon/preact-iso.fork';
-export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext, RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';
 
 /**
  * Replaces native fetch and returns fetcher instance.
@@ -101,8 +97,8 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<{ httpSta
 	});
 	fetcher.restoreNativeFetch(); // Restores native fetch on prerender completion.
 
-	const { state: httpStatus } = useHTTPStatus(); // Default is `200`.
-	const doctypeHTML = prerendered.html ? '<!DOCTYPE html>' + prerendered.html : '';
+	const { state: httpStatus } = !prerendered.html ? { state: 404 } : useHTTPStatus();
+	const doctypeHTML = '<!DOCTYPE html>' + (!prerendered.html ? renderToString(<StandAlone404 />) : prerendered.html);
 	const linkURLs = [...prerendered.links]; // Converts link URLs into array.
 
 	return { httpStatus, doctypeHTML, linkURLs };
@@ -127,3 +123,9 @@ export const hydrativelyRenderSPA = (opts: HydrativelyRenderSPAOptions): void =>
 		preactꓺrender(<App {...{ ...props, fetcher }} />, document);
 	}
 };
+
+/**
+ * Exports preact ISO utilities.
+ */
+export { Location, ErrorBoundary, Router, Route, useLocation, useRoute, lazy } from '@clevercanyon/preact-iso.fork';
+export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext, RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';

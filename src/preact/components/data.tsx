@@ -12,8 +12,8 @@ import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
 import { get as $obpꓺget, set as $obpꓺset, toScriptCode as $obpꓺtoScriptCode } from '../../obp.js';
 
+import type { Fetcher } from './router.js';
 import type { Dispatch } from 'preact/hooks';
-import type { Fetcher as $preactꓺisoꓺFetcher } from '../apis/iso.js';
 import type { State as HTMLState, PartialState as HTMLPartialState } from './html.js';
 
 /**
@@ -22,12 +22,12 @@ import type { State as HTMLState, PartialState as HTMLPartialState } from './htm
 export type State = {
 	globalObp: string;
 	html: HTMLState;
-	fetcher?: $preactꓺisoꓺFetcher;
+	fetcher?: Fetcher;
 };
 export type PartialState = {
 	globalObp?: string;
 	html?: HTMLPartialState;
-	fetcher?: $preactꓺisoꓺFetcher;
+	fetcher?: Fetcher;
 };
 export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
 export type GlobalObpProps = Props & { httpStatus?: number };
