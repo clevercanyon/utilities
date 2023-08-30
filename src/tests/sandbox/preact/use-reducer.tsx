@@ -1,8 +1,7 @@
 /**
  * Test suite.
  */
-/* eslint-disable */
-// @ts-nocheck -- Ignore file.
+// @ts-nocheck -- sandbox.
 
 import { createContext } from 'preact';
 import { $obj, $type } from '../../../index.js';
@@ -14,28 +13,28 @@ describe('sandbox: preact', async () => {
 	test('useReducer()', async () => {
 		const Context = createContext({});
 		const useData = () => useContext(Context);
-		const reducer = (state: $type.Object, updates: $type.Object) => {
+		const reducer = (state, updates) => {
 			console.log('State in reducer():', { state, updates });
 			return $obj.mergeDeep(state, updates);
 		};
-		const Location = (props: $type.Object) => {
+		const Location = (props) => {
 			return <>{props.children}</>;
 		};
-		const Data = (props: $type.Object) => {
+		const Data = (props) => {
 			const [state, updateState] = useReducer(reducer, undefined, () => {
 				return { url: 'http://x.tld/' };
 			});
 			console.log('State in <Data>:', state);
 			return <Context.Provider value={{ state, updateState }}>{props.children}</Context.Provider>;
 		};
-		const Router = (props: $type.Object) => {
+		const Router = (props) => {
 			return (
 				<Location>
 					<Data>{props.children}</Data>
 				</Location>
 			);
 		};
-		const App = (props: $type.Object) => {
+		const App = (props) => {
 			return (
 				<Router>
 					<Component />
@@ -43,7 +42,7 @@ describe('sandbox: preact', async () => {
 				</Router>
 			);
 		};
-		const Component = (props: object) => {
+		const Component = (props) => {
 			const { state, updateState } = useData();
 			console.log('State in <Component> before update:', state);
 			updateState({ url: 'http://x.tld/new-path' });

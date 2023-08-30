@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"version": "1.0.212",
+	"version": "1.0.213",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -216,11 +216,11 @@
 	},
 	"dependencies": {},
 	"peerDependencies": {
-		"@clevercanyon/preact-iso.fork": "^2.3.44",
+		"@clevercanyon/preact-iso.fork": "^2.3.45",
 		"fast-equals": "^4.0.3",
 		"ignore": "^5.2.4",
 		"luxon": "^3.4.2",
-		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.50",
+		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.51",
 		"moize": "^6.1.6",
 		"preact": "^10.17.1",
 		"preact-render-to-string": "^6.2.1",
@@ -232,7 +232,7 @@
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/dev-deps": "^1.0.182"
+		"@clevercanyon/dev-deps": "^1.0.183"
 	},
 	"overrides": {},
 	"cpu": ["x64", "arm64"],
