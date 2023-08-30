@@ -5,13 +5,12 @@
 import HTML from '../../../../preact/components/html.js';
 import Head from '../../../../preact/components/head.js';
 import Body from '../../../../preact/components/body.js';
-
 import { $env, $to, $preact } from '../../../../index.js';
+import { prerenderSPA } from '../../../../preact/apis/iso.js';
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-
 import { useHTTPStatus } from '../../../../preact/components/data.js';
-import { default as Router, Route, useRoute, lazy, prerenderSPA } from '../../../../preact/components/router.js';
 import type { RouterProps, RouteContextAsProps } from '../../../../preact/components/router.js';
+import { default as Router, Route, useRoute, lazyRoute } from '../../../../preact/components/router.js';
 
 describe('$preactꓺiso.prerenderSPA()', async () => {
 	beforeAll(async () => {
@@ -129,7 +128,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			</HTML>
 		);
 	};
-	const _404 = lazy(() => import('../../../../preact/components/404.js'));
+	const _404 = lazyRoute(() => import('../../../../preact/components/404.js'));
 
 	// ---
 

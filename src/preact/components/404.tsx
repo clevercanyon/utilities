@@ -5,11 +5,9 @@
 import HTML from './html.js';
 import Head from './head.js';
 import Body from './body.js';
-
 import { useHTTPStatus } from './data.js';
 import * as $preact from '../../preact.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
-
 import type { RouteContextAsProps } from './router.js';
 
 /**

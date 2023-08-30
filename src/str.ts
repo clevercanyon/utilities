@@ -2,16 +2,11 @@
  * String utilities.
  */
 
-import {
-	numeric as $isꓺnumeric, //
-	safeArrayKey as $isꓺsafeArrayKey,
-} from './is.js';
-
+import { default as mm } from 'micromatch';
 import { isWeb as $envꓺisWeb } from './env.js';
 import { defaults as $objꓺdefaults } from './obj.js';
-
-import { default as mm } from 'micromatch';
 import type { Options as MMOptions } from 'micromatch';
+import { numeric as $isꓺnumeric, safeArrayKey as $isꓺsafeArrayKey } from './is.js';
 
 let unescHTMLDiv: HTMLElement; // Initialize.
 

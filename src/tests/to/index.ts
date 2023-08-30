@@ -3,8 +3,8 @@
  */
 
 import type * as $type from '../../type.js';
-import { $is, $to, $obj, $symbol, $brand } from '../../index.js';
 import { describe, beforeEach, test, expect } from 'vitest';
+import { $is, $to, $obj, $symbol, $brand } from '../../index.js';
 
 describe('$to', async () => {
 	class Custom {

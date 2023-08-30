@@ -17,20 +17,11 @@ import {
 	structuredCloneable as $isꓺstructuredCloneable,
 } from './is.js';
 
-import {
-	objTag as $symbolꓺobjTag, //
-	objToClone as $symbolꓺobjToClone,
-} from './symbol.js';
-
+import type * as $type from './type.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { getClass as $classꓺgetMC } from './resources/classes/obj-mc.js';
-
-import type {
-	Handler as MCHandler, //
-	Interface as MCInterface,
-} from './resources/classes/obj-mc.js';
-
-import type * as $type from './type.js';
+import { objTag as $symbolꓺobjTag, objToClone as $symbolꓺobjToClone } from './symbol.js';
+import type { Handler as MCHandler, Interface as MCInterface } from './resources/classes/obj-mc.js';
 
 let mc: MCInterface; // Object MC class instance.
 let mcInitialized: boolean = false; // Once only.

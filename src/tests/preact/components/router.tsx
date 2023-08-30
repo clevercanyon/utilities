@@ -5,7 +5,6 @@
 import { $env } from '../../../index.js';
 import { describe, test, expect } from 'vitest';
 import * as $preactꓺssr from '../../../preact/apis/ssr.js';
-
 import { default as _404 } from '../../../preact/components/404.js';
 import { default as Router, Route } from '../../../preact/components/router.js';
 

@@ -12,14 +12,9 @@ import {
 	plainObject as $isꓺplainObject,
 } from './is.js';
 
-import {
-	objToJSON as $symbolꓺobjToJSON, //
-	objToPlain as $symbolꓺobjToPlain,
-} from './symbol.js';
-
-import { keyAndSymbolEntries as $objꓺkeyAndSymbolEntries } from './obj.js';
-
 import type * as $type from './type.js';
+import { keyAndSymbolEntries as $objꓺkeyAndSymbolEntries } from './obj.js';
+import { objToJSON as $symbolꓺobjToJSON, objToPlain as $symbolꓺobjToPlain } from './symbol.js';
 
 /**
  * Converts any value into JSON.

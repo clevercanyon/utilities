@@ -3,31 +3,29 @@
  */
 
 import * as $preact from '../../preact.js';
+import type * as $type from '../../type.js';
 import { render as preactꓺrender } from 'preact';
-
-import { renderToString } from './ssr.js';
 import { useHTTPStatus } from '../components/data.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import { StandAlone as StandAlone404 } from '../components/404.js';
+import type { Props as RouterProps } from '../components/router.js';
 import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
+import { renderToString as $preactꓺssrꓺrenderToString } from './ssr.js';
+import type { Interface as Fetcher } from '../../resources/classes/fetcher.js';
 import { getClass as $fetcherꓺgetClass } from '../../resources/classes/fetcher.js';
 import { hydrate as preactꓺisoꓺhydrate, prerender as preactꓺisoꓺprerender } from '@clevercanyon/preact-iso.fork';
 
-import type * as $type from '../../type.js';
-import type { Props as RouterProps } from '../components/router.js';
-import type { Interface as $fetcherꓺInterface } from '../../resources/classes/fetcher.js';
-
 /**
- * Contains fetcher.
+ * Fetcher instance.
  */
-let fetcher: $fetcherꓺInterface | undefined;
+let fetcher: Fetcher | undefined;
 
 /**
  * Defines types.
  */
-export type { $fetcherꓺInterface as Fetcher };
+export type { Fetcher };
 
 export type PrerenderSPAOptions = {
 	request: Request | $type.cfw.Request;
@@ -43,13 +41,13 @@ export type HydrativelyRenderSPAOptions = {
 /**
  * Replaces native fetch and returns fetcher instance.
  *
- * @returns {@see $fetcherꓺInterface} Instance.
+ * @returns {@see Fetcher} Instance.
  */
-export const replaceNativeFetch = (): $fetcherꓺInterface => {
+export const replaceNativeFetch = (): Fetcher => {
 	if (!fetcher) {
-		const Fetcher = $fetcherꓺgetClass();
+		const Class = $fetcherꓺgetClass();
 
-		fetcher = new Fetcher({
+		fetcher = new Class({
 			autoReplaceNativeFetch: true,
 			globalObp: $strꓺobpPartSafe($appꓺpkgName) + '.preactISOFetcher',
 		});
@@ -98,7 +96,7 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<{ httpSta
 	fetcher.restoreNativeFetch(); // Restores native fetch on prerender completion.
 
 	const { state: httpStatus } = !prerendered.html ? { state: 404 } : useHTTPStatus();
-	const doctypeHTML = '<!DOCTYPE html>' + (!prerendered.html ? renderToString(<StandAlone404 />) : prerendered.html);
+	const doctypeHTML = '<!DOCTYPE html>' + (!prerendered.html ? $preactꓺssrꓺrenderToString(<StandAlone404 />) : prerendered.html);
 	const linkURLs = [...prerendered.links]; // Converts link URLs into array.
 
 	return { httpStatus, doctypeHTML, linkURLs };
@@ -123,9 +121,3 @@ export const hydrativelyRenderSPA = (opts: HydrativelyRenderSPAOptions): void =>
 		preactꓺrender(<App {...{ ...props, fetcher }} />, document);
 	}
 };
-
-/**
- * Exports preact ISO utilities.
- */
-export { Location, ErrorBoundary, Router, Route, useLocation, useRoute, lazy } from '@clevercanyon/preact-iso.fork';
-export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext, RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';

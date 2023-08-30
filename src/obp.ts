@@ -12,18 +12,10 @@ import {
 	protoPollutionKey as $isꓺprotoPollutionKey,
 } from './is.js';
 
-import {
-	hasOwn as $objꓺhasOwn, //
-	cloneDeep as $objꓺcloneDeep,
-} from './obj.js';
-
-import {
-	quote as $strꓺquote, //
-	escRegExp as $strꓺescRegExp,
-} from './str.js';
-
 import type * as $type from './type.js';
 import { castArray as $toꓺcastArray } from './to.js';
+import { quote as $strꓺquote, escRegExp as $strꓺescRegExp } from './str.js';
+import { hasOwn as $objꓺhasOwn, cloneDeep as $objꓺcloneDeep } from './obj.js';
 
 /**
  * Defines types.

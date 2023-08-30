@@ -5,10 +5,9 @@
 import * as $preact from '../../preact.js';
 import { default as Data } from './data.js';
 import { empty as $isꓺempty } from '../../is.js';
-import { Location, ErrorBoundary, Router, useRoute } from '../apis/iso.js';
-
 import type { Props as DataProps } from './data.js';
-import type { LocationProps, RouterProps } from '../apis/iso.js';
+import type { LocationProps, RouterProps } from '@clevercanyon/preact-iso.fork/router';
+import { Location, ErrorBoundary, Router, useRoute } from '@clevercanyon/preact-iso.fork';
 
 /**
  * Defines types.
@@ -43,6 +42,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 };
 
 /**
- * Exports our ISO API.
+ * Exports preact ISO router-related utilities.
  */
-export * from '../apis/iso.js';
+export { Location, ErrorBoundary, Router, Route, useLocation, useRoute, lazy as lazyRoute } from '@clevercanyon/preact-iso.fork';
+export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext, RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';

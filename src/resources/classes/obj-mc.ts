@@ -29,10 +29,9 @@ import {
 	safeObjectPath as $isꓺsafeObjectPath,
 } from '../../is.js';
 
+import type * as $type from '../../type.js';
 import { flatObject as $toꓺflatObject } from '../../to.js';
 import { getClass as $classꓺgetUtility } from './utility.js';
-
-import type * as $type from '../../type.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
 
 let Class: Constructor | undefined; // Class definition cache.

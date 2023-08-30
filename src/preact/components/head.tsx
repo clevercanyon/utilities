@@ -4,11 +4,10 @@
 
 import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
+import type * as $type from '../../type.js';
 import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
 import { useData, dataGlobalToScriptCode } from './data.js';
 import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
-
-import type * as $type from '../../type.js';
 
 /**
  * Defines types.

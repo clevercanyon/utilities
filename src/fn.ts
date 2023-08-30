@@ -2,17 +2,9 @@
  * Function utilities.
  */
 
-import {
-	error as $isꓺerror, //
-	asyncFunction as $isꓺasyncFunction,
-} from './is.js';
-
-import {
-	tag as $objꓺtag, //
-	defaults as $objꓺdefaults,
-} from './obj.js';
-
 import type * as $type from './type.js';
+import { tag as $objꓺtag, defaults as $objꓺdefaults } from './obj.js';
+import { error as $isꓺerror, asyncFunction as $isꓺasyncFunction } from './is.js';
 
 /**
  * Defines types.

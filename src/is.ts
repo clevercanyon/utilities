@@ -3,23 +3,17 @@
  */
 
 import {
-	isWeb as $envꓺisWeb, //
-	isNode as $envꓺisNode,
-} from './env.js';
-
-import {
 	tag as $objꓺtag, //
 	tags as $objꓺtags,
 	keysAndSymbols as $objꓺkeysAndSymbols,
 } from './obj.js';
 
+import type * as $type from './type.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { pkgName as $appꓺpkgName } from './app.js';
-
-import type * as $type from './type.js';
+import { isWeb as $envꓺisWeb, isNode as $envꓺisNode } from './env.js';
 
 let structuredCloneableObjectTags: string[];
-
 const numericIntegerRegExp = /^(?:0|-?[1-9][0-9]*)$/u;
 const numericFloatRegExp = /^(?:0|-?[1-9][0-9]*)?\.[0-9]+$/u;
 

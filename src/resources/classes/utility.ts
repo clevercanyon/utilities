@@ -4,7 +4,6 @@
 
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { getClass as $classꓺgetBase } from './base.js';
-
 import type { Interface as $classꓺBaseInterface } from './base.js';
 
 let Class: Constructor | undefined; // Class definition cache.

@@ -3,8 +3,8 @@
  */
 
 import type { Ignore as GitIgnore } from 'ignore';
-import { default as untypedGitIgnoreFactory } from 'ignore';
 import { defaults as $objꓺdefaults } from './obj.js';
+import { default as untypedGitIgnoreFactory } from 'ignore';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
 const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgnoreFactoryOptions) => GitIgnore;

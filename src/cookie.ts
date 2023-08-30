@@ -3,22 +3,17 @@
  */
 
 import {
-	hasOwn as $objꓺhasOwn, //
-	defaults as $objꓺdefaults,
-} from './obj.js';
-
-import {
 	encode as $urlꓺencode, //
 	decode as $urlꓺdecode,
-	currentScheme as $urlꓺcurrentScheme,
 	currentHost as $urlꓺcurrentHost,
+	currentScheme as $urlꓺcurrentScheme,
 } from './url.js';
 
+import type * as $type from './type.js';
 import { isWeb as $envꓺisWeb } from './env.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { unquote as $strꓺunquote } from './str.js';
-
-import type * as $type from './type.js';
+import { hasOwn as $objꓺhasOwn, defaults as $objꓺdefaults } from './obj.js';
 
 const documentCookieMap: Map<string, string | undefined> = new Map();
 

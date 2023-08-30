@@ -3,6 +3,13 @@
  */
 
 import {
+	c9r as $objꓺc9r, //
+	cloneDeep as $objꓺcloneDeep,
+	keysAndSymbols as $objꓺkeysAndSymbols,
+	keyAndSymbolEntries as $objꓺkeyAndSymbolEntries,
+} from '../../obj.js';
+
+import {
 	objTag as $symbolꓺobjTag,
 	objToJSON as $symbolꓺobjToJSON,
 	objToPlain as $symbolꓺobjToPlain,
@@ -10,17 +17,9 @@ import {
 	objStringTag as $symbolꓺobjStringTag,
 } from '../../symbol.js';
 
-import {
-	c9r as $objꓺc9r, //
-	cloneDeep as $objꓺcloneDeep,
-	keysAndSymbols as $objꓺkeysAndSymbols,
-	keyAndSymbolEntries as $objꓺkeyAndSymbolEntries,
-} from '../../obj.js';
-
+import type * as $type from '../../type.js';
 import { object as $isꓺobject } from '../../is.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
-
-import type * as $type from '../../type.js';
 
 let Class: Constructor | undefined; // Class definition cache.
 

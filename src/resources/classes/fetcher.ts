@@ -2,16 +2,15 @@
  * Fetcher utility class.
  */
 
+import type * as $type from '../../type.js';
 import { json as $toꓺjson } from '../../to.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
 import { sha1 as $cryptoꓺsha1 } from '../../crypto.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { getClass as $classꓺgetUtility } from './utility.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
-import { get as $obpꓺget, toScriptCode as $obpꓺtoScriptCode } from '../../obp.js';
-
-import type * as $type from '../../type.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
+import { get as $obpꓺget, toScriptCode as $obpꓺtoScriptCode } from '../../obp.js';
 
 let Class: Constructor | undefined; // Class definition cache.
 

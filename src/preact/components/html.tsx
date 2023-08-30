@@ -5,7 +5,6 @@
 import { useData } from './data.js';
 import * as $preact from '../../preact.js';
 import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
-
 import type { State as HeadState, PartialState as HeadPartialState, Props as HeadProps } from './head.js';
 import type { State as BodyState, PartialState as BodyPartialState, Props as BodyProps } from './body.js';
 

@@ -2,21 +2,12 @@
  * URL utilities.
  */
 
-import {
-	url as $isꓺurl, //
-	array as $isꓺarray,
-} from './is.js';
-
-import {
-	svz as $moizeꓺsvz, //
-	deep as $moizeꓺdeep,
-} from './moize.js';
-
+import type * as $type from './type.js';
 import { try as $fnꓺtry } from './fn.js';
 import { isWeb as $envꓺisWeb } from './env.js';
 import { defaults as $objꓺdefaults } from './obj.js';
-
-import type * as $type from './type.js';
+import { url as $isꓺurl, array as $isꓺarray } from './is.js';
+import { svz as $moizeꓺsvz, deep as $moizeꓺdeep } from './moize.js';
 
 /**
  * Defines types.

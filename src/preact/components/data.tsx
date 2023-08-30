@@ -4,17 +4,16 @@
 
 import { createContext } from 'preact';
 import * as $preact from '../../preact.js';
+import type { Dispatch } from 'preact/hooks';
 import { json as $toꓺjson } from '../../to.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
 import { useReducer, useContext } from 'preact/hooks';
 import { pkgName as $appꓺpkgName } from '../../app.js';
+import type { Fetcher } from '../../preact/apis/iso.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
+import type { State as HTMLState, PartialState as HTMLPartialState } from './html.js';
 import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
 import { get as $obpꓺget, set as $obpꓺset, toScriptCode as $obpꓺtoScriptCode } from '../../obp.js';
-
-import type { Fetcher } from './router.js';
-import type { Dispatch } from 'preact/hooks';
-import type { State as HTMLState, PartialState as HTMLPartialState } from './html.js';
 
 /**
  * Defines types.

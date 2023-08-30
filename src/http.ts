@@ -15,26 +15,17 @@ import {
 } from './is.js';
 
 import {
-	escRegExp as $strꓺescRegExp, //
-	byteLength as $strꓺbyteLength,
-} from './str.js';
-
-import {
-	hasExt as $pathꓺhasExt, //
-	hasStaticExt as $pathꓺhasStaticExt,
-} from './path.js';
-
-import {
 	parse as $urlꓺparse, //
 	tryParse as $urlꓺtryParse,
 	removeCSOQueryVars as $urlꓺremoveCSOQueryVars,
 } from './url.js';
 
+import type * as $type from './type.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { isC10n as $envꓺisC10n } from './env.js';
 import { defaults as $objꓺdefaults } from './obj.js';
-
-import type * as $type from './type.js';
+import { escRegExp as $strꓺescRegExp, byteLength as $strꓺbyteLength } from './str.js';
+import { hasExt as $pathꓺhasExt, hasStaticExt as $pathꓺhasStaticExt } from './path.js';
 
 /**
  * Defines types.
