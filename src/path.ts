@@ -110,7 +110,6 @@ export const defaultGitIgnores: string[] = [
 
 	// VS Code.
 
-	'.vscode',
 	'*.code-search',
 	'*.code-workspace',
 
@@ -259,6 +258,10 @@ export const defaultGitIgnores: string[] = [
  * Default NPM ignores.
  */
 export const defaultNPMIgnores: string[] = defaultGitIgnores.concat([
+	// VS Code.
+
+	'.vscode',
+
 	// Dist (allow).
 
 	'!dist',
