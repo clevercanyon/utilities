@@ -242,8 +242,8 @@ const prepareResponseHeaders = (request: Request | $type.cfw.Request, url: URL |
 			cacheHeaders['cdn-cache-control'] = 'no-store';
 			//
 		} else {
-			cacheHeaders['cache-control'] = 'no-store';
-			cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=41400, stale-while-revalidate=1800, stale-if-error=1800';
+			cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=41400, s-maxage=41400, stale-while-revalidate=41400, stale-if-error=41400';
+			cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=41400, stale-while-revalidate=41400, stale-if-error=41400';
 		}
 		if ($isꓺinteger(cfg.maxAge) /* Simplified method of passing a `cache-control` header. */) {
 			if (cfg.maxAge <= 0) {

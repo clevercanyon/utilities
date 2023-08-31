@@ -2,18 +2,18 @@
  * Preact component.
  */
 
-import HTML from '../components/html.js';
-import Head from '../components/head.js';
-import Body from '../components/body.js';
 import * as $preact from '../../preact.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
-import { useHTTPStatus } from '../components/data.js';
-import type { RouteContextAsProps } from '../components/router.js';
+import $preactꓺcomponentsꓺHTML from '../components/html.js';
+import $preactꓺcomponentsꓺHead from '../components/head.js';
+import $preactꓺcomponentsꓺBody from '../components/body.js';
+import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.js';
+import type { RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps } from '../components/router.js';
 
 /**
  * Defines types.
  */
-export type Props = Omit<$preact.Props<RouteContextAsProps>, 'classes'>;
+export type Props = Omit<$preact.Props<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps>, 'classes'>;
 export type StandAloneProps = Omit<$preact.Props, 'classes'>;
 
 /**
@@ -26,23 +26,23 @@ export type StandAloneProps = Omit<$preact.Props, 'classes'>;
  * @note No SSR style/script bundles, as this is a purely static page.
  */
 export default (unusedꓺprops: Props): $preact.VNode<Props> => {
-	const { updateState: updateHTTPStatus } = useHTTPStatus();
-	updateHTTPStatus(404); // Record status being a 404 error.
+	const { updateState: updateHTTPState } = $preactꓺcomponentsꓺdataꓺuseHTTP();
+	updateHTTPState({ status: 404 }); // Record 404 error.
 
 	return (
-		<HTML>
-			<Head
+		<$preactꓺcomponentsꓺHTML>
+			<$preactꓺcomponentsꓺHead
 				robots={'noindex, nofollow'}
 				title={'404 Error: Not Found'}
 				description={'The resource you are looking for could not be found.'}
 				{...(!$envꓺisWeb() ? { mainStyleBundle: '', mainScriptBundle: '' } : {})}
 			>
 				<link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
-			</Head>
-			<Body>
+			</$preactꓺcomponentsꓺHead>
+			<$preactꓺcomponentsꓺBody>
 				<BodyContents />
-			</Body>
-		</HTML>
+			</$preactꓺcomponentsꓺBody>
+		</$preactꓺcomponentsꓺHTML>
 	);
 };
 

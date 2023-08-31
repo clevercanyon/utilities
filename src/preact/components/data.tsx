@@ -2,42 +2,54 @@
  * Preact component.
  */
 
-import { createContext } from 'preact';
 import * as $preact from '../../preact.js';
-import type { Dispatch } from 'preact/hooks';
 import { json as $toꓺjson } from '../../to.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
-import { useReducer, useContext } from 'preact/hooks';
 import { pkgName as $appꓺpkgName } from '../../app.js';
-import type { Fetcher } from '../../preact/apis/iso.js';
+import { createContext as preactꓺcreateContext } from 'preact';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
-import type { State as HTMLState, PartialState as HTMLPartialState } from './html.js';
+import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
+import type { ResponseConfig as $httpꓺResponseConfig } from '../../http.js';
+import type { Fetcher as $preactꓺapisꓺisoꓺFetcher } from '../../preact/apis/iso.js';
 import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
 import { get as $obpꓺget, set as $obpꓺset, toScriptCode as $obpꓺtoScriptCode } from '../../obp.js';
+import { useReducer as preactꓺhooksꓺuseReducer, useContext as preactꓺhooksꓺuseContext } from 'preact/hooks';
+import type { State as $preactꓺcomponentsꓺhtmlꓺState, PartialState as $preactꓺcomponentsꓺhtmlꓺPartialState } from './html.js';
+import type { State as $preactꓺcomponentsꓺheadꓺState, PartialState as $preactꓺcomponentsꓺheadꓺPartialState } from './head.js';
+import type { State as $preactꓺcomponentsꓺbodyꓺState, PartialState as $preactꓺcomponentsꓺbodyꓺPartialState } from './body.js';
 
 /**
  * Defines types.
  */
 export type State = {
 	globalObp: string;
-	html: HTMLState;
-	fetcher?: Fetcher;
+	fetcher?: $preactꓺapisꓺisoꓺFetcher;
+	html: $preactꓺcomponentsꓺhtmlꓺState;
+	head: $preactꓺcomponentsꓺheadꓺState;
+	body: $preactꓺcomponentsꓺbodyꓺState;
 };
 export type PartialState = {
 	globalObp?: string;
-	html?: HTMLPartialState;
-	fetcher?: Fetcher;
+	fetcher?: $preactꓺapisꓺisoꓺFetcher;
+	html?: $preactꓺcomponentsꓺhtmlꓺPartialState;
+	head?: $preactꓺcomponentsꓺheadꓺPartialState;
+	body?: $preactꓺcomponentsꓺbodyꓺPartialState;
 };
+export type HTTPState = Partial<Omit<$httpꓺResponseConfig, 'body'>> & {
+	status: number; // Present always.
+};
+export type HTTPPartialState = Partial<HTTPState>;
+
 export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
-export type GlobalProps = Partial<Props> & { httpStatus?: number };
+export type GlobalProps = Partial<Props & { http?: HTTPPartialState }>;
 
 export type ContextProps = Readonly<{
 	state: State;
-	updateState: Dispatch<PartialState>;
+	updateState: preactꓺhooksꓺDispatch<PartialState>;
 }>;
-export type HTTPStatusProps = Readonly<{
-	state: number;
-	updateState: (status: number) => void;
+export type HTTPContextProps = Readonly<{
+	state: HTTPState;
+	updateState: (updates: HTTPPartialState) => void;
 }>;
 
 /**
@@ -48,7 +60,7 @@ let globalObp = ''; // Initialize.
 /**
  * Defines data context.
  */
-const Context = createContext({} as ContextProps);
+const Context = preactꓺcreateContext({} as ContextProps);
 
 /**
  * Produces initial state.
@@ -63,13 +75,14 @@ const initialState = (props: Props = {}): State => {
 
 	if ($envꓺisWeb() /* These props only used for initial web state. */) {
 		globalProps = $obpꓺget(globalThis, globalObp, {}) as GlobalProps;
-	} /* Else, during server-side rendering the HTTP status is reset here. */ else {
-		$obpꓺset(globalThis, globalObp + '.httpStatus', 200); // Resets HTTP status.
+	} /* Else, during server-side rendering the HTTP state is reset here. */ else {
+		$obpꓺset(globalThis, globalObp + '.http', initialHTTPState());
 	}
 	const state = $objꓺmergeDeep(
-		$preact.cleanProps(globalProps, ['httpStatus']),
+		{ html: {}, head: {}, body: {} },
+		$preact.cleanProps(globalProps, ['http']),
 		$preact.cleanProps(props), // `<Data>` props.
-		{ globalObp, html: { /* HTML structure. */ head: {}, body: {} } },
+		{ globalObp }, // Calculated above.
 	) as unknown as State;
 
 	return state; // Initial state.
@@ -95,7 +108,7 @@ const reduceState = (state: State, updates: PartialState): State => {
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const [state, updateState] = useReducer(reduceState, undefined, () => initialState(props));
+	const [state, updateState] = preactꓺhooksꓺuseReducer(reduceState, undefined, () => initialState(props));
 	return <Context.Provider value={{ state, updateState }}>{props.children}</Context.Provider>;
 };
 
@@ -104,22 +117,31 @@ export default (props: Props = {}): $preact.VNode<Props> => {
  *
  * @returns Readonly context: `{ state, updateState }`.
  */
-export const useData = (): ContextProps => useContext(Context);
+export const useData = (): ContextProps => preactꓺhooksꓺuseContext(Context);
 
 /**
- * Defines HTTP status hook.
+ * Defines initial HTTP state.
+ *
+ * @returns Initialized HTTP state.
+ */
+const initialHTTPState = () => ({ status: 200 });
+
+/**
+ * Defines HTTP data hook.
  *
  * @returns Readonly props: `{ state, updateState }`.
  */
-export const useHTTPStatus = (): HTTPStatusProps => {
+export const useHTTP = (): HTTPContextProps => {
+	if ($envꓺisWeb()) throw new Error('Is web.');
+
 	if (!globalObp /* State not initialized? */) {
 		throw new Error('Missing `globalObp`.');
 	}
+	const state = $obpꓺget(globalThis, globalObp + '.http', initialHTTPState()) as HTTPState;
 	return {
-		state: Number($obpꓺget(globalThis, globalObp + '.httpStatus', 200)),
-		updateState: (status: number): void => {
-			if ($envꓺisWeb()) return; // Not applicable.
-			$obpꓺset(globalThis, globalObp + '.httpStatus', status);
+		state, // Current HTTP state.
+		updateState: (updates: HTTPPartialState): void => {
+			$obpꓺset(globalThis, globalObp + '.http', $objꓺupdateDeep(state, updates));
 		},
 	};
 };
@@ -129,7 +151,9 @@ export const useHTTPStatus = (): HTTPStatusProps => {
  *
  * @returns Global as embeddable script code; for SSR.
  */
-export const dataGlobalToScriptCode = (): string => {
+export const globalToScriptCode = (): string => {
+	if ($envꓺisWeb()) throw new Error('Is web.');
+
 	const { state } = useData();
 
 	if (!state /* State not initialized? */) {
@@ -141,6 +165,8 @@ export const dataGlobalToScriptCode = (): string => {
 
 	let scriptCode = globalObpScriptCode.init; // Initialize.
 	scriptCode += ' ' + globalObpScriptCode.set + '.html = ' + $toꓺjson(state.html) + ';';
+	scriptCode += ' ' + globalObpScriptCode.set + '.head = ' + $toꓺjson(state.head) + ';';
+	scriptCode += ' ' + globalObpScriptCode.set + '.body = ' + $toꓺjson(state.body) + ';';
 	scriptCode += state.fetcher ? ' ' + state.fetcher.globalToScriptCode() : '';
 
 	return scriptCode;

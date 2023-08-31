@@ -2,16 +2,16 @@
  * Preact component.
  */
 
-import { createContext } from 'preact';
-import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
 import type * as $type from '../../type.js';
-import type { Dispatch } from 'preact/hooks';
-import type { State as DataState } from './data.js';
-import { useReducer, useContext, useMemo } from 'preact/hooks';
-import { useData, dataGlobalToScriptCode } from './data.js';
+import { createContext as preactꓺcreateContext } from 'preact';
 import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
+import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
+import type { State as $preactꓺcomponentsꓺdataꓺState } from './data.js';
+import { useLocation as $preactꓺcomponentsꓺrouterꓺuseLocation } from './router.js';
 import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
+import { useData as $preactꓺcomponentsꓺdataꓺuseData, globalToScriptCode as $preactꓺcomponentsꓺdataꓺglobalToScriptCode } from './data.js';
+import { useReducer as preactꓺhooksꓺuseReducer, useContext as preactꓺhooksꓺuseContext, useMemo as preactꓺhooksꓺuseMemo } from 'preact/hooks';
 
 /**
  * Defines types.
@@ -47,13 +47,13 @@ export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
 
 export type ContextProps = {
 	readonly state: State;
-	readonly updateState: Dispatch<PartialState>;
+	readonly updateState: preactꓺhooksꓺDispatch<PartialState>;
 };
 
 /**
  * Defines context.
  */
-const Context = createContext({} as ContextProps);
+const Context = preactꓺcreateContext({} as ContextProps);
 
 /**
  * Produces initial state.
@@ -63,8 +63,8 @@ const Context = createContext({} as ContextProps);
  *
  * @returns           Initialized state.
  */
-const initialState = (dataState: DataState, props: Props = {}): State => {
-	return $objꓺmergeDeep(dataState.html?.head, $preact.cleanProps(props)) as unknown as State;
+const initialState = (dataState: $preactꓺcomponentsꓺdataꓺState, props: Props = {}): State => {
+	return $objꓺmergeDeep(dataState.head, $preact.cleanProps(props)) as unknown as State;
 };
 
 /**
@@ -87,15 +87,15 @@ const reduceState = (state: State, updates: PartialState): State => {
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const { state: locState } = useLocation();
+	const { state: locState } = $preactꓺcomponentsꓺrouterꓺuseLocation();
 	if (!locState) throw new Error('Missing location state.');
 
-	const { state: dataState } = useData();
+	const { state: dataState } = $preactꓺcomponentsꓺdataꓺuseData();
 	if (!dataState) throw new Error('Missing data state.');
 
-	const [state, updateState] = useReducer(reduceState, undefined, () => initialState(dataState, props));
+	const [state, updateState] = preactꓺhooksꓺuseReducer(reduceState, undefined, () => initialState(dataState, props));
 
-	const headState = useMemo((): State => {
+	const headState = preactꓺhooksꓺuseMemo((): State => {
 		const appBaseURL = String($envꓺget('@top', 'APP_BASE_URL', ''));
 		const appBasePath = String($envꓺget('@top', 'APP_BASE_PATH', ''));
 
@@ -156,7 +156,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 				)}
 				{headState.mainStyleBundle && <link rel='stylesheet' href={headState.mainStyleBundle.toString()} media='all' />}
 
-				{!$envꓺisWeb() && headState.mainScriptBundle && <script dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
+				{!$envꓺisWeb() && headState.mainScriptBundle && <script dangerouslySetInnerHTML={{ __html: $preactꓺcomponentsꓺdataꓺglobalToScriptCode() }}></script>}
 				{headState.mainScriptBundle && <script type='module' src={headState.mainScriptBundle.toString()}></script>}
 
 				{props.children}
@@ -170,4 +170,4 @@ export default (props: Props = {}): $preact.VNode<Props> => {
  *
  * @returns Readonly context: `{ state, updateState }`.
  */
-export const useHead = (): ContextProps => useContext(Context);
+export const useHead = (): ContextProps => preactꓺhooksꓺuseContext(Context);

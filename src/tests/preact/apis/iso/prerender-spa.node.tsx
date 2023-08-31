@@ -2,15 +2,25 @@
  * Test suite.
  */
 
-import HTML from '../../../../preact/components/html.js';
-import Head from '../../../../preact/components/head.js';
-import Body from '../../../../preact/components/body.js';
+import {
+	default as $preactꓺcomponentsꓺRouter,
+	Route as $preactꓺcomponentsꓺrouterꓺRoute,
+	useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute,
+	lazyComponent as $preactꓺcomponentsꓺrouterꓺlazyComponent,
+} from '../../../../preact/components/router.js';
+
+import type {
+	RouterProps as $preactꓺcomponentsꓺrouterꓺRouterProps,
+	RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps,
+} from '../../../../preact/components/router.js';
+
 import { $env, $to, $preact } from '../../../../index.js';
-import { prerenderSPA } from '../../../../preact/apis/iso.js';
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import { useHTTPStatus } from '../../../../preact/components/data.js';
-import type { RouterProps, RouteContextAsProps } from '../../../../preact/components/router.js';
-import { default as Router, Route, useRoute, lazyRoute } from '../../../../preact/components/router.js';
+import $preactꓺcomponentsꓺHTML from '../../../../preact/components/html.js';
+import $preactꓺcomponentsꓺHead from '../../../../preact/components/head.js';
+import $preactꓺcomponentsꓺBody from '../../../../preact/components/body.js';
+import { prerenderSPA as $preactꓺapisꓺisoꓺprerenderSPA } from '../../../../preact/apis/iso.js';
+import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../../../../preact/components/data.js';
 
 const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
 
@@ -21,124 +31,124 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 	afterAll(async () => {
 		$env.set('@top', 'APP_BASE_URL', __origAppBaseURL__);
 	});
-	const App = (props: RouterProps): $preact.VNode<RouterProps> => {
+	const App = (props: $preactꓺcomponentsꓺrouterꓺRouterProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouterProps> => {
 		return (
-			<Router {...props}>
-				<Route path='/' component={Index} />
-				<Route path='/blog' component={Blog} />
-				<Route path='/blog/post/:id' component={Blog} />
-				<Route path='/others/*' component={Others} />
-				<Route default component={_404} />
-			</Router>
+			<$preactꓺcomponentsꓺRouter {...props}>
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/' component={Index} />
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/blog' component={Blog} />
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/blog/post/:id' component={Blog} />
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/others/*' component={Others} />
+				<$preactꓺcomponentsꓺrouterꓺRoute default component={_404} />
+			</$preactꓺcomponentsꓺRouter>
 		);
 	};
-	const Index = (unusedꓺprops: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+	const Index = (unusedꓺprops: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<HTML>
-				<Head title={'index'} />
-				<Body>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(useRoute()) }}></script>
-				</Body>
-			</HTML>
+			<$preactꓺcomponentsꓺHTML>
+				<$preactꓺcomponentsꓺHead title={'index'} />
+				<$preactꓺcomponentsꓺBody>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
+				</$preactꓺcomponentsꓺBody>
+			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const Blog = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+	const Blog = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<HTML>
-				<Head title={/^\/blog\/post\//u.test(props.path || '') ? 'blog post' : 'blog'} />
-				<Body>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(useRoute()) }}></script>
-				</Body>
-			</HTML>
+			<$preactꓺcomponentsꓺHTML>
+				<$preactꓺcomponentsꓺHead title={/^\/blog\/post\//u.test(props.path || '') ? 'blog post' : 'blog'} />
+				<$preactꓺcomponentsꓺBody>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
+				</$preactꓺcomponentsꓺBody>
+			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const Others = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+	const Others = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<Router {...props}>
-				<Route path='/other-a/:x' component={OtherA} />
-				<Route path='/other-b/*' component={OtherB} />
-				<Route path='/other-c/:x*' component={OtherC} />
-				<Route path='/other-d/:x+' component={OtherD} />
-				<Route path='/other-e/:x?' component={OtherE} />
-				<Route path='/other-a/*' component={OtherA} />
-				<Route default component={Other404} />
-			</Router>
+			<$preactꓺcomponentsꓺRouter {...props}>
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/other-a/:x' component={OtherA} />
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/other-b/*' component={OtherB} />
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/other-c/:x*' component={OtherC} />
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/other-d/:x+' component={OtherD} />
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/other-e/:x?' component={OtherE} />
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/other-a/*' component={OtherA} />
+				<$preactꓺcomponentsꓺrouterꓺRoute default component={Other404} />
+			</$preactꓺcomponentsꓺRouter>
 		);
 	};
-	const OtherA = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+	const OtherA = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<HTML>
-				<Head title={'other-a'} />
-				<Body>
+			<$preactꓺcomponentsꓺHTML>
+				<$preactꓺcomponentsꓺHead title={'other-a'} />
+				<$preactꓺcomponentsꓺBody>
 					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
-				</Body>
-			</HTML>
+				</$preactꓺcomponentsꓺBody>
+			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const OtherB = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+	const OtherB = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<HTML>
-				<Head title={'other-b'} />
-				<Body>
+			<$preactꓺcomponentsꓺHTML>
+				<$preactꓺcomponentsꓺHead title={'other-b'} />
+				<$preactꓺcomponentsꓺBody>
 					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
-				</Body>
-			</HTML>
+				</$preactꓺcomponentsꓺBody>
+			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const OtherC = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+	const OtherC = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<HTML>
-				<Head title={'other-c'} />
-				<Body>
+			<$preactꓺcomponentsꓺHTML>
+				<$preactꓺcomponentsꓺHead title={'other-c'} />
+				<$preactꓺcomponentsꓺBody>
 					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
-				</Body>
-			</HTML>
+				</$preactꓺcomponentsꓺBody>
+			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const OtherD = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+	const OtherD = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<HTML>
-				<Head title={'other-d'} />
-				<Body>
+			<$preactꓺcomponentsꓺHTML>
+				<$preactꓺcomponentsꓺHead title={'other-d'} />
+				<$preactꓺcomponentsꓺBody>
 					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
-				</Body>
-			</HTML>
+				</$preactꓺcomponentsꓺBody>
+			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const OtherE = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+	const OtherE = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<HTML>
-				<Head title={'other-e'} />
-				<Body>
+			<$preactꓺcomponentsꓺHTML>
+				<$preactꓺcomponentsꓺHead title={'other-e'} />
+				<$preactꓺcomponentsꓺBody>
 					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
-				</Body>
-			</HTML>
+				</$preactꓺcomponentsꓺBody>
+			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const Other404 = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
-		const { updateState: updateHTTPStatus } = useHTTPStatus();
-		updateHTTPStatus(404); // Record status being a 404 error.
+	const Other404 = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
+		const { updateState: updateHTTPState } = $preactꓺcomponentsꓺdataꓺuseHTTP();
+		updateHTTPState({ status: 404 }); // Record 404 error.
 
 		return (
-			<HTML>
-				<Head title={'other-404'} />
-				<Body>
+			<$preactꓺcomponentsꓺHTML>
+				<$preactꓺcomponentsꓺHead title={'other-404'} />
+				<$preactꓺcomponentsꓺBody>
 					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
-				</Body>
-			</HTML>
+				</$preactꓺcomponentsꓺBody>
+			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const _404 = lazyRoute(() => import('../../../../preact/routes/404.js'));
+	const _404 = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('../../../../preact/routes/404.js'));
 
 	// ---
 
 	test('basics', async () => {
-		const { httpStatus: indexHTTPStatus, doctypeHTML: indexMarkup } = await prerenderSPA({
+		const { httpState: indexHTTPState, doctypeHTML: indexMarkup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(indexHTTPStatus).toBe(200);
+		expect(indexHTTPState.status).toBe(200);
 		expect(indexMarkup).toContain('<!DOCTYPE html>');
 		expect(indexMarkup).toContain('<title>index</title>');
 		expect(indexMarkup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -154,12 +164,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: blogHTTPStatus, doctypeHTML: blogMarkup } = await prerenderSPA({
+		const { httpState: blogHTTPState, doctypeHTML: blogMarkup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/blog?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(blogHTTPStatus).toBe(200);
+		expect(blogHTTPState.status).toBe(200);
 		expect(blogMarkup).toContain('<!DOCTYPE html>');
 		expect(blogMarkup).toContain('<title>blog</title>');
 		expect(blogMarkup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -175,12 +185,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: blogPostHTTPStatus, doctypeHTML: blogPostMarkup } = await prerenderSPA({
+		const { httpState: blogPostHTTPState, doctypeHTML: blogPostMarkup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/blog/post/123?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(blogPostHTTPStatus).toBe(200);
+		expect(blogPostHTTPState.status).toBe(200);
 		expect(blogPostMarkup).toContain('<!DOCTYPE html>');
 		expect(blogPostMarkup).toContain('<title>blog post</title>');
 		expect(blogPostMarkup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -196,12 +206,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherA1HTTPStatus, doctypeHTML: othersOtherA1Markup } = await prerenderSPA({
+		const { httpState: othersOtherA1HTTPState, doctypeHTML: othersOtherA1Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-a/123?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherA1HTTPStatus).toBe(200);
+		expect(othersOtherA1HTTPState.status).toBe(200);
 		expect(othersOtherA1Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherA1Markup).toContain('<title>other-a</title>');
 		expect(othersOtherA1Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -215,12 +225,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 		expect(othersOtherA1Markup).toContain('"params":{"x":"123"}');
 		expect(othersOtherA1Markup).toContain('</html>');
 
-		const { httpStatus: othersOtherA2HTTPStatus, doctypeHTML: othersOtherA2Markup } = await prerenderSPA({
+		const { httpState: othersOtherA2HTTPState, doctypeHTML: othersOtherA2Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-a/123/another?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherA2HTTPStatus).toBe(200);
+		expect(othersOtherA2HTTPState.status).toBe(200);
 		expect(othersOtherA2Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherA2Markup).toContain('<title>other-a</title>');
 		expect(othersOtherA2Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -236,12 +246,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherB1HTTPStatus, doctypeHTML: othersOtherB1Markup } = await prerenderSPA({
+		const { httpState: othersOtherB1HTTPState, doctypeHTML: othersOtherB1Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-b?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherB1HTTPStatus).toBe(200);
+		expect(othersOtherB1HTTPState.status).toBe(200);
 		expect(othersOtherB1Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherB1Markup).toContain('<title>other-b</title>');
 		expect(othersOtherB1Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -257,12 +267,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherB2HTTPStatus, doctypeHTML: othersOtherB2Markup } = await prerenderSPA({
+		const { httpState: othersOtherB2HTTPState, doctypeHTML: othersOtherB2Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-b/123?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherB2HTTPStatus).toBe(200);
+		expect(othersOtherB2HTTPState.status).toBe(200);
 		expect(othersOtherB2Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherB2Markup).toContain('<title>other-b</title>');
 		expect(othersOtherB2Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -278,12 +288,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherC1HTTPStatus, doctypeHTML: othersOtherC1Markup } = await prerenderSPA({
+		const { httpState: othersOtherC1HTTPState, doctypeHTML: othersOtherC1Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-c?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherC1HTTPStatus).toBe(200);
+		expect(othersOtherC1HTTPState.status).toBe(200);
 		expect(othersOtherC1Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherC1Markup).toContain('<title>other-c</title>');
 		expect(othersOtherC1Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -299,12 +309,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherC2HTTPStatus, doctypeHTML: othersOtherC2Markup } = await prerenderSPA({
+		const { httpState: othersOtherC2HTTPState, doctypeHTML: othersOtherC2Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-c/123?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherC2HTTPStatus).toBe(200);
+		expect(othersOtherC2HTTPState.status).toBe(200);
 		expect(othersOtherC2Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherC2Markup).toContain('<title>other-c</title>');
 		expect(othersOtherC2Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -320,12 +330,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherC3HTTPStatus, doctypeHTML: othersOtherC3Markup } = await prerenderSPA({
+		const { httpState: othersOtherC3HTTPState, doctypeHTML: othersOtherC3Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-c/123/456/789?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherC3HTTPStatus).toBe(200);
+		expect(othersOtherC3HTTPState.status).toBe(200);
 		expect(othersOtherC3Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherC3Markup).toContain('<title>other-c</title>');
 		expect(othersOtherC3Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -341,12 +351,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherD1HTTPStatus, doctypeHTML: othersOtherD1Markup } = await prerenderSPA({
+		const { httpState: othersOtherD1HTTPState, doctypeHTML: othersOtherD1Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-d?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherD1HTTPStatus).toBe(404);
+		expect(othersOtherD1HTTPState.status).toBe(404);
 		expect(othersOtherD1Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherD1Markup).toContain('<title>other-404</title>');
 		expect(othersOtherD1Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -362,12 +372,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherD2HTTPStatus, doctypeHTML: othersOtherD2Markup } = await prerenderSPA({
+		const { httpState: othersOtherD2HTTPState, doctypeHTML: othersOtherD2Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-d/123?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherD2HTTPStatus).toBe(200);
+		expect(othersOtherD2HTTPState.status).toBe(200);
 		expect(othersOtherD2Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherD2Markup).toContain('<title>other-d</title>');
 		expect(othersOtherD2Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -383,12 +393,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherD3HTTPStatus, doctypeHTML: othersOtherD3Markup } = await prerenderSPA({
+		const { httpState: othersOtherD3HTTPState, doctypeHTML: othersOtherD3Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-d/123/456?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherD3HTTPStatus).toBe(200);
+		expect(othersOtherD3HTTPState.status).toBe(200);
 		expect(othersOtherD3Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherD3Markup).toContain('<title>other-d</title>');
 		expect(othersOtherD3Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -404,12 +414,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherE1HTTPStatus, doctypeHTML: othersOtherE1Markup } = await prerenderSPA({
+		const { httpState: othersOtherE1HTTPState, doctypeHTML: othersOtherE1Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-e?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherE1HTTPStatus).toBe(200);
+		expect(othersOtherE1HTTPState.status).toBe(200);
 		expect(othersOtherE1Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherE1Markup).toContain('<title>other-e</title>');
 		expect(othersOtherE1Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -425,12 +435,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherE2HTTPStatus, doctypeHTML: othersOtherE2Markup } = await prerenderSPA({
+		const { httpState: othersOtherE2HTTPState, doctypeHTML: othersOtherE2Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-e/123?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherE2HTTPStatus).toBe(200);
+		expect(othersOtherE2HTTPState.status).toBe(200);
 		expect(othersOtherE2Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherE2Markup).toContain('<title>other-e</title>');
 		expect(othersOtherE2Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -446,12 +456,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherE3HTTPStatus, doctypeHTML: othersOtherE3Markup } = await prerenderSPA({
+		const { httpState: othersOtherE3HTTPState, doctypeHTML: othersOtherE3Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-e/123/456?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherE3HTTPStatus).toBe(404);
+		expect(othersOtherE3HTTPState.status).toBe(404);
 		expect(othersOtherE3Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherE3Markup).toContain('<title>other-404</title>');
 		expect(othersOtherE3Markup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -467,12 +477,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: othersOtherE4HTTPStatus, doctypeHTML: othersOtherE4Markup } = await prerenderSPA({
+		const { httpState: othersOtherE4HTTPState, doctypeHTML: othersOtherE4Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/other-e/123?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['foo.css'], file: 'foo.js' } },
 			App, // Defined above.
 		});
-		expect(othersOtherE4HTTPStatus).toBe(200);
+		expect(othersOtherE4HTTPState.status).toBe(200);
 		expect(othersOtherE4Markup).toContain('<!DOCTYPE html>');
 		expect(othersOtherE4Markup).toContain('<title>other-e</title>');
 		expect(othersOtherE4Markup).toContain('<link rel="stylesheet" href="/foo.css" media="all"/>');
@@ -488,12 +498,12 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 
 		// ---
 
-		const { httpStatus: _404HTTPStatus, doctypeHTML: _404Markup } = await prerenderSPA({
+		const { httpState: _404HTTPState, doctypeHTML: _404Markup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/nonexistent?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		expect(_404HTTPStatus).toBe(404);
+		expect(_404HTTPState.status).toBe(404);
 		expect(_404Markup).toContain('<!DOCTYPE html>');
 		expect(_404Markup).toContain('<title>404 Error: Not Found</title>');
 		expect(_404Markup).not.toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
@@ -503,7 +513,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 		// ---
 
 		await expect(async () => {
-			await prerenderSPA({
+			await $preactꓺapisꓺisoꓺprerenderSPA({
 				request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),
 				appManifest: { 'index.html': { css: [], file: 'script.js' } },
 				App, // Defined above.
@@ -513,7 +523,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 		// ---
 
 		await expect(async () => {
-			await prerenderSPA({
+			await $preactꓺapisꓺisoꓺprerenderSPA({
 				request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),
 				appManifest: { 'index.html': { css: ['style.css'], file: '' } },
 				App, // Defined above.

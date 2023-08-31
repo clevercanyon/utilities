@@ -5,54 +5,55 @@
 import * as $preact from '../../preact.js';
 import type * as $type from '../../type.js';
 import { render as preactꓺrender } from 'preact';
-import { useHTTPStatus } from '../components/data.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
-import { StandAlone as StandAlone404 } from '../routes/404.js';
-import type { Props as RouterProps } from '../components/router.js';
 import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
-import { renderToString as $preactꓺssrꓺrenderToString } from './ssr.js';
-import type { Interface as Fetcher } from '../../resources/classes/fetcher.js';
+import { renderToString as $preactꓺapisꓺssrꓺrenderToString } from './ssr.js';
+import { StandAlone as $preactꓺroutesꓺ404ꓺStandAlone } from '../routes/404.js';
+import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.js';
 import { getClass as $fetcherꓺgetClass } from '../../resources/classes/fetcher.js';
-import { hydrate as preactꓺisoꓺhydrate, prerender as preactꓺisoꓺprerender } from '@clevercanyon/preact-iso.fork';
-
-/**
- * Fetcher instance.
- */
-let fetcher: Fetcher | undefined;
+import type { Interface as $fetcherꓺInterface } from '../../resources/classes/fetcher.js';
+import type { HTTPState as $preactꓺcomponentsꓺdataꓺHTTPState } from '../components/data.js';
+import type { Props as $preactꓺcomponentsꓺrouterꓺRouterProps } from '../components/router.js';
+import { hydrate as $preactISOꓺhydrate, prerender as $preactISOꓺprerender } from '@clevercanyon/preact-iso.fork';
 
 /**
  * Defines types.
  */
-export type { Fetcher };
+export type { $fetcherꓺInterface as Fetcher };
 
 export type PrerenderSPAOptions = {
 	request: Request | $type.cfw.Request;
 	appManifest: { 'index.html': { css: string[]; file: string } };
-	App: $preact.Component<RouterProps>;
-	props?: Omit<RouterProps, 'url' | 'fetcher'>;
+	App: $preact.Component<$preactꓺcomponentsꓺrouterꓺRouterProps>;
+	props?: Omit<$preactꓺcomponentsꓺrouterꓺRouterProps, 'url' | 'fetcher'>;
 };
 export type PrerenderSPAReturnProps = {
-	httpStatus: number;
+	httpState: $preactꓺcomponentsꓺdataꓺHTTPState;
 	doctypeHTML: string;
 	linkURLs: string[];
 };
 export type HydrativelyRenderSPAOptions = {
-	App: $preact.Component<RouterProps>;
-	props?: Omit<RouterProps, 'url' | 'fetcher'>;
+	App: $preact.Component<$preactꓺcomponentsꓺrouterꓺRouterProps>;
+	props?: Omit<$preactꓺcomponentsꓺrouterꓺRouterProps, 'url' | 'fetcher'>;
 };
+
+/**
+ * Fetcher instance.
+ */
+let fetcher: $fetcherꓺInterface | undefined;
 
 /**
  * Replaces native fetch and returns fetcher instance.
  *
- * @returns {@see Fetcher} Instance.
+ * @returns {@see $fetcherꓺInterface} Instance.
  */
-export const replaceNativeFetch = (): Fetcher => {
+export const replaceNativeFetch = (): $fetcherꓺInterface => {
 	if (!fetcher) {
-		const $Fetcher = $fetcherꓺgetClass();
+		const Fetcher = $fetcherꓺgetClass();
 
-		fetcher = new $Fetcher({
+		fetcher = new Fetcher({
 			autoReplaceNativeFetch: true,
 			globalObp: $strꓺobpPartSafe($appꓺpkgName) + '.preactISOFetcher',
 		});
@@ -88,21 +89,21 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<Prerender
 
 	const fetcher = replaceNativeFetch(); // Replaces native fetch.
 
-	const prerendered = await preactꓺisoꓺprerender(App, {
+	const prerendered = await $preactISOꓺprerender(App, {
 		props: {
 			...props, // Props given by options.
 			url, // Absolute URL extracted from request.
-			html: $objꓺmergeDeep({ head: { mainStyleBundle, mainScriptBundle } }, props.html),
 			fetcher, // Preact ISO fetcher; {@see replaceNativeFetch()}.
+			head: $objꓺmergeDeep({ mainStyleBundle, mainScriptBundle }, props.head),
 		},
 	});
 	fetcher.restoreNativeFetch(); // Restores native fetch on prerender completion.
 
-	const { state: httpStatus } = !prerendered.html ? { state: 404 } : useHTTPStatus();
-	const doctypeHTML = '<!DOCTYPE html>' + (!prerendered.html ? $preactꓺssrꓺrenderToString(<StandAlone404 />) : prerendered.html);
+	const { state: httpState } = !prerendered.html ? { state: { status: 404 } } : $preactꓺcomponentsꓺdataꓺuseHTTP();
+	const doctypeHTML = '<!DOCTYPE html>' + (!prerendered.html ? $preactꓺapisꓺssrꓺrenderToString(<$preactꓺroutesꓺ404ꓺStandAlone />) : prerendered.html);
 	const linkURLs = [...prerendered.links]; // Converts link URLs into array.
 
-	return { httpStatus, doctypeHTML, linkURLs };
+	return { httpState, doctypeHTML, linkURLs };
 };
 
 /**
@@ -119,7 +120,7 @@ export const hydrativelyRenderSPA = (opts: HydrativelyRenderSPAOptions): void =>
 	const fetcher = replaceNativeFetch(); // Replaces native fetch.
 
 	if (document.querySelector('html[data-preact-iso]')) {
-		preactꓺisoꓺhydrate(<App {...{ ...props, fetcher }} />, document);
+		$preactISOꓺhydrate(<App {...{ ...props, fetcher }} />, document);
 	} else {
 		preactꓺrender(<App {...{ ...props, fetcher }} />, document);
 	}

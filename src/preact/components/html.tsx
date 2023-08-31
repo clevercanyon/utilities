@@ -2,15 +2,13 @@
  * Preact component.
  */
 
-import { useData } from './data.js';
-import { createContext } from 'preact';
 import * as $preact from '../../preact.js';
-import type { Dispatch } from 'preact/hooks';
-import type { State as DataState } from './data.js';
-import { useReducer, useContext } from 'preact/hooks';
+import { createContext as preactꓺcreateContext } from 'preact';
+import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
+import { useData as $preactꓺcomponentsꓺdataꓺuseData } from './data.js';
+import type { State as $preactꓺcomponentsꓺdataꓺState } from './data.js';
 import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
-import type { State as HeadState, PartialState as HeadPartialState, Props as HeadProps } from './head.js';
-import type { State as BodyState, PartialState as BodyPartialState, Props as BodyProps } from './body.js';
+import { useReducer as preactꓺhooksꓺuseReducer, useContext as preactꓺhooksꓺuseContext } from 'preact/hooks';
 
 /**
  * Defines types.
@@ -18,30 +16,22 @@ import type { State as BodyState, PartialState as BodyPartialState, Props as Bod
 export type State = {
 	classes?: string | string[];
 	lang?: string;
-	head: HeadState;
-	body: BodyState;
 };
 export type PartialState = {
 	classes?: string | string[];
 	lang?: string;
-	head?: HeadPartialState;
-	body?: BodyPartialState;
 };
-export type Props = $preact.Props<
-	PartialState & {
-		head?: HeadProps;
-		body?: BodyProps;
-	}
->;
+export type Props = $preact.Props<PartialState>;
+
 export type ContextProps = {
 	readonly state: State;
-	readonly updateState: Dispatch<PartialState>;
+	readonly updateState: preactꓺhooksꓺDispatch<PartialState>;
 };
 
 /**
  * Defines context.
  */
-const Context = createContext({} as ContextProps);
+const Context = preactꓺcreateContext({} as ContextProps);
 
 /**
  * Produces initial state.
@@ -51,8 +41,8 @@ const Context = createContext({} as ContextProps);
  *
  * @returns           Initialized state.
  */
-const initialState = (dataState: DataState, props: Props = {}): State => {
-	return $objꓺmergeDeep({ lang: 'en', head: {}, body: {} }, dataState.html, $preact.cleanProps(props)) as unknown as State;
+const initialState = (dataState: $preactꓺcomponentsꓺdataꓺState, props: Props = {}): State => {
+	return $objꓺmergeDeep({ lang: 'en' }, dataState.html, $preact.cleanProps(props)) as unknown as State;
 };
 
 /**
@@ -75,10 +65,10 @@ const reduceState = (state: State, updates: PartialState): State => {
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	const { state: dataState } = useData();
+	const { state: dataState } = $preactꓺcomponentsꓺdataꓺuseData();
 	if (!dataState) throw new Error('Missing data state.');
 
-	const [state, updateState] = useReducer(reduceState, undefined, () => initialState(dataState, props));
+	const [state, updateState] = preactꓺhooksꓺuseReducer(reduceState, undefined, () => initialState(dataState, props));
 	return (
 		<Context.Provider value={{ state, updateState }}>
 			<html lang={state.lang} class={$preact.classes(state.classes)} data-preact-iso>
@@ -93,4 +83,4 @@ export default (props: Props = {}): $preact.VNode<Props> => {
  *
  * @returns Readonly context: `{ state, updateState }`.
  */
-export const useHTML = (): ContextProps => useContext(Context);
+export const useHTML = (): ContextProps => preactꓺhooksꓺuseContext(Context);

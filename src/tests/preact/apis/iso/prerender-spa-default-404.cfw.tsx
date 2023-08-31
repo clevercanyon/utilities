@@ -2,14 +2,24 @@
  * Test suite.
  */
 
-import HTML from '../../../../preact/components/html.js';
-import Head from '../../../../preact/components/head.js';
-import Body from '../../../../preact/components/body.js';
+import {
+	default as $preactꓺcomponentsꓺRouter,
+	Route as $preactꓺcomponentsꓺrouterꓺRoute,
+	useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute,
+	lazyComponent as $preactꓺcomponentsꓺrouterꓺlazyComponent,
+} from '../../../../preact/components/router.js';
+
+import type {
+	RouterProps as $preactꓺcomponentsꓺrouterꓺRouterProps,
+	RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps,
+} from '../../../../preact/components/router.js';
+
 import { $env, $to, $preact } from '../../../../index.js';
-import { prerenderSPA } from '../../../../preact/apis/iso.js';
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import type { RouterProps, RouteContextAsProps } from '../../../../preact/components/router.js';
-import { default as Router, Route, useRoute, lazyRoute } from '../../../../preact/components/router.js';
+import $preactꓺcomponentsꓺHTML from '../../../../preact/components/html.js';
+import $preactꓺcomponentsꓺHead from '../../../../preact/components/head.js';
+import $preactꓺcomponentsꓺBody from '../../../../preact/components/body.js';
+import { prerenderSPA as $preactꓺapisꓺisoꓺprerenderSPA } from '../../../../preact/apis/iso.js';
 
 const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
 
@@ -20,55 +30,55 @@ describe('$preactꓺiso.prerenderSPA() default-404', async () => {
 	afterAll(async () => {
 		$env.set('@top', 'APP_BASE_URL', __origAppBaseURL__);
 	});
-	const App = (props: RouterProps): $preact.VNode<RouterProps> => {
+	const App = (props: $preactꓺcomponentsꓺrouterꓺRouterProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouterProps> => {
 		return (
-			<Router {...props}>
-				<Route path='/' component={Index} />
-				<Route path='/others/*' component={Others} />
-				<Route default component={_404} />
-			</Router>
+			<$preactꓺcomponentsꓺRouter {...props}>
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/' component={Index} />
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/others/*' component={Others} />
+				<$preactꓺcomponentsꓺrouterꓺRoute default component={_404} />
+			</$preactꓺcomponentsꓺRouter>
 		);
 	};
-	const Index = (): $preact.VNode<RouteContextAsProps> => {
+	const Index = (): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<HTML>
-				<Head title={'index'} />
-				<Body>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(useRoute()) }}></script>
-				</Body>
-			</HTML>
+			<$preactꓺcomponentsꓺHTML>
+				<$preactꓺcomponentsꓺHead title={'index'} />
+				<$preactꓺcomponentsꓺBody>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
+				</$preactꓺcomponentsꓺBody>
+			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const Others = (): $preact.VNode<RouteContextAsProps> => {
+	const Others = (): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<Router {...useRoute()}>
-				<Route path='/other' component={Other} />
+			<$preactꓺcomponentsꓺRouter {...$preactꓺcomponentsꓺrouterꓺuseRoute()}>
+				<$preactꓺcomponentsꓺrouterꓺRoute path='/other' component={Other} />
 				{/* No default route in this nested router. */}
-			</Router>
+			</$preactꓺcomponentsꓺRouter>
 		);
 	};
-	const Other = (): $preact.VNode<RouteContextAsProps> => {
+	const Other = (): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		return (
-			<HTML>
-				<Head title={'other'} />
-				<Body>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(useRoute()) }}></script>
-				</Body>
-			</HTML>
+			<$preactꓺcomponentsꓺHTML>
+				<$preactꓺcomponentsꓺHead title={'other'} />
+				<$preactꓺcomponentsꓺBody>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
+				</$preactꓺcomponentsꓺBody>
+			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const _404 = lazyRoute(() => import('../../../../preact/routes/404.js'));
+	const _404 = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('../../../../preact/routes/404.js'));
 
 	// ---
 
 	test('.', async () => {
-		const { httpStatus: othersOtherFooHTTPStatus, doctypeHTML: othersOtherFooMarkup } = await prerenderSPA({
+		const { httpState: othersOtherFooHTTPState, doctypeHTML: othersOtherFooMarkup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/nonexistent?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
 		console.log(othersOtherFooMarkup);
-		expect(othersOtherFooHTTPStatus).toBe(404);
+		expect(othersOtherFooHTTPState.status).toBe(404);
 		expect(othersOtherFooMarkup).toContain('<!DOCTYPE html>');
 		expect(othersOtherFooMarkup).toContain('<title>404 Error: Not Found</title>');
 		expect(othersOtherFooMarkup).toContain('</html>');

@@ -3,10 +3,10 @@
  */
 
 import { $env } from '../../../index.js';
-import * as $preactꓺssr from '../../../preact/apis/ssr.js';
-import { default as _404 } from '../../../preact/routes/404.js';
+import * as $preactꓺapisꓺssr from '../../../preact/apis/ssr.js';
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import { default as Router, Route } from '../../../preact/components/router.js';
+import { default as $preactꓺroutesꓺ404 } from '../../../preact/routes/404.js';
+import { default as $preactꓺcomponentsꓺRouter, Route as $preactꓺcomponentsꓺrouterꓺRoute } from '../../../preact/components/router.js';
 
 const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
 
@@ -19,10 +19,10 @@ describe('<Router>', async () => {
 	});
 	test('basics', async () => {
 		expect(
-			$preactꓺssr.renderToString(
-				<Router url='http://x.tld'>
-					<Route default component={_404} />
-				</Router>,
+			$preactꓺapisꓺssr.renderToString(
+				<$preactꓺcomponentsꓺRouter url='http://x.tld'>
+					<$preactꓺcomponentsꓺrouterꓺRoute default component={$preactꓺroutesꓺ404} />
+				</$preactꓺcomponentsꓺRouter>,
 			),
 		).toContain('</html>');
 	});

@@ -18,20 +18,24 @@ import { castArray as $toꓺcastArray } from './to.js';
 export type VNode<P extends Props = Props> = preact.VNode<P>;
 export type Component<P extends Props = Props> = preact.FunctionComponent<P>;
 export type Props<P extends object = $type.Object> = preact.RenderableProps<Readonly<P & { classes?: string | string[] }>>;
-export type InheritedProps = 'key' | 'jsx' | 'dangerouslySetInnerHTML' | 'ref' | 'children';
+
+/**
+ * Defines dirty props.
+ */
+const dirtyProps = ['key', 'jsx', 'dangerouslySetInnerHTML', 'ref', 'children'];
 
 /**
  * Cleans VNode props.
  *
- * @param   props Props that will be cleaned up.
- * @param   clean Optional. Aside from inherited props, also remove these.
+ * @param   props           Props that will be cleaned up.
+ * @param   otherDirtyProps Optional. Any other dirty props to clean up.
  *
- * @returns       A clone of {props} stripped of inherited props and any others to {clean}.
+ * @returns                 A clone of {props} stripped of all dirty props.
  *
  * @note This also removes props with undefined values.
  */
-export const cleanProps = <Type extends Props, Key extends keyof Type>(props: Type, clean?: Key[]): Omit<Type, Key> => {
-	return $objꓺomit(props, ['key', 'jsx', 'dangerouslySetInnerHTML', 'ref', 'children'].concat((clean || []) as string[]) as Key[], { undefinedValues: true });
+export const cleanProps = <Type extends Props, Key extends keyof Type>(props: Type, otherDirtyProps?: Key[]): Omit<Type, Key> => {
+	return $objꓺomit(props, dirtyProps.concat((otherDirtyProps || []) as string[]) as Key[], { undefinedValues: true });
 };
 
 /**
