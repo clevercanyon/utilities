@@ -35,7 +35,7 @@ export type Primitive = null | undefined | boolean | number | bigint | string | 
 // By default, TypeScript doesn’t know that classes are constructors, so we use this generic type when necessary.
 export type ClassC9r = { new (...args: unknown[]): $Object }; // See: <https://o5p.me/6O7bC7> <https://o5p.me/mUHPAL>.
 
-export type { cfw }; // Cloudflare worker type exports.
+export type { cfw, cfw as cfp }; // Cloudflare worker type exports.
 
 /**
  * Utility types.
