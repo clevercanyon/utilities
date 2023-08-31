@@ -29,46 +29,46 @@ export type PartialState = {
 	fetcher?: Fetcher;
 };
 export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
-export type GlobalObpProps = Props & { httpStatus?: number };
+export type GlobalProps = Partial<Props> & { httpStatus?: number };
 
-export type ContextProps = {
+export type ContextProps = Readonly<{
 	state: State;
 	updateState: Dispatch<PartialState>;
-};
-export type HTTPStatusProps = {
+}>;
+export type HTTPStatusProps = Readonly<{
 	state: number;
 	updateState: (status: number) => void;
-};
+}>;
 
 /**
- * Initializes global object path.
+ * Global object path.
  */
-let globalObp = '';
+let globalObp = ''; // Initialize.
 
 /**
- * Defines global data context.
+ * Defines data context.
  */
 const Context = createContext({} as ContextProps);
 
 /**
- * Produces initial global data state.
+ * Produces initial state.
  *
- * @param   props Global data component props.
+ * @param   props Component props.
  *
- * @returns       Initialized global data state.
+ * @returns       Initialized state.
  */
 const initialState = (props: Props = {}): State => {
-	let globalObpProps: Partial<GlobalObpProps> = {}; // Initialize.
+	let globalProps: GlobalProps = {}; // Initialize.
 	globalObp = props.globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.preactISOData';
 
 	if ($envꓺisWeb() /* These props only used for initial web state. */) {
-		globalObpProps = $obpꓺget(globalThis, globalObp, {}) as Partial<GlobalObpProps>;
+		globalProps = $obpꓺget(globalThis, globalObp, {}) as GlobalProps;
 	} /* Else, during server-side rendering the HTTP status is reset here. */ else {
-		$obpꓺset(globalThis, globalObp + '.httpStatus', 200); // Resets default HTTP status.
+		$obpꓺset(globalThis, globalObp + '.httpStatus', 200); // Resets HTTP status.
 	}
 	const state = $objꓺmergeDeep(
+		$preact.cleanProps(globalProps, ['httpStatus']),
 		$preact.cleanProps(props), // `<Data>` props.
-		$preact.cleanProps(globalObpProps, ['httpStatus']),
 		{ globalObp, html: { /* HTML structure. */ head: {}, body: {} } },
 	) as unknown as State;
 
@@ -76,21 +76,21 @@ const initialState = (props: Props = {}): State => {
 };
 
 /**
- * Reduces global data state updates.
+ * Reduces state updates.
  *
- * @param   state   Current global data state.
- * @param   updates Global data state updates.
+ * @param   state   Current state.
+ * @param   updates State updates.
  *
- * @returns         New global data state; else original state if no changes.
+ * @returns         New state, if changed; else old state.
  */
 const reduceState = (state: State, updates: PartialState): State => {
 	return $objꓺupdateDeep(state, updates) as unknown as State;
 };
 
 /**
- * Renders global data component.
+ * Renders component.
  *
- * @param   props Global data component props.
+ * @param   props Component props.
  *
  * @returns       VNode / JSX element tree.
  */
@@ -100,18 +100,18 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 };
 
 /**
- * Defines global data context hook.
+ * Defines context hook.
  *
  * @returns Readonly context: `{ state, updateState }`.
  */
-export const useData = (): Readonly<ContextProps> => useContext(Context);
+export const useData = (): ContextProps => useContext(Context);
 
 /**
- * Defines global HTTP status props hook.
+ * Defines HTTP status hook.
  *
  * @returns Readonly props: `{ state, updateState }`.
  */
-export const useHTTPStatus = (): Readonly<HTTPStatusProps> => {
+export const useHTTPStatus = (): HTTPStatusProps => {
 	if (!globalObp /* State not initialized? */) {
 		throw new Error('Missing `globalObp`.');
 	}
@@ -125,15 +125,15 @@ export const useHTTPStatus = (): Readonly<HTTPStatusProps> => {
 };
 
 /**
- * Converts global data state into embeddable script code.
+ * Converts global into embeddable script code.
  *
- * @returns Global data state as embeddable script code; for SSR.
+ * @returns Global as embeddable script code; for SSR.
  */
 export const dataGlobalToScriptCode = (): string => {
 	const { state } = useData();
 
 	if (!state /* State not initialized? */) {
-		throw new Error('Missing data context.');
+		throw new Error('Missing data state.');
 	} else if (!globalObp) {
 		throw new Error('Missing `globalObp`.');
 	}

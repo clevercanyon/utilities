@@ -62,7 +62,7 @@ describe('$preactꓺiso.prerenderSPA() fetcher', async () => {
 				</HTML>
 			);
 		};
-		const _404 = lazyRoute(() => import('../../../../preact/components/404.js'));
+		const _404 = lazyRoute(() => import('../../../../preact/routes/404.js'));
 
 		const { httpStatus: indexHTTPStatus, doctypeHTML: indexMarkup } = await prerenderSPA({
 			request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),

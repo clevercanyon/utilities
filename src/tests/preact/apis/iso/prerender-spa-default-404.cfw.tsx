@@ -11,6 +11,8 @@ import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import type { RouterProps, RouteContextAsProps } from '../../../../preact/components/router.js';
 import { default as Router, Route, useRoute, lazyRoute } from '../../../../preact/components/router.js';
 
+const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
+
 describe('$preactꓺiso.prerenderSPA() default-404', async () => {
 	beforeAll(async () => {
 		$env.set('@top', 'APP_BASE_URL', 'http://x.tld');
@@ -18,8 +20,6 @@ describe('$preactꓺiso.prerenderSPA() default-404', async () => {
 	afterAll(async () => {
 		$env.set('@top', 'APP_BASE_URL', __origAppBaseURL__);
 	});
-	const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
-
 	const App = (props: RouterProps): $preact.VNode<RouterProps> => {
 		return (
 			<Router {...props}>
@@ -57,7 +57,7 @@ describe('$preactꓺiso.prerenderSPA() default-404', async () => {
 			</HTML>
 		);
 	};
-	const _404 = lazyRoute(() => import('../../../../preact/components/404.js'));
+	const _404 = lazyRoute(() => import('../../../../preact/routes/404.js'));
 
 	// ---
 

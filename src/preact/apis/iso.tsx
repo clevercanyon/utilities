@@ -9,7 +9,7 @@ import { useHTTPStatus } from '../components/data.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
-import { StandAlone as StandAlone404 } from '../components/404.js';
+import { StandAlone as StandAlone404 } from '../routes/404.js';
 import type { Props as RouterProps } from '../components/router.js';
 import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
 import { renderToString as $preactꓺssrꓺrenderToString } from './ssr.js';
@@ -33,6 +33,11 @@ export type PrerenderSPAOptions = {
 	App: $preact.Component<RouterProps>;
 	props?: Omit<RouterProps, 'url' | 'fetcher'>;
 };
+export type PrerenderSPAReturnProps = {
+	httpStatus: number;
+	doctypeHTML: string;
+	linkURLs: string[];
+};
 export type HydrativelyRenderSPAOptions = {
 	App: $preact.Component<RouterProps>;
 	props?: Omit<RouterProps, 'url' | 'fetcher'>;
@@ -45,9 +50,9 @@ export type HydrativelyRenderSPAOptions = {
  */
 export const replaceNativeFetch = (): Fetcher => {
 	if (!fetcher) {
-		const Class = $fetcherꓺgetClass();
+		const $Fetcher = $fetcherꓺgetClass();
 
-		fetcher = new Class({
+		fetcher = new $Fetcher({
 			autoReplaceNativeFetch: true,
 			globalObp: $strꓺobpPartSafe($appꓺpkgName) + '.preactISOFetcher',
 		});
@@ -61,13 +66,11 @@ export { replaceNativeFetch as getFetcher }; // Exports friendly alias.
  *
  * @param   opts Options; {@see PrerenderSPAOptions}.
  *
- * @returns      Prerendered SPA object properties.
- *
- *   - `{ httpStatus: number; doctypeHTML: string; linkURLs: string[] }`
+ * @returns      Prerendered SPA object properties; {@see PrerenderSPAReturnProps}.
  *
  * @note Server-side use only.
  */
-export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<{ httpStatus: number; doctypeHTML: string; linkURLs: string[] }> => {
+export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<PrerenderSPAReturnProps> => {
 	if ($envꓺisWeb()) throw new Error('Is web.');
 
 	const { request, appManifest, App, props = {} } = opts;
@@ -89,7 +92,7 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<{ httpSta
 		props: {
 			...props, // Props given by options.
 			url, // Absolute URL extracted from request.
-			html: $objꓺmergeDeep(props.html, { head: { mainStyleBundle, mainScriptBundle } }),
+			html: $objꓺmergeDeep({ head: { mainStyleBundle, mainScriptBundle } }, props.html),
 			fetcher, // Preact ISO fetcher; {@see replaceNativeFetch()}.
 		},
 	});

@@ -8,6 +8,7 @@
  */
 
 import type * as preact from 'preact';
+import type * as $type from './type.js';
 import { omit as $objꓺomit } from './obj.js';
 import { castArray as $toꓺcastArray } from './to.js';
 
@@ -16,7 +17,7 @@ import { castArray as $toꓺcastArray } from './to.js';
  */
 export type VNode<P extends Props = Props> = preact.VNode<P>;
 export type Component<P extends Props = Props> = preact.FunctionComponent<P>;
-export type Props<P extends object = object> = preact.RenderableProps<P & { classes?: string | string[] }>;
+export type Props<P extends object = $type.Object> = preact.RenderableProps<Readonly<P & { classes?: string | string[] }>>;
 export type InheritedProps = 'key' | 'jsx' | 'dangerouslySetInnerHTML' | 'ref' | 'children';
 
 /**

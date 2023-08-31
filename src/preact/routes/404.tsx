@@ -2,13 +2,13 @@
  * Preact component.
  */
 
-import HTML from './html.js';
-import Head from './head.js';
-import Body from './body.js';
-import { useHTTPStatus } from './data.js';
+import HTML from '../components/html.js';
+import Head from '../components/head.js';
+import Body from '../components/body.js';
 import * as $preact from '../../preact.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
-import type { RouteContextAsProps } from './router.js';
+import { useHTTPStatus } from '../components/data.js';
+import type { RouteContextAsProps } from '../components/router.js';
 
 /**
  * Defines types.
@@ -40,14 +40,14 @@ export default (unusedꓺprops: Props): $preact.VNode<Props> => {
 				<link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
 			</Head>
 			<Body>
-				<CommonBodyContents />
+				<BodyContents />
 			</Body>
 		</HTML>
 	);
 };
 
 /**
- * Renders component (stand-alone).
+ * Renders stand-alone component.
  *
  * @param   props Stand-alone component props.
  *
@@ -70,7 +70,7 @@ export const StandAlone = (unusedꓺprops: StandAloneProps = {}): $preact.VNode<
 				<link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
 			</head>
 			<body>
-				<CommonBodyContents />
+				<BodyContents />
 			</body>
 		</html>
 	);
@@ -79,9 +79,9 @@ export const StandAlone = (unusedꓺprops: StandAloneProps = {}): $preact.VNode<
 /**
  * Produces 404 page body contents.
  *
- * @returns Component tree.
+ * @returns Commmon body contents tree.
  */
-const CommonBodyContents = (): $preact.VNode => {
+const BodyContents = (): $preact.VNode => {
 	return (
 		<>
 			<div class='noise' />

@@ -2,12 +2,16 @@
  * Preact component.
  */
 
+import { createContext } from 'preact';
 import { useLocation } from './router.js';
 import * as $preact from '../../preact.js';
 import type * as $type from '../../type.js';
-import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
+import type { Dispatch } from 'preact/hooks';
+import type { State as DataState } from './data.js';
+import { useReducer, useContext, useMemo } from 'preact/hooks';
 import { useData, dataGlobalToScriptCode } from './data.js';
 import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
+import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
 
 /**
  * Defines types.
@@ -41,6 +45,40 @@ export type State = {
 export type PartialState = Partial<State>;
 export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
 
+export type ContextProps = {
+	readonly state: State;
+	readonly updateState: Dispatch<PartialState>;
+};
+
+/**
+ * Defines context.
+ */
+const Context = createContext({} as ContextProps);
+
+/**
+ * Produces initial state.
+ *
+ * @param   dataState <Data> state.
+ * @param   props     Component props.
+ *
+ * @returns           Initialized state.
+ */
+const initialState = (dataState: DataState, props: Props = {}): State => {
+	return $objꓺmergeDeep(dataState.html?.head, $preact.cleanProps(props)) as unknown as State;
+};
+
+/**
+ * Reduces state updates.
+ *
+ * @param   state   Current state.
+ * @param   updates State updates.
+ *
+ * @returns         New state, if changed; else old state.
+ */
+const reduceState = (state: State, updates: PartialState): State => {
+	return $objꓺupdateDeep(state, updates) as unknown as State;
+};
+
 /**
  * Renders component.
  *
@@ -50,89 +88,86 @@ export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
 	const { state: locState } = useLocation();
-	if (!locState) throw new Error('Missing location context.');
+	if (!locState) throw new Error('Missing location state.');
 
 	const { state: dataState } = useData();
-	if (!dataState) throw new Error('Missing data context.');
+	if (!dataState) throw new Error('Missing data state.');
 
-	const partialState = $objꓺmergeDeep(
-		$preact.cleanProps(props), //
-		dataState.html?.head,
-	) as unknown as PartialState;
+	const [state, updateState] = useReducer(reduceState, undefined, () => initialState(dataState, props));
 
-	const appBaseURL = String($envꓺget('@top', 'APP_BASE_URL', ''));
-	const appBasePath = String($envꓺget('@top', 'APP_BASE_PATH', ''));
+	const headState = useMemo((): State => {
+		const appBaseURL = String($envꓺget('@top', 'APP_BASE_URL', ''));
+		const appBasePath = String($envꓺget('@top', 'APP_BASE_PATH', ''));
 
-	let title = partialState.title || locState.url.hostname;
-	const defaultDescription = 'Take the tiger by the tail.';
+		let title = state.title || locState.url.hostname;
+		const defaultDescription = 'Take the tiger by the tail.';
 
-	if ('' !== partialState.titleSuffix) {
-		if (partialState.titleSuffix || partialState.siteName) {
-			title += ' • ' + ((partialState.titleSuffix || partialState.siteName) as string);
+		if ('' !== state.titleSuffix) {
+			if (state.titleSuffix || state.siteName) {
+				title += ' • ' + ((state.titleSuffix || state.siteName) as string);
+			}
 		}
-	}
-	const state: State = {
-		...partialState,
+		return {
+			...state,
 
-		charset: partialState.charset || 'utf-8',
-		viewport: partialState.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',
+			charset: state.charset || 'utf-8',
+			viewport: state.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',
 
-		title, // See title generation above.
-		description: partialState.description || defaultDescription,
-		canonical: partialState.canonical || locState.canonicalURL,
+			title, // See title generation above.
+			description: state.description || defaultDescription,
+			canonical: state.canonical || locState.canonicalURL,
 
-		pngIcon: partialState.pngIcon || appBasePath + '/assets/icon.png',
-		svgIcon: partialState.svgIcon || appBasePath + '/assets/icon.svg',
+			pngIcon: state.pngIcon || appBasePath + '/assets/icon.png',
+			svgIcon: state.svgIcon || appBasePath + '/assets/icon.svg',
 
-		ogSiteName: partialState.ogSiteName || partialState.siteName || locState.url.hostname,
-		ogType: partialState.ogType || 'website',
-		ogTitle: partialState.ogTitle || title,
-		ogDescription: partialState.ogDescription || partialState.description || defaultDescription,
-		ogURL: partialState.ogURL || partialState.canonical || locState.canonicalURL,
-		ogImage: partialState.ogImage || appBaseURL + '/assets/og-image.png',
-
-		// These particular props take precedence over global data-state. Only when they’re set to `''` in a server-side render.
-		// The reason is because these particular properties are added to our global data-state dynamically at the topmost ISO `<App>` layer.
-		// So by the time the `<Head>` component is rendered farther down the tree, they’ve already made their way in global data-state.
-		// Routes using `<Head>` can choose to set `mainStyleBundle|mainScriptBundle` to an empty string during server-side renders.
-		// So, for example, for a purely static route you could do: `<Head {...(!$env.isWeb() ? { mainScriptBundle: '' } : {})} />`.
-		// See `./404.tsx` as an example where `mainScriptBundle` is updated to an empty string during server-side renders.
-		// The objective is to allow specific routes to choose not to load the main script bundle for purely static pages.
-
-		mainStyleBundle: '' === props.mainStyleBundle && !$envꓺisWeb() ? '' : partialState.mainStyleBundle,
-		mainScriptBundle: '' === props.mainScriptBundle && !$envꓺisWeb() ? '' : partialState.mainScriptBundle,
-	};
+			ogSiteName: state.ogSiteName || state.siteName || locState.url.hostname,
+			ogType: state.ogType || 'website',
+			ogTitle: state.ogTitle || title,
+			ogDescription: state.ogDescription || state.description || defaultDescription,
+			ogURL: state.ogURL || state.canonical || locState.canonicalURL,
+			ogImage: state.ogImage || appBaseURL + '/assets/og-image.png',
+		};
+	}, [locState, dataState, state]);
 	return (
-		<head>
-			{state.charset && <meta charSet={state.charset} />}
-			{state.viewport && <meta name='viewport' content={state.viewport} />}
+		<Context.Provider value={{ state: headState, updateState }}>
+			<head>
+				{headState.charset && <meta charSet={headState.charset} />}
+				{headState.viewport && <meta name='viewport' content={headState.viewport} />}
 
-			{state.robots && <meta name='robots' content={state.robots} />}
-			{state.canonical && <link rel='canonical' href={state.canonical.toString()} />}
+				{headState.robots && <meta name='robots' content={headState.robots} />}
+				{headState.canonical && <link rel='canonical' href={headState.canonical.toString()} />}
 
-			{state.title && <title>{state.title}</title>}
-			{state.description && <meta name='description' content={state.description} />}
-			{state.author && <meta name='author' content={state.author} />}
+				{headState.title && <title>{headState.title}</title>}
+				{headState.description && <meta name='description' content={headState.description} />}
+				{headState.author && <meta name='author' content={headState.author} />}
 
-			{state.pngIcon && <link rel='icon' href={state.pngIcon.toString()} type='image/png' />}
-			{state.svgIcon && <link rel='icon' href={state.svgIcon.toString()} type='image/svg+xml' />}
+				{headState.pngIcon && <link rel='icon' href={headState.pngIcon.toString()} type='image/png' />}
+				{headState.svgIcon && <link rel='icon' href={headState.svgIcon.toString()} type='image/svg+xml' />}
 
-			{state.ogSiteName && state.ogType && state.ogTitle && state.ogDescription && state.ogURL && state.ogImage && (
-				<>
-					<meta property='og:site_name' content={state.ogSiteName} />
-					<meta property='og:type' content={state.ogType} />
-					<meta property='og:title' content={state.ogTitle} />
-					<meta property='og:description' content={state.ogDescription} />
-					<meta property='og:url' content={state.ogURL.toString()} />
-					<meta property='og:image' content={state.ogImage.toString()} />
-				</>
-			)}
-			{state.mainStyleBundle && <link rel='stylesheet' href={state.mainStyleBundle.toString()} media='all' />}
+				{headState.ogSiteName && headState.ogType && headState.ogTitle && headState.ogDescription && headState.ogURL && headState.ogImage && (
+					<>
+						<meta property='og:site_name' content={headState.ogSiteName} />
+						<meta property='og:type' content={headState.ogType} />
+						<meta property='og:title' content={headState.ogTitle} />
+						<meta property='og:description' content={headState.ogDescription} />
+						<meta property='og:url' content={headState.ogURL.toString()} />
+						<meta property='og:image' content={headState.ogImage.toString()} />
+					</>
+				)}
+				{headState.mainStyleBundle && <link rel='stylesheet' href={headState.mainStyleBundle.toString()} media='all' />}
 
-			{!$envꓺisWeb() && state.mainScriptBundle && <script dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
-			{state.mainScriptBundle && <script type='module' src={state.mainScriptBundle.toString()}></script>}
+				{!$envꓺisWeb() && headState.mainScriptBundle && <script dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
+				{headState.mainScriptBundle && <script type='module' src={headState.mainScriptBundle.toString()}></script>}
 
-			{props.children}
-		</head>
+				{props.children}
+			</head>
+		</Context.Provider>
 	);
 };
+
+/**
+ * Defines context hook.
+ *
+ * @returns Readonly context: `{ state, updateState }`.
+ */
+export const useHead = (): ContextProps => useContext(Context);
