@@ -36,7 +36,7 @@ export type PartialState = {
 	body?: $preactꓺcomponentsꓺbodyꓺPartialState;
 };
 export type HTTPState = Partial<Omit<$httpꓺResponseConfig, 'body'>> & {
-	status: number; // Present always.
+	status: number; // Marking this as required property.
 };
 export type HTTPPartialState = Partial<HTTPState>;
 

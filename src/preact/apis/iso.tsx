@@ -12,16 +12,15 @@ import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
 import { renderToString as $preactꓺapisꓺssrꓺrenderToString } from './ssr.js';
 import { StandAlone as $preactꓺroutesꓺ404ꓺStandAlone } from '../routes/404.js';
 import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.js';
-import { getClass as $fetcherꓺgetClass } from '../../resources/classes/fetcher.js';
-import type { Interface as $fetcherꓺInterface } from '../../resources/classes/fetcher.js';
 import type { HTTPState as $preactꓺcomponentsꓺdataꓺHTTPState } from '../components/data.js';
 import type { Props as $preactꓺcomponentsꓺrouterꓺRouterProps } from '../components/router.js';
+import { getFetcher as $classꓺgetFetcher, FetcherInterface as $classꓺFetcherInterface } from '../../class.js';
 import { hydrate as $preactISOꓺhydrate, prerender as $preactISOꓺprerender } from '@clevercanyon/preact-iso.fork';
 
 /**
  * Defines types.
  */
-export type { $fetcherꓺInterface as Fetcher };
+export type { $classꓺFetcherInterface as Fetcher };
 
 export type PrerenderSPAOptions = {
 	request: Request | $type.cfw.Request;
@@ -42,16 +41,16 @@ export type HydrativelyRenderSPAOptions = {
 /**
  * Fetcher instance.
  */
-let fetcher: $fetcherꓺInterface | undefined;
+let fetcher: $classꓺFetcherInterface | undefined;
 
 /**
  * Replaces native fetch and returns fetcher instance.
  *
- * @returns {@see $fetcherꓺInterface} Instance.
+ * @returns {@see $classꓺFetcherInterface} Instance.
  */
-export const replaceNativeFetch = (): $fetcherꓺInterface => {
+export const replaceNativeFetch = (): $classꓺFetcherInterface => {
 	if (!fetcher) {
-		const Fetcher = $fetcherꓺgetClass();
+		const Fetcher = $classꓺgetFetcher();
 
 		fetcher = new Fetcher({
 			autoReplaceNativeFetch: true,

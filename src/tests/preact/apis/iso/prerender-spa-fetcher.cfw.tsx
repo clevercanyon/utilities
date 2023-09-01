@@ -42,7 +42,7 @@ describe('$preactꓺiso.prerenderSPA() fetcher', async () => {
 				<$preactꓺcomponentsꓺRouter {...props}>
 					<$preactꓺcomponentsꓺrouterꓺRoute path='/' component={Index} />
 					<$preactꓺcomponentsꓺrouterꓺRoute path='/others/*' component={Others} />
-					<$preactꓺcomponentsꓺrouterꓺRoute default component={_404} />
+					<$preactꓺcomponentsꓺrouterꓺRoute default component={Default404} />
 				</$preactꓺcomponentsꓺRouter>
 			);
 		};
@@ -73,7 +73,7 @@ describe('$preactꓺiso.prerenderSPA() fetcher', async () => {
 				</$preactꓺcomponentsꓺHTML>
 			);
 		};
-		const _404 = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('../../../../preact/routes/404.js'));
+		const Default404 = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('../../../../preact/routes/404.js'));
 
 		const { httpState: indexHTTPState, doctypeHTML: indexMarkup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),

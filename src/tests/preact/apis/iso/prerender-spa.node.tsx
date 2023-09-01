@@ -38,7 +38,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 				<$preactꓺcomponentsꓺrouterꓺRoute path='/blog' component={Blog} />
 				<$preactꓺcomponentsꓺrouterꓺRoute path='/blog/post/:id' component={Blog} />
 				<$preactꓺcomponentsꓺrouterꓺRoute path='/others/*' component={Others} />
-				<$preactꓺcomponentsꓺrouterꓺRoute default component={_404} />
+				<$preactꓺcomponentsꓺrouterꓺRoute default component={Default404} />
 			</$preactꓺcomponentsꓺRouter>
 		);
 	};
@@ -71,7 +71,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 				<$preactꓺcomponentsꓺrouterꓺRoute path='/other-d/:x+' component={OtherD} />
 				<$preactꓺcomponentsꓺrouterꓺRoute path='/other-e/:x?' component={OtherE} />
 				<$preactꓺcomponentsꓺrouterꓺRoute path='/other-a/*' component={OtherA} />
-				<$preactꓺcomponentsꓺrouterꓺRoute default component={Other404} />
+				<$preactꓺcomponentsꓺrouterꓺRoute default component={OtherDefault404} />
 			</$preactꓺcomponentsꓺRouter>
 		);
 	};
@@ -125,7 +125,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const Other404 = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
+	const OtherDefault404 = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
 		const { updateState: updateHTTPState } = $preactꓺcomponentsꓺdataꓺuseHTTP();
 		updateHTTPState({ status: 404 }); // Record 404 error.
 
@@ -138,7 +138,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const _404 = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('../../../../preact/routes/404.js'));
+	const Default404 = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('../../../../preact/routes/404.js'));
 
 	// ---
 
