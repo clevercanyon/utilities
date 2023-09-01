@@ -39,7 +39,7 @@ export declare class Interface extends $classꓺUtilityInterface {
 export type Global = $type.Object<{
 	cache: Map<string, GlobalCacheEntry>;
 	nativeFetch: (...args: Parameters<typeof fetch>) => ReturnType<typeof fetch>;
-	pseudoFetch: (...args: Parameters<typeof fetch | typeof $type.cfw.fetch>) => Promise<Response | $type.cfw.Response>;
+	pseudoFetch: (...args: Parameters<typeof fetch | typeof $type.cf.fetch>) => Promise<Response | $type.cf.Response>;
 }>;
 export type GlobalCacheEntry = {
 	body: string;

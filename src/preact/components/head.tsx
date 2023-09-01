@@ -21,7 +21,7 @@ export type State = {
 	viewport?: string;
 
 	robots?: string;
-	canonical?: URL | $type.cfw.URL | string;
+	canonical?: URL | $type.cf.URL | string;
 	siteName?: string;
 
 	title?: string;
@@ -29,18 +29,18 @@ export type State = {
 	description?: string;
 	author?: string;
 
-	pngIcon?: URL | $type.cfw.URL | string;
-	svgIcon?: URL | $type.cfw.URL | string;
+	pngIcon?: URL | $type.cf.URL | string;
+	svgIcon?: URL | $type.cf.URL | string;
 
 	ogSiteName?: string;
 	ogType?: string;
 	ogTitle?: string;
 	ogDescription?: string;
-	ogURL?: URL | $type.cfw.URL | string;
-	ogImage?: URL | $type.cfw.URL | string;
+	ogURL?: URL | $type.cf.URL | string;
+	ogImage?: URL | $type.cf.URL | string;
 
-	mainStyleBundle?: URL | $type.cfw.URL | string;
-	mainScriptBundle?: URL | $type.cfw.URL | string;
+	mainStyleBundle?: URL | $type.cf.URL | string;
+	mainScriptBundle?: URL | $type.cf.URL | string;
 };
 export type PartialState = Partial<State>;
 export type Props = Omit<$preact.Props<PartialState>, 'classes'>;

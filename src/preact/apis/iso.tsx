@@ -23,7 +23,7 @@ import { hydrate as $preactISOꓺhydrate, prerender as $preactISOꓺprerender } 
 export type { $classꓺFetcherInterface as Fetcher };
 
 export type PrerenderSPAOptions = {
-	request: Request | $type.cfw.Request;
+	request: Request | $type.cf.Request;
 	appManifest: { 'index.html': { css: string[]; file: string } };
 	App: $preact.Component<$preactꓺcomponentsꓺrouterꓺRouterProps>;
 	props?: Omit<$preactꓺcomponentsꓺrouterꓺRouterProps, 'url' | 'fetcher'>;
