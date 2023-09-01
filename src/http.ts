@@ -22,8 +22,8 @@ import {
 
 import type * as $type from './type.js';
 import { svz as $moizeꓺsvz } from './moize.js';
-import { isC10n as $envꓺisC10n } from './env.js';
 import { defaults as $objꓺdefaults } from './obj.js';
+import { isC10n as $envꓺisC10n, isCFW as $envꓺisCFW } from './env.js';
 import { escRegExp as $strꓺescRegExp, byteLength as $strꓺbyteLength } from './str.js';
 import { hasExt as $pathꓺhasExt, hasStaticExt as $pathꓺhasStaticExt } from './path.js';
 
@@ -54,7 +54,7 @@ export type ExtractHeaderOptions = { lowercase?: boolean };
  */
 export const requestConfig = (config?: RequestConfig): RequestConfig => {
 	return $objꓺdefaults({}, config || {}, {
-		enableRewrites: false,
+		enableRewrites: $envꓺisCFW(),
 	}) as Required<RequestConfig>;
 };
 
@@ -69,7 +69,7 @@ export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig
 	return $objꓺdefaults({}, config || {}, {
 		status: 405,
 		enableCORs: false,
-		enableCDN: true,
+		enableCDN: !$envꓺisCFW(),
 		maxAge: null,
 		cdnMaxAge: null,
 		headers: {},
@@ -104,7 +104,7 @@ export const prepareRequest = (request: Request | $type.cfw.Request, config?: Re
 	if (!requestHasSupportedMethod(request)) {
 		throw prepareResponse(request, { status: 405 });
 	}
-	if (cfg.enableRewrites && !request.headers.has('x-rewrite-url') /* e.g., Cloudflare middleware. */) {
+	if (cfg.enableRewrites && !request.headers.has('x-rewrite-url') /* e.g., Cloudflare workers using cache API. */) {
 		const originalURL = url; // For comparison w/ headers added below.
 
 		url = $urlꓺremoveCSOQueryVars(originalURL); // Removes (client|cache)-side-only query vars.
@@ -113,7 +113,15 @@ export const prepareRequest = (request: Request | $type.cfw.Request, config?: Re
 		if (!url /* Catches unparseable URLs. */) {
 			throw prepareResponse(request, { status: 400 });
 		}
-		url.searchParams.sort(); // Sorting query vars optimizes some cache layers.
+		let _ck = ''; // Initializes cache key; implemented using `_ck` query var.
+
+		if (request.headers.has('origin')) {
+			const origin = request.headers.get('origin') || '';
+			_ck = (_ck ? _ck + '&' : '') + 'origin=' + origin;
+		}
+		if (_ck) url.searchParams.set('_ck', _ck);
+
+		url.searchParams.sort(); // Sorting query vars optimizes cache.
 
 		if (url.toString() !== originalURL.toString()) {
 			request.headers.set('x-rewrite-url', url.toString());
@@ -220,12 +228,23 @@ const prepareResponseHeaders = (request: Request | $type.cfw.Request, url: URL |
 	// Vary is ignored by Cloudflare, except in one rare case: <https://o5p.me/k4Xx0j>.
 	// Vary is *not* ignored by browsers, but since it *is* ignored by Cloudflare, if a browser requests the same location
 	// with one of the following headers, and that location is being cached by Cloudflare, they'll always get the same response.
-	// Note that `origin` is always varied at the edge by Cloudflare; i.e., unless explicitly configured to exclude `origin`.
 
-	cacheHeaders['vary'] = 'origin, accept, accept-language, accept-encoding';
+	// Regardless, note that `origin` is always varied at the edge by Cloudflare; i.e., unless explicitly configured to exclude `origin`.
+	// Additionally, we use `_ck` to vary based on `origin` when using the cache API with Cloudflare workers — handled by request rewrites above.
+
+	cacheHeaders['vary'] = 'origin'; // Only varying based on `origin` at this time.
 
 	if (!cfg.headers.has('cache-control') /* Save time when we already have `cache-control`. */) {
-		if (!requestHasCacheableMethod(request) || cfg.status >= 300) {
+		if ($isꓺinteger(cfg.maxAge) /* Simplified method of passing a `cache-control` header. */) {
+			if (cfg.maxAge <= 0) {
+				cacheHeaders['cache-control'] = 'no-store';
+				cacheHeaders['cdn-cache-control'] = 'no-store';
+			} else {
+				const staleAge = cfg.maxAge >= 86400 ? 86400 : cfg.maxAge;
+				cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=' + String(cfg.maxAge) + ', s-maxage=' + String(cfg.maxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
+				cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=' + String(cfg.maxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
+			}
+		} else if (!requestHasCacheableMethod(request) || cfg.status >= 300) {
 			cacheHeaders['cache-control'] = 'no-store';
 			cacheHeaders['cdn-cache-control'] = 'no-store';
 			//
@@ -244,16 +263,6 @@ const prepareResponseHeaders = (request: Request | $type.cfw.Request, url: URL |
 		} else {
 			cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=41400, s-maxage=41400, stale-while-revalidate=41400, stale-if-error=41400';
 			cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=41400, stale-while-revalidate=41400, stale-if-error=41400';
-		}
-		if ($isꓺinteger(cfg.maxAge) /* Simplified method of passing a `cache-control` header. */) {
-			if (cfg.maxAge <= 0) {
-				cacheHeaders['cache-control'] = 'no-store';
-				cacheHeaders['cdn-cache-control'] = 'no-store';
-			} else {
-				const staleAge = cfg.maxAge >= 86400 ? 86400 : cfg.maxAge;
-				cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=' + String(cfg.maxAge) + ', s-maxage=' + String(cfg.maxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
-				cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=' + String(cfg.maxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
-			}
 		}
 		if (cfg.enableCDN && $isꓺinteger(cfg.cdnMaxAge) /* Simplified method of passing a `cdn-cache-control` header. */) {
 			if (cfg.cdnMaxAge <= 0) {
