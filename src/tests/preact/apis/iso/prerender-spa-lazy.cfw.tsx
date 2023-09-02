@@ -6,7 +6,7 @@ import {
 	default as $preactꓺcomponentsꓺRouter,
 	Route as $preactꓺcomponentsꓺrouterꓺRoute,
 	useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute,
-	lazyComponent as $preactꓺcomponentsꓺrouterꓺlazyComponent,
+	lazyImport as $preactꓺcomponentsꓺrouterꓺlazyImport,
 } from '../../../../preact/components/router.js';
 
 import type {
@@ -15,7 +15,7 @@ import type {
 } from '../../../../preact/components/router.js';
 
 import { $env, $to, $preact } from '../../../../index.js';
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
+import { describe, test, expect, beforeAll, afterAll, vi } from 'vitest';
 import $preactꓺcomponentsꓺHTML from '../../../../preact/components/html.js';
 import $preactꓺcomponentsꓺHead from '../../../../preact/components/head.js';
 import $preactꓺcomponentsꓺBody from '../../../../preact/components/body.js';
@@ -31,6 +31,9 @@ describe('$preactꓺiso.prerenderSPA() lazy', async () => {
 		$env.set('@top', 'APP_BASE_URL', __origAppBaseURL__);
 	});
 	test('.', async () => {
+		const globalFetchMock = vi.fn(async () => new Response('x'));
+		vi.stubGlobal('fetch', globalFetchMock);
+
 		const App = (props: $preactꓺcomponentsꓺrouterꓺRouterProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouterProps> => {
 			return (
 				<$preactꓺcomponentsꓺRouter {...props}>
@@ -50,8 +53,8 @@ describe('$preactꓺiso.prerenderSPA() lazy', async () => {
 				</$preactꓺcomponentsꓺHTML>
 			);
 		};
-		const Lazy = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('./x-imports/routes/lazy.js'));
-		const Default404 = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('../../../../preact/routes/404.js'));
+		const Lazy = $preactꓺcomponentsꓺrouterꓺlazyImport(() => import('./x-imports/routes/lazy.js'));
+		const Default404 = $preactꓺcomponentsꓺrouterꓺlazyImport(() => import('../../../../preact/routes/404.js'));
 
 		const { httpState: indexHTTPState, doctypeHTML: indexMarkup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),

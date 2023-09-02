@@ -6,7 +6,7 @@ import {
 	default as $preactꓺcomponentsꓺRouter,
 	Route as $preactꓺcomponentsꓺrouterꓺRoute,
 	useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute,
-	lazyComponent as $preactꓺcomponentsꓺrouterꓺlazyComponent,
+	lazyImport as $preactꓺcomponentsꓺrouterꓺlazyImport,
 } from '../../../../preact/components/router.js';
 
 import type {
@@ -67,7 +67,7 @@ describe('$preactꓺiso.prerenderSPA() default-404', async () => {
 			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const Default404 = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('../../../../preact/routes/404.js'));
+	const Default404 = $preactꓺcomponentsꓺrouterꓺlazyImport(() => import('../../../../preact/routes/404.js'));
 
 	// ---
 

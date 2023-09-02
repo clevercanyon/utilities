@@ -52,5 +52,5 @@ export default (props: Props = {}): $preact.VNode<Props> => {
  * Exports preact ISO router-related utilities.
  */
 export type { ErrorBoundaryProps } from '@clevercanyon/preact-iso.fork/lazy';
-export { Location, ErrorBoundary, Router, Route, useLocation, useRoute, lazyComponent } from '@clevercanyon/preact-iso.fork';
+export { Location, ErrorBoundary, Router, Route, useLocation, useRoute, lazyImport } from '@clevercanyon/preact-iso.fork';
 export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext, RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';
