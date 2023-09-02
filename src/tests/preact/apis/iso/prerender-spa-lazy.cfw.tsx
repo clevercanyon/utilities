@@ -92,6 +92,7 @@ describe('$preactꓺiso.prerenderSPA() lazy', async () => {
 		expect(lazyMarkup).toContain('"query":"?a=_a&b=_b&c=_c"');
 		expect(lazyMarkup).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
 		expect(lazyMarkup).toContain('"params":{}');
+		expect(lazyMarkup).toContain('<script type="lazy-component-props">{"a":"_a","b":"_b","c":"_c"}</script>');
 		expect(lazyMarkup).toContain('</html>');
 	});
 });

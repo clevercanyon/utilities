@@ -17,6 +17,7 @@ import { castArray as $toꓺcastArray } from './to.js';
  */
 export type VNode<P extends Props = Props> = preact.VNode<P>;
 export type Component<P extends Props = Props> = preact.FunctionComponent<P>;
+export type AsyncComponent<P extends Props = Props> = (...args: Parameters<Component<P>>) => Promise<ReturnType<Component<P>>>;
 export type Props<P extends object = $type.Object> = preact.RenderableProps<Readonly<P & { classes?: string | string[] }>>;
 
 /**

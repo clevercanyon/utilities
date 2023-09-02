@@ -1,3 +1,1 @@
--   Test nested fetch calls.
--   Test throwing of promises.
 -   Test client-side hydration.

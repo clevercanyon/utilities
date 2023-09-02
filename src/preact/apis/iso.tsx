@@ -13,9 +13,10 @@ import { renderToString as $preactꓺapisꓺssrꓺrenderToString } from './ssr.j
 import { StandAlone as $preactꓺroutesꓺ404ꓺStandAlone } from '../routes/404.js';
 import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.js';
 import type { HTTPState as $preactꓺcomponentsꓺdataꓺHTTPState } from '../components/data.js';
-import type { Props as $preactꓺcomponentsꓺrouterꓺRouterProps } from '../components/router.js';
 import { getFetcher as $classꓺgetFetcher, FetcherInterface as $classꓺFetcherInterface } from '../../class.js';
 import { hydrate as $preactISOꓺhydrate, prerender as $preactISOꓺprerender } from '@clevercanyon/preact-iso.fork';
+import { default as $preactꓺcomponentsꓺRouter, Route as $preactꓺcomponentsꓺrouterꓺRoute, lazyRoute as $preactꓺcomponentsꓺrouterꓺlazyRoute } from '../components/router.js';
+import type { Props as $preactꓺcomponentsꓺrouterꓺRouterProps, RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps } from '../components/router.js';
 
 /**
  * Defines types.
@@ -99,7 +100,8 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<Prerender
 	fetcher.restoreNativeFetch(); // Restores native fetch on prerender completion.
 
 	const { state: httpState } = !prerendered.html ? { state: { status: 404 } } : $preactꓺcomponentsꓺdataꓺuseHTTP();
-	const doctypeHTML = '<!DOCTYPE html>' + (!prerendered.html ? $preactꓺapisꓺssrꓺrenderToString(<$preactꓺroutesꓺ404ꓺStandAlone />) : prerendered.html);
+	const doctypeHTML = // This is identified using the `prerender-spa-404` class so it’s easy to spot when testing/debugging.
+		'<!DOCTYPE html>' + (!prerendered.html ? $preactꓺapisꓺssrꓺrenderToString(<$preactꓺroutesꓺ404ꓺStandAlone classes={'prerender-spa-404'} />) : prerendered.html);
 	const linkURLs = [...prerendered.links]; // Converts link URLs into array.
 
 	return { httpState, doctypeHTML, linkURLs };
@@ -123,4 +125,29 @@ export const hydrativelyRenderSPA = (opts: HydrativelyRenderSPAOptions): void =>
 	} else {
 		preactꓺrender(<App {...{ ...props, fetcher }} />, document);
 	}
+};
+
+/**
+ * Produces a lazy component.
+ *
+ * @param   asyncComponent Async component to be lazy loaded by ISO prerenderer.
+ *
+ * @returns                Preact component that will be lazy loaded by ISO prerenderer.
+ */
+export const lazyComponent = <P extends $preact.Props = $preact.Props>(asyncComponent: $preact.AsyncComponent<P>): $preact.Component<P> => {
+	const higherOrder = { props: {} as P }; // Contains async component props, set by reference.
+	type RouteContextAsProps = $preactꓺcomponentsꓺrouterꓺRouteContextAsProps; // Shorter type alias.
+
+	const LazyHigherOrderComponent = $preactꓺcomponentsꓺrouterꓺlazyRoute(async (): Promise<$preact.Component<RouteContextAsProps>> => {
+		const renderedAsyncComponentVNode = await asyncComponent(higherOrder.props);
+		return (unusedꓺprops: RouteContextAsProps) => renderedAsyncComponentVNode;
+	});
+	return (props: Parameters<$preact.AsyncComponent<P>>[0]): Awaited<ReturnType<$preact.AsyncComponent<P>>> => {
+		higherOrder.props = props; // Populates async component props.
+		return (
+			<$preactꓺcomponentsꓺRouter>
+				<$preactꓺcomponentsꓺrouterꓺRoute default component={LazyHigherOrderComponent} />
+			</$preactꓺcomponentsꓺRouter>
+		);
+	};
 };

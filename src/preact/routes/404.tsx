@@ -1,5 +1,5 @@
 /**
- * Preact component.
+ * Preact route component.
  */
 
 import { $preact } from '../../index.js';
@@ -13,11 +13,11 @@ import type { RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContex
 /**
  * Defines types.
  */
-export type Props = Omit<$preact.Props<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps>, 'classes'>;
-export type StandAloneProps = Omit<$preact.Props, 'classes'>;
+export type Props = $preact.Props<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps>;
+export type StandAloneProps = $preact.Props;
 
 /**
- * Renders component.
+ * Renders route component.
  *
  * @param   props Component props.
  *
@@ -25,7 +25,7 @@ export type StandAloneProps = Omit<$preact.Props, 'classes'>;
  *
  * @note No SSR style/script bundles, as this is a purely static page.
  */
-export default (unusedꓺprops: Props): $preact.VNode<Props> => {
+export default (props: Props): $preact.VNode<Props> => {
 	const { updateState: updateHTTPState } = $preactꓺcomponentsꓺdataꓺuseHTTP();
 	updateHTTPState({ status: 404 }); // Record 404 error.
 
@@ -39,7 +39,7 @@ export default (unusedꓺprops: Props): $preact.VNode<Props> => {
 			>
 				<link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
 			</$preactꓺcomponentsꓺHead>
-			<$preactꓺcomponentsꓺBody>
+			<$preactꓺcomponentsꓺBody classes={$preact.classes(props.classes)}>
 				<BodyContents />
 			</$preactꓺcomponentsꓺBody>
 		</$preactꓺcomponentsꓺHTML>
@@ -56,7 +56,7 @@ export default (unusedꓺprops: Props): $preact.VNode<Props> => {
  * @note This component should be easy to render as a string and then for it be easily
  * dropped into any system, serving as a 404 error page; e.g., for a Cloudflare Pages site.
  */
-export const StandAlone = (unusedꓺprops: StandAloneProps = {}): $preact.VNode<StandAloneProps> => {
+export const StandAlone = (props: StandAloneProps = {}): $preact.VNode<StandAloneProps> => {
 	return (
 		<html lang={'en'}>
 			<head>
@@ -69,7 +69,7 @@ export const StandAlone = (unusedꓺprops: StandAloneProps = {}): $preact.VNode<
 
 				<link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
 			</head>
-			<body>
+			<body class={$preact.classes(props.classes)}>
 				<BodyContents />
 			</body>
 		</html>
