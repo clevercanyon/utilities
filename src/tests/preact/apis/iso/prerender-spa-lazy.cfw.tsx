@@ -6,7 +6,7 @@ import {
 	default as $preactꓺcomponentsꓺRouter,
 	Route as $preactꓺcomponentsꓺrouterꓺRoute,
 	useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute,
-	lazyImport as $preactꓺcomponentsꓺrouterꓺlazyImport,
+	lazyRoute as $preactꓺcomponentsꓺrouterꓺlazyRoute,
 } from '../../../../preact/components/router.js';
 
 import type {
@@ -53,8 +53,8 @@ describe('$preactꓺiso.prerenderSPA() lazy', async () => {
 				</$preactꓺcomponentsꓺHTML>
 			);
 		};
-		const Lazy = $preactꓺcomponentsꓺrouterꓺlazyImport(() => import('./x-imports/routes/lazy.js'));
-		const Default404 = $preactꓺcomponentsꓺrouterꓺlazyImport(() => import('../../../../preact/routes/404.js'));
+		const Lazy = $preactꓺcomponentsꓺrouterꓺlazyRoute(() => import('./x-imports/routes/lazy.js'));
+		const Default404 = $preactꓺcomponentsꓺrouterꓺlazyRoute(() => import('../../../../preact/routes/404.js'));
 
 		const { httpState: indexHTTPState, doctypeHTML: indexMarkup } = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),
