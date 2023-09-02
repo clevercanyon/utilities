@@ -17,7 +17,7 @@ import {
 	objStringTag as $symbolꓺobjStringTag,
 } from '../../symbol.js';
 
-import type * as $type from '../../type.js';
+import type { $type } from '../../index.js';
 import { object as $isꓺobject } from '../../is.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 

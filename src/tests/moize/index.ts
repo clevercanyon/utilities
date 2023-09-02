@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import type * as $type from '../../type.js';
+import type { $type } from '../../index.js';
 import { $moize, $obj } from '../../index.js';
 import { describe, test, expect } from 'vitest';
 

@@ -2,7 +2,7 @@
  * URL utilities.
  */
 
-import type * as $type from './type.js';
+import type { $type } from './index.js';
 import { try as $fnꓺtry } from './fn.js';
 import { isWeb as $envꓺisWeb } from './env.js';
 import { defaults as $objꓺdefaults } from './obj.js';

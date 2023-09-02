@@ -12,7 +12,7 @@ import {
 	plainObject as $isꓺplainObject,
 } from './is.js';
 
-import type * as $type from './type.js';
+import type { $type } from './index.js';
 import { keyAndSymbolEntries as $objꓺkeyAndSymbolEntries } from './obj.js';
 import { objToJSON as $symbolꓺobjToJSON, objToPlain as $symbolꓺobjToPlain } from './symbol.js';
 

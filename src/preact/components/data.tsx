@@ -2,7 +2,7 @@
  * Preact component.
  */
 
-import * as $preact from '../../preact.js';
+import { $preact } from '../../index.js';
 import { json as $toꓺjson } from '../../to.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';

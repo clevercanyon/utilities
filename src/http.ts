@@ -20,7 +20,7 @@ import {
 	removeCSOQueryVars as $urlꓺremoveCSOQueryVars,
 } from './url.js';
 
-import type * as $type from './type.js';
+import type { $type } from './index.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { defaults as $objꓺdefaults } from './obj.js';
 import { isC10n as $envꓺisC10n, isCFW as $envꓺisCFW } from './env.js';

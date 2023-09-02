@@ -2,7 +2,7 @@
  * Fetcher utility class.
  */
 
-import type * as $type from '../../type.js';
+import type { $type } from '../../index.js';
 import { json as $toꓺjson } from '../../to.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
 import { sha1 as $cryptoꓺsha1 } from '../../crypto.js';

@@ -2,7 +2,7 @@
  * Preact component.
  */
 
-import * as $preact from '../../preact.js';
+import { $preact } from '../../index.js';
 import { createContext as preactꓺcreateContext } from 'preact';
 import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
 import { useData as $preactꓺcomponentsꓺdataꓺuseData } from './data.js';

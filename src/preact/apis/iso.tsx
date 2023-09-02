@@ -2,8 +2,8 @@
  * Preact API.
  */
 
-import * as $preact from '../../preact.js';
-import type * as $type from '../../type.js';
+import { $preact } from '../../index.js';
+import type { $type } from '../../index.js';
 import { render as preactꓺrender } from 'preact';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';

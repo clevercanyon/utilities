@@ -2,7 +2,7 @@
  * Preact component.
  */
 
-import * as $preact from '../../preact.js';
+import { $preact } from '../../index.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
 import $preactꓺcomponentsꓺHTML from '../components/html.js';
 import $preactꓺcomponentsꓺHead from '../components/head.js';

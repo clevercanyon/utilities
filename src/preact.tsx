@@ -8,7 +8,7 @@
  */
 
 import type * as preact from 'preact';
-import type * as $type from './type.js';
+import type { $type } from './index.js';
 import { omit as $objꓺomit } from './obj.js';
 import { castArray as $toꓺcastArray } from './to.js';
 

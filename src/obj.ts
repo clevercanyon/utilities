@@ -17,7 +17,7 @@ import {
 	structuredCloneable as $isꓺstructuredCloneable,
 } from './is.js';
 
-import type * as $type from './type.js';
+import type { $type } from './index.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { getClass as $classꓺgetMC } from './resources/classes/obj-mc.js';
 import { objTag as $symbolꓺobjTag, objToClone as $symbolꓺobjToClone } from './symbol.js';

@@ -12,7 +12,7 @@ import {
 	protoPollutionKey as $isꓺprotoPollutionKey,
 } from './is.js';
 
-import type * as $type from './type.js';
+import type { $type } from './index.js';
 import { castArray as $toꓺcastArray } from './to.js';
 import { quote as $strꓺquote, escRegExp as $strꓺescRegExp } from './str.js';
 import { hasOwn as $objꓺhasOwn, cloneDeep as $objꓺcloneDeep } from './obj.js';

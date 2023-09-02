@@ -23,13 +23,7 @@ import { prerenderSPA as $preactꓺapisꓺisoꓺprerenderSPA } from '../../../..
 
 const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
 
-/*
-@todo:
-- Test nested fetch calls.
-- Test throwing of promises.
-- Test client-side hydration.
-*/
-describe('$preactꓺiso.prerenderSPA() fetcher', async () => {
+describe('$preactꓺiso.prerenderSPA() lazy', async () => {
 	beforeAll(async () => {
 		$env.set('@top', 'APP_BASE_URL', 'http://x.tld');
 	});
@@ -41,7 +35,7 @@ describe('$preactꓺiso.prerenderSPA() fetcher', async () => {
 			return (
 				<$preactꓺcomponentsꓺRouter {...props}>
 					<$preactꓺcomponentsꓺrouterꓺRoute path='/' component={Index} />
-					<$preactꓺcomponentsꓺrouterꓺRoute path='/others/*' component={Others} />
+					<$preactꓺcomponentsꓺrouterꓺRoute path='/lazy/*' component={Lazy} />
 					<$preactꓺcomponentsꓺrouterꓺRoute default component={Default404} />
 				</$preactꓺcomponentsꓺRouter>
 			);
@@ -56,23 +50,7 @@ describe('$preactꓺiso.prerenderSPA() fetcher', async () => {
 				</$preactꓺcomponentsꓺHTML>
 			);
 		};
-		const Others = (): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
-			return (
-				<$preactꓺcomponentsꓺRouter {...$preactꓺcomponentsꓺrouterꓺuseRoute()}>
-					<$preactꓺcomponentsꓺrouterꓺRoute path='/other' component={Other} />
-				</$preactꓺcomponentsꓺRouter>
-			);
-		};
-		const Other = (): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
-			return (
-				<$preactꓺcomponentsꓺHTML>
-					<$preactꓺcomponentsꓺHead title={'other'} />
-					<$preactꓺcomponentsꓺBody>
-						<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
-					</$preactꓺcomponentsꓺBody>
-				</$preactꓺcomponentsꓺHTML>
-			);
-		};
+		const Lazy = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('./x-imports/routes/lazy.js'));
 		const Default404 = $preactꓺcomponentsꓺrouterꓺlazyComponent(() => import('../../../../preact/routes/404.js'));
 
 		const { httpState: indexHTTPState, doctypeHTML: indexMarkup } = await $preactꓺapisꓺisoꓺprerenderSPA({
@@ -93,5 +71,24 @@ describe('$preactꓺiso.prerenderSPA() fetcher', async () => {
 		expect(indexMarkup).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
 		expect(indexMarkup).toContain('"params":{}');
 		expect(indexMarkup).toContain('</html>');
+
+		const { httpState: lazyHTTPState, doctypeHTML: lazyMarkup } = await $preactꓺapisꓺisoꓺprerenderSPA({
+			request: new Request(new URL('http://x.tld/lazy?a=_a&b=_b&c=_c')),
+			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
+			App, // Defined above.
+		});
+		expect(lazyHTTPState.status).toBe(200);
+		expect(lazyMarkup).toContain('<!DOCTYPE html>');
+		expect(lazyMarkup).toContain('<title>lazy</title>');
+		expect(lazyMarkup).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
+		expect(lazyMarkup).toContain('<script type="module" src="/script.js"></script>');
+		expect(lazyMarkup).toContain('"path":"/lazy"');
+		expect(lazyMarkup).toContain('"pathQuery":"/lazy?a=_a&b=_b&c=_c"');
+		expect(lazyMarkup).toContain('"restPath":""');
+		expect(lazyMarkup).toContain('"restPathQuery":""');
+		expect(lazyMarkup).toContain('"query":"?a=_a&b=_b&c=_c"');
+		expect(lazyMarkup).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
+		expect(lazyMarkup).toContain('"params":{}');
+		expect(lazyMarkup).toContain('</html>');
 	});
 });

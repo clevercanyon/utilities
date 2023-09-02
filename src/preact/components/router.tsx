@@ -9,7 +9,7 @@ import {
 	ErrorBoundary as $preactISOꓺErrorBoundary,
 } from '@clevercanyon/preact-iso.fork';
 
-import * as $preact from '../../preact.js';
+import { $preact } from '../../index.js';
 import { empty as $isꓺempty } from '../../is.js';
 import { default as $preactꓺcomponentsꓺData } from './data.js';
 import type { Props as $preactꓺcomponentsꓺdataꓺProps } from './data.js';

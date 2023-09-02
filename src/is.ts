@@ -8,7 +8,7 @@ import {
 	keysAndSymbols as $objꓺkeysAndSymbols,
 } from './obj.js';
 
-import type * as $type from './type.js';
+import type { $type } from './index.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { pkgName as $appꓺpkgName } from './app.js';
 import { isWeb as $envꓺisWeb, isNode as $envꓺisNode } from './env.js';

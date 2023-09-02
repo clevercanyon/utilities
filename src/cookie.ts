@@ -9,7 +9,7 @@ import {
 	currentScheme as $urlꓺcurrentScheme,
 } from './url.js';
 
-import type * as $type from './type.js';
+import type { $type } from './index.js';
 import { isWeb as $envꓺisWeb } from './env.js';
 import { svz as $moizeꓺsvz } from './moize.js';
 import { unquote as $strꓺunquote } from './str.js';

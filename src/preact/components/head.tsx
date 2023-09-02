@@ -2,8 +2,8 @@
  * Preact component.
  */
 
-import * as $preact from '../../preact.js';
-import type * as $type from '../../type.js';
+import { $preact } from '../../index.js';
+import type { $type } from '../../index.js';
 import { createContext as preactꓺcreateContext } from 'preact';
 import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
 import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';

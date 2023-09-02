@@ -20,7 +20,7 @@ import {
 	objToClone as $symbolꓺobjToClone,
 } from './symbol.js';
 
-import type * as $type from './type.js';
+import type { $type } from './index.js';
 import { DateTime as Time } from 'luxon';
 import { pkgName as $appꓺpkgName } from './app.js';
 import { pick as $objꓺpick, defaults as $objꓺdefaults } from './obj.js';
