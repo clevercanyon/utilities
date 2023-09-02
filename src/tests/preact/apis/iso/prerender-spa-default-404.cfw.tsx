@@ -77,7 +77,6 @@ describe('$preactꓺiso.prerenderSPA() default-404', async () => {
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
-		console.log(othersOtherFooMarkup);
 		expect(othersOtherFooHTTPState.status).toBe(404);
 		expect(othersOtherFooMarkup).toContain('<!DOCTYPE html>');
 		expect(othersOtherFooMarkup).toContain('<title>404 Error: Not Found</title>');

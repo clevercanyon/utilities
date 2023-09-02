@@ -26,6 +26,7 @@ import { defaults as $objꓺdefaults } from './obj.js';
 import { isC10n as $envꓺisC10n, isCFW as $envꓺisCFW } from './env.js';
 import { escRegExp as $strꓺescRegExp, byteLength as $strꓺbyteLength } from './str.js';
 import { hasExt as $pathꓺhasExt, hasStaticExt as $pathꓺhasStaticExt } from './path.js';
+import { hourInSeconds as $timeꓺhourInSeconds, dayInSeconds as $timeꓺdayInSeconds, yearInSeconds as $timeꓺyearInSeconds } from './time.js';
 
 /**
  * Defines types.
@@ -34,11 +35,12 @@ export type RequestConfig = {
 	enableRewrites?: boolean;
 };
 export type ResponseConfig = {
-	status?: number; // HTTP response code.
-	enableCORs?: boolean; // Enables CORs headers.
-	enableCDN?: boolean; // Enables CDN cache headers.
-	maxAge?: number | null; // Simplified cache directive.
-	cdnMaxAge?: number | null; // Simplified CDN cache directive.
+	status?: number;
+	enableCORs?: boolean;
+	enableCDN?: boolean;
+	maxAge?: number | null;
+	sMaxAge?: number | null;
+	staleAge?: number | null;
 	headers?: Headers | $type.cf.Headers | { [x: string]: string };
 	appendHeaders?: Headers | $type.cf.Headers | { [x: string]: string };
 	body?: BodyInit | $type.cf.BodyInit | null;
@@ -71,7 +73,8 @@ export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig
 		enableCORs: false,
 		enableCDN: !$envꓺisCFW(),
 		maxAge: null,
-		cdnMaxAge: null,
+		sMaxAge: null,
+		staleAge: null,
 		headers: {},
 		appendHeaders: {},
 		body: null,
@@ -204,7 +207,7 @@ const prepareResponseHeaders = (request: Request | $type.cf.Request, url: URL | 
 	}
 	// Populates content-related headers.
 
-	if (!cfg.headers.has('content-length') /* Save time when we already have `content-length`. */) {
+	if (!cfg.headers.has('content-length') /* Saves time. */) {
 		if (requestNeedsContentHeaders(request, cfg.status) && !$isꓺnul(cfg.body)) {
 			if ($isꓺstring(cfg.body)) {
 				contentHeaders['content-length'] = String($strꓺbyteLength(cfg.body));
@@ -234,45 +237,47 @@ const prepareResponseHeaders = (request: Request | $type.cf.Request, url: URL | 
 
 	cacheHeaders['vary'] = 'origin'; // Only varying based on `origin` at this time.
 
-	if (!cfg.headers.has('cache-control') /* Save time when we already have `cache-control`. */) {
-		if ($isꓺinteger(cfg.maxAge) /* Simplified method of passing a `cache-control` header. */) {
-			if (cfg.maxAge <= 0) {
+	if (!cfg.headers.has('cache-control') /* Saves time. */) {
+		const cacheControl = (
+			maxAge?: ResponseConfig['maxAge'], // Browser max age (cache TTL).
+			sMaxAge?: ResponseConfig['sMaxAge'], // Server max age; e.g., Cloudflare.
+			staleAge?: ResponseConfig['staleAge'], // Browser and server stale age.
+		): void => {
+			maxAge = Math.max(maxAge || 0, 0);
+			maxAge = Math.min(maxAge, $timeꓺyearInSeconds); // 1 year max.
+
+			if (0 === maxAge /* Do not cache. */) {
 				cacheHeaders['cache-control'] = 'no-store';
 				cacheHeaders['cdn-cache-control'] = 'no-store';
 			} else {
-				const staleAge = cfg.maxAge >= 86400 ? 86400 : cfg.maxAge;
-				cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=' + String(cfg.maxAge) + ', s-maxage=' + String(cfg.maxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
-				cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=' + String(cfg.maxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
+				// 2h minimum @ Cloudflare on free plan.
+				sMaxAge = Math.max($isꓺinteger(sMaxAge) ? sMaxAge : maxAge, 0);
+				sMaxAge = 0 === sMaxAge ? 0 : Math.max(Math.max(sMaxAge, maxAge), $timeꓺhourInSeconds * 2);
+
+				staleAge = Math.max($isꓺinteger(staleAge) ? staleAge : Math.round(maxAge / 2), 0);
+				staleAge = Math.min(staleAge, $timeꓺdayInSeconds * 90); // 90 days max.
+
+				cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=' + String(maxAge) + ', s-maxage=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
+				cacheHeaders['cdn-cache-control'] = 0 === sMaxAge ? 'no-store' : 'public, must-revalidate, max-age=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
 			}
+			if (!cfg.enableCDN) delete cacheHeaders['cdn-cache-control']; // Ditches CDN header.
+		};
+		if ($isꓺinteger(cfg.maxAge)) {
+			cacheControl(cfg.maxAge, cfg.sMaxAge, cfg.staleAge);
+			//
 		} else if (!requestHasCacheableMethod(request) || cfg.status >= 300) {
-			cacheHeaders['cache-control'] = 'no-store';
-			cacheHeaders['cdn-cache-control'] = 'no-store';
+			cacheControl(0); // Do not cache.
 			//
 		} else if (requestPathIsSEORelatedFile(request, url)) {
-			cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=86400, stale-if-error=86400';
-			cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=86400, stale-while-revalidate=86400, stale-if-error=86400';
+			cacheControl($timeꓺdayInSeconds);
 			//
 		} else if (requestPathIsStatic(request, url)) {
-			cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=31536000, s-maxage=31536000, stale-while-revalidate=604800, stale-if-error=604800';
-			cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=31536000, stale-while-revalidate=604800, stale-if-error=604800';
+			cacheControl($timeꓺyearInSeconds);
 			//
 		} else if (requestPathIsInAdmin(request, url) || requestIsFromUser(request)) {
-			cacheHeaders['cache-control'] = 'no-store';
-			cacheHeaders['cdn-cache-control'] = 'no-store';
+			cacheControl(0); // Do not cache.
 			//
-		} else {
-			cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=41400, s-maxage=41400, stale-while-revalidate=41400, stale-if-error=41400';
-			cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=41400, stale-while-revalidate=41400, stale-if-error=41400';
-		}
-		if (cfg.enableCDN && $isꓺinteger(cfg.cdnMaxAge) /* Simplified method of passing a `cdn-cache-control` header. */) {
-			if (cfg.cdnMaxAge <= 0) {
-				cacheHeaders['cdn-cache-control'] = 'no-store';
-			} else {
-				const staleAge = cfg.cdnMaxAge >= 86400 ? 86400 : cfg.cdnMaxAge;
-				cacheHeaders['cdn-cache-control'] = 'public, must-revalidate, max-age=' + String(cfg.cdnMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
-			}
-		}
-		if (!cfg.enableCDN) delete cacheHeaders['cdn-cache-control']; // Ditch this header from above.
+		} else cacheControl($timeꓺdayInSeconds);
 	}
 	// Populates security-related headers.
 
