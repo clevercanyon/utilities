@@ -3,10 +3,10 @@
  */
 
 import { $preact } from '../../index.js';
-import { isWeb as $envꓺisWeb } from '../../env.js';
 import $preactꓺcomponentsꓺHTML from '../components/html.js';
 import $preactꓺcomponentsꓺHead from '../components/head.js';
 import $preactꓺcomponentsꓺBody from '../components/body.js';
+import { isWeb as $envꓺisWeb, isTest as $envꓺisTest } from '../../env.js';
 import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.js';
 import type { RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps } from '../components/router.js';
 
@@ -26,9 +26,10 @@ export type StandAloneProps = $preact.Props;
  * @note No SSR style/script bundles, as this is a purely static page.
  */
 export default (props: Props): $preact.VNode<Props> => {
-	const { updateState: updateHTTPState } = $preactꓺcomponentsꓺdataꓺuseHTTP();
-	updateHTTPState({ status: 404 }); // Record 404 error.
-
+	if (!$envꓺisWeb() || $envꓺisTest() /* Only during server-side prerenders and/or testing. */) {
+		const { updateState: updateHTTPState } = $preactꓺcomponentsꓺdataꓺuseHTTP();
+		updateHTTPState({ status: 404 }); // Record 404 error.
+	}
 	return (
 		<$preactꓺcomponentsꓺHTML>
 			<$preactꓺcomponentsꓺHead

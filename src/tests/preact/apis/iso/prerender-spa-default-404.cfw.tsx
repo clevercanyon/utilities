@@ -23,7 +23,7 @@ import { prerenderSPA as $preactꓺapisꓺisoꓺprerenderSPA } from '../../../..
 
 const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
 
-describe('$preactꓺiso.prerenderSPA() default-404', async () => {
+describe('$preactꓺapisꓺiso.prerenderSPA() default-404', async () => {
 	beforeAll(async () => {
 		$env.set('@top', 'APP_BASE_URL', 'http://x.tld');
 	});
@@ -72,14 +72,18 @@ describe('$preactꓺiso.prerenderSPA() default-404', async () => {
 	// ---
 
 	test('.', async () => {
-		const { httpState: othersOtherFooHTTPState, doctypeHTML: othersOtherFooMarkup } = await $preactꓺapisꓺisoꓺprerenderSPA({
+		const {
+			httpState: othersOtherFooHTTPState,
+			docType: othersOtherFooDocType,
+			html: othersOtherFooHTML,
+		} = await $preactꓺapisꓺisoꓺprerenderSPA({
 			request: new Request(new URL('http://x.tld/others/nonexistent?a=_a&b=_b&c=_c')),
 			appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
 			App, // Defined above.
 		});
 		expect(othersOtherFooHTTPState.status).toBe(404);
-		expect(othersOtherFooMarkup).toContain('<!DOCTYPE html>');
-		expect(othersOtherFooMarkup).toContain('<title>404 Error: Not Found</title>');
-		expect(othersOtherFooMarkup).toContain('</html>');
+		expect(othersOtherFooDocType).toBe('<!DOCTYPE html>');
+		expect(othersOtherFooHTML).toContain('<title>404 Error: Not Found</title>');
+		expect(othersOtherFooHTML).toContain('</html>');
 	});
 });

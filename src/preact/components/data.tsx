@@ -3,12 +3,12 @@
  */
 
 import { $preact } from '../../index.js';
-import { isWeb as $envꓺisWeb } from '../../env.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { stringify as $jsonꓺstringify } from '../../json.js';
 import { createContext as preactꓺcreateContext } from 'preact';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
+import { isWeb as $envꓺisWeb, isTest as $envꓺisTest } from '../../env.js';
 import type { ResponseConfig as $httpꓺResponseConfig } from '../../http.js';
 import type { Fetcher as $preactꓺapisꓺisoꓺFetcher } from '../../preact/apis/iso.js';
 import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
@@ -75,7 +75,7 @@ const initialState = (props: Props = {}): State => {
 
 	if ($envꓺisWeb() /* These props only used for initial web state. */) {
 		globalProps = $obpꓺget(globalThis, globalObp, {}) as GlobalProps;
-	} /* Else, during server-side rendering the HTTP state is reset here. */ else {
+	} /* Else, during server-side rendering the HTTP state is reset. */ else {
 		$obpꓺset(globalThis, globalObp + '.http', initialHTTPState());
 	}
 	const state = $objꓺmergeDeep(
@@ -130,10 +130,13 @@ const initialHTTPState = () => ({ status: 200 });
  * Defines HTTP data hook.
  *
  * @returns Readonly props: `{ state, updateState }`.
+ *
+ * @note HTTP state is semi-functional on web, but we discourage use outside testing.
  */
 export const useHTTP = (): HTTPContextProps => {
-	if ($envꓺisWeb()) throw new Error('Is web.');
-
+	if ($envꓺisWeb() && !$envꓺisTest()) {
+		throw new Error('Is web, not test.');
+	}
 	if (!globalObp /* State not initialized? */) {
 		throw new Error('Missing `globalObp`.');
 	}
@@ -150,10 +153,13 @@ export const useHTTP = (): HTTPContextProps => {
  * Converts global into embeddable script code.
  *
  * @returns Global as embeddable script code; for SSR.
+ *
+ * @note Dumping global script code on web works, but we discourage use outside testing.
  */
 export const globalToScriptCode = (): string => {
-	if ($envꓺisWeb()) throw new Error('Is web.');
-
+	if ($envꓺisWeb() && !$envꓺisTest()) {
+		throw new Error('Is web, not test.');
+	}
 	const { state } = useData();
 
 	if (!state /* State not initialized? */) {

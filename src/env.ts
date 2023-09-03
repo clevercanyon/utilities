@@ -231,6 +231,18 @@ export const capture = (leadingObp: string, env: object): void => {
 export const isC10n = (tests: QVTests = {}): boolean => test('@top', 'APP_IS_C10N', tests);
 
 /**
+ * Is test framework?
+ *
+ * @returns True if is test framework.
+ */
+export const isTest = $moizeꓺsvz({ maxSize: 1 })(
+	// Memoized function.
+	(): boolean => {
+		return test('@top', 'TEST');
+	},
+);
+
+/**
  * Is web browser?
  *
  * @returns True if is web.

@@ -10,6 +10,9 @@ describe('$env', async () => {
 		expect($env.setTopLevelObp($app.pkgName)).toBe(undefined);
 		expect($env.setTopLevelObp($app.pkgName)).toBe(undefined);
 	});
+	test('.isTest(), .test()', async () => {
+		expect($env.isTest()).toBe(true);
+	});
 	test('.get()', async () => {
 		expect($env.set('', 'TEST_FOO', 'true')).toBe(undefined);
 		expect($env.set($app.pkgName, 'TEST_BAR', 'true')).toBe(undefined);

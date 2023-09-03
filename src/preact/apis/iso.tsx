@@ -8,10 +8,10 @@ import { render as preactꓺrender } from 'preact';
 import { pkgName as $appꓺpkgName } from '../../app.js';
 import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
-import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
 import { renderToString as $preactꓺapisꓺssrꓺrenderToString } from './ssr.js';
 import { StandAlone as $preactꓺroutesꓺ404ꓺStandAlone } from '../routes/404.js';
 import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.js';
+import { get as $envꓺget, isWeb as $envꓺisWeb, isTest as $envꓺisTest } from '../../env.js';
 import type { HTTPState as $preactꓺcomponentsꓺdataꓺHTTPState } from '../components/data.js';
 import { getFetcher as $classꓺgetFetcher, FetcherInterface as $classꓺFetcherInterface } from '../../class.js';
 import { hydrate as $preactISOꓺhydrate, prerender as $preactISOꓺprerender } from '@clevercanyon/preact-iso.fork';
@@ -31,7 +31,8 @@ export type PrerenderSPAOptions = {
 };
 export type PrerenderSPAReturnProps = {
 	httpState: $preactꓺcomponentsꓺdataꓺHTTPState;
-	doctypeHTML: string;
+	docType: string;
+	html: string;
 	linkURLs: string[];
 };
 export type HydrativelyRenderSPAOptions = {
@@ -70,11 +71,12 @@ export { replaceNativeFetch as getFetcher }; // Exports friendly alias.
  *
  * @returns      Prerendered SPA object properties; {@see PrerenderSPAReturnProps}.
  *
- * @note Server-side use only.
+ * @note Prerendering on web is technically doable, but we discourage use outside testing.
  */
 export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<PrerenderSPAReturnProps> => {
-	if ($envꓺisWeb()) throw new Error('Is web.');
-
+	if ($envꓺisWeb() && !$envꓺisTest()) {
+		throw new Error('Is web, not test.');
+	}
 	const { request, appManifest, App, props = {} } = opts;
 	const { url } = request; // Extracts absolute URL from request.
 	const appBasePath = String($envꓺget('@top', 'APP_BASE_PATH', ''));
@@ -101,11 +103,10 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<Prerender
 	fetcher.restoreNativeFetch(); // Restores native fetch on prerender completion.
 
 	const { state: httpState } = !prerendered.html ? { state: { status: 404 } } : $preactꓺcomponentsꓺdataꓺuseHTTP();
-	const doctypeHTML = // This is identified using the `default-prerender` class so it’s easy to spot when debugging.
-		'<!DOCTYPE html>' + (!prerendered.html ? $preactꓺapisꓺssrꓺrenderToString(<$preactꓺroutesꓺ404ꓺStandAlone classes={'default-prerender'} />) : prerendered.html);
+	const html = !prerendered.html ? $preactꓺapisꓺssrꓺrenderToString(<$preactꓺroutesꓺ404ꓺStandAlone classes={'default-prerender'} />) : prerendered.html;
 	const linkURLs = [...prerendered.links]; // Converts link URLs into array.
 
-	return { httpState, doctypeHTML, linkURLs };
+	return { httpState, docType: '<!DOCTYPE html>', html, linkURLs };
 };
 
 /**

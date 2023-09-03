@@ -5,11 +5,11 @@
 import { $preact } from '../../index.js';
 import type { $type } from '../../index.js';
 import { createContext as preactꓺcreateContext } from 'preact';
-import { get as $envꓺget, isWeb as $envꓺisWeb } from '../../env.js';
 import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
 import type { State as $preactꓺcomponentsꓺdataꓺState } from './data.js';
 import { useLocation as $preactꓺcomponentsꓺrouterꓺuseLocation } from './router.js';
 import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
+import { get as $envꓺget, isWeb as $envꓺisWeb, isTest as $envꓺisTest } from '../../env.js';
 import { useData as $preactꓺcomponentsꓺdataꓺuseData, globalToScriptCode as $preactꓺcomponentsꓺdataꓺglobalToScriptCode } from './data.js';
 import { useReducer as preactꓺhooksꓺuseReducer, useContext as preactꓺhooksꓺuseContext, useMemo as preactꓺhooksꓺuseMemo } from 'preact/hooks';
 
@@ -128,6 +128,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 			ogImage: state.ogImage || appBaseURL + '/assets/og-image.png',
 		};
 	}, [locState, dataState, state]);
+
 	return (
 		<Context.Provider value={{ state: headState, updateState }}>
 			<head>
@@ -155,8 +156,9 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 					</>
 				)}
 				{headState.mainStyleBundle && <link rel='stylesheet' href={headState.mainStyleBundle.toString()} media='all' />}
-
-				{!$envꓺisWeb() && headState.mainScriptBundle && <script dangerouslySetInnerHTML={{ __html: $preactꓺcomponentsꓺdataꓺglobalToScriptCode() }}></script>}
+				{headState.mainScriptBundle && (!$envꓺisWeb() || $envꓺisTest()) && (
+					<script id={'data'} dangerouslySetInnerHTML={{ __html: $preactꓺcomponentsꓺdataꓺglobalToScriptCode() }}></script>
+				)}
 				{headState.mainScriptBundle && <script type='module' src={headState.mainScriptBundle.toString()}></script>}
 
 				{props.children}

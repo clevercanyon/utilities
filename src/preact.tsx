@@ -45,14 +45,18 @@ export const cleanProps = <Type extends Props, Key extends keyof Type>(props: Ty
  * @param   classes      Prefix class(es).
  * @param   otherClasses Other class(es); e.g., from component props.
  *
- * @returns              Space separated classes.
+ * @returns              Space-separated classes, else `undefined` to avoid adding `class=""` unnecessarily.
  */
-export const classes = (classes?: string | string[], otherClasses?: string | string[]): string => {
+export const classes = (classes?: string | string[], otherClasses?: string | string[]): string | undefined => {
 	classes = classes || [];
 	otherClasses = otherClasses || [];
 
 	classes = $toꓺcastArray('' === classes ? [] : classes);
 	otherClasses = $toꓺcastArray('' === otherClasses ? [] : otherClasses);
 
-	return [...new Set(classes.concat(otherClasses))].join(' ');
+	// We only want one of each unique class name.
+	const uniqueClasses = [...new Set(classes.concat(otherClasses))];
+
+	// Returning `undefined` avoids adding `class=""` unnecessarily.
+	return uniqueClasses.length ? uniqueClasses.join(' ') : undefined;
 };
