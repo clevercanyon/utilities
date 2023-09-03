@@ -14,7 +14,7 @@ import type {
 	RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps,
 } from '../../../../preact/components/router.js';
 
-import { $env, $to, $preact } from '../../../../index.js';
+import { $env, $json, $preact } from '../../../../index.js';
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import $preactꓺcomponentsꓺHTML from '../../../../preact/components/html.js';
 import $preactꓺcomponentsꓺHead from '../../../../preact/components/head.js';
@@ -47,7 +47,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			<$preactꓺcomponentsꓺHTML>
 				<$preactꓺcomponentsꓺHead title={'index'} />
 				<$preactꓺcomponentsꓺBody>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
 				</$preactꓺcomponentsꓺBody>
 			</$preactꓺcomponentsꓺHTML>
 		);
@@ -57,7 +57,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			<$preactꓺcomponentsꓺHTML>
 				<$preactꓺcomponentsꓺHead title={/^\/blog\/post\//u.test(props.path || '') ? 'blog post' : 'blog'} />
 				<$preactꓺcomponentsꓺBody>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
 				</$preactꓺcomponentsꓺBody>
 			</$preactꓺcomponentsꓺHTML>
 		);
@@ -80,7 +80,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			<$preactꓺcomponentsꓺHTML>
 				<$preactꓺcomponentsꓺHead title={'other-a'} />
 				<$preactꓺcomponentsꓺBody>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify(props) }}></script>
 				</$preactꓺcomponentsꓺBody>
 			</$preactꓺcomponentsꓺHTML>
 		);
@@ -90,7 +90,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			<$preactꓺcomponentsꓺHTML>
 				<$preactꓺcomponentsꓺHead title={'other-b'} />
 				<$preactꓺcomponentsꓺBody>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify(props) }}></script>
 				</$preactꓺcomponentsꓺBody>
 			</$preactꓺcomponentsꓺHTML>
 		);
@@ -100,7 +100,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			<$preactꓺcomponentsꓺHTML>
 				<$preactꓺcomponentsꓺHead title={'other-c'} />
 				<$preactꓺcomponentsꓺBody>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify(props) }}></script>
 				</$preactꓺcomponentsꓺBody>
 			</$preactꓺcomponentsꓺHTML>
 		);
@@ -110,7 +110,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			<$preactꓺcomponentsꓺHTML>
 				<$preactꓺcomponentsꓺHead title={'other-d'} />
 				<$preactꓺcomponentsꓺBody>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify(props) }}></script>
 				</$preactꓺcomponentsꓺBody>
 			</$preactꓺcomponentsꓺHTML>
 		);
@@ -120,7 +120,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			<$preactꓺcomponentsꓺHTML>
 				<$preactꓺcomponentsꓺHead title={'other-e'} />
 				<$preactꓺcomponentsꓺBody>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify(props) }}></script>
 				</$preactꓺcomponentsꓺBody>
 			</$preactꓺcomponentsꓺHTML>
 		);
@@ -133,7 +133,7 @@ describe('$preactꓺiso.prerenderSPA()', async () => {
 			<$preactꓺcomponentsꓺHTML>
 				<$preactꓺcomponentsꓺHead title={'other-404'} />
 				<$preactꓺcomponentsꓺBody>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json(props) }}></script>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify(props) }}></script>
 				</$preactꓺcomponentsꓺBody>
 			</$preactꓺcomponentsꓺHTML>
 		);

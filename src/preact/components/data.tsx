@@ -3,9 +3,9 @@
  */
 
 import { $preact } from '../../index.js';
-import { json as $toꓺjson } from '../../to.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
+import { stringify as $jsonꓺstringify } from '../../json.js';
 import { createContext as preactꓺcreateContext } from 'preact';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
@@ -164,9 +164,9 @@ export const globalToScriptCode = (): string => {
 	const globalObpScriptCode = $obpꓺtoScriptCode(globalObp);
 
 	let scriptCode = globalObpScriptCode.init; // Initialize.
-	scriptCode += ' ' + globalObpScriptCode.set + '.html = ' + $toꓺjson(state.html) + ';';
-	scriptCode += ' ' + globalObpScriptCode.set + '.head = ' + $toꓺjson(state.head) + ';';
-	scriptCode += ' ' + globalObpScriptCode.set + '.body = ' + $toꓺjson(state.body) + ';';
+	scriptCode += ' ' + globalObpScriptCode.set + '.html = ' + $jsonꓺstringify(state.html) + ';';
+	scriptCode += ' ' + globalObpScriptCode.set + '.head = ' + $jsonꓺstringify(state.head) + ';';
+	scriptCode += ' ' + globalObpScriptCode.set + '.body = ' + $jsonꓺstringify(state.body) + ';';
 	scriptCode += state.fetcher ? ' ' + state.fetcher.globalToScriptCode() : '';
 
 	return scriptCode;

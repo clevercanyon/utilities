@@ -11,6 +11,7 @@ export * as $env from './env.js';
 export * as $fn from './fn.js';
 export * as $http from './http.js';
 export * as $is from './is.js';
+export * as $json from './json.js';
 export * as $moize from './moize.js';
 export * as $obj from './obj.js';
 export * as $obp from './obp.js';

@@ -3,10 +3,11 @@
  */
 
 import type { $type } from '../../index.js';
-import { json as $toꓺjson } from '../../to.js';
 import { isWeb as $envꓺisWeb } from '../../env.js';
+import { hasOwn as $objꓺhasOwn } from '../../obj.js';
 import { sha1 as $cryptoꓺsha1 } from '../../crypto.js';
 import { pkgName as $appꓺpkgName } from '../../app.js';
+import { stringify as $jsonꓺstringify } from '../../json.js';
 import { getClass as $classꓺgetUtility } from './utility.js';
 import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import type { Interface as $classꓺUtilityInterface } from './utility.js';
@@ -37,7 +38,7 @@ export declare class Interface extends $classꓺUtilityInterface {
 	public fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']>;
 }
 export type Global = $type.Object<{
-	cache: Map<string, GlobalCacheEntry>;
+	cache: { [x: string]: GlobalCacheEntry };
 	nativeFetch: (...args: Parameters<typeof fetch>) => ReturnType<typeof fetch>;
 	pseudoFetch: (...args: Parameters<typeof fetch | typeof $type.cf.fetch>) => Promise<Response | $type.cf.Response>;
 }>;
@@ -45,7 +46,7 @@ export type GlobalCacheEntry = {
 	body: string;
 	options: {
 		status: number;
-		headers: [string, string][];
+		headers: { [x: string]: string };
 	};
 };
 
@@ -84,7 +85,7 @@ export const getClass = (): Constructor => {
 			this.globalObp = (props || {}).globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.fetcher';
 			this.global = $obpꓺget(globalThis, this.globalObp, {}) as Global;
 
-			this.global.cache = this.global.cache || new Map();
+			this.global.cache = this.global.cache || {}; // Initializes cache when unavailable.
 			this.global.nativeFetch = globalThis.fetch; // Stores a reference to current native fetch.
 			this.global.pseudoFetch = async (...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> => this.fetch(...args);
 
@@ -95,18 +96,21 @@ export const getClass = (): Constructor => {
 
 		/**
 		 * Replaces native fetch.
+		 *
+		 * @note Sets `nativeFetch` again, in case it was swapped since constructor ran; e.g., when unit testing.
 		 */
 		public replaceNativeFetch(): void {
-			// Sets `nativeFetch` again, in case it was swapped since constructor ran; e.g., when unit testing.
-			this.global.nativeFetch = globalThis.fetch; // Stores a reference to current native fetch.
-
+			this.global.nativeFetch = globalThis.fetch;
 			globalThis.fetch = this.global.pseudoFetch as typeof fetch;
 		}
 
 		/**
 		 * Restores native fetch.
+		 *
+		 * @note Also resets the global cache.
 		 */
 		public restoreNativeFetch(): void {
+			this.global.cache = {}; // Resets cache.
 			globalThis.fetch = this.global.nativeFetch as typeof fetch;
 		}
 
@@ -119,7 +123,7 @@ export const getClass = (): Constructor => {
 			const globalObpScriptCode = $obpꓺtoScriptCode(this.globalObp);
 
 			let scriptCode = globalObpScriptCode.init; // Initialize.
-			scriptCode += ' ' + globalObpScriptCode.set + '.cache = ' + $toꓺjson(this.global.cache) + ';';
+			scriptCode += ' ' + globalObpScriptCode.set + '.cache = ' + $jsonꓺstringify(this.global.cache) + ';';
 
 			return scriptCode;
 		}
@@ -132,26 +136,29 @@ export const getClass = (): Constructor => {
 		 * @returns      Same as {@see fetch()} native function.
 		 */
 		public async fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> {
-			const hash = await $cryptoꓺsha1($toꓺjson(args));
+			const hash = await $cryptoꓺsha1($jsonꓺstringify(args));
 
-			if (this.global.cache.has(hash)) {
-				const globalCacheEntry = this.global.cache.get(hash) as GlobalCacheEntry;
+			if ($objꓺhasOwn(this.global.cache, hash)) {
+				const globalCacheEntry = this.global.cache[hash];
 				return new Response(globalCacheEntry.body, globalCacheEntry.options);
 			}
+			if ($envꓺisWeb() /* No cache writes client-side, so no await either. */) {
+				return this.global.nativeFetch(...(args as Parameters<Global['nativeFetch']>));
+			}
 			const response = await this.global.nativeFetch(...(args as Parameters<Global['nativeFetch']>));
-			if ($envꓺisWeb()) return response; // No cache writes client side.
 
 			const contentType = (response.headers.get('content-type') || '').toLowerCase();
-			const allowedTextMIMETypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
+			const contentMIMEType = contentType.split(';')[0]; // Removes a possible `; charset=utf-8`, for example.
+			const allowedMIMETypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
 
-			if (!allowedTextMIMETypes.includes(contentType.split(';')[0])) {
-				return response; // Don't cache responses that aren't text-based; i.e., not in list above.
+			if (!allowedMIMETypes.includes(contentMIMEType)) {
+				return response; // Don't cache MIME types not in list above.
 			}
 			const globalCacheEntry: GlobalCacheEntry = {
 				body: await response.text(), // Body as plain text.
-				options: { status: response.status, headers: [['content-type', contentType]] },
+				options: { status: response.status, headers: { 'content-type': contentType } },
 			};
-			this.global.cache.set(hash, globalCacheEntry);
+			(this.global.cache as Global['cache'])[hash] = globalCacheEntry;
 			return new Response(globalCacheEntry.body, globalCacheEntry.options);
 		}
 	};

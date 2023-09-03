@@ -15,8 +15,8 @@ import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/
 import type { HTTPState as $preactꓺcomponentsꓺdataꓺHTTPState } from '../components/data.js';
 import { getFetcher as $classꓺgetFetcher, FetcherInterface as $classꓺFetcherInterface } from '../../class.js';
 import { hydrate as $preactISOꓺhydrate, prerender as $preactISOꓺprerender } from '@clevercanyon/preact-iso.fork';
-import { default as $preactꓺcomponentsꓺRouter, Route as $preactꓺcomponentsꓺrouterꓺRoute, lazyRoute as $preactꓺcomponentsꓺrouterꓺlazyRoute } from '../components/router.js';
 import type { Props as $preactꓺcomponentsꓺrouterꓺRouterProps, RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps } from '../components/router.js';
+import { default as $preactꓺcomponentsꓺRouter, Route as $preactꓺcomponentsꓺrouterꓺRoute, lazyRoute as $preactꓺcomponentsꓺrouterꓺlazyRoute } from '../components/router.js';
 
 /**
  * Defines types.
@@ -52,12 +52,13 @@ let fetcher: $classꓺFetcherInterface | undefined;
 export const replaceNativeFetch = (): $classꓺFetcherInterface => {
 	if (!fetcher) {
 		const Fetcher = $classꓺgetFetcher();
-
 		fetcher = new Fetcher({
-			autoReplaceNativeFetch: true,
+			// autoReplaceNativeFetch: true,
 			globalObp: $strꓺobpPartSafe($appꓺpkgName) + '.preactISOFetcher',
 		});
-	}
+	} // Replace each time, ensuring consistency.
+	fetcher.replaceNativeFetch(); // Replaces native fetch.
+
 	return fetcher; // Fetcher class instance.
 };
 export { replaceNativeFetch as getFetcher }; // Exports friendly alias.
@@ -100,8 +101,8 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<Prerender
 	fetcher.restoreNativeFetch(); // Restores native fetch on prerender completion.
 
 	const { state: httpState } = !prerendered.html ? { state: { status: 404 } } : $preactꓺcomponentsꓺdataꓺuseHTTP();
-	const doctypeHTML = // This is identified using the `prerender-spa-404` class so it’s easy to spot when testing/debugging.
-		'<!DOCTYPE html>' + (!prerendered.html ? $preactꓺapisꓺssrꓺrenderToString(<$preactꓺroutesꓺ404ꓺStandAlone classes={'prerender-spa-404'} />) : prerendered.html);
+	const doctypeHTML = // This is identified using the `default-prerender` class so it’s easy to spot when debugging.
+		'<!DOCTYPE html>' + (!prerendered.html ? $preactꓺapisꓺssrꓺrenderToString(<$preactꓺroutesꓺ404ꓺStandAlone classes={'default-prerender'} />) : prerendered.html);
 	const linkURLs = [...prerendered.links]; // Converts link URLs into array.
 
 	return { httpState, doctypeHTML, linkURLs };

@@ -3,16 +3,21 @@
  */
 /* eslint-disable @typescript-eslint/unbound-method -- safe to ignore. */
 
+import { $obj, $class } from '../../../index.js';
 import { describe, test, expect, vi } from 'vitest';
-import { getClass as $fetcherꓺgetClass } from '../../../resources/classes/fetcher.js';
 
 describe('Fetcher', async () => {
-	const Fetcher = $fetcherꓺgetClass();
+	const Fetcher = $class.getFetcher();
 
 	test('.fetch()', async () => {
 		// Mocks `globalThis.fetch()`.
 
-		const globalFetchMock = vi.fn(async () => new Response('x'));
+		const globalFetchMock = vi.fn(async () => {
+			return new Response('x', {
+				status: 200,
+				headers: { 'content-type': 'text/plain; charset=utf-8' },
+			});
+		});
 		vi.stubGlobal('fetch', globalFetchMock);
 
 		expect(globalFetchMock).toHaveBeenCalledTimes(0);
@@ -29,7 +34,7 @@ describe('Fetcher', async () => {
 		await globalThis.fetch('http://c.tld/');
 		await globalThis.fetch('http://a.tld/');
 
-		expect(fetcher.global.cache.size).toBe(0);
+		expect($obj.keysAndSymbols(fetcher.global.cache).length).toBe(0);
 		expect(globalFetchMock).toHaveBeenCalledTimes(4);
 
 		// Restores native fetch.
@@ -43,7 +48,7 @@ describe('Fetcher', async () => {
 		await globalThis.fetch('http://z.tld/');
 		await globalThis.fetch('http://x.tld/');
 
-		expect(fetcher.global.cache.size).toBe(0);
+		expect($obj.keysAndSymbols(fetcher.global.cache).length).toBe(0);
 		expect(globalFetchMock).toHaveBeenCalledTimes(8);
 	});
 });

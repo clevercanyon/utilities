@@ -3,17 +3,22 @@
  */
 /* eslint-disable @typescript-eslint/unbound-method -- safe to ignore. */
 
+import { $obj, $class } from '../../../index.js';
 import { describe, test, expect, vi } from 'vitest';
-import { getClass as $fetcherꓺgetClass } from '../../../resources/classes/fetcher.js';
 
 describe('Fetcher', async () => {
-	const Fetcher = $fetcherꓺgetClass();
+	const Fetcher = $class.getFetcher();
 
 	test('.fetch()', async () => {
 		// Mocks `globalThis.fetch()`.
 
-		const globalFetchMock = vi.fn(async () => new Response('x'));
-		const expectedHeaders = [['content-type', 'text/plain;charset=utf-8']];
+		const globalFetchMock = vi.fn(async () => {
+			return new Response('x', {
+				status: 200,
+				headers: { 'content-type': 'text/plain; charset=utf-8' },
+			});
+		});
+		const expectedHeaders = { 'content-type': 'text/plain; charset=utf-8' };
 		vi.stubGlobal('fetch', globalFetchMock);
 
 		expect(globalFetchMock).toHaveBeenCalledTimes(0);
@@ -30,12 +35,12 @@ describe('Fetcher', async () => {
 		await globalThis.fetch('http://c.tld/');
 		await globalThis.fetch('http://a.tld/');
 
-		expect(fetcher.global.cache.size).toBe(3);
+		expect($obj.keysAndSymbols(fetcher.global.cache).length).toBe(3);
 		expect(globalFetchMock).toHaveBeenCalledTimes(3);
 
-		expect(fetcher.global.cache.get('8bda1366754d87cfe1ee93cd190c29c8a93c9015')).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
-		expect(fetcher.global.cache.get('93a570d7f8fb175c7d6a255f48b2730f79f00365')).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
-		expect(fetcher.global.cache.get('35381d33ad7f3bece934225019c135a51d8be3f3')).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
+		expect(fetcher.global.cache['8bda1366754d87cfe1ee93cd190c29c8a93c9015']).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
+		expect(fetcher.global.cache['93a570d7f8fb175c7d6a255f48b2730f79f00365']).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
+		expect(fetcher.global.cache['35381d33ad7f3bece934225019c135a51d8be3f3']).toStrictEqual({ body: 'x', options: { headers: expectedHeaders, status: 200 } });
 
 		// Restores native fetch.
 
@@ -48,7 +53,7 @@ describe('Fetcher', async () => {
 		await globalThis.fetch('http://z.tld/');
 		await globalThis.fetch('http://x.tld/');
 
-		expect(fetcher.global.cache.size).toBe(3);
+		expect($obj.keysAndSymbols(fetcher.global.cache).length).toBe(0); // Reset on restoration above.
 		expect(globalFetchMock).toHaveBeenCalledTimes(7);
 	});
 });

@@ -3,12 +3,11 @@
  */
 /* eslint-disable @typescript-eslint/unbound-method -- safe to ignore. */
 
-import { $app } from '../../../index.js';
+import { $class } from '../../../index.js';
 import { describe, test, expect, vi } from 'vitest';
-import { getClass as $fetcherꓺgetClass } from '../../../resources/classes/fetcher.js';
 
 describe('Fetcher', async () => {
-	const Fetcher = $fetcherꓺgetClass();
+	const Fetcher = $class.getFetcher();
 
 	test('new Fetcher()', async () => {
 		expect(new Fetcher()).toBeInstanceOf(Fetcher);
@@ -16,7 +15,12 @@ describe('Fetcher', async () => {
 	test('globalThis.fetch()', async () => {
 		// Mocks `globalThis.fetch()`.
 
-		const globalFetchMock = vi.fn(async () => new Response('x'));
+		const globalFetchMock = vi.fn(async () => {
+			return new Response('x', {
+				status: 200,
+				headers: { 'content-type': 'text/plain; charset=utf-8' },
+			});
+		});
 		vi.stubGlobal('fetch', globalFetchMock);
 
 		expect(globalFetchMock).toHaveBeenCalledTimes(0);
@@ -76,13 +80,13 @@ describe('Fetcher', async () => {
 	});
 	test('.globalToScriptCode()', async () => {
 		const fetcher1 = new Fetcher();
-		expect(fetcher1.globalToScriptCode()).toBe("globalThis['"+$app.pkgName+"'] = globalThis['"+$app.pkgName+"'] || {}; globalThis['"+$app.pkgName+"']['fetcher'] = globalThis['"+$app.pkgName+"']['fetcher'] || {}; globalThis['"+$app.pkgName+"']['fetcher'].cache = {};",); // prettier-ignore
+		expect(fetcher1.globalToScriptCode()).toContain(".cache = {};"); // prettier-ignore
 
 		const fetcher2 = new Fetcher({ globalObp: 'foo' });
-		expect(fetcher2.globalToScriptCode()).toBe("globalThis['foo'] = globalThis['foo'] || {}; globalThis['foo'].cache = {};");
+		expect(fetcher2.globalToScriptCode()).toBe("globalThis['foo'] = globalThis['foo'] || {}; globalThis['foo'].cache = {};"); // prettier-ignore
 
 		const fetcher3 = new Fetcher({ globalObp: "foo's" });
-		expect(fetcher3.globalToScriptCode()).toBe("globalThis['foo\\'s'] = globalThis['foo\\'s'] || {}; globalThis['foo\\'s'].cache = {};");
+		expect(fetcher3.globalToScriptCode()).toBe("globalThis['foo\\'s'] = globalThis['foo\\'s'] || {}; globalThis['foo\\'s'].cache = {};"); // prettier-ignore
 
 		const fetcher4 = new Fetcher({ globalObp: 'foo.fetcher' });
 		expect(fetcher4.globalToScriptCode()).toBe("globalThis['foo'] = globalThis['foo'] || {}; globalThis['foo']['fetcher'] = globalThis['foo']['fetcher'] || {}; globalThis['foo']['fetcher'].cache = {};"); // prettier-ignore

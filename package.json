@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"version": "1.0.224",
+	"version": "1.0.225",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -70,6 +70,11 @@
 			"import": "./dist/is.js",
 			"require": "./dist/is.cjs",
 			"types": "./dist/types/is.d.ts"
+		},
+		"./json": {
+			"import": "./dist/json.js",
+			"require": "./dist/json.cjs",
+			"types": "./dist/types/json.d.ts"
 		},
 		"./moize": {
 			"import": "./dist/moize.js",
@@ -183,6 +188,7 @@
 		"./src/http.ts",
 		"./src/index.ts",
 		"./src/is.ts",
+		"./src/json.ts",
 		"./src/moize.ts",
 		"./src/obj.ts",
 		"./src/obp.ts",

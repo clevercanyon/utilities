@@ -14,7 +14,7 @@ import type {
 	RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps,
 } from '../../../../preact/components/router.js';
 
-import { $env, $to, $preact } from '../../../../index.js';
+import { $env, $json, $preact } from '../../../../index.js';
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import $preactꓺcomponentsꓺHTML from '../../../../preact/components/html.js';
 import $preactꓺcomponentsꓺHead from '../../../../preact/components/head.js';
@@ -44,7 +44,7 @@ describe('$preactꓺiso.prerenderSPA() default-404', async () => {
 			<$preactꓺcomponentsꓺHTML>
 				<$preactꓺcomponentsꓺHead title={'index'} />
 				<$preactꓺcomponentsꓺBody>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
 				</$preactꓺcomponentsꓺBody>
 			</$preactꓺcomponentsꓺHTML>
 		);
@@ -62,7 +62,7 @@ describe('$preactꓺiso.prerenderSPA() default-404', async () => {
 			<$preactꓺcomponentsꓺHTML>
 				<$preactꓺcomponentsꓺHead title={'other'} />
 				<$preactꓺcomponentsꓺBody>
-					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $to.json($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
+					<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
 				</$preactꓺcomponentsꓺBody>
 			</$preactꓺcomponentsꓺHTML>
 		);
