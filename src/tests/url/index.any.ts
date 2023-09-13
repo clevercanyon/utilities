@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { $url } from '../../index.js';
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import { $url } from '../../index.ts';
 
 describe('$url', async () => {
 	test('.rootHost()', async () => {

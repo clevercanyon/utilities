@@ -2,9 +2,9 @@
  * Function utilities.
  */
 
-import type { $type } from './index.js';
-import { tag as $objꓺtag, defaults as $objꓺdefaults } from './obj.js';
-import { error as $isꓺerror, asyncFunction as $isꓺasyncFunction } from './is.js';
+import type { $type } from './index.ts';
+import { asyncFunction as $isꓺasyncFunction, error as $isꓺerror } from './is.ts';
+import { defaults as $objꓺdefaults, tag as $objꓺtag } from './obj.ts';
 
 /**
  * Defines types.
@@ -49,6 +49,7 @@ export const noOp = (): void => undefined;
  *
  *   - It only makes sense to set `{ throwOnError: true }` whenever there’s a `catchReturn` value. Otherwise, there is no
  *       point in using this utility to begin with; i.e., if you’re going to throw an error, there’s no need to ‘try’.
+ *
  *
  * @returns             Invocation return value, else `catchReturn` value (if passed), else {@see Error}.
  */
@@ -113,6 +114,7 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
  *
  *   - Default is: `{ leadingEdge: true, waitTime: 750, trailingEdge: true }`
  *   - The `debounceMode` option is for internal use only. Do not pass. Instead, {@see debounce()}.
+ *
  *
  * @returns         Throttled sync or async function.
  */
@@ -179,6 +181,7 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
  * @param   options Options (all optional); {@see DebounceOptions}.
  *
  *   - Default is: `{ leadingEdge: true, waitTime: 750, trailingEdge: true }`
+ *
  *
  * @returns         Debounced sync or async function.
  */

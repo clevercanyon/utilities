@@ -8,6 +8,11 @@
  * @note Only `<custom:start.../custom:end>` will be preserved below.
  */
 
+/**
+ * Declares Vite global app constants.
+ *
+ * @note Also in `./dev/.files/eslint/config.mjs`.
+ */
 declare const $$__APP_PKG_NAME__$$: string;
 declare const $$__APP_PKG_VERSION__$$: string;
 declare const $$__APP_PKG_REPOSITORY__$$: string;
@@ -21,8 +26,8 @@ declare const $$__APP_BUILD_TIME_YMD__$$: string;
 
 declare const MINIFLARE: boolean;
 declare function WorkerGlobalScope(): void;
-declare function DedicatedWorkerGlobalScope(): void;
 declare function SharedWorkerGlobalScope(): void;
 declare function ServiceWorkerGlobalScope(): void;
+declare function DedicatedWorkerGlobalScope(): void;
 
 /* </custom:end> */

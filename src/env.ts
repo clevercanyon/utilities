@@ -2,31 +2,14 @@
  * Environment utilities.
  */
 
-import {
-	matches as $strꓺmatches, //
-	parseValue as $strꓺparseValue,
-	obpPartSafe as $strꓺobpPartSafe,
-} from './str.js';
-
-import {
-	get as $obpꓺget, //
-	set as $obpꓺset,
-	unset as $obpꓺunset,
-	defaultTo as $obpꓺdefaultTo,
-} from './obp.js';
-
-import {
-	empty as $isꓺempty, //
-	string as $isꓺstring,
-	object as $isꓺobject,
-	function as $isꓺfunction,
-} from './is.js';
-
-import { svz as $moizeꓺsvz } from './moize.js';
-import { hasOwn as $objꓺhasOwn } from './obj.js';
-import { pkgName as $appꓺpkgName } from './app.js';
-import { castArray as $toꓺcastArray } from './to.js';
-import { getQueryVars as $urlꓺgetQueryVars } from './url.js';
+import { pkgName as $appꓺpkgName } from './app.ts';
+import { empty as $isꓺempty, function as $isꓺfunction, object as $isꓺobject, string as $isꓺstring } from './is.ts';
+import { svz as $moizeꓺsvz } from './moize.ts';
+import { hasOwn as $objꓺhasOwn } from './obj.ts';
+import { defaultTo as $obpꓺdefaultTo, get as $obpꓺget, set as $obpꓺset, unset as $obpꓺunset } from './obp.ts';
+import { matches as $strꓺmatches, obpPartSafe as $strꓺobpPartSafe, parseValue as $strꓺparseValue } from './str.ts';
+import { castArray as $toꓺcastArray } from './to.ts';
+import { getQueryVars as $urlꓺgetQueryVars } from './url.ts';
 
 let topLevelObp: string = '';
 let topLevelObpSet: boolean = false;
@@ -396,6 +379,7 @@ export const isServiceWorker = $moizeꓺsvz({ maxSize: 1 })(
  *
  *   - To test that a query var simply exists, use `{ [var]: '*' }`.
  *   - To test that a query var exists and is not empty, and not `'0'`, use `{ [var]: '?*' }`.
+ *
  *
  * @returns             True if environment variable is not empty, not `'0'`, and all tests pass.
  */

@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { $is, $str } from '../../index.js';
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import { $is, $str } from '../../index.ts';
 
 describe('$str', async () => {
 	test('.byteLength()', async () => {

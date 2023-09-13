@@ -2,8 +2,8 @@
  * Crypto utilities.
  */
 
-import { defaults as $objꓺdefaults } from './obj.js';
-import { svz as $moizeꓺsvz, svzAsync as $moizeꓺsvzAsync } from './moize.js';
+import { svz as $moizeꓺsvz, svzAsync as $moizeꓺsvzAsync } from './moize.ts';
+import { defaults as $objꓺdefaults } from './obj.ts';
 
 const textEncoder: TextEncoder = new TextEncoder();
 

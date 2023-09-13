@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { $http } from '../../index.js';
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import { $http } from '../../index.ts';
 
 describe('$http', async () => {
 	test('.requestConfig()', async () => {

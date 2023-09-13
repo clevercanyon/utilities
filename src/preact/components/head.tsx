@@ -2,21 +2,23 @@
  * Preact component.
  */
 
-import { $preact } from '../../index.js';
-import type { $type } from '../../index.js';
 import { createContext as preactꓺcreateContext } from 'preact';
 import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
-import type { State as $preactꓺcomponentsꓺdataꓺState } from './data.js';
-import { useLocation as $preactꓺcomponentsꓺrouterꓺuseLocation } from './router.js';
-import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
-import { get as $envꓺget, isWeb as $envꓺisWeb, isTest as $envꓺisTest } from '../../env.js';
-import { useData as $preactꓺcomponentsꓺdataꓺuseData, globalToScriptCode as $preactꓺcomponentsꓺdataꓺglobalToScriptCode } from './data.js';
-import { useReducer as preactꓺhooksꓺuseReducer, useContext as preactꓺhooksꓺuseContext, useMemo as preactꓺhooksꓺuseMemo } from 'preact/hooks';
+import { useContext as preactꓺhooksꓺuseContext, useMemo as preactꓺhooksꓺuseMemo, useReducer as preactꓺhooksꓺuseReducer } from 'preact/hooks';
+import { get as $envꓺget, isTest as $envꓺisTest, isWeb as $envꓺisWeb } from '../../env.ts';
+import type { $type } from '../../index.ts';
+import { $preact } from '../../index.ts';
+import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.ts';
+import type { State as $preactꓺcomponentsꓺdataꓺState } from './data.tsx';
+import { globalToScriptCode as $preactꓺcomponentsꓺdataꓺglobalToScriptCode, useData as $preactꓺcomponentsꓺdataꓺuseData } from './data.tsx';
+import { useLocation as $preactꓺcomponentsꓺrouterꓺuseLocation } from './router.tsx';
 
 /**
  * Defines types.
  */
 export type State = {
+	classes?: string | string[];
+
 	charset?: string;
 	viewport?: string;
 
@@ -131,7 +133,7 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 
 	return (
 		<Context.Provider value={{ state: headState, updateState }}>
-			<head>
+			<head class={$preact.classes(headState.classes)}>
 				{headState.charset && <meta charSet={headState.charset} />}
 				{headState.viewport && <meta name='viewport' content={headState.viewport} />}
 

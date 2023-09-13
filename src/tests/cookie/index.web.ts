@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { $env, $cookie } from '../../index.js';
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import { $cookie, $env } from '../../index.ts';
 
 describe('$cookie', async () => {
 	test('env', async () => {

@@ -3,8 +3,8 @@
  */
 
 import type { Ignore as GitIgnore } from 'ignore';
-import { defaults as $objꓺdefaults } from './obj.js';
 import { default as untypedGitIgnoreFactory } from 'ignore';
+import { defaults as $objꓺdefaults } from './obj.ts';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
 const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgnoreFactoryOptions) => GitIgnore;
@@ -113,7 +113,7 @@ export const defaultGitIgnores: string[] = [
 	'*.code-search',
 	'*.code-workspace',
 
-	// Dists (must exclude).
+	// Dist (must exclude).
 	// May contain APP_ env vars.
 
 	'dist',
@@ -258,17 +258,11 @@ export const defaultGitIgnores: string[] = [
  * Default NPM ignores.
  */
 export const defaultNPMIgnores: string[] = defaultGitIgnores.concat([
-	// VS Code.
-
-	'.vscode',
-
 	// Dist (allow).
 
 	'!dist',
 
 	// Configs.
-
-	'.*',
 
 	'*config.*',
 	'!dist/**/*config.*',
@@ -316,6 +310,15 @@ export const defaultNPMIgnores: string[] = defaultGitIgnores.concat([
 	'*.mtsx',
 	'!*.d.mtsx',
 	'!dist/**/*.mtsx',
+
+	// Dots.
+
+	'.*',
+
+	// Src.
+
+	'src',
+	'__src__',
 
 	// Dev.
 

@@ -2,11 +2,11 @@
  * String utilities.
  */
 
-import { default as mm } from 'micromatch';
-import { isWeb as $envꓺisWeb } from './env.js';
-import { defaults as $objꓺdefaults } from './obj.js';
 import type { Options as MMOptions } from 'micromatch';
-import { numeric as $isꓺnumeric, safeArrayKey as $isꓺsafeArrayKey } from './is.js';
+import { default as mm } from 'micromatch';
+import { isWeb as $envꓺisWeb } from './env.ts';
+import { numeric as $isꓺnumeric, safeArrayKey as $isꓺsafeArrayKey } from './is.ts';
+import { defaults as $objꓺdefaults } from './obj.ts';
 
 let unescHTMLDiv: HTMLElement; // Initialize.
 
@@ -508,6 +508,7 @@ export const parseValue = (str: string): unknown => {
  *   - For caSe-insensitive matching, pass `{ nocase: true }`.
  *   - For other available options, please {@see MMOptions}.
  *   - Also, consider using {@see mm} instead of this function.
+ *
  *
  * @returns         True if `str` matches any `pattern`.
  */

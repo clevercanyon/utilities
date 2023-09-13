@@ -2,31 +2,25 @@
  * HTTP utilities.
  */
 
+import { isC10n as $envꓺisC10n, isCFW as $envꓺisCFW } from './env.ts';
+import type { $type } from './index.ts';
 import {
-	nul as $isꓺnul, //
-	blob as $isꓺblob,
 	array as $isꓺarray,
-	string as $isꓺstring,
-	regExp as $isꓺregExp,
-	integer as $isꓺinteger,
-	dataView as $isꓺdataView,
-	typedArray as $isꓺtypedArray,
 	arrayBuffer as $isꓺarrayBuffer,
-} from './is.js';
-
-import {
-	parse as $urlꓺparse, //
-	tryParse as $urlꓺtryParse,
-	removeCSOQueryVars as $urlꓺremoveCSOQueryVars,
-} from './url.js';
-
-import type { $type } from './index.js';
-import { svz as $moizeꓺsvz } from './moize.js';
-import { defaults as $objꓺdefaults } from './obj.js';
-import { isC10n as $envꓺisC10n, isCFW as $envꓺisCFW } from './env.js';
-import { escRegExp as $strꓺescRegExp, byteLength as $strꓺbyteLength } from './str.js';
-import { hasExt as $pathꓺhasExt, hasStaticExt as $pathꓺhasStaticExt } from './path.js';
-import { hourInSeconds as $timeꓺhourInSeconds, dayInSeconds as $timeꓺdayInSeconds, yearInSeconds as $timeꓺyearInSeconds } from './time.js';
+	blob as $isꓺblob,
+	dataView as $isꓺdataView,
+	integer as $isꓺinteger,
+	nul as $isꓺnul,
+	regExp as $isꓺregExp,
+	string as $isꓺstring,
+	typedArray as $isꓺtypedArray,
+} from './is.ts';
+import { svz as $moizeꓺsvz } from './moize.ts';
+import { defaults as $objꓺdefaults } from './obj.ts';
+import { hasExt as $pathꓺhasExt, hasStaticExt as $pathꓺhasStaticExt } from './path.ts';
+import { byteLength as $strꓺbyteLength, escRegExp as $strꓺescRegExp } from './str.ts';
+import { dayInSeconds as $timeꓺdayInSeconds, hourInSeconds as $timeꓺhourInSeconds, yearInSeconds as $timeꓺyearInSeconds } from './time.ts';
+import { parse as $urlꓺparse, removeCSOQueryVars as $urlꓺremoveCSOQueryVars, tryParse as $urlꓺtryParse } from './url.ts';
 
 /**
  * Defines types.
@@ -616,6 +610,7 @@ export const requestPathHasStaticExtension = $moizeꓺsvz({ maxSize: 2 })(
  *
  *   - Note that a {@see Headers} object always contains lowercase keys. Therefore, this option is only applicable when a
  *       string-keyed object is passed; i.e., if {@see Headers} are passed, this will always return lowercase keys.
+ *
  *
  * @returns         Extracted headers, as a plain object.
  */

@@ -2,25 +2,25 @@
  * All utilities.
  */
 
-export * as $app from './app.js';
-export * as $brand from './brand.js';
-export * as $cookie from './cookie.js';
-export * as $crypto from './crypto.js';
-export * as $class from './class.js';
-export * as $env from './env.js';
-export * as $fn from './fn.js';
-export * as $http from './http.js';
-export * as $is from './is.js';
-export * as $json from './json.js';
-export * as $moize from './moize.js';
-export * as $obj from './obj.js';
-export * as $obp from './obp.js';
-export * as $path from './path.js';
-export * as $preact from './preact.js';
-export * as $str from './str.js';
-export * as $symbol from './symbol.js';
-export * as $time from './time.js';
-export * as $to from './to.js';
-export * as $type from './type.js';
-export * as $url from './url.js';
-export * as $version from './version.js';
+export * as $app from './app.ts';
+export * as $brand from './brand.ts';
+export * as $class from './class.ts';
+export * as $cookie from './cookie.ts';
+export * as $crypto from './crypto.ts';
+export * as $env from './env.ts';
+export * as $fn from './fn.ts';
+export * as $http from './http.ts';
+export * as $is from './is.ts';
+export * as $json from './json.ts';
+export * as $moize from './moize.ts';
+export * as $obj from './obj.ts';
+export * as $obp from './obp.ts';
+export * as $path from './path.ts';
+export * as $preact from './preact.tsx';
+export * as $str from './str.ts';
+export * as $symbol from './symbol.ts';
+export * as $time from './time.ts';
+export * as $to from './to.ts';
+export * as $type from './type.ts';
+export * as $url from './url.ts';
+export * as $version from './version.ts';

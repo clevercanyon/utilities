@@ -2,8 +2,9 @@
  * Brand utility class.
  */
 
-import { getClass as $classꓺgetUtility } from './utility.js';
-import type { Interface as $classꓺUtilityInterface } from './utility.js';
+import { keyAndSymbolEntries as $objꓺkeyAndSymbolEntries } from '../../obj.ts';
+import type { Interface as $classꓺUtilityInterface } from './utility.ts';
+import { getClass as $classꓺgetUtility } from './utility.ts';
 
 let Class: Constructor | undefined; // Class definition cache.
 
@@ -169,8 +170,13 @@ export const getClass = (): Constructor => {
 		 * @param props Props or {@see Interface} instance.
 		 */
 		public constructor(props: C9rProps | Interface) {
-			super(props); // Parent constructor.
+			super(); // Parent constructor.
 
+			// const isClone = props instanceof (Class as Constructor);
+
+			for (const [key, value] of $objꓺkeyAndSymbolEntries(props)) {
+				this[key] = value; // Property assignments.
+			}
 			if (!(this.org instanceof (Class as Constructor))) {
 				this.org = this; // Circular.
 			}

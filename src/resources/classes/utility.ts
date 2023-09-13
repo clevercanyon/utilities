@@ -2,9 +2,9 @@
  * Utility class.
  */
 
-import { pkgName as $appꓺpkgName } from '../../app.js';
-import { getClass as $classꓺgetBase } from './base.js';
-import type { Interface as $classꓺBaseInterface } from './base.js';
+import { pkgName as $appꓺpkgName } from '../../app.ts';
+import type { Interface as $classꓺBaseInterface } from './base.ts';
+import { getClass as $classꓺgetBase } from './base.ts';
 
 let Class: Constructor | undefined; // Class definition cache.
 
@@ -13,11 +13,11 @@ let Class: Constructor | undefined; // Class definition cache.
  */
 export type Constructor = {
 	readonly appPkgName: string;
-	new (props?: object | Interface): Interface;
+	new (): Interface; // Takes in nothing.
 };
 export declare class Interface extends $classꓺBaseInterface {
 	public static readonly appPkgName: string;
-	public constructor(props?: object | Interface);
+	public constructor(); // Takes in nothing.
 }
 
 /**
@@ -36,11 +36,13 @@ export const getClass = (): Constructor => {
 
 		/**
 		 * Object constructor.
-		 *
-		 * @param props Props or {@see Interface} instance.
 		 */
-		public constructor(props?: object | Interface) {
-			super(props); // Parent constructor.
+		public constructor(/* Takes in nothing. */) {
+			super(); // Base constructor.
+			// ---
+			// Note: Classes extending this base *must* be capable
+			// of handling the first constructor argument being passed as
+			// an instance of itself; i.e., to facilitate shallow|deep cloning.
 		}
 	};
 	return Object.defineProperty(Class, 'name', {

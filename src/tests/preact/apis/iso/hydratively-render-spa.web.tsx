@@ -2,24 +2,22 @@
  * Test suite.
  */
 
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { $env, $json, $preact } from '../../../../index.ts';
+import { hydrativelyRenderSPA as $preactꓺapisꓺisoꓺhydrativelyRenderSPA, prerenderSPA as $preactꓺapisꓺisoꓺprerenderSPA } from '../../../../preact/apis/iso.tsx';
+import $preactꓺcomponentsꓺBody from '../../../../preact/components/body.tsx';
+import $preactꓺcomponentsꓺHead from '../../../../preact/components/head.tsx';
+import $preactꓺcomponentsꓺHTML from '../../../../preact/components/html.tsx';
+import type {
+	RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps,
+	RouterProps as $preactꓺcomponentsꓺrouterꓺRouterProps,
+} from '../../../../preact/components/router.tsx';
 import {
 	default as $preactꓺcomponentsꓺRouter,
 	Route as $preactꓺcomponentsꓺrouterꓺRoute,
-	useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute,
 	lazyRoute as $preactꓺcomponentsꓺrouterꓺlazyRoute,
-} from '../../../../preact/components/router.js';
-
-import type {
-	RouterProps as $preactꓺcomponentsꓺrouterꓺRouterProps,
-	RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps,
-} from '../../../../preact/components/router.js';
-
-import { $env, $json, $preact } from '../../../../index.js';
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import $preactꓺcomponentsꓺHTML from '../../../../preact/components/html.js';
-import $preactꓺcomponentsꓺHead from '../../../../preact/components/head.js';
-import $preactꓺcomponentsꓺBody from '../../../../preact/components/body.js';
-import { prerenderSPA as $preactꓺapisꓺisoꓺprerenderSPA, hydrativelyRenderSPA as $preactꓺapisꓺisoꓺhydrativelyRenderSPA } from '../../../../preact/apis/iso.js';
+	useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute,
+} from '../../../../preact/components/router.tsx';
 
 const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
 
@@ -60,7 +58,7 @@ describe('$preactꓺapisꓺiso.hydrativelyRenderSPA()', async () => {
 			</$preactꓺcomponentsꓺHTML>
 		);
 	};
-	const Default404 = $preactꓺcomponentsꓺrouterꓺlazyRoute(() => import('../../../../preact/routes/404.js'));
+	const Default404 = $preactꓺcomponentsꓺrouterꓺlazyRoute(() => import('../../../../preact/routes/404.tsx'));
 
 	// ---
 

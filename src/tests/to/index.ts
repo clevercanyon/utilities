@@ -2,9 +2,9 @@
  * Test suite.
  */
 
-import type { $type } from '../../index.js';
-import { describe, beforeEach, test, expect } from 'vitest';
-import { $is, $to, $obj, $symbol, $brand } from '../../index.js';
+import { beforeEach, describe, expect, test } from 'vitest';
+import type { $type } from '../../index.ts';
+import { $brand, $is, $obj, $symbol, $to } from '../../index.ts';
 
 describe('$to', async () => {
 	class Custom {

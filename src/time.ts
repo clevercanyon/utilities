@@ -2,28 +2,22 @@
  * Time utilities.
  */
 
+import { DateTime as Time } from 'luxon';
+import { pkgName as $appꓺpkgName } from './app.ts';
+import type { $type } from './index.ts';
 import {
-	time as $isꓺtime, //
-	date as $isꓺdate,
 	array as $isꓺarray,
+	date as $isꓺdate,
 	float as $isꓺfloat,
-	object as $isꓺobject,
-	string as $isꓺstring,
 	number as $isꓺnumber,
 	numeric as $isꓺnumeric,
+	object as $isꓺobject,
 	plainObject as $isꓺplainObject,
-} from './is.js';
-
-import {
-	objTag as $symbolꓺobjTag, //
-	objToPlain as $symbolꓺobjToPlain,
-	objToClone as $symbolꓺobjToClone,
-} from './symbol.js';
-
-import type { $type } from './index.js';
-import { DateTime as Time } from 'luxon';
-import { pkgName as $appꓺpkgName } from './app.js';
-import { pick as $objꓺpick, defaults as $objꓺdefaults } from './obj.js';
+	string as $isꓺstring,
+	time as $isꓺtime, //
+} from './is.ts';
+import { defaults as $objꓺdefaults, pick as $objꓺpick } from './obj.ts';
+import { objTag as $symbolꓺobjTag, objToClone as $symbolꓺobjToClone, objToPlain as $symbolꓺobjToPlain } from './symbol.ts';
 
 /**
  * Defines types.
@@ -71,6 +65,7 @@ export const currentUser = new Intl.DateTimeFormat().resolvedOptions();
  *   - Default `from` value is `now`.
  *   - {@see parse()} for further details.
  *
+ *
  * @returns      Timestamp in whole seconds, as an integer.
  */
 export const stamp = (from: From = 'now'): number => {
@@ -85,6 +80,7 @@ export const stamp = (from: From = 'now'): number => {
  *   - Default `from` value is `now`.
  *   - {@see parse()} for further details.
  *
+ *
  * @returns      Timestamp in seconds, as a float, supporting fractional seconds.
  */
 export const floatStamp = (from: From = 'now'): number => {
@@ -98,6 +94,7 @@ export const floatStamp = (from: From = 'now'): number => {
  *
  *   - Default `from` value is `now`.
  *   - {@see parse()} for further details.
+ *
  *
  * @returns      Timestamp in whole milliseconds, as an integer.
  */
@@ -146,6 +143,7 @@ i18nFormats.dateTime = { ...i18nFormats.date, ...i18nFormats.time };
  *       - Format can also be given as one of these config object constants. See: https://o5p.me/fZPB9R.
  *       - Format can also be given as a custom config object. See: https://o5p.me/lHJPfq.
  *
+ *
  * @returns         By default, datetime in full w/ seconds, using current user’s zone/locale.
  */
 export const i18n = (from: From = 'now', options?: I18nOptions): string => {
@@ -180,6 +178,7 @@ export const i18n = (from: From = 'now', options?: I18nOptions): string => {
  *
  *   - Default timezone is `utc`. For others, see: https://o5p.me/mVQqsS.
  *   - Default i18n locale is `en-US`. For others, see: https://o5p.me/qLAeRe.
+ *
  *
  * @returns {@see $type.Time}         Time instance in requested timezone.
  *

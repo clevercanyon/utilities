@@ -3,18 +3,17 @@
  */
 
 import {
+	ErrorBoundary as $preactISOꓺErrorBoundary,
+	Location as $preactISOꓺLocation,
 	Router as $preactISOꓺRouter,
 	useRoute as $preactISOꓺuseRoute,
-	Location as $preactISOꓺLocation,
-	ErrorBoundary as $preactISOꓺErrorBoundary,
 } from '@clevercanyon/preact-iso.fork';
-
-import { $preact } from '../../index.js';
-import { empty as $isꓺempty } from '../../is.js';
-import { default as $preactꓺcomponentsꓺData } from './data.js';
-import type { Props as $preactꓺcomponentsꓺdataꓺProps } from './data.js';
 import type { ErrorBoundaryProps as $preactISOꓺErrorBoundaryProps } from '@clevercanyon/preact-iso.fork/lazy';
 import type { LocationProps as $preactISOꓺLocationProps, RouterProps as $preactISOꓺRouterProps } from '@clevercanyon/preact-iso.fork/router';
+import { $preact } from '../../index.ts';
+import { empty as $isꓺempty } from '../../is.ts';
+import type { Props as $preactꓺcomponentsꓺdataꓺProps } from './data.tsx';
+import { default as $preactꓺcomponentsꓺData } from './data.tsx';
 
 /**
  * Defines types.
@@ -51,6 +50,6 @@ export default (props: Props = {}): $preact.VNode<Props> => {
 /**
  * Exports preact ISO router-related utilities.
  */
+export { ErrorBoundary, Location, Route, Router, lazyRoute, useLocation, useRoute } from '@clevercanyon/preact-iso.fork';
 export type { ErrorBoundaryProps } from '@clevercanyon/preact-iso.fork/lazy';
-export { Location, ErrorBoundary, Router, Route, lazyRoute, useLocation, useRoute } from '@clevercanyon/preact-iso.fork';
-export type { LocationProps, LocationContext, RouterProps, RouteProps, RouteContext, RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';
+export type { LocationContext, LocationProps, RouteContext, RouteContextAsProps, RouteProps, RouterProps } from '@clevercanyon/preact-iso.fork/router';

@@ -2,8 +2,8 @@
  * JSON utilities.
  */
 
-import { defaults as $objꓺdefaults } from './obj.js';
-import { set as $isꓺset, map as $isꓺmap, object as $isꓺobject, array as $isꓺarray } from './is.js';
+import { array as $isꓺarray, map as $isꓺmap, object as $isꓺobject, set as $isꓺset } from './is.ts';
+import { defaults as $objꓺdefaults } from './obj.ts';
 
 /**
  * Defines types.

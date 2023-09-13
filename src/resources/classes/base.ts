@@ -2,24 +2,16 @@
  * Base class.
  */
 
+import { pkgName as $appꓺpkgName } from '../../app.ts';
+import type { $type } from '../../index.ts';
+import { c9r as $objꓺc9r, cloneDeep as $objꓺcloneDeep, keysAndSymbols as $objꓺkeysAndSymbols } from '../../obj.ts';
 import {
-	c9r as $objꓺc9r, //
-	cloneDeep as $objꓺcloneDeep,
-	keysAndSymbols as $objꓺkeysAndSymbols,
-	keyAndSymbolEntries as $objꓺkeyAndSymbolEntries,
-} from '../../obj.js';
-
-import {
+	objStringTag as $symbolꓺobjStringTag,
 	objTag as $symbolꓺobjTag,
+	objToClone as $symbolꓺobjToClone,
 	objToJSON as $symbolꓺobjToJSON,
 	objToPlain as $symbolꓺobjToPlain,
-	objToClone as $symbolꓺobjToClone,
-	objStringTag as $symbolꓺobjStringTag,
-} from '../../symbol.js';
-
-import type { $type } from '../../index.js';
-import { object as $isꓺobject } from '../../is.js';
-import { pkgName as $appꓺpkgName } from '../../app.js';
+} from '../../symbol.ts';
 
 let Class: Constructor | undefined; // Class definition cache.
 
@@ -28,13 +20,13 @@ let Class: Constructor | undefined; // Class definition cache.
  */
 export type Constructor = {
 	readonly appPkgName: string;
-	new (props?: object | Interface): Interface;
+	new (): Interface; // Takes in nothing.
 };
 export declare class Interface {
 	[x: $type.ObjectKey]: unknown;
-
 	public static readonly appPkgName: string;
-	public constructor(props?: object | Interface);
+
+	public constructor(); // Takes in nothing.
 
 	public get [$symbolꓺobjTag](): ReturnType<$type.ObjTagFn>;
 	public get [$symbolꓺobjStringTag](): ReturnType<$type.ObjStringTagFn>;
@@ -65,18 +57,13 @@ export const getClass = (): Constructor => {
 
 		/**
 		 * Object constructor.
-		 *
-		 * @param props Props or {@see Interface} instance.
 		 */
-		public constructor(props?: object | Interface) {
-			if (props && !$isꓺobject(props)) {
-				throw new Error('Invalid `props`. Expecting object.');
-			}
-			if (props /* Assigns own enumerable properties. */) {
-				for (const [key, value] of $objꓺkeyAndSymbolEntries(props)) {
-					this[key] = value; // Definite assignments.
-				}
-			}
+		public constructor(/* Takes in nothing. */) {
+			// Nothing in base constructor at this time.
+			// ---
+			// Note: Classes extending this base *must* be capable
+			// of handling the first constructor argument being passed as
+			// an instance of itself; i.e., to facilitate shallow|deep cloning.
 		}
 
 		/**
@@ -133,7 +120,8 @@ export const getClass = (): Constructor => {
 				if (circular.has(this)) {
 					return circular.get(this);
 				}
-				const deepClone = new c9r(this);
+				// @ts-ignore -- `this` constructor arg ok.
+				const deepClone = new c9r(this); // A deep clone.
 				circular.set(this, deepClone); // Before going deep.
 
 				for (const key of $objꓺkeysAndSymbols(deepClone)) {
@@ -146,7 +134,8 @@ export const getClass = (): Constructor => {
 				}
 				return deepClone;
 			}
-			return new c9r(this);
+			// @ts-ignore -- `this` constructor arg ok.
+			return new c9r(this); // In this case, a shallow clone.
 		}
 	};
 	return Object.defineProperty(Class, 'name', {

@@ -2,4 +2,4 @@
  * Test suite.
  */
 
-import './index.node.js';
+import './index.node.tsx';

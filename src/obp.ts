@@ -2,20 +2,19 @@
  * Object path utilities.
  */
 
+import type { $type } from './index.ts';
 import {
 	array as $isꓺarray,
 	number as $isꓺnumber,
-	string as $isꓺstring,
-	object as $isꓺobject,
 	numeric as $isꓺnumeric,
-	safeObjectPath as $isꓺsafeObjectPath,
+	object as $isꓺobject,
 	protoPollutionKey as $isꓺprotoPollutionKey,
-} from './is.js';
-
-import type { $type } from './index.js';
-import { castArray as $toꓺcastArray } from './to.js';
-import { quote as $strꓺquote, escRegExp as $strꓺescRegExp } from './str.js';
-import { hasOwn as $objꓺhasOwn, cloneDeep as $objꓺcloneDeep } from './obj.js';
+	safeObjectPath as $isꓺsafeObjectPath,
+	string as $isꓺstring,
+} from './is.ts';
+import { cloneDeep as $objꓺcloneDeep, hasOwn as $objꓺhasOwn } from './obj.ts';
+import { escRegExp as $strꓺescRegExp, quote as $strꓺquote } from './str.ts';
+import { castArray as $toꓺcastArray } from './to.ts';
 
 /**
  * Defines types.
@@ -33,6 +32,7 @@ export type Code = { init: string; set: string };
  * @returns           True if object has own or inherited, enumerable or not, path.
  *
  *   - See also: `endOwn` option, which changes the return value of this function.
+ *
  *
  * @note Object paths do not support symbol keys whatsoever.
  */

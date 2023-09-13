@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { describe, test, expect } from 'vitest';
-import { $obj, $time, $is } from '../../index.js';
+import { describe, expect, test } from 'vitest';
+import { $is, $obj, $time } from '../../index.ts';
 
 describe('$time', async () => {
 	test('.stamp()', async () => {

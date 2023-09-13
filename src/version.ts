@@ -14,5 +14,5 @@ export { default as minor } from 'semver/functions/minor.js';
 export { default as patch } from 'semver/functions/patch.js';
 export { default as prerelease } from 'semver/functions/prerelease.js';
 
-export { default as sort } from 'semver/functions/sort.js';
 export { default as rsort } from 'semver/functions/rsort.js';
+export { default as sort } from 'semver/functions/sort.js';

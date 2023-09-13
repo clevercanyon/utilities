@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { $path } from '../../index.js';
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import { $path } from '../../index.ts';
 
 describe('$path', async () => {
 	test('.hasExt()', async () => {

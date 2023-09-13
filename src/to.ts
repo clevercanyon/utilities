@@ -2,19 +2,18 @@
  * Data conversion utilities.
  */
 
+import type { $type } from './index.ts';
 import {
-	set as $isꓺset,
-	map as $isꓺmap,
 	array as $isꓺarray,
-	object as $isꓺobject,
-	promise as $isꓺpromise,
 	function as $isꓺfunction,
+	map as $isꓺmap,
+	object as $isꓺobject,
 	plainObject as $isꓺplainObject,
-} from './is.js';
-
-import type { $type } from './index.js';
-import { keyAndSymbolEntries as $objꓺkeyAndSymbolEntries } from './obj.js';
-import { objToJSON as $symbolꓺobjToJSON, objToPlain as $symbolꓺobjToPlain } from './symbol.js';
+	promise as $isꓺpromise,
+	set as $isꓺset,
+} from './is.ts';
+import { keyAndSymbolEntries as $objꓺkeyAndSymbolEntries } from './obj.ts';
+import { objToJSON as $symbolꓺobjToJSON, objToPlain as $symbolꓺobjToPlain } from './symbol.ts';
 
 /**
  * Casts any value as an array.

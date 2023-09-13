@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { $is, $symbol } from '../../index.js';
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import { $is, $symbol } from '../../index.ts';
 
 describe('$symbol', async () => {
 	test('.objAppPkgName', async () => {

@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { $is, $app } from '../../index.js';
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import { $app, $is } from '../../index.ts';
 
 describe('$app', async () => {
 	test('.pkgName', async () => {

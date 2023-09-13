@@ -2,21 +2,22 @@
  * Preact API.
  */
 
-import { $preact } from '../../index.js';
-import type { $type } from '../../index.js';
-import { render as preactꓺrender } from 'preact';
-import { pkgName as $appꓺpkgName } from '../../app.js';
-import { mergeDeep as $objꓺmergeDeep } from '../../obj.js';
-import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
-import { renderToString as $preactꓺapisꓺssrꓺrenderToString } from './ssr.js';
-import { StandAlone as $preactꓺroutesꓺ404ꓺStandAlone } from '../routes/404.js';
-import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.js';
-import { get as $envꓺget, isWeb as $envꓺisWeb, isTest as $envꓺisTest } from '../../env.js';
-import type { HTTPState as $preactꓺcomponentsꓺdataꓺHTTPState } from '../components/data.js';
-import { getFetcher as $classꓺgetFetcher, FetcherInterface as $classꓺFetcherInterface } from '../../class.js';
 import { hydrate as $preactISOꓺhydrate, prerender as $preactISOꓺprerender } from '@clevercanyon/preact-iso.fork';
-import type { Props as $preactꓺcomponentsꓺrouterꓺRouterProps, RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps } from '../components/router.js';
-import { default as $preactꓺcomponentsꓺRouter, Route as $preactꓺcomponentsꓺrouterꓺRoute, lazyRoute as $preactꓺcomponentsꓺrouterꓺlazyRoute } from '../components/router.js';
+import { render as preactꓺrender } from 'preact';
+import { pkgName as $appꓺpkgName } from '../../app.ts';
+import type { FetcherInterface as $classꓺFetcherInterface } from '../../class.ts';
+import { getFetcher as $classꓺgetFetcher } from '../../class.ts';
+import { get as $envꓺget, isTest as $envꓺisTest, isWeb as $envꓺisWeb } from '../../env.ts';
+import type { $type } from '../../index.ts';
+import { $preact } from '../../index.ts';
+import { mergeDeep as $objꓺmergeDeep } from '../../obj.ts';
+import { obpPartSafe as $strꓺobpPartSafe } from '../../str.ts';
+import type { HTTPState as $preactꓺcomponentsꓺdataꓺHTTPState } from '../components/data.tsx';
+import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.tsx';
+import type { RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps, Props as $preactꓺcomponentsꓺrouterꓺRouterProps } from '../components/router.tsx';
+import { default as $preactꓺcomponentsꓺRouter, Route as $preactꓺcomponentsꓺrouterꓺRoute, lazyRoute as $preactꓺcomponentsꓺrouterꓺlazyRoute } from '../components/router.tsx';
+import { StandAlone as $preactꓺroutesꓺ404ꓺStandAlone } from '../routes/404.tsx';
+import { renderToString as $preactꓺapisꓺssrꓺrenderToString } from './ssr.tsx';
 
 /**
  * Defines types.

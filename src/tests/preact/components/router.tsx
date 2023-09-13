@@ -2,11 +2,11 @@
  * Test suite.
  */
 
-import { $env } from '../../../index.js';
-import * as $preactꓺapisꓺssr from '../../../preact/apis/ssr.js';
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import { default as $preactꓺroutesꓺ404 } from '../../../preact/routes/404.js';
-import { default as $preactꓺcomponentsꓺRouter, Route as $preactꓺcomponentsꓺrouterꓺRoute } from '../../../preact/components/router.js';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { $env } from '../../../index.ts';
+import * as $preactꓺapisꓺssr from '../../../preact/apis/ssr.tsx';
+import { default as $preactꓺcomponentsꓺRouter, Route as $preactꓺcomponentsꓺrouterꓺRoute } from '../../../preact/components/router.tsx';
+import { default as $preactꓺroutesꓺ404 } from '../../../preact/routes/404.tsx';
 
 const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
 

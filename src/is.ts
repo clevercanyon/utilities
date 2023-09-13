@@ -2,16 +2,11 @@
  * Conditional utilities.
  */
 
-import {
-	tag as $objꓺtag, //
-	tags as $objꓺtags,
-	keysAndSymbols as $objꓺkeysAndSymbols,
-} from './obj.js';
-
-import type { $type } from './index.js';
-import { svz as $moizeꓺsvz } from './moize.js';
-import { pkgName as $appꓺpkgName } from './app.js';
-import { isWeb as $envꓺisWeb, isNode as $envꓺisNode } from './env.js';
+import { pkgName as $appꓺpkgName } from './app.ts';
+import { isNode as $envꓺisNode, isWeb as $envꓺisWeb } from './env.ts';
+import type { $type } from './index.ts';
+import { svz as $moizeꓺsvz } from './moize.ts';
+import { keysAndSymbols as $objꓺkeysAndSymbols, tag as $objꓺtag, tags as $objꓺtags } from './obj.ts';
 
 let structuredCloneableObjectTags: string[];
 const numericIntegerRegExp = /^(?:0|-?[1-9][0-9]*)$/u;
@@ -24,13 +19,11 @@ const numericFloatRegExp = /^(?:0|-?[1-9][0-9]*)?\.[0-9]+$/u;
  * comparisons. For further details {@see $fn.memoize()}, which is powered by the Moize memoization library.
  */
 export {
-	sameValueZeroEqual as equal, // Same value zero.
-	//
-	circularDeepEqual as deepEqual, // Points to circular variant.
-	circularShallowEqual as shallowEqual, // Points to circular variant.
-	//
-	deepEqual as fastDeepEqual, // Faster, but doesn’t handle circular refs.
-	shallowEqual as fastShallowEqual, // Faster, but doesn’t handle circular refs.
+	circularDeepEqual as deepEqual,
+	sameValueZeroEqual as equal,
+	deepEqual as fastDeepEqual,
+	shallowEqual as fastShallowEqual,
+	circularShallowEqual as shallowEqual,
 } from 'fast-equals';
 
 /**
@@ -75,7 +68,8 @@ export const nil = (value: unknown): value is null | undefined | typeof NaN => {
  */
 const _null = (value: unknown): value is null => {
 	return null === value;
-};
+}; // Weird behavior by import organizer here.
+// This line prevents import organizer from shifting `null` export to top.
 export { _null as null }; // Must be exported as alias.
 
 /**
@@ -606,6 +600,7 @@ export const objectTag = (value: unknown, requiredTag: string): boolean => {
  * @param   value           Value to consider.
  * @param   ...requiredTags Required object tag(s). Each argument is equivalent to an `AND` condition. Each argument
  *   that is an array is equivalent to a bracketed `AND (tag OR tag)` condition, allowing for both logical operators.
+ *
  * @returns                 True if value is of all required object tags.
  *
  * @note Please {@see $obj.tag()} for details regarding the special case of `[tag]:[cn]`.

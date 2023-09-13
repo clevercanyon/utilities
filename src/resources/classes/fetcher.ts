@@ -2,16 +2,16 @@
  * Fetcher utility class.
  */
 
-import type { $type } from '../../index.js';
-import { isWeb as $envꓺisWeb } from '../../env.js';
-import { hasOwn as $objꓺhasOwn } from '../../obj.js';
-import { sha1 as $cryptoꓺsha1 } from '../../crypto.js';
-import { pkgName as $appꓺpkgName } from '../../app.js';
-import { stringify as $jsonꓺstringify } from '../../json.js';
-import { getClass as $classꓺgetUtility } from './utility.js';
-import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
-import type { Interface as $classꓺUtilityInterface } from './utility.js';
-import { get as $obpꓺget, toScriptCode as $obpꓺtoScriptCode } from '../../obp.js';
+import { pkgName as $appꓺpkgName } from '../../app.ts';
+import { sha1 as $cryptoꓺsha1 } from '../../crypto.ts';
+import { isWeb as $envꓺisWeb } from '../../env.ts';
+import type { $type } from '../../index.ts';
+import { stringify as $jsonꓺstringify } from '../../json.ts';
+import { hasOwn as $objꓺhasOwn } from '../../obj.ts';
+import { get as $obpꓺget, toScriptCode as $obpꓺtoScriptCode } from '../../obp.ts';
+import { obpPartSafe as $strꓺobpPartSafe } from '../../str.ts';
+import type { Interface as $classꓺUtilityInterface } from './utility.ts';
+import { getClass as $classꓺgetUtility } from './utility.ts';
 
 let Class: Constructor | undefined; // Class definition cache.
 
@@ -23,13 +23,14 @@ export type C9rProps = {
 	readonly autoReplaceNativeFetch?: boolean;
 };
 export type Constructor = {
-	new (props?: C9rProps): Interface;
+	new (props?: C9rProps | Interface): Interface;
 };
 export declare class Interface extends $classꓺUtilityInterface {
 	public readonly global: Global;
 	public readonly globalObp: $type.ObjectPath;
+	public readonly autoReplaceNativeFetch: boolean;
 
-	public constructor(props?: C9rProps);
+	public constructor(props?: C9rProps | Interface);
 
 	public replaceNativeFetch(): void;
 	public restoreNativeFetch(): void;
@@ -70,24 +71,29 @@ export const getClass = (): Constructor => {
 		public readonly globalObp: $type.ObjectPath;
 
 		/**
+		 * Auto-replace native fetch?
+		 */
+		public readonly autoReplaceNativeFetch: boolean;
+
+		/**
 		 * Object constructor.
 		 *
 		 * @param props Props or {@see Interface} instance.
 		 */
 		public constructor(props?: C9rProps | Interface) {
-			super(props); // Parent constructor.
+			super(); // Parent constructor.
 
-			if (props instanceof (Class as Constructor)) {
-				this.global = props.global;
-				this.globalObp = props.globalObp;
-				return; // Stop here; there's nothing more to do.
-			}
-			this.globalObp = (props || {}).globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.fetcher';
-			this.global = $obpꓺget(globalThis, this.globalObp, {}) as Global;
+			props = props || {}; // Force object value.
+			const isClone = props instanceof (Class as Constructor);
+
+			this.globalObp = props.globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.fetcher';
+			this.global = $obpꓺget(globalThis, this.globalObp, {}) as Global; // Default is `{}`.
 
 			this.global.cache = this.global.cache || {}; // Initializes cache when unavailable.
 			this.global.nativeFetch = globalThis.fetch; // Stores a reference to current native fetch.
 			this.global.pseudoFetch = async (...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> => this.fetch(...args);
+
+			this.autoReplaceNativeFetch = isClone ? false : props.autoReplaceNativeFetch || false;
 
 			if (this.autoReplaceNativeFetch) {
 				this.replaceNativeFetch();

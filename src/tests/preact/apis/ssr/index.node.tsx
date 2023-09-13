@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { describe, test, expect } from 'vitest';
-import * as $preactꓺapisꓺssr from '../../../../preact/apis/ssr.js';
+import { describe, expect, test } from 'vitest';
+import * as $preactꓺapisꓺssr from '../../../../preact/apis/ssr.tsx';
 
 describe('$preactꓺapisꓺssr', async () => {
 	test('.renderToString()', async () => {

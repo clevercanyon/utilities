@@ -2,21 +2,21 @@
  * Preact component.
  */
 
-import { $preact } from '../../index.js';
-import { pkgName as $appꓺpkgName } from '../../app.js';
-import { stringify as $jsonꓺstringify } from '../../json.js';
 import { createContext as preactꓺcreateContext } from 'preact';
-import { obpPartSafe as $strꓺobpPartSafe } from '../../str.js';
 import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
-import { isWeb as $envꓺisWeb, isTest as $envꓺisTest } from '../../env.js';
-import type { ResponseConfig as $httpꓺResponseConfig } from '../../http.js';
-import type { Fetcher as $preactꓺapisꓺisoꓺFetcher } from '../../preact/apis/iso.js';
-import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
-import { get as $obpꓺget, set as $obpꓺset, toScriptCode as $obpꓺtoScriptCode } from '../../obp.js';
-import { useReducer as preactꓺhooksꓺuseReducer, useContext as preactꓺhooksꓺuseContext } from 'preact/hooks';
-import type { State as $preactꓺcomponentsꓺhtmlꓺState, PartialState as $preactꓺcomponentsꓺhtmlꓺPartialState } from './html.js';
-import type { State as $preactꓺcomponentsꓺheadꓺState, PartialState as $preactꓺcomponentsꓺheadꓺPartialState } from './head.js';
-import type { State as $preactꓺcomponentsꓺbodyꓺState, PartialState as $preactꓺcomponentsꓺbodyꓺPartialState } from './body.js';
+import { useContext as preactꓺhooksꓺuseContext, useReducer as preactꓺhooksꓺuseReducer } from 'preact/hooks';
+import { pkgName as $appꓺpkgName } from '../../app.ts';
+import { isTest as $envꓺisTest, isWeb as $envꓺisWeb } from '../../env.ts';
+import type { ResponseConfig as $httpꓺResponseConfig } from '../../http.ts';
+import { $preact } from '../../index.ts';
+import { stringify as $jsonꓺstringify } from '../../json.ts';
+import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.ts';
+import { get as $obpꓺget, set as $obpꓺset, toScriptCode as $obpꓺtoScriptCode } from '../../obp.ts';
+import type { Fetcher as $preactꓺapisꓺisoꓺFetcher } from '../../preact/apis/iso.tsx';
+import { obpPartSafe as $strꓺobpPartSafe } from '../../str.ts';
+import type { PartialState as $preactꓺcomponentsꓺbodyꓺPartialState, State as $preactꓺcomponentsꓺbodyꓺState } from './body.tsx';
+import type { PartialState as $preactꓺcomponentsꓺheadꓺPartialState, State as $preactꓺcomponentsꓺheadꓺState } from './head.tsx';
+import type { PartialState as $preactꓺcomponentsꓺhtmlꓺPartialState, State as $preactꓺcomponentsꓺhtmlꓺState } from './html.tsx';
 
 /**
  * Defines types.

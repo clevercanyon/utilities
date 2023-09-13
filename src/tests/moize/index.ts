@@ -2,9 +2,9 @@
  * Test suite.
  */
 
-import type { $type } from '../../index.js';
-import { $moize, $obj } from '../../index.js';
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import type { $type } from '../../index.ts';
+import { $moize, $obj } from '../../index.ts';
 
 describe('$moize', async () => {
 	$moize.$.collectStats();

@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { $json } from '../../index.js';
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import { $json } from '../../index.ts';
 
 describe('$json', async () => {
 	test('.stringify() .parse()', async () => {

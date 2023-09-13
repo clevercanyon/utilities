@@ -2,19 +2,18 @@
  * URL utilities.
  */
 
-import type { $type } from './index.js';
-import { try as $fnꓺtry } from './fn.js';
-import { isWeb as $envꓺisWeb } from './env.js';
-import { defaults as $objꓺdefaults } from './obj.js';
-import { url as $isꓺurl, array as $isꓺarray } from './is.js';
-import { svz as $moizeꓺsvz, deep as $moizeꓺdeep } from './moize.js';
+import { isWeb as $envꓺisWeb } from './env.ts';
+import { try as $fnꓺtry } from './fn.ts';
+import type { $type } from './index.ts';
+import { array as $isꓺarray, url as $isꓺurl } from './is.ts';
+import { deep as $moizeꓺdeep, svz as $moizeꓺsvz } from './moize.ts';
+import { defaults as $objꓺdefaults } from './obj.ts';
 
 /**
  * Defines types.
  */
 export type CurrentHostOptions = { withPort?: boolean };
 export type CurrentRootHostOptions = { withPort?: boolean };
-
 export type RootHostOptions = { withPort?: boolean };
 export type ParseOptions = { throwOnError?: boolean };
 export type TryParseOptions = Omit<ParseOptions, 'throwOnError'>;
@@ -248,6 +247,7 @@ export const rootHost = $moizeꓺdeep({ maxSize: 12 })({
  *
  *   - `throwOnError` defaults to `true`. {@see tryParse()} for the opposite default behavior.
  *
+ *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
 export const parse = (url?: URL | $type.cf.URL | string, base?: URL | $type.cf.URL | string, options: ParseOptions = {}): URL | $type.cf.URL | undefined => {
@@ -298,6 +298,7 @@ export const tryParse = (url?: URL | $type.cf.URL | string, base?: URL | $type.c
  *
  *   - Optional in browser; i.e., default is {@see current()}.
  *
+ *
  * @returns      Query string variable value, else undefined.
  */
 export const getQueryVar = $moizeꓺsvz({ maxSize: 24 })({
@@ -329,6 +330,7 @@ export const getQueryVar = $moizeꓺsvz({ maxSize: 24 })({
  * @param   url   URL from which to parse query string variables.
  *
  *   - Optional in browser; i.e., default is {@see current()}.
+ *
  *
  * @returns       Query string variables as a plain object.
  *
@@ -383,6 +385,7 @@ export const getQueryVars = $moizeꓺdeep({ maxSize: 24 })({
  *
  *   - Returns a {@see URL} if input `url` was a {@see URL}. A string otherwise.
  *
+ *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
 export function addQueryVar(name: string, value: string, url: URL | $type.cf.URL, options?: AddQueryVarOptions): URL | $type.cf.URL;
@@ -406,6 +409,7 @@ export function addQueryVar(name: string, value: string, url?: URL | $type.cf.UR
  * @returns         URL with query string variables added.
  *
  *   - Returns a {@see URL} if input `url` was a {@see URL}. A string otherwise.
+ *
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
@@ -440,9 +444,11 @@ export function addQueryVars(vars: { [x: string]: string }, url?: URL | $type.cf
  *
  *   - Optional in browser; i.e., default is {@see current()}.
  *
+ *
  * @returns      Updated URL with query string variable removed.
  *
  *   - Returns a {@see URL} if input `url` was a {@see URL}. A string otherwise.
+ *
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
@@ -467,9 +473,11 @@ export function removeQueryVar(name: string, url?: URL | $type.cf.URL | string):
  *
  *   - Optional in browser; i.e., default is {@see current()}.
  *
+ *
  * @returns       URL with query string variables removed.
  *
  *   - Returns a {@see URL} if input `url` was a {@see URL}. A string otherwise.
+ *
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
@@ -513,9 +521,11 @@ export function removeQueryVars(names: string[] | URL | $type.cf.URL | string = 
  *
  *   - Optional in browser; i.e., default is {@see current()}.
  *
+ *
  * @returns     URL with (client|cache)-side-only query string variables removed.
  *
  *   - Returns a {@see URL} if input `url` was a {@see URL}. A string otherwise.
+ *
  *
  * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
@@ -549,6 +559,7 @@ export function removeCSOQueryVars(url?: URL | $type.cf.URL | string): URL | $ty
  *   - Use {@see QUERY_RFC3986} for {@see rawurlencode()} PHP compatibility.
  *   - Use {@see QUERY_RFC3986_AWS4} for {@see rawurlencode()} PHP w/ AWS v4 compatibility.
  *   - Use {@see QUERY_RFC1738} for {@see urlencode()} PHP compatibility.
+ *
  *
  * @returns          Encoded string.
  *
@@ -585,6 +596,7 @@ export const encode = $moizeꓺsvz({ maxSize: 12 })(
  *   - Use {@see QUERY_RFC3986} for {@see rawurldecode()} PHP compatibility.
  *   - Use {@see QUERY_RFC3986_AWS4} for {@see rawurldecode()} PHP w/ AWS v4 compatibility.
  *   - Use {@see QUERY_RFC1738} for {@see urldecode()} PHP compatibility.
+ *
  *
  * @returns          Decoded string.
  *

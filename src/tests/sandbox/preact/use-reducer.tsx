@@ -5,7 +5,7 @@
 
 import { describe, test, expect } from 'vitest';
 import { createContext as preactꓺcreateContext } from 'preact';
-import * as $preactꓺapisꓺssr from '../../../preact/apis/ssr.js';
+import * as $preactꓺapisꓺssr from '../../../preact/apis/ssr.tsx';
 import { useReducer as preactꓺhooksꓺuseReducer } from 'preact/hooks';
 
 describe('sandbox: preact', async () => {

@@ -2,13 +2,13 @@
  * Preact route component.
  */
 
-import { $json, $preact } from '../../../../../../index.js';
-import $preactꓺcomponentsꓺHTML from '../../../../../../preact/components/html.js';
-import $preactꓺcomponentsꓺHead from '../../../../../../preact/components/head.js';
-import $preactꓺcomponentsꓺBody from '../../../../../../preact/components/body.js';
-import { lazyComponent as $preactꓺapisꓺisoꓺlazyComponent } from '../../../../../../preact/apis/iso.js';
-import { useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute } from '../../../../../../preact/components/router.js';
-import type { RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps } from '../../../../../../preact/components/router.js';
+import { $json, $preact } from '../../../../../../index.ts';
+import { lazyComponent as $preactꓺapisꓺisoꓺlazyComponent } from '../../../../../../preact/apis/iso.tsx';
+import $preactꓺcomponentsꓺBody from '../../../../../../preact/components/body.tsx';
+import $preactꓺcomponentsꓺHead from '../../../../../../preact/components/head.tsx';
+import $preactꓺcomponentsꓺHTML from '../../../../../../preact/components/html.tsx';
+import type { RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps } from '../../../../../../preact/components/router.tsx';
+import { useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute } from '../../../../../../preact/components/router.tsx';
 
 /**
  * Defines types.

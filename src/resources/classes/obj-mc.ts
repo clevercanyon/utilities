@@ -2,37 +2,21 @@
  * Object MC class.
  */
 
+import type { $type } from '../../index.ts';
 import {
-	tag as $objꓺtag, //
-	clone as $objꓺclone,
-	hasOwn as $objꓺhasOwn,
-	cloneDeep as $objꓺcloneDeep,
-	keysAndSymbols as $objꓺkeysAndSymbols,
-} from '../../obj.js';
-
-import {
-	has as $obpꓺhas, //
-	get as $obpꓺget,
-	set as $obpꓺset,
-	unset as $obpꓺunset,
-	leave as $obpꓺleave,
-	defaultTo as $obpꓺdefaultTo,
-} from '../../obp.js';
-
-import {
-	map as $isꓺmap, //
 	array as $isꓺarray,
-	string as $isꓺstring,
-	object as $isꓺobject,
-	function as $isꓺfunction,
 	deepEqual as $isꓺdeepEqual,
+	function as $isꓺfunction,
+	map as $isꓺmap,
+	object as $isꓺobject,
 	safeObjectPath as $isꓺsafeObjectPath,
-} from '../../is.js';
-
-import type { $type } from '../../index.js';
-import { flatObject as $toꓺflatObject } from '../../to.js';
-import { getClass as $classꓺgetUtility } from './utility.js';
-import type { Interface as $classꓺUtilityInterface } from './utility.js';
+	string as $isꓺstring,
+} from '../../is.ts';
+import { clone as $objꓺclone, cloneDeep as $objꓺcloneDeep, hasOwn as $objꓺhasOwn, keysAndSymbols as $objꓺkeysAndSymbols, tag as $objꓺtag } from '../../obj.ts';
+import { defaultTo as $obpꓺdefaultTo, get as $obpꓺget, has as $obpꓺhas, leave as $obpꓺleave, set as $obpꓺset, unset as $obpꓺunset } from '../../obp.ts';
+import { flatObject as $toꓺflatObject } from '../../to.ts';
+import type { Interface as $classꓺUtilityInterface } from './utility.ts';
+import { getClass as $classꓺgetUtility } from './utility.ts';
 
 let Class: Constructor | undefined; // Class definition cache.
 
@@ -40,7 +24,7 @@ let Class: Constructor | undefined; // Class definition cache.
  * Defines types.
  */
 export type Constructor = {
-	new (): Interface;
+	new (): Interface; // Takes in nothing.
 };
 export declare class Interface extends $classꓺUtilityInterface {
 	public readonly kinds: {
@@ -62,9 +46,8 @@ export declare class Interface extends $classꓺUtilityInterface {
 	public readonly updateDeep: Handler;
 	public readonly updateClonesDeep: Handler;
 
-	public constructor();
-
-	public newInstance(): Interface;
+	public constructor(); // Takes in nothing.
+	public newInstance(): Interface; // Factory.
 
 	public addMerge(tagA: string, tagB: string, callback: MergeCallback): MergeCallback | undefined;
 	public addOperation(name: string, callback: OperationCallback): OperationCallback | undefined;
@@ -76,17 +59,16 @@ export type Handler = {
 	<TypeA extends undefined, TypeB extends object>(...args: [TypeA, TypeB]): TypeB;
 	<TypeA extends object, TypeB extends undefined>(...args: [TypeA, TypeB]): TypeA;
 
-	<TypeA extends object, TypeB extends object>(...args: [TypeA, TypeB]): //
-	Record<keyof TypeA | keyof TypeB, $type.Object>;
+	<TypeA extends object, TypeB extends object>(...args: [TypeA, TypeB]): Record<keyof TypeA | keyof TypeB, $type.Object>;
+	<TypeA extends object, TypeB extends object, TypeC extends object>(...args: [TypeA, TypeB, TypeC]): Record<keyof TypeA | keyof TypeB | keyof TypeC, $type.Object>;
 
-	<TypeA extends object, TypeB extends object, TypeC extends object>(...args: [TypeA, TypeB, TypeC]): //
-	Record<keyof TypeA | keyof TypeB | keyof TypeC, $type.Object>;
+	<TypeA extends object, TypeB extends object, TypeC extends object, TypeD extends object>(
+		...args: [TypeA, TypeB, TypeC, TypeD]
+	): Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD, $type.Object>;
 
-	<TypeA extends object, TypeB extends object, TypeC extends object, TypeD extends object>(...args: [TypeA, TypeB, TypeC, TypeD]): //
-	Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD, $type.Object>;
-
-	<TypeA extends object, TypeB extends object, TypeC extends object, TypeD extends object, TypeE extends object>(...args: [TypeA, TypeB, TypeC, TypeD, TypeE]): //
-	Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD | keyof TypeE, $type.Object>;
+	<TypeA extends object, TypeB extends object, TypeC extends object, TypeD extends object, TypeE extends object>(
+		...args: [TypeA, TypeB, TypeC, TypeD, TypeE]
+	): Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD | keyof TypeE, $type.Object>;
 
 	(...args: unknown[]): unknown;
 };
@@ -139,15 +121,13 @@ export const getClass = (): Constructor => {
 		/**
 		 * Object constructor.
 		 */
-		public constructor() {
+		public constructor(/* Takes in nothing. */) {
 			super(); // Parent constructor.
 
 			/**
-			 * This class has no enumerable keys and therefore nothing is enumerated by parent constructor or by any
-			 * cloning functions. Instead, we set the following keys explicitly on instantiation.
-			 *
-			 * Anything else added with `addMerge()` or `addOperation()` will be transferred by reference when cloning.
-			 * Those add callbacks, which are not cloneable, and thus transferred by reference.
+			 * This class has no enumerable keys and therefore nothing is enumerated by clone handlers. Anything else
+			 * added with `addMerge()` or `addOperation()` will be transferred by reference when cloning. Those add
+			 * callbacks, which are functions, and not cloneable, and thus transferred always by reference.
 			 */
 			this.kinds = {
 				MERGE_DEEP: 'mergeDeep',

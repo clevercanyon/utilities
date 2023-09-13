@@ -2,13 +2,13 @@
  * Preact route component.
  */
 
-import { $preact } from '../../index.js';
-import $preactꓺcomponentsꓺHTML from '../components/html.js';
-import $preactꓺcomponentsꓺHead from '../components/head.js';
-import $preactꓺcomponentsꓺBody from '../components/body.js';
-import { isWeb as $envꓺisWeb, isTest as $envꓺisTest } from '../../env.js';
-import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.js';
-import type { RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps } from '../components/router.js';
+import { isTest as $envꓺisTest, isWeb as $envꓺisWeb } from '../../env.ts';
+import { $preact } from '../../index.ts';
+import $preactꓺcomponentsꓺBody from '../components/body.tsx';
+import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.tsx';
+import $preactꓺcomponentsꓺHead from '../components/head.tsx';
+import $preactꓺcomponentsꓺHTML from '../components/html.tsx';
+import type { RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps } from '../components/router.tsx';
 
 /**
  * Defines types.

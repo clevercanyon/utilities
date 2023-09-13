@@ -1,13 +1,11 @@
 /**
  * Types.
  */
-
-import type * as cf from '@cloudflare/workers-types/experimental';
+// organize-imports-ignore
 
 /**
  * Common types.
  */
-
 export type ObjectKey = PropertyKey;
 export type ObjectPath = number | string;
 
@@ -15,8 +13,8 @@ export type { $Object as Object };
 export type { $Function as Function };
 export type { $AsyncFunction as AsyncFunction };
 
-export type { Interface as Base } from './resources/classes/base.js';
-export type { Interface as Brand } from './resources/classes/brand.js';
+export type { Interface as Base } from './resources/classes/base.ts';
+export type { Interface as Brand } from './resources/classes/brand.ts';
 export type { DateTime as Time } from 'luxon';
 export type { $Error as Error };
 
@@ -28,19 +26,19 @@ export type ObjStringTagFn = () => string;
 
 export type ObjToPlainSymbolFn = () => unknown;
 export type ObjToJSONFn = (key?: Omit<ObjectKey, symbol>) => unknown;
-export type { ToCloneSymbolFn as ObjToCloneSymbolFn } from './obj.js';
+export type { ToCloneSymbolFn as ObjToCloneSymbolFn } from './obj.ts';
 
 export type Primitive = null | undefined | boolean | number | bigint | string | symbol;
 
 // By default, TypeScript doesn’t know that classes are constructors, so we use this generic type when necessary.
 export type ClassC9r = { new (...args: unknown[]): $Object }; // See: <https://o5p.me/6O7bC7> <https://o5p.me/mUHPAL>.
 
-export type { cf }; // Cloudflare worker type exports.
+// Cloudflare worker type exports.
+export type * as cf from '@cloudflare/workers-types/experimental';
 
 /**
  * Utility types.
  */
-
 export type PartialTuple<__Tuple extends unknown[], __Extracted extends unknown[] = []> = //
 	// If the tuple provided contains at least one required value.
 	__Tuple extends [infer __Next, ...infer __Remaining]
@@ -65,7 +63,6 @@ export type RemainingParameters<__Provided extends unknown[], __Expected extends
 /**
  * Private utilities used by this file.
  */
-
 type $Keyable = { [x: ObjectKey]: unknown };
 type $Object<Type extends object = $Keyable> = Type & $Keyable;
 

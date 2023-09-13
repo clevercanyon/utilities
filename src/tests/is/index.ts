@@ -2,8 +2,8 @@
  * Test suite.
  */
 
-import { describe, beforeEach, test, expect } from 'vitest';
-import { $env, $is, $obj, $symbol, $brand, $time, $url } from '../../index.js';
+import { beforeEach, describe, expect, test } from 'vitest';
+import { $brand, $env, $is, $obj, $symbol, $time, $url } from '../../index.ts';
 
 describe('$is', async () => {
 	class Custom {

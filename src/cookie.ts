@@ -2,18 +2,12 @@
  * Cookie utilities.
  */
 
-import {
-	encode as $urlꓺencode, //
-	decode as $urlꓺdecode,
-	currentHost as $urlꓺcurrentHost,
-	currentScheme as $urlꓺcurrentScheme,
-} from './url.js';
-
-import type { $type } from './index.js';
-import { isWeb as $envꓺisWeb } from './env.js';
-import { svz as $moizeꓺsvz } from './moize.js';
-import { unquote as $strꓺunquote } from './str.js';
-import { hasOwn as $objꓺhasOwn, defaults as $objꓺdefaults } from './obj.js';
+import { isWeb as $envꓺisWeb } from './env.ts';
+import type { $type } from './index.ts';
+import { svz as $moizeꓺsvz } from './moize.ts';
+import { defaults as $objꓺdefaults, hasOwn as $objꓺhasOwn } from './obj.ts';
+import { unquote as $strꓺunquote } from './str.ts';
+import { currentHost as $urlꓺcurrentHost, currentScheme as $urlꓺcurrentScheme, decode as $urlꓺdecode, encode as $urlꓺencode } from './url.ts';
 
 const documentCookieMap: Map<string, string | undefined> = new Map();
 
@@ -34,6 +28,7 @@ export type Options = {
  * @param   header Cookie header to parse.
  *
  *   - Optional on web. Default is `document.cookie`.
+ *
  *
  * @returns        Parsed cookies object.
  */

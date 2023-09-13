@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"version": "1.0.228",
+	"version": "1.0.230",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -136,6 +136,16 @@
 			"require": "./dist/version.cjs",
 			"types": "./dist/types/version.d.ts"
 		},
+		"./preact/apis/iso": {
+			"import": "./dist/preact/apis/iso.js",
+			"require": "./dist/preact/apis/iso.cjs",
+			"types": "./dist/types/preact/apis/iso.d.ts"
+		},
+		"./preact/apis/ssr": {
+			"import": "./dist/preact/apis/ssr.js",
+			"require": "./dist/preact/apis/ssr.cjs",
+			"types": "./dist/types/preact/apis/ssr.d.ts"
+		},
 		"./preact/components/body": {
 			"import": "./dist/preact/components/body.js",
 			"require": "./dist/preact/components/body.cjs",
@@ -160,16 +170,6 @@
 			"import": "./dist/preact/components/router.js",
 			"require": "./dist/preact/components/router.cjs",
 			"types": "./dist/types/preact/components/router.d.ts"
-		},
-		"./preact/apis/iso": {
-			"import": "./dist/preact/apis/iso.js",
-			"require": "./dist/preact/apis/iso.cjs",
-			"types": "./dist/types/preact/apis/iso.d.ts"
-		},
-		"./preact/apis/ssr": {
-			"import": "./dist/preact/apis/ssr.js",
-			"require": "./dist/preact/apis/ssr.cjs",
-			"types": "./dist/types/preact/apis/ssr.d.ts"
 		},
 		"./preact/routes/404": {
 			"import": "./dist/preact/routes/404.js",
@@ -201,13 +201,13 @@
 		"./src/type.ts",
 		"./src/url.ts",
 		"./src/version.ts",
+		"./src/preact/apis/iso.tsx",
+		"./src/preact/apis/ssr.tsx",
 		"./src/preact/components/body.tsx",
 		"./src/preact/components/data.tsx",
 		"./src/preact/components/head.tsx",
 		"./src/preact/components/html.tsx",
 		"./src/preact/components/router.tsx",
-		"./src/preact/apis/iso.tsx",
-		"./src/preact/apis/ssr.tsx",
 		"./src/preact/routes/404.tsx"
 	],
 	"module": "./dist/index.js",
@@ -225,7 +225,7 @@
 		"@clevercanyon/preact-iso.fork": "^2.3.55",
 		"fast-equals": "^4.0.3",
 		"ignore": "^5.2.4",
-		"luxon": "^3.4.2",
+		"luxon": "^3.4.3",
 		"micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.52",
 		"moize": "^6.1.6",
 		"preact": "^10.17.1",
@@ -238,7 +238,7 @@
 	"optionalDependencies": {},
 	"bundleDependencies": [],
 	"devDependencies": {
-		"@clevercanyon/dev-deps": "^1.0.187"
+		"@clevercanyon/dev-deps": "^1.0.199"
 	},
 	"overrides": {},
 	"cpu": ["x64", "arm64"],

@@ -2,4 +2,4 @@
  * Test suite.
  */
 
-import './prerender-spa.node.js';
+import './prerender-spa.node.tsx';

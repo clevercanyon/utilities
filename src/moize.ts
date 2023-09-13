@@ -2,9 +2,9 @@
  * Memoization utilities.
  */
 
-import untypedMoize from 'moize';
-import type { Moize } from 'moize';
 import { circularDeepEqual, circularShallowEqual } from 'fast-equals';
+import type { Moize } from 'moize';
+import untypedMoize from 'moize';
 
 const moize = untypedMoize as unknown as Moize;
 

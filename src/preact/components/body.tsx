@@ -2,13 +2,13 @@
  * Preact component.
  */
 
-import { $preact } from '../../index.js';
 import { createContext as preactꓺcreateContext } from 'preact';
 import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
-import { useData as $preactꓺcomponentsꓺdataꓺuseData } from './data.js';
-import type { State as $preactꓺcomponentsꓺdataꓺState } from './data.js';
-import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.js';
-import { useReducer as preactꓺhooksꓺuseReducer, useContext as preactꓺhooksꓺuseContext } from 'preact/hooks';
+import { useContext as preactꓺhooksꓺuseContext, useReducer as preactꓺhooksꓺuseReducer } from 'preact/hooks';
+import { $preact } from '../../index.ts';
+import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.ts';
+import type { State as $preactꓺcomponentsꓺdataꓺState } from './data.tsx';
+import { useData as $preactꓺcomponentsꓺdataꓺuseData } from './data.tsx';
 
 /**
  * Defines types.
