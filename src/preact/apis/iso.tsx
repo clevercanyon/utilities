@@ -16,7 +16,6 @@ import type { HTTPState as $preactꓺcomponentsꓺdataꓺHTTPState } from '../co
 import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.tsx';
 import type { RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps, Props as $preactꓺcomponentsꓺrouterꓺRouterProps } from '../components/router.tsx';
 import { default as $preactꓺcomponentsꓺRouter, Route as $preactꓺcomponentsꓺrouterꓺRoute, lazyRoute as $preactꓺcomponentsꓺrouterꓺlazyRoute } from '../components/router.tsx';
-import { StandAlone as $preactꓺroutesꓺ404ꓺStandAlone } from '../routes/404.tsx';
 import { renderToString as $preactꓺapisꓺssrꓺrenderToString } from './ssr.tsx';
 
 /**
@@ -103,8 +102,9 @@ export const prerenderSPA = async (opts: PrerenderSPAOptions): Promise<Prerender
 	});
 	fetcher.restoreNativeFetch(); // Restores native fetch on prerender completion.
 
+	const $preactꓺroutesꓺ404 = await import('../routes/404.tsx'); // Consistent code splitting.
 	const { state: httpState } = !prerendered.html ? { state: { status: 404 } } : $preactꓺcomponentsꓺdataꓺuseHTTP();
-	const html = !prerendered.html ? $preactꓺapisꓺssrꓺrenderToString(<$preactꓺroutesꓺ404ꓺStandAlone classes={'default-prerender'} />) : prerendered.html;
+	const html = !prerendered.html ? $preactꓺapisꓺssrꓺrenderToString(<$preactꓺroutesꓺ404.StandAlone classes={'default-prerender'} />) : prerendered.html;
 	const linkURLs = [...prerendered.links]; // Converts link URLs into array.
 
 	return { httpState, docType: '<!DOCTYPE html>', html, linkURLs };
