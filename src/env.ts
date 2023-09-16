@@ -409,7 +409,7 @@ export const test = (leadingObps: string | string[], subObp: string, tests?: QVT
 				continue; // Not empty, not `'0'`.
 			}
 		}
-		if (!$strꓺmatches(qvs[qv], glob, { nocase: true })) {
+		if (!$strꓺmatches(qvs[qv], glob, { ignoreCase: true })) {
 			return false; // The qv doesn’t pass a test given.
 		}
 	}

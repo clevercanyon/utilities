@@ -6,7 +6,7 @@ import type { Options as MMOptions } from 'micromatch';
 import { default as mm } from 'micromatch';
 import { isWeb as $envꓺisWeb } from './env.ts';
 import { numeric as $isꓺnumeric, safeArrayKey as $isꓺsafeArrayKey } from './is.ts';
-import { defaults as $objꓺdefaults } from './obj.ts';
+import { defaults as $objꓺdefaults, hasOwn as $objꓺhasOwn } from './obj.ts';
 
 let unescHTMLDiv: HTMLElement; // Initialize.
 
@@ -504,16 +504,26 @@ export const parseValue = (str: string): unknown => {
  * @param   pattern Pattern(s) to look for.
  * @param   options Micromatch options (all optional).
  *
- *   - Default options are: `{ dot: true }`.
- *   - For caSe-insensitive matching, pass `{ nocase: true }`.
- *   - For other available options, please {@see MMOptions}.
+ *   - Default options are: `{ ignoreCase: false, dot: true }`.
+ *   - For caSe-insensitive matching, pass `{ ignoreCase: true }`.
+ *   - For all other available options, please {@see MMOptions}.
  *   - Also, consider using {@see mm} instead of this function.
  *
  *
  * @returns         True if `str` matches any `pattern`.
+ *
+ * @option-deprecated 2023-09-16 `nocase` option deprecated in favor of `ignoreCase`. The `nocase` option will continue to
+ *   work, however, as it’s part of the micromatch library that powers this utility. We just prefer to use `ignoreCase`,
+ *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
-export const matches = (str: string, pattern: string | string[], options?: MMOptions): boolean => {
-	return mm.isMatch(str, pattern, $objꓺdefaults({}, options || {}, { dot: true }) as MMOptions);
+export const matches = (str: string, pattern: string | string[], options?: MMOptions & { ignoreCase?: boolean }): boolean => {
+	const opts = $objꓺdefaults({}, options || {}, { nocase: false, dot: true }) as MMOptions & { ignoreCase?: boolean };
+
+	if ($objꓺhasOwn(opts, 'ignoreCase')) {
+		opts.nocase = opts.ignoreCase;
+		delete opts.ignoreCase;
+	}
+	return mm.isMatch(str, pattern, opts);
 };
 
 /**
