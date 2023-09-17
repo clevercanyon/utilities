@@ -31,8 +31,8 @@ export const fileType = (file: string, defaultType?: string): string => {
 	if (!fileExt) return defaultType; // Not possible.
 
 	for (const [, group] of Object.entries(types)) {
-		for (const [groupExts, groupType] of Object.entries(group)) {
-			if (groupExts.split('|').includes(fileExt)) return groupType.type;
+		for (const [subgroupExts, subgroup] of Object.entries(group)) {
+			if (subgroupExts.split('|').includes(fileExt)) return subgroup.type;
 		}
 	}
 	return defaultType; // Not possible.
@@ -221,7 +221,7 @@ export const types: Types = {
 	'Log': {
 		'log': { type: 'text/plain', isTextual: true },
 	},
-	'Other Configuration': {
+	'Other Config': {
 		'htaccess|htpasswd': { type: 'text/plain', isTextual: true },
 		'ini|cfg|conf|properties': { type: 'text/plain', isTextual: true },
 		'gitconfig|gitattributes|gitignore|gitchange': { type: 'text/plain', isTextual: true },
@@ -372,14 +372,13 @@ export const types: Types = {
 /**
  * Prepares extensions.
  */
-let _exts: string[] = [];
-
+let _exts: string[] = []; // Initialize.
 for (const [, group] of Object.entries(types)) {
-	for (const [groupExts] of Object.entries(group)) {
-		_exts = _exts.concat(groupExts.split('|'));
+	for (const [subgroupExts] of Object.entries(group)) {
+		_exts = _exts.concat(subgroupExts.split('|'));
 	}
 } // We export unique extensions only.
-export const exts = [...new Set([..._exts.sort()])];
+export const exts = [...new Set(_exts.sort())];
 
 /**
  * Extensions piped for use in RegExp.

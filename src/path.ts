@@ -24,6 +24,9 @@ export type GitIgnoreOptions = {
 export type GlobToRegExpOptions = MMOptions & { ignoreCase?: boolean };
 export type globToRegExpStringOptions = MMOptions & { ignoreCase?: boolean };
 
+export type DefaultGitIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
+export type DefaultNPMIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
+
 /**
  * Any extension RegExp.
  *
@@ -204,286 +207,246 @@ export const globToRegExpString = (glob: string, options?: globToRegExpStringOpt
 };
 
 /**
- * Default git ignores.
+ * Default git ignores, by group.
  */
-export const defaultGitIgnores: string[] = [
-	// Locals
-
-	'._*',
-	'.~*',
-	'.#*',
-	'*.local',
-
-	// Logs
-
-	'*.log',
-	'*.logs',
-
-	// Backups
-
-	'*~',
-	'*.bak',
-
-	// Patches
-
-	'*.rej',
-	'*.orig',
-	'*.patch',
-	'*.diff',
-
-	// Editors
-
-	// :: Vim
-
-	'.*.swp',
-
-	// :: IntelliJ
-
-	'.idea',
-
-	// :: Sublime
-
-	'*.sublime-project',
-	'*.sublime-workspace',
-
-	// :: Netbeans
-
-	'*.nbproject',
-
-	// :: VS Code
-
-	'*.code-search',
-	'*.code-workspace',
-
-	// :: CTAGs
-
-	'*.ctags',
-
-	// Dist
-
-	'dist',
-
-	// Packages
-
-	// :: Yarn
-
-	'.yarn',
-
-	// :: Vendor
-
-	'vendor',
-
-	// :: NodeJS
-
-	'node_modules',
-
-	// :: JSPM
-
-	'jspm_packages',
-
-	// :: Bower
-
-	'bower_components',
-
-	// Dotenv
-
-	'.env*',
-	'.flaskenv*',
-
-	'!.env.vault',
-	'!.env.project',
-
-	// TypeScript
-
-	'.tscache',
-	'*.tsbuildinfo',
-
-	// Vite
-
-	'.vite',
-	'.vitest',
-
-	// Wrangler
-
-	'.wrangler',
-	'.dev.vars',
-	'.dev.vars.*',
-
-	// Rollup
-
-	'.rollup',
-
-	// Webpack
-
-	'.webpack',
-
-	// Linaria
-
-	'.linaria-cache',
-
-	// SASS
-
-	'.sass-cache',
-
-	// Docker
-
-	'.docker',
-
-	// Vagrant
-
-	'.vagrant',
-
-	// Elastic Beanstalk
-
-	'.elasticbeanstalk',
-
-	// Version Control
-
-	// :: Git
-
-	'.git',
-
-	// :: Subversion
-
-	'.svn',
-	'_svn',
-	'.svnignore',
-
-	// :: Bazaar
-
-	'.bzr',
-	'.bzrignore',
-
-	// :: Mercurial
-
-	'.hg',
-	'.hgignore',
-
-	// Operating Systems
-
-	// :: Windows Files
-
-	'Thumbs.db',
-	'ehthumbs.db',
-	'Desktop.ini',
-
-	// :: Windows Directories
-
-	'$RECYCLE.BIN',
-
-	// :: MacOS Files
-
-	// '._*', Already listed above.
-	'Icon\r',
-	'*.icloud',
-	'.DS_Store',
-	'.disk_label',
-	'.LSOverride',
-	'.VolumeIcon.icns',
-	'.com.apple.timemachine.*',
-
-	// :: MacOS Directories
-
-	'.apdisk',
-	'*.icloud',
-	'.fseventsd',
-	'.AppleDB',
-	'.AppleDesktop',
-	'.AppleDouble',
-	'.Trashes',
-	'.TemporaryItems',
-	'.Spotlight-V100',
-	'.DocumentRevisions-V100',
-	'Network Trash Folder',
-	'Temporary Items',
-];
+export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
+	'Locals': [
+		'._*', //
+		'.~*',
+		'.#*',
+		'*.local',
+	],
+	'Logs': [
+		'*.log', //
+		'*.logs',
+	],
+	'Backups': [
+		'*~', //
+		'*.bak',
+	],
+	'Patches': [
+		'*.rej', //
+		'*.orig',
+		'*.patch',
+		'*.diff',
+	],
+	'Editors': {
+		'Vim': [
+			'.*.swp', //
+		],
+		'IntelliJ': [
+			'.idea', //
+		],
+		'Sublime': [
+			'*.sublime-project', //
+			'*.sublime-workspace',
+		],
+		'Netbeans': [
+			'*.nbproject', //
+		],
+		'VS Code': [
+			'*.code-search', //
+			'*.code-workspace',
+		],
+		'CTAGs': [
+			'*.ctags', //
+		],
+	},
+	'Dist': [
+		'dist', //
+	],
+	'Packages': {
+		'Yarn': [
+			'.yarn', //
+		],
+		'Vendor': [
+			'vendor', //
+		],
+		'NodeJS': [
+			'node_modules', //
+		],
+		'JSPM': [
+			'jspm_packages', //
+		],
+		'Bower': [
+			'bower_components', //
+		],
+	},
+	'Dotenv': [
+		'.env*', //
+		'.flaskenv*',
+		'!.env.vault',
+		'!.env.project',
+	],
+	'TypeScript': [
+		'.tscache', //
+		'*.tsbuildinfo',
+	],
+	'Vite': [
+		'.vite', //
+		'.vitest',
+	],
+	'Wrangler': [
+		'.wrangler', //
+		'.dev.vars',
+		'.dev.vars.*',
+	],
+	'Rollup': [
+		'.rollup', //
+	],
+	'Webpack': [
+		'.webpack', //
+	],
+	'Linaria': [
+		'.linaria-cache', //
+	],
+	'SASS': [
+		'.sass-cache', //
+	],
+	'Docker': [
+		'.docker', //
+	],
+	'Vagrant': [
+		'.vagrant', //
+	],
+	'Elastic Beanstalk': [
+		'.elasticbeanstalk', //
+	],
+	'Version Control': {
+		'Git': [
+			'.git', //
+		],
+		'Subversion': [
+			'.svn', //
+			'_svn',
+			'.svnignore',
+		],
+		'Bazaar': [
+			'.bzr', //
+			'.bzrignore',
+		],
+		'Mercurial': [
+			'.hg', //
+			'.hgignore',
+		],
+	},
+	'Operating Systems': {
+		'Windows Files': [
+			'Thumbs.db', //
+			'ehthumbs.db',
+			'Desktop.ini',
+		],
+		'Windows Directories': [
+			'$RECYCLE.BIN', //
+		],
+		'MacOS Files': [
+			// '._*', Already listed above.
+			'Icon\r',
+			'*.icloud',
+			'.DS_Store',
+			'.disk_label',
+			'.LSOverride',
+			'.VolumeIcon.icns',
+			'.com.apple.timemachine.*',
+		],
+		'MacOS Directories': [
+			'.apdisk', //
+			'*.icloud',
+			'.fseventsd',
+			'.AppleDB',
+			'.AppleDesktop',
+			'.AppleDouble',
+			'.Trashes',
+			'.TemporaryItems',
+			'.Spotlight-V100',
+			'.DocumentRevisions-V100',
+			'Network Trash Folder',
+			'Temporary Items',
+		],
+	},
+};
 
 /**
- * Default NPM ignores.
+ * Default NPM ignores, by group.
+ *
+ * `:` prefix is necessary to preserve groups from `./.gitignore`. It’s important that we preserve not just the groups,
+ * but also the order in which these can be extracted into a flat array of actual rules. Don’t remove the `:` prefix.
  */
-export const defaultNPMIgnores: string[] = defaultGitIgnores.concat([
-	// Dist
+export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
+	...defaultGitIgnoresByGroup,
 
-	'!dist',
-
-	// Configs
-
-	'tsconfig.*',
-	'wrangler.*',
-	'*.config.*',
-	'config.gypi',
-
-	// Locks
-
-	'yarn.lock',
-	'composer.lock',
-	'package-lock.json',
-
-	// Dots
-
-	'.*',
-
-	// Src
-
-	'src',
-
-	// Dev
-
-	'dev',
-
-	// Sandbox
-
-	'sandbox',
-
-	// Examples
-
-	'example',
-	'examples',
-
-	// Docs
-
-	'doc',
-	'docs',
-	'*.doc.*',
-	'*.docs.*',
-	'readme.*',
-	'*.readme.*',
-
-	// Tests
-
-	'test',
-	'tests',
-	'*.test.*',
-	'*.tests.*',
-	'*.test-d.*',
-	'*.tests-d.*',
-
-	// Specs
-
-	'spec',
-	'specs',
-	'*.spec.*',
-	'*.specs.*',
-	'*.spec-d.*',
-	'*.specs-d.*',
-
-	// Benchmarks
-
-	'bench',
-	'benchmark',
-	'benchmarks',
-	'*.bench.*',
-	'*.benchmark.*',
-	'*.benchmarks.*',
-
+	':Dist': [
+		'!dist', //
+	],
+	':Configs': [
+		'tsconfig.*', //
+		'wrangler.*',
+		'*.config.*',
+		'config.gypi',
+	],
+	':Locks': [
+		'yarn.lock', //
+		'composer.lock',
+		'package-lock.json',
+	],
+	':Dots': [
+		'.*', //
+	],
+	':Src': [
+		'src', //
+	],
+	':Dev': [
+		'dev', //
+	],
+	':Sandbox': [
+		'sandbox', //
+	],
+	':Examples': [
+		'example', //
+		'examples',
+	],
+	':Docs': [
+		'doc', //
+		'docs',
+		'*.doc.*',
+		'*.docs.*',
+		'readme.*',
+		'*.readme.*',
+	],
+	':Tests': [
+		'test', //
+		'tests',
+		'*.test.*',
+		'*.tests.*',
+		'*.test-d.*',
+		'*.tests-d.*',
+	],
+	':Specs': [
+		'spec', //
+		'specs',
+		'*.spec.*',
+		'*.specs.*',
+		'*.spec-d.*',
+		'*.specs-d.*',
+	],
+	':Benchmarks': [
+		'bench', //
+		'benchmark',
+		'benchmarks',
+		'*.bench.*',
+		'*.benchmark.*',
+		'*.benchmarks.*',
+	],
 	// There are also a few items always included and/or excluded by NPM.
 	// See: <https://docs.npmjs.com/cli/v9/configuring-npm/package-json#files>
 	// See: <https://docs.npmjs.com/cli/v8/using-npm/developers?v=true#keeping-files-out-of-your-package>
 	// Other than `package.json`, `README`, `LICENSE|LICENCE`, our rules already cover everything that NPM does.
-]);
+};
 
 /**
- * Default git/NPM ignores by category; for special use cases.
+ * Default git/NPM ignores by category; for special-use cases.
+ *
+ * E.g., We use these breakdowns when configuring various devops tools.
  */
 export const defaultGitNPMIgnoresByCategory = {
 	// Locals
@@ -730,3 +693,33 @@ export const defaultGitNPMIgnoresByCategory = {
 		'*.benchmarks.*',
 	],
 };
+
+/**
+ * Default git ignores (as a flat array).
+ */
+let _defaultGitIgnores: string[] = []; // Initialize.
+for (const [, group] of Object.entries(defaultGitIgnoresByGroup)) {
+	if (!Array.isArray(group)) {
+		for (const [, subgroup] of Object.entries(group)) {
+			_defaultGitIgnores = _defaultGitIgnores.concat(subgroup);
+		}
+	} else {
+		_defaultGitIgnores = _defaultGitIgnores.concat(group);
+	}
+} // We export unique ignores only.
+export const defaultGitIgnores = [...new Set(_defaultGitIgnores)];
+
+/**
+ * Default NPM ignores (as a flat array).
+ */
+let _defaultNPMIgnores: string[] = []; // Initialize.
+for (const [, group] of Object.entries(defaultNPMIgnoresByGroup)) {
+	if (!Array.isArray(group)) {
+		for (const [, subgroup] of Object.entries(group)) {
+			_defaultNPMIgnores = _defaultNPMIgnores.concat(subgroup);
+		}
+	} else {
+		_defaultNPMIgnores = _defaultNPMIgnores.concat(group);
+	}
+} // We export unique ignores only.
+export const defaultNPMIgnores: string[] = [...new Set(_defaultNPMIgnores)];

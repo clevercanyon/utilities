@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, test } from 'vitest';
-import { $path } from '../../index.ts';
+import { $is, $path } from '../../index.ts';
 
 describe('$path', async () => {
 	test('.ext()', async () => {
@@ -63,5 +63,20 @@ describe('$path', async () => {
 		expect($path.gitIgnoreToGlob('/.foo/bar/')).toBe('/.foo/bar/**');
 		expect($path.gitIgnoreToGlob('!/.foo/bar/')).toBe('!/.foo/bar/**');
 		expect($path.gitIgnoreToGlob('!/.foo/bar//')).toBe('!/.foo/bar/**');
+	});
+	test('.defaultGitIgnoresByGroup', async () => {
+		expect($is.plainObject($path.defaultGitIgnoresByGroup)).toBe(true);
+	});
+	test('.defaultGitIgnores', async () => {
+		expect($is.array($path.defaultGitIgnores)).toBe(true);
+		expect($path.defaultGitIgnores.includes('.git')).toBe(true);
+		expect($path.defaultGitIgnores.includes('.*')).toBe(false);
+	});
+	test('.defaultNPMIgnoresByGroup', async () => {
+		expect($is.plainObject($path.defaultNPMIgnoresByGroup)).toBe(true);
+	});
+	test('.defaultNPMIgnores', async () => {
+		expect($is.array($path.defaultNPMIgnores)).toBe(true);
+		expect($path.defaultNPMIgnores.includes('.*')).toBe(true);
 	});
 });
