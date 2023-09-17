@@ -596,9 +596,9 @@ export const requestPathHasStaticExtension = $moizeꓺsvz({ maxSize: 2 })(
 			return $pathꓺhasExt(url.pathname) && exts.test(url.pathname);
 		}
 		if ($isꓺarray(exts) && exts.length) {
-			return $pathꓺhasExt(url.pathname) && new RegExp('[^/.]\\.(?:' + exts.map($strꓺescRegExp).join('|') + ')$', 'ui').test(url.pathname);
+			return $pathꓺhasExt(url.pathname) && new RegExp('(?:^|[^.])\\.(?:' + exts.map($strꓺescRegExp).join('|') + ')$', 'ui').test(url.pathname);
 		}
-		return $pathꓺhasExt(url.pathname) && $pathꓺhasStaticExt(url.pathname);
+		return $pathꓺhasStaticExt(url.pathname);
 	},
 );
 

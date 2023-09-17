@@ -3,7 +3,7 @@
  */
 
 import type { Options as MMOptions } from 'micromatch';
-import { default as mm } from 'micromatch';
+import { default as mm, isMatch as mmꓺisMatch } from 'micromatch';
 import { isWeb as $envꓺisWeb } from './env.ts';
 import { numeric as $isꓺnumeric, safeArrayKey as $isꓺsafeArrayKey } from './is.ts';
 import { defaults as $objꓺdefaults, hasOwn as $objꓺhasOwn } from './obj.ts';
@@ -32,6 +32,7 @@ export type CamelCaseOptions = { asciiOnly?: boolean; letterFirst?: string };
 export type KebabCaseOptions = { asciiOnly?: boolean; letterFirst?: string };
 export type SnakeCaseOptions = KebabCaseOptions; // Same options as kebabCase.
 
+export type MatchesOptions = MMOptions & { ignoreCase?: boolean };
 export type QuoteOptions = { type?: 'single' | 'double' };
 export type UnquoteOptions = { type?: string };
 
@@ -40,7 +41,7 @@ export type EscHTMLOptions = { doubleEncode: boolean };
 /**
  * Exports micromatch utilities.
  */
-export { mm as mm }; // Micromatch.
+export { mm }; // Micromatch.
 export type { MMOptions as MMOptions };
 
 /**
@@ -498,35 +499,6 @@ export const parseValue = (str: string): unknown => {
 };
 
 /**
- * String matches the given pattern?
- *
- * @param   str     String to consider.
- * @param   pattern Pattern(s) to look for.
- * @param   options Micromatch options (all optional).
- *
- *   - Default options are: `{ ignoreCase: false, dot: true }`.
- *   - For caSe-insensitive matching, pass `{ ignoreCase: true }`.
- *   - For all other available options, please {@see MMOptions}.
- *   - Also, consider using {@see mm} instead of this function.
- *
- *
- * @returns         True if `str` matches any `pattern`.
- *
- * @option-deprecated 2023-09-16 `nocase` option deprecated in favor of `ignoreCase`. The `nocase` option will continue to
- *   work, however, as it’s part of the micromatch library that powers this utility. We just prefer to use `ignoreCase`,
- *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
- */
-export const matches = (str: string, pattern: string | string[], options?: MMOptions & { ignoreCase?: boolean }): boolean => {
-	const opts = $objꓺdefaults({}, options || {}, { nocase: false, dot: true }) as MMOptions & { ignoreCase?: boolean };
-
-	if ($objꓺhasOwn(opts, 'ignoreCase')) {
-		opts.nocase = opts.ignoreCase;
-		delete opts.ignoreCase;
-	}
-	return mm.isMatch(str, pattern, opts);
-};
-
-/**
  * Quotes a string literal.
  *
  * @param   str     String to quote.
@@ -642,4 +614,32 @@ export const escRegExp = (str: string): string => {
  */
 export const escSelector = (str: string): string => {
 	return str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/gu, '\\$&');
+};
+
+/**
+ * String matches the given pattern?
+ *
+ * @param   str     String to consider.
+ * @param   pattern Pattern(s) to look for.
+ * @param   options Micromatch options (all optional).
+ *
+ *   - Default options are: `{ ignoreCase: false, dot: true }`.
+ *   - For caSe-insensitive matching, pass `{ ignoreCase: true }`.
+ *   - For all other available options, please {@see MatchesOptions}.
+ *
+ *
+ * @returns         True if `str` matches any `pattern`.
+ *
+ * @option-deprecated 2023-09-16 `nocase` option deprecated in favor of `ignoreCase`. The `nocase` option will continue to
+ *   work, however, as it’s part of the micromatch library that powers this utility. We just prefer to use `ignoreCase`,
+ *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
+ */
+export const matches = (str: string, pattern: string | string[], options?: MatchesOptions): boolean => {
+	const opts = $objꓺdefaults({}, options || {}, { nocase: false, dot: true }) as MatchesOptions;
+
+	if ($objꓺhasOwn(opts, 'ignoreCase')) {
+		opts.nocase = opts.ignoreCase;
+		delete opts.ignoreCase;
+	}
+	return mmꓺisMatch(str, pattern, opts);
 };

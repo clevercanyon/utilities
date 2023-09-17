@@ -4,8 +4,11 @@
 
 import type { Ignore as GitIgnore } from 'ignore';
 import { default as untypedGitIgnoreFactory } from 'ignore';
-import { defaults as $objꓺdefaults } from './obj.ts';
-import { escRegExp as $strꓺescRegExp } from './str.ts';
+import type { Options as MMOptions } from 'micromatch';
+import { makeRe as mmꓺmakeRe } from 'micromatch';
+import { exts as $mimeꓺexts } from './mime.ts';
+import { defaults as $objꓺdefaults, hasOwn as $objꓺhasOwn } from './obj.ts';
+import { rTrim as $strꓺrTrim } from './str.ts';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
 const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgnoreFactoryOptions) => GitIgnore;
@@ -19,8 +22,61 @@ export type GitIgnoreOptions = {
 	useDefaultGitIgnores?: boolean;
 	useDefaultNPMIgnores?: boolean;
 };
-export type GlobToRegExpOptions = {
-	ignoreCase?: boolean;
+export type GlobToRegExpOptions = MMOptions & { ignoreCase?: boolean };
+export type globToRegExpStringOptions = MMOptions & { ignoreCase?: boolean };
+
+/**
+ * Any extension RegExp.
+ *
+ * @note Matches unnamed dots also; e.g., `.[ext]`.
+ */
+export const extRegExp = /(?:^|[^.])\.([^\\/.]+)$/iu;
+
+/**
+ * Static extensions.
+ *
+ * @see $mimeꓺexts in `./mime.ts`.
+ */
+export const staticExts: string[] = $mimeꓺexts.filter((ext) => {
+	return (
+		!['rb', 'py', 'php', 'phtm', 'phtml', 'shtm', 'shtml', 'asp', 'aspx', 'pl', 'plx', 'cgi', 'ppl', 'perl'].includes(ext) &&
+		!/^(?:rb|py|php|[ps]html?|aspx?|plx?|cgi|ppl|perl)(?:[.~_-]*[0-9]+)$/u.test(ext) // Version-specific variants.
+	);
+});
+
+/**
+ * Static extensions piped for use in RegExp.
+ */
+export const staticExtsPipedForRegExp = staticExts.join('|');
+
+/**
+ * Static extension RegExp.
+ *
+ * @note Matches unnamed dots also; e.g., `.[ext]`.
+ */
+export const staticExtRegExp = new RegExp('(?:^|[^.])\\.(' + staticExtsPipedForRegExp + ')$', 'iu');
+
+/**
+ * Cleans a filesystem path.
+ *
+ * @param   path Path to clean.
+ *
+ * @returns      Clean filesystem path.
+ */
+export const clean = (path: string): string => {
+	return path.split(/[?#]/u)[0];
+};
+
+/**
+ * Gets a path’s extension.
+ *
+ * @param   path Path to consider.
+ *
+ * @returns      Extension; else empty string.
+ */
+export const ext = (path: string): string => {
+	path = clean(path); // No query and/or hash.
+	return '' !== path ? extRegExp.exec(path)?.[1].toLowerCase() || '' : '';
 };
 
 /**
@@ -31,8 +87,8 @@ export type GlobToRegExpOptions = {
  * @returns      True if path has an extension.
  */
 export const hasExt = (path: string): boolean => {
-	const cleanPath = path.split(/[?#]/u)[0];
-	return '' !== cleanPath && extRegExp.test(cleanPath);
+	path = clean(path); // No query and/or hash.
+	return '' !== path && extRegExp.test(path);
 };
 
 /**
@@ -43,8 +99,8 @@ export const hasExt = (path: string): boolean => {
  * @returns      True if path has a static extension.
  */
 export const hasStaticExt = (path: string): boolean => {
-	const cleanPath = path.split(/[?#]/u)[0];
-	return '' !== cleanPath && extRegExp.test(cleanPath) && staticExtRegExp.test(cleanPath);
+	path = clean(path); // No query and/or hash.
+	return '' !== path && extRegExp.test(path) && staticExtRegExp.test(path);
 };
 
 /**
@@ -75,33 +131,76 @@ export const newGitIgnore = (options?: GitIgnoreOptions): GitIgnore => {
 };
 
 /**
+ * Converts a `.gitignore` entry into a fast-glob pattern.
+ *
+ * @param   gitIgnore Git ignore entry.
+ *
+ * @returns           Standard fast-glob pattern.
+ *
+ * @note Relativity is not altered here. Please consider relativity in your implementation
+ *
+ * @see https://git-scm.com/docs/gitignore#_pattern_format.
+ */
+export const gitIgnoreToGlob = (ignoreGlob: string): string => {
+	const isNegated = /^!/u.test(ignoreGlob);
+	const isRootPath = /^!?\//u.test(ignoreGlob);
+	const isRelativePath = /\//u.test(ignoreGlob);
+
+	if (isNegated /* Remove temporarily. */) {
+		ignoreGlob = ignoreGlob.replace(/^!/u, '');
+	}
+	ignoreGlob = $strꓺrTrim(ignoreGlob, '/');
+
+	if (isRootPath || isRelativePath) {
+		return (isNegated ? '!' : '') + ignoreGlob + '/**';
+	}
+	return (isNegated ? '!' : '') + '**/' + ignoreGlob + '/**';
+};
+
+/**
  * Converts a glob into a regular expression.
  *
  * @param   glob    Glob to convert into a regular expression.
  * @param   options Options (all optional); {@see GlobToRegExpOptions}.
  *
  * @returns         Glob as a regular expression.
+ *
+ * @option-deprecated 2023-09-16 `nocase` option deprecated in favor of `ignoreCase`. The `nocase` option will continue to
+ *   work, however, as it’s part of the micromatch library that powers this utility. We just prefer to use `ignoreCase`,
+ *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
 export const globToRegExp = (glob: string, options?: GlobToRegExpOptions): RegExp => {
-	const opts = $objꓺdefaults({}, options || {}, { ignoreCase: false }) as Required<GlobToRegExpOptions>;
-	return new RegExp(globToRegExpString(glob), opts.ignoreCase ? 'ui' : 'u');
+	const opts = $objꓺdefaults({}, options || {}, { nocase: false }) as GlobToRegExpOptions;
+
+	if ($objꓺhasOwn(opts, 'ignoreCase')) {
+		opts.nocase = opts.ignoreCase;
+		delete opts.ignoreCase;
+	}
+	return mmꓺmakeRe(glob, opts);
 };
 
 /**
  * Converts a glob into a regular expression string.
  *
- * @param   glob Glob to convert into a regular expression string.
+ * @param   glob    Glob to convert into a regular expression string.
+ * @param   options Options (all optional); {@see globToRegExpStringOptions}.
  *
- * @returns      Glob as a regular expression string.
+ * @returns         Glob as a regular expression string.
+ *
+ * @option-deprecated 2023-09-16 `nocase` option deprecated in favor of `ignoreCase`. The `nocase` option will continue to
+ *   work, however, as it’s part of the micromatch library that powers this utility. We just prefer to use `ignoreCase`,
+ *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
-export const globToRegExpString = (glob: string): string => {
-	return (
-		'^' +
-		$strꓺescRegExp(glob)
-			.replace(/\\\*\\\*/gu, '[\\s\\S]*')
-			.replace(/\\\*/gu, '[^\\/]*') +
-		'$'
-	);
+export const globToRegExpString = (glob: string, options?: globToRegExpStringOptions): string => {
+	const opts = $objꓺdefaults({}, options || {}, { nocase: false }) as globToRegExpStringOptions;
+
+	if ($objꓺhasOwn(opts, 'ignoreCase')) {
+		opts.nocase = opts.ignoreCase;
+		delete opts.ignoreCase;
+	}
+	return mmꓺmakeRe(glob, opts)
+		.toString()
+		.replace(/^\/|\/[^/]*$/gu, '');
 };
 
 /**
@@ -537,8 +636,11 @@ export const defaultGitNPMIgnoresByCategory = {
 		// that isn’t already grouped in some other way by our exclusions.
 
 		// Note that `.tsbuildinfo` can also appear as `[name].tsbuildinfo`.
-		// So it’s technically a `.` file, or should be. We treat it as such.
-		'*.tsbuildinfo',
+		// It’s technically a `.` file, or should be. We treat it as such.
+		'*.tsbuildinfo', // Tracks progressive project builds (local only).
+
+		'!.env.vault',
+		'!.env.project',
 	],
 	// Types
 
@@ -628,227 +730,3 @@ export const defaultGitNPMIgnoresByCategory = {
 		'*.benchmarks.*',
 	],
 };
-
-/**
- * Static extensions.
- */
-export const staticExts: string[] = [
-	'3g2',
-	'3gp',
-	'3gp2',
-	'3gpp',
-	'7z',
-	'aac',
-	'ai',
-	'apng',
-	'app',
-	'asc',
-	'asf',
-	'asx',
-	'atom',
-	'avi',
-	'bash',
-	'bat',
-	'bin',
-	'blend',
-	'bmp',
-	'c',
-	'cc',
-	'cfg',
-	'cjs',
-	'class',
-	'com',
-	'conf',
-	'css',
-	'csv',
-	'cts',
-	'dfxp',
-	'divx',
-	'dll',
-	'dmg',
-	'doc',
-	'docm',
-	'docx',
-	'dotm',
-	'dotx',
-	'dtd',
-	'ejs',
-	'eot',
-	'eps',
-	'ets',
-	'exe',
-	'fla',
-	'flac',
-	'flv',
-	'gif',
-	'gtar',
-	'gz',
-	'gzip',
-	'h',
-	'heic',
-	'hta',
-	'htaccess',
-	'htc',
-	'htm',
-	'html',
-	'htpasswd',
-	'ico',
-	'ics',
-	'ini',
-	'iso',
-	'jar',
-	'jpe',
-	'jpeg',
-	'jpg',
-	'js',
-	'json',
-	'json5',
-	'jsonld',
-	'jsx',
-	'key',
-	'kml',
-	'kmz',
-	'log',
-	'm4a',
-	'm4b',
-	'm4v',
-	'md',
-	'mdb',
-	'mid',
-	'midi',
-	'mjs',
-	'mka',
-	'mkv',
-	'mo',
-	'mov',
-	'mp3',
-	'mp4',
-	'mpe',
-	'mpeg',
-	'mpg',
-	'mpp',
-	'mts',
-	'numbers',
-	'odb',
-	'odc',
-	'odf',
-	'odg',
-	'odp',
-	'ods',
-	'odt',
-	'oga',
-	'ogg',
-	'ogv',
-	'onepkg',
-	'onetmp',
-	'onetoc',
-	'onetoc2',
-	'otf',
-	'oxps',
-	'pages',
-	'pdf',
-	'phar',
-	'phps',
-	'pict',
-	'pls',
-	'png',
-	'po',
-	'pot',
-	'potm',
-	'potx',
-	'ppam',
-	'pps',
-	'ppsm',
-	'ppsx',
-	'ppt',
-	'pptm',
-	'pptx',
-	'ps',
-	'psd',
-	'pspimage',
-	'qt',
-	'ra',
-	'ram',
-	'rar',
-	'rdf',
-	'rss',
-	'rss-http',
-	'rss2',
-	'rtf',
-	'rtx',
-	'scss',
-	'sh',
-	'sketch',
-	'sldm',
-	'sldx',
-	'so',
-	'sql',
-	'sqlite',
-	'srt',
-	'svg',
-	'svgz',
-	'swf',
-	'tar',
-	'tgz',
-	'tif',
-	'tiff',
-	'tmpl',
-	'toml',
-	'tpl',
-	'ts',
-	'tsv',
-	'tsx',
-	'ttf',
-	'txt',
-	'vtt',
-	'wav',
-	'wax',
-	'webm',
-	'webp',
-	'wm',
-	'wma',
-	'wmv',
-	'wmx',
-	'woff',
-	'woff2',
-	'wp',
-	'wpd',
-	'wri',
-	'xcf',
-	'xhtm',
-	'xhtml',
-	'xla',
-	'xlam',
-	'xls',
-	'xlsb',
-	'xlsm',
-	'xlsx',
-	'xlt',
-	'xltm',
-	'xltx',
-	'xlw',
-	'xml',
-	'xps',
-	'xsd',
-	'xsl',
-	'xslt',
-	'yaml',
-	'yml',
-	'zip',
-	'zsh',
-];
-
-/**
- * Any extension RegExp.
- */
-export const extRegExp = new RegExp('[^/.]\\.([^/.]+)$', 'u');
-
-/**
- * Static extensions piped for use in RegExp.
- */
-export const staticExtsPipedForRegExp = staticExts.join('|');
-
-/**
- * Static extension RegExp.
- */
-export const staticExtRegExp = new RegExp('[^/.]\\.(' + staticExtsPipedForRegExp + ')$', 'iu');

@@ -272,6 +272,30 @@ describe('$str', async () => {
 		expect($str.matches('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', '*a{x,z}iou*')).toBe(false);
 		expect($str.matches('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', '*🦊🦊🦊🦊🦊🦊🦊*')).toBe(false);
 	});
+	test('.mm.isMatch()', async () => {
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', 'aeiou*')).toBe(true);
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', '*aeiou*')).toBe(true);
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', '*a{x,e}iou*')).toBe(true);
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', '*çÇßØøÅåÆæœ🦊')).toBe(true);
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', '*ꓺ*')).toBe(true);
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', '*🦊')).toBe(true);
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', '* ꓺ ... 🦊 *')).toBe(true);
+
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', ' ')).toBe(false);
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', ' *')).toBe(false);
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', '*x*')).toBe(false);
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', '*a{x,z}iou*')).toBe(false);
+		expect($str.mm.isMatch('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', '*🦊🦊🦊🦊🦊🦊🦊*')).toBe(false);
+
+		expect($str.mm.isMatch('/nested/path/abc', '**/abc/**')).toBe(true);
+		expect($str.mm.isMatch('/nested/path/abc/x/y/z', '**/abc/**')).toBe(true);
+		expect($str.mm.isMatch('/nested/nested/path/abc', '**/abc/**')).toBe(true);
+		expect($str.mm.isMatch('/nested/nested/path/abc/x/y/z', '**/abc/**')).toBe(true);
+		expect($str.mm.isMatch('/nested/nested/path/abc/.x/y/z', '**/abc/**')).toBe(false);
+		expect($str.mm.isMatch('/nested/nested/path/abc/x/.y/z', '**/abc/**')).toBe(false);
+		expect($str.mm.isMatch('/nested/nested/path/abc/x/y/.z', '**/abc/**')).toBe(false);
+		expect($str.mm.isMatch('/nested/nested/path/abc/.x/.y/.z', '**/abc/**', { dot: true })).toBe(true);
+	});
 	test('.quote()', async () => {
 		expect($str.quote('foo')).toBe("'foo'");
 
