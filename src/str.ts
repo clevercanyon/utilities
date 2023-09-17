@@ -3,7 +3,7 @@
  */
 
 import type { Options as MMOptions } from 'micromatch';
-import { default as mm, isMatch as mmꓺisMatch } from 'micromatch';
+import { default as mm } from 'micromatch';
 import { isWeb as $envꓺisWeb } from './env.ts';
 import { numeric as $isꓺnumeric, safeArrayKey as $isꓺsafeArrayKey } from './is.ts';
 import { defaults as $objꓺdefaults, hasOwn as $objꓺhasOwn } from './obj.ts';
@@ -641,5 +641,5 @@ export const matches = (str: string, pattern: string | string[], options?: Match
 		opts.nocase = opts.ignoreCase;
 		delete opts.ignoreCase;
 	}
-	return mmꓺisMatch(str, pattern, opts);
+	return mm.isMatch(str, pattern, opts);
 };

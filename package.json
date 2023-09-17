@@ -3,7 +3,7 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"version": "1.0.237",
+	"version": "1.0.239",
 	"license": "GPL-3.0-or-later",
 	"name": "@clevercanyon/utilities",
 	"description": "Utilities for JavaScript apps running in any environment.",
@@ -141,16 +141,6 @@
 			"require": "./dist/version.cjs",
 			"types": "./dist/types/version.d.ts"
 		},
-		"./preact/apis/iso": {
-			"import": "./dist/preact/apis/iso.js",
-			"require": "./dist/preact/apis/iso.cjs",
-			"types": "./dist/types/preact/apis/iso.d.ts"
-		},
-		"./preact/apis/ssr": {
-			"import": "./dist/preact/apis/ssr.js",
-			"require": "./dist/preact/apis/ssr.cjs",
-			"types": "./dist/types/preact/apis/ssr.d.ts"
-		},
 		"./preact/components/body": {
 			"import": "./dist/preact/components/body.js",
 			"require": "./dist/preact/components/body.cjs",
@@ -175,6 +165,16 @@
 			"import": "./dist/preact/components/router.js",
 			"require": "./dist/preact/components/router.cjs",
 			"types": "./dist/types/preact/components/router.d.ts"
+		},
+		"./preact/apis/iso": {
+			"import": "./dist/preact/apis/iso.js",
+			"require": "./dist/preact/apis/iso.cjs",
+			"types": "./dist/types/preact/apis/iso.d.ts"
+		},
+		"./preact/apis/ssr": {
+			"import": "./dist/preact/apis/ssr.js",
+			"require": "./dist/preact/apis/ssr.cjs",
+			"types": "./dist/types/preact/apis/ssr.d.ts"
 		},
 		"./preact/routes/404": {
 			"import": "./dist/preact/routes/404.js",
@@ -207,13 +207,13 @@
 		"./src/type.ts",
 		"./src/url.ts",
 		"./src/version.ts",
-		"./src/preact/apis/iso.tsx",
-		"./src/preact/apis/ssr.tsx",
 		"./src/preact/components/body.tsx",
 		"./src/preact/components/data.tsx",
 		"./src/preact/components/head.tsx",
 		"./src/preact/components/html.tsx",
 		"./src/preact/components/router.tsx",
+		"./src/preact/apis/iso.tsx",
+		"./src/preact/apis/ssr.tsx",
 		"./src/preact/routes/404.tsx"
 	],
 	"module": "./dist/index.js",

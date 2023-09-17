@@ -5,10 +5,9 @@
 import type { Ignore as GitIgnore } from 'ignore';
 import { default as untypedGitIgnoreFactory } from 'ignore';
 import type { Options as MMOptions } from 'micromatch';
-import { makeRe as mmꓺmakeRe } from 'micromatch';
 import { exts as $mimeꓺexts } from './mime.ts';
 import { defaults as $objꓺdefaults, hasOwn as $objꓺhasOwn } from './obj.ts';
-import { rTrim as $strꓺrTrim } from './str.ts';
+import { mm as $strꓺmm, rTrim as $strꓺrTrim } from './str.ts';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
 const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgnoreFactoryOptions) => GitIgnore;
@@ -176,7 +175,7 @@ export const globToRegExp = (glob: string, options?: GlobToRegExpOptions): RegEx
 		opts.nocase = opts.ignoreCase;
 		delete opts.ignoreCase;
 	}
-	return mmꓺmakeRe(glob, opts);
+	return $strꓺmm.makeRe(glob, opts);
 };
 
 /**
@@ -198,7 +197,8 @@ export const globToRegExpString = (glob: string, options?: globToRegExpStringOpt
 		opts.nocase = opts.ignoreCase;
 		delete opts.ignoreCase;
 	}
-	return mmꓺmakeRe(glob, opts)
+	return $strꓺmm
+		.makeRe(glob, opts)
 		.toString()
 		.replace(/^\/|\/[^/]*$/gu, '');
 };
