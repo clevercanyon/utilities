@@ -336,7 +336,7 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 			'ehthumbs.db',
 			'Desktop.ini',
 		],
-		'Windows Directories': [
+		'Windows Dirs': [
 			'$RECYCLE.BIN', //
 		],
 		'MacOS Files': [
@@ -349,7 +349,7 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 			'.VolumeIcon.icns',
 			'.com.apple.timemachine.*',
 		],
-		'MacOS Directories': [
+		'MacOS Dirs': [
 			'.apdisk', //
 			'*.icloud',
 			'.fseventsd',
@@ -369,43 +369,43 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 /**
  * Default NPM ignores, by group.
  *
- * `:` prefix is necessary to preserve groups from `./.gitignore`. It’s important that we preserve not just the groups,
- * but also the order in which these can be extracted into a flat array of actual rules. Don’t remove the `:` prefix.
+ * `npm:` prefix necessary to preserve groups from `./.gitignore`. Important we preserve not just the groups, but also
+ * the insertion order so these can be extracted as a flat array of rules. Don’t remove the `npm:` prefix.
  */
 export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
 	...defaultGitIgnoresByGroup,
 
-	':Dist': [
+	'npm:Dist': [
 		'!dist', //
 	],
-	':Configs': [
+	'npm:Configs': [
 		'tsconfig.*', //
 		'wrangler.*',
 		'*.config.*',
 		'config.gypi',
 	],
-	':Locks': [
+	'npm:Locks': [
 		'yarn.lock', //
 		'composer.lock',
 		'package-lock.json',
 	],
-	':Dots': [
+	'npm:Dots': [
 		'.*', //
 	],
-	':Src': [
+	'npm:Src': [
 		'src', //
 	],
-	':Dev': [
+	'npm:Dev': [
 		'dev', //
 	],
-	':Sandbox': [
+	'npm:Sandbox': [
 		'sandbox', //
 	],
-	':Examples': [
+	'npm:Examples': [
 		'example', //
 		'examples',
 	],
-	':Docs': [
+	'npm:Docs': [
 		'doc', //
 		'docs',
 		'*.doc.*',
@@ -413,7 +413,7 @@ export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
 		'readme.*',
 		'*.readme.*',
 	],
-	':Tests': [
+	'npm:Tests': [
 		'test', //
 		'tests',
 		'*.test.*',
@@ -421,7 +421,7 @@ export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
 		'*.test-d.*',
 		'*.tests-d.*',
 	],
-	':Specs': [
+	'npm:Specs': [
 		'spec', //
 		'specs',
 		'*.spec.*',
@@ -429,7 +429,7 @@ export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
 		'*.spec-d.*',
 		'*.specs-d.*',
 	],
-	':Benchmarks': [
+	'npm:Benchmarks': [
 		'bench', //
 		'benchmark',
 		'benchmarks',
@@ -561,7 +561,7 @@ export const defaultGitNPMIgnoresByCategory = {
 		'ehthumbs.db',
 		'Desktop.ini',
 
-		// Windows Directories
+		// Windows Dirs
 
 		'$RECYCLE.BIN',
 
@@ -576,7 +576,7 @@ export const defaultGitNPMIgnoresByCategory = {
 		'.VolumeIcon.icns',
 		'.com.apple.timemachine.*',
 
-		// MacOS Directories
+		// MacOS Dirs
 
 		'.apdisk',
 		'*.icloud',
