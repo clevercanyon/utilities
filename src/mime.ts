@@ -4,7 +4,8 @@
 
 import { ext as $pathꓺext } from './path.ts';
 
-const binary = 'code-text-binary'; // For VS Code.
+const binary = 'code-text-binary';
+const stream = 'application/octet-stream';
 
 /**
  * Defines types.
@@ -29,7 +30,7 @@ export type Types = {
  */
 export const fileType = (file: string, defaultType?: string): string => {
 	const fileExt = $pathꓺext(file); // File extension.
-	defaultType = defaultType || 'application/octet-stream';
+	defaultType = defaultType || stream;
 
 	if (!fileExt) return defaultType; // Not possible.
 
@@ -108,6 +109,7 @@ export const types: Types = {
 		'rtx': { type: 'text/richtext', isTextual: false, vscodeLang: binary },
 	},
 	'HTML': {
+		// If this changes, also update extensions lib in `clevercanyon/skeleton` dotfiles.
 		'htm|html': { type: 'text/html', isTextual: true, vscodeLang: 'html' },
 		'shtm|shtml': { type: 'text/html', isTextual: true, vscodeLang: 'html' },
 	},
@@ -153,7 +155,7 @@ export const types: Types = {
 		'phps': { type: 'application/x-php-source', isTextual: true, vscodeLang: 'php' },
 	},
 	'Docker': {
-		'dockerfile': { type: 'application/octet-stream', isTextual: true, vscodeLang: 'dockerfile' },
+		'dockerfile': { type: stream, isTextual: true, vscodeLang: 'dockerfile' },
 	},
 	'JS Automation': {
 		'jxa': { type: 'application/javascript', isTextual: true, vscodeLang: 'jxa' },
@@ -168,11 +170,13 @@ export const types: Types = {
 	// Frontend code (most of the time).
 
 	'JavaScript': {
+		// If this changes, also update extensions lib in `clevercanyon/skeleton` dotfiles.
 		'wasm': { type: 'application/wasm', isTextual: false, vscodeLang: binary },
 		'js|cjs|mjs': { type: 'application/javascript', isTextual: true, vscodeLang: 'javascript' },
 		'jsx|cjsx|mjsx': { type: 'application/javascript', isTextual: true, vscodeLang: 'javascriptreact' },
 	},
 	'TypeScript': {
+		// If this changes, also update extensions lib in `clevercanyon/skeleton` dotfiles.
 		'ts|cts|mts': { type: 'application/typescript', isTextual: true, vscodeLang: 'typescript' },
 		'tsx|ctsx|mtsx': { type: 'application/typescript', isTextual: true, vscodeLang: 'typescriptreact' },
 	},
@@ -255,7 +259,7 @@ export const types: Types = {
 		'log': { type: 'text/plain', isTextual: true, vscodeLang: 'plaintext' },
 	},
 	'Other Data': {
-		'hex': { type: 'application/octet-stream', isTextual: false, vscodeLang: 'hexEditor.hexedit' },
+		'hex': { type: stream, isTextual: false, vscodeLang: 'hexEditor.hexedit' },
 	},
 	'Other Config': {
 		'babelrc': { type: 'text/plain', isTextual: true, vscodeLang: 'jsonc' },
@@ -349,14 +353,14 @@ export const types: Types = {
 	// Applications.
 
 	'Other Application': {
-		'app|xcf': { type: 'application/octet-stream', isTextual: false, vscodeLang: binary },
-		'bin': { type: 'application/octet-stream', isTextual: false, vscodeLang: binary },
+		'app|xcf': { type: stream, isTextual: false, vscodeLang: binary },
+		'bin': { type: stream, isTextual: false, vscodeLang: binary },
 		'blend': { type: 'application/x-blender', isTextual: false, vscodeLang: binary },
-		'com': { type: 'application/octet-stream', isTextual: false, vscodeLang: binary },
+		'com': { type: stream, isTextual: false, vscodeLang: binary },
 		'dfxp': { type: 'application/ttaf+xml', isTextual: false, vscodeLang: binary },
-		'dll': { type: 'application/octet-stream', isTextual: false, vscodeLang: binary },
+		'dll': { type: stream, isTextual: false, vscodeLang: binary },
 		'exe': { type: 'application/x-msdownload', isTextual: false, vscodeLang: binary },
-		'so': { type: 'application/octet-stream', isTextual: false, vscodeLang: binary },
+		'so': { type: stream, isTextual: false, vscodeLang: binary },
 	},
 	// Proprietary.
 
