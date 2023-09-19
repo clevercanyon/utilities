@@ -4,6 +4,8 @@
 
 import { ext as $pathꓺext } from './path.ts';
 
+const binary = 'code-text-binary'; // For VS Code.
+
 /**
  * Defines types.
  */
@@ -12,6 +14,7 @@ export type Types = {
 		[x: string]: {
 			type: string;
 			isTextual: boolean;
+			vscodeLang: string;
 		};
 	};
 };
@@ -94,278 +97,324 @@ export const types: Types = {
 	// Documents.
 
 	'Text': {
-		'txt': { type: 'text/plain', isTextual: true },
+		'txt': { type: 'text/plain', isTextual: true, vscodeLang: 'plaintext' },
 	},
 	'Markdown': {
-		'md|mdx': { type: 'text/markdown', isTextual: true },
+		'md': { type: 'text/markdown', isTextual: true, vscodeLang: 'markdown' },
+		'mdx': { type: 'text/markdown', isTextual: true, vscodeLang: 'mdx' },
 	},
 	'Rich Text': {
-		'rtf': { type: 'application/rtf', isTextual: false },
-		'rtx': { type: 'text/richtext', isTextual: false },
+		'rtf': { type: 'application/rtf', isTextual: false, vscodeLang: binary },
+		'rtx': { type: 'text/richtext', isTextual: false, vscodeLang: binary },
 	},
 	'HTML': {
-		'htm|html|shtm|shtml': { type: 'text/html', isTextual: true },
+		'htm|html': { type: 'text/html', isTextual: true, vscodeLang: 'html' },
+		'shtm|shtml': { type: 'text/html', isTextual: true, vscodeLang: 'html' },
 	},
 	'PDF': {
-		'pdf': { type: 'application/pdf', isTextual: false },
+		'pdf': { type: 'application/pdf', isTextual: false, vscodeLang: binary },
 	},
 	'Other Text': {
-		'vtt': { type: 'text/vtt', isTextual: true },
-		'asc|c|cc|h|srt': { type: 'text/plain', isTextual: true },
+		'vtt': { type: 'text/vtt', isTextual: true, vscodeLang: 'plaintext' },
+		'asc|c|cc|h|srt': { type: 'text/plain', isTextual: true, vscodeLang: 'plaintext' },
 	},
 	// Backend code w/ dynamic exclusons.
 	// {@see $path.staticExts} for dynamic exclusons.
 
+	'PHP': {
+		'php|phtm|phtml': { type: 'text/html', isTextual: true, vscodeLang: 'php' },
+	},
 	'Ruby': {
-		'rb': { type: 'text/html', isTextual: true }, // Treated as 'dynamic' (i.e., non-static).
+		'rb': { type: 'text/html', isTextual: true, vscodeLang: 'ruby' },
 	},
 	'Python': {
-		'py': { type: 'text/html', isTextual: true }, // Treated as 'dynamic' (i.e., non-static).
-	},
-	'PHP': {
-		'php|phtm|phtml': { type: 'text/html', isTextual: true }, // Treated as 'dynamic' (i.e., non-static).
-		'phar': { type: 'application/php-archive', isTextual: false },
-		'phps': { type: 'application/x-php-source', isTextual: true },
+		'py': { type: 'text/html', isTextual: true, vscodeLang: 'python' },
 	},
 	'ASP': {
-		'asp|aspx': { type: 'text/html', isTextual: true }, // Treated as 'dynamic' (i.e., non-static).
+		'asp|aspx': { type: 'text/html', isTextual: true, vscodeLang: 'plaintext' },
 	},
 	'Perl': {
-		'cgi|pl|plx|ppl|perl': { type: 'text/html', isTextual: true }, // Treated as 'dynamic' (i.e., non-static).
+		'pl6|perl6': { type: 'text/html', isTextual: true, vscodeLang: 'perl6' },
+		'cgi|pl|plx|ppl|perl': { type: 'text/html', isTextual: true, vscodeLang: 'perl' },
 	},
-	// Other backend code.
+	'Shell': {
+		'sh|zsh|bash': { type: 'text/html', isTextual: true, vscodeLang: 'shellscript' },
+	},
+	// Other backend code formats.
 	// Not part of our dynamic exclusions.
 
-	'Shell': {
-		'sh': { type: 'application/sh', isTextual: true },
-		'zsh': { type: 'application/zsh', isTextual: true },
-		'bash': { type: 'application/bash', isTextual: true },
-		'bat': { type: 'application/octet-stream', isTextual: true },
+	'Node Archive': {
+		'node': { type: 'application/x-node-archive', isTextual: false, vscodeLang: binary },
+	},
+	'PHP Archive': {
+		'phar': { type: 'application/x-php-archive', isTextual: false, vscodeLang: binary },
+	},
+	'PHP Source': {
+		'phps': { type: 'application/x-php-source', isTextual: true, vscodeLang: 'php' },
 	},
 	'Docker': {
-		'dockerfile': { type: 'application/octet-stream', isTextual: true },
+		'dockerfile': { type: 'application/octet-stream', isTextual: true, vscodeLang: 'dockerfile' },
+	},
+	'JS Automation': {
+		'jxa': { type: 'application/javascript', isTextual: true, vscodeLang: 'jxa' },
 	},
 	'AppleScript': {
-		'applescript': { type: 'application/applescript', isTextual: true },
-		'scpt|scptd': { type: 'application/applescript', isTextual: false },
+		'applescript': { type: 'application/applescript', isTextual: true, vscodeLang: 'applescript' },
+		'scpt|scptd': { type: 'application/applescript', isTextual: false, vscodeLang: 'applescript.binary' },
 	},
-	// Frontend code.
+	'Batch': {
+		'bat': { type: 'text/html', isTextual: true, vscodeLang: 'bat' }, // Windows batch file.
+	},
+	// Frontend code (most of the time).
 
 	'JavaScript': {
-		'node': { type: 'application/javascript', isTextual: false },
-		'js|jsx|cjs|cjsx|mjs|mjsx': { type: 'application/javascript', isTextual: true },
+		'wasm': { type: 'application/wasm', isTextual: false, vscodeLang: binary },
+		'js|cjs|mjs': { type: 'application/javascript', isTextual: true, vscodeLang: 'javascript' },
+		'jsx|cjsx|mjsx': { type: 'application/javascript', isTextual: true, vscodeLang: 'javascriptreact' },
 	},
 	'TypeScript': {
-		'ts|tsx|cts|ctsx|mts|mtsx': { type: 'application/typescript', isTextual: true },
+		'ts|cts|mts': { type: 'application/typescript', isTextual: true, vscodeLang: 'typescript' },
+		'tsx|ctsx|mtsx': { type: 'application/typescript', isTextual: true, vscodeLang: 'typescriptreact' },
 	},
 	'Style': {
-		'css|sass|scss|less': { type: 'text/css', isTextual: true },
-		'xsd': { type: 'application/xsd+xml', isTextual: true },
-		'xsl|xslt': { type: 'application/xslt+xml', isTextual: true },
+		'css': { type: 'text/css', isTextual: true, vscodeLang: 'css' },
+		'scss': { type: 'text/css', isTextual: true, vscodeLang: 'scss' },
+		'less': { type: 'text/css', isTextual: true, vscodeLang: 'less' },
+		'xsd': { type: 'application/xsd+xml', isTextual: true, vscodeLang: 'xml' },
+		'xsl|xslt': { type: 'application/xslt+xml', isTextual: true, vscodeLang: 'xml' },
 	},
 	// Other code.
 
 	'Other Code': {
-		'hta': { type: 'application/hta', isTextual: true },
-		'htc': { type: 'text/x-component', isTextual: true },
-		'class': { type: 'application/java', isTextual: false },
+		'hta': { type: 'application/hta', isTextual: true, vscodeLang: 'plaintext' },
+		'htc': { type: 'text/x-component', isTextual: true, vscodeLang: 'plaintext' },
+		'class': { type: 'application/java', isTextual: false, vscodeLang: binary },
 	},
 	// Templates.
 
 	'EJS': {
-		'ejs': { type: 'text/plain', isTextual: true },
+		'ejs': { type: 'text/plain', isTextual: true, vscodeLang: 'html' },
 	},
 	'Liquid': {
-		'liq|liquid': { type: 'text/plain', isTextual: true },
+		'liq|liquid': { type: 'text/plain', isTextual: true, vscodeLang: 'liquid' },
 	},
 	'Other Template': {
-		'tmpl|tpl': { type: 'text/plain', isTextual: true },
+		'tpl|tmpl': { type: 'text/plain', isTextual: true, vscodeLang: 'plaintext' },
 	},
 	// Data|config files.
 
-	'JSON': {
-		'json|json5': { type: 'application/json', isTextual: true },
-		'jsonld': { type: 'application/ld+json', isTextual: true },
-	},
-	'TOML': {
-		'toml': { type: 'text/plain', isTextual: true },
-	},
-	'YAML': {
-		'yaml|yml': { type: 'text/plain', isTextual: true },
-	},
-	'XML': {
-		'dtd': { type: 'application/xml-dtd', isTextual: true },
-		'xhtm|xhtml': { type: 'application/xhtml+xml', isTextual: true },
-		'xml': { type: 'text/xml', isTextual: true },
-	},
 	'SQL': {
-		'sql|sqlite': { type: 'text/plain', isTextual: true },
+		'sql|sqlite': { type: 'text/plain', isTextual: true, vscodeLang: 'sql' },
 	},
 	'Delimited': {
-		'csv': { type: 'text/csv', isTextual: true },
-		'tsv': { type: 'text/tab-separated-values', isTextual: true },
+		'csv': { type: 'text/csv', isTextual: true, vscodeLang: 'plaintext' },
+		'tsv': { type: 'text/tab-separated-values', isTextual: true, vscodeLang: 'plaintext' },
 	},
-	'Calendar': {
-		'ics': { type: 'text/calendar', isTextual: true },
+	'JSON': {
+		'json': { type: 'application/json', isTextual: true, vscodeLang: 'json' },
+		'json5': { type: 'application/json5', isTextual: true, vscodeLang: 'jsonc' },
+		'jsonld': { type: 'application/ld+json', isTextual: true, vscodeLang: 'json' },
 	},
-	'Feed': {
-		'atom': { type: 'application/atom+xml', isTextual: true },
-		'rdf': { type: 'application/rdf+xml', isTextual: true },
-		'rss-http': { type: 'text/xml', isTextual: true },
-		'rss|rss2': { type: 'application/rss+xml', isTextual: true },
+	'TOML': {
+		'toml': { type: 'text/plain', isTextual: true, vscodeLang: 'toml' },
+	},
+	'YAML': {
+		'yaml|yml': { type: 'text/plain', isTextual: true, vscodeLang: 'yaml' },
+	},
+	'INI': {
+		'ini': { type: 'text/plain', isTextual: true, vscodeLang: 'ini' },
+	},
+	'Properties': {
+		'env|env.*': { type: 'text/plain', isTextual: true, vscodeLang: 'properties' },
+		'properties|props': { type: 'text/plain', isTextual: true, vscodeLang: 'properties' },
+		'exacolors': { type: 'text/plain', isTextual: true, vscodeLang: 'properties' },
+	},
+	'Apache': {
+		'conf': { type: 'text/plain', isTextual: true, vscodeLang: 'apacheconf' },
+		'htaccess|htpasswd': { type: 'text/plain', isTextual: true, vscodeLang: 'apacheconf' },
 	},
 	'I18n': {
-		'po': { type: 'text/x-gettext-translation', isTextual: true }, // `pot` taken; use `po`.
-		'mo': { type: 'application/x-gettext-translation', isTextual: false },
+		'po': { type: 'text/x-gettext-translation', isTextual: true, vscodeLang: 'plaintext' }, // `pot` taken; use `po`.
+		'mo': { type: 'application/x-gettext-translation', isTextual: false, vscodeLang: binary },
+	},
+	'XML': {
+		'dtd': { type: 'application/xml-dtd', isTextual: true, vscodeLang: 'xml' },
+		'xhtm|xhtml': { type: 'application/xhtml+xml', isTextual: true, vscodeLang: 'xml' },
+		'xml': { type: 'text/xml', isTextual: true, vscodeLang: 'xml' },
+	},
+	'Calendar': {
+		'ics': { type: 'text/calendar', isTextual: true, vscodeLang: 'plaintext' },
+	},
+	'Feed': {
+		'atom': { type: 'application/atom+xml', isTextual: true, vscodeLang: 'xml' },
+		'rdf': { type: 'application/rdf+xml', isTextual: true, vscodeLang: 'xml' },
+		'rss-http': { type: 'text/xml', isTextual: true, vscodeLang: 'xml' },
+		'rss|rss2': { type: 'application/rss+xml', isTextual: true, vscodeLang: 'xml' },
 	},
 	'Log': {
-		'log': { type: 'text/plain', isTextual: true },
+		'log': { type: 'text/plain', isTextual: true, vscodeLang: 'plaintext' },
+	},
+	'Other Data': {
+		'hex': { type: 'application/octet-stream', isTextual: false, vscodeLang: 'hexEditor.hexedit' },
 	},
 	'Other Config': {
-		'htaccess|htpasswd': { type: 'text/plain', isTextual: true },
-		'ini|cfg|conf|properties': { type: 'text/plain', isTextual: true },
-		'gitconfig|gitattributes|gitignore|gitchange': { type: 'text/plain', isTextual: true },
-		'npmrc|npmignore|yarnrc|babelrc|shellcheckrc|eslintignore|prettierignore': { type: 'text/plain', isTextual: true },
+		'babelrc': { type: 'text/plain', isTextual: true, vscodeLang: 'jsonc' },
+		'npmrc': { type: 'text/plain', isTextual: true, vscodeLang: 'properties' },
+		'yarnrc': { type: 'text/plain', isTextual: true, vscodeLang: 'plaintext' },
+		'inputrc': { type: 'text/plain', isTextual: true, vscodeLang: 'plaintext' },
+		'tsbuildinfo': { type: 'text/plain', isTextual: true, vscodeLang: 'plaintext' },
+		'editorconfig': { type: 'text/plain', isTextual: true, vscodeLang: 'editorconfig' },
+		'shellcheckrc': { type: 'text/plain', isTextual: true, vscodeLang: 'shellcheckrc' },
+		'browserslistrc': { type: 'text/plain', isTextual: true, vscodeLang: 'browserslist' },
+
+		'gitchange': { type: 'text/plain', isTextual: true, vscodeLang: 'plaintext' },
+		'gitconfig|gitattributes': { type: 'text/plain', isTextual: true, vscodeLang: 'properties' },
+
+		'gitignore|npmignore|eslintignore|prettierignore': { type: 'text/plain', isTextual: true, vscodeLang: 'ignore' },
 	},
 	// Media formats.
 
 	'Image': {
-		'ai': { type: 'image/vnd.adobe.illustrator', isTextual: false },
-		'apng': { type: 'image/apng', isTextual: false },
-		'bmp': { type: 'image/bmp', isTextual: false },
-		'eps': { type: 'image/eps', isTextual: false },
-		'gif': { type: 'image/gif', isTextual: false },
-		'heic': { type: 'image/heic', isTextual: false },
-		'ico': { type: 'image/x-icon', isTextual: false },
-		'jpg|jpeg|jpe': { type: 'image/jpeg', isTextual: false },
-		'pict': { type: 'image/pict', isTextual: false },
-		'png': { type: 'image/png', isTextual: false },
-		'psd': { type: 'image/vnd.adobe.photoshop', isTextual: false },
-		'pspimage': { type: 'image/vnd.corel.psp', isTextual: false },
-		'svg': { type: 'image/svg+xml', isTextual: true },
-		'svgz': { type: 'image/svg+xml', isTextual: false },
-		'tiff|tif': { type: 'image/tiff', isTextual: false },
-		'webp': { type: 'image/webp', isTextual: false },
+		'ai': { type: 'image/vnd.adobe.illustrator', isTextual: false, vscodeLang: binary },
+		'apng': { type: 'image/apng', isTextual: false, vscodeLang: binary },
+		'bmp': { type: 'image/bmp', isTextual: false, vscodeLang: binary },
+		'eps': { type: 'image/eps', isTextual: false, vscodeLang: binary },
+		'gif': { type: 'image/gif', isTextual: false, vscodeLang: binary },
+		'heic': { type: 'image/heic', isTextual: false, vscodeLang: binary },
+		'ico': { type: 'image/x-icon', isTextual: false, vscodeLang: binary },
+		'jpg|jpeg|jpe': { type: 'image/jpeg', isTextual: false, vscodeLang: binary },
+		'pict': { type: 'image/pict', isTextual: false, vscodeLang: binary },
+		'png': { type: 'image/png', isTextual: false, vscodeLang: binary },
+		'psd': { type: 'image/vnd.adobe.photoshop', isTextual: false, vscodeLang: binary },
+		'pspimage': { type: 'image/vnd.corel.psp', isTextual: false, vscodeLang: binary },
+		'svg': { type: 'image/svg+xml', isTextual: true, vscodeLang: 'xml' },
+		'svgz': { type: 'image/svg+xml', isTextual: false, vscodeLang: binary },
+		'tiff|tif': { type: 'image/tiff', isTextual: false, vscodeLang: binary },
+		'webp': { type: 'image/webp', isTextual: false, vscodeLang: binary },
 	},
 	'Audio': {
-		'aac': { type: 'audio/aac', isTextual: false },
-		'flac': { type: 'audio/flac', isTextual: false },
-		'mid|midi': { type: 'audio/midi', isTextual: false },
-		'mka': { type: 'audio/x-matroska', isTextual: false },
-		'mp3|m4a|m4b': { type: 'audio/mpeg', isTextual: false },
-		'ogg|oga': { type: 'audio/ogg', isTextual: false },
-		'pls': { type: 'audio/x-scpls', isTextual: false },
-		'ra|ram': { type: 'audio/x-realaudio', isTextual: false },
-		'wav': { type: 'audio/wav', isTextual: false },
-		'wax': { type: 'audio/x-ms-wax', isTextual: false },
-		'wma': { type: 'audio/x-ms-wma', isTextual: false },
+		'aac': { type: 'audio/aac', isTextual: false, vscodeLang: binary },
+		'flac': { type: 'audio/flac', isTextual: false, vscodeLang: binary },
+		'mid|midi': { type: 'audio/midi', isTextual: false, vscodeLang: binary },
+		'mka': { type: 'audio/x-matroska', isTextual: false, vscodeLang: binary },
+		'mp3|m4a|m4b': { type: 'audio/mpeg', isTextual: false, vscodeLang: binary },
+		'ogg|oga': { type: 'audio/ogg', isTextual: false, vscodeLang: binary },
+		'pls': { type: 'audio/x-scpls', isTextual: false, vscodeLang: binary },
+		'ra|ram': { type: 'audio/x-realaudio', isTextual: false, vscodeLang: binary },
+		'wav': { type: 'audio/wav', isTextual: false, vscodeLang: binary },
+		'wax': { type: 'audio/x-ms-wax', isTextual: false, vscodeLang: binary },
+		'wma': { type: 'audio/x-ms-wma', isTextual: false, vscodeLang: binary },
 	},
 	'Video': {
-		'3g2|3gp2': { type: 'video/3gpp2', isTextual: false },
-		'3gp|3gpp': { type: 'video/3gpp', isTextual: false },
-		'asf|asx': { type: 'video/x-ms-asf', isTextual: false },
-		'avi': { type: 'video/avi', isTextual: false },
-		'divx': { type: 'video/divx', isTextual: false },
-		'flv': { type: 'video/x-flv', isTextual: false },
-		'mkv': { type: 'video/x-matroska', isTextual: false },
-		'mov|qt': { type: 'video/quicktime', isTextual: false },
-		'mp4|m4v': { type: 'video/mp4', isTextual: false },
-		'mpeg|mpg|mpe': { type: 'video/mpeg', isTextual: false },
-		'ogv': { type: 'video/ogg', isTextual: false },
-		'webm': { type: 'video/webm', isTextual: false },
-		'wm': { type: 'video/x-ms-wm', isTextual: false },
-		'wmv': { type: 'video/x-ms-wmv', isTextual: false },
-		'wmx': { type: 'video/x-ms-wmx', isTextual: false },
+		'3g2|3gp2': { type: 'video/3gpp2', isTextual: false, vscodeLang: binary },
+		'3gp|3gpp': { type: 'video/3gpp', isTextual: false, vscodeLang: binary },
+		'asf|asx': { type: 'video/x-ms-asf', isTextual: false, vscodeLang: binary },
+		'avi': { type: 'video/avi', isTextual: false, vscodeLang: binary },
+		'divx': { type: 'video/divx', isTextual: false, vscodeLang: binary },
+		'flv': { type: 'video/x-flv', isTextual: false, vscodeLang: binary },
+		'mkv': { type: 'video/x-matroska', isTextual: false, vscodeLang: binary },
+		'mov|qt': { type: 'video/quicktime', isTextual: false, vscodeLang: binary },
+		'mp4|m4v': { type: 'video/mp4', isTextual: false, vscodeLang: binary },
+		'mpeg|mpg|mpe': { type: 'video/mpeg', isTextual: false, vscodeLang: binary },
+		'ogv': { type: 'video/ogg', isTextual: false, vscodeLang: binary },
+		'webm': { type: 'video/webm', isTextual: false, vscodeLang: binary },
+		'wm': { type: 'video/x-ms-wm', isTextual: false, vscodeLang: binary },
+		'wmv': { type: 'video/x-ms-wmv', isTextual: false, vscodeLang: binary },
+		'wmx': { type: 'video/x-ms-wmx', isTextual: false, vscodeLang: binary },
 	},
 	'Font': {
-		'otf': { type: 'application/x-font-otf', isTextual: false },
-		'ttf': { type: 'application/x-font-ttf', isTextual: false },
-		'woff|woff2': { type: 'application/x-font-woff', isTextual: false },
-		'eot': { type: 'application/vnd.ms-fontobject', isTextual: false },
+		'otf': { type: 'application/x-font-otf', isTextual: false, vscodeLang: binary },
+		'ttf': { type: 'application/x-font-ttf', isTextual: false, vscodeLang: binary },
+		'woff|woff2': { type: 'application/x-font-woff', isTextual: false, vscodeLang: binary },
+		'eot': { type: 'application/vnd.ms-fontobject', isTextual: false, vscodeLang: binary },
 	},
 	// Archives.
 
 	'Archive': {
-		'7z': { type: 'application/x-7z-compressed', isTextual: false },
-		'dmg': { type: 'application/x-apple-diskimage', isTextual: false },
-		'gtar': { type: 'application/x-gtar', isTextual: false },
-		'gz|tgz|gzip': { type: 'application/x-gzip', isTextual: false },
-		'iso': { type: 'application/iso-image', isTextual: false },
-		'jar': { type: 'application/java-archive', isTextual: false },
-		'rar': { type: 'application/rar', isTextual: false },
-		'tar': { type: 'application/x-tar', isTextual: false },
-		'zip|sketch': { type: 'application/zip', isTextual: false },
+		'7z': { type: 'application/x-7z-compressed', isTextual: false, vscodeLang: binary },
+		'dmg': { type: 'application/x-apple-diskimage', isTextual: false, vscodeLang: binary },
+		'gtar': { type: 'application/x-gtar', isTextual: false, vscodeLang: binary },
+		'gz|tgz|gzip': { type: 'application/x-gzip', isTextual: false, vscodeLang: binary },
+		'iso': { type: 'application/iso-image', isTextual: false, vscodeLang: binary },
+		'jar': { type: 'application/java-archive', isTextual: false, vscodeLang: binary },
+		'rar': { type: 'application/rar', isTextual: false, vscodeLang: binary },
+		'tar': { type: 'application/x-tar', isTextual: false, vscodeLang: binary },
+		'zip|sketch': { type: 'application/zip', isTextual: false, vscodeLang: binary },
+	},
+	// Certificates.
+
+	'Certificate': {
+		'csr|crt|pem': { type: 'text/plain', isTextual: true, vscodeLang: 'plaintext' },
 	},
 	// Applications.
 
 	'Other Application': {
-		'app|xcf': { type: 'application/octet-stream', isTextual: false },
-		'bin': { type: 'application/octet-stream', isTextual: false },
-		'blend': { type: 'application/x-blender', isTextual: false },
-		'com': { type: 'application/octet-stream', isTextual: false },
-		'dfxp': { type: 'application/ttaf+xml', isTextual: false },
-		'dll': { type: 'application/octet-stream', isTextual: false },
-		'exe': { type: 'application/x-msdownload', isTextual: false },
-		'pem': { type: 'application/x-pem-file', isTextual: true },
-		'so': { type: 'application/octet-stream', isTextual: false },
+		'app|xcf': { type: 'application/octet-stream', isTextual: false, vscodeLang: binary },
+		'bin': { type: 'application/octet-stream', isTextual: false, vscodeLang: binary },
+		'blend': { type: 'application/x-blender', isTextual: false, vscodeLang: binary },
+		'com': { type: 'application/octet-stream', isTextual: false, vscodeLang: binary },
+		'dfxp': { type: 'application/ttaf+xml', isTextual: false, vscodeLang: binary },
+		'dll': { type: 'application/octet-stream', isTextual: false, vscodeLang: binary },
+		'exe': { type: 'application/x-msdownload', isTextual: false, vscodeLang: binary },
+		'so': { type: 'application/octet-stream', isTextual: false, vscodeLang: binary },
 	},
 	// Proprietary.
 
 	'Google': {
-		'kml': { type: 'application/vnd.google-earth.kml+xml', isTextual: true },
-		'kmz': { type: 'application/vnd.google-earth.kmz', isTextual: false },
+		'kml': { type: 'application/vnd.google-earth.kml+xml', isTextual: true, vscodeLang: 'xml' },
+		'kmz': { type: 'application/vnd.google-earth.kmz', isTextual: false, vscodeLang: binary },
 	},
 	'Adobe': {
-		'ps': { type: 'application/postscript', isTextual: false },
-		'fla': { type: 'application/vnd.adobe.flash', isTextual: false },
-		'swf': { type: 'application/x-shockwave-flash', isTextual: false },
+		'ps': { type: 'application/postscript', isTextual: false, vscodeLang: binary },
+		'fla': { type: 'application/vnd.adobe.flash', isTextual: false, vscodeLang: binary },
+		'swf': { type: 'application/x-shockwave-flash', isTextual: false, vscodeLang: binary },
 	},
 	'MS Office': {
-		'doc': { type: 'application/msword', isTextual: false },
-		'docm': { type: 'application/vnd.ms-word.document.macroEnabled.12', isTextual: false },
-		'docx': { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', isTextual: false },
-		'dotm': { type: 'application/vnd.ms-word.template.macroEnabled.12', isTextual: false },
-		'dotx': { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.template', isTextual: false },
-		'mdb': { type: 'application/vnd.ms-access', isTextual: false },
-		'mpp': { type: 'application/vnd.ms-project', isTextual: false },
-		'onetoc|onetoc2|onetmp|onepkg': { type: 'application/onenote', isTextual: false },
-		'oxps': { type: 'application/oxps', isTextual: false },
-		'pot|pps|ppt': { type: 'application/vnd.ms-powerpoint', isTextual: false },
-		'potm': { type: 'application/vnd.ms-powerpoint.template.macroEnabled.12', isTextual: false },
-		'potx': { type: 'application/vnd.openxmlformats-officedocument.presentationml.template', isTextual: false },
-		'ppam': { type: 'application/vnd.ms-powerpoint.addin.macroEnabled.12', isTextual: false },
-		'ppsm': { type: 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12', isTextual: false },
-		'ppsx': { type: 'application/vnd.openxmlformats-officedocument.presentationml.slideshow', isTextual: false },
-		'pptm': { type: 'application/vnd.ms-powerpoint.presentation.macroEnabled.12', isTextual: false },
-		'pptx': { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', isTextual: false },
-		'sldm': { type: 'application/vnd.ms-powerpoint.slide.macroEnabled.12', isTextual: false },
-		'sldx': { type: 'application/vnd.openxmlformats-officedocument.presentationml.slide', isTextual: false },
-		'wri': { type: 'application/vnd.ms-write', isTextual: false },
-		'xla|xls|xlt|xlw': { type: 'application/vnd.ms-excel', isTextual: false },
-		'xlam': { type: 'application/vnd.ms-excel.addin.macroEnabled.12', isTextual: false },
-		'xlsb': { type: 'application/vnd.ms-excel.sheet.binary.macroEnabled.12', isTextual: false },
-		'xlsm': { type: 'application/vnd.ms-excel.sheet.macroEnabled.12', isTextual: false },
-		'xlsx': { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', isTextual: false },
-		'xltm': { type: 'application/vnd.ms-excel.template.macroEnabled.12', isTextual: false },
-		'xltx': { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.template', isTextual: false },
-		'xps': { type: 'application/vnd.ms-xpsdocument', isTextual: false },
+		'doc': { type: 'application/msword', isTextual: false, vscodeLang: binary },
+		'docm': { type: 'application/vnd.ms-word.document.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'docx': { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', isTextual: false, vscodeLang: binary },
+		'dotm': { type: 'application/vnd.ms-word.template.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'dotx': { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.template', isTextual: false, vscodeLang: binary },
+		'mdb': { type: 'application/vnd.ms-access', isTextual: false, vscodeLang: binary },
+		'mpp': { type: 'application/vnd.ms-project', isTextual: false, vscodeLang: binary },
+		'onetoc|onetoc2|onetmp|onepkg': { type: 'application/onenote', isTextual: false, vscodeLang: binary },
+		'oxps': { type: 'application/oxps', isTextual: false, vscodeLang: binary },
+		'pot|pps|ppt': { type: 'application/vnd.ms-powerpoint', isTextual: false, vscodeLang: binary },
+		'potm': { type: 'application/vnd.ms-powerpoint.template.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'potx': { type: 'application/vnd.openxmlformats-officedocument.presentationml.template', isTextual: false, vscodeLang: binary },
+		'ppam': { type: 'application/vnd.ms-powerpoint.addin.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'ppsm': { type: 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'ppsx': { type: 'application/vnd.openxmlformats-officedocument.presentationml.slideshow', isTextual: false, vscodeLang: binary },
+		'pptm': { type: 'application/vnd.ms-powerpoint.presentation.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'pptx': { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', isTextual: false, vscodeLang: binary },
+		'sldm': { type: 'application/vnd.ms-powerpoint.slide.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'sldx': { type: 'application/vnd.openxmlformats-officedocument.presentationml.slide', isTextual: false, vscodeLang: binary },
+		'wri': { type: 'application/vnd.ms-write', isTextual: false, vscodeLang: binary },
+		'xla|xls|xlt|xlw': { type: 'application/vnd.ms-excel', isTextual: false, vscodeLang: binary },
+		'xlam': { type: 'application/vnd.ms-excel.addin.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'xlsb': { type: 'application/vnd.ms-excel.sheet.binary.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'xlsm': { type: 'application/vnd.ms-excel.sheet.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'xlsx': { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', isTextual: false, vscodeLang: binary },
+		'xltm': { type: 'application/vnd.ms-excel.template.macroEnabled.12', isTextual: false, vscodeLang: binary },
+		'xltx': { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.template', isTextual: false, vscodeLang: binary },
+		'xps': { type: 'application/vnd.ms-xpsdocument', isTextual: false, vscodeLang: binary },
 	},
 	'OpenOffice': {
-		'odb': { type: 'application/vnd.oasis.opendocument.database', isTextual: false },
-		'odc': { type: 'application/vnd.oasis.opendocument.chart', isTextual: false },
-		'odf': { type: 'application/vnd.oasis.opendocument.formula', isTextual: false },
-		'odg': { type: 'application/vnd.oasis.opendocument.graphics', isTextual: false },
-		'odp': { type: 'application/vnd.oasis.opendocument.presentation', isTextual: false },
-		'ods': { type: 'application/vnd.oasis.opendocument.spreadsheet', isTextual: false },
-		'odt': { type: 'application/vnd.oasis.opendocument.text', isTextual: false },
+		'odb': { type: 'application/vnd.oasis.opendocument.database', isTextual: false, vscodeLang: binary },
+		'odc': { type: 'application/vnd.oasis.opendocument.chart', isTextual: false, vscodeLang: binary },
+		'odf': { type: 'application/vnd.oasis.opendocument.formula', isTextual: false, vscodeLang: binary },
+		'odg': { type: 'application/vnd.oasis.opendocument.graphics', isTextual: false, vscodeLang: binary },
+		'odp': { type: 'application/vnd.oasis.opendocument.presentation', isTextual: false, vscodeLang: binary },
+		'ods': { type: 'application/vnd.oasis.opendocument.spreadsheet', isTextual: false, vscodeLang: binary },
+		'odt': { type: 'application/vnd.oasis.opendocument.text', isTextual: false, vscodeLang: binary },
 	},
 	'WordPerfect': {
-		'wp|wpd': { type: 'application/wordperfect', isTextual: false },
+		'wp|wpd': { type: 'application/wordperfect', isTextual: false, vscodeLang: binary },
 	},
 	'iWork': {
-		'key': { type: 'application/vnd.apple.keynote', isTextual: false },
-		'numbers': { type: 'application/vnd.apple.numbers', isTextual: false },
-		'pages': { type: 'application/vnd.apple.pages', isTextual: false },
+		'key': { type: 'application/vnd.apple.keynote', isTextual: false, vscodeLang: binary },
+		'numbers': { type: 'application/vnd.apple.numbers', isTextual: false, vscodeLang: binary },
+		'pages': { type: 'application/vnd.apple.pages', isTextual: false, vscodeLang: binary },
 	},
 };
 

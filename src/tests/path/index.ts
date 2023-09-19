@@ -64,6 +64,19 @@ describe('$path', async () => {
 		expect($path.gitIgnoreToGlob('!/.foo/bar/')).toBe('!/.foo/bar/**');
 		expect($path.gitIgnoreToGlob('!/.foo/bar//')).toBe('!/.foo/bar/**');
 	});
+	test('.vscodeLangExts()', async () => {
+		expect($path.vscodeLangExts('javascript')).toStrictEqual(['cjs', 'js', 'mjs']);
+		expect($path.vscodeLangExts('javascriptreact')).toStrictEqual(['cjsx', 'jsx', 'mjsx']);
+
+		expect($path.vscodeLangExts('typescript')).toStrictEqual(['cts', 'mts', 'ts']);
+		expect($path.vscodeLangExts('typescriptreact')).toStrictEqual(['ctsx', 'mtsx', 'tsx']);
+
+		expect($path.vscodeLangExts('php')).toStrictEqual(['php', 'phps', 'phtm', 'phtml']);
+		expect($path.vscodeLangExts('shellscript')).toStrictEqual(['bash', 'sh', 'zsh']);
+	});
+	test('.extsByVSCodeLang()', async () => {
+		expect($is.plainObject($path.extsByVSCodeLang())).toBe(true);
+	});
 	test('.defaultGitIgnoresByGroup', async () => {
 		expect($is.plainObject($path.defaultGitIgnoresByGroup)).toBe(true);
 	});

@@ -5,9 +5,10 @@
 import type { Ignore as GitIgnore } from 'ignore';
 import { default as untypedGitIgnoreFactory } from 'ignore';
 import type { Options as MMOptions } from 'micromatch';
-import { exts as $mimeꓺexts } from './mime.ts';
+import { exts as $mimeꓺexts, types as $mimeꓺtypes } from './mime.ts';
 import { defaults as $objꓺdefaults, hasOwn as $objꓺhasOwn } from './obj.ts';
 import { mm as $strꓺmm, rTrim as $strꓺrTrim } from './str.ts';
+import { castArray as $toꓺcastArray } from './to.ts';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
 const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgnoreFactoryOptions) => GitIgnore;
@@ -37,12 +38,14 @@ export const extRegExp = /(?:^|[^.])\.([^\\/.]+)$/iu;
 /**
  * Static extensions.
  *
- * @see $mimeꓺexts in `./mime.ts`.
+ * @note Everything except backend code often used for web proramming.
+ *
+ * @see $mimeꓺexts in `./mime.ts` for a more verbose breakdown of these.
  */
 export const staticExts: string[] = $mimeꓺexts.filter((ext) => {
 	return (
-		!['rb', 'py', 'php', 'phtm', 'phtml', 'shtm', 'shtml', 'asp', 'aspx', 'pl', 'plx', 'cgi', 'ppl', 'perl'].includes(ext) &&
-		!/^(?:rb|py|php|[ps]html?|aspx?|plx?|cgi|ppl|perl)(?:[.~_-]*[0-9]+)$/u.test(ext) // Version-specific variants.
+		!['php', 'phtm', 'phtml', 'rb', 'py', 'shtm', 'shtml', 'asp', 'aspx', 'pl', 'plx', 'cgi', 'ppl', 'perl', 'sh', 'zsh', 'bash'].includes(ext) &&
+		!/^(?:php|phtml?|rb|py|shtml?|aspx?|plx?|cgi|ppl|perl|sh|zsh|bash)(?:[.~_-]*[0-9]+)$/u.test(ext) // Version-specific variants.
 	);
 });
 
@@ -692,6 +695,47 @@ export const defaultGitNPMIgnoresByCategory = {
 		'*.benchmark.*',
 		'*.benchmarks.*',
 	],
+};
+
+/**
+ * Gets VS Code language extensions.
+ *
+ * @param   vscodeLangs VS Code language ID(s).
+ *
+ * @returns             An array of language extensions.
+ */
+export const vscodeLangExts = (vscodeLangs: string | string[]): string[] => {
+	let exts: string[] = []; // Initialize.
+	vscodeLangs = $toꓺcastArray(vscodeLangs);
+
+	for (const [, group] of Object.entries($mimeꓺtypes)) {
+		for (const [subgroupExts, subgroup] of Object.entries(group)) {
+			if (vscodeLangs.includes(subgroup.vscodeLang)) {
+				exts = exts.concat(subgroupExts.split('|'));
+			}
+		}
+	}
+	return [...new Set(exts.sort())]; // Unique extensions.
+};
+
+/**
+ * Gets all MIME-type extensions by VS Code lang ID.
+ *
+ * @returns An array of extensions by VS Code lang ID.
+ */
+export const extsByVSCodeLang = (): { [x: string]: string[] } => {
+	let exts: { [x: string]: string[] } = {}; // Initialize.
+
+	for (const [, group] of Object.entries($mimeꓺtypes)) {
+		for (const [subgroupExts, subgroup] of Object.entries(group)) {
+			exts[subgroup.vscodeLang] = exts[subgroup.vscodeLang] || [];
+			exts[subgroup.vscodeLang] = exts[subgroup.vscodeLang].concat(subgroupExts.split('|'));
+		}
+	}
+	for (const [vscodeLang] of Object.entries(exts)) {
+		exts[vscodeLang] = [...new Set(exts[vscodeLang].sort())];
+	}
+	return exts; // Unique extensions within each VS Code lang ID group.
 };
 
 /**
