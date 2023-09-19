@@ -700,17 +700,17 @@ export const defaultGitNPMIgnoresByCategory = {
 /**
  * Gets VS Code language extensions.
  *
- * @param   vscodeLangs VS Code language ID(s).
+ * @param   vsCodeLangs VS Code language ID(s).
  *
  * @returns             An array of language extensions.
  */
-export const vscodeLangExts = (vscodeLangs: string | string[]): string[] => {
+export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
 	let exts: string[] = []; // Initialize.
-	vscodeLangs = $toꓺcastArray(vscodeLangs);
+	vsCodeLangs = $toꓺcastArray(vsCodeLangs);
 
 	for (const [, group] of Object.entries($mimeꓺtypes)) {
 		for (const [subgroupExts, subgroup] of Object.entries(group)) {
-			if (vscodeLangs.includes(subgroup.vscodeLang)) {
+			if (vsCodeLangs.includes(subgroup.vsCodeLang)) {
 				exts = exts.concat(subgroupExts.split('|'));
 			}
 		}
@@ -728,12 +728,12 @@ export const extsByVSCodeLang = (): { [x: string]: string[] } => {
 
 	for (const [, group] of Object.entries($mimeꓺtypes)) {
 		for (const [subgroupExts, subgroup] of Object.entries(group)) {
-			exts[subgroup.vscodeLang] = exts[subgroup.vscodeLang] || [];
-			exts[subgroup.vscodeLang] = exts[subgroup.vscodeLang].concat(subgroupExts.split('|'));
+			exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang] || [];
+			exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang].concat(subgroupExts.split('|'));
 		}
 	}
-	for (const [vscodeLang] of Object.entries(exts)) {
-		exts[vscodeLang] = [...new Set(exts[vscodeLang].sort())];
+	for (const [vsCodeLang] of Object.entries(exts)) {
+		exts[vsCodeLang] = [...new Set(exts[vsCodeLang].sort())];
 	}
 	return exts; // Unique extensions within each VS Code lang ID group.
 };
