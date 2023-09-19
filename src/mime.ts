@@ -274,9 +274,8 @@ export const types: Types = {
 		'shellcheckrc': { type: 'text/plain', isTextual: true, vsCodeLang: 'shellcheckrc' },
 		'browserslistrc': { type: 'text/plain', isTextual: true, vsCodeLang: 'browserslist' },
 
-		'gitchange': { type: 'text/plain', isTextual: true, vsCodeLang: 'plaintext' },
-		'gitconfig|gitattributes': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
-
+		'gitconfig': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
+		'gitchange|gitattributes': { type: 'text/plain', isTextual: true, vsCodeLang: 'plaintext' },
 		'gitignore|npmignore|eslintignore|prettierignore': { type: 'text/plain', isTextual: true, vsCodeLang: 'ignore' },
 	},
 	// Media formats.

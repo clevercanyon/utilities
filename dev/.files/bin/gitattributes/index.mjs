@@ -36,6 +36,15 @@ export default async ({ projDir }) => {
 			}
 		}
 	}
+	gitAttributesFileContentsTextBinary += $str.dedent(`
+		# Specials
+
+		*.env.* text
+		CODEOWNERS text
+		**/src/_headers text
+		**/src/_redirects text
+		**/src/cargo/_routes.json text
+	`);
 
 	/**
 	 * Defines large file storage contents.
