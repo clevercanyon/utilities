@@ -94,6 +94,10 @@ export const contentTypeCharset = (contentType: string): string => {
 
 /**
  * Defines MIME types.
+ *
+ * @note It is not permissable to include glob patterns for extensions here.
+ *       If there are variants, please list them explicitly. For anything dynamic-ish,
+ *       exceptions will have to be made in your implementation — not here.
  */
 export const types: Types = {
 	// Documents.
@@ -229,7 +233,7 @@ export const types: Types = {
 		'ini': { type: 'text/plain', isTextual: true, vsCodeLang: 'ini' },
 	},
 	'Properties': {
-		'env|env.*': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
+		'env': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
 		'properties|props': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
 	},
 	'Apache': {

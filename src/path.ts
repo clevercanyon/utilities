@@ -38,7 +38,7 @@ export const extRegExp = /(?:^|[^.])\.([^\\/.]+)$/iu;
 /**
  * Static extensions.
  *
- * @note Everything except backend code often used for web proramming.
+ * @note Everything except backend code used for web proramming.
  *
  * @see $mimeꓺexts in `./mime.ts` for a more verbose breakdown of these.
  */
