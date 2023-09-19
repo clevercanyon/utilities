@@ -137,7 +137,6 @@ export const types: Types = {
 		'asp|aspx': { type: 'text/html', isTextual: true, vsCodeLang: 'plaintext' },
 	},
 	'Perl': {
-		'pl6|perl6': { type: 'text/html', isTextual: true, vsCodeLang: 'perl6' },
 		'cgi|pl|plx|ppl|perl': { type: 'text/html', isTextual: true, vsCodeLang: 'perl' },
 	},
 	'Shell': {
@@ -201,10 +200,10 @@ export const types: Types = {
 		'ejs': { type: 'text/plain', isTextual: true, vsCodeLang: 'html' },
 	},
 	'Liquid': {
-		'liq|liquid': { type: 'text/plain', isTextual: true, vsCodeLang: 'liquid' },
+		'liquid': { type: 'text/plain', isTextual: true, vsCodeLang: 'html' },
 	},
 	'Other Template': {
-		'tpl|tmpl': { type: 'text/plain', isTextual: true, vsCodeLang: 'plaintext' },
+		'tpl': { type: 'text/plain', isTextual: true, vsCodeLang: 'plaintext' },
 	},
 	// Data|config files.
 
@@ -232,7 +231,6 @@ export const types: Types = {
 	'Properties': {
 		'env|env.*': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
 		'properties|props': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
-		'exacolors': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
 	},
 	'Apache': {
 		'conf': { type: 'text/plain', isTextual: true, vsCodeLang: 'apacheconf' },
