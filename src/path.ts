@@ -255,9 +255,49 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 			'*.ctags', //
 		],
 	},
-	'Dist': [
-		'dist', //
-	],
+	'Tooling': {
+		'Dotenv': [
+			'.env*', //
+			'.flaskenv*',
+
+			'!.env.vault',
+			'!.env.project',
+		],
+		'TypeScript': [
+			'.tscache', //
+			'*.tsbuildinfo',
+		],
+		'Vite': [
+			'.vite', //
+			'.vitest',
+		],
+		'Wrangler': [
+			'.wrangler', //
+			'.dev.vars',
+			'.dev.vars.*',
+		],
+		'Rollup': [
+			'.rollup', //
+		],
+		'Webpack': [
+			'.webpack', //
+		],
+		'Linaria': [
+			'.linaria-cache', //
+		],
+		'SASS': [
+			'.sass-cache', //
+		],
+		'Docker': [
+			'.docker', //
+		],
+		'Vagrant': [
+			'.vagrant', //
+		],
+		'Elastic Beanstalk': [
+			'.elasticbeanstalk', //
+		],
+	},
 	'Packages': {
 		'Yarn': [
 			'.yarn', //
@@ -275,46 +315,6 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 			'bower_components', //
 		],
 	},
-	'Dotenv': [
-		'.env*', //
-		'.flaskenv*',
-		'!.env.vault',
-		'!.env.project',
-	],
-	'TypeScript': [
-		'.tscache', //
-		'*.tsbuildinfo',
-	],
-	'Vite': [
-		'.vite', //
-		'.vitest',
-	],
-	'Wrangler': [
-		'.wrangler', //
-		'.dev.vars',
-		'.dev.vars.*',
-	],
-	'Rollup': [
-		'.rollup', //
-	],
-	'Webpack': [
-		'.webpack', //
-	],
-	'Linaria': [
-		'.linaria-cache', //
-	],
-	'SASS': [
-		'.sass-cache', //
-	],
-	'Docker': [
-		'.docker', //
-	],
-	'Vagrant': [
-		'.vagrant', //
-	],
-	'Elastic Beanstalk': [
-		'.elasticbeanstalk', //
-	],
 	'Version Control': {
 		'Git': [
 			'.git', //
@@ -367,6 +367,9 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 			'Temporary Items',
 		],
 	},
+	'Dist': [
+		'dist', //
+	],
 };
 
 /**
@@ -381,6 +384,9 @@ export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
 	'npm:Dist': [
 		'!dist', //
 	],
+	'npm:Dots': [
+		'.*', //
+	],
 	'npm:Configs': [
 		'tsconfig.*', //
 		'wrangler.*',
@@ -391,9 +397,6 @@ export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
 		'yarn.lock', //
 		'composer.lock',
 		'package-lock.json',
-	],
-	'npm:Dots': [
-		'.*', //
 	],
 	'npm:Src': [
 		'src', //
@@ -509,6 +512,61 @@ export const defaultGitNPMIgnoresByCategory = {
 
 		'*.ctags',
 	],
+	// Tooling
+
+	toolingIgnores: [
+		// Dotenv
+
+		'.env*', //
+		'.flaskenv*',
+
+		'!.env.vault',
+		'!.env.project',
+
+		// TypeScript
+
+		'.tscache',
+		'*.tsbuildinfo',
+
+		// Vite
+
+		'.vite',
+		'.vitest',
+
+		// Wrangler
+
+		'.wrangler',
+		'.dev.vars',
+		'.dev.vars.*',
+
+		// Rollup
+
+		'.rollup',
+
+		// Webpack
+
+		'.webpack',
+
+		// Linaria
+
+		'.linaria-cache',
+
+		// SASS
+
+		'.sass-cache',
+
+		// Docker
+
+		'.docker',
+
+		// Vagrant
+
+		'.vagrant',
+
+		// Elastic Beanstalk
+
+		'.elasticbeanstalk',
+	],
 	// Packages
 
 	pkgIgnores: [
@@ -601,12 +659,12 @@ export const defaultGitNPMIgnoresByCategory = {
 		// This category covers everything else we have in `./.npmignore`
 		// that isn’t already grouped in some other way by our exclusions.
 
+		'!.env.vault', // Exempt from broader dotfiles ignore.
+		'!.env.project', // Exempt from broader dotfiles ignoe.
+
 		// Note that `.tsbuildinfo` can also appear as `[name].tsbuildinfo`.
 		// It’s technically a `.` file, or should be. We treat it as such.
 		'*.tsbuildinfo', // Tracks progressive project builds (local only).
-
-		'!.env.vault',
-		'!.env.project',
 	],
 	// Types
 
