@@ -217,7 +217,10 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 		'._*', //
 		'.~*',
 		'.#*',
-		'.envs', // @todo Rename to `.#envs`.
+	],
+	'Envs': [
+		'.envs',
+		'*.env', //
 	],
 	'Logs': [
 		'*.log', //
@@ -234,22 +237,16 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 		'*.diff',
 	],
 	'Editors': {
-		'Vim': [
-			'.*.swp', //
+		'VS Code': [
+			'*.code-*', //
+			// '*.code-search',
+			// '*.code-workspace',
 		],
 		'IntelliJ': [
 			'.idea', //
 		],
-		'Sublime': [
-			'*.sublime-project', //
-			'*.sublime-workspace',
-		],
-		'Netbeans': [
-			'*.nbproject', //
-		],
-		'VS Code': [
-			'*.code-search', //
-			'*.code-workspace',
+		'Vim': [
+			'.*.swp', //
 		],
 		'CTAGs': [
 			'*.ctags', //
@@ -457,7 +454,12 @@ export const defaultGitNPMIgnoresByCategory = {
 		'._*', //
 		'.~*',
 		'.#*',
-		'.envs', // @todo Rename to `.#envs`.
+	],
+	// Envs
+
+	envIgnores: [
+		'.envs',
+		'*.env', //
 	],
 	// Logs
 
@@ -482,27 +484,19 @@ export const defaultGitNPMIgnoresByCategory = {
 	// Editors
 
 	editorIgnores: [
-		// Vim
+		// VS Code
 
-		'.*.swp',
+		'*.code-*',
+		// '*.code-search',
+		// '*.code-workspace',
 
 		// IntelliJ
 
 		'.idea',
 
-		// Sublime
+		// Vim
 
-		'*.sublime-project',
-		'*.sublime-workspace',
-
-		// Netbeans
-
-		'*.nbproject',
-
-		// VS Code
-
-		'*.code-search',
-		'*.code-workspace',
+		'.*.swp',
 
 		// CTAGs
 

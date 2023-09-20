@@ -25,14 +25,13 @@
 # Generated data.
 # <generated:start>
 
-# Last generated Wed, Sep 20, 2023, 12:59:25 AM EDT.
+# Last generated Wed, Sep 20, 2023, 1:19:07 AM EDT.
 
 # Locals
 
 ._*
 .~*
 .#*
-*.local
 
 # Logs
 
@@ -83,10 +82,8 @@
 
 # » Dotenv
 
-.env*
-.flaskenv*
-!.env.vault
-!.env.project
+.envs
+.env.me
 
 # » TypeScript
 

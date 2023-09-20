@@ -7,7 +7,7 @@
  * @note This entire file will be updated automatically.
  * @note Instead of editing here, please review `./settings.mjs`.
  *
- * Last generated using `./settings.mjs` Wed, Sep 20, 2023, 12:59:25 AM EDT.
+ * Last generated using `./settings.mjs` Wed, Sep 20, 2023, 1:19:07 AM EDT.
  */
 {
 	"editor.tabSize": 4,
@@ -68,17 +68,14 @@
 	"files.exclude": {
 		"**/._*/**": true,
 		"**/.~*/**": true,
-		"**/*.local/**": true,
 		"**/.*.swp/**": true,
 		"**/.idea/**": true,
 		"**/*.sublime-project/**": true,
 		"**/*.sublime-workspace/**": true,
 		"**/*.nbproject/**": true,
 		"**/*.ctags/**": true,
-		"**/.env*/**": true,
-		"**/.flaskenv*/**": true,
-		"**/.env.vault/**": false,
-		"**/.env.project/**": false,
+		"**/.envs/**": true,
+		"**/.env.me/**": true,
 		"**/.tscache/**": true,
 		"**/*.tsbuildinfo/**": true,
 		"**/.vite/**": true,
@@ -147,7 +144,7 @@
 	},
 	"commentAnchors.tags.matchCase": true,
 	"commentAnchors.tags.separators": [" ", ": "],
-	"commentAnchors.workspace.excludeFiles": "**/{*.log,*.logs,*~,*.bak,*.rej,*.orig,*.patch,*.diff,.*.swp,.idea,*.sublime-project,*.sublime-workspace,*.nbproject,*.code-search,*.code-workspace,*.ctags,.env*,.flaskenv*,.tscache,*.tsbuildinfo,.vite,.vitest,.wrangler,.dev.vars,.dev.vars.*,.rollup,.webpack,.linaria-cache,.sass-cache,.docker,.vagrant,.elasticbeanstalk,.yarn,vendor,node_modules,jspm_packages,bower_components,.git,.svn,_svn,.svnignore,.bzr,.bzrignore,.hg,.hgignore,Thumbs.db,ehthumbs.db,Desktop.ini,$RECYCLE.BIN,._*,Icon,*.icloud,.DS_Store,.disk_label,.LSOverride,.VolumeIcon.icns,.com.apple.timemachine.*,.apdisk,.fseventsd,.AppleDB,.AppleDesktop,.AppleDouble,.Trashes,.TemporaryItems,.Spotlight-V100,.DocumentRevisions-V100,Network Trash Folder,Temporary Items,yarn.lock,composer.lock,package-lock.json,dist}/**",
+	"commentAnchors.workspace.excludeFiles": "**/{*.log,*.logs,*~,*.bak,*.rej,*.orig,*.patch,*.diff,.*.swp,.idea,*.sublime-project,*.sublime-workspace,*.nbproject,*.code-search,*.code-workspace,*.ctags,.envs,.env.me,.tscache,*.tsbuildinfo,.vite,.vitest,.wrangler,.dev.vars,.dev.vars.*,.rollup,.webpack,.linaria-cache,.sass-cache,.docker,.vagrant,.elasticbeanstalk,.yarn,vendor,node_modules,jspm_packages,bower_components,.git,.svn,_svn,.svnignore,.bzr,.bzrignore,.hg,.hgignore,Thumbs.db,ehthumbs.db,Desktop.ini,$RECYCLE.BIN,._*,Icon,*.icloud,.DS_Store,.disk_label,.LSOverride,.VolumeIcon.icns,.com.apple.timemachine.*,.apdisk,.fseventsd,.AppleDB,.AppleDesktop,.AppleDouble,.Trashes,.TemporaryItems,.Spotlight-V100,.DocumentRevisions-V100,Network Trash Folder,Temporary Items,yarn.lock,composer.lock,package-lock.json,dist}/**",
 	"commentAnchors.workspace.matchFiles": "**/*.{mdx,md,atom,dtd,kml,rdf,rss,rss-http,rss2,svg,xhtm,xhtml,xml,xsd,xsl,xslt,ejs,htm,html,liquid,shtm,shtml,php,phps,phtm,phtml,rb,cgi,perl,pl,plx,ppl,py,bash,sh,zsh,js,jsx,cjs,cjsx,mjs,mjsx,ts,tsx,cts,ctsx,mts,mtsx}",
 	"eslint.enable": true,
 	"eslint.format.enable": true,
