@@ -234,7 +234,7 @@ export const types: Types = {
 	},
 	'Properties': {
 		'env': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
-		'properties|props': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
+		'props|properties': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
 	},
 	'Apache': {
 		'conf': { type: 'text/plain', isTextual: true, vsCodeLang: 'apacheconf' },

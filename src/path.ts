@@ -217,6 +217,7 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 		'._*', //
 		'.~*',
 		'.#*',
+		'.envs', // @todo Rename to `.#envs`.
 	],
 	'Logs': [
 		'*.log', //
@@ -256,8 +257,7 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 	},
 	'Tooling': {
 		'Dotenv': [
-			'.envs', //
-			'.env.me',
+			'.env.me', //
 		],
 		'TypeScript': [
 			'.tscache', //
@@ -457,6 +457,7 @@ export const defaultGitNPMIgnoresByCategory = {
 		'._*', //
 		'.~*',
 		'.#*',
+		'.envs', // @todo Rename to `.#envs`.
 	],
 	// Logs
 
@@ -512,7 +513,6 @@ export const defaultGitNPMIgnoresByCategory = {
 	toolingIgnores: [
 		// Dotenv
 
-		'.envs', //
 		'.env.me',
 
 		// TypeScript
