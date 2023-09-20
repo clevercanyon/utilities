@@ -276,7 +276,7 @@ export const types: Types = {
 
 		'gitconfig': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
 		'gitchange|gitattributes': { type: 'text/plain', isTextual: true, vsCodeLang: 'ignore' },
-		'gitignore|npmignore|eslintignore|prettierignore': { type: 'text/plain', isTextual: true, vsCodeLang: 'ignore' },
+		'gitignore|npmignore|dockerignore|vscodeignore|prettierignore|eslintignore': { type: 'text/plain', isTextual: true, vsCodeLang: 'ignore' },
 	},
 	// Media formats.
 
