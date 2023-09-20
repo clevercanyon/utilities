@@ -273,7 +273,16 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 	],
 	'Envs': [
 		'.envs',
-		'*.env', //
+		'*.env',
+
+		// These needed by Dotenv Vault, and to prevent dotfile contamination.
+		// i.e., Dotenv Vault appends these to ignore files if they don’t exist already.
+		// Note: *we* don’t *actually* need these — the two rules above will suffice.
+		// See: <https://o5p.me/mUn1tt> as a code reference.
+		'.env*',
+		'.flaskenv*',
+		'!.env.project',
+		'!.env.vault',
 	],
 	'Logs': [
 		'*.log', //
@@ -512,7 +521,16 @@ export const defaultGitNPMIgnoresByCategory = {
 
 	envIgnores: [
 		'.envs',
-		'*.env', //
+		'*.env',
+
+		// These needed by Dotenv Vault, and to prevent dotfile contamination.
+		// i.e., Dotenv Vault appends these to ignore files if they don’t exist already.
+		// Note: *we* don’t *actually* need these — the two rules above will suffice.
+		// See: <https://o5p.me/mUn1tt> as a code reference.
+		'.env*',
+		'.flaskenv*',
+		'!.env.project',
+		'!.env.vault',
 	],
 	// Logs
 
