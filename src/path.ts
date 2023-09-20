@@ -31,9 +31,14 @@ export type DefaultNPMIgnoresByGroup = { [x: string]: { [x: string]: string[] } 
 /**
  * Defines a braced dot globstars pattern.
  *
- * @note This braced pattern explicitly includes dots.
+ * Explicitly allows for dots, even if `{ dot: false }` is used in pattern matching implementation.
+ *
+ * @note Requires brace, extglob, and globstar support. All on by default in fast-glob/micromatch, and minimatch.
+ *       It may fall back to just straight-up globstar support (with caveats) whenever extglob is not available.
+ *       This will crash terribly in implementations lacking support for braces.
  */
-export const bracedDotGlobstars = '{**/*,**/.*,**/.*/**/*,**/.*/**/.*}';
+export const dotGlobstarHead = '{,**/,*(/|[^/\r\n])/}'; // Our testing covers this pattern.
+export const dotGlobstarTail = '{,/**,/*(/|[^/\r\n])}'; // Our testing covers this pattern.
 
 /**
  * Any extension RegExp.

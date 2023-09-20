@@ -43,6 +43,9 @@ describe('$path', async () => {
 		expect($path.globToRegExpString('**/abc/**/*', { dot: true })).toBe(
 			'^(?:(?:^|\\/|(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/)abc(?:\\/(?!\\.{1,2}(?:\\/|$))(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/|\\/|$)(?!\\.{1,2}(?:\\/|$))(?=.)[^/]*?\\/?)$',
 		);
+		expect($path.globToRegExpString($path.dotGlobstarHead + '*.{abc,xyz}' + $path.dotGlobstarTail)).toBe(
+			'^(?:(|(?:(?:(?!(?:^|\\/)\\.).)*?)\\/|(?:\\/|[^/\\r\\n])*\\/)[^/]*?\\.(abc|xyz)(|\\/(?!\\.)(?:(?:(?!(?:^|\\/)\\.).)*?)|\\/(?:\\/|[^/\\r\\n])*))$',
+		);
 	});
 	test('.newGitIgnore()', async () => {
 		const gitIgnore1 = $path.newGitIgnore();
