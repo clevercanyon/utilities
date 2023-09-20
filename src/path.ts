@@ -29,6 +29,13 @@ export type DefaultGitIgnoresByGroup = { [x: string]: { [x: string]: string[] } 
 export type DefaultNPMIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
 
 /**
+ * Defines a braced dot globstars pattern.
+ *
+ * @note This braced pattern explicitly includes dots.
+ */
+export const bracedDotGlobstars = '{**/*,**/.*,**/.*/**/*,**/.*/**/.*}';
+
+/**
  * Any extension RegExp.
  *
  * @note Matches unnamed dots also; e.g., `.[ext]`.
@@ -207,6 +214,47 @@ export const globToRegExpString = (glob: string, options?: globToRegExpStringOpt
 		.makeRe(glob, opts)
 		.toString()
 		.replace(/^\/|\/[^/]*$/gu, '');
+};
+
+/**
+ * Gets VS Code language extensions.
+ *
+ * @param   vsCodeLangs VS Code language ID(s).
+ *
+ * @returns             An array of language extensions.
+ */
+export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
+	let exts: string[] = []; // Initialize.
+	vsCodeLangs = $toꓺcastArray(vsCodeLangs);
+
+	for (const [, group] of Object.entries($mimeꓺtypes)) {
+		for (const [subgroupExts, subgroup] of Object.entries(group)) {
+			if (vsCodeLangs.includes(subgroup.vsCodeLang)) {
+				exts = exts.concat(subgroupExts.split('|'));
+			}
+		}
+	}
+	return [...new Set(exts.sort())]; // Unique extensions.
+};
+
+/**
+ * Gets all MIME-type extensions by VS Code lang ID.
+ *
+ * @returns An array of extensions by VS Code lang ID.
+ */
+export const extsByVSCodeLang = (): { [x: string]: string[] } => {
+	let exts: { [x: string]: string[] } = {}; // Initialize.
+
+	for (const [, group] of Object.entries($mimeꓺtypes)) {
+		for (const [subgroupExts, subgroup] of Object.entries(group)) {
+			exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang] || [];
+			exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang].concat(subgroupExts.split('|'));
+		}
+	}
+	for (const [vsCodeLang] of Object.entries(exts)) {
+		exts[vsCodeLang] = [...new Set(exts[vsCodeLang].sort())];
+	}
+	return exts; // Unique extensions within each VS Code lang ID group.
 };
 
 /**
@@ -736,47 +784,6 @@ export const defaultGitNPMIgnoresByCategory = {
 		'*.benchmark.*',
 		'*.benchmarks.*',
 	],
-};
-
-/**
- * Gets VS Code language extensions.
- *
- * @param   vsCodeLangs VS Code language ID(s).
- *
- * @returns             An array of language extensions.
- */
-export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
-	let exts: string[] = []; // Initialize.
-	vsCodeLangs = $toꓺcastArray(vsCodeLangs);
-
-	for (const [, group] of Object.entries($mimeꓺtypes)) {
-		for (const [subgroupExts, subgroup] of Object.entries(group)) {
-			if (vsCodeLangs.includes(subgroup.vsCodeLang)) {
-				exts = exts.concat(subgroupExts.split('|'));
-			}
-		}
-	}
-	return [...new Set(exts.sort())]; // Unique extensions.
-};
-
-/**
- * Gets all MIME-type extensions by VS Code lang ID.
- *
- * @returns An array of extensions by VS Code lang ID.
- */
-export const extsByVSCodeLang = (): { [x: string]: string[] } => {
-	let exts: { [x: string]: string[] } = {}; // Initialize.
-
-	for (const [, group] of Object.entries($mimeꓺtypes)) {
-		for (const [subgroupExts, subgroup] of Object.entries(group)) {
-			exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang] || [];
-			exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang].concat(subgroupExts.split('|'));
-		}
-	}
-	for (const [vsCodeLang] of Object.entries(exts)) {
-		exts[vsCodeLang] = [...new Set(exts[vsCodeLang].sort())];
-	}
-	return exts; // Unique extensions within each VS Code lang ID group.
 };
 
 /**
