@@ -17,7 +17,7 @@
 # Generated data.
 # <generated:start>
 
-# Last generated Tue, Sep 19, 2023, 11:53:13 PM EDT.
+# Last generated Wed, Sep 20, 2023, 12:39:32 AM EDT.
 
 # Default
 
@@ -249,8 +249,8 @@
 *.editorconfig text
 *.shellcheckrc text
 *.browserslistrc text
-*.gitchange text
 *.gitconfig text
+*.gitchange text
 *.gitattributes text
 *.gitignore text
 *.npmignore text
@@ -433,20 +433,20 @@
 
 *.key binary
 *.numbers binary
-*.pages binary# Specials
+*.pages binary
+
+# Special Cases
 
 *.env.* text
 CODEOWNERS text
-**/src/_headers text
-**/src/_redirects text
-**/src/cargo/_routes.json text
+/src/cargo/_headers text
+/src/cargo/_redirects text
 
 ##
 # LFS storage rules.
 ##
 
 lfs/** filter=lfs diff=lfs merge=lfs -text
-lfs-*/** filter=lfs diff=lfs merge=lfs -text
 
 # </generated:end>
 

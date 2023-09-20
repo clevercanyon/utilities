@@ -217,7 +217,6 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 		'._*', //
 		'.~*',
 		'.#*',
-		'*.local',
 	],
 	'Logs': [
 		'*.log', //
@@ -257,11 +256,8 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
 	},
 	'Tooling': {
 		'Dotenv': [
-			'.env*', //
-			'.flaskenv*',
-
-			'!.env.vault',
-			'!.env.project',
+			'.envs', //
+			'.env.me',
 		],
 		'TypeScript': [
 			'.tscache', //
@@ -461,7 +457,6 @@ export const defaultGitNPMIgnoresByCategory = {
 		'._*', //
 		'.~*',
 		'.#*',
-		'*.local',
 	],
 	// Logs
 
@@ -517,11 +512,8 @@ export const defaultGitNPMIgnoresByCategory = {
 	toolingIgnores: [
 		// Dotenv
 
-		'.env*', //
-		'.flaskenv*',
-
-		'!.env.vault',
-		'!.env.project',
+		'.envs', //
+		'.env.me',
 
 		// TypeScript
 
@@ -659,11 +651,8 @@ export const defaultGitNPMIgnoresByCategory = {
 		// This category covers everything else we have in `./.npmignore`
 		// that isn’t already grouped in some other way by our exclusions.
 
-		'!.env.vault', // Exempt from broader dotfiles ignore.
-		'!.env.project', // Exempt from broader dotfiles ignoe.
-
-		// Note that `.tsbuildinfo` can also appear as `[name].tsbuildinfo`.
-		// It’s technically a `.` file, or should be. We treat it as such.
+		// Note that `[name].tsbuildinfo` can also appear as `.tsbuildinfo`.
+		// So it’s technically a `.` file, or should be. We treat it as such.
 		'*.tsbuildinfo', // Tracks progressive project builds (local only).
 	],
 	// Types
