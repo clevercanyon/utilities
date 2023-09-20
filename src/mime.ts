@@ -270,7 +270,7 @@ export const types: Types = {
 		'yarnrc': { type: 'text/plain', isTextual: true, vsCodeLang: 'plaintext' },
 		'inputrc': { type: 'text/plain', isTextual: true, vsCodeLang: 'plaintext' },
 		'tsbuildinfo': { type: 'text/plain', isTextual: true, vsCodeLang: 'plaintext' },
-		'editorconfig': { type: 'text/plain', isTextual: true, vsCodeLang: 'editorconfig' },
+		'editorconfig': { type: 'text/plain', isTextual: true, vsCodeLang: 'properties' },
 		'shellcheckrc': { type: 'text/plain', isTextual: true, vsCodeLang: 'shellcheckrc' },
 		'browserslistrc': { type: 'text/plain', isTextual: true, vsCodeLang: 'browserslist' },
 
