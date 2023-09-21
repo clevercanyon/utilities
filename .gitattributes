@@ -17,7 +17,7 @@
 # Generated data.
 # <generated:start>
 
-# Last generated Wed, Sep 20, 2023, 1:19:07 AM EDT.
+# Last generated Wed, Sep 20, 2023, 10:17:10 PM EDT.
 
 # Default
 
@@ -198,8 +198,8 @@
 # Properties
 
 *.env text
-*.properties text
 *.props text
+*.properties text
 
 # Apache
 
@@ -254,8 +254,10 @@
 *.gitattributes text
 *.gitignore text
 *.npmignore text
-*.eslintignore text
+*.dockerignore text
+*.vscodeignore text
 *.prettierignore text
+*.eslintignore text
 
 # Image
 
