@@ -22,8 +22,8 @@ export type HashAlgorithm = 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
  * @returns     SHA-1 hash. 40 hexadecimals in length.
  */
 export const sha1 = $moizeꓺsvzAsync({ maxSize: 2 })(
-	// Memoized function.
-	async (str: string): Promise<string> => buildHash('sha-1', str),
+    // Memoized function.
+    async (str: string): Promise<string> => buildHash('sha-1', str),
 );
 
 /**
@@ -35,8 +35,8 @@ export const sha1 = $moizeꓺsvzAsync({ maxSize: 2 })(
  * @returns     HMAC SHA-1 hash. 40 hexadecimals in length.
  */
 export const hmacSHA1 = $moizeꓺsvzAsync({ maxSize: 2 })(
-	// Memoized function.
-	async (str: string, key: string): Promise<string> => buildHMACHash('sha-1', str, key),
+    // Memoized function.
+    async (str: string, key: string): Promise<string> => buildHMACHash('sha-1', str, key),
 );
 
 /**
@@ -47,8 +47,8 @@ export const hmacSHA1 = $moizeꓺsvzAsync({ maxSize: 2 })(
  * @returns     SHA-256 hash. 64 hexadecimals in length.
  */
 export const sha256 = $moizeꓺsvzAsync({ maxSize: 2 })(
-	// Memoized function.
-	async (str: string): Promise<string> => buildHash('sha-256', str),
+    // Memoized function.
+    async (str: string): Promise<string> => buildHash('sha-256', str),
 );
 
 /**
@@ -60,8 +60,8 @@ export const sha256 = $moizeꓺsvzAsync({ maxSize: 2 })(
  * @returns     HMAC SHA-256 hash. 64 hexadecimals in length.
  */
 export const hmacSHA256 = $moizeꓺsvz({ maxSize: 2 })(
-	// Memoized function.
-	async (str: string, key: string): Promise<string> => buildHMACHash('sha-256', str, key),
+    // Memoized function.
+    async (str: string, key: string): Promise<string> => buildHMACHash('sha-256', str, key),
 );
 
 /**
@@ -72,8 +72,8 @@ export const hmacSHA256 = $moizeꓺsvz({ maxSize: 2 })(
  * @returns     SHA-384 hash. 96 hexadecimals in length.
  */
 export const sha384 = $moizeꓺsvzAsync({ maxSize: 2 })(
-	// Memoized function.
-	async (str: string): Promise<string> => buildHash('sha-384', str),
+    // Memoized function.
+    async (str: string): Promise<string> => buildHash('sha-384', str),
 );
 
 /**
@@ -85,8 +85,8 @@ export const sha384 = $moizeꓺsvzAsync({ maxSize: 2 })(
  * @returns     HMAC SHA-384 hash. 96 hexadecimals in length.
  */
 export const hmacSHA384 = $moizeꓺsvz({ maxSize: 2 })(
-	// Memoized function.
-	async (str: string, key: string): Promise<string> => buildHMACHash('sha-384', str, key),
+    // Memoized function.
+    async (str: string, key: string): Promise<string> => buildHMACHash('sha-384', str, key),
 );
 
 /**
@@ -97,8 +97,8 @@ export const hmacSHA384 = $moizeꓺsvz({ maxSize: 2 })(
  * @returns     SHA-512 hash. 128 hexadecimals in length.
  */
 export const sha512 = $moizeꓺsvzAsync({ maxSize: 2 })(
-	// Memoized function.
-	async (str: string): Promise<string> => buildHash('sha-512', str),
+    // Memoized function.
+    async (str: string): Promise<string> => buildHash('sha-512', str),
 );
 
 /**
@@ -110,8 +110,8 @@ export const sha512 = $moizeꓺsvzAsync({ maxSize: 2 })(
  * @returns     HMAC SHA-512 hash. 128 hexadecimals in length.
  */
 export const hmacSHA512 = $moizeꓺsvz({ maxSize: 2 })(
-	// Memoized function.
-	async (str: string, key: string): Promise<string> => buildHMACHash('sha-512', str, key),
+    // Memoized function.
+    async (str: string, key: string): Promise<string> => buildHMACHash('sha-512', str, key),
 );
 
 /**
@@ -123,7 +123,7 @@ export const hmacSHA512 = $moizeꓺsvz({ maxSize: 2 })(
  * @returns     Random number between `min` and `max` inclusive.
  */
 export const randomNumber = (min: number = 1, max: number = Number.MAX_SAFE_INTEGER): number => {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 /**
@@ -212,93 +212,93 @@ export const randomNumber = (min: number = 1, max: number = Number.MAX_SAFE_INTE
  * @throws             If options exclude everything there is nothing to randomize.
  */
 export const randomString = (byteLength: number = 32, options?: RandomStringOptions): string => {
-	let str = '', // Initializes.
-		byteDictionary = ''; // Determined below.
+    let str = '', // Initializes.
+        byteDictionary = ''; // Determined below.
 
-	byteLength = Math.max(0, byteLength); // Cannot be shorter than zero bytes.
-	const opts = $objꓺdefaults({}, options || {}, { type: 'default', byteDictionary: '' }) as Required<RandomStringOptions>;
+    byteLength = Math.max(0, byteLength); // Cannot be shorter than zero bytes.
+    const opts = $objꓺdefaults({}, options || {}, { type: 'default', byteDictionary: '' }) as Required<RandomStringOptions>;
 
-	if (opts.byteDictionary) {
-		byteDictionary = opts.byteDictionary; // Established by options.
-	} else {
-		const byteGroups: { [x: string]: string } = {
-			numbers: '0123456789',
-			lowerLetters: 'abcdefghijklmnopqrstuvwxyz',
-			upperLetters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-			symbols: '`~!@#$%^&*+-=_()[]{}<>|\\/?.,;:\'"',
-		};
-		const byteExclusionGroups: { [x: string]: RegExp } = {
-			similar: /[iIlL|1oO0]/gu,
-			ambiguous: /[$`~()[\]{}<>\\/.,;:'"]/gu,
-			urlUnsafe: /[^a-zA-Z0-9.~_-]/gu,
-		};
-		switch (opts.type) {
-			case 'alphabetic': {
-				byteDictionary += byteGroups.lowerLetters;
-				byteDictionary += byteGroups.upperLetters;
-				break;
-			}
-			case 'lower-alphabetic': {
-				byteDictionary += byteGroups.lowerLetters;
-				break;
-			}
-			case 'upper-alphabetic': {
-				byteDictionary += byteGroups.upperLetters;
-				break;
-			}
-			case 'alphanumeric': {
-				byteDictionary += byteGroups.numbers;
-				byteDictionary += byteGroups.lowerLetters;
-				byteDictionary += byteGroups.upperLetters;
-				break;
-			}
-			case 'lower-alphanumeric': {
-				byteDictionary += byteGroups.numbers;
-				byteDictionary += byteGroups.lowerLetters;
-				break;
-			}
-			case 'upper-alphanumeric': {
-				byteDictionary += byteGroups.numbers;
-				byteDictionary += byteGroups.upperLetters;
-				break;
-			}
-			case 'numeric': {
-				byteDictionary += byteGroups.numbers;
-				break;
-			}
-			case 'cryptic':
-			case 'url-safe':
-			case 'default':
-			default: {
-				byteDictionary += byteGroups.numbers;
-				byteDictionary += byteGroups.lowerLetters;
-				byteDictionary += byteGroups.upperLetters;
-				byteDictionary += byteGroups.symbols;
-			}
-		}
-		switch (opts.type) {
-			case 'cryptic': {
-				break; // No exclusions.
-			}
-			case 'default':
-			default: {
-				// Unless `{ type: 'cryptic' }`, these are excluded always.
-				byteDictionary = byteDictionary.replace(byteExclusionGroups.similar, '');
-				byteDictionary = byteDictionary.replace(byteExclusionGroups.ambiguous, '');
+    if (opts.byteDictionary) {
+        byteDictionary = opts.byteDictionary; // Established by options.
+    } else {
+        const byteGroups: { [x: string]: string } = {
+            numbers: '0123456789',
+            lowerLetters: 'abcdefghijklmnopqrstuvwxyz',
+            upperLetters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            symbols: '`~!@#$%^&*+-=_()[]{}<>|\\/?.,;:\'"',
+        };
+        const byteExclusionGroups: { [x: string]: RegExp } = {
+            similar: /[iIlL|1oO0]/gu,
+            ambiguous: /[$`~()[\]{}<>\\/.,;:'"]/gu,
+            urlUnsafe: /[^a-zA-Z0-9.~_-]/gu,
+        };
+        switch (opts.type) {
+            case 'alphabetic': {
+                byteDictionary += byteGroups.lowerLetters;
+                byteDictionary += byteGroups.upperLetters;
+                break;
+            }
+            case 'lower-alphabetic': {
+                byteDictionary += byteGroups.lowerLetters;
+                break;
+            }
+            case 'upper-alphabetic': {
+                byteDictionary += byteGroups.upperLetters;
+                break;
+            }
+            case 'alphanumeric': {
+                byteDictionary += byteGroups.numbers;
+                byteDictionary += byteGroups.lowerLetters;
+                byteDictionary += byteGroups.upperLetters;
+                break;
+            }
+            case 'lower-alphanumeric': {
+                byteDictionary += byteGroups.numbers;
+                byteDictionary += byteGroups.lowerLetters;
+                break;
+            }
+            case 'upper-alphanumeric': {
+                byteDictionary += byteGroups.numbers;
+                byteDictionary += byteGroups.upperLetters;
+                break;
+            }
+            case 'numeric': {
+                byteDictionary += byteGroups.numbers;
+                break;
+            }
+            case 'cryptic':
+            case 'url-safe':
+            case 'default':
+            default: {
+                byteDictionary += byteGroups.numbers;
+                byteDictionary += byteGroups.lowerLetters;
+                byteDictionary += byteGroups.upperLetters;
+                byteDictionary += byteGroups.symbols;
+            }
+        }
+        switch (opts.type) {
+            case 'cryptic': {
+                break; // No exclusions.
+            }
+            case 'default':
+            default: {
+                // Unless `{ type: 'cryptic' }`, these are excluded always.
+                byteDictionary = byteDictionary.replace(byteExclusionGroups.similar, '');
+                byteDictionary = byteDictionary.replace(byteExclusionGroups.ambiguous, '');
 
-				if ('url-safe' === opts.type) {
-					byteDictionary = byteDictionary.replace(byteExclusionGroups.urlUnsafe, '');
-				}
-			}
-		}
-	}
-	if (byteDictionary.length <= 1) {
-		throw new Error('Byte dictionary length is `<= 1`.');
-	}
-	for (let i = 0; i < byteLength; i++) {
-		str += byteDictionary.at(randomNumber(0, byteDictionary.length - 1));
-	}
-	return str;
+                if ('url-safe' === opts.type) {
+                    byteDictionary = byteDictionary.replace(byteExclusionGroups.urlUnsafe, '');
+                }
+            }
+        }
+    }
+    if (byteDictionary.length <= 1) {
+        throw new Error('Byte dictionary length is `<= 1`.');
+    }
+    for (let i = 0; i < byteLength; i++) {
+        str += byteDictionary.at(randomNumber(0, byteDictionary.length - 1));
+    }
+    return str;
 };
 
 /**
@@ -309,8 +309,8 @@ export const randomString = (byteLength: number = 32, options?: RandomStringOpti
  * @returns         Version 4 UUID (32 bytes w/o dashes, 36 bytes with dashes).
  */
 export const uuidV4 = (options?: UUIDV4Options): string => {
-	const opts = $objꓺdefaults({}, options || {}, { dashes: false }) as Required<UUIDV4Options>;
-	return opts.dashes ? crypto.randomUUID() : crypto.randomUUID().replace(/-/gu, '');
+    const opts = $objꓺdefaults({}, options || {}, { dashes: false }) as Required<UUIDV4Options>;
+    return opts.dashes ? crypto.randomUUID() : crypto.randomUUID().replace(/-/gu, '');
 };
 
 /**
@@ -321,9 +321,9 @@ export const uuidV4 = (options?: UUIDV4Options): string => {
  * @returns        Stringified buffer as hexadecimals.
  */
 const bufferToHex = (buffer: ArrayBuffer): string => {
-	return Array.from(new Uint8Array(buffer))
-		.map((bin) => bin.toString(16).padStart(2, '0'))
-		.join('');
+    return Array.from(new Uint8Array(buffer))
+        .map((bin) => bin.toString(16).padStart(2, '0'))
+        .join('');
 };
 
 /**
@@ -334,7 +334,7 @@ const bufferToHex = (buffer: ArrayBuffer): string => {
  * @returns      Hash promise, of variable length, based on selected algorithm.
  */
 const buildHash = async (algo: HashAlgorithm, str: string): Promise<string> => {
-	return bufferToHex(await crypto.subtle.digest(algo, textEncoder.encode(str)));
+    return bufferToHex(await crypto.subtle.digest(algo, textEncoder.encode(str)));
 };
 
 /**
@@ -345,6 +345,6 @@ const buildHash = async (algo: HashAlgorithm, str: string): Promise<string> => {
  * @returns      HMAC keyed hash promise, of variable length, based on selected algorithm.
  */
 const buildHMACHash = async (algo: HashAlgorithm, str: string, key: string): Promise<string> => {
-	const cryptoKey = await crypto.subtle.importKey('raw', textEncoder.encode(key || '\0'), { name: 'hmac', hash: { name: algo } }, false, ['sign', 'verify']);
-	return bufferToHex(await crypto.subtle.sign('hmac', cryptoKey, textEncoder.encode(str)));
+    const cryptoKey = await crypto.subtle.importKey('raw', textEncoder.encode(key || '\0'), { name: 'hmac', hash: { name: algo } }, false, ['sign', 'verify']);
+    return bufferToHex(await crypto.subtle.sign('hmac', cryptoKey, textEncoder.encode(str)));
 };

@@ -6,15 +6,15 @@ import { DateTime as Time } from 'luxon';
 import { pkgName as $appꓺpkgName } from './app.ts';
 import type { $type } from './index.ts';
 import {
-	array as $isꓺarray,
-	date as $isꓺdate,
-	float as $isꓺfloat,
-	number as $isꓺnumber,
-	numeric as $isꓺnumeric,
-	object as $isꓺobject,
-	plainObject as $isꓺplainObject,
-	string as $isꓺstring,
-	time as $isꓺtime, //
+    array as $isꓺarray,
+    date as $isꓺdate,
+    float as $isꓺfloat,
+    number as $isꓺnumber,
+    numeric as $isꓺnumeric,
+    object as $isꓺobject,
+    plainObject as $isꓺplainObject,
+    string as $isꓺstring,
+    time as $isꓺtime, //
 } from './is.ts';
 import { defaults as $objꓺdefaults, pick as $objꓺpick } from './obj.ts';
 import { objTag as $symbolꓺobjTag, objToClone as $symbolꓺobjToClone, objToPlain as $symbolꓺobjToPlain } from './symbol.ts';
@@ -30,19 +30,19 @@ export type From = number | string | Date | $type.Time | object | [string, strin
  * Enhances Time prototype.
  */
 Object.defineProperty(Time.prototype, $symbolꓺobjTag, {
-	get: function (this: $type.Time): ReturnType<$type.ObjTagFn> {
-		return $appꓺpkgName + '/Time'; // {@see $obj.tag()}.
-	},
+    get: function (this: $type.Time): ReturnType<$type.ObjTagFn> {
+        return $appꓺpkgName + '/Time'; // {@see $obj.tag()}.
+    },
 });
 Object.defineProperty(Time.prototype, $symbolꓺobjToPlain, {
-	value: function (this: $type.Time): ReturnType<$type.ObjToPlainSymbolFn> {
-		return this.setZone('utc').toObject(); // See: <https://o5p.me/4iEe01>.
-	},
+    value: function (this: $type.Time): ReturnType<$type.ObjToPlainSymbolFn> {
+        return this.setZone('utc').toObject(); // See: <https://o5p.me/4iEe01>.
+    },
 });
 Object.defineProperty(Time.prototype, $symbolꓺobjToClone, {
-	value: function (this: $type.Time): ReturnType<$type.ObjToCloneSymbolFn> {
-		return this.reconfigure({}); // See: <https://o5p.me/dXNmVy>.
-	},
+    value: function (this: $type.Time): ReturnType<$type.ObjToCloneSymbolFn> {
+        return this.reconfigure({}); // See: <https://o5p.me/dXNmVy>.
+    },
 });
 
 /**
@@ -69,7 +69,7 @@ export const currentUser = new Intl.DateTimeFormat().resolvedOptions();
  * @returns      Timestamp in whole seconds, as an integer.
  */
 export const stamp = (from: From = 'now'): number => {
-	return parse(from).toUnixInteger();
+    return parse(from).toUnixInteger();
 };
 
 /**
@@ -84,7 +84,7 @@ export const stamp = (from: From = 'now'): number => {
  * @returns      Timestamp in seconds, as a float, supporting fractional seconds.
  */
 export const floatStamp = (from: From = 'now'): number => {
-	return parse(from).toSeconds();
+    return parse(from).toSeconds();
 };
 
 /**
@@ -99,7 +99,7 @@ export const floatStamp = (from: From = 'now'): number => {
  * @returns      Timestamp in whole milliseconds, as an integer.
  */
 export const milliStamp = (from: From = 'now'): number => {
-	return parse(from).toMillis();
+    return parse(from).toMillis();
 };
 
 /**
@@ -108,20 +108,20 @@ export const milliStamp = (from: From = 'now'): number => {
  * @note {@see i18n()} `format` option.
  */
 export const i18nFormats = {
-	date: {
-		weekday: 'short',
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric',
-	},
-	time: {
-		hour: 'numeric',
-		hourCycle: 'h12',
-		minute: '2-digit',
-		second: '2-digit',
-		timeZoneName: 'short',
-	},
-	dateTime: {}, // Initialize only; set below.
+    date: {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+    },
+    time: {
+        hour: 'numeric',
+        hourCycle: 'h12',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZoneName: 'short',
+    },
+    dateTime: {}, // Initialize only; set below.
 };
 i18nFormats.dateTime = { ...i18nFormats.date, ...i18nFormats.time };
 
@@ -147,24 +147,24 @@ i18nFormats.dateTime = { ...i18nFormats.date, ...i18nFormats.time };
  * @returns         By default, datetime in full w/ seconds, using current user’s zone/locale.
  */
 export const i18n = (from: From = 'now', options?: I18nOptions): string => {
-	const defaultOpts = {
-		zone: currentUser.timeZone,
-		locale: currentUser.locale,
-		format: i18nFormats.dateTime,
-	};
-	const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<I18nOptions>;
-	const time = parse(from, $objꓺpick(opts, ['zone', 'locale']) as ParseOptions);
+    const defaultOpts = {
+        zone: currentUser.timeZone,
+        locale: currentUser.locale,
+        format: i18nFormats.dateTime,
+    };
+    const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<I18nOptions>;
+    const time = parse(from, $objꓺpick(opts, ['zone', 'locale']) as ParseOptions);
 
-	if ($isꓺstring(opts.format)) {
-		const T = Time as unknown as $type.Object;
-		const format = opts.format.replace(/-/gu, '_').toUpperCase();
+    if ($isꓺstring(opts.format)) {
+        const T = Time as unknown as $type.Object;
+        const format = opts.format.replace(/-/gu, '_').toUpperCase();
 
-		if ($isꓺobject(T[format])) {
-			return time.toLocaleString(T[format] as object).replace(/\s+/gu, ' ');
-		}
-		throw new Error('Invalid format: `' + format + '`.');
-	}
-	return time.toLocaleString(opts.format).replace(/\s+/gu, ' ');
+        if ($isꓺobject(T[format])) {
+            return time.toLocaleString(T[format] as object).replace(/\s+/gu, ' ');
+        }
+        throw new Error('Invalid format: `' + format + '`.');
+    }
+    return time.toLocaleString(opts.format).replace(/\s+/gu, ' ');
 };
 
 /**
@@ -187,53 +187,53 @@ export const i18n = (from: From = 'now', options?: I18nOptions): string => {
  * @note See <https://o5p.me/mVQqsS> for the full list of all TZ database codes.
  */
 export const parse = (from: From = 'now', options?: ParseOptions): $type.Time => {
-	const defaultOpts = { zone: 'utc', locale: 'en-US' };
-	const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<ParseOptions>;
+    const defaultOpts = { zone: 'utc', locale: 'en-US' };
+    const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<ParseOptions>;
 
-	opts.zone = 'local' === opts.zone ? currentUser.timeZone : opts.zone;
-	opts.locale = 'local' === opts.locale ? currentUser.locale : opts.locale;
+    opts.zone = 'local' === opts.zone ? currentUser.timeZone : opts.zone;
+    opts.locale = 'local' === opts.locale ? currentUser.locale : opts.locale;
 
-	let time: $type.Time | undefined; // Initialize.
+    let time: $type.Time | undefined; // Initialize.
 
-	if ('now' === from) {
-		time = Time.now();
-		//
-	} else if ($isꓺnumber(from) || ($isꓺnumeric(from) && /^[0-9]{10,}/u.test(from))) {
-		from = Number(from); // Force number value.
+    if ('now' === from) {
+        time = Time.now();
+        //
+    } else if ($isꓺnumber(from) || ($isꓺnumeric(from) && /^[0-9]{10,}/u.test(from))) {
+        from = Number(from); // Force number value.
 
-		if ($isꓺfloat(from) || (from as number).toString().length <= 10) {
-			time = Time.fromSeconds(from);
-		} else {
-			time = Time.fromMillis(from);
-		}
-	} else if ($isꓺstring(from)) {
-		// HTTP: RFC-2616; e.g., `Tue, 21 Feb 2023 13:16:32 GMT` (always GMT).
-		if (/^[a-z]{3}, [0-9]{2} [a-z]{3} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} GMT$/iu.test(from)) {
-			time = Time.fromHTTP(from);
-			//
-			// SQL: e.g., `2023-02-21[ 13:16:32[.000][Z|+00:00| Z| +00:00| America/New_York]]`.
-		} else if (/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?: [0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{3})?(?:\s?Z|\s?[+-][0-9]{2}:[0-9]{2}|\s[A-Za-z0-9+\-_/]+)?)?$/u.test(from)) {
-			time = Time.fromSQL(from, { zone: 'utc' });
-			//
-		} /* ISO-8601: e.g., `2023-W08-2`, `20230221`, `0000[00[.000]]Z`, `00:00[:00[.000]]Z`, `20230221[T1316[32[.000]][Z|+0000]]`, `2023-02-21[T13:16[:32[.000]][Z|+00:00]]`. */ else {
-			time = Time.fromISO(from, { zone: 'utc' });
-		}
-	} else if ($isꓺdate(from)) {
-		time = Time.fromJSDate(from);
-		//
-	} else if ($isꓺtime(from)) {
-		time = Time.fromISO(from.toISO() || '');
-		//
-	} else if ($isꓺplainObject(from)) {
-		time = Time.fromObject(from, { zone: 'utc' });
-		//
-	} else if ($isꓺarray(from) && 2 === from.length) {
-		time = Time.fromFormat(String(from[0]), String(from[1]), { zone: 'utc' });
-	}
-	if (!time || !time.isValid) {
-		throw new Error('Unable to parse time from: `' + String(from) + '`.');
-	}
-	return time.setZone(opts.zone).setLocale(opts.locale);
+        if ($isꓺfloat(from) || (from as number).toString().length <= 10) {
+            time = Time.fromSeconds(from);
+        } else {
+            time = Time.fromMillis(from);
+        }
+    } else if ($isꓺstring(from)) {
+        // HTTP: RFC-2616; e.g., `Tue, 21 Feb 2023 13:16:32 GMT` (always GMT).
+        if (/^[a-z]{3}, [0-9]{2} [a-z]{3} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} GMT$/iu.test(from)) {
+            time = Time.fromHTTP(from);
+            //
+            // SQL: e.g., `2023-02-21[ 13:16:32[.000][Z|+00:00| Z| +00:00| America/New_York]]`.
+        } else if (/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?: [0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{3})?(?:\s?Z|\s?[+-][0-9]{2}:[0-9]{2}|\s[A-Za-z0-9+\-_/]+)?)?$/u.test(from)) {
+            time = Time.fromSQL(from, { zone: 'utc' });
+            //
+        } /* ISO-8601: e.g., `2023-W08-2`, `20230221`, `0000[00[.000]]Z`, `00:00[:00[.000]]Z`, `20230221[T1316[32[.000]][Z|+0000]]`, `2023-02-21[T13:16[:32[.000]][Z|+00:00]]`. */ else {
+            time = Time.fromISO(from, { zone: 'utc' });
+        }
+    } else if ($isꓺdate(from)) {
+        time = Time.fromJSDate(from);
+        //
+    } else if ($isꓺtime(from)) {
+        time = Time.fromISO(from.toISO() || '');
+        //
+    } else if ($isꓺplainObject(from)) {
+        time = Time.fromObject(from, { zone: 'utc' });
+        //
+    } else if ($isꓺarray(from) && 2 === from.length) {
+        time = Time.fromFormat(String(from[0]), String(from[1]), { zone: 'utc' });
+    }
+    if (!time || !time.isValid) {
+        throw new Error('Unable to parse time from: `' + String(from) + '`.');
+    }
+    return time.setZone(opts.zone).setLocale(opts.locale);
 };
 
 /**

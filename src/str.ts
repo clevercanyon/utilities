@@ -52,7 +52,7 @@ export type { MMOptions as MMOptions };
  * @returns     Length in bytes.
  */
 export const byteLength = (str: string): number => {
-	return toBytes(str).length;
+    return toBytes(str).length;
 };
 
 /**
@@ -63,7 +63,7 @@ export const byteLength = (str: string): number => {
  * @returns     Length in characters.
  */
 export const charLength = (str: string): number => {
-	return toChars(str).length;
+    return toChars(str).length;
 };
 
 /**
@@ -74,7 +74,7 @@ export const charLength = (str: string): number => {
  * @returns     Byte array.
  */
 export const toBytes = (str: string): Uint8Array => {
-	return textEncoder.encode(str);
+    return textEncoder.encode(str);
 };
 
 /**
@@ -85,7 +85,7 @@ export const toBytes = (str: string): Uint8Array => {
  * @returns       String.
  */
 export const fromBytes = (bytes: Uint8Array): string => {
-	return textDecoder.decode(bytes);
+    return textDecoder.decode(bytes);
 };
 
 /**
@@ -96,7 +96,7 @@ export const fromBytes = (bytes: Uint8Array): string => {
  * @returns     Characters array.
  */
 export const toChars = (str: string): string[] => {
-	return [...str];
+    return [...str];
 };
 
 /**
@@ -107,7 +107,7 @@ export const toChars = (str: string): string[] => {
  * @returns       String.
  */
 export const fromChars = (chars: string[]): string => {
-	return chars.join('');
+    return chars.join('');
 };
 
 /**
@@ -118,7 +118,7 @@ export const fromChars = (chars: string[]): string => {
  * @returns     Modified string.
  */
 export const deburr = (str: string): string => {
-	return str.normalize('NFKD').replace(/[\p{Diacritic}]/gu, '');
+    return str.normalize('NFKD').replace(/[\p{Diacritic}]/gu, '');
 };
 
 /**
@@ -129,9 +129,9 @@ export const deburr = (str: string): string => {
  * @returns     Modified string.
  */
 export const asciiOnly = (str: string): string => {
-	return deburr(str)
-		.replaceAll('ꓺ', '..')
-		.replace(/[^\p{ASCII}]/gu, '');
+    return deburr(str)
+        .replaceAll('ꓺ', '..')
+        .replace(/[^\p{ASCII}]/gu, '');
 };
 
 /**
@@ -144,11 +144,11 @@ export const asciiOnly = (str: string): string => {
  * @see $obp.splitPath()
  */
 export const obpPartSafe = (str: string): string => {
-	return str
-		.replace(/\[/gu, '\u{298D}') // `⦍`.
-		.replace(/\]/gu, '\u{298E}') // `⦎`.
-		.replace(/\./gu, '\u{1C79}') // `ᱹ`.
-		.replace(/ꓺ/gu, '\u{1C79}\u{1C79}'); // `ᱹᱹ`.
+    return str
+        .replace(/\[/gu, '\u{298D}') // `⦍`.
+        .replace(/\]/gu, '\u{298E}') // `⦎`.
+        .replace(/\./gu, '\u{1C79}') // `ᱹ`.
+        .replace(/ꓺ/gu, '\u{1C79}\u{1C79}'); // `ᱹᱹ`.
 };
 
 /**
@@ -164,34 +164,34 @@ export const obpPartSafe = (str: string): string => {
  * @returns                 Trimmed string.
  */
 export const trim = (str: string, additionalChars?: string, options?: TrimOptions): string => {
-	const opts = $objꓺdefaults({}, options || {}, { left: true, right: true }) as Required<TrimOptions>;
+    const opts = $objꓺdefaults({}, options || {}, { left: true, right: true }) as Required<TrimOptions>;
 
-	let regExp: RegExp; // Initialize.
+    let regExp: RegExp; // Initialize.
 
-	if (additionalChars) {
-		const escAdditionalChars = escRegExp(additionalChars);
+    if (additionalChars) {
+        const escAdditionalChars = escRegExp(additionalChars);
 
-		if (opts.left && !opts.right) {
-			regExp = new RegExp('^[\\s' + escAdditionalChars + ']+', 'gu');
-			//
-		} else if (opts.right && !opts.left) {
-			regExp = new RegExp('[\\s' + escAdditionalChars + ']+$', 'gu');
-			//
-		} else {
-			regExp = new RegExp('^[\\s' + escAdditionalChars + ']+|[\\s' + escAdditionalChars + ']+$', 'gu');
-		}
-	} else {
-		if (opts.left && !opts.right) {
-			regExp = /^\s+/gu;
-			//
-		} else if (opts.right && !opts.left) {
-			regExp = /\s+$/gu;
-			//
-		} else {
-			regExp = /^\s+|\s+$/gu;
-		}
-	}
-	return str.replace(regExp, '');
+        if (opts.left && !opts.right) {
+            regExp = new RegExp('^[\\s' + escAdditionalChars + ']+', 'gu');
+            //
+        } else if (opts.right && !opts.left) {
+            regExp = new RegExp('[\\s' + escAdditionalChars + ']+$', 'gu');
+            //
+        } else {
+            regExp = new RegExp('^[\\s' + escAdditionalChars + ']+|[\\s' + escAdditionalChars + ']+$', 'gu');
+        }
+    } else {
+        if (opts.left && !opts.right) {
+            regExp = /^\s+/gu;
+            //
+        } else if (opts.right && !opts.left) {
+            regExp = /\s+$/gu;
+            //
+        } else {
+            regExp = /^\s+|\s+$/gu;
+        }
+    }
+    return str.replace(regExp, '');
 };
 
 /**
@@ -207,7 +207,7 @@ export const trim = (str: string, additionalChars?: string, options?: TrimOption
  * @returns                 Left-trimmed string.
  */
 export const lTrim = (str: string, additionalChars?: string, options?: TrimOptions): string => {
-	return trim(str, additionalChars, { ...(options || {}), left: true, right: false });
+    return trim(str, additionalChars, { ...(options || {}), left: true, right: false });
 };
 
 /**
@@ -223,7 +223,7 @@ export const lTrim = (str: string, additionalChars?: string, options?: TrimOptio
  * @returns                 Right-trimmed string.
  */
 export const rTrim = (str: string, additionalChars?: string, options?: TrimOptions): string => {
-	return trim(str, additionalChars, { ...(options || {}), left: false, right: true });
+    return trim(str, additionalChars, { ...(options || {}), left: false, right: true });
 };
 
 /**
@@ -234,15 +234,15 @@ export const rTrim = (str: string, additionalChars?: string, options?: TrimOptio
  * @returns     Possibly clipped string.
  */
 export const clip = (str: string, options?: ClipOptions): string => {
-	const opts = $objꓺdefaults({}, options || {}, { maxBytes: Infinity, maxChars: Infinity, indicator: '[…]' }) as Required<ClipOptions>;
+    const opts = $objꓺdefaults({}, options || {}, { maxBytes: Infinity, maxChars: Infinity, indicator: '[…]' }) as Required<ClipOptions>;
 
-	if ($isꓺsafeArrayKey(opts.maxBytes) && opts.maxBytes > 0 && byteLength(str) > opts.maxBytes) {
-		str = fromBytes(toBytes(str).slice(0, Math.max(0, opts.maxBytes - byteLength(opts.indicator)))) + opts.indicator;
-		//
-	} else if ($isꓺsafeArrayKey(opts.maxChars) && opts.maxChars > 0 && charLength(str) > opts.maxChars) {
-		str = fromChars(toChars(str).slice(0, Math.max(0, opts.maxChars - charLength(opts.indicator)))) + opts.indicator;
-	}
-	return str;
+    if ($isꓺsafeArrayKey(opts.maxBytes) && opts.maxBytes > 0 && byteLength(str) > opts.maxBytes) {
+        str = fromBytes(toBytes(str).slice(0, Math.max(0, opts.maxBytes - byteLength(opts.indicator)))) + opts.indicator;
+        //
+    } else if ($isꓺsafeArrayKey(opts.maxChars) && opts.maxChars > 0 && charLength(str) > opts.maxChars) {
+        str = fromChars(toChars(str).slice(0, Math.max(0, opts.maxChars - charLength(opts.indicator)))) + opts.indicator;
+    }
+    return str;
 };
 
 /**
@@ -253,17 +253,17 @@ export const clip = (str: string, options?: ClipOptions): string => {
  * @returns     Array of all words.
  */
 export const splitWords = (str: string, options?: SplitWordOptions): string[] => {
-	const opts = $objꓺdefaults({}, options || {}, { whitespaceOnly: false }) as Required<SplitWordOptions>;
+    const opts = $objꓺdefaults({}, options || {}, { whitespaceOnly: false }) as Required<SplitWordOptions>;
 
-	if (opts.whitespaceOnly) {
-		return str.split(/\s+/u); // Whitespace only.
-	}
-	return str
-		.split(wordSplittingRegExp)
-		.map((v: string): string => v.trim())
-		.filter((v: string): boolean => {
-			return '' === v || /^[^\p{L}\p{N}]+$/u.test(v) ? false : true;
-		});
+    if (opts.whitespaceOnly) {
+        return str.split(/\s+/u); // Whitespace only.
+    }
+    return str
+        .split(wordSplittingRegExp)
+        .map((v: string): string => v.trim())
+        .filter((v: string): boolean => {
+            return '' === v || /^[^\p{L}\p{N}]+$/u.test(v) ? false : true;
+        });
 };
 
 /**
@@ -274,12 +274,12 @@ export const splitWords = (str: string, options?: SplitWordOptions): string[] =>
  * @returns     Modified string.
  */
 export const lowerFirst = (str: string): string => {
-	const arr = [...str]; // Splits characters.
+    const arr = [...str]; // Splits characters.
 
-	if (arr[0] /* Lowercase first character. */) {
-		arr[0] = arr[0].toLowerCase();
-	}
-	return arr.join('');
+    if (arr[0] /* Lowercase first character. */) {
+        arr[0] = arr[0].toLowerCase();
+    }
+    return arr.join('');
 };
 
 /**
@@ -290,12 +290,12 @@ export const lowerFirst = (str: string): string => {
  * @returns     Modified string.
  */
 export const upperFirst = (str: string): string => {
-	const arr = [...str]; // Splits characters.
+    const arr = [...str]; // Splits characters.
 
-	if (arr[0] /* Uppercase first character. */) {
-		arr[0] = arr[0].toUpperCase();
-	}
-	return arr.join('');
+    if (arr[0] /* Uppercase first character. */) {
+        arr[0] = arr[0].toUpperCase();
+    }
+    return arr.join('');
 };
 
 /**
@@ -306,12 +306,12 @@ export const upperFirst = (str: string): string => {
  * @returns     Modified string.
  */
 export const capitalize = (str: string): string => {
-	const arr = [...str.toLowerCase()]; // Splits characters.
+    const arr = [...str.toLowerCase()]; // Splits characters.
 
-	if (arr[0] /* Uppercase first character. */) {
-		arr[0] = arr[0].toUpperCase();
-	}
-	return arr.join('');
+    if (arr[0] /* Uppercase first character. */) {
+        arr[0] = arr[0].toUpperCase();
+    }
+    return arr.join('');
 };
 
 /**
@@ -326,16 +326,16 @@ export const capitalize = (str: string): string => {
  * @someday For some added inspiration, see: <https://o5p.me/DChQQ2>.
  */
 export const titleCase = (str: string, options?: TitleCaseOptions): string => {
-	const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<TitleCaseOptions>;
-	let words = splitWords(str, { whitespaceOnly: opts.splitOnWhitespaceOnly }); // Splits words intelligently.
+    const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<TitleCaseOptions>;
+    let words = splitWords(str, { whitespaceOnly: opts.splitOnWhitespaceOnly }); // Splits words intelligently.
 
-	if (opts.asciiOnly /* Split again. */) {
-		words = splitWords(asciiOnly(words.join(' ')), { whitespaceOnly: opts.splitOnWhitespaceOnly });
-	}
-	for (let key = 0; key < words.length; key++) {
-		words[key] = words[key].split(/([\p{Pd}]+)/u).map((word) => capitalize(word)).join(''); // prettier-ignore
-	}
-	return words.join(' ');
+    if (opts.asciiOnly /* Split again. */) {
+        words = splitWords(asciiOnly(words.join(' ')), { whitespaceOnly: opts.splitOnWhitespaceOnly });
+    }
+    for (let key = 0; key < words.length; key++) {
+        words[key] = words[key].split(/([\p{Pd}]+)/u).map((word) => capitalize(word)).join(''); // prettier-ignore
+    }
+    return words.join(' ');
 };
 
 /**
@@ -347,13 +347,13 @@ export const titleCase = (str: string, options?: TitleCaseOptions): string => {
  * @returns         Modified string.
  */
 export const lowerCase = (str: string, options?: LowerCaseOptions): string => {
-	const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<LowerCaseOptions>;
-	let words = splitWords(str, { whitespaceOnly: opts.splitOnWhitespaceOnly }); // Splits words intelligently.
+    const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<LowerCaseOptions>;
+    let words = splitWords(str, { whitespaceOnly: opts.splitOnWhitespaceOnly }); // Splits words intelligently.
 
-	if (opts.asciiOnly /* Split again. */) {
-		words = splitWords(asciiOnly(words.join(' ')), { whitespaceOnly: opts.splitOnWhitespaceOnly });
-	}
-	return words.join(' ').toLowerCase();
+    if (opts.asciiOnly /* Split again. */) {
+        words = splitWords(asciiOnly(words.join(' ')), { whitespaceOnly: opts.splitOnWhitespaceOnly });
+    }
+    return words.join(' ').toLowerCase();
 };
 
 /**
@@ -365,7 +365,7 @@ export const lowerCase = (str: string, options?: LowerCaseOptions): string => {
  * @returns         Modified string.
  */
 export const upperCase = (str: string, options?: UpperCaseOptions): string => {
-	return lowerCase(str, { ...(options || {}) } as LowerCaseOptions).toUpperCase();
+    return lowerCase(str, { ...(options || {}) } as LowerCaseOptions).toUpperCase();
 };
 
 /**
@@ -377,28 +377,28 @@ export const upperCase = (str: string, options?: UpperCaseOptions): string => {
  * @returns         Modified string.
  */
 export const camelCase = (str: string, options?: CamelCaseOptions): string => {
-	const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<CamelCaseOptions>;
-	let words = splitWords(str); // Splits words intelligently.
+    const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<CamelCaseOptions>;
+    let words = splitWords(str); // Splits words intelligently.
 
-	if (opts.asciiOnly /* Split again. */) {
-		words = splitWords(asciiOnly(words.join(' ')));
-	}
-	for (let key = 0; key < words.length; key++) {
-		if (0 === key) {
-			words[key] = words[key].toLowerCase();
+    if (opts.asciiOnly /* Split again. */) {
+        words = splitWords(asciiOnly(words.join(' ')));
+    }
+    for (let key = 0; key < words.length; key++) {
+        if (0 === key) {
+            words[key] = words[key].toLowerCase();
 
-			if (opts.letterFirst && !/^\p{L}/u.test(words[key])) {
-				words[key] = opts.letterFirst + words[key];
-			}
-		} else {
-			if (/\p{Lm}$/u.test(words[key - 1])) {
-				words[key] = words[key].toLowerCase();
-			} else {
-				words[key] = capitalize(words[key]);
-			}
-		}
-	}
-	return words.join('');
+            if (opts.letterFirst && !/^\p{L}/u.test(words[key])) {
+                words[key] = opts.letterFirst + words[key];
+            }
+        } else {
+            if (/\p{Lm}$/u.test(words[key - 1])) {
+                words[key] = words[key].toLowerCase();
+            } else {
+                words[key] = capitalize(words[key]);
+            }
+        }
+    }
+    return words.join('');
 };
 
 /**
@@ -410,27 +410,27 @@ export const camelCase = (str: string, options?: CamelCaseOptions): string => {
  * @returns         Modified string.
  */
 export const kebabCase = (str: string, options?: KebabCaseOptions): string => {
-	const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<KebabCaseOptions>;
-	let words = splitWords(str); // Splits words intelligently.
+    const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<KebabCaseOptions>;
+    let words = splitWords(str); // Splits words intelligently.
 
-	if (opts.asciiOnly /* Split again. */) {
-		words = splitWords(asciiOnly(words.join(' ')));
-	}
-	for (let key = 0; key < words.length; key++) {
-		words[key] = words[key].toLowerCase();
+    if (opts.asciiOnly /* Split again. */) {
+        words = splitWords(asciiOnly(words.join(' ')));
+    }
+    for (let key = 0; key < words.length; key++) {
+        words[key] = words[key].toLowerCase();
 
-		if (0 === key) {
-			if (opts.letterFirst && !/^\p{L}/u.test(words[key])) {
-				words[key] = opts.letterFirst + words[key];
-			}
-		} else {
-			if (/\p{Lm}$/u.test(words[key - 1])) {
-				words[key] = words[key - 1] + words[key];
-				words[key - 1] = ''; // Filtered below.
-			}
-		}
-	}
-	return words.filter((w) => '' !== w).join('-');
+        if (0 === key) {
+            if (opts.letterFirst && !/^\p{L}/u.test(words[key])) {
+                words[key] = opts.letterFirst + words[key];
+            }
+        } else {
+            if (/\p{Lm}$/u.test(words[key - 1])) {
+                words[key] = words[key - 1] + words[key];
+                words[key - 1] = ''; // Filtered below.
+            }
+        }
+    }
+    return words.filter((w) => '' !== w).join('-');
 };
 
 /**
@@ -442,7 +442,7 @@ export const kebabCase = (str: string, options?: KebabCaseOptions): string => {
  * @returns         Modified string.
  */
 export const snakeCase = (str: string, options?: SnakeCaseOptions): string => {
-	return kebabCase(str, { ...(options || {}) } as KebabCaseOptions).replaceAll('-', '_');
+    return kebabCase(str, { ...(options || {}) } as KebabCaseOptions).replaceAll('-', '_');
 };
 
 /**
@@ -455,12 +455,12 @@ export const snakeCase = (str: string, options?: SnakeCaseOptions): string => {
  * @note Inspired by `tiny-dedent` package <https://o5p.me/vaonuB>.
  */
 export const dedent = (str: string): string => {
-	str = str.replace(/^[ \t]*\r?\n/u, ''); // Trims leading newline.
+    str = str.replace(/^[ \t]*\r?\n/u, ''); // Trims leading newline.
 
-	const indent = /^[ \t]+/mu.exec(str); // Detects and trims indentations.
-	if (indent) str = str.replace(new RegExp('^' + indent[0], 'gmu'), '');
+    const indent = /^[ \t]+/mu.exec(str); // Detects and trims indentations.
+    if (indent) str = str.replace(new RegExp('^' + indent[0], 'gmu'), '');
 
-	return str.replace(/\r?\n[ \t]*$/u, ''); // Trims trailing newline.
+    return str.replace(/\r?\n[ \t]*$/u, ''); // Trims trailing newline.
 };
 
 /**
@@ -471,31 +471,31 @@ export const dedent = (str: string): string => {
  * @returns     Parsed output value.
  */
 export const parseValue = (str: string): unknown => {
-	const ewa = str.endsWith('*');
-	let v: unknown = ewa ? str.slice(0, -1) : str;
+    const ewa = str.endsWith('*');
+    let v: unknown = ewa ? str.slice(0, -1) : str;
 
-	if ('null' === v) {
-		v = ewa ? v : null;
-	} else if ('undefined' === v) {
-		v = ewa ? v : undefined;
-	} else if ('true' === v) {
-		v = ewa ? v : true;
-	} else if ('false' === v) {
-		v = ewa ? v : false;
-	} else if ('NaN' === v) {
-		v = ewa ? v : NaN;
-	} else if ('-Infinity' === v) {
-		v = ewa ? v : -Infinity;
-	} else if ('Infinity' === v) {
-		v = ewa ? v : Infinity;
-	} else if ($isꓺnumeric(v as string, 'integer')) {
-		v = ewa ? v : parseInt(v as string, 10);
-	} else if ($isꓺnumeric(v as string, 'float')) {
-		v = ewa ? v : parseFloat(v as string);
-	} else {
-		v = str; // No change.
-	}
-	return v;
+    if ('null' === v) {
+        v = ewa ? v : null;
+    } else if ('undefined' === v) {
+        v = ewa ? v : undefined;
+    } else if ('true' === v) {
+        v = ewa ? v : true;
+    } else if ('false' === v) {
+        v = ewa ? v : false;
+    } else if ('NaN' === v) {
+        v = ewa ? v : NaN;
+    } else if ('-Infinity' === v) {
+        v = ewa ? v : -Infinity;
+    } else if ('Infinity' === v) {
+        v = ewa ? v : Infinity;
+    } else if ($isꓺnumeric(v as string, 'integer')) {
+        v = ewa ? v : parseInt(v as string, 10);
+    } else if ($isꓺnumeric(v as string, 'float')) {
+        v = ewa ? v : parseFloat(v as string);
+    } else {
+        v = str; // No change.
+    }
+    return v;
 };
 
 /**
@@ -507,17 +507,17 @@ export const parseValue = (str: string): unknown => {
  * @returns         Quoted string literal.
  */
 export const quote = (str: string, options: QuoteOptions = {}): string => {
-	const opts = $objꓺdefaults({}, options, { type: 'single' }) as Required<QuoteOptions>;
+    const opts = $objꓺdefaults({}, options, { type: 'single' }) as Required<QuoteOptions>;
 
-	switch (opts.type) {
-		case 'double': {
-			return '"' + str.replace(/"/gu, '\\$&') + '"';
-		}
-		case 'single':
-		default: {
-			return "'" + str.replace(/'/gu, '\\$&') + "'";
-		}
-	}
+    switch (opts.type) {
+        case 'double': {
+            return '"' + str.replace(/"/gu, '\\$&') + '"';
+        }
+        case 'single':
+        default: {
+            return "'" + str.replace(/'/gu, '\\$&') + "'";
+        }
+    }
 };
 
 /**
@@ -529,32 +529,32 @@ export const quote = (str: string, options: QuoteOptions = {}): string => {
  * @returns         Unquoted string literal.
  */
 export const unquote = (str: string, options: UnquoteOptions = {}): string => {
-	const opts = $objꓺdefaults({}, options, { type: 'auto' }) as Required<UnquoteOptions>;
+    const opts = $objꓺdefaults({}, options, { type: 'auto' }) as Required<UnquoteOptions>;
 
-	switch (opts.type) {
-		case 'double': {
-			if (str.startsWith('"') && str.endsWith('"')) {
-				str = str.slice(1, -1).replace(/\\"/gu, '"');
-			}
-			return str;
-		}
-		case 'single': {
-			if (str.startsWith("'") && str.endsWith("'")) {
-				str = str.slice(1, -1).replace(/\\'/gu, "'");
-			}
-			return str;
-		}
-		case 'auto':
-		default: {
-			if (str.startsWith('"') && str.endsWith('"')) {
-				str = str.slice(1, -1).replace(/\\"/gu, '"');
-				//
-			} else if (str.startsWith("'") && str.endsWith("'")) {
-				str = str.slice(1, -1).replace(/\\'/gu, "'");
-			}
-			return str;
-		}
-	}
+    switch (opts.type) {
+        case 'double': {
+            if (str.startsWith('"') && str.endsWith('"')) {
+                str = str.slice(1, -1).replace(/\\"/gu, '"');
+            }
+            return str;
+        }
+        case 'single': {
+            if (str.startsWith("'") && str.endsWith("'")) {
+                str = str.slice(1, -1).replace(/\\'/gu, "'");
+            }
+            return str;
+        }
+        case 'auto':
+        default: {
+            if (str.startsWith('"') && str.endsWith('"')) {
+                str = str.slice(1, -1).replace(/\\"/gu, '"');
+                //
+            } else if (str.startsWith("'") && str.endsWith("'")) {
+                str = str.slice(1, -1).replace(/\\'/gu, "'");
+            }
+            return str;
+        }
+    }
 };
 
 /**
@@ -568,11 +568,11 @@ export const unquote = (str: string, options: UnquoteOptions = {}): string => {
  * @see https://www.npmjs.com/package/html-entities
  */
 export const escHTML = (str: string, options?: EscHTMLOptions): string => {
-	const defaultOpts = { doubleEncode: false };
-	const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<EscHTMLOptions>;
+    const defaultOpts = { doubleEncode: false };
+    const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<EscHTMLOptions>;
 
-	if (!opts.doubleEncode) str = unescHTML(str);
-	return str.replace(/[&<>"']/gu, (char) => escHTMLEntityMap[char]);
+    if (!opts.doubleEncode) str = unescHTML(str);
+    return str.replace(/[&<>"']/gu, (char) => escHTMLEntityMap[char]);
 };
 
 /**
@@ -585,13 +585,13 @@ export const escHTML = (str: string, options?: EscHTMLOptions): string => {
  * @see https://www.npmjs.com/package/html-entities
  */
 export const unescHTML = (str: string): string => {
-	if ($envꓺisWeb()) {
-		unescHTMLDiv ??= document.createElement('div');
+    if ($envꓺisWeb()) {
+        unescHTMLDiv ??= document.createElement('div');
 
-		unescHTMLDiv.innerHTML = str;
-		return unescHTMLDiv.innerText;
-	}
-	return str.replace(/&(?:amp|lt|gt|quot|#39);/gu, (entity) => unescHTMLCharMap[entity]);
+        unescHTMLDiv.innerHTML = str;
+        return unescHTMLDiv.innerText;
+    }
+    return str.replace(/&(?:amp|lt|gt|quot|#39);/gu, (entity) => unescHTMLCharMap[entity]);
 };
 
 /**
@@ -602,7 +602,7 @@ export const unescHTML = (str: string): string => {
  * @returns     Escaped string.
  */
 export const escRegExp = (str: string): string => {
-	return str.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+    return str.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 };
 
 /**
@@ -613,7 +613,7 @@ export const escRegExp = (str: string): string => {
  * @returns     Escaped string.
  */
 export const escSelector = (str: string): string => {
-	return str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/gu, '\\$&');
+    return str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/gu, '\\$&');
 };
 
 /**
@@ -635,11 +635,11 @@ export const escSelector = (str: string): string => {
  *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
 export const matches = (str: string, pattern: string | string[], options?: MatchesOptions): boolean => {
-	const opts = $objꓺdefaults({}, options || {}, { nocase: false, dot: true }) as MatchesOptions;
+    const opts = $objꓺdefaults({}, options || {}, { nocase: false, dot: true }) as MatchesOptions;
 
-	if ($objꓺhasOwn(opts, 'ignoreCase')) {
-		opts.nocase = opts.ignoreCase;
-		delete opts.ignoreCase;
-	}
-	return mm.isMatch(str, pattern, opts);
+    if ($objꓺhasOwn(opts, 'ignoreCase')) {
+        opts.nocase = opts.ignoreCase;
+        delete opts.ignoreCase;
+    }
+    return mm.isMatch(str, pattern, opts);
 };

@@ -28,20 +28,20 @@ Example:
 import { $obj } from '@clevercanyon/utilities';
 
 let target = {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-		url: new URL('https://target.tld/'),
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+        url: new URL('https://target.tld/'),
+    },
 };
 let merge = {
-	test: {
-		integer: 2,
-		date: new Date('2023-01-01'),
-		url: new URL('https://merge.tld/'),
-		$unset: ['string'], // $unset is a declarative operation.
-	},
+    test: {
+        integer: 2,
+        date: new Date('2023-01-01'),
+        url: new URL('https://merge.tld/'),
+        $unset: ['string'], // $unset is a declarative operation.
+    },
 };
 const result = $obj.mergeDeep(target, merge);
 
@@ -58,12 +58,12 @@ Result:
 
 ```text
 {
-	test: {
-		integer: 2,
-		boolean: true,
-		url: URL {href: 'https://merge.tld/', ...},
-		date: Date {...} 2023-01-01T00:00:00.000Z,
-	},
+    test: {
+        integer: 2,
+        boolean: true,
+        url: URL {href: 'https://merge.tld/', ...},
+        date: Date {...} 2023-01-01T00:00:00.000Z,
+    },
 }
 ```
 
@@ -85,20 +85,20 @@ Example:
 import { $obj } from '@clevercanyon/utilities';
 
 let target = {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-		url: new URL('https://target.tld/'),
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+        url: new URL('https://target.tld/'),
+    },
 };
 let merge = {
-	test: {
-		integer: 2,
-		date: new Date('2023-01-01'),
-		url: new URL('https://merge.tld/'),
-		$unset: ['string'], // $unset is a declarative operation.
-	},
+    test: {
+        integer: 2,
+        date: new Date('2023-01-01'),
+        url: new URL('https://merge.tld/'),
+        $unset: ['string'], // $unset is a declarative operation.
+    },
 };
 const result = $obj.mergeClonesDeep(target, merge);
 
@@ -115,12 +115,12 @@ Result:
 
 ```text
 {
-	test: {
-		integer: 2,
-		boolean: true,
-		url: URL {href: 'https://merge.tld/', ...},
-		date: Date {...} 2023-01-01T00:00:00.000Z,
-	},
+    test: {
+        integer: 2,
+        boolean: true,
+        url: URL {href: 'https://merge.tld/', ...},
+        date: Date {...} 2023-01-01T00:00:00.000Z,
+    },
 }
 ```
 
@@ -144,20 +144,20 @@ Example:
 import { $obj } from '@clevercanyon/utilities';
 
 let target = {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-		url: new URL('https://target.tld/'),
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+        url: new URL('https://target.tld/'),
+    },
 };
 let patch = {
-	test: {
-		integer: 2,
-		date: new Date('2023-01-01'),
-		url: new URL('https://patch.tld/'),
-		$unset: ['string'], // $unset is a declarative operation.
-	},
+    test: {
+        integer: 2,
+        date: new Date('2023-01-01'),
+        url: new URL('https://patch.tld/'),
+        $unset: ['string'], // $unset is a declarative operation.
+    },
 };
 const result = $obj.patchDeep(target, patch);
 // `$obj.patchDeep(target, patch)` will suffice;
@@ -181,12 +181,12 @@ Result:
 
 ```text
 {
-	test: {
-		integer: 2,
-		boolean: true,
-		url: URL {href: 'https://patch.tld/', ...},
-		date: Date {...} 2023-01-01T00:00:00.000Z,
-	},
+    test: {
+        integer: 2,
+        boolean: true,
+        url: URL {href: 'https://patch.tld/', ...},
+        date: Date {...} 2023-01-01T00:00:00.000Z,
+    },
 }
 ```
 
@@ -210,20 +210,20 @@ Example:
 import { $obj } from '@clevercanyon/utilities';
 
 let target = {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-		url: new URL('https://target.tld/'),
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+        url: new URL('https://target.tld/'),
+    },
 };
 let patch = {
-	test: {
-		integer: 2,
-		date: new Date('2023-01-01'),
-		url: new URL('https://patch.tld/'),
-		$unset: ['string'], // $unset is a declarative operation.
-	},
+    test: {
+        integer: 2,
+        date: new Date('2023-01-01'),
+        url: new URL('https://patch.tld/'),
+        $unset: ['string'], // $unset is a declarative operation.
+    },
 };
 const result = $obj.patchClonesDeep(target, patch);
 // `$obj.patchClonesDeep(target, patch)` will suffice;
@@ -247,12 +247,12 @@ Result:
 
 ```text
 {
-	test: {
-		integer: 2,
-		boolean: true,
-		url: URL {href: 'https://patch.tld/', ...},
-		date: Date {...} 2023-01-01T00:00:00.000Z,
-	},
+    test: {
+        integer: 2,
+        boolean: true,
+        url: URL {href: 'https://patch.tld/', ...},
+        date: Date {...} 2023-01-01T00:00:00.000Z,
+    },
 }
 ```
 
@@ -279,20 +279,20 @@ Example 1: (**changes do occur in this case**):
 import { $obj } from '@clevercanyon/utilities';
 
 let target = {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-		url: new URL('https://target.tld/'),
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+        url: new URL('https://target.tld/'),
+    },
 };
 let update = {
-	test: {
-		integer: 2,
-		date: new Date('2023-01-01'),
-		url: new URL('https://update.tld/'),
-		$unset: ['string'], // $unset is a declarative operation.
-	},
+    test: {
+        integer: 2,
+        date: new Date('2023-01-01'),
+        url: new URL('https://update.tld/'),
+        $unset: ['string'], // $unset is a declarative operation.
+    },
 };
 const result = $obj.updateDeep(target, update);
 
@@ -315,12 +315,12 @@ Result:
 
 ```text
 {
-	test: {
-		integer: 2,
-		boolean: true,
-		url: URL {href: 'https://update.tld/', ...},
-		date: Date {...} 2023-01-01T00:00:00.000Z,
-	},
+    test: {
+        integer: 2,
+        boolean: true,
+        url: URL {href: 'https://update.tld/', ...},
+        date: Date {...} 2023-01-01T00:00:00.000Z,
+    },
 }
 ```
 
@@ -330,19 +330,19 @@ Example 2: (**no changes occur in this case**):
 import { $obj } from '@clevercanyon/utilities';
 
 let target = {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-		url: new URL('https://target.tld/'),
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+        url: new URL('https://target.tld/'),
+    },
 };
 let update = {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+    },
 };
 const result = $obj.updateDeep(target, update);
 
@@ -358,12 +358,12 @@ Result:
 
 ```text
 {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-		url: URL {href: 'https://target.tld/', ...},
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+        url: URL {href: 'https://target.tld/', ...},
+    },
 }
 ```
 
@@ -390,20 +390,20 @@ Example 1: (**changes do occur in this case**):
 import { $obj } from '@clevercanyon/utilities';
 
 let target = {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-		url: new URL('https://target.tld/'),
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+        url: new URL('https://target.tld/'),
+    },
 };
 let update = {
-	test: {
-		integer: 2,
-		date: new Date('2023-01-01'),
-		url: new URL('https://update.tld/'),
-		$unset: ['string'], // $unset is a declarative operation.
-	},
+    test: {
+        integer: 2,
+        date: new Date('2023-01-01'),
+        url: new URL('https://update.tld/'),
+        $unset: ['string'], // $unset is a declarative operation.
+    },
 };
 const result = $obj.updateClonesDeep(target, update);
 
@@ -426,12 +426,12 @@ Result:
 
 ```text
 {
-	test: {
-		integer: 2,
-		boolean: true,
-		url: URL {href: 'https://update.tld/', ...},
-		date: Date {...} 2023-01-01T00:00:00.000Z,
-	},
+    test: {
+        integer: 2,
+        boolean: true,
+        url: URL {href: 'https://update.tld/', ...},
+        date: Date {...} 2023-01-01T00:00:00.000Z,
+    },
 }
 ```
 
@@ -441,19 +441,19 @@ Example 2: (**no changes occur in this case**):
 import { $obj } from '@clevercanyon/utilities';
 
 let target = {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-		url: new URL('https://target.tld/'),
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+        url: new URL('https://target.tld/'),
+    },
 };
 let update = {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+    },
 };
 const result = $obj.updateClonesDeep(target, update);
 
@@ -469,12 +469,12 @@ Result:
 
 ```text
 {
-	test: {
-		string: '1',
-		integer: 1,
-		boolean: true,
-		url: URL {href: 'https://target.tld/', ...},
-	},
+    test: {
+        string: '1',
+        integer: 1,
+        boolean: true,
+        url: URL {href: 'https://target.tld/', ...},
+    },
 }
 ```
 
@@ -495,20 +495,20 @@ To set (or replace) a property by name or object path.
 
 ```js
 const result = $obj.mergeDeep(
-	{
-		a: {
-			one: 1,
-			two: 2,
-		},
-	},
-	{
-		$set: {
-			a: {
-				three: 3,
-			},
-			'a.two': 20, // Keys can be an object path.
-		},
-	},
+    {
+        a: {
+            one: 1,
+            two: 2,
+        },
+    },
+    {
+        $set: {
+            a: {
+                three: 3,
+            },
+            'a.two': 20, // Keys can be an object path.
+        },
+    },
 );
 console.log(result);
 ```
@@ -517,10 +517,10 @@ Result:
 
 ```json
 {
-	"a": {
-		"three": 3,
-		"two": 20
-	}
+    "a": {
+        "three": 3,
+        "two": 20
+    }
 }
 ```
 
@@ -532,15 +532,15 @@ To unset properties by name or object path.
 
 ```js
 const result = $obj.mergeDeep(
-	{
-		a: {
-			one: 1,
-			two: 2,
-		},
-	},
-	{
-		$unset: ['a.two'],
-	},
+    {
+        a: {
+            one: 1,
+            two: 2,
+        },
+    },
+    {
+        $unset: ['a.two'],
+    },
 );
 console.log(result);
 ```
@@ -549,9 +549,9 @@ Result:
 
 ```json
 {
-	"a": {
-		"one": 1
-	}
+    "a": {
+        "one": 1
+    }
 }
 ```
 
@@ -561,15 +561,15 @@ To unset all keys use `*`.
 
 ```js
 const result = $obj.mergeDeep(
-	{
-		a: {
-			one: 1,
-			two: 2,
-		},
-	},
-	{
-		$unset: ['a.*'],
-	},
+    {
+        a: {
+            one: 1,
+            two: 2,
+        },
+    },
+    {
+        $unset: ['a.*'],
+    },
 );
 console.log(result);
 ```
@@ -578,7 +578,7 @@ Result:
 
 ```json
 {
-	"a": {}
+    "a": {}
 }
 ```
 
@@ -592,18 +592,18 @@ To leave properties by name or object path. Implies all other properties should 
 
 ```js
 const result = $obj.mergeDeep(
-	{
-		a: {
-			one: 1,
-			two: 2,
-			tree: 3,
-		},
-	},
-	{
-		a: {
-			$leave: ['two'],
-		},
-	},
+    {
+        a: {
+            one: 1,
+            two: 2,
+            tree: 3,
+        },
+    },
+    {
+        a: {
+            $leave: ['two'],
+        },
+    },
 );
 console.log(result);
 ```
@@ -612,9 +612,9 @@ Result:
 
 ```json
 {
-	"a": {
-		"two": 2
-	}
+    "a": {
+        "two": 2
+    }
 }
 ```
 
@@ -626,20 +626,20 @@ To push an item **_as one value_** _(so please be careful)_ onto an array.
 
 ```js
 const result = $obj.mergeDeep(
-	// First object
-	{
-		prop1: ['a', 'b'],
-		prop2: ['a', 'b'],
-		prop3: ['a', 'b'],
-	},
-	// Merge
-	{
-		$push: {
-			prop1: ['c', 'd'],
-			prop2: { x: 'c' },
-			prop3: 'c',
-		},
-	},
+    // First object
+    {
+        prop1: ['a', 'b'],
+        prop2: ['a', 'b'],
+        prop3: ['a', 'b'],
+    },
+    // Merge
+    {
+        $push: {
+            prop1: ['c', 'd'],
+            prop2: { x: 'c' },
+            prop3: 'c',
+        },
+    },
 );
 console.log(result);
 ```
@@ -648,9 +648,9 @@ Result:
 
 ```json
 {
-	"prop1": ["a", "b", ["c", "d"]],
-	"prop2": ["a", "b", { "x": "c" }],
-	"prop3": ["a", "b", "c"]
+    "prop1": ["a", "b", ["c", "d"]],
+    "prop2": ["a", "b", { "x": "c" }],
+    "prop3": ["a", "b", "c"]
 }
 ```
 
@@ -660,20 +660,20 @@ To pull (i.e., remove) values from an array.
 
 ```js
 const result = $obj.mergeDeep(
-	// First object
-	{
-		prop1: ['a', 'b', 'c', 'x'],
-		prop2: ['a', 'b', 'c', 'x', 'y', 'z'],
-		prop3: [1, 2, 3, 100, 200],
-	},
-	// Merge
-	{
-		$pull: {
-			prop1: 'x',
-			prop2: ['x', 'y', 'z'],
-			prop3: [100, 200],
-		},
-	},
+    // First object
+    {
+        prop1: ['a', 'b', 'c', 'x'],
+        prop2: ['a', 'b', 'c', 'x', 'y', 'z'],
+        prop3: [1, 2, 3, 100, 200],
+    },
+    // Merge
+    {
+        $pull: {
+            prop1: 'x',
+            prop2: ['x', 'y', 'z'],
+            prop3: [100, 200],
+        },
+    },
 );
 console.log(result);
 ```
@@ -682,9 +682,9 @@ Result:
 
 ```json
 {
-	"prop1": ["a", "b", "c"],
-	"prop2": ["a", "b", "c"],
-	"prop3": [1, 2, 3]
+    "prop1": ["a", "b", "c"],
+    "prop2": ["a", "b", "c"],
+    "prop3": [1, 2, 3]
 }
 ```
 
@@ -696,18 +696,18 @@ To concatenate arrays (i.e., to push multiple items).
 
 ```js
 const result = $obj.mergeDeep(
-	// First object
-	{
-		prop1: ['a', 'b'],
-		prop2: ['a', 'b'],
-	},
-	// Merge
-	{
-		$concat: {
-			prop1: ['c', 'd'],
-			prop2: { x: 'c' },
-		},
-	},
+    // First object
+    {
+        prop1: ['a', 'b'],
+        prop2: ['a', 'b'],
+    },
+    // Merge
+    {
+        $concat: {
+            prop1: ['c', 'd'],
+            prop2: { x: 'c' },
+        },
+    },
 );
 console.log(result);
 ```
@@ -716,8 +716,8 @@ Result:
 
 ```json
 {
-	"prop1": ["a", "b", "c", "d"],
-	"prop2": ["a", "b", { "x": "c" }]
+    "prop1": ["a", "b", "c", "d"],
+    "prop2": ["a", "b", { "x": "c" }]
 }
 ```
 
@@ -729,31 +729,31 @@ To set default values (i.e., set only if `undefined`).
 
 ```js
 const result = $obj.mergeDeep(
-	// First object
-	{
-		prop1: ['a', 'b', 'c'],
-		prop2: ['a', 'b', 'c'],
-		prop3: {
-			a: 'a',
-			b: 'b',
-			c: {
-				d: 'd',
-			},
-		},
-	},
-	// Merge
-	{
-		$default: {
-			'prop1': ['default'],
-			'prop2': ['default'],
-			'prop3.a': 'default',
-			'prop3.b': 'default',
-			'prop3.c.d': 'default',
-			'prop3.c.e': 'default',
-			'prop3.f': 'default',
-			'prop3.g': ['default'],
-		},
-	},
+    // First object
+    {
+        prop1: ['a', 'b', 'c'],
+        prop2: ['a', 'b', 'c'],
+        prop3: {
+            a: 'a',
+            b: 'b',
+            c: {
+                d: 'd',
+            },
+        },
+    },
+    // Merge
+    {
+        $default: {
+            'prop1': ['default'],
+            'prop2': ['default'],
+            'prop3.a': 'default',
+            'prop3.b': 'default',
+            'prop3.c.d': 'default',
+            'prop3.c.e': 'default',
+            'prop3.f': 'default',
+            'prop3.g': ['default'],
+        },
+    },
 );
 console.log(result);
 ```
@@ -784,36 +784,36 @@ To sort object properties by key, using a given order.
 
 ```js
 const result = $obj.mergeDeep(
-	// First object
-	{
-		prop3: {
-			c: {
-				d: 'd',
-			},
-			b: 'b',
-			e: null,
-		},
-		prop00: '00',
-		prop1: ['a', 'b', 'c'],
-		a: 'a',
-		prop2: ['a', 'b', 'c'],
-	},
-	// Merge
-	{
-		prop4: '4',
-		$keySortOrder: [
-			'a', //
-			'prop0',
-			'prop1',
-			'prop2',
-			'prop3.b',
-			'prop3.c.d',
-			'prop3.e',
-			'prop4',
-		],
-		prop0: '0',
-		prop00: '00', // Not in sort order given, so comes after all others.
-	},
+    // First object
+    {
+        prop3: {
+            c: {
+                d: 'd',
+            },
+            b: 'b',
+            e: null,
+        },
+        prop00: '00',
+        prop1: ['a', 'b', 'c'],
+        a: 'a',
+        prop2: ['a', 'b', 'c'],
+    },
+    // Merge
+    {
+        prop4: '4',
+        $keySortOrder: [
+            'a', //
+            'prop0',
+            'prop1',
+            'prop2',
+            'prop3.b',
+            'prop3.c.d',
+            'prop3.e',
+            'prop4',
+        ],
+        prop0: '0',
+        prop00: '00', // Not in sort order given, so comes after all others.
+    },
 );
 console.log(result);
 ```
@@ -822,19 +822,19 @@ Result:
 
 ```json
 {
-	"a": "a",
-	"prop0": "0",
-	"prop1": ["a", "b", "c"],
-	"prop2": ["a", "b", "c"],
-	"prop3": {
-		"b": "b",
-		"c": {
-			"d": "d"
-		},
-		"e": null
-	},
-	"prop4": "4",
-	"prop00": "00"
+    "a": "a",
+    "prop0": "0",
+    "prop1": ["a", "b", "c"],
+    "prop2": ["a", "b", "c"],
+    "prop3": {
+        "b": "b",
+        "c": {
+            "d": "d"
+        },
+        "e": null
+    },
+    "prop4": "4",
+    "prop00": "00"
 }
 ```
 
@@ -864,29 +864,29 @@ For example, if you need to handle arrays differently, you can declare a callbac
 
 ```js
 const previous = mc.addMerge('Array', 'Array', function (a, b, kind, circular) {
-	if ([this.kinds.PATCH_DEEP, this.kinds.PATCH_CLONES_DEEP].includes(kind)) {
-		circular.get(a)?.set(b, a);
+    if ([this.kinds.PATCH_DEEP, this.kinds.PATCH_CLONES_DEEP].includes(kind)) {
+        circular.get(a)?.set(b, a);
 
-		a.splice(0, a.length); // Deletes `a` keys.
+        a.splice(0, a.length); // Deletes `a` keys.
 
-		for (let key = 0; key < b.length; key++) {
-			a[key] = this[kind](undefined, b[key], circular);
-		}
-		return a; // Returns `a`, mutated by reference.
-		//
-	} else if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind) && $isꓺdeepEqual(a, b)) {
-		circular.get(a)?.set(b, a);
-		return a; // Returns `a` when there are no differences.
-		//
-	} else {
-		const bClone: unknown[] = [];
-		circular.get(a)?.set(b, bClone);
+        for (let key = 0; key < b.length; key++) {
+            a[key] = this[kind](undefined, b[key], circular);
+        }
+        return a; // Returns `a`, mutated by reference.
+        //
+    } else if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind) && $isꓺdeepEqual(a, b)) {
+        circular.get(a)?.set(b, a);
+        return a; // Returns `a` when there are no differences.
+        //
+    } else {
+        const bClone: unknown[] = [];
+        circular.get(a)?.set(b, bClone);
 
-		for (let key = 0; key < b.length; key++) {
-			bClone[key] = this[kind](undefined, b[key], circular);
-		}
-		return bClone; // Returns `b` clone, which replaces `a`.
-	}
+        for (let key = 0; key < b.length; key++) {
+            bClone[key] = this[kind](undefined, b[key], circular);
+        }
+        return bClone; // Returns `b` clone, which replaces `a`.
+    }
 });
 
 // Restores previous handler.
@@ -921,21 +921,21 @@ For example, here's an already-defined operation handler that could be customize
 
 ```js
 const previous = mc.addOperation('$concat', (target, params, separator = '.', calledAs = '$concat') => {
-	if (!$isꓺobject(target)) {
-		throw new Error('Invalid ' + calledAs + '. Requires object target.');
-	}
-	if (!$isꓺobject(params) || $isꓺarray(params)) {
-		throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
-	}
-	for (const [path, value] of Object.entries(params)) {
-		const array = $obpꓺget(target, path, [], separator);
+    if (!$isꓺobject(target)) {
+        throw new Error('Invalid ' + calledAs + '. Requires object target.');
+    }
+    if (!$isꓺobject(params) || $isꓺarray(params)) {
+        throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
+    }
+    for (const [path, value] of Object.entries(params)) {
+        const array = $obpꓺget(target, path, [], separator);
 
-		if (!$isꓺarray(array)) {
-			throw new Error('Invalid ' + calledAs + '. Cannot concat onto non-array value.');
-		}
-		$obpꓺset(target, path, array.concat(value), separator);
-	}
-	return Object.keys(params).length > 0;
+        if (!$isꓺarray(array)) {
+            throw new Error('Invalid ' + calledAs + '. Cannot concat onto non-array value.');
+        }
+        $obpꓺset(target, path, array.concat(value), separator);
+    }
+    return Object.keys(params).length > 0;
 });
 
 // Restores previous handler.

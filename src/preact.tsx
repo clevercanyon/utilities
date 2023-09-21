@@ -36,7 +36,7 @@ const dirtyProps = ['key', 'jsx', 'dangerouslySetInnerHTML', 'ref', 'children'];
  * @note This also removes props with undefined values.
  */
 export const cleanProps = <Type extends Props, Key extends keyof Type>(props: Type, otherDirtyProps?: Key[]): Omit<Type, Key> => {
-	return $objꓺomit(props, dirtyProps.concat((otherDirtyProps || []) as string[]) as Key[], { undefinedValues: true });
+    return $objꓺomit(props, dirtyProps.concat((otherDirtyProps || []) as string[]) as Key[], { undefinedValues: true });
 };
 
 /**
@@ -48,15 +48,15 @@ export const cleanProps = <Type extends Props, Key extends keyof Type>(props: Ty
  * @returns              Space-separated classes, else `undefined` to avoid adding `class=""` unnecessarily.
  */
 export const classes = (classes?: string | string[], otherClasses?: string | string[]): string | undefined => {
-	classes = classes || [];
-	otherClasses = otherClasses || [];
+    classes = classes || [];
+    otherClasses = otherClasses || [];
 
-	classes = $toꓺcastArray('' === classes ? [] : classes);
-	otherClasses = $toꓺcastArray('' === otherClasses ? [] : otherClasses);
+    classes = $toꓺcastArray('' === classes ? [] : classes);
+    otherClasses = $toꓺcastArray('' === otherClasses ? [] : otherClasses);
 
-	// We only want one of each unique class name.
-	const uniqueClasses = [...new Set(classes.concat(otherClasses))];
+    // We only want one of each unique class name.
+    const uniqueClasses = [...new Set(classes.concat(otherClasses))];
 
-	// Returning `undefined` avoids adding `class=""` unnecessarily.
-	return uniqueClasses.length ? uniqueClasses.join(' ') : undefined;
+    // Returning `undefined` avoids adding `class=""` unnecessarily.
+    return uniqueClasses.length ? uniqueClasses.join(' ') : undefined;
 };

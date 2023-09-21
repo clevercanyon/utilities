@@ -3,10 +3,10 @@
  */
 
 import {
-	ErrorBoundary as $preactISOꓺErrorBoundary,
-	Location as $preactISOꓺLocation,
-	Router as $preactISOꓺRouter,
-	useRoute as $preactISOꓺuseRoute,
+    ErrorBoundary as $preactISOꓺErrorBoundary,
+    Location as $preactISOꓺLocation,
+    Router as $preactISOꓺRouter,
+    useRoute as $preactISOꓺuseRoute,
 } from '@clevercanyon/preact-iso.fork';
 import type { ErrorBoundaryProps as $preactISOꓺErrorBoundaryProps } from '@clevercanyon/preact-iso.fork/lazy';
 import type { LocationProps as $preactISOꓺLocationProps, RouterProps as $preactISOꓺRouterProps } from '@clevercanyon/preact-iso.fork/router';
@@ -28,23 +28,23 @@ export type Props = Omit<$preact.Props<$preactISOꓺLocationProps & $preactꓺco
  * @returns       VNode / JSX element tree.
  */
 export default (props: Props = {}): $preact.VNode<Props> => {
-	return $isꓺempty($preactISOꓺuseRoute()) ? (
-		<$preactISOꓺLocation url={props.url}>
-			<$preactꓺcomponentsꓺData globalObp={props.globalObp} fetcher={props.fetcher} html={props.html} head={props.head} body={props.body}>
-				<$preactISOꓺErrorBoundary onError={props.onError}>
-					<$preactISOꓺRouter onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
-						{props.children}
-					</$preactISOꓺRouter>
-				</$preactISOꓺErrorBoundary>
-			</$preactꓺcomponentsꓺData>
-		</$preactISOꓺLocation>
-	) : (
-		<$preactISOꓺErrorBoundary>
-			<$preactISOꓺRouter onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
-				{props.children}
-			</$preactISOꓺRouter>
-		</$preactISOꓺErrorBoundary>
-	);
+    return $isꓺempty($preactISOꓺuseRoute()) ? (
+        <$preactISOꓺLocation url={props.url}>
+            <$preactꓺcomponentsꓺData globalObp={props.globalObp} fetcher={props.fetcher} html={props.html} head={props.head} body={props.body}>
+                <$preactISOꓺErrorBoundary onError={props.onError}>
+                    <$preactISOꓺRouter onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
+                        {props.children}
+                    </$preactISOꓺRouter>
+                </$preactISOꓺErrorBoundary>
+            </$preactꓺcomponentsꓺData>
+        </$preactISOꓺLocation>
+    ) : (
+        <$preactISOꓺErrorBoundary>
+            <$preactISOꓺRouter onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
+                {props.children}
+            </$preactISOꓺRouter>
+        </$preactISOꓺErrorBoundary>
+    );
 };
 
 /**

@@ -19,36 +19,36 @@ let Class: Constructor | undefined; // Class definition cache.
  * Defines types.
  */
 export type C9rProps = {
-	readonly globalObp?: $type.ObjectPath;
-	readonly autoReplaceNativeFetch?: boolean;
+    readonly globalObp?: $type.ObjectPath;
+    readonly autoReplaceNativeFetch?: boolean;
 };
 export type Constructor = {
-	new (props?: C9rProps | Interface): Interface;
+    new (props?: C9rProps | Interface): Interface;
 };
 export declare class Interface extends $classꓺUtilityInterface {
-	public readonly global: Global;
-	public readonly globalObp: $type.ObjectPath;
-	public readonly autoReplaceNativeFetch: boolean;
+    public readonly global: Global;
+    public readonly globalObp: $type.ObjectPath;
+    public readonly autoReplaceNativeFetch: boolean;
 
-	public constructor(props?: C9rProps | Interface);
+    public constructor(props?: C9rProps | Interface);
 
-	public replaceNativeFetch(): void;
-	public restoreNativeFetch(): void;
-	public globalToScriptCode(): string;
+    public replaceNativeFetch(): void;
+    public restoreNativeFetch(): void;
+    public globalToScriptCode(): string;
 
-	public fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']>;
+    public fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']>;
 }
 export type Global = $type.Object<{
-	cache: { [x: string]: GlobalCacheEntry };
-	nativeFetch: (...args: Parameters<typeof fetch>) => ReturnType<typeof fetch>;
-	pseudoFetch: (...args: Parameters<typeof fetch | typeof $type.cf.fetch>) => Promise<Response | $type.cf.Response>;
+    cache: { [x: string]: GlobalCacheEntry };
+    nativeFetch: (...args: Parameters<typeof fetch>) => ReturnType<typeof fetch>;
+    pseudoFetch: (...args: Parameters<typeof fetch | typeof $type.cf.fetch>) => Promise<Response | $type.cf.Response>;
 }>;
 export type GlobalCacheEntry = {
-	body: string;
-	options: {
-		status: number;
-		headers: { [x: string]: string };
-	};
+    body: string;
+    options: {
+        status: number;
+        headers: { [x: string]: string };
+    };
 };
 
 /**
@@ -57,119 +57,119 @@ export type GlobalCacheEntry = {
  * @returns {@see Constructor} Definition.
  */
 export const getClass = (): Constructor => {
-	if (Class) return Class;
+    if (Class) return Class;
 
-	Class = class extends $classꓺgetUtility() implements Interface {
-		/**
-		 * Global object.
-		 */
-		public readonly global: Global;
+    Class = class extends $classꓺgetUtility() implements Interface {
+        /**
+         * Global object.
+         */
+        public readonly global: Global;
 
-		/**
-		 * Global object path.
-		 */
-		public readonly globalObp: $type.ObjectPath;
+        /**
+         * Global object path.
+         */
+        public readonly globalObp: $type.ObjectPath;
 
-		/**
-		 * Auto-replace native fetch?
-		 */
-		public readonly autoReplaceNativeFetch: boolean;
+        /**
+         * Auto-replace native fetch?
+         */
+        public readonly autoReplaceNativeFetch: boolean;
 
-		/**
-		 * Object constructor.
-		 *
-		 * @param props Props or {@see Interface} instance.
-		 */
-		public constructor(props?: C9rProps | Interface) {
-			super(); // Parent constructor.
+        /**
+         * Object constructor.
+         *
+         * @param props Props or {@see Interface} instance.
+         */
+        public constructor(props?: C9rProps | Interface) {
+            super(); // Parent constructor.
 
-			props = props || {}; // Force object value.
-			const isClone = props instanceof (Class as Constructor);
+            props = props || {}; // Force object value.
+            const isClone = props instanceof (Class as Constructor);
 
-			this.globalObp = props.globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.fetcher';
-			this.global = $obpꓺget(globalThis, this.globalObp, {}) as Global; // Default is `{}`.
+            this.globalObp = props.globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.fetcher';
+            this.global = $obpꓺget(globalThis, this.globalObp, {}) as Global; // Default is `{}`.
 
-			this.global.cache = this.global.cache || {}; // Initializes cache when unavailable.
-			this.global.nativeFetch = globalThis.fetch; // Stores a reference to current native fetch.
-			this.global.pseudoFetch = async (...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> => this.fetch(...args);
+            this.global.cache = this.global.cache || {}; // Initializes cache when unavailable.
+            this.global.nativeFetch = globalThis.fetch; // Stores a reference to current native fetch.
+            this.global.pseudoFetch = async (...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> => this.fetch(...args);
 
-			this.autoReplaceNativeFetch = isClone ? false : props.autoReplaceNativeFetch || false;
+            this.autoReplaceNativeFetch = isClone ? false : props.autoReplaceNativeFetch || false;
 
-			if (this.autoReplaceNativeFetch) {
-				this.replaceNativeFetch();
-			}
-		}
+            if (this.autoReplaceNativeFetch) {
+                this.replaceNativeFetch();
+            }
+        }
 
-		/**
-		 * Replaces native fetch.
-		 *
-		 * @note Sets `nativeFetch` again, in case it was swapped since constructor ran; e.g., when unit testing.
-		 */
-		public replaceNativeFetch(): void {
-			this.global.nativeFetch = globalThis.fetch;
-			globalThis.fetch = this.global.pseudoFetch as typeof fetch;
-		}
+        /**
+         * Replaces native fetch.
+         *
+         * @note Sets `nativeFetch` again, in case it was swapped since constructor ran; e.g., when unit testing.
+         */
+        public replaceNativeFetch(): void {
+            this.global.nativeFetch = globalThis.fetch;
+            globalThis.fetch = this.global.pseudoFetch as typeof fetch;
+        }
 
-		/**
-		 * Restores native fetch.
-		 *
-		 * @note Also resets the global cache.
-		 */
-		public restoreNativeFetch(): void {
-			this.global.cache = {}; // Resets cache.
-			globalThis.fetch = this.global.nativeFetch as typeof fetch;
-		}
+        /**
+         * Restores native fetch.
+         *
+         * @note Also resets the global cache.
+         */
+        public restoreNativeFetch(): void {
+            this.global.cache = {}; // Resets cache.
+            globalThis.fetch = this.global.nativeFetch as typeof fetch;
+        }
 
-		/**
-		 * Converts global into embeddable script code.
-		 *
-		 * @returns Global as embeddable script code; i.e., for SSR.
-		 */
-		public globalToScriptCode(): string {
-			const globalObpScriptCode = $obpꓺtoScriptCode(this.globalObp);
+        /**
+         * Converts global into embeddable script code.
+         *
+         * @returns Global as embeddable script code; i.e., for SSR.
+         */
+        public globalToScriptCode(): string {
+            const globalObpScriptCode = $obpꓺtoScriptCode(this.globalObp);
 
-			let scriptCode = globalObpScriptCode.init; // Initialize.
-			scriptCode += ' ' + globalObpScriptCode.set + '.cache = ' + $jsonꓺstringify(this.global.cache) + ';';
+            let scriptCode = globalObpScriptCode.init; // Initialize.
+            scriptCode += ' ' + globalObpScriptCode.set + '.cache = ' + $jsonꓺstringify(this.global.cache) + ';';
 
-			return scriptCode;
-		}
+            return scriptCode;
+        }
 
-		/**
-		 * Used to wrap native {@see fetch()} in JS.
-		 *
-		 * @param   args Same as {@see fetch()} native function.
-		 *
-		 * @returns      Same as {@see fetch()} native function.
-		 */
-		public async fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> {
-			const hash = await $cryptoꓺsha1($jsonꓺstringify(args));
+        /**
+         * Used to wrap native {@see fetch()} in JS.
+         *
+         * @param   args Same as {@see fetch()} native function.
+         *
+         * @returns      Same as {@see fetch()} native function.
+         */
+        public async fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> {
+            const hash = await $cryptoꓺsha1($jsonꓺstringify(args));
 
-			if ($objꓺhasOwn(this.global.cache, hash)) {
-				const globalCacheEntry = this.global.cache[hash];
-				return new Response(globalCacheEntry.body, globalCacheEntry.options);
-			}
-			if ($envꓺisWeb() /* No cache writes client-side, so no await either. */) {
-				return this.global.nativeFetch(...(args as Parameters<Global['nativeFetch']>));
-			}
-			const response = await this.global.nativeFetch(...(args as Parameters<Global['nativeFetch']>));
+            if ($objꓺhasOwn(this.global.cache, hash)) {
+                const globalCacheEntry = this.global.cache[hash];
+                return new Response(globalCacheEntry.body, globalCacheEntry.options);
+            }
+            if ($envꓺisWeb() /* No cache writes client-side, so no await either. */) {
+                return this.global.nativeFetch(...(args as Parameters<Global['nativeFetch']>));
+            }
+            const response = await this.global.nativeFetch(...(args as Parameters<Global['nativeFetch']>));
 
-			const contentType = (response.headers.get('content-type') || '').toLowerCase();
-			const contentMIMEType = contentType.split(';')[0]; // Removes a possible `; charset=utf-8`, for example.
-			const allowedMIMETypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
+            const contentType = (response.headers.get('content-type') || '').toLowerCase();
+            const contentMIMEType = contentType.split(';')[0]; // Removes a possible `; charset=utf-8`, for example.
+            const allowedMIMETypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
 
-			if (!allowedMIMETypes.includes(contentMIMEType)) {
-				return response; // Don't cache MIME types not in list above.
-			}
-			const globalCacheEntry: GlobalCacheEntry = {
-				body: await response.text(), // Body as plain text.
-				options: { status: response.status, headers: { 'content-type': contentType } },
-			};
-			(this.global.cache as Global['cache'])[hash] = globalCacheEntry;
-			return new Response(globalCacheEntry.body, globalCacheEntry.options);
-		}
-	};
-	return Object.defineProperty(Class, 'name', {
-		...Object.getOwnPropertyDescriptor(Class, 'name'),
-		value: 'Fetcher',
-	});
+            if (!allowedMIMETypes.includes(contentMIMEType)) {
+                return response; // Don't cache MIME types not in list above.
+            }
+            const globalCacheEntry: GlobalCacheEntry = {
+                body: await response.text(), // Body as plain text.
+                options: { status: response.status, headers: { 'content-type': contentType } },
+            };
+            (this.global.cache as Global['cache'])[hash] = globalCacheEntry;
+            return new Response(globalCacheEntry.body, globalCacheEntry.options);
+        }
+    };
+    return Object.defineProperty(Class, 'name', {
+        ...Object.getOwnPropertyDescriptor(Class, 'name'),
+        value: 'Fetcher',
+    });
 };

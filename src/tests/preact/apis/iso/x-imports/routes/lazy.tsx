@@ -15,9 +15,9 @@ import { useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute } from '../../../.
  */
 export type Props = $preact.Props<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps>;
 export type LazyProps = $preact.Props<{
-	a: string;
-	b: string;
-	c: string;
+    a: string;
+    b: string;
+    c: string;
 }>;
 
 /**
@@ -30,18 +30,18 @@ export type LazyProps = $preact.Props<{
  * @note {@see globalThis.fetch()} is stubbed out in the main test file.
  */
 export const Lazy = $preactꓺapisꓺisoꓺlazyComponent(async (props: LazyProps): Promise<$preact.VNode<LazyProps>> => {
-	await fetch('http://x.tld/a');
-	await fetch('http://x.tld/b');
-	await fetch('http://x.tld/c');
-	await fetch('http://x.tld/d');
+    await fetch('http://x.tld/a');
+    await fetch('http://x.tld/b');
+    await fetch('http://x.tld/c');
+    await fetch('http://x.tld/d');
 
-	await (async () => null)();
-	await (async () => undefined)();
-	await (async () => false)();
-	await (async () => true)();
-	const awaitedProps = await (async () => props)();
+    await (async () => null)();
+    await (async () => undefined)();
+    await (async () => false)();
+    await (async () => true)();
+    const awaitedProps = await (async () => props)();
 
-	return <script type='lazy-component-props' dangerouslySetInnerHTML={{ __html: $json.stringify({ ...awaitedProps }) }}></script>;
+    return <script type='lazy-component-props' dangerouslySetInnerHTML={{ __html: $json.stringify({ ...awaitedProps }) }}></script>;
 });
 
 /**
@@ -52,13 +52,13 @@ export const Lazy = $preactꓺapisꓺisoꓺlazyComponent(async (props: LazyProps
  * @returns       VNode / JSX element tree.
  */
 export default (unusedꓺprops: Props): $preact.VNode<Props> => {
-	return (
-		<$preactꓺcomponentsꓺHTML>
-			<$preactꓺcomponentsꓺHead title={'lazy'} />
-			<$preactꓺcomponentsꓺBody>
-				<script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
-				<Lazy a={'_a'} b={'_b'} c={'_c'} />
-			</$preactꓺcomponentsꓺBody>
-		</$preactꓺcomponentsꓺHTML>
-	);
+    return (
+        <$preactꓺcomponentsꓺHTML>
+            <$preactꓺcomponentsꓺHead title={'lazy'} />
+            <$preactꓺcomponentsꓺBody>
+                <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
+                <Lazy a={'_a'} b={'_b'} c={'_c'} />
+            </$preactꓺcomponentsꓺBody>
+        </$preactꓺcomponentsꓺHTML>
+    );
 };

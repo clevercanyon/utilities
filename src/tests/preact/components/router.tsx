@@ -11,19 +11,19 @@ import { default as $preactꓺroutesꓺ404 } from '../../../preact/routes/404.ts
 const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
 
 describe('<Router>', async () => {
-	beforeAll(async () => {
-		$env.set('@top', 'APP_BASE_URL', 'http://x.tld');
-	});
-	afterAll(async () => {
-		$env.set('@top', 'APP_BASE_URL', __origAppBaseURL__);
-	});
-	test('basics', async () => {
-		expect(
-			$preactꓺapisꓺssr.renderToString(
-				<$preactꓺcomponentsꓺRouter url='http://x.tld'>
-					<$preactꓺcomponentsꓺrouterꓺRoute default component={$preactꓺroutesꓺ404} />
-				</$preactꓺcomponentsꓺRouter>,
-			),
-		).toContain('</html>');
-	});
+    beforeAll(async () => {
+        $env.set('@top', 'APP_BASE_URL', 'http://x.tld');
+    });
+    afterAll(async () => {
+        $env.set('@top', 'APP_BASE_URL', __origAppBaseURL__);
+    });
+    test('basics', async () => {
+        expect(
+            $preactꓺapisꓺssr.renderToString(
+                <$preactꓺcomponentsꓺRouter url='http://x.tld'>
+                    <$preactꓺcomponentsꓺrouterꓺRoute default component={$preactꓺroutesꓺ404} />
+                </$preactꓺcomponentsꓺRouter>,
+            ),
+        ).toContain('</html>');
+    });
 });

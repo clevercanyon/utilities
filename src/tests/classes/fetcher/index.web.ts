@@ -7,48 +7,48 @@ import { describe, expect, test, vi } from 'vitest';
 import { $class, $obj } from '../../../index.ts';
 
 describe('Fetcher', async () => {
-	const Fetcher = $class.getFetcher();
+    const Fetcher = $class.getFetcher();
 
-	test('.fetch()', async () => {
-		// Mocks `globalThis.fetch()`.
+    test('.fetch()', async () => {
+        // Mocks `globalThis.fetch()`.
 
-		const globalFetchMock = vi.fn(async () => {
-			return new Response('x', {
-				status: 200,
-				headers: { 'content-type': 'text/plain; charset=utf-8' },
-			});
-		});
-		vi.stubGlobal('fetch', globalFetchMock);
+        const globalFetchMock = vi.fn(async () => {
+            return new Response('x', {
+                status: 200,
+                headers: { 'content-type': 'text/plain; charset=utf-8' },
+            });
+        });
+        vi.stubGlobal('fetch', globalFetchMock);
 
-		expect(globalFetchMock).toHaveBeenCalledTimes(0);
-		expect(vi.isMockFunction(globalThis.fetch)).toBe(true);
+        expect(globalFetchMock).toHaveBeenCalledTimes(0);
+        expect(vi.isMockFunction(globalThis.fetch)).toBe(true);
 
-		// Creates fetcher & replaces native fetch.
+        // Creates fetcher & replaces native fetch.
 
-		const fetcher = new Fetcher({ autoReplaceNativeFetch: true });
+        const fetcher = new Fetcher({ autoReplaceNativeFetch: true });
 
-		// Performs fetches against the mock.
+        // Performs fetches against the mock.
 
-		await globalThis.fetch('http://a.tld/');
-		await globalThis.fetch('http://b.tld/');
-		await globalThis.fetch('http://c.tld/');
-		await globalThis.fetch('http://a.tld/');
+        await globalThis.fetch('http://a.tld/');
+        await globalThis.fetch('http://b.tld/');
+        await globalThis.fetch('http://c.tld/');
+        await globalThis.fetch('http://a.tld/');
 
-		expect($obj.keysAndSymbols(fetcher.global.cache).length).toBe(0);
-		expect(globalFetchMock).toHaveBeenCalledTimes(4);
+        expect($obj.keysAndSymbols(fetcher.global.cache).length).toBe(0);
+        expect(globalFetchMock).toHaveBeenCalledTimes(4);
 
-		// Restores native fetch.
+        // Restores native fetch.
 
-		fetcher.restoreNativeFetch();
+        fetcher.restoreNativeFetch();
 
-		// Performs fetches against the mock.
+        // Performs fetches against the mock.
 
-		await globalThis.fetch('http://x.tld/');
-		await globalThis.fetch('http://y.tld/');
-		await globalThis.fetch('http://z.tld/');
-		await globalThis.fetch('http://x.tld/');
+        await globalThis.fetch('http://x.tld/');
+        await globalThis.fetch('http://y.tld/');
+        await globalThis.fetch('http://z.tld/');
+        await globalThis.fetch('http://x.tld/');
 
-		expect($obj.keysAndSymbols(fetcher.global.cache).length).toBe(0);
-		expect(globalFetchMock).toHaveBeenCalledTimes(8);
-	});
+        expect($obj.keysAndSymbols(fetcher.global.cache).length).toBe(0);
+        expect(globalFetchMock).toHaveBeenCalledTimes(8);
+    });
 });

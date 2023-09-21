@@ -18,9 +18,9 @@ const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgno
  */
 export type { GitIgnore };
 export type GitIgnoreOptions = {
-	ignoreCase?: boolean;
-	useDefaultGitIgnores?: boolean;
-	useDefaultNPMIgnores?: boolean;
+    ignoreCase?: boolean;
+    useDefaultGitIgnores?: boolean;
+    useDefaultNPMIgnores?: boolean;
 };
 export type GlobToRegExpOptions = MMOptions & { ignoreCase?: boolean };
 export type globToRegExpStringOptions = MMOptions & { ignoreCase?: boolean };
@@ -55,10 +55,10 @@ export const extRegExp = /(?:^|[^.])\.([^\\/.]+)$/iu;
  * @see $mimeꓺexts in `./mime.ts` for a more verbose breakdown of these.
  */
 export const staticExts: string[] = $mimeꓺexts.filter((ext) => {
-	return (
-		!['php', 'phtm', 'phtml', 'rb', 'py', 'shtm', 'shtml', 'asp', 'aspx', 'pl', 'plx', 'cgi', 'ppl', 'perl', 'sh', 'zsh', 'bash'].includes(ext) &&
-		!/^(?:php|phtml?|rb|py|shtml?|aspx?|plx?|cgi|ppl|perl|sh|zsh|bash)(?:[.~_-]*[0-9]+)$/u.test(ext) // Version-specific variants.
-	);
+    return (
+        !['php', 'phtm', 'phtml', 'rb', 'py', 'shtm', 'shtml', 'asp', 'aspx', 'pl', 'plx', 'cgi', 'ppl', 'perl', 'sh', 'zsh', 'bash'].includes(ext) &&
+        !/^(?:php|phtml?|rb|py|shtml?|aspx?|plx?|cgi|ppl|perl|sh|zsh|bash)(?:[.~_-]*[0-9]+)$/u.test(ext) // Version-specific variants.
+    );
 });
 
 /**
@@ -81,7 +81,7 @@ export const staticExtRegExp = new RegExp('(?:^|[^.])\\.(' + staticExtsPipedForR
  * @returns      Clean filesystem path.
  */
 export const clean = (path: string): string => {
-	return path.split(/[?#]/u)[0];
+    return path.split(/[?#]/u)[0];
 };
 
 /**
@@ -92,8 +92,8 @@ export const clean = (path: string): string => {
  * @returns      Extension; else empty string.
  */
 export const ext = (path: string): string => {
-	path = clean(path); // No query and/or hash.
-	return '' !== path ? extRegExp.exec(path)?.[1].toLowerCase() || '' : '';
+    path = clean(path); // No query and/or hash.
+    return '' !== path ? extRegExp.exec(path)?.[1].toLowerCase() || '' : '';
 };
 
 /**
@@ -104,8 +104,8 @@ export const ext = (path: string): string => {
  * @returns      True if path has an extension.
  */
 export const hasExt = (path: string): boolean => {
-	path = clean(path); // No query and/or hash.
-	return '' !== path && extRegExp.test(path);
+    path = clean(path); // No query and/or hash.
+    return '' !== path && extRegExp.test(path);
 };
 
 /**
@@ -116,8 +116,8 @@ export const hasExt = (path: string): boolean => {
  * @returns      True if path has a static extension.
  */
 export const hasStaticExt = (path: string): boolean => {
-	path = clean(path); // No query and/or hash.
-	return '' !== path && extRegExp.test(path) && staticExtRegExp.test(path);
+    path = clean(path); // No query and/or hash.
+    return '' !== path && extRegExp.test(path) && staticExtRegExp.test(path);
 };
 
 /**
@@ -128,23 +128,23 @@ export const hasStaticExt = (path: string): boolean => {
  * @see https://o5p.me/X7mPw2
  */
 export const newGitIgnore = (options?: GitIgnoreOptions): GitIgnore => {
-	const defaultOpts = {
-		ignoreCase: true,
-		useDefaultGitIgnores: true,
-		useDefaultNPMIgnores: false,
-	};
-	const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<GitIgnoreOptions>;
-	if (opts.useDefaultNPMIgnores /* Already includes git ignores. */) opts.useDefaultGitIgnores = false;
+    const defaultOpts = {
+        ignoreCase: true,
+        useDefaultGitIgnores: true,
+        useDefaultNPMIgnores: false,
+    };
+    const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<GitIgnoreOptions>;
+    if (opts.useDefaultNPMIgnores /* Already includes git ignores. */) opts.useDefaultGitIgnores = false;
 
-	const gitIgnore = gitIgnoreFactory({ ignorecase: opts.ignoreCase });
+    const gitIgnore = gitIgnoreFactory({ ignorecase: opts.ignoreCase });
 
-	if (opts.useDefaultGitIgnores) {
-		gitIgnore.add(defaultGitIgnores);
-	}
-	if (opts.useDefaultNPMIgnores) {
-		gitIgnore.add(defaultNPMIgnores);
-	}
-	return gitIgnore;
+    if (opts.useDefaultGitIgnores) {
+        gitIgnore.add(defaultGitIgnores);
+    }
+    if (opts.useDefaultNPMIgnores) {
+        gitIgnore.add(defaultNPMIgnores);
+    }
+    return gitIgnore;
 };
 
 /**
@@ -159,19 +159,19 @@ export const newGitIgnore = (options?: GitIgnoreOptions): GitIgnore => {
  * @see https://git-scm.com/docs/gitignore#_pattern_format.
  */
 export const gitIgnoreToGlob = (ignoreGlob: string): string => {
-	const isNegated = /^!/u.test(ignoreGlob);
-	const isRootPath = /^!?\//u.test(ignoreGlob);
-	const isRelativePath = /\//u.test(ignoreGlob);
+    const isNegated = /^!/u.test(ignoreGlob);
+    const isRootPath = /^!?\//u.test(ignoreGlob);
+    const isRelativePath = /\//u.test(ignoreGlob);
 
-	if (isNegated /* Remove temporarily. */) {
-		ignoreGlob = ignoreGlob.replace(/^!/u, '');
-	}
-	ignoreGlob = $strꓺrTrim(ignoreGlob, '/');
+    if (isNegated /* Remove temporarily. */) {
+        ignoreGlob = ignoreGlob.replace(/^!/u, '');
+    }
+    ignoreGlob = $strꓺrTrim(ignoreGlob, '/');
 
-	if (isRootPath || isRelativePath) {
-		return (isNegated ? '!' : '') + ignoreGlob + '/**';
-	}
-	return (isNegated ? '!' : '') + '**/' + ignoreGlob + '/**';
+    if (isRootPath || isRelativePath) {
+        return (isNegated ? '!' : '') + ignoreGlob + '/**';
+    }
+    return (isNegated ? '!' : '') + '**/' + ignoreGlob + '/**';
 };
 
 /**
@@ -187,13 +187,13 @@ export const gitIgnoreToGlob = (ignoreGlob: string): string => {
  *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
 export const globToRegExp = (glob: string, options?: GlobToRegExpOptions): RegExp => {
-	const opts = $objꓺdefaults({}, options || {}, { nocase: false }) as GlobToRegExpOptions;
+    const opts = $objꓺdefaults({}, options || {}, { nocase: false }) as GlobToRegExpOptions;
 
-	if ($objꓺhasOwn(opts, 'ignoreCase')) {
-		opts.nocase = opts.ignoreCase;
-		delete opts.ignoreCase;
-	}
-	return $strꓺmm.makeRe(glob, opts);
+    if ($objꓺhasOwn(opts, 'ignoreCase')) {
+        opts.nocase = opts.ignoreCase;
+        delete opts.ignoreCase;
+    }
+    return $strꓺmm.makeRe(glob, opts);
 };
 
 /**
@@ -209,16 +209,16 @@ export const globToRegExp = (glob: string, options?: GlobToRegExpOptions): RegEx
  *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
 export const globToRegExpString = (glob: string, options?: globToRegExpStringOptions): string => {
-	const opts = $objꓺdefaults({}, options || {}, { nocase: false }) as globToRegExpStringOptions;
+    const opts = $objꓺdefaults({}, options || {}, { nocase: false }) as globToRegExpStringOptions;
 
-	if ($objꓺhasOwn(opts, 'ignoreCase')) {
-		opts.nocase = opts.ignoreCase;
-		delete opts.ignoreCase;
-	}
-	return $strꓺmm
-		.makeRe(glob, opts)
-		.toString()
-		.replace(/^\/|\/[^/]*$/gu, '');
+    if ($objꓺhasOwn(opts, 'ignoreCase')) {
+        opts.nocase = opts.ignoreCase;
+        delete opts.ignoreCase;
+    }
+    return $strꓺmm
+        .makeRe(glob, opts)
+        .toString()
+        .replace(/^\/|\/[^/]*$/gu, '');
 };
 
 /**
@@ -229,17 +229,17 @@ export const globToRegExpString = (glob: string, options?: globToRegExpStringOpt
  * @returns             An array of language extensions.
  */
 export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
-	let exts: string[] = []; // Initialize.
-	vsCodeLangs = $toꓺcastArray(vsCodeLangs);
+    let exts: string[] = []; // Initialize.
+    vsCodeLangs = $toꓺcastArray(vsCodeLangs);
 
-	for (const [, group] of Object.entries($mimeꓺtypes)) {
-		for (const [subgroupExts, subgroup] of Object.entries(group)) {
-			if (vsCodeLangs.includes(subgroup.vsCodeLang)) {
-				exts = exts.concat(subgroupExts.split('|'));
-			}
-		}
-	}
-	return [...new Set(exts.sort())]; // Unique extensions.
+    for (const [, group] of Object.entries($mimeꓺtypes)) {
+        for (const [subgroupExts, subgroup] of Object.entries(group)) {
+            if (vsCodeLangs.includes(subgroup.vsCodeLang)) {
+                exts = exts.concat(subgroupExts.split('|'));
+            }
+        }
+    }
+    return [...new Set(exts.sort())]; // Unique extensions.
 };
 
 /**
@@ -248,183 +248,183 @@ export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
  * @returns An array of extensions by VS Code lang ID.
  */
 export const extsByVSCodeLang = (): { [x: string]: string[] } => {
-	let exts: { [x: string]: string[] } = {}; // Initialize.
+    let exts: { [x: string]: string[] } = {}; // Initialize.
 
-	for (const [, group] of Object.entries($mimeꓺtypes)) {
-		for (const [subgroupExts, subgroup] of Object.entries(group)) {
-			exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang] || [];
-			exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang].concat(subgroupExts.split('|'));
-		}
-	}
-	for (const [vsCodeLang] of Object.entries(exts)) {
-		exts[vsCodeLang] = [...new Set(exts[vsCodeLang].sort())];
-	}
-	return exts; // Unique extensions within each VS Code lang ID group.
+    for (const [, group] of Object.entries($mimeꓺtypes)) {
+        for (const [subgroupExts, subgroup] of Object.entries(group)) {
+            exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang] || [];
+            exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang].concat(subgroupExts.split('|'));
+        }
+    }
+    for (const [vsCodeLang] of Object.entries(exts)) {
+        exts[vsCodeLang] = [...new Set(exts[vsCodeLang].sort())];
+    }
+    return exts; // Unique extensions within each VS Code lang ID group.
 };
 
 /**
  * Default git ignores, by group.
  */
 export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
-	'Locals': [
-		'._*', //
-		'.~*',
-		'.#*',
-	],
-	'Envs': [
-		'.envs',
-		'*.env',
+    'Locals': [
+        '._*', //
+        '.~*',
+        '.#*',
+    ],
+    'Envs': [
+        '.envs',
+        '*.env',
 
-		// These needed by Dotenv Vault, and to prevent dotfile contamination.
-		// i.e., Dotenv Vault appends these to ignore files if they don’t exist already.
-		// Note: *we* don’t *actually* need these — the two rules above will suffice.
-		// See: <https://o5p.me/mUn1tt> as a code reference.
-		'.env*',
-		'.flaskenv*',
-		'!.env.project',
-		'!.env.vault',
-	],
-	'Logs': [
-		'*.log', //
-		'*.logs',
-	],
-	'Backups': [
-		'*~', //
-		'*.bak',
-	],
-	'Patches': [
-		'*.rej', //
-		'*.orig',
-		'*.patch',
-		'*.diff',
-	],
-	'Editors': {
-		'VS Code': [
-			'*.code-*', //
-			// '*.code-search',
-			// '*.code-workspace',
-		],
-		'IntelliJ': [
-			'.idea', //
-		],
-		'Vim': [
-			'.*.swp', //
-		],
-		'CTAGs': [
-			'*.ctags', //
-		],
-	},
-	'Tooling': {
-		'Dotenv': [
-			'.env.me', //
-		],
-		'TypeScript': [
-			'.tscache', //
-			'*.tsbuildinfo',
-		],
-		'Vite': [
-			'.vite', //
-			'.vitest',
-		],
-		'Wrangler': [
-			'.wrangler', //
-			'.dev.vars',
-			'.dev.vars.*',
-		],
-		'Rollup': [
-			'.rollup', //
-		],
-		'Webpack': [
-			'.webpack', //
-		],
-		'Linaria': [
-			'.linaria-cache', //
-		],
-		'SASS': [
-			'.sass-cache', //
-		],
-		'Docker': [
-			'.docker', //
-		],
-		'Vagrant': [
-			'.vagrant', //
-		],
-		'Elastic Beanstalk': [
-			'.elasticbeanstalk', //
-		],
-	},
-	'Packages': {
-		'Yarn': [
-			'.yarn', //
-		],
-		'Vendor': [
-			'vendor', //
-		],
-		'NodeJS': [
-			'node_modules', //
-		],
-		'JSPM': [
-			'jspm_packages', //
-		],
-		'Bower': [
-			'bower_components', //
-		],
-	},
-	'Version Control': {
-		'Git': [
-			'.git', //
-		],
-		'Subversion': [
-			'.svn', //
-			'_svn',
-			'.svnignore',
-		],
-		'Bazaar': [
-			'.bzr', //
-			'.bzrignore',
-		],
-		'Mercurial': [
-			'.hg', //
-			'.hgignore',
-		],
-	},
-	'Operating Systems': {
-		'Windows Files': [
-			'Thumbs.db', //
-			'ehthumbs.db',
-			'Desktop.ini',
-		],
-		'Windows Dirs': [
-			'$RECYCLE.BIN', //
-		],
-		'MacOS Files': [
-			// '._*', Already listed above.
-			'Icon\r',
-			'*.icloud',
-			'.DS_Store',
-			'.disk_label',
-			'.LSOverride',
-			'.VolumeIcon.icns',
-			'.com.apple.timemachine.*',
-		],
-		'MacOS Dirs': [
-			'.apdisk', //
-			'*.icloud',
-			'.fseventsd',
-			'.AppleDB',
-			'.AppleDesktop',
-			'.AppleDouble',
-			'.Trashes',
-			'.TemporaryItems',
-			'.Spotlight-V100',
-			'.DocumentRevisions-V100',
-			'Network Trash Folder',
-			'Temporary Items',
-		],
-	},
-	'Dist': [
-		'dist', //
-	],
+        // These needed by Dotenv Vault, and to prevent dotfile contamination.
+        // i.e., Dotenv Vault appends these to ignore files if they don’t exist already.
+        // Note: *we* don’t *actually* need these — the two rules above will suffice.
+        // See: <https://o5p.me/mUn1tt> as a code reference.
+        '.env*',
+        '.flaskenv*',
+        '!.env.project',
+        '!.env.vault',
+    ],
+    'Logs': [
+        '*.log', //
+        '*.logs',
+    ],
+    'Backups': [
+        '*~', //
+        '*.bak',
+    ],
+    'Patches': [
+        '*.rej', //
+        '*.orig',
+        '*.patch',
+        '*.diff',
+    ],
+    'Editors': {
+        'VS Code': [
+            '*.code-*', //
+            // '*.code-search',
+            // '*.code-workspace',
+        ],
+        'IntelliJ': [
+            '.idea', //
+        ],
+        'Vim': [
+            '.*.swp', //
+        ],
+        'CTAGs': [
+            '*.ctags', //
+        ],
+    },
+    'Tooling': {
+        'Dotenv': [
+            '.env.me', //
+        ],
+        'TypeScript': [
+            '.tscache', //
+            '*.tsbuildinfo',
+        ],
+        'Vite': [
+            '.vite', //
+            '.vitest',
+        ],
+        'Wrangler': [
+            '.wrangler', //
+            '.dev.vars',
+            '.dev.vars.*',
+        ],
+        'Rollup': [
+            '.rollup', //
+        ],
+        'Webpack': [
+            '.webpack', //
+        ],
+        'Linaria': [
+            '.linaria-cache', //
+        ],
+        'SASS': [
+            '.sass-cache', //
+        ],
+        'Docker': [
+            '.docker', //
+        ],
+        'Vagrant': [
+            '.vagrant', //
+        ],
+        'Elastic Beanstalk': [
+            '.elasticbeanstalk', //
+        ],
+    },
+    'Packages': {
+        'Yarn': [
+            '.yarn', //
+        ],
+        'Vendor': [
+            'vendor', //
+        ],
+        'NodeJS': [
+            'node_modules', //
+        ],
+        'JSPM': [
+            'jspm_packages', //
+        ],
+        'Bower': [
+            'bower_components', //
+        ],
+    },
+    'Version Control': {
+        'Git': [
+            '.git', //
+        ],
+        'Subversion': [
+            '.svn', //
+            '_svn',
+            '.svnignore',
+        ],
+        'Bazaar': [
+            '.bzr', //
+            '.bzrignore',
+        ],
+        'Mercurial': [
+            '.hg', //
+            '.hgignore',
+        ],
+    },
+    'Operating Systems': {
+        'Windows Files': [
+            'Thumbs.db', //
+            'ehthumbs.db',
+            'Desktop.ini',
+        ],
+        'Windows Dirs': [
+            '$RECYCLE.BIN', //
+        ],
+        'MacOS Files': [
+            // '._*', Already listed above.
+            'Icon\r',
+            '*.icloud',
+            '.DS_Store',
+            '.disk_label',
+            '.LSOverride',
+            '.VolumeIcon.icns',
+            '.com.apple.timemachine.*',
+        ],
+        'MacOS Dirs': [
+            '.apdisk', //
+            '*.icloud',
+            '.fseventsd',
+            '.AppleDB',
+            '.AppleDesktop',
+            '.AppleDouble',
+            '.Trashes',
+            '.TemporaryItems',
+            '.Spotlight-V100',
+            '.DocumentRevisions-V100',
+            'Network Trash Folder',
+            'Temporary Items',
+        ],
+    },
+    'Dist': [
+        'dist', //
+    ],
 };
 
 /**
@@ -434,74 +434,74 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
  * the insertion order so these can be extracted as a flat array of rules. Don’t remove the `npm:` prefix.
  */
 export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
-	...defaultGitIgnoresByGroup,
+    ...defaultGitIgnoresByGroup,
 
-	'npm:Dist': [
-		'!dist', //
-	],
-	'npm:Dots': [
-		'.*', //
-	],
-	'npm:Configs': [
-		'tsconfig.*', //
-		'wrangler.*',
-		'*.config.*',
-		'config.gypi',
-	],
-	'npm:Locks': [
-		'yarn.lock', //
-		'composer.lock',
-		'package-lock.json',
-	],
-	'npm:Src': [
-		'src', //
-	],
-	'npm:Dev': [
-		'dev', //
-	],
-	'npm:Sandbox': [
-		'sandbox', //
-	],
-	'npm:Examples': [
-		'example', //
-		'examples',
-	],
-	'npm:Docs': [
-		'doc', //
-		'docs',
-		'*.doc.*',
-		'*.docs.*',
-		'readme.*',
-		'*.readme.*',
-	],
-	'npm:Tests': [
-		'test', //
-		'tests',
-		'*.test.*',
-		'*.tests.*',
-		'*.test-d.*',
-		'*.tests-d.*',
-	],
-	'npm:Specs': [
-		'spec', //
-		'specs',
-		'*.spec.*',
-		'*.specs.*',
-		'*.spec-d.*',
-		'*.specs-d.*',
-	],
-	'npm:Benchmarks': [
-		'bench', //
-		'benchmark',
-		'benchmarks',
-		'*.bench.*',
-		'*.benchmark.*',
-		'*.benchmarks.*',
-	],
-	// There are also a few items always included and/or excluded by NPM.
-	// See: <https://docs.npmjs.com/cli/v9/configuring-npm/package-json#files>
-	// See: <https://docs.npmjs.com/cli/v8/using-npm/developers?v=true#keeping-files-out-of-your-package>
-	// Other than `package.json`, `README`, `LICENSE|LICENCE`, our rules already cover everything that NPM does.
+    'npm:Dist': [
+        '!dist', //
+    ],
+    'npm:Dots': [
+        '.*', //
+    ],
+    'npm:Configs': [
+        'tsconfig.*', //
+        'wrangler.*',
+        '*.config.*',
+        'config.gypi',
+    ],
+    'npm:Locks': [
+        'yarn.lock', //
+        'composer.lock',
+        'package-lock.json',
+    ],
+    'npm:Src': [
+        'src', //
+    ],
+    'npm:Dev': [
+        'dev', //
+    ],
+    'npm:Sandbox': [
+        'sandbox', //
+    ],
+    'npm:Examples': [
+        'example', //
+        'examples',
+    ],
+    'npm:Docs': [
+        'doc', //
+        'docs',
+        '*.doc.*',
+        '*.docs.*',
+        'readme.*',
+        '*.readme.*',
+    ],
+    'npm:Tests': [
+        'test', //
+        'tests',
+        '*.test.*',
+        '*.tests.*',
+        '*.test-d.*',
+        '*.tests-d.*',
+    ],
+    'npm:Specs': [
+        'spec', //
+        'specs',
+        '*.spec.*',
+        '*.specs.*',
+        '*.spec-d.*',
+        '*.specs-d.*',
+    ],
+    'npm:Benchmarks': [
+        'bench', //
+        'benchmark',
+        'benchmarks',
+        '*.bench.*',
+        '*.benchmark.*',
+        '*.benchmarks.*',
+    ],
+    // There are also a few items always included and/or excluded by NPM.
+    // See: <https://docs.npmjs.com/cli/v9/configuring-npm/package-json#files>
+    // See: <https://docs.npmjs.com/cli/v8/using-npm/developers?v=true#keeping-files-out-of-your-package>
+    // Other than `package.json`, `README`, `LICENSE|LICENCE`, our rules already cover everything that NPM does.
 };
 
 /**
@@ -510,303 +510,303 @@ export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
  * E.g., We use these breakdowns when configuring various devops tools.
  */
 export const defaultGitNPMIgnoresByCategory = {
-	// Locals
+    // Locals
 
-	localIgnores: [
-		'._*', //
-		'.~*',
-		'.#*',
-	],
-	// Envs
+    localIgnores: [
+        '._*', //
+        '.~*',
+        '.#*',
+    ],
+    // Envs
 
-	envIgnores: [
-		'.envs',
-		'*.env',
+    envIgnores: [
+        '.envs',
+        '*.env',
 
-		// These needed by Dotenv Vault, and to prevent dotfile contamination.
-		// i.e., Dotenv Vault appends these to ignore files if they don’t exist already.
-		// Note: *we* don’t *actually* need these — the two rules above will suffice.
-		// See: <https://o5p.me/mUn1tt> as a code reference.
-		'.env*',
-		'.flaskenv*',
-		'!.env.project',
-		'!.env.vault',
-	],
-	// Logs
+        // These needed by Dotenv Vault, and to prevent dotfile contamination.
+        // i.e., Dotenv Vault appends these to ignore files if they don’t exist already.
+        // Note: *we* don’t *actually* need these — the two rules above will suffice.
+        // See: <https://o5p.me/mUn1tt> as a code reference.
+        '.env*',
+        '.flaskenv*',
+        '!.env.project',
+        '!.env.vault',
+    ],
+    // Logs
 
-	logIgnores: [
-		'*.log', //
-		'*.logs',
-	],
-	// Backups
+    logIgnores: [
+        '*.log', //
+        '*.logs',
+    ],
+    // Backups
 
-	backupIgnores: [
-		'*~', //
-		'*.bak',
-	],
-	// Patches
+    backupIgnores: [
+        '*~', //
+        '*.bak',
+    ],
+    // Patches
 
-	patchIgnores: [
-		'*.rej', //
-		'*.orig',
-		'*.patch',
-		'*.diff',
-	],
-	// Editors
+    patchIgnores: [
+        '*.rej', //
+        '*.orig',
+        '*.patch',
+        '*.diff',
+    ],
+    // Editors
 
-	editorIgnores: [
-		// VS Code
+    editorIgnores: [
+        // VS Code
 
-		'*.code-*',
-		// '*.code-search',
-		// '*.code-workspace',
+        '*.code-*',
+        // '*.code-search',
+        // '*.code-workspace',
 
-		// IntelliJ
+        // IntelliJ
 
-		'.idea',
+        '.idea',
 
-		// Vim
+        // Vim
 
-		'.*.swp',
+        '.*.swp',
 
-		// CTAGs
+        // CTAGs
 
-		'*.ctags',
-	],
-	// Tooling
+        '*.ctags',
+    ],
+    // Tooling
 
-	toolingIgnores: [
-		// Dotenv
+    toolingIgnores: [
+        // Dotenv
 
-		'.env.me',
+        '.env.me',
 
-		// TypeScript
+        // TypeScript
 
-		'.tscache',
-		'*.tsbuildinfo',
+        '.tscache',
+        '*.tsbuildinfo',
 
-		// Vite
+        // Vite
 
-		'.vite',
-		'.vitest',
+        '.vite',
+        '.vitest',
 
-		// Wrangler
+        // Wrangler
 
-		'.wrangler',
-		'.dev.vars',
-		'.dev.vars.*',
+        '.wrangler',
+        '.dev.vars',
+        '.dev.vars.*',
 
-		// Rollup
+        // Rollup
 
-		'.rollup',
+        '.rollup',
 
-		// Webpack
+        // Webpack
 
-		'.webpack',
+        '.webpack',
 
-		// Linaria
+        // Linaria
 
-		'.linaria-cache',
+        '.linaria-cache',
 
-		// SASS
+        // SASS
 
-		'.sass-cache',
+        '.sass-cache',
 
-		// Docker
+        // Docker
 
-		'.docker',
+        '.docker',
 
-		// Vagrant
+        // Vagrant
 
-		'.vagrant',
+        '.vagrant',
 
-		// Elastic Beanstalk
+        // Elastic Beanstalk
 
-		'.elasticbeanstalk',
-	],
-	// Packages
+        '.elasticbeanstalk',
+    ],
+    // Packages
 
-	pkgIgnores: [
-		// Yarn
+    pkgIgnores: [
+        // Yarn
 
-		'.yarn',
+        '.yarn',
 
-		// Vendor
+        // Vendor
 
-		'vendor',
+        'vendor',
 
-		// NodeJS
+        // NodeJS
 
-		'node_modules',
+        'node_modules',
 
-		// JSPM
+        // JSPM
 
-		'jspm_packages',
+        'jspm_packages',
 
-		// Bower
+        // Bower
 
-		'bower_components',
-	],
-	// Version Control
+        'bower_components',
+    ],
+    // Version Control
 
-	vcsIgnores: [
-		// Git
+    vcsIgnores: [
+        // Git
 
-		'.git',
+        '.git',
 
-		// Subversion
+        // Subversion
 
-		'.svn',
-		'_svn',
-		'.svnignore',
+        '.svn',
+        '_svn',
+        '.svnignore',
 
-		// Bazaar
+        // Bazaar
 
-		'.bzr',
-		'.bzrignore',
+        '.bzr',
+        '.bzrignore',
 
-		// Mercurial
+        // Mercurial
 
-		'.hg',
-		'.hgignore',
-	],
-	// Operating Systems
+        '.hg',
+        '.hgignore',
+    ],
+    // Operating Systems
 
-	osIgnores: [
-		// Windows Files
+    osIgnores: [
+        // Windows Files
 
-		'Thumbs.db',
-		'ehthumbs.db',
-		'Desktop.ini',
+        'Thumbs.db',
+        'ehthumbs.db',
+        'Desktop.ini',
 
-		// Windows Dirs
+        // Windows Dirs
 
-		'$RECYCLE.BIN',
+        '$RECYCLE.BIN',
 
-		// MacOS Files
-
-		'._*',
-		'Icon\r',
-		'*.icloud',
-		'.DS_Store',
-		'.disk_label',
-		'.LSOverride',
-		'.VolumeIcon.icns',
-		'.com.apple.timemachine.*',
-
-		// MacOS Dirs
-
-		'.apdisk',
-		'*.icloud',
-		'.fseventsd',
-		'.AppleDB',
-		'.AppleDesktop',
-		'.AppleDouble',
-		'.Trashes',
-		'.TemporaryItems',
-		'.Spotlight-V100',
-		'.DocumentRevisions-V100',
-		'Network Trash Folder',
-		'Temporary Items',
-	],
-	// Dots
-
-	dotIgnores: [
-		'.*', //
-		// This category covers everything else we have in `./.npmignore`
-		// that isn’t already grouped in some other way by our exclusions.
-
-		// Note that `[name].tsbuildinfo` can also appear as `.tsbuildinfo`.
-		// So it’s technically a `.` file, or should be. We treat it as such.
-		'*.tsbuildinfo', // Tracks progressive project builds (local only).
-	],
-	// Types
-
-	dtsIgnores: [
-		'*.d.ts', //
-		'*.d.tsx',
-		'*.d.cts',
-		'*.d.ctsx',
-		'*.d.mts',
-		'*.d.mtsx',
-	],
-	// Configs
-
-	configIgnores: [
-		'tsconfig.*', //
-		'wrangler.*',
-		'*.config.*',
-		'config.gypi',
-		'package.json',
-	],
-	// Locks
-
-	lockIgnores: [
-		'yarn.lock', //
-		'composer.lock',
-		'package-lock.json',
-	],
-	// Dev
-
-	devIgnores: [
-		'dev', //
-	],
-	// Dist
-
-	distIgnores: [
-		'dist', //
-	],
-	// Sandbox
-
-	sandboxIgnores: [
-		'sandbox', //
-	],
-	// Examples
-
-	exampleIgnores: [
-		'example', //
-		'examples',
-	],
-	// Docs
-
-	docIgnores: [
-		'doc', //
-		'docs',
-		'*.doc.*',
-		'*.docs.*',
-		'readme.*',
-		'*.readme.*',
-	],
-	// Tests
-
-	testIgnores: [
-		'test', //
-		'tests',
-		'*.test.*',
-		'*.tests.*',
-		'*.test-d.*',
-		'*.tests-d.*',
-	],
-	// Specs
-
-	specIgnores: [
-		'spec', //
-		'specs',
-		'*.spec.*',
-		'*.specs.*',
-		'*.spec-d.*',
-		'*.specs-d.*',
-	],
-	// Benchmarks
-
-	benchIgnores: [
-		'bench', //
-		'benchmark',
-		'benchmarks',
-		'*.bench.*',
-		'*.benchmark.*',
-		'*.benchmarks.*',
-	],
+        // MacOS Files
+
+        '._*',
+        'Icon\r',
+        '*.icloud',
+        '.DS_Store',
+        '.disk_label',
+        '.LSOverride',
+        '.VolumeIcon.icns',
+        '.com.apple.timemachine.*',
+
+        // MacOS Dirs
+
+        '.apdisk',
+        '*.icloud',
+        '.fseventsd',
+        '.AppleDB',
+        '.AppleDesktop',
+        '.AppleDouble',
+        '.Trashes',
+        '.TemporaryItems',
+        '.Spotlight-V100',
+        '.DocumentRevisions-V100',
+        'Network Trash Folder',
+        'Temporary Items',
+    ],
+    // Dots
+
+    dotIgnores: [
+        '.*', //
+        // This category covers everything else we have in `./.npmignore`
+        // that isn’t already grouped in some other way by our exclusions.
+
+        // Note that `[name].tsbuildinfo` can also appear as `.tsbuildinfo`.
+        // So it’s technically a `.` file, or should be. We treat it as such.
+        '*.tsbuildinfo', // Tracks progressive project builds (local only).
+    ],
+    // Types
+
+    dtsIgnores: [
+        '*.d.ts', //
+        '*.d.tsx',
+        '*.d.cts',
+        '*.d.ctsx',
+        '*.d.mts',
+        '*.d.mtsx',
+    ],
+    // Configs
+
+    configIgnores: [
+        'tsconfig.*', //
+        'wrangler.*',
+        '*.config.*',
+        'config.gypi',
+        'package.json',
+    ],
+    // Locks
+
+    lockIgnores: [
+        'yarn.lock', //
+        'composer.lock',
+        'package-lock.json',
+    ],
+    // Dev
+
+    devIgnores: [
+        'dev', //
+    ],
+    // Dist
+
+    distIgnores: [
+        'dist', //
+    ],
+    // Sandbox
+
+    sandboxIgnores: [
+        'sandbox', //
+    ],
+    // Examples
+
+    exampleIgnores: [
+        'example', //
+        'examples',
+    ],
+    // Docs
+
+    docIgnores: [
+        'doc', //
+        'docs',
+        '*.doc.*',
+        '*.docs.*',
+        'readme.*',
+        '*.readme.*',
+    ],
+    // Tests
+
+    testIgnores: [
+        'test', //
+        'tests',
+        '*.test.*',
+        '*.tests.*',
+        '*.test-d.*',
+        '*.tests-d.*',
+    ],
+    // Specs
+
+    specIgnores: [
+        'spec', //
+        'specs',
+        '*.spec.*',
+        '*.specs.*',
+        '*.spec-d.*',
+        '*.specs-d.*',
+    ],
+    // Benchmarks
+
+    benchIgnores: [
+        'bench', //
+        'benchmark',
+        'benchmarks',
+        '*.bench.*',
+        '*.benchmark.*',
+        '*.benchmarks.*',
+    ],
 };
 
 /**
@@ -814,13 +814,13 @@ export const defaultGitNPMIgnoresByCategory = {
  */
 let _defaultGitIgnores: string[] = []; // Initialize.
 for (const [, group] of Object.entries(defaultGitIgnoresByGroup)) {
-	if (!Array.isArray(group)) {
-		for (const [, subgroup] of Object.entries(group)) {
-			_defaultGitIgnores = _defaultGitIgnores.concat(subgroup);
-		}
-	} else {
-		_defaultGitIgnores = _defaultGitIgnores.concat(group);
-	}
+    if (!Array.isArray(group)) {
+        for (const [, subgroup] of Object.entries(group)) {
+            _defaultGitIgnores = _defaultGitIgnores.concat(subgroup);
+        }
+    } else {
+        _defaultGitIgnores = _defaultGitIgnores.concat(group);
+    }
 } // We export unique ignores only.
 export const defaultGitIgnores = [...new Set(_defaultGitIgnores)];
 
@@ -829,12 +829,12 @@ export const defaultGitIgnores = [...new Set(_defaultGitIgnores)];
  */
 let _defaultNPMIgnores: string[] = []; // Initialize.
 for (const [, group] of Object.entries(defaultNPMIgnoresByGroup)) {
-	if (!Array.isArray(group)) {
-		for (const [, subgroup] of Object.entries(group)) {
-			_defaultNPMIgnores = _defaultNPMIgnores.concat(subgroup);
-		}
-	} else {
-		_defaultNPMIgnores = _defaultNPMIgnores.concat(group);
-	}
+    if (!Array.isArray(group)) {
+        for (const [, subgroup] of Object.entries(group)) {
+            _defaultNPMIgnores = _defaultNPMIgnores.concat(subgroup);
+        }
+    } else {
+        _defaultNPMIgnores = _defaultNPMIgnores.concat(group);
+    }
 } // We export unique ignores only.
 export const defaultNPMIgnores: string[] = [...new Set(_defaultNPMIgnores)];

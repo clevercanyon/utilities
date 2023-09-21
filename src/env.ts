@@ -30,7 +30,7 @@ export type QVTests = { [x: string]: null | undefined | string | string[] };
  * @returns     True if object path is top-level.
  */
 const isTopLevelObp = (obp: string): boolean => {
-	return !obp.includes('.') || /^@top\./u.test(obp);
+    return !obp.includes('.') || /^@top\./u.test(obp);
 };
 
 /**
@@ -41,10 +41,10 @@ const isTopLevelObp = (obp: string): boolean => {
  * @returns     A potentially globalized top-level object path.
  */
 const globalTopLevelObp = (obp: string): string => {
-	if (!obp.includes('.')) {
-		return '@global.' + obp;
-	}
-	return obp.replace(/^@top\./u, '@global.');
+    if (!obp.includes('.')) {
+        return '@global.' + obp;
+    }
+    return obp.replace(/^@top\./u, '@global.');
 };
 
 /**
@@ -55,10 +55,10 @@ const globalTopLevelObp = (obp: string): string => {
  * @returns     A potentially resolved top-level object path.
  */
 const resolveTopLevelObp = (obp: string): string => {
-	if (!obp.includes('.')) {
-		return (topLevelObp || $strꓺobpPartSafe($appꓺpkgName)) + '.' + obp;
-	}
-	return obp.replace(/^@top\./u, (topLevelObp || $strꓺobpPartSafe($appꓺpkgName)) + '.');
+    if (!obp.includes('.')) {
+        return (topLevelObp || $strꓺobpPartSafe($appꓺpkgName)) + '.' + obp;
+    }
+    return obp.replace(/^@top\./u, (topLevelObp || $strꓺobpPartSafe($appꓺpkgName)) + '.');
 };
 
 /**
@@ -89,11 +89,11 @@ const resolveTopLevelObp = (obp: string): string => {
  *   - Root object path is sanitized using {@see $str.obpPartSafe()} automtically.
  */
 export const setTopLevelObp = (rootObp: string): void => {
-	if (topLevelObpSet) {
-		return; // Once only.
-	}
-	topLevelObpSet = true;
-	topLevelObp = $strꓺobpPartSafe(rootObp);
+    if (topLevelObpSet) {
+        return; // Once only.
+    }
+    topLevelObpSet = true;
+    topLevelObp = $strꓺobpPartSafe(rootObp);
 };
 
 /**
@@ -103,21 +103,21 @@ export const setTopLevelObp = (rootObp: string): void => {
  * on-demand in order to avoid issues with circular references being used in the body of this module.
  */
 const initializeVars = (): void => {
-	if (varsInitialized) {
-		return; // Once only.
-	}
-	varsInitialized = true; // Initializing now.
+    if (varsInitialized) {
+        return; // Once only.
+    }
+    varsInitialized = true; // Initializing now.
 
-	if (isNode() && 'env' in process && $isꓺobject(process.env)) {
-		capture('@global', process.env);
-	} // Global node process environment variables.
+    if (isNode() && 'env' in process && $isꓺobject(process.env)) {
+        capture('@global', process.env);
+    } // Global node process environment variables.
 
-	if (isWeb() && 'env' in window && $isꓺobject(window.env)) {
-		capture('@global', window.env); // Non-standard, must be populated by web app.
-	} // Global window environment variables.
+    if (isWeb() && 'env' in window && $isꓺobject(window.env)) {
+        capture('@global', window.env); // Non-standard, must be populated by web app.
+    } // Global window environment variables.
 
-	// App-specific environment variables compiled by Vite.
-	capture($appꓺpkgName, import.meta.env); // Sourced by dotenv files.
+    // App-specific environment variables compiled by Vite.
+    capture($appꓺpkgName, import.meta.env); // Sourced by dotenv files.
 };
 
 /**
@@ -137,24 +137,24 @@ const initializeVars = (): void => {
  *   - If no value is found by any query, {@see defaultValue} is returned.
  */
 export const get = (leadingObps: string | string[], subObp: string, defaultValue?: unknown): unknown => {
-	if (!varsInitialized) initializeVars();
+    if (!varsInitialized) initializeVars();
 
-	for (const leadingObp of $toꓺcastArray(leadingObps)) {
-		const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
+    for (const leadingObp of $toꓺcastArray(leadingObps)) {
+        const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
 
-		let value: unknown; // Initialize.
+        let value: unknown; // Initialize.
 
-		if (isTopLevelObp(obp)) {
-			value = $obpꓺget(vars, globalTopLevelObp(obp));
-		}
-		if (undefined === value) {
-			value = $obpꓺget(vars, resolveTopLevelObp(obp));
-		}
-		if (undefined !== value) {
-			return value;
-		}
-	}
-	return defaultValue;
+        if (isTopLevelObp(obp)) {
+            value = $obpꓺget(vars, globalTopLevelObp(obp));
+        }
+        if (undefined === value) {
+            value = $obpꓺget(vars, resolveTopLevelObp(obp));
+        }
+        if (undefined !== value) {
+            return value;
+        }
+    }
+    return defaultValue;
 };
 
 /**
@@ -165,10 +165,10 @@ export const get = (leadingObps: string | string[], subObp: string, defaultValue
  * @param value      Environment variable value.
  */
 export const set = (leadingObp: string, subObp: string, value: unknown): void => {
-	if (!varsInitialized) initializeVars();
+    if (!varsInitialized) initializeVars();
 
-	const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
-	$obpꓺset(vars, resolveTopLevelObp(obp), $isꓺstring(value) ? $strꓺparseValue(value) : value);
+    const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
+    $obpꓺset(vars, resolveTopLevelObp(obp), $isꓺstring(value) ? $strꓺparseValue(value) : value);
 };
 
 /**
@@ -178,10 +178,10 @@ export const set = (leadingObp: string, subObp: string, value: unknown): void =>
  * @param subObp     Object subpath.
  */
 export const unset = (leadingObp: string, subObp: string): void => {
-	if (!varsInitialized) initializeVars();
+    if (!varsInitialized) initializeVars();
 
-	const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
-	$obpꓺunset(vars, resolveTopLevelObp(obp));
+    const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
+    $obpꓺunset(vars, resolveTopLevelObp(obp));
 };
 
 /**
@@ -194,16 +194,16 @@ export const unset = (leadingObp: string, subObp: string): void => {
  * @param env        Environment variables, by object subpath.
  */
 export const capture = (leadingObp: string, env: object): void => {
-	if (!varsInitialized) initializeVars();
+    if (!varsInitialized) initializeVars();
 
-	if ('@top' === leadingObp && !topLevelObpSet) {
-		throw new Error('`@top` used in capture before calling `$env.setTopLevelObp()`.');
-	}
-	for (const [subObp, value] of Object.entries(env)) {
-		if (!subObp) continue; // Empty subpath not allowable.
-		const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
-		$obpꓺdefaultTo(vars, resolveTopLevelObp(obp), $isꓺstring(value) ? $strꓺparseValue(value) : value);
-	}
+    if ('@top' === leadingObp && !topLevelObpSet) {
+        throw new Error('`@top` used in capture before calling `$env.setTopLevelObp()`.');
+    }
+    for (const [subObp, value] of Object.entries(env)) {
+        if (!subObp) continue; // Empty subpath not allowable.
+        const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
+        $obpꓺdefaultTo(vars, resolveTopLevelObp(obp), $isꓺstring(value) ? $strꓺparseValue(value) : value);
+    }
 };
 
 /**
@@ -219,10 +219,10 @@ export const isC10n = (tests: QVTests = {}): boolean => test('@top', 'APP_IS_C10
  * @returns True if is test framework.
  */
 export const isTest = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return test('@top', 'TEST');
-	},
+    // Memoized function.
+    (): boolean => {
+        return test('@top', 'TEST');
+    },
 );
 
 /**
@@ -231,10 +231,10 @@ export const isTest = $moizeꓺsvz({ maxSize: 1 })(
  * @returns True if is web.
  */
 export const isWeb = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return ('Window' in globalThis && $isꓺfunction(Window) && globalThis instanceof Window) || isWebViaJSDOM();
-	},
+    // Memoized function.
+    (): boolean => {
+        return ('Window' in globalThis && $isꓺfunction(Window) && globalThis instanceof Window) || isWebViaJSDOM();
+    },
 );
 
 /**
@@ -243,10 +243,10 @@ export const isWeb = $moizeꓺsvz({ maxSize: 1 })(
  * @returns True if is web browser under `//localhost`.
  */
 export const isLocalWeb = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return isWeb() && ['localhost', '127.0.0.1'].includes(location.hostname);
-	},
+    // Memoized function.
+    (): boolean => {
+        return isWeb() && ['localhost', '127.0.0.1'].includes(location.hostname);
+    },
 );
 
 /**
@@ -255,15 +255,15 @@ export const isLocalWeb = $moizeꓺsvz({ maxSize: 1 })(
  * @returns True if is web browser via JS DOM?
  */
 export const isWebViaJSDOM = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return (
+    // Memoized function.
+    (): boolean => {
+        return (
 			'Window' in globalThis && $isꓺfunction(Window) &&
 			'Navigator' in globalThis && $isꓺfunction(Navigator) &&
 			'navigator' in globalThis && $isꓺobject(navigator) &&
 			navigator instanceof Navigator && navigator.userAgent.includes('jsdom/')
 		); // prettier-ignore
-	},
+    },
 );
 
 /**
@@ -272,10 +272,10 @@ export const isWebViaJSDOM = $moizeꓺsvz({ maxSize: 1 })(
  * @returns True if is node.
  */
 export const isNode = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return 'process' in globalThis && $isꓺobject(process) && $isꓺobject(process.versions) && 'node' in process.versions;
-	},
+    // Memoized function.
+    (): boolean => {
+        return 'process' in globalThis && $isꓺobject(process) && $isꓺobject(process.versions) && 'node' in process.versions;
+    },
 );
 
 /**
@@ -284,15 +284,15 @@ export const isNode = $moizeꓺsvz({ maxSize: 1 })(
  * @returns True if is Cloudflare worker.
  */
 export const isCFW = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return (
+    // Memoized function.
+    (): boolean => {
+        return (
 			isServiceWorker() && // `ServiceWorkerGlobalScope`.
 			'Navigator' in globalThis && $isꓺfunction(Navigator) &&
 			'navigator' in globalThis && $isꓺobject(navigator) &&
 			navigator instanceof Navigator && 'Cloudflare-Workers' === navigator.userAgent
 		) || isCFWViaMiniflare(); // prettier-ignore
-	},
+    },
 );
 
 /**
@@ -301,15 +301,15 @@ export const isCFW = $moizeꓺsvz({ maxSize: 1 })(
  * @returns True if is Cloudflare worker via miniflare.
  */
 export const isCFWViaMiniflare = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return (
+    // Memoized function.
+    (): boolean => {
+        return (
 			'MINIFLARE' in globalThis && true === MINIFLARE &&
 			'Navigator' in globalThis && $isꓺfunction(Navigator) &&
 			'navigator' in globalThis && $isꓺobject(navigator) &&
 			navigator instanceof Navigator && 'Cloudflare-Workers' === navigator.userAgent
 		); // prettier-ignore
-	},
+    },
 );
 
 /**
@@ -318,10 +318,10 @@ export const isCFWViaMiniflare = $moizeꓺsvz({ maxSize: 1 })(
  * @returns True if is worker.
  */
 export const isWorker = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return 'WorkerGlobalScope' in globalThis && $isꓺfunction(WorkerGlobalScope) && globalThis instanceof WorkerGlobalScope;
-	},
+    // Memoized function.
+    (): boolean => {
+        return 'WorkerGlobalScope' in globalThis && $isꓺfunction(WorkerGlobalScope) && globalThis instanceof WorkerGlobalScope;
+    },
 );
 
 /**
@@ -330,10 +330,10 @@ export const isWorker = $moizeꓺsvz({ maxSize: 1 })(
  * @returns True if is dedicated worker.
  */
 export const isDedicatedWorker = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return 'DedicatedWorkerGlobalScope' in globalThis && $isꓺfunction(DedicatedWorkerGlobalScope) && globalThis instanceof DedicatedWorkerGlobalScope;
-	},
+    // Memoized function.
+    (): boolean => {
+        return 'DedicatedWorkerGlobalScope' in globalThis && $isꓺfunction(DedicatedWorkerGlobalScope) && globalThis instanceof DedicatedWorkerGlobalScope;
+    },
 );
 
 /**
@@ -342,10 +342,10 @@ export const isDedicatedWorker = $moizeꓺsvz({ maxSize: 1 })(
  * @returns True if is shared worker.
  */
 export const isSharedWorker = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return 'SharedWorkerGlobalScope' in globalThis && $isꓺfunction(SharedWorkerGlobalScope) && globalThis instanceof SharedWorkerGlobalScope;
-	},
+    // Memoized function.
+    (): boolean => {
+        return 'SharedWorkerGlobalScope' in globalThis && $isꓺfunction(SharedWorkerGlobalScope) && globalThis instanceof SharedWorkerGlobalScope;
+    },
 );
 
 /**
@@ -354,10 +354,10 @@ export const isSharedWorker = $moizeꓺsvz({ maxSize: 1 })(
  * @returns True if is service worker.
  */
 export const isServiceWorker = $moizeꓺsvz({ maxSize: 1 })(
-	// Memoized function.
-	(): boolean => {
-		return 'ServiceWorkerGlobalScope' in globalThis && $isꓺfunction(ServiceWorkerGlobalScope) && globalThis instanceof ServiceWorkerGlobalScope;
-	},
+    // Memoized function.
+    (): boolean => {
+        return 'ServiceWorkerGlobalScope' in globalThis && $isꓺfunction(ServiceWorkerGlobalScope) && globalThis instanceof ServiceWorkerGlobalScope;
+    },
 );
 
 /**
@@ -384,34 +384,34 @@ export const isServiceWorker = $moizeꓺsvz({ maxSize: 1 })(
  * @returns             True if environment variable is not empty, not `'0'`, and all tests pass.
  */
 export const test = (leadingObps: string | string[], subObp: string, tests?: QVTests): boolean => {
-	const value = get(leadingObps, subObp); // Env var value.
+    const value = get(leadingObps, subObp); // Env var value.
 
-	if ($isꓺempty(value, { orZero: true })) {
-		return false; // Env var empty = false.
-	}
-	if ($isꓺempty(tests)) {
-		return true; // Not empty, no tests = true.
-	}
-	const strValue = String(value); // Force string.
-	const qvs = $urlꓺgetQueryVars('http://x.tld/?' + strValue);
+    if ($isꓺempty(value, { orZero: true })) {
+        return false; // Env var empty = false.
+    }
+    if ($isꓺempty(tests)) {
+        return true; // Not empty, no tests = true.
+    }
+    const strValue = String(value); // Force string.
+    const qvs = $urlꓺgetQueryVars('http://x.tld/?' + strValue);
 
-	for (const [qv, glob] of Object.entries(tests as QVTests)) {
-		if (!$objꓺhasOwn(qvs, qv)) {
-			return false; // Missing qv.
-		}
-		if (!glob || '*' === glob || '**' === glob) {
-			continue; // The qv exists.
-		}
-		if ('?*' === glob || '?**' === glob) {
-			if ($isꓺempty(qvs[qv], { orZero: true })) {
-				return false; // Empty or `'0'`.
-			} else {
-				continue; // Not empty, not `'0'`.
-			}
-		}
-		if (!$strꓺmatches(qvs[qv], glob, { ignoreCase: true })) {
-			return false; // The qv doesn’t pass a test given.
-		}
-	}
-	return true; // Passed all tests.
+    for (const [qv, glob] of Object.entries(tests as QVTests)) {
+        if (!$objꓺhasOwn(qvs, qv)) {
+            return false; // Missing qv.
+        }
+        if (!glob || '*' === glob || '**' === glob) {
+            continue; // The qv exists.
+        }
+        if ('?*' === glob || '?**' === glob) {
+            if ($isꓺempty(qvs[qv], { orZero: true })) {
+                return false; // Empty or `'0'`.
+            } else {
+                continue; // Not empty, not `'0'`.
+            }
+        }
+        if (!$strꓺmatches(qvs[qv], glob, { ignoreCase: true })) {
+            return false; // The qv doesn’t pass a test given.
+        }
+    }
+    return true; // Passed all tests.
 };
