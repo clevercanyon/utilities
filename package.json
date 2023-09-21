@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.265",
+    "version": "1.0.266",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -22,164 +22,164 @@
     "imports": {},
     "exports": {
         ".": {
+            "types": "./dist/types/index.d.ts",
             "import": "./dist/index.js",
-            "require": "./dist/index.cjs",
-            "types": "./dist/types/index.d.ts"
+            "default": "./dist/index.js"
         },
         "./app": {
+            "types": "./dist/types/app.d.ts",
             "import": "./dist/app.js",
-            "require": "./dist/app.cjs",
-            "types": "./dist/types/app.d.ts"
+            "default": "./dist/app.js"
         },
         "./brand": {
+            "types": "./dist/types/brand.d.ts",
             "import": "./dist/brand.js",
-            "require": "./dist/brand.cjs",
-            "types": "./dist/types/brand.d.ts"
+            "default": "./dist/brand.js"
         },
         "./class": {
+            "types": "./dist/types/class.d.ts",
             "import": "./dist/class.js",
-            "require": "./dist/class.cjs",
-            "types": "./dist/types/class.d.ts"
+            "default": "./dist/class.js"
         },
         "./cookie": {
+            "types": "./dist/types/cookie.d.ts",
             "import": "./dist/cookie.js",
-            "require": "./dist/cookie.cjs",
-            "types": "./dist/types/cookie.d.ts"
+            "default": "./dist/cookie.js"
         },
         "./crypto": {
+            "types": "./dist/types/crypto.d.ts",
             "import": "./dist/crypto.js",
-            "require": "./dist/crypto.cjs",
-            "types": "./dist/types/crypto.d.ts"
+            "default": "./dist/crypto.js"
         },
         "./env": {
+            "types": "./dist/types/env.d.ts",
             "import": "./dist/env.js",
-            "require": "./dist/env.cjs",
-            "types": "./dist/types/env.d.ts"
+            "default": "./dist/env.js"
         },
         "./fn": {
+            "types": "./dist/types/fn.d.ts",
             "import": "./dist/fn.js",
-            "require": "./dist/fn.cjs",
-            "types": "./dist/types/fn.d.ts"
+            "default": "./dist/fn.js"
         },
         "./http": {
+            "types": "./dist/types/http.d.ts",
             "import": "./dist/http.js",
-            "require": "./dist/http.cjs",
-            "types": "./dist/types/http.d.ts"
+            "default": "./dist/http.js"
         },
         "./is": {
+            "types": "./dist/types/is.d.ts",
             "import": "./dist/is.js",
-            "require": "./dist/is.cjs",
-            "types": "./dist/types/is.d.ts"
+            "default": "./dist/is.js"
         },
         "./json": {
+            "types": "./dist/types/json.d.ts",
             "import": "./dist/json.js",
-            "require": "./dist/json.cjs",
-            "types": "./dist/types/json.d.ts"
+            "default": "./dist/json.js"
         },
         "./mime": {
+            "types": "./dist/types/mime.d.ts",
             "import": "./dist/mime.js",
-            "require": "./dist/mime.cjs",
-            "types": "./dist/types/mime.d.ts"
+            "default": "./dist/mime.js"
         },
         "./moize": {
+            "types": "./dist/types/moize.d.ts",
             "import": "./dist/moize.js",
-            "require": "./dist/moize.cjs",
-            "types": "./dist/types/moize.d.ts"
+            "default": "./dist/moize.js"
         },
         "./obj": {
+            "types": "./dist/types/obj.d.ts",
             "import": "./dist/obj.js",
-            "require": "./dist/obj.cjs",
-            "types": "./dist/types/obj.d.ts"
+            "default": "./dist/obj.js"
         },
         "./obp": {
+            "types": "./dist/types/obp.d.ts",
             "import": "./dist/obp.js",
-            "require": "./dist/obp.cjs",
-            "types": "./dist/types/obp.d.ts"
+            "default": "./dist/obp.js"
         },
         "./path": {
+            "types": "./dist/types/path.d.ts",
             "import": "./dist/path.js",
-            "require": "./dist/path.cjs",
-            "types": "./dist/types/path.d.ts"
+            "default": "./dist/path.js"
         },
         "./preact": {
+            "types": "./dist/types/preact.d.ts",
             "import": "./dist/preact.js",
-            "require": "./dist/preact.cjs",
-            "types": "./dist/types/preact.d.ts"
+            "default": "./dist/preact.js"
         },
         "./str": {
+            "types": "./dist/types/str.d.ts",
             "import": "./dist/str.js",
-            "require": "./dist/str.cjs",
-            "types": "./dist/types/str.d.ts"
+            "default": "./dist/str.js"
         },
         "./symbol": {
+            "types": "./dist/types/symbol.d.ts",
             "import": "./dist/symbol.js",
-            "require": "./dist/symbol.cjs",
-            "types": "./dist/types/symbol.d.ts"
+            "default": "./dist/symbol.js"
         },
         "./time": {
+            "types": "./dist/types/time.d.ts",
             "import": "./dist/time.js",
-            "require": "./dist/time.cjs",
-            "types": "./dist/types/time.d.ts"
+            "default": "./dist/time.js"
         },
         "./to": {
+            "types": "./dist/types/to.d.ts",
             "import": "./dist/to.js",
-            "require": "./dist/to.cjs",
-            "types": "./dist/types/to.d.ts"
+            "default": "./dist/to.js"
         },
         "./type": {
+            "types": "./dist/types/type.d.ts",
             "import": "./dist/type.js",
-            "require": "./dist/type.cjs",
-            "types": "./dist/types/type.d.ts"
+            "default": "./dist/type.js"
         },
         "./url": {
+            "types": "./dist/types/url.d.ts",
             "import": "./dist/url.js",
-            "require": "./dist/url.cjs",
-            "types": "./dist/types/url.d.ts"
+            "default": "./dist/url.js"
         },
         "./version": {
+            "types": "./dist/types/version.d.ts",
             "import": "./dist/version.js",
-            "require": "./dist/version.cjs",
-            "types": "./dist/types/version.d.ts"
-        },
-        "./preact/apis/iso": {
-            "import": "./dist/preact/apis/iso.js",
-            "require": "./dist/preact/apis/iso.cjs",
-            "types": "./dist/types/preact/apis/iso.d.ts"
-        },
-        "./preact/apis/ssr": {
-            "import": "./dist/preact/apis/ssr.js",
-            "require": "./dist/preact/apis/ssr.cjs",
-            "types": "./dist/types/preact/apis/ssr.d.ts"
-        },
-        "./preact/components/body": {
-            "import": "./dist/preact/components/body.js",
-            "require": "./dist/preact/components/body.cjs",
-            "types": "./dist/types/preact/components/body.d.ts"
-        },
-        "./preact/components/data": {
-            "import": "./dist/preact/components/data.js",
-            "require": "./dist/preact/components/data.cjs",
-            "types": "./dist/types/preact/components/data.d.ts"
-        },
-        "./preact/components/head": {
-            "import": "./dist/preact/components/head.js",
-            "require": "./dist/preact/components/head.cjs",
-            "types": "./dist/types/preact/components/head.d.ts"
-        },
-        "./preact/components/html": {
-            "import": "./dist/preact/components/html.js",
-            "require": "./dist/preact/components/html.cjs",
-            "types": "./dist/types/preact/components/html.d.ts"
-        },
-        "./preact/components/router": {
-            "import": "./dist/preact/components/router.js",
-            "require": "./dist/preact/components/router.cjs",
-            "types": "./dist/types/preact/components/router.d.ts"
+            "default": "./dist/version.js"
         },
         "./preact/routes/404": {
+            "types": "./dist/types/preact/routes/404.d.ts",
             "import": "./dist/preact/routes/404.js",
-            "require": "./dist/preact/routes/404.cjs",
-            "types": "./dist/types/preact/routes/404.d.ts"
+            "default": "./dist/preact/routes/404.js"
+        },
+        "./preact/apis/iso": {
+            "types": "./dist/types/preact/apis/iso.d.ts",
+            "import": "./dist/preact/apis/iso.js",
+            "default": "./dist/preact/apis/iso.js"
+        },
+        "./preact/apis/ssr": {
+            "types": "./dist/types/preact/apis/ssr.d.ts",
+            "import": "./dist/preact/apis/ssr.js",
+            "default": "./dist/preact/apis/ssr.js"
+        },
+        "./preact/components/body": {
+            "types": "./dist/types/preact/components/body.d.ts",
+            "import": "./dist/preact/components/body.js",
+            "default": "./dist/preact/components/body.js"
+        },
+        "./preact/components/data": {
+            "types": "./dist/types/preact/components/data.d.ts",
+            "import": "./dist/preact/components/data.js",
+            "default": "./dist/preact/components/data.js"
+        },
+        "./preact/components/head": {
+            "types": "./dist/types/preact/components/head.d.ts",
+            "import": "./dist/preact/components/head.js",
+            "default": "./dist/preact/components/head.js"
+        },
+        "./preact/components/html": {
+            "types": "./dist/types/preact/components/html.d.ts",
+            "import": "./dist/preact/components/html.js",
+            "default": "./dist/preact/components/html.js"
+        },
+        "./preact/components/router": {
+            "types": "./dist/types/preact/components/router.d.ts",
+            "import": "./dist/preact/components/router.js",
+            "default": "./dist/preact/components/router.js"
         }
     },
     "sideEffects": [
@@ -207,17 +207,17 @@
         "./src/type.ts",
         "./src/url.ts",
         "./src/version.ts",
+        "./src/preact/routes/404.tsx",
         "./src/preact/apis/iso.tsx",
         "./src/preact/apis/ssr.tsx",
         "./src/preact/components/body.tsx",
         "./src/preact/components/data.tsx",
         "./src/preact/components/head.tsx",
         "./src/preact/components/html.tsx",
-        "./src/preact/components/router.tsx",
-        "./src/preact/routes/404.tsx"
+        "./src/preact/components/router.tsx"
     ],
     "module": "./dist/index.js",
-    "main": "./dist/index.cjs",
+    "main": "./dist/index.js",
     "browser": "",
     "unpkg": "./dist/index.js",
     "types": "./dist/types/index.d.ts",
@@ -228,11 +228,11 @@
     },
     "dependencies": {},
     "peerDependencies": {
-        "@clevercanyon/preact-iso.fork": "^2.3.61",
+        "@clevercanyon/preact-iso.fork": "^2.3.62",
         "fast-equals": "^4.0.3",
         "ignore": "^5.2.4",
         "luxon": "^3.4.3",
-        "micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.58",
+        "micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.59",
         "moize": "^6.1.6",
         "preact": "^10.17.1",
         "preact-render-to-string": "^6.2.1",
@@ -244,7 +244,7 @@
     "optionalDependencies": {},
     "bundleDependencies": [],
     "devDependencies": {
-        "@clevercanyon/dev-deps": "^1.0.229"
+        "@clevercanyon/dev-deps": "^1.0.230"
     },
     "overrides": {},
     "cpu": ["x64", "arm64"],
