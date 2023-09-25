@@ -14,9 +14,9 @@ export const $appꓺpkgName = $$__APP_PKG_NAME__$$;
 /**
  * Exports symbols; {@see $symbols}.
  */
-export const $symbolꓺobjTag: unique symbol = Symbol.for($appꓺpkgName + '/objTag');
-export const $symbolꓺobjStringTag: symbol = Symbol.toStringTag; // Baked into JS.
-export const $symbolꓺobjToEquals: unique symbol = Symbol.for($appꓺpkgName + '/objToEquals');
+export const $symbolꓺobjTag: unique symbol = Symbol('objTag');
+export const $symbolꓺobjStringTag: symbol = Symbol.toStringTag;
+export const $symbolꓺobjToEquals: unique symbol = Symbol('objToEquals');
 
 /**
  * Stores plain object c9r as string.

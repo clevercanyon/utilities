@@ -1,13 +1,14 @@
 /**
  * Symbol utilities.
  */
+// organize-imports-ignore
 
-import { $app } from './index.ts';
+export {
+    $symbolꓺobjTag as objTag, //
+    $symbolꓺobjStringTag as objStringTag,
+    $symbolꓺobjToEquals as objToEquals,
+} from './resources/standalone/index.ts';
 
-export const objTag: unique symbol = Symbol.for($app.pkgName + '/objTag');
-export const objStringTag: symbol = Symbol.toStringTag; // Baked into JS.
-
-export const objToPlain: unique symbol = Symbol.for($app.pkgName + '/objToPlain');
-export const objToEquals: unique symbol = Symbol.for($app.pkgName + '/objToEquals');
-export const objToJSON = 'toJSON'; // Not symbol, but string literal in this case.
-export const objToClone: unique symbol = Symbol.for($app.pkgName + '/objToClone');
+export const objToPlain: unique symbol = Symbol('objToPlain');
+export const objToJSON = 'toJSON'; // String literal for `toJSON`.
+export const objToClone: unique symbol = Symbol('objToClone');
