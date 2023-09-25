@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.270",
+    "version": "1.0.271",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -185,7 +185,7 @@
     },
     "dependencies": {},
     "peerDependencies": {
-        "@clevercanyon/preact-iso.fork": "^2.3.62",
+        "@clevercanyon/preact-iso.fork": "^2.3.63",
         "ignore": "^5.2.4",
         "ip-regex": "^5.0.0",
         "luxon": "^3.4.3",
