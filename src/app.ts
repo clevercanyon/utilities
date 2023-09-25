@@ -2,4 +2,6 @@
  * App utilities.
  */
 
-export const pkgName = $$__APP_PKG_NAME__$$;
+import * as $standalone from './resources/standalone/index.ts';
+
+export const pkgName = $standalone.$appꓺpkgName;

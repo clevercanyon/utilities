@@ -2,11 +2,9 @@
  * Brand utility class.
  */
 
-import { keyAndSymbolEntries as $objꓺkeyAndSymbolEntries } from '../../obj.ts';
-import type { Interface as $classꓺUtilityInterface } from './utility.ts';
-import { getClass as $classꓺgetUtility } from './utility.ts';
+import { $class, $obj } from '../../index.ts';
 
-let Class: Constructor | undefined; // Class definition cache.
+let Defined: Constructor | undefined; // Cache.
 
 /**
  * Defines types.
@@ -45,13 +43,15 @@ export type RawProps = BaseProps & {
     readonly org: string;
 };
 export type C9rProps = BaseProps & {
-    readonly org?: Interface | undefined;
+    readonly org?: Class | undefined;
 };
 export type Constructor = {
-    new (props: C9rProps | Interface): Interface;
+    new (props: C9rProps | Class): Class;
 };
-export declare class Interface extends $classꓺUtilityInterface {
-    public readonly org: Interface;
+export type Class = $class.Utility & ClassInterface;
+
+declare class ClassInterface {
+    public readonly org: Class;
     public readonly n7m: string;
 
     public readonly name: string;
@@ -80,7 +80,7 @@ export declare class Interface extends $classꓺUtilityInterface {
         readonly accountId: string;
         readonly zoneId: string;
     };
-    public constructor(props: C9rProps | Interface);
+    public constructor(props: C9rProps | Class);
 }
 
 /**
@@ -89,13 +89,13 @@ export declare class Interface extends $classꓺUtilityInterface {
  * @returns {@see Constructor} Definition.
  */
 export const getClass = (): Constructor => {
-    if (Class) return Class;
+    if (Defined) return Defined;
 
-    Class = class extends $classꓺgetUtility() implements Interface {
+    Defined = class extends $class.getUtility() implements Class {
         /**
          * Org brand object.
          */
-        public readonly org!: Interface;
+        public readonly org!: Class;
 
         /**
          * N7M; e.g., `m5d`.
@@ -169,21 +169,21 @@ export const getClass = (): Constructor => {
          *
          * @param props Props or {@see Interface} instance.
          */
-        public constructor(props: C9rProps | Interface) {
+        public constructor(props: C9rProps | Class) {
             super(); // Parent constructor.
 
             // const isClone = props instanceof (Class as Constructor);
 
-            for (const [key, value] of $objꓺkeyAndSymbolEntries(props)) {
+            for (const [key, value] of $obj.keyAndSymbolEntries(props)) {
                 this[key] = value; // Property assignments.
             }
-            if (!(this.org instanceof (Class as Constructor))) {
+            if (!(this.org instanceof (Defined as Constructor))) {
                 this.org = this; // Circular.
             }
         }
     };
-    return Object.defineProperty(Class, 'name', {
-        ...Object.getOwnPropertyDescriptor(Class, 'name'),
+    return Object.defineProperty(Defined, 'name', {
+        ...Object.getOwnPropertyDescriptor(Defined, 'name'),
         value: 'Brand',
     });
 };

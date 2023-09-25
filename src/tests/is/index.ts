@@ -108,7 +108,6 @@ describe('$is', async () => {
         expect($is.empty(0)).toBe(true);
         expect($is.empty(new Set())).toBe(true);
         expect($is.empty(new Map())).toBe(true);
-        expect($is.empty('0', { orZero: true })).toBe(true);
         expect($is.empty('')).toBe(true);
         expect($is.empty([])).toBe(true);
         expect($is.empty({})).toBe(true);
@@ -116,13 +115,44 @@ describe('$is', async () => {
         expect($is.empty(async () => null)).toBe(true);
 
         expect($is.empty('0')).toBe(false);
-        expect($is.empty('0', { orZero: false })).toBe(false);
         expect($is.empty('1')).toBe(false);
         expect($is.empty(true)).toBe(false);
         expect($is.empty({ a: 'a' })).toBe(false);
         expect($is.empty([0])).toBe(false);
         expect($is.empty(new Set([0]))).toBe(false);
         expect($is.empty(new Map([[0, 0]]))).toBe(false);
+    });
+    test('.notEmpty()', async () => {
+        expect($is.notEmpty(1)).toBe(true);
+        expect($is.notEmpty(0)).toBe(false);
+        expect($is.notEmpty('0')).toBe(true);
+    });
+    test('.emptyOrZero()', async () => {
+        expect($is.emptyOrZero(null)).toBe(true);
+        expect($is.emptyOrZero(undefined)).toBe(true);
+        expect($is.emptyOrZero(NaN)).toBe(true);
+        expect($is.emptyOrZero(false)).toBe(true);
+        expect($is.emptyOrZero(0)).toBe(true);
+        expect($is.emptyOrZero('0')).toBe(true);
+        expect($is.emptyOrZero(new Set())).toBe(true);
+        expect($is.emptyOrZero(new Map())).toBe(true);
+        expect($is.emptyOrZero('')).toBe(true);
+        expect($is.emptyOrZero([])).toBe(true);
+        expect($is.emptyOrZero({})).toBe(true);
+        expect($is.emptyOrZero(() => null)).toBe(true);
+        expect($is.emptyOrZero(async () => null)).toBe(true);
+
+        expect($is.emptyOrZero('1')).toBe(false);
+        expect($is.emptyOrZero(true)).toBe(false);
+        expect($is.emptyOrZero({ a: 'a' })).toBe(false);
+        expect($is.emptyOrZero([0])).toBe(false);
+        expect($is.emptyOrZero(new Set([0]))).toBe(false);
+        expect($is.emptyOrZero(new Map([[0, 0]]))).toBe(false);
+    });
+    test('.notEmptyOrZero()', async () => {
+        expect($is.notEmptyOrZero(1)).toBe(true);
+        expect($is.notEmptyOrZero(0)).toBe(false);
+        expect($is.notEmptyOrZero('0')).toBe(false);
     });
     test('.primitive()', async () => {
         expect($is.primitive(null)).toBe(true);

@@ -2,29 +2,12 @@
  * Conditional utilities.
  */
 
-import { pkgName as $appꓺpkgName } from './app.ts';
-import { isNode as $envꓺisNode, isWeb as $envꓺisWeb } from './env.ts';
-import type { $type } from './index.ts';
-import { svz as $moizeꓺsvz } from './moize.ts';
-import { keysAndSymbols as $objꓺkeysAndSymbols, tag as $objꓺtag, tags as $objꓺtags } from './obj.ts';
+import { $app, $class, $env, $obj, type $type } from './index.ts';
+import * as $standalone from './resources/standalone/index.ts';
 
 let structuredCloneableObjectTags: string[];
 const numericIntegerRegExp = /^(?:0|-?[1-9][0-9]*)$/u;
 const numericFloatRegExp = /^(?:0|-?[1-9][0-9]*)?\.[0-9]+$/u;
-
-/**
- * Exports utilities from Fast Equals package.
- *
- * Fast Equals is a Moize dependency, which we also use. Therefore, it makes sense to use Fast Equals for equality
- * comparisons. For further details {@see $fn.memoize()}, which is powered by the Moize memoization library.
- */
-export {
-    circularDeepEqual as deepEqual,
-    sameValueZeroEqual as equal,
-    deepEqual as fastDeepEqual,
-    shallowEqual as fastShallowEqual,
-    circularShallowEqual as shallowEqual,
-} from 'fast-equals';
 
 /**
  * Checks if a value is NaN.
@@ -100,7 +83,7 @@ export { _undefined as undefined }; // Must be exported as alias.
  *
  * Other important things to consider:
  *
- * - `'0'` is not falsy, so not empty. Unless, `opts` includes `{ orZero: true }` as an additional check.
+ * - `'0'` is not falsy, so not empty. {@see emptyOrZero()} is a variant that considers `'0'` empty.
  * - Symbols are a primitive value, and therefore only empty when falsy. They are never falsy, so never empty.
  * - Functions can be empty, and often are empty. Functions of all kinds are treated like any other object; i.e.,
  *   functions are empty when their own enumerable keys/symbols have a length of zero.
@@ -112,15 +95,13 @@ export { _undefined as undefined }; // Must be exported as alias.
  *   primitive types. Instead, simply use a falsy `if(!value)` check. It’s faster and easier.
  *
  * @param   value Value to consider.
- * @param   opts  Options (all optional).
  *
  * @returns       True if value is empty.
  *
  * @note See: <https://o5p.me/Mg1CQA> for falsy details.
  * @note See: <https://o5p.me/iYUYVK> for iterable details.
  */
-export const empty = (value: unknown, opts: { orZero?: boolean } = {}): boolean => {
-    if (opts.orZero && '0' === value) return true;
+export const empty = (value: unknown): boolean => {
     if (!value) return true; // Empty when falsy.
 
     if (!object(value) /* Primitive. */) {
@@ -142,13 +123,52 @@ export const empty = (value: unknown, opts: { orZero?: boolean } = {}): boolean 
     if (asyncIterable(value)) {
         return false; // Never considered empty.
     }
-    return 0 === $objꓺkeysAndSymbols(value).length;
+    return 0 === $obj.keysAndSymbols(value).length;
+};
+
+/**
+ * Checks if a value is _not_ empty.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is _not_ empty.
+ *
+ * @see {empty()} for further details.
+ */
+export const notEmpty = (value: unknown): boolean => {
+    return !empty(value);
+};
+
+/**
+ * Checks if a value is empty, or `'0'`.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is empty, or `'0'`.
+ *
+ * @see {empty()} for further details.
+ */
+export const emptyOrZero = (value: unknown): boolean => {
+    return '0' === value || empty(value);
+};
+
+/**
+ * Checks if a value is _not_ empty, or `'0'`.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is _not_ empty, or `'0'`.
+ *
+ * @see {emptyOrZero()} for further details.
+ */
+export const notEmptyOrZero = (value: unknown): boolean => {
+    return !emptyOrZero(value);
 };
 
 /**
  * Checks if value is a primitive.
  *
- * This is the exact inverse of {@see object()}.
+ * Exact inverse of {@see object()}.
  *
  * The `!object()` check is used to ensure consistency and help with forward compatibility; i.e., any value that is not
  * an object, is a primitive. Thus, if JavaScript adds new primitives in the future, `!object()` will catch those.
@@ -164,7 +184,7 @@ export const empty = (value: unknown, opts: { orZero?: boolean } = {}): boolean 
  * @note See: <https://o5p.me/QGfHu9> regarding primitive types.
  */
 export const primitive = (value: unknown): value is $type.Primitive => {
-    return !object(value);
+    return !object(value); // Not an object|function.
 };
 
 /**
@@ -264,25 +284,22 @@ export const finite = (value: unknown): value is number => {
  * @note Returns false for `NaN`, which is technically a number type, but not numeric.
  * @note Returns false for bigint values, as those are not numbers.
  */
-export const numeric = $moizeꓺsvz({ maxSize: 12 })(
-    // Memoized function.
-    (value: unknown, type?: 'integer' | 'safeInteger' | 'safeArrayKey' | 'float'): value is number | string => {
-        switch (type) {
-            case 'integer':
-                return integer(value) || (string(value) && numericIntegerRegExp.test(value) && integer(Number(value)));
+export const numeric = (value: unknown, type?: 'integer' | 'safeInteger' | 'safeArrayKey' | 'float'): value is number | string => {
+    switch (type) {
+        case 'integer':
+            return integer(value) || (string(value) && numericIntegerRegExp.test(value) && integer(Number(value)));
 
-            case 'safeInteger':
-                return safeInteger(value) || (string(value) && numericIntegerRegExp.test(value) && safeInteger(Number(value)));
+        case 'safeInteger':
+            return safeInteger(value) || (string(value) && numericIntegerRegExp.test(value) && safeInteger(Number(value)));
 
-            case 'safeArrayKey':
-                return safeArrayKey(value) || (string(value) && numericIntegerRegExp.test(value) && safeArrayKey(Number(value)));
+        case 'safeArrayKey':
+            return safeArrayKey(value) || (string(value) && numericIntegerRegExp.test(value) && safeArrayKey(Number(value)));
 
-            case 'float':
-                return float(value) || (string(value) && numericFloatRegExp.test(value) && number(Number(value)));
-        }
-        return number(value) || (string(value) && (numericIntegerRegExp.test(value) || numericFloatRegExp.test(value)) && number(Number(value)));
-    },
-);
+        case 'float':
+            return float(value) || (string(value) && numericFloatRegExp.test(value) && number(Number(value)));
+    }
+    return number(value) || (string(value) && (numericIntegerRegExp.test(value) || numericFloatRegExp.test(value)) && number(Number(value)));
+};
 
 /**
  * Checks if value is a string.
@@ -313,34 +330,26 @@ export const symbol = (value: unknown): value is symbol => {
  *
  * @returns       True if value is a prototype.
  */
-export const proto = (value: unknown): value is $type.Object => {
-    return object(value) && value === (value.constructor?.prototype || Object.prototype);
-};
+export const proto = $standalone.$isꓺproto;
 
 /**
  * Checks if value is an object.
  *
- * This is the exact inverse of {@see primitive()}.
+ * Exact inverse of {@see primitive()}.
  *
  * @param   value Value to consider.
  * @param   opts  Options. Default is `{}`.
  *
  * @returns       True if value is an object.
  *
- * @note By default, this also returns true for functions.
- * @note By default, this also returns true for async functions.
- * @note By default, this also returns true for generator functions.
- * @note By default, this also returns true for async generator functions.
- * @note By default, this also returns true for proxied functions, sync or async.
- * @note By default, this also returns true for memoized functions.
+ * @note This also returns true for functions.
+ * @note This also returns true for async functions.
+ * @note This also returns true for generator functions.
+ * @note This also returns true for async generator functions.
+ * @note This also returns true for proxied functions, sync or async.
+ * @note This also returns true for memoized functions.
  */
-export const object = (value: unknown, opts: { notFunction?: boolean } = {}): value is $type.Object => {
-    if (opts.notFunction) {
-        return null !== value && 'object' === typeof value;
-    } else {
-        return null !== value && ['object', 'function'].includes(typeof value);
-    }
-};
+export const object = $standalone.$isꓺobject;
 
 /**
  * Checks if value is a plain object.
@@ -366,9 +375,7 @@ export const plainObject = (value: unknown): value is $type.Object => {
  * @note This also returns true for proxied functions, sync or async.
  * @note This also returns true for memoized and curried sync or async functions.
  */
-const _function = (value: unknown): value is $type.Function => {
-    return value instanceof Function;
-};
+const _function = $standalone.$isꓺfunction;
 export { _function as function }; // Must be exported as alias.
 
 /**
@@ -382,8 +389,17 @@ export { _function as function }; // Must be exported as alias.
  * @note This also returns true for proxied async functions.
  * @note This also returns true for memoized and curried async functions.
  */
-export const asyncFunction = (value: unknown): value is $type.AsyncFunction => {
-    return _function(value) && objectOfTag(value, 'AsyncFunction');
+export const asyncFunction = $standalone.$isꓺasyncFunction;
+
+/**
+ * Checks if value is a function arguments object.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is a function arguments object.
+ */
+export const fnArguments = (value: unknown): value is IArguments => {
+    return object(value) && objectTag(value, 'Arguments');
 };
 
 /**
@@ -437,9 +453,7 @@ export const arrayBuffer = (value: unknown): value is ArrayBuffer => {
  *
  * @returns       True if value is an array.
  */
-export const array = (value: unknown): value is unknown[] => {
-    return value instanceof Array || Array.isArray(value);
-};
+export const array = $standalone.$isꓺarray;
 
 /**
  * Checks if value is a typed array.
@@ -451,12 +465,7 @@ export const array = (value: unknown): value is unknown[] => {
  * @note See: <https://o5p.me/xfQ9CB> for details.
  */
 export const typedArray = (value: unknown): value is $type.TypedArray => {
-    if (!object(value)) return false; // Saves time.
-
-    for (const type of [Int8Array, Uint8Array, Uint8ClampedArray, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array, Float64Array, BigInt64Array, BigUint64Array]) {
-        if (value instanceof type) return true;
-    }
-    return false;
+    return ArrayBuffer.isView(value) && !dataView(value);
 };
 
 /**
@@ -478,7 +487,7 @@ export const dataView = (value: unknown): value is DataView => {
  * @returns       True if value is a buffer.
  */
 export const buffer = (value: unknown): value is Buffer => {
-    return $envꓺisNode() && Buffer.isBuffer(value);
+    return $env.isNode() && Buffer.isBuffer(value);
 };
 
 /**
@@ -510,8 +519,8 @@ export const error = (value: unknown): value is $type.Error => {
  *
  * @returns       True if value is a brand.
  */
-export const brand = (value: unknown): value is $type.Brand => {
-    return object(value) && objectOfTag(value, $appꓺpkgName + '/Brand');
+export const brand = (value: unknown): value is $class.Brand => {
+    return object(value) && objectOfTag(value, $app.pkgName + '/Brand');
 };
 
 /**
@@ -522,7 +531,7 @@ export const brand = (value: unknown): value is $type.Brand => {
  * @returns       True if value is a time.
  */
 export const time = (value: unknown): value is $type.Time => {
-    return object(value) && objectOfTag(value, $appꓺpkgName + '/Time');
+    return object(value) && objectOfTag(value, $app.pkgName + '/Time');
 };
 
 /**
@@ -566,7 +575,7 @@ export const regExp = (value: unknown): value is RegExp => {
  * @returns       True if value is DOM node.
  */
 export const node = (value: unknown): value is Node => {
-    return $envꓺisWeb() && value instanceof Node;
+    return $env.isWeb() && value instanceof Node;
 };
 
 /**
@@ -577,7 +586,7 @@ export const node = (value: unknown): value is Node => {
  * @returns       True if value is DOM element.
  */
 export const element = (value: unknown): value is Element => {
-    return $envꓺisWeb() && value instanceof Element;
+    return $env.isWeb() && value instanceof Element;
 };
 
 /**
@@ -590,9 +599,7 @@ export const element = (value: unknown): value is Element => {
  *
  * @note Please {@see $obj.tag()} for details regarding the special case of `[tag]:[cn]`.
  */
-export const objectTag = (value: unknown, requiredTag: string): boolean => {
-    return $objꓺtag(value) === requiredTag;
-};
+export const objectTag = $standalone.$isꓺobjectTag;
 
 /**
  * Checks if a value has one or more object tags.
@@ -605,30 +612,7 @@ export const objectTag = (value: unknown, requiredTag: string): boolean => {
  *
  * @note Please {@see $obj.tag()} for details regarding the special case of `[tag]:[cn]`.
  */
-export const objectOfTag = (value: unknown, ...requiredTags: (string | string[])[]): boolean => {
-    const objTags = $objꓺtags(value);
-
-    for (const condition of requiredTags) {
-        if (array(condition) /* AND (`tag` OR `tag`). */) {
-            let hasAnyOfTheseTags = false;
-
-            for (const tag of new Set(condition)) {
-                if (objTags.includes(tag)) {
-                    hasAnyOfTheseTags = true;
-                    break;
-                }
-            }
-            if (!hasAnyOfTheseTags) {
-                return false;
-            }
-        } /* AND `tag` condition. */ else {
-            if (!objTags.includes(condition)) {
-                return false;
-            }
-        }
-    }
-    return true;
-};
+export const objectOfTag = $standalone.$isꓺobjectOfTag;
 
 /**
  * Checks if a value is iterable.
@@ -718,6 +702,26 @@ export const protoPollutionKey = (key: number | string): boolean => {
 };
 
 /**
+ * Checks if two values are strictly equal to each other.
+ *
+ * @param   a First value to compare.
+ * @param   b Second value to compare.
+ *
+ * @returns   True if values are strictly equal; {@see https://o5p.me/58Z0j0}.
+ */
+export const equal = $standalone.$isꓺequal;
+
+/**
+ * Checks if values are deeply equal to each other.
+ *
+ * @param   a First value to compare.
+ * @param   b Second value to compare.
+ *
+ * @returns   True if values are deeply equal to each other.
+ */
+export const deepEqual = $standalone.$isꓺdeepEqual;
+
+/**
  * Checks if a value can be cloned by {@see structuredClone()}.
  *
  * @param   value Value to consider.
@@ -760,8 +764,7 @@ export const structuredCloneable = (value: unknown): boolean => {
             'BigInt64Array',
             'BigUint64Array',
 
-            // See: <https://o5p.me/ZzJtat>.
-            ...($envꓺisWeb()
+            ...($env.isWeb() // See: <https://o5p.me/ZzJtat>.
                 ? [
                       'AudioData',
                       'Blob',
@@ -790,5 +793,5 @@ export const structuredCloneable = (value: unknown): boolean => {
                 : []),
         ];
     }
-    return (primitive(value) && !symbol(value)) || structuredCloneableObjectTags.includes($objꓺtag(value));
+    return (primitive(value) && !symbol(value)) || structuredCloneableObjectTags.includes($obj.tag(value));
 };

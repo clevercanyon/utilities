@@ -2,14 +2,8 @@
  * Cookie utilities.
  */
 
-import { isWeb as $envꓺisWeb } from './env.ts';
-import type { $type } from './index.ts';
-import { svz as $moizeꓺsvz } from './moize.ts';
-import { defaults as $objꓺdefaults, hasOwn as $objꓺhasOwn } from './obj.ts';
-import { unquote as $strꓺunquote } from './str.ts';
-import { currentHost as $urlꓺcurrentHost, currentScheme as $urlꓺcurrentScheme, decode as $urlꓺdecode, encode as $urlꓺencode } from './url.ts';
-
-const documentCookieMap: Map<string, string | undefined> = new Map();
+import { $env, $obj, $str, $url, type $type } from './index.ts';
+import { $fnꓺmemoize } from './resources/standalone/index.ts';
 
 /**
  * Defines types.
@@ -23,6 +17,11 @@ export type Options = {
 };
 
 /**
+ * Defines DOM cookie map.
+ */
+const documentCookieMap: Map<string, string | undefined> = new Map();
+
+/**
  * Parses a cookie header.
  *
  * @param   header Cookie header to parse.
@@ -31,50 +30,49 @@ export type Options = {
  *
  *
  * @returns        Parsed cookies object.
+ *
+ * @note Function is memoized. Parsed cookies object is readonly.
  */
-export const parse = $moizeꓺsvz({ maxSize: 6 })(
-    // Memoized function.
-    (header?: string): { readonly [x: string]: string } => {
-        let isDocumentCookieHeader = false;
-        const cookies: { [x: string]: string } = {};
+export const parse = $fnꓺmemoize(6, (header?: string): { readonly [x: string]: string } => {
+    let isDocumentCookieHeader = false;
+    const cookies: { [x: string]: string } = {};
 
-        if (undefined === header) {
-            if ($envꓺisWeb()) {
-                header = document.cookie;
-                isDocumentCookieHeader = true;
-            } else {
-                throw new Error('Missing `header`.');
-            }
+    if (undefined === header) {
+        if ($env.isWeb()) {
+            header = document.cookie;
+            isDocumentCookieHeader = true;
+        } else {
+            throw new Error('Missing `header`.');
         }
-        for (const cookie of header.split(/\s*;\s*/)) {
-            let name, value; // Initialize.
-            const eqIndex = cookie.indexOf('=');
+    }
+    for (const cookie of header.split(/\s*;\s*/)) {
+        let name, value; // Initialize.
+        const eqIndex = cookie.indexOf('=');
 
-            if (-1 !== eqIndex) {
-                name = cookie.substring(0, eqIndex);
-                value = cookie.substring(eqIndex + 1);
+        if (-1 !== eqIndex) {
+            name = cookie.substring(0, eqIndex);
+            value = cookie.substring(eqIndex + 1);
+        } else {
+            [name, value] = [cookie, ''];
+        }
+        if ('' === name || !nameIsValid(name)) {
+            continue; // Invalid name.
+        }
+        value = $str.unquote(value, { type: 'double' });
+        cookies[$url.decode(name)] = $url.decode(value);
+    }
+    if (isDocumentCookieHeader) {
+        // Reflect latest runtime cookie changes.
+        for (const [key, value] of documentCookieMap.entries()) {
+            if (undefined === value) {
+                delete cookies[key]; // Deleted cookie.
             } else {
-                [name, value] = [cookie, ''];
-            }
-            if ('' === name || !nameIsValid(name)) {
-                continue; // Invalid name.
-            }
-            value = $strꓺunquote(value, { type: 'double' });
-            cookies[$urlꓺdecode(name)] = $urlꓺdecode(value);
-        }
-        if (isDocumentCookieHeader) {
-            // Reflect latest runtime cookie changes.
-            for (const [key, value] of documentCookieMap.entries()) {
-                if (undefined === value) {
-                    delete cookies[key]; // Deleted cookie.
-                } else {
-                    cookies[key] = value; // Latest value.
-                }
+                cookies[key] = value; // Latest value.
             }
         }
-        return cookies;
-    },
-);
+    }
+    return cookies;
+});
 
 /**
  * Checks if a cookie exists.
@@ -83,15 +81,10 @@ export const parse = $moizeꓺsvz({ maxSize: 6 })(
  *
  * @returns      True if cookie exists.
  */
-export const exists = $moizeꓺsvz({ maxSize: 24 })(
-    // Memoized function.
-    (name: string): boolean => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        return $objꓺhasOwn(parse(), name);
-    },
-);
+export const exists = $fnꓺmemoize(24, (name: string): boolean => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    return Object.hasOwn(parse(), name);
+});
 
 /**
  * Gets a cookie value.
@@ -101,17 +94,11 @@ export const exists = $moizeꓺsvz({ maxSize: 24 })(
  *
  * @returns              Cookie value, else {@see defaultValue}.
  */
-export const get = $moizeꓺsvz({ maxSize: 24 })(
-    // Memoized function.
-    <Default extends $type.Primitive = undefined>(name: string, defaultValue?: Default): string | Default => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        const cookies = parse();
-
-        return $objꓺhasOwn(cookies, name) ? cookies[name] : (defaultValue as Default);
-    },
-);
+export const get = $fnꓺmemoize(24, <Default extends $type.Primitive = undefined>(name: string, defaultValue?: Default): string | Default => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    const cookies = parse(); // Parser is memoized (important).
+    return Object.hasOwn(cookies, name) ? cookies[name] : (defaultValue as Default);
+});
 
 /**
  * Sets a cookie value.
@@ -121,18 +108,17 @@ export const get = $moizeꓺsvz({ maxSize: 24 })(
  * @param options Options (all optional).
  */
 export const set = (name: string, value: string, options: Options = {}): void => {
-    if (!$envꓺisWeb()) {
-        throw new Error('Not web.');
-    }
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+
     if (!nameIsValid(name)) {
         throw new Error('Invalid name: `' + name + '`.');
     }
-    const opts = $objꓺdefaults({}, options, {
-        domain: $urlꓺcurrentHost({ withPort: false }),
+    const opts = $obj.defaults({}, options, {
+        domain: $url.currentHost({ withPort: false }),
         path: '/',
         expires: 31536000,
         samesite: 'lax',
-        secure: 'https' === $urlꓺcurrentScheme(),
+        secure: 'https' === $url.currentScheme(),
     }) as Required<Options>;
 
     const domain = opts.domain ? '; domain=' + opts.domain : '';
@@ -144,14 +130,14 @@ export const set = (name: string, value: string, options: Options = {}): void =>
     // The `httponly` attribute is implied when using JavaScript.
     // See: <https://stackoverflow.com/a/14691716>.
 
-    document.cookie = $urlꓺencode(name) + '=' + $urlꓺencode(value) + domain + path + expires + samesite + secure;
+    document.cookie = $url.encode(name) + '=' + $url.encode(value) + domain + path + expires + samesite + secure;
 
     if ('' === value && opts.expires && opts.expires <= -1) {
         documentCookieMap.set(name, undefined); // Deleted cookie.
     } else {
         documentCookieMap.set(name, value); // Cookie’s latest value.
     }
-    parse.clear(), exists.clear(), get.clear(); // Clears memoization cache.
+    parse.flush(), exists.flush(), get.flush(); // Flushes memoization cache.
 };
 
 /**
@@ -161,9 +147,7 @@ export const set = (name: string, value: string, options: Options = {}): void =>
  * @param options Options (all optional).
  */
 const _delete = (name: string, options: Options = {}): void => {
-    if (!$envꓺisWeb()) {
-        throw new Error('Not web.');
-    }
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
     set(name, '', { ...options, expires: -1 });
 };
 export { _delete as delete }; // Must be exported as alias.

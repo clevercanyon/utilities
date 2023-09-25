@@ -2,22 +2,24 @@
  * Function utilities.
  */
 
-import type { $type } from './index.ts';
-import { asyncFunction as $isꓺasyncFunction, error as $isꓺerror } from './is.ts';
-import { defaults as $objꓺdefaults, tag as $objꓺtag } from './obj.ts';
+import { $is, $obj, type $type } from './index.ts';
+import * as $standalone from './resources/standalone/index.ts';
+import { type $fnꓺMemoizeOptions, type $fnꓺMemoizedFunction } from './resources/standalone/index.ts';
 
 /**
  * Defines types.
  */
-type TryFunction<__Fn extends $type.Function, __CatchReturns> = __Fn extends $type.AsyncFunction
+export type { $fnꓺMemoizeOptions as MemoizeOptions, $fnꓺMemoizedFunction as MemoizedFunction };
+
+export type TryFunction<__Fn extends $type.Function, __CatchReturns> = __Fn extends $type.AsyncFunction
     ? (...args: Parameters<__Fn>) => Promise<Awaited<ReturnType<__Fn>> | __CatchReturns>
     : (...args: Parameters<__Fn>) => ReturnType<__Fn> | __CatchReturns;
 
-type CurriedFunction<__Fn extends $type.Function, __Provided extends unknown[]> =
+export type CurriedFunction<__Fn extends $type.Function, __Provided extends unknown[]> =
     // If there is at least one required parameter remaining, return new curried function; else invocation return value.
     <__Remaining extends $type.PartialTuple<$type.RemainingParameters<__Provided, Parameters<__Fn>>>>(...args: __Remaining) => CurriedReturn<__Fn, [...__Provided, ...__Remaining]>;
 
-type CurriedReturn<__Fn extends $type.Function, __Provided extends unknown[]> = //
+export type CurriedReturn<__Fn extends $type.Function, __Provided extends unknown[]> = //
     // If there is at least one required parameter remaining.
     $type.RemainingParameters<__Provided, Parameters<__Fn>> extends [unknown, ...unknown[]]
         ? // Then return a new curried function.
@@ -30,15 +32,36 @@ export type ThrottleOptions = ThrottleDebounceCommonOptions & { debounceMode?: b
 export type DebounceOptions = ThrottleDebounceCommonOptions; // Nothing more to add at this time.
 type ThrottleDebounceCommonOptions = { leadingEdge?: boolean; waitTime?: number; trailingEdge?: boolean };
 
-type ThrottledFunction<__Fn extends $type.Function> = {
-	(this: ThisParameterType<__Fn>, ...args: Parameters<__Fn>): Promise<ReturnType<__Fn>>;
-	$onLeadingEdge: () => void; $onTrailingEdge: () => void; flush: () => void; cancel: (reason?: unknown) => void;
-}; // prettier-ignore
+export type ThrottledFunction<__Fn extends $type.Function> = {
+    (this: ThisParameterType<__Fn>, ...args: Parameters<__Fn>): Promise<ReturnType<__Fn>>;
+    $onLeadingEdge: () => void;
+    $onTrailingEdge: () => void;
+    flush: () => void;
+    cancel: (reason?: unknown) => void;
+};
 
 /**
  * No-op function.
+ *
+ * @see {$standalone.$fnꓺnoOp} for details.
  */
-export const noOp = (): void => undefined;
+export const noOp = $standalone.$fnꓺnoOp; // From standalone library.
+
+/**
+ * Memoizes a function’s response.
+ *
+ * If you’re calling this from outside of `clevercanyon/utilities`, please ignore the following warning.
+ *
+ * - **WARNING**: Please do _not_ use this particular copy from within the `clevercanyon/utilities` package. Instead, use
+ *   the standalone source of this utility in order to avoid problems with circular dependencies.
+ *
+ * @param   ...args {@see $standalone.$fnꓺmemoize} for details.
+ *
+ * @returns         Memoized function. {@see $standalone.$fnꓺmemoize} for details.
+ *
+ * @see https://www.npmjs.com/package/micro-memoize
+ */
+export const memoize = $standalone.$fnꓺmemoize; // From standalone library.
 
 /**
  * Tries to invoke a sync or async function.
@@ -58,16 +81,16 @@ function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn: Catch
 
 function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: CatchReturn, options?: TryOptions): TryFunction<Fn, CatchReturn | $type.Error> {
     const useCatchReturn = arguments.length >= 2; // Use `catchReturn` value as default?
-    const opts = $objꓺdefaults({}, options || {}, { throwOnError: false }) as Required<TryOptions>;
+    const opts = $obj.defaults({}, options || {}, { throwOnError: false }) as Required<TryOptions>;
 
-    if ($isꓺasyncFunction(fn)) {
+    if ($is.asyncFunction(fn)) {
         return async function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>) {
             try {
                 return await fn.apply(this, args);
             } catch (thrown) {
                 if (opts.throwOnError) throw thrown;
                 if (useCatchReturn) return catchReturn;
-                return $isꓺerror(thrown) ? thrown : new Error($objꓺtag(thrown));
+                return $is.error(thrown) ? thrown : new Error($obj.tag(thrown));
             }
         } as TryFunction<Fn, CatchReturn | $type.Error>;
     } else {
@@ -77,7 +100,7 @@ function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: Catc
             } catch (thrown) {
                 if (opts.throwOnError) throw thrown;
                 if (useCatchReturn) return catchReturn;
-                return $isꓺerror(thrown) ? thrown : new Error($objꓺtag(thrown));
+                return $is.error(thrown) ? thrown : new Error($obj.tag(thrown));
             }
         } as TryFunction<Fn, CatchReturn | $type.Error>;
     }
@@ -119,7 +142,7 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
  * @returns         Throttled sync or async function.
  */
 export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOptions): ThrottledFunction<Fn> => {
-    const opts = $objꓺdefaults({}, options || {}, { leadingEdge: true, waitTime: 750, trailingEdge: true, debounceMode: false }) as Required<ThrottleOptions>;
+    const opts = $obj.defaults({}, options || {}, { leadingEdge: true, waitTime: 750, trailingEdge: true, debounceMode: false }) as Required<ThrottleOptions>;
 
     let promises: {
         resolve: (fnRtn: ReturnType<Fn>) => void;

@@ -3,26 +3,24 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { $env } from '../../../index.ts';
-import * as $preactꓺapisꓺssr from '../../../preact/apis/ssr.tsx';
-import { default as $preactꓺcomponentsꓺRouter, Route as $preactꓺcomponentsꓺrouterꓺRoute } from '../../../preact/components/router.tsx';
-import { default as $preactꓺroutesꓺ404 } from '../../../preact/routes/404.tsx';
+import { $env, $preact } from '../../../index.ts';
+import { Route, Router } from '../../../preact/components.tsx';
 
-const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
+const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '' });
 
 describe('<Router>', async () => {
     beforeAll(async () => {
-        $env.set('@top', 'APP_BASE_URL', 'http://x.tld');
+        $env.set('APP_BASE_URL', 'http://x.tld');
     });
     afterAll(async () => {
-        $env.set('@top', 'APP_BASE_URL', __origAppBaseURL__);
+        $env.set('APP_BASE_URL', __origAppBaseURL__);
     });
     test('basics', async () => {
         expect(
-            $preactꓺapisꓺssr.renderToString(
-                <$preactꓺcomponentsꓺRouter url='http://x.tld'>
-                    <$preactꓺcomponentsꓺrouterꓺRoute default component={$preactꓺroutesꓺ404} />
-                </$preactꓺcomponentsꓺRouter>,
+            $preact.ssr.renderToString(
+                <Router url='http://x.tld'>
+                    <Route default component={(await import('../../../preact/routes/error-404.tsx')).default} />
+                </Router>,
             ),
         ).toContain('</html>');
     });

@@ -3,21 +3,7 @@
  */
 
 import { DateTime as Time } from 'luxon';
-import { pkgName as $appꓺpkgName } from './app.ts';
-import type { $type } from './index.ts';
-import {
-    array as $isꓺarray,
-    date as $isꓺdate,
-    float as $isꓺfloat,
-    number as $isꓺnumber,
-    numeric as $isꓺnumeric,
-    object as $isꓺobject,
-    plainObject as $isꓺplainObject,
-    string as $isꓺstring,
-    time as $isꓺtime, //
-} from './is.ts';
-import { defaults as $objꓺdefaults, pick as $objꓺpick } from './obj.ts';
-import { objTag as $symbolꓺobjTag, objToClone as $symbolꓺobjToClone, objToPlain as $symbolꓺobjToPlain } from './symbol.ts';
+import { $app, $class, $is, $obj, $symbol, type $type } from './index.ts';
 
 /**
  * Defines types.
@@ -29,18 +15,18 @@ export type From = number | string | Date | $type.Time | object | [string, strin
 /**
  * Enhances Time prototype.
  */
-Object.defineProperty(Time.prototype, $symbolꓺobjTag, {
-    get: function (this: $type.Time): ReturnType<$type.ObjTagFn> {
-        return $appꓺpkgName + '/Time'; // {@see $obj.tag()}.
+Object.defineProperty(Time.prototype, $symbol.objTag, {
+    get: function (this: $type.Time): ReturnType<$class.ObjTagSymbolFn> {
+        return $app.pkgName + '/Time'; // {@see $obj.tag()}.
     },
 });
-Object.defineProperty(Time.prototype, $symbolꓺobjToPlain, {
-    value: function (this: $type.Time): ReturnType<$type.ObjToPlainSymbolFn> {
+Object.defineProperty(Time.prototype, $symbol.objToPlain, {
+    value: function (this: $type.Time): ReturnType<$class.ObjToPlainSymbolFn> {
         return this.setZone('utc').toObject(); // See: <https://o5p.me/4iEe01>.
     },
 });
-Object.defineProperty(Time.prototype, $symbolꓺobjToClone, {
-    value: function (this: $type.Time): ReturnType<$type.ObjToCloneSymbolFn> {
+Object.defineProperty(Time.prototype, $symbol.objToClone, {
+    value: function (this: $type.Time): ReturnType<$class.ObjToCloneSymbolFn> {
         return this.reconfigure({}); // See: <https://o5p.me/dXNmVy>.
     },
 });
@@ -152,14 +138,14 @@ export const i18n = (from: From = 'now', options?: I18nOptions): string => {
         locale: currentUser.locale,
         format: i18nFormats.dateTime,
     };
-    const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<I18nOptions>;
-    const time = parse(from, $objꓺpick(opts, ['zone', 'locale']) as ParseOptions);
+    const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<I18nOptions>;
+    const time = parse(from, $obj.pick(opts, ['zone', 'locale']) as ParseOptions);
 
-    if ($isꓺstring(opts.format)) {
+    if ($is.string(opts.format)) {
         const T = Time as unknown as $type.Object;
         const format = opts.format.replace(/-/gu, '_').toUpperCase();
 
-        if ($isꓺobject(T[format])) {
+        if ($is.object(T[format])) {
             return time.toLocaleString(T[format] as object).replace(/\s+/gu, ' ');
         }
         throw new Error('Invalid format: `' + format + '`.');
@@ -188,7 +174,7 @@ export const i18n = (from: From = 'now', options?: I18nOptions): string => {
  */
 export const parse = (from: From = 'now', options?: ParseOptions): $type.Time => {
     const defaultOpts = { zone: 'utc', locale: 'en-US' };
-    const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<ParseOptions>;
+    const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<ParseOptions>;
 
     opts.zone = 'local' === opts.zone ? currentUser.timeZone : opts.zone;
     opts.locale = 'local' === opts.locale ? currentUser.locale : opts.locale;
@@ -198,15 +184,15 @@ export const parse = (from: From = 'now', options?: ParseOptions): $type.Time =>
     if ('now' === from) {
         time = Time.now();
         //
-    } else if ($isꓺnumber(from) || ($isꓺnumeric(from) && /^[0-9]{10,}/u.test(from))) {
+    } else if ($is.number(from) || ($is.numeric(from) && /^[0-9]{10,}/u.test(from))) {
         from = Number(from); // Force number value.
 
-        if ($isꓺfloat(from) || (from as number).toString().length <= 10) {
+        if ($is.float(from) || (from as number).toString().length <= 10) {
             time = Time.fromSeconds(from);
         } else {
             time = Time.fromMillis(from);
         }
-    } else if ($isꓺstring(from)) {
+    } else if ($is.string(from)) {
         // HTTP: RFC-2616; e.g., `Tue, 21 Feb 2023 13:16:32 GMT` (always GMT).
         if (/^[a-z]{3}, [0-9]{2} [a-z]{3} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} GMT$/iu.test(from)) {
             time = Time.fromHTTP(from);
@@ -218,16 +204,16 @@ export const parse = (from: From = 'now', options?: ParseOptions): $type.Time =>
         } /* ISO-8601: e.g., `2023-W08-2`, `20230221`, `0000[00[.000]]Z`, `00:00[:00[.000]]Z`, `20230221[T1316[32[.000]][Z|+0000]]`, `2023-02-21[T13:16[:32[.000]][Z|+00:00]]`. */ else {
             time = Time.fromISO(from, { zone: 'utc' });
         }
-    } else if ($isꓺdate(from)) {
+    } else if ($is.date(from)) {
         time = Time.fromJSDate(from);
         //
-    } else if ($isꓺtime(from)) {
+    } else if ($is.time(from)) {
         time = Time.fromISO(from.toISO() || '');
         //
-    } else if ($isꓺplainObject(from)) {
+    } else if ($is.plainObject(from)) {
         time = Time.fromObject(from, { zone: 'utc' });
         //
-    } else if ($isꓺarray(from) && 2 === from.length) {
+    } else if ($is.array(from) && 2 === from.length) {
         time = Time.fromFormat(String(from[0]), String(from[1]), { zone: 'utc' });
     }
     if (!time || !time.isValid) {

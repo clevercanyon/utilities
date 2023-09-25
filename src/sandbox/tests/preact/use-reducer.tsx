@@ -3,10 +3,8 @@
  */
 // @ts-nocheck -- sandbox.
 
-import { createContext as preactꓺcreateContext } from 'preact';
-import { useReducer as preactꓺhooksꓺuseReducer } from 'preact/hooks';
 import { describe, expect, test } from 'vitest';
-import * as $preactꓺapisꓺssr from '../../../preact/apis/ssr.tsx';
+import { $preact } from '../../../index.ts';
 
 describe('sandbox: preact', async () => {
     test('useReducer()', async () => {
@@ -32,7 +30,7 @@ describe('sandbox: preact', async () => {
             );
         };
         const Route = (props) => {
-            const { state, updateState } = preactꓺhooksꓺuseReducer(reducer, undefined, () => initialState('Route'));
+            const { state, updateState } = $preact.useReducer(reducer, undefined, () => initialState('Route'));
             console.log('<Route> state:', state);
             return (
                 <HTML>
@@ -41,34 +39,34 @@ describe('sandbox: preact', async () => {
                 </HTML>
             );
         };
-        const LocationContext = preactꓺcreateContext({});
+        const LocationContext = $preact.createContext({});
         const Location = (props) => {
-            const { state, updateState } = preactꓺhooksꓺuseReducer(reducer, undefined, () => initialState('Location'));
+            const { state, updateState } = $preact.useReducer(reducer, undefined, () => initialState('Location'));
             console.log('<Location> State:', state);
             return <LocationContext.Provider value={{ state, updateState }}>{props.children}</LocationContext.Provider>;
         };
-        const DataContext = preactꓺcreateContext({});
+        const DataContext = $preact.createContext({});
         const Data = (props) => {
-            const { state, updateState } = preactꓺhooksꓺuseReducer(reducer, undefined, () => initialState('Data'));
+            const { state, updateState } = $preact.useReducer(reducer, undefined, () => initialState('Data'));
             console.log('<Data> State:', state);
             return <DataContext.Provider value={{ state, updateState }}>{props.children}</DataContext.Provider>;
         };
         const HTML = (props) => {
-            const { state, updateState } = preactꓺhooksꓺuseReducer(reducer, undefined, () => initialState('HTML'));
+            const { state, updateState } = $preact.useReducer(reducer, undefined, () => initialState('HTML'));
             console.log('<HTML> State:', state);
             return <html>{props.children}</html>;
         };
         const Head = (props) => {
-            const { state, updateState } = preactꓺhooksꓺuseReducer(reducer, undefined, () => initialState('Head'));
+            const { state, updateState } = $preact.useReducer(reducer, undefined, () => initialState('Head'));
             console.log('<Head> State:', state);
             return <head>{props.children}</head>;
         };
         const Body = (props) => {
-            const { state, updateState } = preactꓺhooksꓺuseReducer(reducer, undefined, () => initialState('Body'));
+            const { state, updateState } = $preact.useReducer(reducer, undefined, () => initialState('Body'));
             console.log('<Body> State:', state);
             return <body>{props.children}</body>;
         };
-        console.log($preactꓺapisꓺssr.renderToString(<App />));
+        console.log($preact.ssr.renderToString(<App />));
         expect(true).toBe(true);
     });
 });

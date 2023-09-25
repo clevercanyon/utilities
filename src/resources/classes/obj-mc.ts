@@ -2,31 +2,19 @@
  * Object MC class.
  */
 
-import type { $type } from '../../index.ts';
-import {
-    array as $isꓺarray,
-    deepEqual as $isꓺdeepEqual,
-    function as $isꓺfunction,
-    map as $isꓺmap,
-    object as $isꓺobject,
-    safeObjectPath as $isꓺsafeObjectPath,
-    string as $isꓺstring,
-} from '../../is.ts';
-import { clone as $objꓺclone, cloneDeep as $objꓺcloneDeep, hasOwn as $objꓺhasOwn, keysAndSymbols as $objꓺkeysAndSymbols, tag as $objꓺtag } from '../../obj.ts';
-import { defaultTo as $obpꓺdefaultTo, get as $obpꓺget, has as $obpꓺhas, leave as $obpꓺleave, set as $obpꓺset, unset as $obpꓺunset } from '../../obp.ts';
-import { flatObject as $toꓺflatObject } from '../../to.ts';
-import type { Interface as $classꓺUtilityInterface } from './utility.ts';
-import { getClass as $classꓺgetUtility } from './utility.ts';
+import { $class, $is, $obj, $obp, $to, type $type } from '../../index.ts';
 
-let Class: Constructor | undefined; // Class definition cache.
+let Defined: Constructor | undefined; // Cache.
 
 /**
  * Defines types.
  */
 export type Constructor = {
-    new (): Interface; // Takes in nothing.
+    new (): Class; // Takes in nothing.
 };
-export declare class Interface extends $classꓺUtilityInterface {
+export type Class = $class.Utility & ClassInterface;
+
+declare class ClassInterface {
     public readonly kinds: {
         MERGE_DEEP: Kind;
         MERGE_CLONES_DEEP: Kind;
@@ -47,7 +35,7 @@ export declare class Interface extends $classꓺUtilityInterface {
     public readonly updateClonesDeep: Handler;
 
     public constructor(); // Takes in nothing.
-    public newInstance(): Interface; // Factory.
+    public newInstance(): Class; // Factory.
 
     public addMerge(tagA: string, tagB: string, callback: MergeCallback): MergeCallback | undefined;
     public addOperation(name: string, callback: OperationCallback): OperationCallback | undefined;
@@ -85,9 +73,9 @@ export type OperationCallback = {
  * @returns {@see Constructor} Definition.
  */
 export const getClass = (): Constructor => {
-    if (Class) return Class;
+    if (Defined) return Defined;
 
-    Class = class extends $classꓺgetUtility() implements Interface {
+    Defined = class extends $class.getUtility() implements Class {
         /**
          * Public API. ---
          */
@@ -158,8 +146,8 @@ export const getClass = (): Constructor => {
          *
          * @returns Newly created class instance.
          */
-        public newInstance(): Interface {
-            return new (Class as Constructor)();
+        public newInstance(): Class {
+            return new (Defined as Constructor)();
         }
 
         /**
@@ -172,13 +160,13 @@ export const getClass = (): Constructor => {
          * @returns          Previous merge callback.
          */
         public addMerge(tagA: string, tagB: string, callback: MergeCallback): MergeCallback | undefined {
-            if (!tagA || !$isꓺstring(tagA)) {
+            if (!tagA || !$is.string(tagA)) {
                 throw new Error('Invalid merge tagA.');
             }
-            if (!tagB || !$isꓺstring(tagB)) {
+            if (!tagB || !$is.string(tagB)) {
                 throw new Error('Invalid merge tagB.');
             }
-            if (!$isꓺfunction(callback)) {
+            if (!$is.function(callback)) {
                 throw new Error('Invalid merge callback.');
             }
             const previousCallback = this[`merge${tagA}${tagB}`];
@@ -196,10 +184,10 @@ export const getClass = (): Constructor => {
          * @returns          Previous operation callback.
          */
         public addOperation(name: string, callback: OperationCallback): OperationCallback | undefined {
-            if (!name || !$isꓺstring(name)) {
+            if (!name || !$is.string(name)) {
                 throw new Error('Invalid operation name.');
             }
-            if (!$isꓺfunction(callback)) {
+            if (!$is.function(callback)) {
                 throw new Error('Invalid operation callback.');
             }
             if (!name.startsWith('$')) {
@@ -225,11 +213,11 @@ export const getClass = (): Constructor => {
         protected prepareMergeHandler(kind: Kind): Handler {
             const circularMap: unique symbol = Symbol(kind + ':circularMap');
 
-            return function (this: Interface, ...args: Parameters<Handler>): ReturnType<Handler> {
+            return function (this: Class, ...args: Parameters<Handler>): ReturnType<Handler> {
                 let circular: CircularMap; // Possibly extracted from args.
                 const lastArg = args.at(-1); // Examined below.
 
-                if ($isꓺmap(lastArg) && $objꓺhasOwn(lastArg, circularMap)) {
+                if ($is.map(lastArg) && Object.hasOwn(lastArg, circularMap)) {
                     circular = args.pop() as CircularMap;
                 } else {
                     circular = new Map() as CircularMap;
@@ -243,8 +231,8 @@ export const getClass = (): Constructor => {
                     } /* Creates a new `a` value map. */ else {
                         circular.set(a, new Map()); // Used by callbacks.
                     }
-                    const tagA = $objꓺtag(a);
-                    const tabB = $objꓺtag(b);
+                    const tagA = $obj.tag(a);
+                    const tabB = $obj.tag(b);
 
                     for (const mergeCallback of [
                         `merge${tagA}${tabB}`, //
@@ -252,7 +240,7 @@ export const getClass = (): Constructor => {
                         `mergeAny${tabB}`,
                         `mergeAnyAny`,
                     ]) {
-                        if ($isꓺfunction(this[mergeCallback])) {
+                        if ($is.function(this[mergeCallback])) {
                             return (this[mergeCallback] as MergeCallback)(a, b, kind, circular);
                         }
                     }
@@ -269,7 +257,7 @@ export const getClass = (): Constructor => {
          * @returns      True if a declarative operation callback exists for `name`.
          */
         protected isOperation(name: string): boolean {
-            return `operation${name}` in this && $isꓺfunction(this[`operation${name}`]);
+            return `operation${name}` in this && $is.function(this[`operation${name}`]);
         }
 
         /**
@@ -298,7 +286,7 @@ export const getClass = (): Constructor => {
         protected extractOperations(value: unknown): $type.Object {
             const operations = {} as $type.Object;
 
-            if (!$isꓺobject(value) || $isꓺarray(value)) {
+            if (!$is.object(value) || $is.array(value)) {
                 return operations; // Not possible.
             }
             for (const key of Array.from(Object.keys(value))) {
@@ -331,7 +319,7 @@ export const getClass = (): Constructor => {
                 }
                 return a; // Returns `a`, mutated by reference.
                 //
-            } else if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind) && $isꓺdeepEqual(a, b)) {
+            } else if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind) && $is.deepEqual(a, b)) {
                 circular.get(a)?.set(b, a);
                 return a; // Returns `a` when there are no differences.
                 //
@@ -357,8 +345,8 @@ export const getClass = (): Constructor => {
          * @returns          Merged object.
          */
         protected mergeObjectObject(a: $type.Object, b: $type.Object, kind: Kind, circular: CircularMap): $type.Object {
-            const aKeys = $objꓺkeysAndSymbols(a);
-            const bKeys = new Set($objꓺkeysAndSymbols(b));
+            const aKeys = $obj.keysAndSymbols(a);
+            const bKeys = new Set($obj.keysAndSymbols(b));
 
             let newObj = [this.kinds.PATCH_DEEP, this.kinds.PATCH_CLONES_DEEP].includes(kind)
 				? a // Patching `a` target object in this case.
@@ -381,7 +369,7 @@ export const getClass = (): Constructor => {
                 newObj[key] = keyResult; // Key assignment.
             }
             for (const key of bKeys /* Remaining `b` keys. */) {
-                if ($isꓺstring(key) && this.isOperation(key)) {
+                if ($is.string(key) && this.isOperation(key)) {
                     operations.push([key, b[key]]);
                 } else {
                     keyResult = this[kind](undefined, b[key], circular);
@@ -391,7 +379,7 @@ export const getClass = (): Constructor => {
             }
             if (operations.length) {
                 if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind)) {
-                    newObj = $objꓺcloneDeep(newObj); // Immutable; so must clone before operations.
+                    newObj = $obj.cloneDeep(newObj); // Immutable; so must clone before operations.
                     hasUpdates = true; // Any update with operations `hasUpdates` due to the deep clone.
                 }
                 for (const [operation, params] of operations) {
@@ -484,22 +472,22 @@ export const getClass = (): Constructor => {
         protected mergeAnyAny(a: unknown, b: unknown, kind: Kind, circular: CircularMap): unknown {
             const bElseA = undefined !== b ? b : a;
 
-            if (!$isꓺobject(bElseA)) {
+            if (!$is.object(bElseA)) {
                 circular.get(a)?.set(b, bElseA);
                 return bElseA; // Merge unnecessary; i.e., primitive.
             }
-            if (undefined !== b && $isꓺfunction(this['mergeUndefined' + $objꓺtag(b)])) {
+            if (undefined !== b && $is.function(this['mergeUndefined' + $obj.tag(b)])) {
                 return this[kind](undefined, b, circular);
             }
             // Only create a deep clone when merging|patching clones, or when doing an immutable update.
             // Otherwise, lossless; i.e., simply transfer any unsupported object types.
 
-            if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind) && $isꓺdeepEqual(a, b)) {
+            if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind) && $is.deepEqual(a, b)) {
                 circular.get(a)?.set(b, a);
                 return a; // Returns `a` when there are no differences.
                 //
             } else if ([this.kinds.MERGE_CLONES_DEEP, this.kinds.PATCH_CLONES_DEEP, this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind)) {
-                const bElseAClone = $objꓺcloneDeep(bElseA);
+                const bElseAClone = $obj.cloneDeep(bElseA);
                 circular.get(a)?.set(b, bElseAClone);
                 return bElseAClone; // Returns `bElseA` deep clone, replacing `a`.
                 //
@@ -523,14 +511,14 @@ export const getClass = (): Constructor => {
          * @note This can set own or inherited, enumerable or not, object paths.
          */
         protected operation$set(target: unknown, params: unknown, separator: string = '.', calledAs: string = '$set') {
-            if (!$isꓺobject(target)) {
+            if (!$is.object(target)) {
                 throw new Error('Invalid ' + calledAs + '. Requires object target.');
             }
-            if (!$isꓺobject(params) || $isꓺarray(params)) {
+            if (!$is.object(params) || $is.array(params)) {
                 throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
             }
             for (const [path, value] of Object.entries(params)) {
-                $obpꓺset(target, path, value, separator);
+                $obp.set(target, path, value, separator);
             }
             return Object.keys(params).length > 0;
         }
@@ -555,17 +543,17 @@ export const getClass = (): Constructor => {
          * @note However, the use of `*` only unsets array keys and/or end-own enumerable string keys.
          */
         protected operation$unset(target: unknown, params: unknown, separator: string = '.', calledAs: string = '$unset') {
-            if (!$isꓺobject(target)) {
+            if (!$is.object(target)) {
                 throw new Error('Invalid ' + calledAs + '. Requires object target.');
             }
-            if (!$isꓺarray(params)) {
+            if (!$is.array(params)) {
                 throw new Error('Invalid ' + calledAs + ' params. Expecting array.');
             }
             for (const path of params) {
-                if (!$isꓺsafeObjectPath(path)) {
+                if (!$is.safeObjectPath(path)) {
                     throw new Error('Invalid ' + calledAs + ' param. Expecting object path.');
                 }
-                $obpꓺunset(target, path, separator);
+                $obp.unset(target, path, separator);
             }
             return params.length > 0;
         }
@@ -597,13 +585,13 @@ export const getClass = (): Constructor => {
          *       i.e., It doesn’t unset (get rid of) end-inherited keys, non-enumerable keys, or symbol keys.
          */
         protected operation$leave(target: unknown, params: unknown, separator = '.', calledAs: string = '$leave') {
-            if (!$isꓺobject(target)) {
+            if (!$is.object(target)) {
                 throw new Error('Invalid ' + calledAs + '. Requires object target.');
             }
-            if (!$isꓺarray(params)) {
+            if (!$is.array(params)) {
                 throw new Error('Invalid ' + calledAs + ' params. Expecting array.');
             }
-            $obpꓺleave(target, params as $type.ObjectPath[], separator);
+            $obp.leave(target, params as $type.ObjectPath[], separator);
 
             return params.length > 0;
         }
@@ -631,20 +619,20 @@ export const getClass = (): Constructor => {
          * @note This can push onto own or inherited, enumerable or not, object paths.
          */
         protected operation$push(target: unknown, params: unknown, separator = '.', calledAs: string = '$push') {
-            if (!$isꓺobject(target)) {
+            if (!$is.object(target)) {
                 throw new Error('Invalid ' + calledAs + '. Requires object target.');
             }
-            if (!$isꓺobject(params) || $isꓺarray(params)) {
+            if (!$is.object(params) || $is.array(params)) {
                 throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
             }
             for (const [path, value] of Object.entries(params)) {
-                const array = $obpꓺget(target, path, [], separator);
+                const array = $obp.get(target, path, [], separator);
 
-                if (!$isꓺarray(array)) {
+                if (!$is.array(array)) {
                     throw new Error('Invalid ' + calledAs + '. Cannot push onto non-array value.');
                 }
                 array.push(value); // Onto end of stack.
-                $obpꓺset(target, path, array, separator);
+                $obp.set(target, path, array, separator);
             }
             return Object.keys(params).length > 0;
         }
@@ -666,17 +654,17 @@ export const getClass = (): Constructor => {
          * @note This can pull from own or inherited, enumerable or not, object paths.
          */
         protected operation$pull(target: unknown, params: unknown, separator = '.', calledAs: string = '$pull') {
-            if (!$isꓺobject(target)) {
+            if (!$is.object(target)) {
                 throw new Error('Invalid ' + calledAs + '. Requires object target.');
             }
-            if (!$isꓺobject(params) || $isꓺarray(params)) {
+            if (!$is.object(params) || $is.array(params)) {
                 throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
             }
             for (const [path, value] of Object.entries(params)) {
-                const array = $obpꓺget(target, path, [], separator);
-                const pullValues = $isꓺarray(value) ? value : [value];
+                const array = $obp.get(target, path, [], separator);
+                const pullValues = $is.array(value) ? value : [value];
 
-                if (!$isꓺarray(array)) {
+                if (!$is.array(array)) {
                     throw new Error('Invalid ' + calledAs + '. Cannot pull from non-array value.');
                 }
                 for (let key = array.length - 1; key >= 0; key--) {
@@ -705,19 +693,19 @@ export const getClass = (): Constructor => {
          * @note This can concat onto own or inherited, enumerable or not, object paths.
          */
         protected operation$concat(target: unknown, params: unknown, separator = '.', calledAs: string = '$concat') {
-            if (!$isꓺobject(target)) {
+            if (!$is.object(target)) {
                 throw new Error('Invalid ' + calledAs + '. Requires object target.');
             }
-            if (!$isꓺobject(params) || $isꓺarray(params)) {
+            if (!$is.object(params) || $is.array(params)) {
                 throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
             }
             for (const [path, value] of Object.entries(params)) {
-                const array = $obpꓺget(target, path, [], separator);
+                const array = $obp.get(target, path, [], separator);
 
-                if (!$isꓺarray(array)) {
+                if (!$is.array(array)) {
                     throw new Error('Invalid ' + calledAs + '. Cannot concat onto non-array value.');
                 }
-                $obpꓺset(target, path, array.concat(value), separator);
+                $obp.set(target, path, array.concat(value), separator);
             }
             return Object.keys(params).length > 0;
         }
@@ -741,14 +729,14 @@ export const getClass = (): Constructor => {
          * @note This can set own or inherited, enumerable or not, object paths.
          */
         protected operation$default(target: unknown, params: unknown, separator = '.', calledAs: string = '$default') {
-            if (!$isꓺobject(target)) {
+            if (!$is.object(target)) {
                 throw new Error('Invalid ' + calledAs + '. Requires object target.');
             }
-            if (!$isꓺobject(params) || $isꓺarray(params)) {
+            if (!$is.object(params) || $is.array(params)) {
                 throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
             }
             for (const [path, value] of Object.entries(params)) {
-                $obpꓺdefaultTo(target, path, value, separator);
+                $obp.defaultTo(target, path, value, separator);
             }
             return Object.keys(params).length > 0;
         }
@@ -800,33 +788,33 @@ export const getClass = (): Constructor => {
          * @note Sorted key order matches that of `{ ...spread }` and {@see Object.keys()}.
          */
         protected operation$keySortOrder(target: unknown, params: unknown, separator = '.', calledAs: string = '$keySortOrder') {
-            if (!$isꓺobject(target)) {
+            if (!$is.object(target)) {
                 throw new Error('Invalid ' + calledAs + '. Requires object target.');
             }
-            if (!$isꓺarray(params)) {
+            if (!$is.array(params)) {
                 throw new Error('Invalid ' + calledAs + ' params. Expecting array.');
             }
             /*
              * These are flat; i.e., the deepest/longest paths possible.
              */
             const unsortedTargetPaths: Set<$type.ObjectPath> = //
-                new Set(Object.keys($toꓺflatObject(target, separator)));
+                new Set(Object.keys($to.flatObject(target, separator)));
 
             /**
              * Clones and empties `target` to prepare for ordered reinsertions.
              */
-            const targetClone: object = $objꓺclone(target);
-            $obpꓺunset(target, '*', separator);
+            const targetClone: object = $obj.clone(target);
+            $obp.unset(target, '*', separator);
 
             /*
              * These are of any depth; i.e., shallow or deep paths targeted by `params`.
              */
             for (const path of params) {
-                if (!$isꓺsafeObjectPath(path)) {
+                if (!$is.safeObjectPath(path)) {
                     throw new Error('Invalid ' + calledAs + ' param. Expecting object path.');
                 }
-                if ($obpꓺhas(targetClone, path, separator)) {
-                    $obpꓺset(target, path, $obpꓺget(targetClone, path, undefined, separator), separator);
+                if ($obp.has(targetClone, path, separator)) {
+                    $obp.set(target, path, $obp.get(targetClone, path, undefined, separator), separator);
                     unsortedTargetPaths.delete(path);
                 }
             }
@@ -839,7 +827,7 @@ export const getClass = (): Constructor => {
              * sorting of shallower paths; i.e., we're not sorting anything here that's already been sorted above.
              */
             for (const path of unsortedTargetPaths) {
-                $obpꓺset(target, path, $obpꓺget(targetClone, path, undefined, separator), separator);
+                $obp.set(target, path, $obp.get(targetClone, path, undefined, separator), separator);
             }
             return params.length > 0;
         }
@@ -853,8 +841,8 @@ export const getClass = (): Constructor => {
             return this.operation$keySortOrder(target, params, separator, '$ꓺpropSortOrder');
         }
     };
-    return Object.defineProperty(Class, 'name', {
-        ...Object.getOwnPropertyDescriptor(Class, 'name'),
+    return Object.defineProperty(Defined, 'name', {
+        ...Object.getOwnPropertyDescriptor(Defined, 'name'),
         value: 'ObjectMC',
     });
 };

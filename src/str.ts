@@ -2,19 +2,20 @@
  * String utilities.
  */
 
-import type { Options as MMOptions } from 'micromatch';
-import { default as mm } from 'micromatch';
-import { isWeb as $envꓺisWeb } from './env.ts';
-import { numeric as $isꓺnumeric, safeArrayKey as $isꓺsafeArrayKey } from './is.ts';
-import { defaults as $objꓺdefaults, hasOwn as $objꓺhasOwn } from './obj.ts';
-
-let unescHTMLDiv: HTMLElement; // Initialize.
-
-const escHTMLEntityMap: { [x: string]: string } = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-const unescHTMLCharMap: { [x: string]: string } = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
+import ipRegex from 'ip-regex';
+import { default as mm, type Options as MMOptions } from 'micromatch';
+import { $env, $is, $obj } from './index.ts';
 
 const textEncoder: TextEncoder = new TextEncoder();
 const textDecoder: TextDecoder = new TextDecoder();
+
+const ipV4MaxLength = 15; // Max length of an IPv4 address.
+const ipV6MaxLength = 45; // Max length of an IPv6 address.
+
+let unescHTMLDiv: HTMLElement; // Initialize.
+const escHTMLEntityMap: { [x: string]: string } = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const unescHTMLCharMap: { [x: string]: string } = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
+
 const wordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p{L})|(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})|(?<=[\p{L}\p{N}])(?=\p{Lu}\p{Ll}))/gu;
 
 /**
@@ -32,17 +33,16 @@ export type CamelCaseOptions = { asciiOnly?: boolean; letterFirst?: string };
 export type KebabCaseOptions = { asciiOnly?: boolean; letterFirst?: string };
 export type SnakeCaseOptions = KebabCaseOptions; // Same options as kebabCase.
 
-export type MatchesOptions = MMOptions & { ignoreCase?: boolean };
 export type QuoteOptions = { type?: 'single' | 'double' };
 export type UnquoteOptions = { type?: string };
-
 export type EscHTMLOptions = { doubleEncode: boolean };
 
-/**
- * Exports micromatch utilities.
- */
-export { mm }; // Micromatch.
 export type { MMOptions as MMOptions };
+export type MatchesOptions = MMOptions & { ignoreCase?: boolean };
+
+/* ---
+ * Size utilities.
+ */
 
 /**
  * Gets length in bytes.
@@ -66,6 +66,10 @@ export const charLength = (str: string): number => {
     return toChars(str).length;
 };
 
+/* ---
+ * Byte utilities.
+ */
+
 /**
  * Converts a string into a byte array.
  *
@@ -87,6 +91,10 @@ export const toBytes = (str: string): Uint8Array => {
 export const fromBytes = (bytes: Uint8Array): string => {
     return textDecoder.decode(bytes);
 };
+
+/* ---
+ * Char utilities.
+ */
 
 /**
  * Converts a string into a characters array.
@@ -110,46 +118,48 @@ export const fromChars = (chars: string[]): string => {
     return chars.join('');
 };
 
-/**
- * Normalizes string; removing diacritical marks.
- *
- * @param   str String to modify.
- *
- * @returns     Modified string.
+/* ---
+ * Parse utilities.
  */
-export const deburr = (str: string): string => {
-    return str.normalize('NFKD').replace(/[\p{Diacritic}]/gu, '');
-};
 
 /**
- * Deburrs string and removes non-ASCII characters.
+ * Parses a string into a value.
  *
- * @param   str String to modify.
+ * @param   str String to parse.
  *
- * @returns     Modified string.
+ * @returns     Parsed output value.
  */
-export const asciiOnly = (str: string): string => {
-    return deburr(str)
-        .replaceAll('ꓺ', '..')
-        .replace(/[^\p{ASCII}]/gu, '');
+export const parseValue = (str: string): unknown => {
+    const ewa = str.endsWith('*');
+    let v: unknown = ewa ? str.slice(0, -1) : str;
+
+    if ('null' === v) {
+        v = ewa ? v : null;
+    } else if ('undefined' === v) {
+        v = ewa ? v : undefined;
+    } else if ('true' === v) {
+        v = ewa ? v : true;
+    } else if ('false' === v) {
+        v = ewa ? v : false;
+    } else if ('NaN' === v) {
+        v = ewa ? v : NaN;
+    } else if ('-Infinity' === v) {
+        v = ewa ? v : -Infinity;
+    } else if ('Infinity' === v) {
+        v = ewa ? v : Infinity;
+    } else if ($is.numeric(v as string, 'integer')) {
+        v = ewa ? v : parseInt(v as string, 10);
+    } else if ($is.numeric(v as string, 'float')) {
+        v = ewa ? v : parseFloat(v as string);
+    } else {
+        v = str; // No change.
+    }
+    return v;
 };
 
-/**
- * Replaces characters not allowed in object path parts, with unicode symbols.
- *
- * @param   str String to modify.
- *
- * @returns     Modified string.
- *
- * @see $obp.splitPath()
+/* ---
+ * Trim utilities.
  */
-export const obpPartSafe = (str: string): string => {
-    return str
-        .replace(/\[/gu, '\u{298D}') // `⦍`.
-        .replace(/\]/gu, '\u{298E}') // `⦎`.
-        .replace(/\./gu, '\u{1C79}') // `ᱹ`.
-        .replace(/ꓺ/gu, '\u{1C79}\u{1C79}'); // `ᱹᱹ`.
-};
 
 /**
  * Trims whitespace, and optionally, specific characters, from a string.
@@ -164,7 +174,7 @@ export const obpPartSafe = (str: string): string => {
  * @returns                 Trimmed string.
  */
 export const trim = (str: string, additionalChars?: string, options?: TrimOptions): string => {
-    const opts = $objꓺdefaults({}, options || {}, { left: true, right: true }) as Required<TrimOptions>;
+    const opts = $obj.defaults({}, options || {}, { left: true, right: true }) as Required<TrimOptions>;
 
     let regExp: RegExp; // Initialize.
 
@@ -226,24 +236,54 @@ export const rTrim = (str: string, additionalChars?: string, options?: TrimOptio
     return trim(str, additionalChars, { ...(options || {}), left: false, right: true });
 };
 
-/**
- * Clips a string to a specified length.
- *
- * @param   str String to potentially clip.
- *
- * @returns     Possibly clipped string.
+/* ---
+ * Sanitization utilities.
  */
-export const clip = (str: string, options?: ClipOptions): string => {
-    const opts = $objꓺdefaults({}, options || {}, { maxBytes: Infinity, maxChars: Infinity, indicator: '[…]' }) as Required<ClipOptions>;
 
-    if ($isꓺsafeArrayKey(opts.maxBytes) && opts.maxBytes > 0 && byteLength(str) > opts.maxBytes) {
-        str = fromBytes(toBytes(str).slice(0, Math.max(0, opts.maxBytes - byteLength(opts.indicator)))) + opts.indicator;
-        //
-    } else if ($isꓺsafeArrayKey(opts.maxChars) && opts.maxChars > 0 && charLength(str) > opts.maxChars) {
-        str = fromChars(toChars(str).slice(0, Math.max(0, opts.maxChars - charLength(opts.indicator)))) + opts.indicator;
-    }
-    return str;
+/**
+ * Normalizes string; removing diacritical marks.
+ *
+ * @param   str String to modify.
+ *
+ * @returns     Modified string.
+ */
+export const deburr = (str: string): string => {
+    return str.normalize('NFKD').replace(/[\p{Diacritic}]/gu, '');
 };
+
+/**
+ * Deburrs string and removes non-ASCII characters.
+ *
+ * @param   str String to modify.
+ *
+ * @returns     Modified string.
+ */
+export const asciiOnly = (str: string): string => {
+    return deburr(str)
+        .replaceAll('ꓺ', '..')
+        .replace(/[^\p{ASCII}]/gu, '');
+};
+
+/**
+ * Replaces characters not allowed in object path parts, with unicode symbols.
+ *
+ * @param   str String to modify.
+ *
+ * @returns     Modified string.
+ *
+ * @see $obp.splitPath()
+ */
+export const obpPartSafe = (str: string): string => {
+    return str
+        .replace(/\[/gu, '\u{298D}') // `⦍`.
+        .replace(/\]/gu, '\u{298E}') // `⦎`.
+        .replace(/\./gu, '\u{1C79}') // `ᱹ`.
+        .replace(/ꓺ/gu, '\u{1C79}\u{1C79}'); // `ᱹᱹ`.
+};
+
+/* ---
+ * Word utilities.
+ */
 
 /**
  * Splits words intelligently, including `-`, `_`, camelCase, PascalCase, and other considerations.
@@ -253,7 +293,7 @@ export const clip = (str: string, options?: ClipOptions): string => {
  * @returns     Array of all words.
  */
 export const splitWords = (str: string, options?: SplitWordOptions): string[] => {
-    const opts = $objꓺdefaults({}, options || {}, { whitespaceOnly: false }) as Required<SplitWordOptions>;
+    const opts = $obj.defaults({}, options || {}, { whitespaceOnly: false }) as Required<SplitWordOptions>;
 
     if (opts.whitespaceOnly) {
         return str.split(/\s+/u); // Whitespace only.
@@ -265,6 +305,33 @@ export const splitWords = (str: string, options?: SplitWordOptions): string[] =>
             return '' === v || /^[^\p{L}\p{N}]+$/u.test(v) ? false : true;
         });
 };
+
+/* ---
+ * Clip utilities.
+ */
+
+/**
+ * Clips a string to a specified length.
+ *
+ * @param   str String to potentially clip.
+ *
+ * @returns     Possibly clipped string.
+ */
+export const clip = (str: string, options?: ClipOptions): string => {
+    const opts = $obj.defaults({}, options || {}, { maxBytes: Infinity, maxChars: Infinity, indicator: '[…]' }) as Required<ClipOptions>;
+
+    if ($is.safeArrayKey(opts.maxBytes) && opts.maxBytes > 0 && byteLength(str) > opts.maxBytes) {
+        str = fromBytes(toBytes(str).slice(0, Math.max(0, opts.maxBytes - byteLength(opts.indicator)))) + opts.indicator;
+        //
+    } else if ($is.safeArrayKey(opts.maxChars) && opts.maxChars > 0 && charLength(str) > opts.maxChars) {
+        str = fromChars(toChars(str).slice(0, Math.max(0, opts.maxChars - charLength(opts.indicator)))) + opts.indicator;
+    }
+    return str;
+};
+
+/* ---
+ * CaSe utilities.
+ */
 
 /**
  * Converts the first character of a string to lower case.
@@ -326,7 +393,7 @@ export const capitalize = (str: string): string => {
  * @someday For some added inspiration, see: <https://o5p.me/DChQQ2>.
  */
 export const titleCase = (str: string, options?: TitleCaseOptions): string => {
-    const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<TitleCaseOptions>;
+    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<TitleCaseOptions>;
     let words = splitWords(str, { whitespaceOnly: opts.splitOnWhitespaceOnly }); // Splits words intelligently.
 
     if (opts.asciiOnly /* Split again. */) {
@@ -347,7 +414,7 @@ export const titleCase = (str: string, options?: TitleCaseOptions): string => {
  * @returns         Modified string.
  */
 export const lowerCase = (str: string, options?: LowerCaseOptions): string => {
-    const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<LowerCaseOptions>;
+    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<LowerCaseOptions>;
     let words = splitWords(str, { whitespaceOnly: opts.splitOnWhitespaceOnly }); // Splits words intelligently.
 
     if (opts.asciiOnly /* Split again. */) {
@@ -377,7 +444,7 @@ export const upperCase = (str: string, options?: UpperCaseOptions): string => {
  * @returns         Modified string.
  */
 export const camelCase = (str: string, options?: CamelCaseOptions): string => {
-    const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<CamelCaseOptions>;
+    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<CamelCaseOptions>;
     let words = splitWords(str); // Splits words intelligently.
 
     if (opts.asciiOnly /* Split again. */) {
@@ -410,7 +477,7 @@ export const camelCase = (str: string, options?: CamelCaseOptions): string => {
  * @returns         Modified string.
  */
 export const kebabCase = (str: string, options?: KebabCaseOptions): string => {
-    const opts = $objꓺdefaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<KebabCaseOptions>;
+    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<KebabCaseOptions>;
     let words = splitWords(str); // Splits words intelligently.
 
     if (opts.asciiOnly /* Split again. */) {
@@ -445,6 +512,10 @@ export const snakeCase = (str: string, options?: SnakeCaseOptions): string => {
     return kebabCase(str, { ...(options || {}) } as KebabCaseOptions).replaceAll('-', '_');
 };
 
+/* ---
+ * Indent utilities.
+ */
+
 /**
  * Dedents a multiline string; e.g., from template literals.
  *
@@ -463,40 +534,9 @@ export const dedent = (str: string): string => {
     return str.replace(/\r?\n[ \t]*$/u, ''); // Trims trailing newline.
 };
 
-/**
- * Parses a string into a value.
- *
- * @param   str String to parse.
- *
- * @returns     Parsed output value.
+/* ---
+ * Quote utilities.
  */
-export const parseValue = (str: string): unknown => {
-    const ewa = str.endsWith('*');
-    let v: unknown = ewa ? str.slice(0, -1) : str;
-
-    if ('null' === v) {
-        v = ewa ? v : null;
-    } else if ('undefined' === v) {
-        v = ewa ? v : undefined;
-    } else if ('true' === v) {
-        v = ewa ? v : true;
-    } else if ('false' === v) {
-        v = ewa ? v : false;
-    } else if ('NaN' === v) {
-        v = ewa ? v : NaN;
-    } else if ('-Infinity' === v) {
-        v = ewa ? v : -Infinity;
-    } else if ('Infinity' === v) {
-        v = ewa ? v : Infinity;
-    } else if ($isꓺnumeric(v as string, 'integer')) {
-        v = ewa ? v : parseInt(v as string, 10);
-    } else if ($isꓺnumeric(v as string, 'float')) {
-        v = ewa ? v : parseFloat(v as string);
-    } else {
-        v = str; // No change.
-    }
-    return v;
-};
 
 /**
  * Quotes a string literal.
@@ -507,7 +547,7 @@ export const parseValue = (str: string): unknown => {
  * @returns         Quoted string literal.
  */
 export const quote = (str: string, options: QuoteOptions = {}): string => {
-    const opts = $objꓺdefaults({}, options, { type: 'single' }) as Required<QuoteOptions>;
+    const opts = $obj.defaults({}, options, { type: 'single' }) as Required<QuoteOptions>;
 
     switch (opts.type) {
         case 'double': {
@@ -529,7 +569,7 @@ export const quote = (str: string, options: QuoteOptions = {}): string => {
  * @returns         Unquoted string literal.
  */
 export const unquote = (str: string, options: UnquoteOptions = {}): string => {
-    const opts = $objꓺdefaults({}, options, { type: 'auto' }) as Required<UnquoteOptions>;
+    const opts = $obj.defaults({}, options, { type: 'auto' }) as Required<UnquoteOptions>;
 
     switch (opts.type) {
         case 'double': {
@@ -557,6 +597,10 @@ export const unquote = (str: string, options: UnquoteOptions = {}): string => {
     }
 };
 
+/* ---
+ * Escape utilities.
+ */
+
 /**
  * Escapes a string for use in HTML markup.
  *
@@ -569,7 +613,7 @@ export const unquote = (str: string, options: UnquoteOptions = {}): string => {
  */
 export const escHTML = (str: string, options?: EscHTMLOptions): string => {
     const defaultOpts = { doubleEncode: false };
-    const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<EscHTMLOptions>;
+    const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<EscHTMLOptions>;
 
     if (!opts.doubleEncode) str = unescHTML(str);
     return str.replace(/[&<>"']/gu, (char) => escHTMLEntityMap[char]);
@@ -585,7 +629,7 @@ export const escHTML = (str: string, options?: EscHTMLOptions): string => {
  * @see https://www.npmjs.com/package/html-entities
  */
 export const unescHTML = (str: string): string => {
-    if ($envꓺisWeb()) {
+    if ($env.isWeb()) {
         unescHTMLDiv ??= document.createElement('div');
 
         unescHTMLDiv.innerHTML = str;
@@ -616,6 +660,105 @@ export const escSelector = (str: string): string => {
     return str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/gu, '\\$&');
 };
 
+/* ---
+ * IP utilities.
+ */
+
+/**
+ * Tests if a string is an IP address.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     True if string is an IP address.
+ */
+export const isIP = (str: string): boolean => {
+    if (str.length > ipV6MaxLength) {
+        return false; // Saves time; too long.
+    }
+    return ipRegex({ exact: true }).test(str);
+};
+
+/**
+ * Tests if a string is an IP host address.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     True if string is an IP host address.
+ */
+export const isIPHost = (str: string): boolean => {
+    return isIPv4Host(str) || isIPv6Host(str);
+};
+
+/**
+ * Tests if a string is an IPv4 address.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     True if string is an IPv4 address.
+ */
+export const isIPv4 = (str: string): boolean => {
+    if (str.length > ipV4MaxLength) {
+        return false; // Saves time; too long.
+    }
+    return ipRegex.v4({ exact: true }).test(str);
+};
+
+/**
+ * Tests if a string is an IPv4 host address.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     True if string is an IPv4 host address.
+ */
+export const isIPv4Host = (str: string): boolean => {
+    if (str.length > ipV4MaxLength + 6) {
+        // 6 = `:65535` (max TCP port number).
+        return false; // Saves time; too long.
+    }
+    return isIPv4(str.replace(/:[0-9]+$/u, ''));
+};
+
+/**
+ * Tests if a string is an IPv6 address.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     True if string is an IPv6 address.
+ */
+export const isIPv6 = (str: string): boolean => {
+    if (str.length > ipV6MaxLength) {
+        return false; // Saves time; too long.
+    }
+    return ipRegex.v6({ exact: true }).test(str);
+};
+
+/**
+ * Tests if a string is a bracketed IPv6 host address.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     True if string is a bracketed IPv6 address.
+ */
+export const isIPv6Host = (str: string): boolean => {
+    if (str.length > ipV6MaxLength + 1 + 1 + 6) {
+        // 1 = `[`, 1 = `]`, 6 = `:65535` (max TCP port number).
+        return false; // Saves time; too long.
+    }
+    if (!str.startsWith('[') || !/\](?::[0-9]+)?$/u.test(str)) {
+        return false; // Saves time; not a host address.
+    }
+    return isIPv6(str.replace(/^\[|\](?::[0-9]+)?$/gu, ''));
+};
+
+/* ---
+ * Matching utilities.
+ */
+
+/**
+ * Exports micromatch library.
+ */
+export { mm }; // Micromatch library.
+
 /**
  * String matches the given pattern?
  *
@@ -635,9 +778,9 @@ export const escSelector = (str: string): string => {
  *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
 export const matches = (str: string, pattern: string | string[], options?: MatchesOptions): boolean => {
-    const opts = $objꓺdefaults({}, options || {}, { nocase: false, dot: true }) as MatchesOptions;
+    const opts = $obj.defaults({}, options || {}, { nocase: false, dot: true }) as MatchesOptions;
 
-    if ($objꓺhasOwn(opts, 'ignoreCase')) {
+    if (Object.hasOwn(opts, 'ignoreCase')) {
         opts.nocase = opts.ignoreCase;
         delete opts.ignoreCase;
     }

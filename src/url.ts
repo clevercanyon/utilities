@@ -2,12 +2,8 @@
  * URL utilities.
  */
 
-import { isWeb as $envꓺisWeb } from './env.ts';
-import { try as $fnꓺtry } from './fn.ts';
-import type { $type } from './index.ts';
-import { array as $isꓺarray, url as $isꓺurl } from './is.ts';
-import { deep as $moizeꓺdeep, svz as $moizeꓺsvz } from './moize.ts';
-import { defaults as $objꓺdefaults } from './obj.ts';
+import { $env, $fn, $is, $obj, $str, type $type } from './index.ts';
+import { $fnꓺmemoize } from './resources/standalone/index.ts';
 
 /**
  * Defines types.
@@ -35,49 +31,44 @@ export const QUERY_RFC3986 = 'QUERY_RFC3986';
 export const QUERY_RFC3986_AWS4 = 'QUERY_RFC3986_AWS4';
 
 /**
+ * Defines standardized local host names.
+ */
+export const STD_LOCAL_HOST_NAMES = ['local', 'localhost'];
+
+/**
+ * Defines local hosts.
+ */
+export const LOCAL_HOSTS = [...new Set(['[::1]', '127.0.0.1', ...STD_LOCAL_HOST_NAMES])];
+
+/**
  * Gets current URL.
  *
  * @returns Current URL.
  */
-export const current = $moizeꓺsvz({ maxSize: 1 })(
-    // Memoized function.
-    (): string => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        return location.href;
-    },
-);
+export const current = (): string => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    return location.href;
+};
 
 /**
  * Gets current referrer.
  *
  * @returns Current referrer.
  */
-export const currentReferrer = $moizeꓺsvz({ maxSize: 1 })(
-    // Memoized function.
-    (): string => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        return document.referrer;
-    },
-);
+export const currentReferrer = (): string => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    return document.referrer;
+};
 
 /**
  * Gets current scheme.
  *
  * @returns Current scheme.
  */
-export const currentScheme = $moizeꓺsvz({ maxSize: 1 })(
-    // Memoized function.
-    (): string => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        return location.protocol.toLowerCase().slice(0, -1);
-    },
-);
+export const currentScheme = $fnꓺmemoize((): string => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    return location.protocol.toLowerCase().slice(0, -1);
+});
 
 /**
  * Gets current host.
@@ -86,16 +77,11 @@ export const currentScheme = $moizeꓺsvz({ maxSize: 1 })(
  *
  * @returns         Current host.
  */
-export const currentHost = $moizeꓺdeep({ maxSize: 2 })(
-    // Memoized function.
-    (options: CurrentHostOptions = {}): string => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        const opts = $objꓺdefaults({}, options, { withPort: true }) as Required<CurrentHostOptions>;
-        return (opts.withPort ? location.host : location.hostname).toLowerCase();
-    },
-);
+export const currentHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options: CurrentHostOptions = {}): string => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    const opts = $obj.defaults({}, options, { withPort: true }) as Required<CurrentHostOptions>;
+    return (opts.withPort ? location.host : location.hostname).toLowerCase();
+});
 
 /**
  * Gets current root host.
@@ -104,91 +90,61 @@ export const currentHost = $moizeꓺdeep({ maxSize: 2 })(
  *
  * @returns         Current root host.
  */
-export const currentRootHost = $moizeꓺdeep({ maxSize: 2 })(
-    // Memoized function.
-    (options: CurrentRootHostOptions = {}): string => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        const opts = $objꓺdefaults({}, options, { withPort: true }) as Required<CurrentRootHostOptions>;
-        return rootHost(currentHost({ withPort: opts.withPort }), { withPort: opts.withPort });
-    },
-);
+export const currentRootHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options: CurrentRootHostOptions = {}): string => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    const opts = $obj.defaults({}, options, { withPort: true }) as Required<CurrentRootHostOptions>;
+    return rootHost(currentHost({ withPort: opts.withPort }), { withPort: opts.withPort });
+});
 
 /**
  * Gets current port.
  *
  * @returns Current port.
  */
-export const currentPort = $moizeꓺsvz({ maxSize: 1 })(
-    // Memoized function.
-    (): string => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        return location.port;
-    },
-);
+export const currentPort = $fnꓺmemoize((): string => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    return location.port;
+});
 
 /**
  * Gets current path.
  *
  * @returns Current path.
  */
-export const currentPath = $moizeꓺsvz({ maxSize: 1 })(
-    // Memoized function.
-    (): string => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        return location.pathname;
-    },
-);
+export const currentPath = (): string => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    return location.pathname;
+};
 
 /**
  * Gets current subpath.
  *
  * @returns Current subpath.
  */
-export const currentSubpath = $moizeꓺsvz({ maxSize: 1 })(
-    // Memoized function.
-    (): string => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        return location.pathname.replace(/^\/|\/$/gu, '');
-    },
-);
+export const currentSubpath = (): string => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    return location.pathname.replace(/^\/|\/$/gu, '');
+};
 
 /**
  * Gets current query string.
  *
  * @returns Current query string.
  */
-export const currentQuery = $moizeꓺsvz({ maxSize: 1 })(
-    // Memoized function.
-    (): string => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        return location.search.slice(1);
-    },
-);
+export const currentQuery = (): string => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    return location.search.slice(1);
+};
 
 /**
  * Gets current path & query string.
  *
  * @returns Current path & query string.
  */
-export const currentPathQuery = $moizeꓺsvz({ maxSize: 1 })(
-    // Memoized function.
-    (): string => {
-        if (!$envꓺisWeb()) {
-            throw new Error('Not web.');
-        }
-        return location.pathname + location.search;
-    },
-);
+export const currentPathQuery = (): string => {
+    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    return location.pathname + location.search;
+};
 
 /**
  * Gets root hostname.
@@ -201,34 +157,36 @@ export const currentPathQuery = $moizeꓺsvz({ maxSize: 1 })(
  *
  * @returns          Root hostname.
  */
-export const rootHost = $moizeꓺdeep({ maxSize: 12 })({
-    transformArgs: (args: unknown[]) => {
-        if ($isꓺurl(args[0])) args[0] = args[0].toString();
-        return args; // Converts URL arg into a string.
-    },
-})(
-    // Memoized function.
-    (host?: URL | $type.cf.URL | string, options: RootHostOptions = {}): string => {
-        const opts = $objꓺdefaults({}, options, { withPort: true }) as Required<RootHostOptions>;
+export const rootHost = $fnꓺmemoize({ deep: true, maxSize: 12 }, (host?: $type.URL | string, options: RootHostOptions = {}): string => {
+    const opts = $obj.defaults({}, options, { withPort: true }) as Required<RootHostOptions>;
 
-        if (undefined === host) {
-            if ($envꓺisWeb()) {
-                host = currentHost({ withPort: opts.withPort });
-            } else {
-                throw new Error('Missing `host`.');
-            }
+    if (undefined === host) {
+        if ($env.isWeb()) {
+            host = currentHost({ withPort: opts.withPort });
+        } else {
+            throw new Error('Missing `host`.');
         }
-        if ($isꓺurl(host)) {
-            host = host.host; // Potentially includes port number.
-        }
-        let strHost = String(host || ''); // Force string value.
+    }
+    if ($is.url(host)) {
+        host = host.host; // May include port number.
+    }
+    let strHost = String(host || ''); // Force string.
 
-        if (!opts.withPort && strHost.includes(':')) {
-            strHost = strHost.slice(0, strHost.lastIndexOf(':'));
-        }
-        return strHost.toLowerCase().split('.').slice(-2).join('.');
-    },
-);
+    if (!opts.withPort) {
+        if ($str.isIPv6Host(strHost)) {
+            // e.g., `[::1]:3000`, always in brackets.
+            strHost = strHost.replace(/(\])(?::[0-9]+)?$/u, '$1');
+        } else strHost = strHost.replace(/:[0-9]+$/u, '');
+    }
+    if ($str.isIPHost(strHost)) {
+        return strHost.toLowerCase(); // IPs don’t support subdomains.
+    }
+    if (STD_LOCAL_HOST_NAMES.includes(strHost) || STD_LOCAL_HOST_NAMES.find((x) => strHost.endsWith('.' + x))) {
+        // When the TLD itself has no extension; e.g., `local`, `localhost`, `foo.localhost`.
+        return strHost.toLowerCase().split('.').slice(-1).join('.');
+    }
+    return strHost.toLowerCase().split('.').slice(-2).join('.');
+});
 
 /**
  * Parses a URL string into a {@see URL}.
@@ -246,33 +204,30 @@ export const rootHost = $moizeꓺdeep({ maxSize: 12 })({
  * @returns         A {@see URL} instance. On failure this either throws an error or returns `undefined`.
  *
  *   - `throwOnError` defaults to `true`. {@see tryParse()} for the opposite default behavior.
- *
- *
- * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export const parse = (url?: URL | $type.cf.URL | string, base?: URL | $type.cf.URL | string, options: ParseOptions = {}): URL | $type.cf.URL | undefined => {
-    const opts = $objꓺdefaults({}, options, { throwOnError: true }) as Required<ParseOptions>;
+export const parse = (url?: $type.URL | string, base?: $type.URL | string, options: ParseOptions = {}): $type.URL | undefined => {
+    const opts = $obj.defaults({}, options, { throwOnError: true }) as Required<ParseOptions>;
 
     if (undefined === url) {
-        if ($envꓺisWeb()) {
+        if ($env.isWeb()) {
             url = current();
         } else {
             throw new Error('Missing `url`.');
         }
     }
     if (undefined === base) {
-        base = $envꓺisWeb() ? current() : '';
+        base = $env.isWeb() ? current() : '';
     }
-    let strURL = String($isꓺurl(url) ? url.toString() : url);
-    let strBase = String($isꓺurl(base) ? base.toString() : base);
+    let strURL = String($is.url(url) ? url.toString() : url);
+    let strBase = String($is.url(base) ? base.toString() : base);
 
     if (strURL && /^\/\//u.test(strURL)) {
-        strURL = strURL.replace(/^\/\//u, ($envꓺisWeb() ? currentScheme() : 'https') + '://');
+        strURL = strURL.replace(/^\/\//u, ($env.isWeb() ? currentScheme() : 'https') + '://');
     }
     if (strBase && /^\/\//u.test(strBase)) {
-        strBase = strBase.replace(/^\/\//u, ($envꓺisWeb() ? currentScheme() : 'https') + '://');
+        strBase = strBase.replace(/^\/\//u, ($env.isWeb() ? currentScheme() : 'https') + '://');
     }
-    return $fnꓺtry(() => new URL(strURL, strBase || undefined), undefined, { throwOnError: opts.throwOnError })();
+    return $fn.try(() => new URL(strURL, strBase || undefined), undefined, { throwOnError: opts.throwOnError })();
 };
 
 /**
@@ -283,10 +238,8 @@ export const parse = (url?: URL | $type.cf.URL | string, base?: URL | $type.cf.U
  * @param   options Options (all optional) — `{ throwOnError: false }` is always on.
  *
  * @returns         A {@see URL} instance, else `undefined` on failure.
- *
- * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export const tryParse = (url?: URL | $type.cf.URL | string, base?: URL | $type.cf.URL | string, options: TryParseOptions = {}): URL | $type.cf.URL | undefined => {
+export const tryParse = (url?: $type.URL | string, base?: $type.URL | string, options: TryParseOptions = {}): $type.URL | undefined => {
     return parse(url, base, { ...options, throwOnError: false });
 };
 
@@ -299,24 +252,16 @@ export const tryParse = (url?: URL | $type.cf.URL | string, base?: URL | $type.c
  *   - Optional in browser; i.e., default is {@see current()}.
  *
  *
- * @returns      Query string variable value, else undefined.
+ * @returns      Query string variable value, else `undefined` if does not exist.
  */
-export const getQueryVar = $moizeꓺsvz({ maxSize: 24 })({
-    transformArgs: (args: unknown[]) => {
-        if ($isꓺurl(args[1])) args[1] = args[1].toString();
-        return args; // Converts URL arg into a string.
-    },
-})(
-    // Memoized function.
-    (name: string, url?: URL | $type.cf.URL | string): string | undefined => {
-        const objURL = parse(url);
+export const getQueryVar = (name: string, url?: $type.URL | string): string | undefined => {
+    const objURL = parse(url);
 
-        if (!objURL || !objURL.searchParams.has(name)) {
-            return undefined; // Does not exist.
-        }
-        return objURL.searchParams.get(name) || '';
-    },
-);
+    if (!objURL || !objURL.searchParams.has(name)) {
+        return undefined; // Does not exist.
+    }
+    return objURL.searchParams.get(name) || '';
+};
 
 /**
  * Gets query string variables.
@@ -333,19 +278,15 @@ export const getQueryVar = $moizeꓺsvz({ maxSize: 24 })({
  *
  *
  * @returns       Query string variables as a plain object.
- *
- * @note This function is memoized. Thus, return object keys are readonly.
  */
-function _getQueryVars(url?: URL | $type.cf.URL | string): { readonly [x: string]: string };
-function _getQueryVars(names: string[] | URL | $type.cf.URL | string, url?: URL | $type.cf.URL | string): { readonly [x: string]: string };
+export function getQueryVars(url?: $type.URL | string): { readonly [x: string]: string };
+export function getQueryVars(names: string[] | $type.URL | string, url?: $type.URL | string): { readonly [x: string]: string };
 
-function _getQueryVars(names: string[] | URL | $type.cf.URL | string = [], url?: URL | $type.cf.URL | string): { readonly [x: string]: string } {
-    // eslint-disable-next-line prefer-rest-params
-    if (1 === arguments.length && !$isꓺarray(arguments[0])) {
-        // eslint-disable-next-line prefer-rest-params
-        (names = []), (url = arguments[0] as undefined | URL | $type.cf.URL | string);
+export function getQueryVars(names: string[] | $type.URL | string = [], url?: $type.URL | string): { readonly [x: string]: string } {
+    if (1 === arguments.length && !$is.array(arguments[0])) {
+        (names = []), (url = arguments[0] as undefined | $type.URL | string);
     }
-    if (!$isꓺarray(names)) {
+    if (!$is.array(names)) {
         names = []; // Force array.
     }
     const objURL = parse(url);
@@ -364,11 +305,6 @@ function _getQueryVars(names: string[] | URL | $type.cf.URL | string = [], url?:
     }
     return vars; // Query string variables.
 }
-export const getQueryVars = $moizeꓺdeep({ maxSize: 24 })({
-    transformArgs: (args: unknown[] /* Converts URL args into strings. */) => {
-        return args.map((arg) => ($isꓺurl(arg) ? arg.toString() : arg));
-    },
-})(_getQueryVars /* Memoized function. */);
 
 /**
  * Adds a query string variable to a URL.
@@ -384,15 +320,12 @@ export const getQueryVars = $moizeꓺdeep({ maxSize: 24 })({
  * @returns         Updated URL with query string variable added.
  *
  *   - Returns a {@see URL} if input `url` was a {@see URL}. A string otherwise.
- *
- *
- * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export function addQueryVar(name: string, value: string, url: URL | $type.cf.URL, options?: AddQueryVarOptions): URL | $type.cf.URL;
+export function addQueryVar(name: string, value: string, url: $type.URL, options?: AddQueryVarOptions): $type.URL;
 export function addQueryVar(name: string, value: string, url?: string, options?: AddQueryVarOptions): string;
-export function addQueryVar(name: string, value: string, url?: URL | $type.cf.URL | string, options?: AddQueryVarOptions): URL | $type.cf.URL | string;
+export function addQueryVar(name: string, value: string, url?: $type.URL | string, options?: AddQueryVarOptions): $type.URL | string;
 
-export function addQueryVar(name: string, value: string, url?: URL | $type.cf.URL | string, options?: AddQueryVarOptions): URL | $type.cf.URL | string {
+export function addQueryVar(name: string, value: string, url?: $type.URL | string, options?: AddQueryVarOptions): $type.URL | string {
     return addQueryVars({ [name]: value }, url, options);
 }
 
@@ -409,18 +342,15 @@ export function addQueryVar(name: string, value: string, url?: URL | $type.cf.UR
  * @returns         URL with query string variables added.
  *
  *   - Returns a {@see URL} if input `url` was a {@see URL}. A string otherwise.
- *
- *
- * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export function addQueryVars(vars: { [x: string]: string }, url: URL | $type.cf.URL, options?: AddQueryVarOptions): URL | $type.cf.URL;
+export function addQueryVars(vars: { [x: string]: string }, url: $type.URL, options?: AddQueryVarOptions): $type.URL;
 export function addQueryVars(vars: { [x: string]: string }, url?: string, options?: AddQueryVarOptions): string;
-export function addQueryVars(vars: { [x: string]: string }, url?: URL | $type.cf.URL | string, options?: AddQueryVarOptions): URL | $type.cf.URL | string;
+export function addQueryVars(vars: { [x: string]: string }, url?: $type.URL | string, options?: AddQueryVarOptions): $type.URL | string;
 
-export function addQueryVars(vars: { [x: string]: string }, url?: URL | $type.cf.URL | string, options?: AddQueryVarOptions): URL | $type.cf.URL | string {
-    const opts = $objꓺdefaults({}, options || {}, { replaceExisting: true }) as Required<AddQueryVarOptions>;
+export function addQueryVars(vars: { [x: string]: string }, url?: $type.URL | string, options?: AddQueryVarOptions): $type.URL | string {
+    const opts = $obj.defaults({}, options || {}, { replaceExisting: true }) as Required<AddQueryVarOptions>;
 
-    const rtnObjURL = $isꓺurl(url);
+    const rtnObjURL = $is.url(url);
     const objURL = parse(url);
 
     if (!objURL) {
@@ -429,9 +359,9 @@ export function addQueryVars(vars: { [x: string]: string }, url?: URL | $type.cf
     for (const [name, value] of Object.entries(vars)) {
         if (opts.replaceExisting || !objURL.searchParams.has(name)) {
             objURL.searchParams.set(name, value);
-        }
+        } // By default, replaces existing values.
     }
-    objURL.searchParams.sort();
+    objURL.searchParams.sort(); // Consistency.
 
     return rtnObjURL ? objURL : objURL.toString();
 }
@@ -448,15 +378,12 @@ export function addQueryVars(vars: { [x: string]: string }, url?: URL | $type.cf
  * @returns      Updated URL with query string variable removed.
  *
  *   - Returns a {@see URL} if input `url` was a {@see URL}. A string otherwise.
- *
- *
- * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export function removeQueryVar(name: string, url: URL | $type.cf.URL): URL | $type.cf.URL;
+export function removeQueryVar(name: string, url: $type.URL): $type.URL;
 export function removeQueryVar(name: string, url?: string): string;
-export function removeQueryVar(name: string, url?: URL | $type.cf.URL | string): URL | $type.cf.URL | string;
+export function removeQueryVar(name: string, url?: $type.URL | string): $type.URL | string;
 
-export function removeQueryVar(name: string, url?: URL | $type.cf.URL | string): URL | $type.cf.URL | string {
+export function removeQueryVar(name: string, url?: $type.URL | string): $type.URL | string {
     return removeQueryVars([name], url);
 }
 
@@ -477,39 +404,34 @@ export function removeQueryVar(name: string, url?: URL | $type.cf.URL | string):
  * @returns       URL with query string variables removed.
  *
  *   - Returns a {@see URL} if input `url` was a {@see URL}. A string otherwise.
- *
- *
- * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export function removeQueryVars(url: URL | $type.cf.URL): URL | $type.cf.URL;
+export function removeQueryVars(url: $type.URL): $type.URL;
 export function removeQueryVars(url?: string): string;
-export function removeQueryVars(url?: URL | $type.cf.URL | string): URL | $type.cf.URL | string;
+export function removeQueryVars(url?: $type.URL | string): $type.URL | string;
 
-export function removeQueryVars(names: string[], url: URL | $type.cf.URL): URL | $type.cf.URL;
+export function removeQueryVars(names: string[], url: $type.URL): $type.URL;
 export function removeQueryVars(names: string[], url?: string): string;
-export function removeQueryVars(names: string[], url?: URL | $type.cf.URL | string): URL | $type.cf.URL | string;
+export function removeQueryVars(names: string[], url?: $type.URL | string): $type.URL | string;
 
-export function removeQueryVars(names: string[] | URL | $type.cf.URL | string = [], url?: URL | $type.cf.URL | string): URL | $type.cf.URL | string {
-    // eslint-disable-next-line prefer-rest-params
-    if (1 === arguments.length && !$isꓺarray(arguments[0])) {
-        // eslint-disable-next-line prefer-rest-params
-        (names = []), (url = arguments[0] as undefined | URL | $type.cf.URL | string);
+export function removeQueryVars(names: string[] | $type.URL | string = [], url?: $type.URL | string): $type.URL | string {
+    if (1 === arguments.length && !$is.array(arguments[0])) {
+        (names = []), (url = arguments[0] as undefined | $type.URL | string);
     }
-    if (!$isꓺarray(names)) {
+    if (!$is.array(names)) {
         names = []; // Force array.
     }
-    const rtnObjURL = $isꓺurl(url);
+    const rtnObjURL = $is.url(url);
     const objURL = parse(url);
 
     if (!objURL) {
         return url || ''; // Not possible.
     }
     for (const name of Array.from(objURL.searchParams.keys())) {
-        if (!names.length || names.indexOf(name) !== -1) {
+        if (!names.length || names.includes(name)) {
             objURL.searchParams.delete(name);
         }
     }
-    objURL.searchParams.sort();
+    objURL.searchParams.sort(); // Consistency.
 
     return rtnObjURL ? objURL : objURL.toString();
 }
@@ -525,16 +447,13 @@ export function removeQueryVars(names: string[] | URL | $type.cf.URL | string = 
  * @returns     URL with (client|cache)-side-only query string variables removed.
  *
  *   - Returns a {@see URL} if input `url` was a {@see URL}. A string otherwise.
- *
- *
- * @note This function cannot be memoized because the return URL object is likely to be updated by reference.
  */
-export function removeCSOQueryVars(url: URL | $type.cf.URL): URL | $type.cf.URL;
+export function removeCSOQueryVars(url: $type.URL): $type.URL;
 export function removeCSOQueryVars(url?: string): string;
-export function removeCSOQueryVars(url?: URL | $type.cf.URL | string): URL | $type.cf.URL | string;
+export function removeCSOQueryVars(url?: $type.URL | string): $type.URL | string;
 
-export function removeCSOQueryVars(url?: URL | $type.cf.URL | string): URL | $type.cf.URL | string {
-    const rtnObjURL = $isꓺurl(url);
+export function removeCSOQueryVars(url?: $type.URL | string): $type.URL | string {
+    const rtnObjURL = $is.url(url);
     const objURL = parse(url);
 
     if (!objURL) {
@@ -545,7 +464,7 @@ export function removeCSOQueryVars(url?: URL | $type.cf.URL | string): URL | $ty
             objURL.searchParams.delete(name);
         }
     }
-    objURL.searchParams.sort();
+    objURL.searchParams.sort(); // Consistency.
 
     return rtnObjURL ? objURL : objURL.toString();
 }
@@ -566,26 +485,23 @@ export function removeCSOQueryVars(url?: URL | $type.cf.URL | string): URL | $ty
  * @note Inspired by <https://locutus.io/php/url/urlencode/>.
  * @note Inspired by <https://locutus.io/php/url/rawurlencode/>.
  */
-export const encode = $moizeꓺsvz({ maxSize: 12 })(
-    // Memoized function.
-    (str: string, strategy: string = QUERY_RFC3986): string => {
-        switch (strategy) {
-            case QUERY_RFC1738:
-                return encodeURIComponent(str)
-                    .replace(/[!'()*~]/gu, function (c) {
-                        return '%' + c.charCodeAt(0).toString(16).toUpperCase();
-                    })
-                    .replace(/%20/gu, '+');
-
-            case QUERY_RFC3986:
-            case QUERY_RFC3986_AWS4:
-            default: // Default strategy.
-                return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+export const encode = (str: string, strategy: string = QUERY_RFC3986): string => {
+    switch (strategy) {
+        case QUERY_RFC1738:
+            return encodeURIComponent(str)
+                .replace(/[!'()*~]/gu, function (c) {
                     return '%' + c.charCodeAt(0).toString(16).toUpperCase();
-                });
-        }
-    },
-);
+                })
+                .replace(/%20/gu, '+');
+
+        case QUERY_RFC3986:
+        case QUERY_RFC3986_AWS4:
+        default: // Default strategy.
+            return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+                return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+            });
+    }
+};
 
 /**
  * Decodes a URL component.
@@ -603,17 +519,14 @@ export const encode = $moizeꓺsvz({ maxSize: 12 })(
  * @note Inspired by <https://locutus.io/php/url/urldecode/>.
  * @note Inspired by <https://locutus.io/php/url/rawurldecode/>.
  */
-export const decode = $moizeꓺsvz({ maxSize: 12 })(
-    // Memoized function.
-    (str: string, strategy: string = QUERY_RFC3986): string => {
-        switch (strategy) {
-            case QUERY_RFC1738:
-                return decodeURIComponent(str.replace(/%(?![0-9a-f]{2})/giu, () => '%25').replace(/\+/gu, '%20'));
+export const decode = (str: string, strategy: string = QUERY_RFC3986): string => {
+    switch (strategy) {
+        case QUERY_RFC1738:
+            return decodeURIComponent(str.replace(/%(?![0-9a-f]{2})/giu, () => '%25').replace(/\+/gu, '%20'));
 
-            case QUERY_RFC3986:
-            case QUERY_RFC3986_AWS4:
-            default: // Default strategy.
-                return decodeURIComponent(str.replace(/%(?![0-9a-f]{2})/giu, () => '%25'));
-        }
-    },
-);
+        case QUERY_RFC3986:
+        case QUERY_RFC3986_AWS4:
+        default: // Default strategy.
+            return decodeURIComponent(str.replace(/%(?![0-9a-f]{2})/giu, () => '%25'));
+    }
+};

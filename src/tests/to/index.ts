@@ -3,8 +3,7 @@
  */
 
 import { beforeEach, describe, expect, test } from 'vitest';
-import type { $type } from '../../index.ts';
-import { $brand, $is, $obj, $symbol, $to } from '../../index.ts';
+import { $brand, $is, $obj, $symbol, $to, type $type } from '../../index.ts';
 
 describe('$to', async () => {
     class Custom {
@@ -66,16 +65,16 @@ describe('$to', async () => {
         expect(testCustomAnonObj).toEqual({ values: { a: 'a', b: 'b', c: 'c' } });
         expect(Object.keys(testCustomAnonObj)).toStrictEqual(['values']);
     });
-    test('.castArray()', async () => {
-        expect($to.castArray(NaN)).toStrictEqual([NaN]);
-        expect($to.castArray(null)).toStrictEqual([null]);
-        expect($to.castArray(undefined)).toStrictEqual([undefined]);
-        expect($to.castArray(true)).toStrictEqual([true]);
-        expect($to.castArray(false)).toStrictEqual([false]);
-        expect($to.castArray(0)).toStrictEqual([0]);
-        expect($to.castArray(123)).toStrictEqual([123]);
-        expect($to.castArray('abc')).toStrictEqual(['abc']);
-        expect($to.castArray(['a', 'b', 'c'])).toStrictEqual(['a', 'b', 'c']);
+    test('.array()', async () => {
+        expect($to.array(NaN)).toStrictEqual([NaN]);
+        expect($to.array(null)).toStrictEqual([null]);
+        expect($to.array(undefined)).toStrictEqual([undefined]);
+        expect($to.array(true)).toStrictEqual([true]);
+        expect($to.array(false)).toStrictEqual([false]);
+        expect($to.array(0)).toStrictEqual([0]);
+        expect($to.array(123)).toStrictEqual([123]);
+        expect($to.array('abc')).toStrictEqual(['abc']);
+        expect($to.array(['a', 'b', 'c'])).toStrictEqual(['a', 'b', 'c']);
     });
     test('.plainObject()', async () => {
         const result1 = $to.plainObject(testCustomObj);

@@ -2,30 +2,12 @@
  * Object utilities.
  */
 
-import type { $type } from './index.ts';
-import {
-    array as $isꓺarray,
-    function as $isꓺfunction,
-    map as $isꓺmap,
-    node as $isꓺnode,
-    nul as $isꓺnul,
-    object as $isꓺobject,
-    plainObject as $isꓺplainObject,
-    promise as $isꓺpromise,
-    proto as $isꓺproto,
-    set as $isꓺset,
-    structuredCloneable as $isꓺstructuredCloneable,
-    url as $isꓺurl,
-} from './is.ts';
-import { svz as $moizeꓺsvz } from './moize.ts';
-import type { Handler as MCHandler, Interface as MCInterface } from './resources/classes/obj-mc.ts';
-import { getClass as $classꓺgetMC } from './resources/classes/obj-mc.ts';
-import { objTag as $symbolꓺobjTag, objToClone as $symbolꓺobjToClone } from './symbol.ts';
+import { $class, $is, $symbol, type $type } from './index.ts';
+import * as $standalone from './resources/standalone/index.ts';
+import { $fnꓺmemoize } from './resources/standalone/index.ts';
 
-let mc: MCInterface; // Object MC class instance.
-let mcInitialized: boolean = false; // Once only.
-
-const plainObjectC9rStr = String(Object); // Plain object constructor, as string.
+let mc: $class.ObjMC; // Object MC class instance.
+let mcInitialized: boolean = false; // Initialized once only.
 
 /**
  * Defines types.
@@ -42,6 +24,11 @@ export type CloneOptions = { with?: CloneWithFn; transfer?: Transferable[] };
 export type CloneFnData = { deep: boolean; opts: Required<CloneOptions>; circular: Map<object, object>; inDeep: boolean };
 export type CloneWithFn = <Type extends object = object>(value: Type, data: CloneFnData) => Type | undefined;
 export type ToCloneSymbolFn = <Type extends object = object>(data: CloneFnData) => Type | undefined;
+
+/**
+ * Stores plain object c9r as string.
+ */
+export const plainC9rStr = $standalone.$objꓺplainC9rStr;
 
 /**
  * Gets a value’s `[Symbol.toStringTag]` object tag.
@@ -72,27 +59,7 @@ export type ToCloneSymbolFn = <Type extends object = object>(data: CloneFnData) 
  * @note Please read the details above regarding the special case of `[tag]:[cn]`.
  * @note Please see: <https://o5p.me/ownLcv> for details regarding `[Symbol.toStringTag]`.
  */
-export const tag = $moizeꓺsvz({ maxSize: 64 })(
-    // Memoized function.
-    (value: unknown): string => {
-        let tag = $isꓺobject(value) ? String(value[$symbolꓺobjTag] || '') : '';
-        if (!tag) tag = Object.prototype.toString.call(value).slice(8, -1);
-
-        if ('Object' === tag) {
-            const __proto__ = $isꓺproto(value) ? value : proto(value);
-            const __proto__c9r = __proto__ && hasOwn(__proto__, 'constructor') ? __proto__.constructor : null;
-
-            if (__proto__ && (!__proto__c9r || !(__proto__c9r instanceof __proto__c9r) || String(__proto__c9r) !== plainObjectC9rStr)) {
-                if (__proto__c9r?.name) {
-                    return tag + ':' + __proto__c9r.name; // Not a real object tag.
-                } else {
-                    return tag + ':?'; // Unknown; e.g., anonymous. Also not a real object tag.
-                }
-            }
-        }
-        return tag; // Object’s tag.
-    },
-);
+export const tag = $fnꓺmemoize(64, $standalone.$objꓺtag);
 
 /**
  * Gets a value’s own and/or inherited `[Symbol.toStringTag]` object tags.
@@ -104,24 +71,7 @@ export const tag = $moizeꓺsvz({ maxSize: 64 })(
  *
  * @note Please {@see tag()} for details regarding the special case of `[tag]:[cn]`.
  */
-export const tags = (value: unknown, deepTags?: Set<string>): string[] => {
-    let nextProto; // Initialize.
-
-    if (!deepTags) {
-        deepTags = new Set();
-        deepTags.add(tag(value)); // Parses object’s tag from the initial instance value.
-        nextProto = proto(value, 2); // Value was used, so skip a prototype level in this case.
-        //
-    } /* Treats value as a `__proto__` in the prototype chain. */ else {
-        const __proto__ = value;
-        deepTags.add(tag(__proto__));
-        nextProto = proto(__proto__);
-    }
-    if (nextProto) {
-        return tags(nextProto, deepTags);
-    }
-    return Array.from(deepTags);
-};
+export const tags = $fnꓺmemoize(64, (value: unknown): string[] => $standalone.$objꓺtags(value));
 
 /**
  * Gets a value’s constructor.
@@ -130,9 +80,16 @@ export const tags = (value: unknown, deepTags?: Set<string>): string[] => {
  *
  * @returns       Value’s constructor, else undefined.
  */
-export const c9r = (value: unknown): $type.ClassC9r | undefined => {
-    return ($isꓺobject(value) && (value?.constructor as $type.ClassC9r)) || undefined;
-};
+export const c9r = $standalone.$objꓺc9r;
+
+/**
+ * Gets a value’s own constructor.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       Value’s own constructor, else undefined.
+ */
+export const ownC9r = $standalone.$objꓺownC9r;
 
 /**
  * Works as an alias of {@see Object.getPrototypeOf()}.
@@ -144,29 +101,35 @@ export const c9r = (value: unknown): $type.ClassC9r | undefined => {
  *
  * @returns          Prototype of value, else undefined.
  */
-export const proto = (value: unknown, levelsUp: number = 1): $type.Object | undefined => {
-    let __proto__: unknown; // Initialize.
-
-    for (let levels = levelsUp, times = 0; levels >= 1; levels--, times++) {
-        __proto__ = 0 === times ? value : __proto__;
-        if ($isꓺnul(__proto__)) break;
-        __proto__ = Object.getPrototypeOf(__proto__);
-    }
-    return (__proto__ as $type.Object) || undefined;
-};
+export const proto = $standalone.$objꓺproto;
 
 /**
- * Gets a value’s constructor.
+ * Gets a value’s prototype constructor.
  *
  * Uses {@see proto()}, which supports going up multiple prototype levels.
  *
  * @param   value    Value to consider.
  * @param   levelsUp Levels up. Default is `1`.
  *
- * @returns          Value’s constructor, else undefined.
+ * @returns          Value’s prototype constructor, else undefined.
  */
-export const protoC9r = (value: unknown, levelsUp: number = 1): $type.ClassC9r | undefined => {
-    return (proto(value, levelsUp)?.constructor as $type.ClassC9r) || undefined;
+export const protoC9r = (value: unknown, levelsUp: number = 1): $type.ObjectC9r | undefined => {
+    return (proto(value, levelsUp)?.constructor as $type.ObjectC9r) || undefined;
+};
+
+/**
+ * Gets a value’s own prototype constructor.
+ *
+ * Uses {@see proto()}, which supports going up multiple prototype levels.
+ *
+ * @param   value    Value to consider.
+ * @param   levelsUp Levels up. Default is `1`.
+ *
+ * @returns          Value’s own prototype constructor, else undefined.
+ */
+export const protoOwnC9r = (value: unknown, levelsUp: number = 1): $type.ObjectC9r | undefined => {
+    const __proto__ = proto(value, levelsUp); // Value’s prototype calculation.
+    return (__proto__ && Object.hasOwn(__proto__, 'constructor') && (__proto__.constructor as $type.ObjectC9r)) || undefined;
 };
 
 /**
@@ -174,6 +137,8 @@ export const protoC9r = (value: unknown, levelsUp: number = 1): $type.ClassC9r |
  *
  * Polyfill for {@see Object.hasOwn()} in es2022. This uses {@see Object.prototype.hasOwnProperty()}, which is more
  * efficient than {@see has()}. This should be used when we don’t need to support object path notation.
+ *
+ * @deprecated 2023-09-25 We can use {@see Object.hasOwn()} now that we have moved to es2022.
  *
  * @param   value Object to search in.
  * @param   key   Object key to consider.
@@ -185,7 +150,7 @@ export const protoC9r = (value: unknown, levelsUp: number = 1): $type.ClassC9r |
  * @note There is no `hasIn()` utility. Instead, use `key in value`.
  */
 export const hasOwn = <Type, Key extends $type.ObjectKey>(value: Type, key: Key): value is Type & Record<Key, unknown> => {
-    return $isꓺobject(value) && Object.prototype.hasOwnProperty.call(value, key);
+    return $is.object(value) && Object.prototype.hasOwnProperty.call(value, key);
 };
 
 /**
@@ -206,17 +171,7 @@ export const hasOwn = <Type, Key extends $type.ObjectKey>(value: Type, key: Key)
  * @note Key order matches that of `{ ...spread }` and {@see Object.keys()}.
  * @note Regarding enumerability and ownership, see: <https://o5p.me/cht9Ot>.
  */
-export const keysAndSymbols = (value: unknown): $type.ObjectKey[] => {
-    const keys: $type.ObjectKey[] = [];
-    const objValue = Object(value) as $type.Object;
-
-    for (const keyOrSymbol of Reflect.ownKeys(objValue)) {
-        if (Object.getOwnPropertyDescriptor(objValue, keyOrSymbol)?.enumerable) {
-            keys.push(keyOrSymbol);
-        }
-    }
-    return keys;
-};
+export const keysAndSymbols = $standalone.$objꓺkeysAndSymbols;
 
 /**
  * Gets all of an object’s own enumerable key and symbol entries.
@@ -346,7 +301,7 @@ export function defaults<TypeA, TypeB>(target: TypeA, ...values: [TypeB]): Recor
         const objValue = Object(value) as $type.Object;
 
         for (const key of keysAndSymbols(objValue)) {
-            if (undefined !== objTarget[key] && hasOwn(objTarget, key)) {
+            if (undefined !== objTarget[key] && Object.hasOwn(objTarget, key)) {
                 continue; // Target already has own key !== `undefined`.
             }
             objTarget[key] = objValue[key];
@@ -372,9 +327,9 @@ export function defaults<TypeA, TypeB>(target: TypeA, ...values: [TypeB]): Recor
  *
  * Otherwise, cloning is lossy because many other object types can only be cloned into plain variants. For example,
  * custom classes, such as those extending a set, map, array, or any other custom class, will be cloned as a regular
- * set, map, array, or plain object. That is, _unless_ a `[$toꓺsymbols.clone]()` method is provided by the class.
+ * set, map, array, or plain object. That is, _unless_ a `[$to.symbols.clone]()` method is provided by the class.
  *
- * Any object (e.g., a class) can choose to implement a `[$toꓺsymbols.clone]()` method. If this symbol key exists, and
+ * Any object (e.g., a class) can choose to implement a `[$to.symbols.clone]()` method. If this symbol key exists, and
  * it resolves to a function, then it will be called upon to produce a clone. So long as it returns an object, then its
  * return value will be used as the clone instead of producing a standard plain clone. It is also possible to customize
  * the cloning algorithm using `with` when passing {@see CloneOptions}.
@@ -403,43 +358,43 @@ export function defaults<TypeA, TypeB>(target: TypeA, ...values: [TypeB]): Recor
 export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: Map<object, object> = new Map()): Type | $type.Object => {
     const opts = defaults({}, options, { with: undefined, transfer: [] }) as Required<CloneOptions>;
 
-    if (!$isꓺobject(value) || $isꓺfunction(value) || $isꓺpromise(value)) {
+    if (!$is.object(value) || $is.function(value) || $is.promise(value)) {
         return value as Type | $type.Object; // Unnecessary; e.g., primitive; or impossible.
     }
-    if (opts.with && $isꓺfunction(opts.with)) {
+    if (opts.with && $is.function(opts.with)) {
         const clone = opts.with(value, { deep: false, opts, circular, inDeep: false });
 
-        if ($isꓺobject(clone)) {
+        if ($is.object(clone)) {
             return clone as Type | $type.Object;
         }
     }
-    if (value[$symbolꓺobjToClone] && $isꓺfunction(value[$symbolꓺobjToClone])) {
-        const clone = (value[$symbolꓺobjToClone] as $type.ObjToCloneSymbolFn)({ deep: false, opts, circular, inDeep: false });
+    if (value[$symbol.objToClone] && $is.function(value[$symbol.objToClone])) {
+        const clone = (value[$symbol.objToClone] as $class.ObjToCloneSymbolFn)({ deep: false, opts, circular, inDeep: false });
 
-        if ($isꓺobject(clone)) {
+        if ($is.object(clone)) {
             return clone as Type | $type.Object;
         }
     }
     switch (true) {
-        case $isꓺplainObject(value): {
+        case $is.plainObject(value): {
             return { ...(value as unknown as $type.Object) } as Type;
         }
-        case $isꓺmap(value): {
+        case $is.map(value): {
             return new Map(value as unknown as Map<unknown, unknown>) as Type;
         }
-        case $isꓺset(value): {
+        case $is.set(value): {
             return new Set(value as unknown as Set<unknown>) as Type;
         }
-        case $isꓺarray(value): {
+        case $is.array(value): {
             return [...(value as unknown as unknown[])] as Type;
         }
-        case $isꓺurl(value): {
+        case $is.url(value): {
             return new URL(value as unknown as URL) as Type;
         }
-        case $isꓺnode(value): {
+        case $is.node(value): {
             return (value as unknown as Node).cloneNode(true) as Type;
         }
-        case $isꓺstructuredCloneable(value): {
+        case $is.structuredCloneable(value): {
             try {
                 return structuredClone(value, { transfer: opts.transfer }) as Type | $type.Object;
             } catch {
@@ -470,9 +425,9 @@ export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: M
  *
  * Otherwise, cloning is lossy because many other object types can only be cloned into plain variants. For example,
  * custom classes, such as those extending a set, map, array, or any other custom class, will be cloned as a regular
- * set, map, array, or plain object. That is, _unless_ a `[$toꓺsymbols.clone]()` method is provided by the class.
+ * set, map, array, or plain object. That is, _unless_ a `[$to.symbols.clone]()` method is provided by the class.
  *
- * Any object (e.g., a class) can choose to implement a `[$toꓺsymbols.clone]()` method. If this symbol key exists, and
+ * Any object (e.g., a class) can choose to implement a `[$to.symbols.clone]()` method. If this symbol key exists, and
  * it resolves to a function, then it will be called upon to produce a clone. So long as it returns an object, then its
  * return value will be used as the clone instead of producing a standard plain clone. It is also possible to customize
  * the cloning algorithm using `with` when passing {@see CloneOptions}.
@@ -502,30 +457,30 @@ export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: M
 export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circular: Map<object, object> = new Map(), inDeep: boolean = false): Type | $type.Object => {
     const opts = !inDeep ? (defaults({}, options, { with: undefined, transfer: [] }) as Required<CloneOptions>) : (options as Required<CloneOptions>);
 
-    if (!$isꓺobject(value) || $isꓺfunction(value) || $isꓺpromise(value)) {
+    if (!$is.object(value) || $is.function(value) || $is.promise(value)) {
         return value as Type | $type.Object; // Unnecessary; e.g., primitive; or impossible.
     }
     if (circular.has(value)) {
         return circular.get(value) as Type | $type.Object;
     }
-    if (opts.with && $isꓺfunction(opts.with)) {
+    if (opts.with && $is.function(opts.with)) {
         const clone = opts.with(value, { deep: true, opts, circular, inDeep });
 
-        if ($isꓺobject(clone)) {
+        if ($is.object(clone)) {
             circular.set(value, clone);
             return clone as Type | $type.Object;
         }
     }
-    if (value[$symbolꓺobjToClone] && $isꓺfunction(value[$symbolꓺobjToClone])) {
-        const clone = (value[$symbolꓺobjToClone] as $type.ObjToCloneSymbolFn)({ deep: true, opts, circular, inDeep });
+    if (value[$symbol.objToClone] && $is.function(value[$symbol.objToClone])) {
+        const clone = (value[$symbol.objToClone] as $class.ObjToCloneSymbolFn)({ deep: true, opts, circular, inDeep });
 
-        if ($isꓺobject(clone)) {
+        if ($is.object(clone)) {
             circular.set(value, clone);
             return clone as Type | $type.Object;
         }
     }
     switch (true) {
-        case $isꓺplainObject(value): {
+        case $is.plainObject(value): {
             const clone: $type.Object = {};
             circular.set(value, clone);
 
@@ -534,7 +489,7 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
             }
             return clone as Type;
         }
-        case $isꓺmap(value): {
+        case $is.map(value): {
             const clone: Map<unknown, unknown> = new Map();
             circular.set(value, clone);
 
@@ -543,7 +498,7 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
             }
             return clone as Type;
         }
-        case $isꓺset(value): {
+        case $is.set(value): {
             const clone: Set<unknown> = new Set();
             circular.set(value, clone);
 
@@ -552,7 +507,7 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
             }
             return clone as Type;
         }
-        case $isꓺarray(value): {
+        case $is.array(value): {
             const clone: unknown[] = [];
             circular.set(value, clone);
 
@@ -561,17 +516,17 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
             }
             return clone as Type;
         }
-        case $isꓺurl(value): {
+        case $is.url(value): {
             const clone = new URL(value as unknown as URL);
             circular.set(value, clone);
             return clone as Type;
         }
-        case $isꓺnode(value): {
+        case $is.node(value): {
             const clone = (value as unknown as Node).cloneNode(true);
             circular.set(value, clone);
             return clone as Type;
         }
-        case $isꓺstructuredCloneable(value): {
+        case $is.structuredCloneable(value): {
             try {
                 const clone = structuredClone(value, { transfer: opts.transfer });
                 circular.set(value, clone); // Added layer of protection.
@@ -600,8 +555,8 @@ const mcInitialize = (): void => {
     if (mcInitialized) return; // Once only.
     mcInitialized = true; // Initializing now.
 
-    const Class = $classꓺgetMC(); // Object MC.
-    mc = new Class(); // Object MC class instance.
+    const ObjMC = $class.getObjMC();
+    mc = new ObjMC(); // Class instance.
 };
 
 /**
@@ -611,7 +566,7 @@ const mcInitialize = (): void => {
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const mcCustom = (): MCInterface => {
+export const mcCustom = (): $class.ObjMC => {
     if (!mcInitialized) mcInitialize();
     return mc.newInstance();
 };
@@ -640,10 +595,10 @@ export const mcCustom = (): MCInterface => {
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const mergeDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+export const mergeDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.mergeDeep(...args);
-}) as MCHandler;
+}) as $class.ObjMCHandler;
 
 /**
  * ```js
@@ -670,10 +625,10 @@ export const mergeDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const mergeClonesDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+export const mergeClonesDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.mergeClonesDeep(...args);
-}) as MCHandler;
+}) as $class.ObjMCHandler;
 
 /**
  * ```js
@@ -701,10 +656,10 @@ export const mergeClonesDeep = ((...args: Parameters<MCHandler>): ReturnType<MCH
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const patchDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+export const patchDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.patchDeep(...args);
-}) as MCHandler;
+}) as $class.ObjMCHandler;
 
 /**
  * ```js
@@ -731,10 +686,10 @@ export const patchDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const patchClonesDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+export const patchClonesDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.patchClonesDeep(...args);
-}) as MCHandler;
+}) as $class.ObjMCHandler;
 
 /**
  * ```js
@@ -776,10 +731,10 @@ export const patchClonesDeep = ((...args: Parameters<MCHandler>): ReturnType<MCH
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const updateDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+export const updateDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.updateDeep(...args);
-}) as MCHandler;
+}) as $class.ObjMCHandler;
 
 /**
  * ```js
@@ -820,10 +775,10 @@ export const updateDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandle
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const updateClonesDeep = ((...args: Parameters<MCHandler>): ReturnType<MCHandler> => {
+export const updateClonesDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.updateClonesDeep(...args);
-}) as MCHandler;
+}) as $class.ObjMCHandler;
 
 /**
  * Maps all values in an object (by default, a shallow clone) to a callback function.
@@ -850,16 +805,16 @@ export const map = <Type>(value: Type, callbackFn: (value: unknown, key?: unknow
     const opts = defaults({}, options || {}, { byReference: false, skipReadonly: true }) as Required<MapOptions>;
     const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
-    if ($isꓺset(objValue)) {
+    if ($is.set(objValue)) {
         for (const value of Array.from(objValue)) {
             objValue.delete(value);
             objValue.add(callbackFn(value));
         }
-    } else if ($isꓺmap(objValue)) {
+    } else if ($is.map(objValue)) {
         for (const [key, value] of objValue) {
             objValue.set(key, callbackFn(value, key));
         }
-    } else if ($isꓺarray(objValue)) {
+    } else if ($is.array(objValue)) {
         for (let key = 0; key < objValue.length; key++) {
             if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key)?.writable) {
                 objValue[key] = callbackFn(objValue[key], key);
@@ -897,14 +852,14 @@ export function omit<Type>(value: Type, keys: unknown[], options?: OmitOptions):
     const opts = defaults({}, options || {}, { byReference: false, skipReadonly: false, undefinedValues: false }) as Required<OmitOptions>;
     const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
-    if ($isꓺset(objValue)) {
+    if ($is.set(objValue)) {
         for (const value of keys) {
             objValue.delete(value);
         }
         if (opts.undefinedValues) {
             objValue.delete(undefined);
         }
-    } else if ($isꓺmap(objValue)) {
+    } else if ($is.map(objValue)) {
         for (const key of keys) {
             objValue.delete(key);
         }
@@ -913,7 +868,7 @@ export function omit<Type>(value: Type, keys: unknown[], options?: OmitOptions):
                 if (undefined === value) objValue.delete(key);
             }
         }
-    } else if ($isꓺarray(objValue)) {
+    } else if ($is.array(objValue)) {
         for (const key of keys.sort().reverse()) {
             if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key as number)?.writable) {
                 objValue.splice(key as number, 1);
@@ -987,15 +942,15 @@ export function pick<Type>(value: Type, keys: unknown[], options?: PickOptions):
     const opts = defaults({}, options || {}, { byReference: false, skipReadonly: false }) as Required<PickOptions>;
     const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
-    if ($isꓺset(objValue)) {
+    if ($is.set(objValue)) {
         for (const value of objValue) {
             if (!keys.includes(value)) objValue.delete(value);
         }
-    } else if ($isꓺmap(objValue)) {
+    } else if ($is.map(objValue)) {
         for (const [key] of objValue) {
             if (!keys.includes(key)) objValue.delete(key);
         }
-    } else if ($isꓺarray(objValue)) {
+    } else if ($is.array(objValue)) {
         for (let key = objValue.length - 1; key >= 0; key--) {
             if (!keys.includes(key) && (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key)?.writable)) {
                 objValue.splice(key, 1);

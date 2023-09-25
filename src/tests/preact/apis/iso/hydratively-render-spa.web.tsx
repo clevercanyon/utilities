@@ -4,61 +4,49 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { $env, $json, $preact } from '../../../../index.ts';
-import { hydrativelyRenderSPA as $preactꓺapisꓺisoꓺhydrativelyRenderSPA, prerenderSPA as $preactꓺapisꓺisoꓺprerenderSPA } from '../../../../preact/apis/iso.tsx';
-import $preactꓺcomponentsꓺBody from '../../../../preact/components/body.tsx';
-import $preactꓺcomponentsꓺHead from '../../../../preact/components/head.tsx';
-import $preactꓺcomponentsꓺHTML from '../../../../preact/components/html.tsx';
-import type {
-    RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps,
-    RouterProps as $preactꓺcomponentsꓺrouterꓺRouterProps,
-} from '../../../../preact/components/router.tsx';
-import {
-    default as $preactꓺcomponentsꓺRouter,
-    Route as $preactꓺcomponentsꓺrouterꓺRoute,
-    lazyRoute as $preactꓺcomponentsꓺrouterꓺlazyRoute,
-    useRoute as $preactꓺcomponentsꓺrouterꓺuseRoute,
-} from '../../../../preact/components/router.tsx';
+import { Body, HTML, Head, Route, Router } from '../../../../preact/components.tsx';
+import type { RouteContextAsProps, RouterProps } from '../../../../preact/components/router.tsx';
 
-const __origAppBaseURL__ = String($env.get('@top', 'APP_BASE_URL', ''));
+const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '' });
 
-describe('$preactꓺapisꓺiso.hydrativelyRenderSPA()', async () => {
+describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     beforeAll(async () => {
-        $env.set('@top', 'APP_BASE_URL', 'http://x.tld');
+        $env.set('APP_BASE_URL', 'http://x.tld');
     });
     afterAll(async () => {
-        $env.set('@top', 'APP_BASE_URL', __origAppBaseURL__);
+        $env.set('APP_BASE_URL', __origAppBaseURL__);
     });
-    const App = (props: $preactꓺcomponentsꓺrouterꓺRouterProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouterProps> => {
+    const App = (props: RouterProps): $preact.VNode<RouterProps> => {
         return (
-            <$preactꓺcomponentsꓺRouter {...props}>
-                <$preactꓺcomponentsꓺrouterꓺRoute path='/' component={Index} />
-                <$preactꓺcomponentsꓺrouterꓺRoute path='/blog' component={Blog} />
-                <$preactꓺcomponentsꓺrouterꓺRoute path='/blog/post/:id' component={Blog} />
-                <$preactꓺcomponentsꓺrouterꓺRoute default component={Default404} />
-            </$preactꓺcomponentsꓺRouter>
+            <Router {...props}>
+                <Route path='/' component={Index} />
+                <Route path='/blog' component={Blog} />
+                <Route path='/blog/post/:id' component={Blog} />
+                <Route default component={Error404} />
+            </Router>
         );
     };
-    const Index = (unusedꓺprops: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
+    const Index = (unusedꓺprops: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
         return (
-            <$preactꓺcomponentsꓺHTML>
-                <$preactꓺcomponentsꓺHead title={'index'} />
-                <$preactꓺcomponentsꓺBody>
-                    <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
-                </$preactꓺcomponentsꓺBody>
-            </$preactꓺcomponentsꓺHTML>
+            <HTML>
+                <Head title={'index'} />
+                <Body>
+                    <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
+                </Body>
+            </HTML>
         );
     };
-    const Blog = (props: $preactꓺcomponentsꓺrouterꓺRouteContextAsProps): $preact.VNode<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps> => {
+    const Blog = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
         return (
-            <$preactꓺcomponentsꓺHTML>
-                <$preactꓺcomponentsꓺHead title={/^\/blog\/post\//u.test(props.path || '') ? 'blog post' : 'blog'} />
-                <$preactꓺcomponentsꓺBody>
-                    <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preactꓺcomponentsꓺrouterꓺuseRoute()) }}></script>
-                </$preactꓺcomponentsꓺBody>
-            </$preactꓺcomponentsꓺHTML>
+            <HTML>
+                <Head title={/^\/blog\/post\//u.test(props.path || '') ? 'blog post' : 'blog'} />
+                <Body>
+                    <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
+                </Body>
+            </HTML>
         );
     };
-    const Default404 = $preactꓺcomponentsꓺrouterꓺlazyRoute(() => import('../../../../preact/routes/404.tsx'));
+    const Error404 = $preact.lazyRoute(() => import('../../../../preact/routes/error-404.tsx'));
 
     // ---
 
@@ -67,7 +55,7 @@ describe('$preactꓺapisꓺiso.hydrativelyRenderSPA()', async () => {
             httpState: indexHTTPState,
             docType: indexDocType,
             html: indexHTML,
-        } = await $preactꓺapisꓺisoꓺprerenderSPA({
+        } = await $preact.iso.prerenderSPA({
             request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
@@ -114,7 +102,7 @@ describe('$preactꓺapisꓺiso.hydrativelyRenderSPA()', async () => {
 
         // Hydrate DOM now and continue.
 
-        $preactꓺapisꓺisoꓺhydrativelyRenderSPA({ App });
+        $preact.iso.hydrativelyRenderSPA({ App });
 
         const domHydratedIndexMarkup = document.documentElement.outerHTML;
         const domHydratedIndexHeadMarkup = document.querySelector('head')?.outerHTML || '';

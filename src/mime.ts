@@ -2,7 +2,7 @@
  * MIME utilities.
  */
 
-import { ext as $pathꓺext } from './path.ts';
+import { $path } from './index.ts';
 
 // Frequently used strings.
 const vsCodeLangBinary = 'code-text-binary';
@@ -30,7 +30,7 @@ export type Types = {
  * @returns             MIME type; e.g., `text/html`, `image/svg+xml`, etc.
  */
 export const fileType = (file: string, defaultType?: string): string => {
-    const fileExt = $pathꓺext(file); // File extension.
+    const fileExt = $path.ext(file); // File extension.
     defaultType = defaultType || mimeTypeStream;
 
     if (!fileExt) return defaultType; // Not possible.
@@ -114,7 +114,9 @@ export const types: Types = {
         'rtx': { type: 'text/richtext', isTextual: false, vsCodeLang: vsCodeLangBinary },
     },
     'HTML': {
+        // If this changes, also update extensions in `$preact.iso.prerenderSPA()`.
         // If this changes, also update extensions lib in `clevercanyon/skeleton` dotfiles.
+        // @todo Need a way to query these other than with the VS Code language filter.
         'htm|html': { type: 'text/html', isTextual: true, vsCodeLang: 'html' },
         'shtm|shtml': { type: 'text/html', isTextual: true, vsCodeLang: 'html' },
     },

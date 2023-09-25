@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.266",
+    "version": "1.0.267",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -81,11 +81,6 @@
             "import": "./dist/mime.js",
             "default": "./dist/mime.js"
         },
-        "./moize": {
-            "types": "./dist/types/moize.d.ts",
-            "import": "./dist/moize.js",
-            "default": "./dist/moize.js"
-        },
         "./obj": {
             "types": "./dist/types/obj.d.ts",
             "import": "./dist/obj.js",
@@ -105,6 +100,41 @@
             "types": "./dist/types/preact.d.ts",
             "import": "./dist/preact.js",
             "default": "./dist/preact.js"
+        },
+        "./preact/components": {
+            "types": "./dist/types/preact/components.d.ts",
+            "import": "./dist/preact/components.js",
+            "default": "./dist/preact/components.js"
+        },
+        "./preact/components/body": {
+            "types": "./dist/types/preact/components/body.d.ts",
+            "import": "./dist/preact/components/body.js",
+            "default": "./dist/preact/components/body.js"
+        },
+        "./preact/components/data": {
+            "types": "./dist/types/preact/components/data.d.ts",
+            "import": "./dist/preact/components/data.js",
+            "default": "./dist/preact/components/data.js"
+        },
+        "./preact/components/head": {
+            "types": "./dist/types/preact/components/head.d.ts",
+            "import": "./dist/preact/components/head.js",
+            "default": "./dist/preact/components/head.js"
+        },
+        "./preact/components/html": {
+            "types": "./dist/types/preact/components/html.d.ts",
+            "import": "./dist/preact/components/html.js",
+            "default": "./dist/preact/components/html.js"
+        },
+        "./preact/components/router": {
+            "types": "./dist/types/preact/components/router.d.ts",
+            "import": "./dist/preact/components/router.js",
+            "default": "./dist/preact/components/router.js"
+        },
+        "./preact/routes/error-404": {
+            "types": "./dist/types/preact/routes/error-404.d.ts",
+            "import": "./dist/preact/routes/error-404.js",
+            "default": "./dist/preact/routes/error-404.js"
         },
         "./str": {
             "types": "./dist/types/str.d.ts",
@@ -140,82 +170,9 @@
             "types": "./dist/types/version.d.ts",
             "import": "./dist/version.js",
             "default": "./dist/version.js"
-        },
-        "./preact/routes/404": {
-            "types": "./dist/types/preact/routes/404.d.ts",
-            "import": "./dist/preact/routes/404.js",
-            "default": "./dist/preact/routes/404.js"
-        },
-        "./preact/apis/iso": {
-            "types": "./dist/types/preact/apis/iso.d.ts",
-            "import": "./dist/preact/apis/iso.js",
-            "default": "./dist/preact/apis/iso.js"
-        },
-        "./preact/apis/ssr": {
-            "types": "./dist/types/preact/apis/ssr.d.ts",
-            "import": "./dist/preact/apis/ssr.js",
-            "default": "./dist/preact/apis/ssr.js"
-        },
-        "./preact/components/body": {
-            "types": "./dist/types/preact/components/body.d.ts",
-            "import": "./dist/preact/components/body.js",
-            "default": "./dist/preact/components/body.js"
-        },
-        "./preact/components/data": {
-            "types": "./dist/types/preact/components/data.d.ts",
-            "import": "./dist/preact/components/data.js",
-            "default": "./dist/preact/components/data.js"
-        },
-        "./preact/components/head": {
-            "types": "./dist/types/preact/components/head.d.ts",
-            "import": "./dist/preact/components/head.js",
-            "default": "./dist/preact/components/head.js"
-        },
-        "./preact/components/html": {
-            "types": "./dist/types/preact/components/html.d.ts",
-            "import": "./dist/preact/components/html.js",
-            "default": "./dist/preact/components/html.js"
-        },
-        "./preact/components/router": {
-            "types": "./dist/types/preact/components/router.d.ts",
-            "import": "./dist/preact/components/router.js",
-            "default": "./dist/preact/components/router.js"
         }
     },
-    "sideEffects": [
-        "./src/app.ts",
-        "./src/brand.ts",
-        "./src/class.ts",
-        "./src/cookie.ts",
-        "./src/crypto.ts",
-        "./src/env.ts",
-        "./src/fn.ts",
-        "./src/http.ts",
-        "./src/index.ts",
-        "./src/is.ts",
-        "./src/json.ts",
-        "./src/mime.ts",
-        "./src/moize.ts",
-        "./src/obj.ts",
-        "./src/obp.ts",
-        "./src/path.ts",
-        "./src/preact.tsx",
-        "./src/str.ts",
-        "./src/symbol.ts",
-        "./src/time.ts",
-        "./src/to.ts",
-        "./src/type.ts",
-        "./src/url.ts",
-        "./src/version.ts",
-        "./src/preact/routes/404.tsx",
-        "./src/preact/apis/iso.tsx",
-        "./src/preact/apis/ssr.tsx",
-        "./src/preact/components/body.tsx",
-        "./src/preact/components/data.tsx",
-        "./src/preact/components/head.tsx",
-        "./src/preact/components/html.tsx",
-        "./src/preact/components/router.tsx"
-    ],
+    "sideEffects": ["**/*.{css,scss,less}"],
     "module": "./dist/index.js",
     "main": "./dist/index.js",
     "browser": "",
@@ -229,11 +186,11 @@
     "dependencies": {},
     "peerDependencies": {
         "@clevercanyon/preact-iso.fork": "^2.3.62",
-        "fast-equals": "^4.0.3",
         "ignore": "^5.2.4",
+        "ip-regex": "^5.0.0",
         "luxon": "^3.4.3",
+        "micro-memoize": "^4.1.2",
         "micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.59",
-        "moize": "^6.1.6",
         "preact": "^10.17.1",
         "preact-render-to-string": "^6.2.1",
         "react": "npm:@preact/compat@^17.1.2",
@@ -262,12 +219,14 @@
                 "build": {
                     "appType": "lib",
                     "targetEnv": "any",
-                    "entryFiles": ["./src/*.{ts,tsx}", "./src/preact/*/*.{ts,tsx}"]
+                    "entryFiles": ["./src/*.{ts,tsx}", "./src/preact/{*,*/*}.{ts,tsx}"],
+                    "sideEffects": []
                 },
                 "ssrBuild": {
                     "appType": "",
                     "targetEnv": "",
-                    "entryFiles": []
+                    "entryFiles": [],
+                    "sideEffects": []
                 },
                 "github": {
                     "teams": {

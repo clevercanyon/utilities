@@ -2,8 +2,8 @@
  * Crypto utilities.
  */
 
-import { svz as $moizeꓺsvz, svzAsync as $moizeꓺsvzAsync } from './moize.ts';
-import { defaults as $objꓺdefaults } from './obj.ts';
+import { $obj } from './index.ts';
+import { $fnꓺmemoize } from './resources/standalone/index.ts';
 
 const textEncoder: TextEncoder = new TextEncoder();
 
@@ -21,10 +21,7 @@ export type HashAlgorithm = 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
  *
  * @returns     SHA-1 hash. 40 hexadecimals in length.
  */
-export const sha1 = $moizeꓺsvzAsync({ maxSize: 2 })(
-    // Memoized function.
-    async (str: string): Promise<string> => buildHash('sha-1', str),
-);
+export const sha1 = $fnꓺmemoize(2, async (str: string): Promise<string> => buildHash('sha-1', str));
 
 /**
  * Generates an HMAC SHA-1 hash.
@@ -34,10 +31,7 @@ export const sha1 = $moizeꓺsvzAsync({ maxSize: 2 })(
  *
  * @returns     HMAC SHA-1 hash. 40 hexadecimals in length.
  */
-export const hmacSHA1 = $moizeꓺsvzAsync({ maxSize: 2 })(
-    // Memoized function.
-    async (str: string, key: string): Promise<string> => buildHMACHash('sha-1', str, key),
-);
+export const hmacSHA1 = $fnꓺmemoize(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-1', str, key));
 
 /**
  * Generates a SHA-256 hash.
@@ -46,10 +40,7 @@ export const hmacSHA1 = $moizeꓺsvzAsync({ maxSize: 2 })(
  *
  * @returns     SHA-256 hash. 64 hexadecimals in length.
  */
-export const sha256 = $moizeꓺsvzAsync({ maxSize: 2 })(
-    // Memoized function.
-    async (str: string): Promise<string> => buildHash('sha-256', str),
-);
+export const sha256 = $fnꓺmemoize(2, async (str: string): Promise<string> => buildHash('sha-256', str));
 
 /**
  * Generates an HMAC SHA-256 hash.
@@ -59,10 +50,7 @@ export const sha256 = $moizeꓺsvzAsync({ maxSize: 2 })(
  *
  * @returns     HMAC SHA-256 hash. 64 hexadecimals in length.
  */
-export const hmacSHA256 = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    async (str: string, key: string): Promise<string> => buildHMACHash('sha-256', str, key),
-);
+export const hmacSHA256 = $fnꓺmemoize(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-256', str, key));
 
 /**
  * Generates a SHA-384 hash.
@@ -71,10 +59,7 @@ export const hmacSHA256 = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns     SHA-384 hash. 96 hexadecimals in length.
  */
-export const sha384 = $moizeꓺsvzAsync({ maxSize: 2 })(
-    // Memoized function.
-    async (str: string): Promise<string> => buildHash('sha-384', str),
-);
+export const sha384 = $fnꓺmemoize(2, async (str: string): Promise<string> => buildHash('sha-384', str));
 
 /**
  * Generates an HMAC SHA-384 hash.
@@ -84,10 +69,7 @@ export const sha384 = $moizeꓺsvzAsync({ maxSize: 2 })(
  *
  * @returns     HMAC SHA-384 hash. 96 hexadecimals in length.
  */
-export const hmacSHA384 = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    async (str: string, key: string): Promise<string> => buildHMACHash('sha-384', str, key),
-);
+export const hmacSHA384 = $fnꓺmemoize(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-384', str, key));
 
 /**
  * Generates a SHA-512 hash.
@@ -96,10 +78,7 @@ export const hmacSHA384 = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns     SHA-512 hash. 128 hexadecimals in length.
  */
-export const sha512 = $moizeꓺsvzAsync({ maxSize: 2 })(
-    // Memoized function.
-    async (str: string): Promise<string> => buildHash('sha-512', str),
-);
+export const sha512 = $fnꓺmemoize(2, async (str: string): Promise<string> => buildHash('sha-512', str));
 
 /**
  * Generates an HMAC SHA-512 hash.
@@ -109,10 +88,7 @@ export const sha512 = $moizeꓺsvzAsync({ maxSize: 2 })(
  *
  * @returns     HMAC SHA-512 hash. 128 hexadecimals in length.
  */
-export const hmacSHA512 = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    async (str: string, key: string): Promise<string> => buildHMACHash('sha-512', str, key),
-);
+export const hmacSHA512 = $fnꓺmemoize(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-512', str, key));
 
 /**
  * Random number generator.
@@ -216,7 +192,7 @@ export const randomString = (byteLength: number = 32, options?: RandomStringOpti
         byteDictionary = ''; // Determined below.
 
     byteLength = Math.max(0, byteLength); // Cannot be shorter than zero bytes.
-    const opts = $objꓺdefaults({}, options || {}, { type: 'default', byteDictionary: '' }) as Required<RandomStringOptions>;
+    const opts = $obj.defaults({}, options || {}, { type: 'default', byteDictionary: '' }) as Required<RandomStringOptions>;
 
     if (opts.byteDictionary) {
         byteDictionary = opts.byteDictionary; // Established by options.
@@ -309,7 +285,7 @@ export const randomString = (byteLength: number = 32, options?: RandomStringOpti
  * @returns         Version 4 UUID (32 bytes w/o dashes, 36 bytes with dashes).
  */
 export const uuidV4 = (options?: UUIDV4Options): string => {
-    const opts = $objꓺdefaults({}, options || {}, { dashes: false }) as Required<UUIDV4Options>;
+    const opts = $obj.defaults({}, options || {}, { dashes: false }) as Required<UUIDV4Options>;
     return opts.dashes ? crypto.randomUUID() : crypto.randomUUID().replace(/-/gu, '');
 };
 

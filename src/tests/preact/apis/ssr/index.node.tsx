@@ -3,10 +3,10 @@
  */
 
 import { describe, expect, test } from 'vitest';
-import * as $preactꓺapisꓺssr from '../../../../preact/apis/ssr.tsx';
+import { $preact } from '../../../../index.ts';
 
-describe('$preactꓺapisꓺssr', async () => {
+describe('$preact.ssr', async () => {
     test('.renderToString()', async () => {
-        expect($preactꓺapisꓺssr.renderToString(<html lang='en'></html>)).toBe('<html lang="en"></html>');
+        expect($preact.ssr.renderToString(<html lang='en'></html>)).toBe('<html lang="en"></html>');
     });
 });

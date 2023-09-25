@@ -2,13 +2,9 @@
  * Path utilities.
  */
 
-import type { Ignore as GitIgnore } from 'ignore';
-import { default as untypedGitIgnoreFactory } from 'ignore';
-import type { Options as MMOptions } from 'micromatch';
-import { exts as $mimeꓺexts, types as $mimeꓺtypes } from './mime.ts';
-import { defaults as $objꓺdefaults, hasOwn as $objꓺhasOwn } from './obj.ts';
-import { mm as $strꓺmm, rTrim as $strꓺrTrim } from './str.ts';
-import { castArray as $toꓺcastArray } from './to.ts';
+import { default as untypedGitIgnoreFactory, type Ignore as GitIgnore } from 'ignore';
+import { type Options as MMOptions } from 'micromatch';
+import { $mime, $obj, $str, $to } from './index.ts';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
 const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgnoreFactoryOptions) => GitIgnore;
@@ -52,9 +48,9 @@ export const extRegExp = /(?:^|[^.])\.([^\\/.]+)$/iu;
  *
  * @note Everything except backend code used for web proramming.
  *
- * @see $mimeꓺexts in `./mime.ts` for a more verbose breakdown of these.
+ * @see $mime.exts in `./mime.ts` for a more verbose breakdown of these.
  */
-export const staticExts: string[] = $mimeꓺexts.filter((ext) => {
+export const staticExts: string[] = $mime.exts.filter((ext) => {
     return (
         !['php', 'phtm', 'phtml', 'rb', 'py', 'shtm', 'shtml', 'asp', 'aspx', 'pl', 'plx', 'cgi', 'ppl', 'perl', 'sh', 'zsh', 'bash'].includes(ext) &&
         !/^(?:php|phtml?|rb|py|shtml?|aspx?|plx?|cgi|ppl|perl|sh|zsh|bash)(?:[.~_-]*[0-9]+)$/u.test(ext) // Version-specific variants.
@@ -133,7 +129,7 @@ export const newGitIgnore = (options?: GitIgnoreOptions): GitIgnore => {
         useDefaultGitIgnores: true,
         useDefaultNPMIgnores: false,
     };
-    const opts = $objꓺdefaults({}, options || {}, defaultOpts) as Required<GitIgnoreOptions>;
+    const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<GitIgnoreOptions>;
     if (opts.useDefaultNPMIgnores /* Already includes git ignores. */) opts.useDefaultGitIgnores = false;
 
     const gitIgnore = gitIgnoreFactory({ ignorecase: opts.ignoreCase });
@@ -166,7 +162,7 @@ export const gitIgnoreToGlob = (ignoreGlob: string): string => {
     if (isNegated /* Remove temporarily. */) {
         ignoreGlob = ignoreGlob.replace(/^!/u, '');
     }
-    ignoreGlob = $strꓺrTrim(ignoreGlob, '/');
+    ignoreGlob = $str.rTrim(ignoreGlob, '/');
 
     if (isRootPath || isRelativePath) {
         return (isNegated ? '!' : '') + ignoreGlob + '/**';
@@ -187,13 +183,13 @@ export const gitIgnoreToGlob = (ignoreGlob: string): string => {
  *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
 export const globToRegExp = (glob: string, options?: GlobToRegExpOptions): RegExp => {
-    const opts = $objꓺdefaults({}, options || {}, { nocase: false }) as GlobToRegExpOptions;
+    const opts = $obj.defaults({}, options || {}, { nocase: false }) as GlobToRegExpOptions;
 
-    if ($objꓺhasOwn(opts, 'ignoreCase')) {
+    if (Object.hasOwn(opts, 'ignoreCase')) {
         opts.nocase = opts.ignoreCase;
         delete opts.ignoreCase;
     }
-    return $strꓺmm.makeRe(glob, opts);
+    return $str.mm.makeRe(glob, opts);
 };
 
 /**
@@ -209,13 +205,13 @@ export const globToRegExp = (glob: string, options?: GlobToRegExpOptions): RegEx
  *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
 export const globToRegExpString = (glob: string, options?: globToRegExpStringOptions): string => {
-    const opts = $objꓺdefaults({}, options || {}, { nocase: false }) as globToRegExpStringOptions;
+    const opts = $obj.defaults({}, options || {}, { nocase: false }) as globToRegExpStringOptions;
 
-    if ($objꓺhasOwn(opts, 'ignoreCase')) {
+    if (Object.hasOwn(opts, 'ignoreCase')) {
         opts.nocase = opts.ignoreCase;
         delete opts.ignoreCase;
     }
-    return $strꓺmm
+    return $str.mm
         .makeRe(glob, opts)
         .toString()
         .replace(/^\/|\/[^/]*$/gu, '');
@@ -230,9 +226,9 @@ export const globToRegExpString = (glob: string, options?: globToRegExpStringOpt
  */
 export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
     let exts: string[] = []; // Initialize.
-    vsCodeLangs = $toꓺcastArray(vsCodeLangs);
+    vsCodeLangs = $to.array(vsCodeLangs);
 
-    for (const [, group] of Object.entries($mimeꓺtypes)) {
+    for (const [, group] of Object.entries($mime.types)) {
         for (const [subgroupExts, subgroup] of Object.entries(group)) {
             if (vsCodeLangs.includes(subgroup.vsCodeLang)) {
                 exts = exts.concat(subgroupExts.split('|'));
@@ -250,7 +246,7 @@ export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
 export const extsByVSCodeLang = (): { [x: string]: string[] } => {
     let exts: { [x: string]: string[] } = {}; // Initialize.
 
-    for (const [, group] of Object.entries($mimeꓺtypes)) {
+    for (const [, group] of Object.entries($mime.types)) {
         for (const [subgroupExts, subgroup] of Object.entries(group)) {
             exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang] || [];
             exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang].concat(subgroupExts.split('|'));

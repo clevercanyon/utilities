@@ -169,29 +169,6 @@ describe('$obj', async () => {
         expect($obj.protoC9r(testCustomSubNamedObj, 3)).toBe(Custom);
         expect($obj.protoC9r(testCustomAnonObj, 10)).toBe(undefined);
     });
-    test('.hasOwn()', async () => {
-        expect($obj.hasOwn(testObj, 'a')).toBe(true);
-        expect($obj.hasOwn(testObj, 'b')).toBe(true);
-        expect($obj.hasOwn(testObj, 'c')).toBe(true);
-        expect($obj.hasOwn(testObj, 'd')).toBe(false);
-
-        expect($obj.hasOwn(testCustomObj, 'a')).toBe(false);
-        expect($obj.hasOwn(testCustomObj, 'b')).toBe(false);
-        expect($obj.hasOwn(testCustomObj, 'c')).toBe(false);
-        expect($obj.hasOwn(testCustomObj, 'values')).toBe(true);
-
-        expect($obj.hasOwn(testCustomNamedObj, 'a')).toBe(false);
-        expect($obj.hasOwn(testCustomNamedObj, 'b')).toBe(false);
-        expect($obj.hasOwn(testCustomNamedObj, 'c')).toBe(false);
-        // ↓ `extends` makes inherited properties ‘own’ properties.
-        expect($obj.hasOwn(testCustomNamedObj, 'values')).toBe(true);
-
-        expect($obj.hasOwn(testCustomSubNamedObj, 'a')).toBe(false);
-        expect($obj.hasOwn(testCustomSubNamedObj, 'b')).toBe(false);
-        expect($obj.hasOwn(testCustomSubNamedObj, 'c')).toBe(false);
-        // ↓ `extends` makes inherited properties ‘own’ properties.
-        expect($obj.hasOwn(testCustomSubNamedObj, 'values')).toBe(true);
-    });
     test('.keysAndSymbols()', async () => {
         const symbolA = Symbol();
         const symbolB = Symbol();

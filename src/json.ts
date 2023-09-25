@@ -2,8 +2,7 @@
  * JSON utilities.
  */
 
-import { array as $isꓺarray, map as $isꓺmap, object as $isꓺobject, set as $isꓺset } from './is.ts';
-import { defaults as $objꓺdefaults } from './obj.ts';
+import { $is, $obj } from './index.ts';
 
 /**
  * Defines types.
@@ -23,7 +22,7 @@ export type StringifyOptions = {
 function _stringify(value: unknown, options?: StringifyOptions): string;
 function _stringify(value: undefined, options?: StringifyOptions): undefined;
 function _stringify(value: unknown | undefined, options?: StringifyOptions): string | undefined {
-    const opts = $objꓺdefaults({}, options || {}, { noReplacer: false, pretty: false }) as Required<StringifyOptions>;
+    const opts = $obj.defaults({}, options || {}, { noReplacer: false, pretty: false }) as Required<StringifyOptions>;
     return JSON.stringify(value, opts.noReplacer ? undefined : replacer, opts.pretty ? 4 : undefined);
 }
 export { _stringify as stringify }; // Must export as alias.
@@ -48,11 +47,11 @@ export const parse = (json: string | undefined): unknown => {
  * @returns       Value to JSON-encode.
  */
 const replacer = (key: string, value: unknown): unknown => {
-    if ($isꓺobject(value)) {
-        if ($isꓺset(value)) {
+    if ($is.object(value)) {
+        if ($is.set(value)) {
             return { __dataType: 'Set', __data: [...value] };
             //
-        } else if ($isꓺmap(value)) {
+        } else if ($is.map(value)) {
             return { __dataType: 'Map', __data: [...value] };
         }
     }
@@ -68,11 +67,11 @@ const replacer = (key: string, value: unknown): unknown => {
  * @returns       Value to JSON-decode.
  */
 const reviver = (key: string, value: unknown): unknown => {
-    if ($isꓺobject(value)) {
-        if ('Set' === value.__dataType && $isꓺarray(value.__data)) {
+    if ($is.object(value)) {
+        if ('Set' === value.__dataType && $is.array(value.__data)) {
             return new Set(value.__data);
             //
-        } else if ('Map' === value.__dataType && $isꓺarray(value.__data)) {
+        } else if ('Map' === value.__dataType && $is.array(value.__data)) {
             return new Map(value.__data as [[unknown, unknown]]);
         }
     }

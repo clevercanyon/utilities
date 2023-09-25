@@ -2,16 +2,9 @@
  * Preact component.
  */
 
-import { createContext as preactꓺcreateContext } from 'preact';
-import type { Dispatch as preactꓺhooksꓺDispatch } from 'preact/hooks';
-import { useContext as preactꓺhooksꓺuseContext, useMemo as preactꓺhooksꓺuseMemo, useReducer as preactꓺhooksꓺuseReducer } from 'preact/hooks';
-import { get as $envꓺget, isTest as $envꓺisTest, isWeb as $envꓺisWeb } from '../../env.ts';
-import type { $type } from '../../index.ts';
-import { $preact } from '../../index.ts';
-import { mergeDeep as $objꓺmergeDeep, updateDeep as $objꓺupdateDeep } from '../../obj.ts';
-import type { State as $preactꓺcomponentsꓺdataꓺState } from './data.tsx';
-import { globalToScriptCode as $preactꓺcomponentsꓺdataꓺglobalToScriptCode, useData as $preactꓺcomponentsꓺdataꓺuseData } from './data.tsx';
-import { useLocation as $preactꓺcomponentsꓺrouterꓺuseLocation } from './router.tsx';
+import * as preact from 'preact';
+import { $env, $obj, $preact, type $type } from '../../index.ts';
+import { globalToScriptCode as dataGlobalToScriptCode, type State as DataState } from './data.tsx';
 
 /**
  * Defines types.
@@ -23,7 +16,7 @@ export type State = {
     viewport?: string;
 
     robots?: string;
-    canonical?: URL | $type.cf.URL | string;
+    canonical?: $type.URL | string;
     siteName?: string;
 
     title?: string;
@@ -31,31 +24,31 @@ export type State = {
     description?: string;
     author?: string;
 
-    pngIcon?: URL | $type.cf.URL | string;
-    svgIcon?: URL | $type.cf.URL | string;
+    pngIcon?: $type.URL | string;
+    svgIcon?: $type.URL | string;
 
     ogSiteName?: string;
     ogType?: string;
     ogTitle?: string;
     ogDescription?: string;
-    ogURL?: URL | $type.cf.URL | string;
-    ogImage?: URL | $type.cf.URL | string;
+    ogURL?: $type.URL | string;
+    ogImage?: $type.URL | string;
 
-    mainStyleBundle?: URL | $type.cf.URL | string;
-    mainScriptBundle?: URL | $type.cf.URL | string;
+    mainStyleBundle?: $type.URL | string;
+    mainScriptBundle?: $type.URL | string;
 };
 export type PartialState = Partial<State>;
 export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
 
 export type ContextProps = {
     readonly state: State;
-    readonly updateState: preactꓺhooksꓺDispatch<PartialState>;
+    readonly updateState: $preact.Dispatch<PartialState>;
 };
 
 /**
  * Defines context.
  */
-const Context = preactꓺcreateContext({} as ContextProps);
+const Context = preact.createContext({} as ContextProps);
 
 /**
  * Produces initial state.
@@ -65,8 +58,8 @@ const Context = preactꓺcreateContext({} as ContextProps);
  *
  * @returns           Initialized state.
  */
-const initialState = (dataState: $preactꓺcomponentsꓺdataꓺState, props: Props = {}): State => {
-    return $objꓺmergeDeep(dataState.head, $preact.cleanProps(props)) as unknown as State;
+const initialState = (dataState: DataState, props: Props = {}): State => {
+    return $obj.mergeDeep(dataState.head, $preact.cleanProps(props)) as unknown as State;
 };
 
 /**
@@ -78,7 +71,7 @@ const initialState = (dataState: $preactꓺcomponentsꓺdataꓺState, props: Pro
  * @returns         New state, if changed; else old state.
  */
 const reduceState = (state: State, updates: PartialState): State => {
-    return $objꓺupdateDeep(state, updates) as unknown as State;
+    return $obj.updateDeep(state, updates) as unknown as State;
 };
 
 /**
@@ -88,18 +81,18 @@ const reduceState = (state: State, updates: PartialState): State => {
  *
  * @returns       VNode / JSX element tree.
  */
-export default (props: Props = {}): $preact.VNode<Props> => {
-    const { state: locState } = $preactꓺcomponentsꓺrouterꓺuseLocation();
+export default function Head(props: Props = {}): $preact.VNode<Props> {
+    const { state: locState } = $preact.useLocation();
     if (!locState) throw new Error('Missing location state.');
 
-    const { state: dataState } = $preactꓺcomponentsꓺdataꓺuseData();
+    const { state: dataState } = $preact.useData();
     if (!dataState) throw new Error('Missing data state.');
 
-    const [state, updateState] = preactꓺhooksꓺuseReducer(reduceState, undefined, () => initialState(dataState, props));
+    const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(dataState, props));
 
-    const headState = preactꓺhooksꓺuseMemo((): State => {
-        const appBaseURL = String($envꓺget('@top', 'APP_BASE_URL', ''));
-        const appBasePath = String($envꓺget('@top', 'APP_BASE_PATH', ''));
+    const headState = $preact.useMemo((): State => {
+        const appBaseURL = $env.get('APP_BASE_URL', { type: 'string', default: '' });
+        const appBasePath = $env.get('APP_BASE_PATH', { type: 'string', default: '' });
 
         let title = state.title || locState.url.hostname;
         const defaultDescription = 'Take the tiger by the tail.';
@@ -158,20 +151,18 @@ export default (props: Props = {}): $preact.VNode<Props> => {
                     </>
                 )}
                 {headState.mainStyleBundle && <link rel='stylesheet' href={headState.mainStyleBundle.toString()} media='all' />}
-                {headState.mainScriptBundle && (!$envꓺisWeb() || $envꓺisTest()) && (
-                    <script id={'data'} dangerouslySetInnerHTML={{ __html: $preactꓺcomponentsꓺdataꓺglobalToScriptCode() }}></script>
-                )}
+                {headState.mainScriptBundle && (!$env.isWeb() || $env.isTest()) && <script id={'data'} dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
                 {headState.mainScriptBundle && <script type='module' src={headState.mainScriptBundle.toString()}></script>}
 
                 {props.children}
             </head>
         </Context.Provider>
     );
-};
+}
 
 /**
  * Defines context hook.
  *
  * @returns Readonly context: `{ state, updateState }`.
  */
-export const useHead = (): ContextProps => preactꓺhooksꓺuseContext(Context);
+export const useHead = (): ContextProps => $preact.useContext(Context);

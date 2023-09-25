@@ -2,19 +2,15 @@
  * Preact route component.
  */
 
-import { isTest as $envꓺisTest, isWeb as $envꓺisWeb } from '../../env.ts';
-import { $preact } from '../../index.ts';
-import $preactꓺcomponentsꓺBody from '../components/body.tsx';
-import { useHTTP as $preactꓺcomponentsꓺdataꓺuseHTTP } from '../components/data.tsx';
-import $preactꓺcomponentsꓺHead from '../components/head.tsx';
-import $preactꓺcomponentsꓺHTML from '../components/html.tsx';
-import type { RouteContextAsProps as $preactꓺcomponentsꓺrouterꓺRouteContextAsProps } from '../components/router.tsx';
+import { $env, $preact } from '../../index.ts';
+import { Body, HTML, Head } from '../components.tsx';
+import { type RouteContextAsProps } from '../components/router.tsx';
 
 /**
  * Defines types.
  */
-export type Props = $preact.Props<$preactꓺcomponentsꓺrouterꓺRouteContextAsProps>;
 export type StandAloneProps = $preact.Props;
+export type Props = $preact.Props<RouteContextAsProps>;
 
 /**
  * Renders route component.
@@ -25,27 +21,27 @@ export type StandAloneProps = $preact.Props;
  *
  * @note No SSR style/script bundles, as this is a purely static page.
  */
-export default (props: Props): $preact.VNode<Props> => {
-    if (!$envꓺisWeb() || $envꓺisTest() /* Only during server-side prerenders and/or testing. */) {
-        const { updateState: updateHTTPState } = $preactꓺcomponentsꓺdataꓺuseHTTP();
+export default function Error404(props: Props): $preact.VNode<Props> {
+    if (!$env.isWeb() || $env.isTest() /* Server-side only. */) {
+        const { updateState: updateHTTPState } = $preact.useHTTP();
         updateHTTPState({ status: 404 }); // Record 404 error.
     }
     return (
-        <$preactꓺcomponentsꓺHTML>
-            <$preactꓺcomponentsꓺHead
+        <HTML>
+            <Head
                 robots={'noindex, nofollow'}
                 title={'404 Error: Not Found'}
                 description={'The resource you are looking for could not be found.'}
-                {...(!$envꓺisWeb() ? { mainStyleBundle: '', mainScriptBundle: '' } : {})}
+                {...(!$env.isWeb() ? { mainStyleBundle: '', mainScriptBundle: '' } : {})}
             >
                 <link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
-            </$preactꓺcomponentsꓺHead>
-            <$preactꓺcomponentsꓺBody classes={$preact.classes(props.classes)}>
+            </Head>
+            <Body classes={$preact.classes(props.classes)}>
                 <BodyContents />
-            </$preactꓺcomponentsꓺBody>
-        </$preactꓺcomponentsꓺHTML>
+            </Body>
+        </HTML>
     );
-};
+}
 
 /**
  * Renders stand-alone component.

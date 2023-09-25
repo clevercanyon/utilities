@@ -2,18 +2,17 @@
  * Brand utilities.
  */
 
-import type { Interface, RawProps } from './resources/classes/brand.ts';
-import { getClass } from './resources/classes/brand.ts';
+import { $class } from './index.ts';
 
 /**
  * Brand instances.
  */
-const instances: { [x: string]: Interface } = {};
+const instances: { [x: string]: $class.Brand } = {};
 
 /**
  * Raw brand props by N7M.
  */
-const rawProps: { readonly [x: string]: RawProps } = {
+const rawProps: { readonly [x: string]: $class.BrandRawProps } = {
     c10n: {
         org: 'c10n',
         n7m: 'c10n',
@@ -73,9 +72,9 @@ const rawProps: { readonly [x: string]: RawProps } = {
  *
  * @param   q Brand numeronym, slug, or var.
  *
- * @returns   Brand {@see Interface}.
+ * @returns   Brand {@see $class.BrandClass}.
  */
-export const get = (q: string): Interface => {
+export const get = (q: string): $class.Brand => {
     q = '&' === q ? 'c10n' : q; // Self-referential query.
     if (!q) throw new Error('Empty brand query.'); // Failure.
 
@@ -92,7 +91,7 @@ export const get = (q: string): Interface => {
     if (instances[n7m]) {
         return instances[n7m];
     }
-    const Brand = getClass(); // Class definition.
+    const Brand = $class.getBrand(); // Class.
 
     if (rawProps[n7m].org === n7m) {
         instances[n7m] = new Brand({ ...rawProps[n7m], org: undefined });

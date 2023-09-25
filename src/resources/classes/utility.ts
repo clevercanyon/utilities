@@ -2,20 +2,20 @@
  * Utility class.
  */
 
-import { pkgName as $appꓺpkgName } from '../../app.ts';
-import type { Interface as $classꓺBaseInterface } from './base.ts';
-import { getClass as $classꓺgetBase } from './base.ts';
+import { $app, $class } from '../../index.ts';
 
-let Class: Constructor | undefined; // Class definition cache.
+let Defined: Constructor | undefined; // Cache.
 
 /**
  * Defines types.
  */
 export type Constructor = {
     readonly appPkgName: string;
-    new (): Interface; // Takes in nothing.
+    new (): Class; // Takes in nothing.
 };
-export declare class Interface extends $classꓺBaseInterface {
+export type Class = $class.Base & ClassInterface;
+
+declare class ClassInterface {
     public static readonly appPkgName: string;
     public constructor(); // Takes in nothing.
 }
@@ -26,13 +26,13 @@ export declare class Interface extends $classꓺBaseInterface {
  * @returns {@see Constructor} Definition.
  */
 export const getClass = (): Constructor => {
-    if (Class) return Class;
+    if (Defined) return Defined;
 
-    Class = class extends $classꓺgetBase() implements Interface {
+    Defined = class extends $class.getBase() implements Class {
         /**
          * App package name.
          */
-        public static readonly appPkgName = $appꓺpkgName;
+        public static readonly appPkgName = $app.pkgName;
 
         /**
          * Object constructor.
@@ -45,8 +45,8 @@ export const getClass = (): Constructor => {
             // an instance of itself; i.e., to facilitate shallow|deep cloning.
         }
     };
-    return Object.defineProperty(Class, 'name', {
-        ...Object.getOwnPropertyDescriptor(Class, 'name'),
+    return Object.defineProperty(Defined, 'name', {
+        ...Object.getOwnPropertyDescriptor(Defined, 'name'),
         value: 'Utility',
     });
 };

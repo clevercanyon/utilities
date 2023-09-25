@@ -2,25 +2,8 @@
  * HTTP utilities.
  */
 
-import { isC10n as $envꓺisC10n, isCFW as $envꓺisCFW } from './env.ts';
-import type { $type } from './index.ts';
-import {
-    array as $isꓺarray,
-    arrayBuffer as $isꓺarrayBuffer,
-    blob as $isꓺblob,
-    dataView as $isꓺdataView,
-    integer as $isꓺinteger,
-    nul as $isꓺnul,
-    regExp as $isꓺregExp,
-    string as $isꓺstring,
-    typedArray as $isꓺtypedArray,
-} from './is.ts';
-import { svz as $moizeꓺsvz } from './moize.ts';
-import { defaults as $objꓺdefaults } from './obj.ts';
-import { hasExt as $pathꓺhasExt, hasStaticExt as $pathꓺhasStaticExt } from './path.ts';
-import { byteLength as $strꓺbyteLength, escRegExp as $strꓺescRegExp } from './str.ts';
-import { dayInSeconds as $timeꓺdayInSeconds, hourInSeconds as $timeꓺhourInSeconds, yearInSeconds as $timeꓺyearInSeconds } from './time.ts';
-import { parse as $urlꓺparse, removeCSOQueryVars as $urlꓺremoveCSOQueryVars, tryParse as $urlꓺtryParse } from './url.ts';
+import { $env, $is, $obj, $path, $str, $time, $url, type $type } from './index.ts';
+import { $fnꓺmemoize } from './resources/standalone/index.ts';
 
 /**
  * Defines types.
@@ -35,9 +18,9 @@ export type ResponseConfig = {
     maxAge?: number | null;
     sMaxAge?: number | null;
     staleAge?: number | null;
-    headers?: Headers | $type.cf.Headers | { [x: string]: string };
-    appendHeaders?: Headers | $type.cf.Headers | { [x: string]: string };
-    body?: BodyInit | $type.cf.BodyInit | null;
+    headers?: $type.Headers | { [x: string]: string };
+    appendHeaders?: $type.Headers | { [x: string]: string };
+    body?: $type.BodyInit | null; // i.e., Body contents.
 };
 export type ExtractHeaderOptions = { lowercase?: boolean };
 
@@ -49,8 +32,8 @@ export type ExtractHeaderOptions = { lowercase?: boolean };
  * @returns        HTTP request config.
  */
 export const requestConfig = (config?: RequestConfig): RequestConfig => {
-    return $objꓺdefaults({}, config || {}, {
-        enableRewrites: $envꓺisCFW(),
+    return $obj.defaults({}, config || {}, {
+        enableRewrites: $env.isCFW(),
     }) as Required<RequestConfig>;
 };
 
@@ -62,10 +45,10 @@ export const requestConfig = (config?: RequestConfig): RequestConfig => {
  * @returns        HTTP response config.
  */
 export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig> => {
-    return $objꓺdefaults({}, config || {}, {
+    return $obj.defaults({}, config || {}, {
         status: 405,
         enableCORs: false,
-        enableCDN: !$envꓺisCFW(),
+        enableCDN: !$env.isCFW(),
         maxAge: null,
         sMaxAge: null,
         staleAge: null,
@@ -85,9 +68,9 @@ export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig
  *
  * @throws          Error {@see Response} on failure.
  */
-export const prepareRequest = (request: Request | $type.cf.Request, config?: RequestConfig): Request | $type.cf.Request => {
+export const prepareRequest = (request: $type.Request, config?: RequestConfig): $type.Request => {
     const cfg = requestConfig(config); // Prepares config object values.
-    let url = $urlꓺtryParse(request.url); // Tries to parse. Errors caught below.
+    let url = $url.tryParse(request.url); // Tries to parse. Errors caught below.
 
     if (!url /* Catches unparseable URLs. */) {
         throw prepareResponse(request, { status: 400 });
@@ -104,8 +87,8 @@ export const prepareRequest = (request: Request | $type.cf.Request, config?: Req
     if (cfg.enableRewrites && !request.headers.has('x-rewrite-url') /* e.g., Cloudflare workers using cache API. */) {
         const originalURL = url; // For comparison w/ headers added below.
 
-        url = $urlꓺremoveCSOQueryVars(originalURL); // Removes (client|cache)-side-only query vars.
-        url = $urlꓺtryParse(url); // Tries to parse. Errors caught below.
+        url = $url.removeCSOQueryVars(originalURL); // Removes (client|cache)-side-only query vars.
+        url = $url.tryParse(url); // Tries to parse. Errors caught below.
 
         if (!url /* Catches unparseable URLs. */) {
             throw prepareResponse(request, { status: 400 });
@@ -137,9 +120,9 @@ export const prepareRequest = (request: Request | $type.cf.Request, config?: Req
  *
  * @returns         HTTP response.
  */
-export const prepareResponse = (request: Request | $type.cf.Request, config?: ResponseConfig): Response | $type.cf.Response => {
+export const prepareResponse = (request: $type.Request, config?: ResponseConfig): $type.Response => {
     const cfg = responseConfig(config); // Prepares config object values.
-    const url = $urlꓺtryParse(request.url); // Tries to parse. Errors caught below.
+    const url = $url.tryParse(request.url); // Tries to parse. Errors caught below.
 
     if (!url /* Catches unparseable URLs. */) {
         cfg.status = 400; // Bad request status.
@@ -178,7 +161,7 @@ export const prepareResponse = (request: Request | $type.cf.Request, config?: Re
  *
  * @note Private function. Intentionally *not* exporting.
  */
-const prepareResponseHeaders = (request: Request | $type.cf.Request, url: URL | $type.cf.URL, cfg: Required<ResponseConfig>): Headers | $type.cf.Headers => {
+const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Required<ResponseConfig>): $type.Headers => {
     // Initializes grouped header objects.
 
     const alwaysOnHeaders: { [x: string]: string } = {};
@@ -202,20 +185,21 @@ const prepareResponseHeaders = (request: Request | $type.cf.Request, url: URL | 
     // Populates content-related headers.
 
     if (!cfg.headers.has('content-length') /* Saves time. */) {
-        if (requestNeedsContentHeaders(request, cfg.status) && !$isꓺnul(cfg.body)) {
-            if ($isꓺstring(cfg.body)) {
-                contentHeaders['content-length'] = String($strꓺbyteLength(cfg.body));
+        if (requestNeedsContentHeaders(request, cfg.status) && !$is.nul(cfg.body)) {
+            if ($is.string(cfg.body)) {
+                contentHeaders['content-length'] = String($str.byteLength(cfg.body));
                 //
-            } else if ($isꓺblob(cfg.body)) {
+            } else if ($is.blob(cfg.body)) {
                 contentHeaders['content-length'] = String(cfg.body.size);
                 //
-            } else if ($isꓺtypedArray(cfg.body) || $isꓺarrayBuffer(cfg.body) || $isꓺdataView(cfg.body)) {
+            } else if ($is.typedArray(cfg.body) || $is.arrayBuffer(cfg.body) || $is.dataView(cfg.body)) {
                 contentHeaders['content-length'] = String(cfg.body.byteLength);
                 //
             } else if (cfg.body instanceof URLSearchParams) {
-                contentHeaders['content-length'] = String($strꓺbyteLength(cfg.body.toString()));
+                contentHeaders['content-length'] = String($str.byteLength(cfg.body.toString()));
             } else {
                 // We don't set content-length for `FormData|ReadableStream` body format types.
+                // The only way to determine the length of a readable stream is to actually read the stream.
                 // Don't use `FormData` sent as `application/x-www-form-urlencoded`. Use `URLSearchParams` or a string.
             }
         }
@@ -238,44 +222,44 @@ const prepareResponseHeaders = (request: Request | $type.cf.Request, url: URL | 
             staleAge?: ResponseConfig['staleAge'], // Browser and server stale age.
         ): void => {
             maxAge = Math.max(maxAge || 0, 0);
-            maxAge = Math.min(maxAge, $timeꓺyearInSeconds); // 1 year max.
+            maxAge = Math.min(maxAge, $time.yearInSeconds); // 1 year max.
 
             if (0 === maxAge /* Do not cache. */) {
                 cacheHeaders['cache-control'] = 'no-store';
                 cacheHeaders['cdn-cache-control'] = 'no-store';
             } else {
                 // 2h minimum @ Cloudflare on free plan.
-                sMaxAge = Math.max($isꓺinteger(sMaxAge) ? sMaxAge : maxAge, 0);
-                sMaxAge = 0 === sMaxAge ? 0 : Math.max(Math.max(sMaxAge, maxAge), $timeꓺhourInSeconds * 2);
+                sMaxAge = Math.max($is.integer(sMaxAge) ? sMaxAge : maxAge, 0);
+                sMaxAge = 0 === sMaxAge ? 0 : Math.max(Math.max(sMaxAge, maxAge), $time.hourInSeconds * 2);
 
-                staleAge = Math.max($isꓺinteger(staleAge) ? staleAge : Math.round(maxAge / 2), 0);
-                staleAge = Math.min(staleAge, $timeꓺdayInSeconds * 90); // 90 days max.
+                staleAge = Math.max($is.integer(staleAge) ? staleAge : Math.round(maxAge / 2), 0);
+                staleAge = Math.min(staleAge, $time.dayInSeconds * 90); // 90 days max.
 
                 cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=' + String(maxAge) + ', s-maxage=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
                 cacheHeaders['cdn-cache-control'] = 0 === sMaxAge ? 'no-store' : 'public, must-revalidate, max-age=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
             }
             if (!cfg.enableCDN) delete cacheHeaders['cdn-cache-control']; // Ditches CDN header.
         };
-        if ($isꓺinteger(cfg.maxAge)) {
+        if ($is.integer(cfg.maxAge)) {
             cacheControl(cfg.maxAge, cfg.sMaxAge, cfg.staleAge);
             //
         } else if (!requestHasCacheableMethod(request) || cfg.status >= 300) {
             cacheControl(0); // Do not cache.
             //
         } else if (requestPathIsSEORelatedFile(request, url)) {
-            cacheControl($timeꓺdayInSeconds);
+            cacheControl($time.dayInSeconds);
             //
         } else if (requestPathIsStatic(request, url)) {
-            cacheControl($timeꓺyearInSeconds);
+            cacheControl($time.yearInSeconds);
             //
         } else if (requestPathIsInAdmin(request, url) || requestIsFromUser(request)) {
             cacheControl(0); // Do not cache.
             //
-        } else cacheControl($timeꓺdayInSeconds);
+        } else cacheControl($time.dayInSeconds);
     }
     // Populates security-related headers.
 
-    if ($envꓺisC10n()) {
+    if ($env.isC10n()) {
         for (const [name, value] of Object.entries(c10nSecurityHeaders)) securityHeaders[name] = value;
     } else {
         for (const [name, value] of Object.entries(defaultSecurityHeaders)) securityHeaders[name] = value;
@@ -308,12 +292,9 @@ const prepareResponseHeaders = (request: Request | $type.cf.Request, url: URL | 
  *
  * @returns        HTTP response status text.
  */
-export const responseStatusText = $moizeꓺsvz({ maxSize: 12 })(
-    // Memoized function.
-    (status: string | number): string => {
-        return responseStatusCodes[String(status)] || '';
-    },
-);
+export const responseStatusText = (status: string | number): string => {
+    return responseStatusCodes[String(status)] || '';
+};
 
 /**
  * Request has a supported method?
@@ -322,12 +303,9 @@ export const responseStatusText = $moizeꓺsvz({ maxSize: 12 })(
  *
  * @returns         True if request has a supported method.
  */
-export const requestHasSupportedMethod = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request): boolean => {
-        return supportedRequestMethods.includes(request.method);
-    },
-);
+export const requestHasSupportedMethod = (request: $type.Request): boolean => {
+    return supportedRequestMethods.includes(request.method);
+};
 
 /**
  * Request has a cacheable request method?
@@ -336,12 +314,9 @@ export const requestHasSupportedMethod = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request has a cacheable request method.
  */
-export const requestHasCacheableMethod = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request): boolean => {
-        return requestHasSupportedMethod(request) && ['HEAD', 'GET'].includes(request.method);
-    },
-);
+export const requestHasCacheableMethod = $fnꓺmemoize(2, (request: $type.Request): boolean => {
+    return requestHasSupportedMethod(request) && ['HEAD', 'GET'].includes(request.method);
+});
 
 /**
  * Request method needs content headers?
@@ -351,12 +326,9 @@ export const requestHasCacheableMethod = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns                True if request method needs content headers.
  */
-export const requestNeedsContentHeaders = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, responseStatus: number): boolean => {
-        return 204 !== responseStatus && requestHasSupportedMethod(request) && !['OPTIONS'].includes(request.method);
-    },
-);
+export const requestNeedsContentHeaders = $fnꓺmemoize(2, (request: $type.Request, responseStatus: number): boolean => {
+    return 204 !== responseStatus && requestHasSupportedMethod(request) && !['OPTIONS'].includes(request.method);
+});
 
 /**
  * Request method needs content body?
@@ -366,12 +338,9 @@ export const requestNeedsContentHeaders = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns                True if request method needs content body.
  */
-export const requestNeedsContentBody = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, responseStatus: number): boolean => {
-        return 204 !== responseStatus && requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method);
-    },
-);
+export const requestNeedsContentBody = $fnꓺmemoize(2, (request: $type.Request, responseStatus: number): boolean => {
+    return 204 !== responseStatus && requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method);
+});
 
 /**
  * Request is coming from an identified user?
@@ -380,22 +349,19 @@ export const requestNeedsContentBody = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request is coming from an identified user.
  */
-export const requestIsFromUser = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request): boolean => {
-        if (request.headers.has('authorization')) {
-            return true; // Authorization header.
-        }
-        if (!request.headers.has('cookie')) {
-            return false; // No cookies.
-        }
-        const cookie = request.headers.get('cookie') || ''; // Encoded cookies.
-        return (
-            /(?:^\s*|;\s*)(?:logged[_-]in|user|author)(?:[_-][^=;]+)?=\s*"?[^";]/iu.test(cookie) ||
-            /(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|comment[_-]author)(?:[_-][^=;]+)=\s*"?[^";]/iu.test(cookie)
-        );
-    },
-);
+export const requestIsFromUser = $fnꓺmemoize(2, (request: $type.Request): boolean => {
+    if (request.headers.has('authorization')) {
+        return true; // Authorization header.
+    }
+    if (!request.headers.has('cookie')) {
+        return false; // No cookies.
+    }
+    const cookie = request.headers.get('cookie') || ''; // Encoded cookies.
+    return (
+        /(?:^\s*|;\s*)(?:logged[_-]in|user|author)(?:[_-][^=;]+)?=\s*"?[^";]/iu.test(cookie) ||
+        /(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|comment[_-]author)(?:[_-][^=;]+)=\s*"?[^";]/iu.test(cookie)
+    );
+});
 
 /**
  * Request path is invalid?
@@ -405,17 +371,14 @@ export const requestIsFromUser = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request path is invalid.
  */
-export const requestPathIsInvalid = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, url?: URL | $type.cf.URL): boolean => {
-        url = url || $urlꓺparse(request.url);
+export const requestPathIsInvalid = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+    url = url || $url.parse(request.url);
 
-        if (!url || !url.pathname || '/' === url.pathname) {
-            return false; // Not possible, or early return on `/`.
-        }
-        return /\\|\/{2,}|\.{2,}/iu.test(url.pathname);
-    },
-);
+    if (!url || !url.pathname || '/' === url.pathname) {
+        return false; // Not possible, or early return on `/`.
+    }
+    return /\\|\/{2,}|\.{2,}/iu.test(url.pathname);
+});
 
 /**
  * Request path is forbidden?
@@ -425,35 +388,32 @@ export const requestPathIsInvalid = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request path is forbidden.
  */
-export const requestPathIsForbidden = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, url?: URL | $type.cf.URL): boolean => {
-        url = url || $urlꓺparse(request.url);
+export const requestPathIsForbidden = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+    url = url || $url.parse(request.url);
 
-        if (!url || !url.pathname || '/' === url.pathname) {
-            return false; // Not possible, or early return on `/`.
-        }
-        if (/(?:^|\/)\./iu.test(url.pathname) && !/^\/\.well-known(?:$|\/)/iu.test(url.pathname)) {
-            return true; // No dotfile paths.
-        }
-        if (/(?:~|[^/.]\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(url.pathname)) {
-            return true; // No backups, copies, logs, or temp paths.
-        }
-        if (/(?:^|\/)(?:[^/]*[._-])?(?:cache|private|logs?|te?mp)(?:$|\/)/iu.test(url.pathname)) {
-            return true; // No cache, private, log, or temp paths.
-        }
-        if (/(?:^|\/)wp[_-]content\/(?:cache|private|mu[_-]plugins|upgrade|uploads\/(?:wc[_-]logs|woocommerce[_-]uploads|lmfwc[_-]files))(?:$|\/)/iu.test(url.pathname)) {
-            return true; // No WP content paths that are private.
-        }
-        if (/(?:^|\/)(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(url.pathname)) {
-            return true; // No package management dependencies paths.
-        }
-        if (/[^/.]\.(?:sh|bash|zsh|php[0-9]?|[ps]html?|aspx?|plx?|cgi|ppl|perl|go|rs|rlib|rb|py|py[icdowz])(?:$|\/)/iu.test(url.pathname)) {
-            return true; // No server-side script extension paths, including `.[ext]/pathinfo` data.
-        }
-        return false;
-    },
-);
+    if (!url || !url.pathname || '/' === url.pathname) {
+        return false; // Not possible, or early return on `/`.
+    }
+    if (/(?:^|\/)\./iu.test(url.pathname) && !/^\/\.well-known(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No dotfile paths.
+    }
+    if (/(?:~|[^/.]\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No backups, copies, logs, or temp paths.
+    }
+    if (/(?:^|\/)(?:[^/]*[._-])?(?:cache|private|logs?|te?mp)(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No cache, private, log, or temp paths.
+    }
+    if (/(?:^|\/)wp[_-]content\/(?:cache|private|mu[_-]plugins|upgrade|uploads\/(?:wc[_-]logs|woocommerce[_-]uploads|lmfwc[_-]files))(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No WP content paths that are private.
+    }
+    if (/(?:^|\/)(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No package management dependencies paths.
+    }
+    if (/[^/.]\.(?:sh|bash|zsh|php[0-9]?|[ps]html?|aspx?|plx?|cgi|ppl|perl|go|rs|rlib|rb|py|py[icdowz])(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No server-side script extension paths, including `.[ext]/pathinfo` data.
+    }
+    return false;
+});
 
 /**
  * Request path is dynamic?
@@ -463,16 +423,13 @@ export const requestPathIsForbidden = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request is dynamic.
  */
-export const requestPathIsDynamic = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, url?: URL | $type.cf.URL): boolean => {
-        return (
-            requestPathHasDynamicBase(request, url) || //
-            requestPathIsPotentiallyDynamic(request, url) ||
-            !requestPathHasStaticExtension(request, url)
-        );
-    },
-);
+export const requestPathIsDynamic = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+    return (
+        requestPathHasDynamicBase(request, url) || //
+        requestPathIsPotentiallyDynamic(request, url) ||
+        !requestPathHasStaticExtension(request, url)
+    );
+});
 
 /**
  * Request path is static?
@@ -482,12 +439,9 @@ export const requestPathIsDynamic = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request is static.
  */
-export const requestPathIsStatic = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, url?: URL | $type.cf.URL): boolean => {
-        return !requestPathIsDynamic(request, url);
-    },
-);
+export const requestPathIsStatic = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+    return !requestPathIsDynamic(request, url);
+});
 
 /**
  * Request path has a dynamic base?
@@ -497,20 +451,17 @@ export const requestPathIsStatic = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request path has a dynamic base.
  */
-export const requestPathHasDynamicBase = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, url?: URL | $type.cf.URL): boolean => {
-        if (!$envꓺisC10n()) {
-            return false; // Not applicable.
-        }
-        url = url || $urlꓺparse(request.url);
+export const requestPathHasDynamicBase = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+    if (!$env.isC10n()) {
+        return false; // Not applicable.
+    }
+    url = url || $url.parse(request.url);
 
-        if (!url || !url.pathname || '/' === url.pathname) {
-            return false; // Not possible, or early return on `/`.
-        }
-        return /^\/?(api|wp-json)(?:$|\/)/iu.test(url.pathname);
-    },
-);
+    if (!url || !url.pathname || '/' === url.pathname) {
+        return false; // Not possible, or early return on `/`.
+    }
+    return /^\/?(api|wp-json)(?:$|\/)/iu.test(url.pathname);
+});
 
 /**
  * Request path is potentially dynamic?
@@ -520,20 +471,17 @@ export const requestPathHasDynamicBase = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request path is potentially dynamic.
  */
-export const requestPathIsPotentiallyDynamic = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, url?: URL | $type.cf.URL): boolean => {
-        if (!$envꓺisC10n()) {
-            return false; // Not applicable.
-        }
-        url = url || $urlꓺparse(request.url);
+export const requestPathIsPotentiallyDynamic = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+    if (!$env.isC10n()) {
+        return false; // Not applicable.
+    }
+    url = url || $url.parse(request.url);
 
-        if (!url || !url.pathname || '/' === url.pathname) {
-            return false; // Not possible, or early return on `/`.
-        }
-        return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml|sitemaps\/.*\.xml)$/iu.test(url.pathname);
-    },
-);
+    if (!url || !url.pathname || '/' === url.pathname) {
+        return false; // Not possible, or early return on `/`.
+    }
+    return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml|sitemaps\/.*\.xml)$/iu.test(url.pathname);
+});
 
 /**
  * Request path is an SEO file?
@@ -543,17 +491,14 @@ export const requestPathIsPotentiallyDynamic = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request path is an SEO file.
  */
-export const requestPathIsSEORelatedFile = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, url?: URL | $type.cf.URL): boolean => {
-        url = url || $urlꓺparse(request.url);
+export const requestPathIsSEORelatedFile = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+    url = url || $url.parse(request.url);
 
-        if (!url || !url.pathname || '/' === url.pathname) {
-            return false; // Not possible, or early return on `/`.
-        }
-        return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml|sitemaps\/.*\.xml|favicon\.ico)$/iu.test(url.pathname);
-    },
-);
+    if (!url || !url.pathname || '/' === url.pathname) {
+        return false; // Not possible, or early return on `/`.
+    }
+    return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml|sitemaps\/.*\.xml|favicon\.ico)$/iu.test(url.pathname);
+});
 
 /**
  * Request path is in `/(?:wp-)?admin`?
@@ -563,17 +508,14 @@ export const requestPathIsSEORelatedFile = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request path is in `/(?:wp-)?admin`.
  */
-export const requestPathIsInAdmin = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, url?: URL | $type.cf.URL): boolean => {
-        url = url || $urlꓺparse(request.url);
+export const requestPathIsInAdmin = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+    url = url || $url.parse(request.url);
 
-        if (!url || !url.pathname || '/' === url.pathname) {
-            return false; // Not possible, or early return on `/`.
-        }
-        return /(?:^|\/)(?:wp[_-])?admin(?:$|\/)/iu.test(url.pathname) && !/(?:^|\/)wp[_-]admin\/admin[_-]ajax\.php$/iu.test(url.pathname);
-    },
-);
+    if (!url || !url.pathname || '/' === url.pathname) {
+        return false; // Not possible, or early return on `/`.
+    }
+    return /(?:^|\/)(?:wp[_-])?admin(?:$|\/)/iu.test(url.pathname) && !/(?:^|\/)wp[_-]admin\/admin[_-]ajax\.php$/iu.test(url.pathname);
+});
 
 /**
  * Request path has a static file extension?
@@ -584,23 +526,20 @@ export const requestPathIsInAdmin = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         True if request path has a static file extension.
  */
-export const requestPathHasStaticExtension = $moizeꓺsvz({ maxSize: 2 })(
-    // Memoized function.
-    (request: Request | $type.cf.Request, url?: URL | $type.cf.URL, exts?: string[] | RegExp): boolean => {
-        url = url || $urlꓺparse(request.url);
+export const requestPathHasStaticExtension = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL, exts?: string[] | RegExp): boolean => {
+    url = url || $url.parse(request.url);
 
-        if (!url || !url.pathname || '/' === url.pathname) {
-            return false; // Not possible, or early return on `/`.
-        }
-        if ($isꓺregExp(exts)) {
-            return $pathꓺhasExt(url.pathname) && exts.test(url.pathname);
-        }
-        if ($isꓺarray(exts) && exts.length) {
-            return $pathꓺhasExt(url.pathname) && new RegExp('(?:^|[^.])\\.(?:' + exts.map($strꓺescRegExp).join('|') + ')$', 'ui').test(url.pathname);
-        }
-        return $pathꓺhasStaticExt(url.pathname);
-    },
-);
+    if (!url || !url.pathname || '/' === url.pathname) {
+        return false; // Not possible, or early return on `/`.
+    }
+    if ($is.regExp(exts)) {
+        return $path.hasExt(url.pathname) && exts.test(url.pathname);
+    }
+    if ($is.array(exts) && exts.length) {
+        return $path.hasExt(url.pathname) && new RegExp('(?:^|[^.])\\.(?:' + exts.map($str.escRegExp).join('|') + ')$', 'ui').test(url.pathname);
+    }
+    return $path.hasStaticExt(url.pathname);
+});
 
 /**
  * Extracts headers, returning a plain object.
@@ -614,9 +553,9 @@ export const requestPathHasStaticExtension = $moizeꓺsvz({ maxSize: 2 })(
  *
  * @returns         Extracted headers, as a plain object.
  */
-export const extractHeaders = (headers: Headers | $type.cf.Headers | { [x: string]: string }, options?: ExtractHeaderOptions): { [x: string]: string } => {
+export const extractHeaders = (headers: $type.Headers | { [x: string]: string }, options?: ExtractHeaderOptions): { [x: string]: string } => {
     const plainObjHeaders: { [x: string]: string } = {};
-    const opts = $objꓺdefaults({}, options || {}, { lowercase: true }) as Required<ExtractHeaderOptions>;
+    const opts = $obj.defaults({}, options || {}, { lowercase: true }) as Required<ExtractHeaderOptions>;
 
     if (headers instanceof Headers) {
         headers.forEach((value, name) => {

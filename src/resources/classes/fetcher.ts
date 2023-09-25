@@ -2,18 +2,9 @@
  * Fetcher utility class.
  */
 
-import { pkgName as $appꓺpkgName } from '../../app.ts';
-import { sha1 as $cryptoꓺsha1 } from '../../crypto.ts';
-import { isWeb as $envꓺisWeb } from '../../env.ts';
-import type { $type } from '../../index.ts';
-import { stringify as $jsonꓺstringify } from '../../json.ts';
-import { hasOwn as $objꓺhasOwn } from '../../obj.ts';
-import { get as $obpꓺget, toScriptCode as $obpꓺtoScriptCode } from '../../obp.ts';
-import { obpPartSafe as $strꓺobpPartSafe } from '../../str.ts';
-import type { Interface as $classꓺUtilityInterface } from './utility.ts';
-import { getClass as $classꓺgetUtility } from './utility.ts';
+import { $app, $class, $crypto, $env, $json, $obp, $str, type $type } from '../../index.ts';
 
-let Class: Constructor | undefined; // Class definition cache.
+let Defined: Constructor | undefined; // Cache.
 
 /**
  * Defines types.
@@ -23,14 +14,16 @@ export type C9rProps = {
     readonly autoReplaceNativeFetch?: boolean;
 };
 export type Constructor = {
-    new (props?: C9rProps | Interface): Interface;
+    new (props?: C9rProps | Class): Class;
 };
-export declare class Interface extends $classꓺUtilityInterface {
+export type Class = $class.Utility & ClassInterface;
+
+declare class ClassInterface {
     public readonly global: Global;
     public readonly globalObp: $type.ObjectPath;
     public readonly autoReplaceNativeFetch: boolean;
 
-    public constructor(props?: C9rProps | Interface);
+    public constructor(props?: C9rProps | Class);
 
     public replaceNativeFetch(): void;
     public restoreNativeFetch(): void;
@@ -40,8 +33,8 @@ export declare class Interface extends $classꓺUtilityInterface {
 }
 export type Global = $type.Object<{
     cache: { [x: string]: GlobalCacheEntry };
-    nativeFetch: (...args: Parameters<typeof fetch>) => ReturnType<typeof fetch>;
-    pseudoFetch: (...args: Parameters<typeof fetch | typeof $type.cf.fetch>) => Promise<Response | $type.cf.Response>;
+    nativeFetch: (...args: Parameters<$type.fetch>) => ReturnType<$type.fetch>;
+    pseudoFetch: (...args: Parameters<$type.fetch>) => Promise<$type.Response>;
 }>;
 export type GlobalCacheEntry = {
     body: string;
@@ -57,9 +50,9 @@ export type GlobalCacheEntry = {
  * @returns {@see Constructor} Definition.
  */
 export const getClass = (): Constructor => {
-    if (Class) return Class;
+    if (Defined) return Defined;
 
-    Class = class extends $classꓺgetUtility() implements Interface {
+    Defined = class extends $class.getUtility() implements Class {
         /**
          * Global object.
          */
@@ -80,17 +73,17 @@ export const getClass = (): Constructor => {
          *
          * @param props Props or {@see Interface} instance.
          */
-        public constructor(props?: C9rProps | Interface) {
+        public constructor(props?: C9rProps | Class) {
             super(); // Parent constructor.
 
             props = props || {}; // Force object value.
-            const isClone = props instanceof (Class as Constructor);
+            const isClone = props instanceof (Defined as Constructor);
 
-            this.globalObp = props.globalObp || $strꓺobpPartSafe($appꓺpkgName) + '.fetcher';
-            this.global = $obpꓺget(globalThis, this.globalObp, {}) as Global; // Default is `{}`.
+            this.globalObp = props.globalObp || $str.obpPartSafe($app.pkgName) + '.fetcher';
+            this.global = $obp.get(globalThis, this.globalObp, {}) as Global; // Default is `{}`.
 
             this.global.cache = this.global.cache || {}; // Initializes cache when unavailable.
-            this.global.nativeFetch = globalThis.fetch; // Stores a reference to current native fetch.
+            this.global.nativeFetch = globalThis.fetch as Global['nativeFetch']; // Stores a reference to current native fetch.
             this.global.pseudoFetch = async (...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> => this.fetch(...args);
 
             this.autoReplaceNativeFetch = isClone ? false : props.autoReplaceNativeFetch || false;
@@ -102,22 +95,24 @@ export const getClass = (): Constructor => {
 
         /**
          * Replaces native fetch.
-         *
-         * @note Sets `nativeFetch` again, in case it was swapped since constructor ran; e.g., when unit testing.
          */
         public replaceNativeFetch(): void {
-            this.global.nativeFetch = globalThis.fetch;
+            // Stores a reference to current native fetch.
+            this.global.nativeFetch = globalThis.fetch as Global['nativeFetch'];
+
+            // Replaces native fetch.
             globalThis.fetch = this.global.pseudoFetch as typeof fetch;
         }
 
         /**
          * Restores native fetch.
-         *
-         * @note Also resets the global cache.
          */
         public restoreNativeFetch(): void {
-            this.global.cache = {}; // Resets cache.
+            // Restores native fetch.
             globalThis.fetch = this.global.nativeFetch as typeof fetch;
+
+            // Resets cache.
+            this.global.cache = {};
         }
 
         /**
@@ -126,10 +121,10 @@ export const getClass = (): Constructor => {
          * @returns Global as embeddable script code; i.e., for SSR.
          */
         public globalToScriptCode(): string {
-            const globalObpScriptCode = $obpꓺtoScriptCode(this.globalObp);
+            const globalObpScriptCode = $obp.toScriptCode(this.globalObp);
 
             let scriptCode = globalObpScriptCode.init; // Initialize.
-            scriptCode += ' ' + globalObpScriptCode.set + '.cache = ' + $jsonꓺstringify(this.global.cache) + ';';
+            scriptCode += ' ' + globalObpScriptCode.set + '.cache = ' + $json.stringify(this.global.cache) + ';';
 
             return scriptCode;
         }
@@ -142,16 +137,16 @@ export const getClass = (): Constructor => {
          * @returns      Same as {@see fetch()} native function.
          */
         public async fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> {
-            const hash = await $cryptoꓺsha1($jsonꓺstringify(args));
+            const hash = await $crypto.sha1($json.stringify(args));
 
-            if ($objꓺhasOwn(this.global.cache, hash)) {
+            if (Object.hasOwn(this.global.cache, hash)) {
                 const globalCacheEntry = this.global.cache[hash];
                 return new Response(globalCacheEntry.body, globalCacheEntry.options);
             }
-            if ($envꓺisWeb() /* No cache writes client-side, so no await either. */) {
-                return this.global.nativeFetch(...(args as Parameters<Global['nativeFetch']>));
+            if ($env.isWeb() /* No cache writes client-side, so no await either. */) {
+                return this.global.nativeFetch(...args);
             }
-            const response = await this.global.nativeFetch(...(args as Parameters<Global['nativeFetch']>));
+            const response = await this.global.nativeFetch(...args);
 
             const contentType = (response.headers.get('content-type') || '').toLowerCase();
             const contentMIMEType = contentType.split(';')[0]; // Removes a possible `; charset=utf-8`, for example.
@@ -164,12 +159,12 @@ export const getClass = (): Constructor => {
                 body: await response.text(), // Body as plain text.
                 options: { status: response.status, headers: { 'content-type': contentType } },
             };
-            (this.global.cache as Global['cache'])[hash] = globalCacheEntry;
+            this.global.cache[hash] = globalCacheEntry;
             return new Response(globalCacheEntry.body, globalCacheEntry.options);
         }
     };
-    return Object.defineProperty(Class, 'name', {
-        ...Object.getOwnPropertyDescriptor(Class, 'name'),
+    return Object.defineProperty(Defined, 'name', {
+        ...Object.getOwnPropertyDescriptor(Defined, 'name'),
         value: 'Fetcher',
     });
 };
