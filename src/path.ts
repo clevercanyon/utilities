@@ -20,7 +20,7 @@ export type GitIgnoreOptions = {
 };
 export type GlobToRegExpOptions = MMOptions & { ignoreCase?: boolean };
 export type globToRegExpStringOptions = MMOptions & { ignoreCase?: boolean };
-export type ExtsByVSCodeLangOptions = { camelCase?: boolean };
+export type ExtsByVSCodeLangOptions = { camelCase?: boolean; enableCodeTextual?: boolean };
 
 export type DefaultGitIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
 export type DefaultNPMIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
@@ -53,7 +53,7 @@ export const extRegExp = /(?:^|[^.])\.([^\\/.]+)$/iu;
  */
 export const staticExts: string[] = $mime.exts.filter((ext) => {
     return (
-        !['shtml', 'shtm', 'php', 'phtml', 'phtm', 'asp', 'aspx', 'rb', 'py', 'pl', 'plx', 'cgi', 'ppl', 'perl', 'sh', 'zsh', 'bash'].includes(ext) &&
+        !['shtml', 'shtm', 'php', 'phtml', 'phtm', 'asp', 'aspx', 'rb', 'py', 'pl6', 'perl6', 'pl', 'plx', 'cgi', 'ppl', 'perl', 'sh', 'zsh', 'bash'].includes(ext) &&
         !/^(?:shtml|shtm|php|phtml|phtm|asp|aspx|rb|py|pl|plx|cgi|ppl|perl|sh|zsh|bash)(?:[.~_-]*[0-9]+)$/u.test(ext) // Version-specific variants.
     );
 });
@@ -297,7 +297,7 @@ export const extsByCanonical = (): { [x: string]: string[] } => {
  */
 export const extsByVSCodeLang = (options?: ExtsByVSCodeLangOptions): { [x: string]: string[] } => {
     let exts: { [x: string]: string[] } = {}; // Initialize.
-    const opts = $obj.defaults({}, options || {}, { camelCase: false }) as Required<ExtsByVSCodeLangOptions>;
+    const opts = $obj.defaults({}, options || {}, { camelCase: false, enableCodeTextual: false }) as Required<ExtsByVSCodeLangOptions>;
 
     for (const [, group] of Object.entries($mime.types)) {
         for (const [subgroupExts, subgroup] of Object.entries(group)) {
@@ -317,6 +317,10 @@ export const extsByVSCodeLang = (options?: ExtsByVSCodeLangOptions): { [x: strin
                         vsCodeLang = 'typescriptReact';
                         break;
                     }
+                    case 'csharp': {
+                        vsCodeLang = 'cSharp';
+                        break;
+                    }
                     case 'apacheconf': {
                         vsCodeLang = 'apacheConf';
                         break;
@@ -330,6 +334,12 @@ export const extsByVSCodeLang = (options?: ExtsByVSCodeLangOptions): { [x: strin
             }
             exts[vsCodeLang] = exts[vsCodeLang] || [];
             exts[vsCodeLang] = exts[vsCodeLang].concat(subgroupExts.split('|'));
+
+            if (opts.enableCodeTextual && !subgroup.binary) {
+                const vsCodeLang = opts.camelCase ? 'codeTextual' : 'code-textual';
+                exts[vsCodeLang] = exts[vsCodeLang] || []; // i.e., textual, not binary.
+                exts[vsCodeLang] = exts[vsCodeLang].concat(subgroupExts.split('|'));
+            }
         }
     }
     for (const [vsCodeLang] of Object.entries(exts)) {

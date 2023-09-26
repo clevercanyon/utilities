@@ -122,7 +122,7 @@ export const types: Types = {
     },
     'Markdown': {
         'mdx': { type: 'text/markdown', binary: false, canonical: 'mdx', vsCodeLang: 'mdx' },
-        'md|markdown|mdown|mdwn|mdtext|mdtxt|mkd': { type: 'text/markdown', binary: false, canonical: 'md', vsCodeLang: 'markdown' },
+        'md|markdown|mdown|mdwn|mkd|mdtxt|mdtext': { type: 'text/markdown', binary: false, canonical: 'md', vsCodeLang: 'markdown' },
     },
     'Rich Text': {
         'rtx': { type: 'text/richtext', binary: true, canonical: 'rtx', vsCodeLang: vsCodeLangBinary },
@@ -153,6 +153,7 @@ export const types: Types = {
         'py': { type: 'text/html', binary: false, canonical: 'py', vsCodeLang: 'python' },
     },
     'Perl': {
+        'pl6|perl6': { type: 'text/html', binary: false, canonical: 'pl6', vsCodeLang: 'perl6' },
         'pl|plx|cgi|ppl|perl': { type: 'text/html', binary: false, canonical: 'pl', vsCodeLang: 'perl' },
     },
     'Shell': {
@@ -178,6 +179,7 @@ export const types: Types = {
     },
     'C': {
         'c': { type: 'text/plain', binary: false, canonical: 'c', vsCodeLang: 'c' },
+        'cs': { type: 'text/plain', binary: false, canonical: 'cs', vsCodeLang: 'csharp' },
         'cpp|cc': { type: 'text/plain', binary: false, canonical: 'cpp', vsCodeLang: 'cpp' },
         'o': { type: 'text/plain', binary: false, canonical: 'o', vsCodeLang: 'cpp' },
         'h': { type: 'text/plain', binary: false, canonical: 'h', vsCodeLang: 'cpp' },

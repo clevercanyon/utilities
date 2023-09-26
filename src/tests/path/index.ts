@@ -93,6 +93,7 @@ describe('$path', async () => {
     test('.extsByVSCodeLang()', async () => {
         expect($is.plainObject($path.extsByVSCodeLang())).toBe(true);
         expect($is.plainObject($path.extsByVSCodeLang({ camelCase: true }))).toBe(true);
+        expect($is.plainObject($path.extsByVSCodeLang({ camelCase: true, enableCodeTextual: true }))).toBe(true);
     });
     test('.defaultGitIgnoresByGroup', async () => {
         expect($is.plainObject($path.defaultGitIgnoresByGroup)).toBe(true);
