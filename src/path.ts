@@ -20,6 +20,7 @@ export type GitIgnoreOptions = {
 };
 export type GlobToRegExpOptions = MMOptions & { ignoreCase?: boolean };
 export type globToRegExpStringOptions = MMOptions & { ignoreCase?: boolean };
+export type ExtsByVSCodeLangOptions = { camelCase?: boolean };
 
 export type DefaultGitIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
 export type DefaultNPMIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
@@ -46,14 +47,14 @@ export const extRegExp = /(?:^|[^.])\.([^\\/.]+)$/iu;
 /**
  * Static extensions.
  *
- * @note Everything except backend code used for web proramming.
+ * @note Everything except backend code used for web programming.
  *
  * @see $mime.exts in `./mime.ts` for a more verbose breakdown of these.
  */
 export const staticExts: string[] = $mime.exts.filter((ext) => {
     return (
-        !['php', 'phtm', 'phtml', 'rb', 'py', 'shtm', 'shtml', 'asp', 'aspx', 'pl', 'plx', 'cgi', 'ppl', 'perl', 'sh', 'zsh', 'bash'].includes(ext) &&
-        !/^(?:php|phtml?|rb|py|shtml?|aspx?|plx?|cgi|ppl|perl|sh|zsh|bash)(?:[.~_-]*[0-9]+)$/u.test(ext) // Version-specific variants.
+        !['shtml', 'shtm', 'php', 'phtml', 'phtm', 'asp', 'aspx', 'rb', 'py', 'pl', 'plx', 'cgi', 'ppl', 'perl', 'sh', 'zsh', 'bash'].includes(ext) &&
+        !/^(?:shtml|shtm|php|phtml|phtm|asp|aspx|rb|py|pl|plx|cgi|ppl|perl|sh|zsh|bash)(?:[.~_-]*[0-9]+)$/u.test(ext) // Version-specific variants.
     );
 });
 
@@ -218,15 +219,38 @@ export const globToRegExpString = (glob: string, options?: globToRegExpStringOpt
 };
 
 /**
+ * Gets canonical extension variants.
+ *
+ * @param   canonicals Canonical extension(s).
+ *
+ * @returns            An array of canonical extension variants. The extensions within each canonical group are sorted
+ *   by priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
+ */
+export const canonicalExtVariants = (canonicals: string | string[]): string[] => {
+    canonicals = $to.array(canonicals);
+    let exts: string[] = []; // Initialize.
+
+    for (const [, group] of Object.entries($mime.types)) {
+        for (const [subgroupExts, subgroup] of Object.entries(group)) {
+            if (canonicals.includes(subgroup.canonical)) {
+                exts = exts.concat(subgroupExts.split('|'));
+            }
+        }
+    } // Already sorted by priority in MIME types.
+    return [...new Set(exts)]; // Unique extensions.
+};
+
+/**
  * Gets VS Code language extensions.
  *
  * @param   vsCodeLangs VS Code language ID(s).
  *
- * @returns             An array of language extensions.
+ * @returns             An array of language extensions. The extensions within each VS Code lang group are sorted by
+ *   priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
 export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
-    let exts: string[] = []; // Initialize.
     vsCodeLangs = $to.array(vsCodeLangs);
+    let exts: string[] = []; // Initialize.
 
     for (const [, group] of Object.entries($mime.types)) {
         for (const [subgroupExts, subgroup] of Object.entries(group)) {
@@ -234,28 +258,132 @@ export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
                 exts = exts.concat(subgroupExts.split('|'));
             }
         }
+    } // Already sorted by priority in MIME types.
+    return [...new Set(exts)]; // Unique extensions.
+};
+
+/**
+ * Gets all MIME-type extensions by canonical extension.
+ *
+ * @returns An array of extensions by canonical extension. The extensions within each canonical group are sorted by
+ *   priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
+ */
+export const extsByCanonical = (): { [x: string]: string[] } => {
+    let exts: { [x: string]: string[] } = {}; // Initialize.
+
+    for (const [, group] of Object.entries($mime.types)) {
+        for (const [subgroupExts, subgroup] of Object.entries(group)) {
+            exts[subgroup.canonical] = exts[subgroup.canonical] || [];
+            exts[subgroup.canonical] = exts[subgroup.canonical].concat(subgroupExts.split('|'));
+        }
     }
-    return [...new Set(exts.sort())]; // Unique extensions.
+    for (const [canonical] of Object.entries(exts)) {
+        // Already sorted by priority in MIME types.
+        exts[canonical] = [...new Set(exts[canonical])];
+    }
+    return exts; // Unique extensions within each canonical group.
 };
 
 /**
  * Gets all MIME-type extensions by VS Code lang ID.
  *
- * @returns An array of extensions by VS Code lang ID.
+ * @param   options Options (all optional); {@see ExtsByVSCodeLangOptions}.
+ *
+ * @returns         An array of extensions by VS Code lang ID. The extensions within each VS Code lang group are sorted
+ *   by priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
+ *
+ * @note VS Code language IDs are caSe-sensitive; {@see https://o5p.me/bmWI0c}.
+ *       If you pass options with `{ camelCase: true }`, please beware!
  */
-export const extsByVSCodeLang = (): { [x: string]: string[] } => {
+export const extsByVSCodeLang = (options?: ExtsByVSCodeLangOptions): { [x: string]: string[] } => {
     let exts: { [x: string]: string[] } = {}; // Initialize.
+    const opts = $obj.defaults({}, options || {}, { camelCase: false }) as Required<ExtsByVSCodeLangOptions>;
 
     for (const [, group] of Object.entries($mime.types)) {
         for (const [subgroupExts, subgroup] of Object.entries(group)) {
-            exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang] || [];
-            exts[subgroup.vsCodeLang] = exts[subgroup.vsCodeLang].concat(subgroupExts.split('|'));
+            let vsCodeLang = subgroup.vsCodeLang;
+
+            if (opts.camelCase) {
+                switch (vsCodeLang) {
+                    case 'plaintext': {
+                        vsCodeLang = 'plainText';
+                        break;
+                    }
+                    case 'javascriptreact': {
+                        vsCodeLang = 'javascriptReact';
+                        break;
+                    }
+                    case 'typescriptreact': {
+                        vsCodeLang = 'typescriptReact';
+                        break;
+                    }
+                    case 'apacheconf': {
+                        vsCodeLang = 'apacheConf';
+                        break;
+                    }
+                    case 'hexEditor.hexedit': {
+                        vsCodeLang = 'hexEditorHexEdit';
+                        break;
+                    }
+                }
+                vsCodeLang = $str.camelCase(vsCodeLang);
+            }
+            exts[vsCodeLang] = exts[vsCodeLang] || [];
+            exts[vsCodeLang] = exts[vsCodeLang].concat(subgroupExts.split('|'));
         }
     }
     for (const [vsCodeLang] of Object.entries(exts)) {
-        exts[vsCodeLang] = [...new Set(exts[vsCodeLang].sort())];
+        // Already sorted by priority in MIME types.
+        exts[vsCodeLang] = [...new Set(exts[vsCodeLang])];
     }
     return exts; // Unique extensions within each VS Code lang ID group.
+};
+
+/**
+ * Gets all JavaScript/TypeScript MIME-type extensions by dev group.
+ *
+ * @returns An array of extensions by dev group. The extensions within each dev group are sorted by priority with the
+ *   canonical extension appearing first. Suitable for pattern matching with prioritization.
+ *
+ * @note While not strictly required, the dev groups used here are intentionally *not* in conflict with VS Code lang IDs.
+ *       Ideally, we can merge VS Code lang IDs together with these dev groups when it’s helpful to do so.
+ */
+export const jsTSExtsByDevGroup = (): { [x: string]: string[] } => {
+    return {
+        // Standard JS/TS.
+
+        sJavaScript: ['js'],
+        sJavaScriptReact: ['jsx'],
+
+        sTypeScript: ['ts'],
+        sTypeScriptReact: ['tsx'],
+
+        // Common JS/TS.
+
+        cJavaScript: ['cjs'],
+        cJavaScriptReact: ['cjsx'],
+
+        cTypeScript: ['cts'],
+        cTypeScriptReact: ['ctsx'],
+
+        // Module JS/TS.
+
+        mJavaScript: ['mjs'],
+        mJavaScriptReact: ['mjsx'],
+
+        mTypeScript: ['mts'],
+        mTypeScriptReact: ['mtsx'],
+
+        // All flavors of JSX/TSX.
+
+        allJavaScriptReact: ['jsx', 'mjsx', 'cjsx'],
+        allTypeScriptReact: ['tsx', 'mtsx', 'ctsx'],
+
+        // All flavors of JS/TS.
+
+        allJavaScript: ['js', 'jsx', 'mjs', 'mjsx', 'cjs', 'cjsx'],
+        allTypeScript: ['ts', 'tsx', 'mts', 'mtsx', 'cts', 'ctsx'],
+    };
 };
 
 /**

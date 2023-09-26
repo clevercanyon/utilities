@@ -3,7 +3,7 @@
  */
 
 import { hydrate, prerender } from '@clevercanyon/preact-iso.fork';
-import { $app, $class, $env, $obj, $preact, $str, type $type } from '../../../index.ts';
+import { $app, $class, $env, $is, $obj, $path, $preact, $str, type $type } from '../../../index.ts';
 import { type HTTPState } from '../../../preact/components/data.tsx';
 import { type Props as RouterProps } from '../../../preact/components/router.tsx';
 
@@ -70,14 +70,21 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
     const { url } = request; // Extracts absolute URL from request.
     const appBasePath = $env.get('APP_BASE_PATH', { type: 'string', default: '' });
 
-    if (!(appManifest['index.html'] || appManifest['index.htm'])?.css?.[0]) {
-        throw new Error('Missing `appManifest[index.{html,htm}].css[0]`.');
-    }
-    if (!(appManifest['index.html'] || appManifest['index.htm'])?.file) {
-        throw new Error('Missing `appManifest[index.{html,htm}].file`.');
-    }
-    const mainStyleBundle = appBasePath + '/' + (appManifest['index.html'] || appManifest['index.htm']).css[0];
-    const mainScriptBundle = appBasePath + '/' + (appManifest['index.html'] || appManifest['index.htm']).file;
+    let appManifestStyleBundleSubpath: string = ''; // Style bundle.
+    let appManifestScriptBundleSubpath: string = ''; // Script bundle.
+
+    for (const htmlExt of $path.canonicalExtVariants('html')) {
+        if ($is.string(appManifest['index.' + htmlExt]?.css?.[0]) && $is.string(appManifest['index.' + htmlExt]?.file)) {
+            appManifestStyleBundleSubpath = $str.trim(appManifest['index.' + htmlExt]?.css?.[0], './');
+            appManifestScriptBundleSubpath = $str.trim(appManifest['index.' + htmlExt]?.file, './');
+            break; // We can stop here.
+        }
+    } // Now let’s confirm we found the bundle files.
+    if (!appManifestStyleBundleSubpath) throw new Error('Missing `appManifest[index.html].css[0]`.');
+    if (!appManifestScriptBundleSubpath) throw new Error('Missing `appManifest[index.html].file`.');
+
+    const mainStyleBundle = appBasePath + '/' + appManifestStyleBundleSubpath;
+    const mainScriptBundle = appBasePath + '/' + appManifestScriptBundleSubpath;
 
     const fetcher = replaceNativeFetch();
     const prerenderedData = await prerender(App, {

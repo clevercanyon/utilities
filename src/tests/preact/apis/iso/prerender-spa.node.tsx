@@ -575,7 +575,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
                 appManifest: { 'index.html': { css: [], file: 'script.js' } },
                 App, // Defined above.
             });
-        }).rejects.toThrowError('Missing `appManifest[index.{html,htm}].css[0]`.');
+        }).rejects.toThrowError('Missing `appManifest[index.html].css[0]`.');
 
         // ---
 
@@ -585,6 +585,6 @@ describe('$preact.iso.prerenderSPA()', async () => {
                 appManifest: { 'index.html': { css: ['style.css'], file: '' } },
                 App, // Defined above.
             });
-        }).rejects.toThrowError('Missing `appManifest[index.{html,htm}].file`.');
+        }).rejects.toThrowError('Missing `appManifest[index.html].file`.');
     });
 });

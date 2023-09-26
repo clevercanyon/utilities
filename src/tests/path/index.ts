@@ -67,18 +67,32 @@ describe('$path', async () => {
         expect($path.gitIgnoreToGlob('!/.foo/bar/')).toBe('!/.foo/bar/**');
         expect($path.gitIgnoreToGlob('!/.foo/bar//')).toBe('!/.foo/bar/**');
     });
+    test('.canonicalExtVariants()', async () => {
+        expect($path.canonicalExtVariants('js')).toStrictEqual(['js', 'mjs', 'cjs']);
+        expect($path.canonicalExtVariants('jsx')).toStrictEqual(['jsx', 'mjsx', 'cjsx']);
+
+        expect($path.canonicalExtVariants('ts')).toStrictEqual(['ts', 'mts', 'cts']);
+        expect($path.canonicalExtVariants('tsx')).toStrictEqual(['tsx', 'mtsx', 'ctsx']);
+
+        expect($path.canonicalExtVariants('php')).toStrictEqual(['php', 'phtml', 'phtm']);
+        expect($path.canonicalExtVariants('bash')).toStrictEqual(['bash']);
+    });
     test('.vscodeLangExts()', async () => {
-        expect($path.vsCodeLangExts('javascript')).toStrictEqual(['cjs', 'js', 'mjs']);
-        expect($path.vsCodeLangExts('javascriptreact')).toStrictEqual(['cjsx', 'jsx', 'mjsx']);
+        expect($path.vsCodeLangExts('javascript')).toStrictEqual(['js', 'mjs', 'cjs']);
+        expect($path.vsCodeLangExts('javascriptreact')).toStrictEqual(['jsx', 'mjsx', 'cjsx']);
 
-        expect($path.vsCodeLangExts('typescript')).toStrictEqual(['cts', 'mts', 'ts']);
-        expect($path.vsCodeLangExts('typescriptreact')).toStrictEqual(['ctsx', 'mtsx', 'tsx']);
+        expect($path.vsCodeLangExts('typescript')).toStrictEqual(['ts', 'mts', 'cts']);
+        expect($path.vsCodeLangExts('typescriptreact')).toStrictEqual(['tsx', 'mtsx', 'ctsx']);
 
-        expect($path.vsCodeLangExts('php')).toStrictEqual(['php', 'phps', 'phtm', 'phtml']);
-        expect($path.vsCodeLangExts('shellscript')).toStrictEqual(['bash', 'sh', 'zsh']);
+        expect($path.vsCodeLangExts('php')).toStrictEqual(['php', 'phtml', 'phtm', 'phps']);
+        expect($path.vsCodeLangExts('shellscript')).toStrictEqual(['bash', 'zsh', 'sh']);
+    });
+    test('.extsByCanonical()', async () => {
+        expect($is.plainObject($path.extsByCanonical())).toBe(true);
     });
     test('.extsByVSCodeLang()', async () => {
         expect($is.plainObject($path.extsByVSCodeLang())).toBe(true);
+        expect($is.plainObject($path.extsByVSCodeLang({ camelCase: true }))).toBe(true);
     });
     test('.defaultGitIgnoresByGroup', async () => {
         expect($is.plainObject($path.defaultGitIgnoresByGroup)).toBe(true);
