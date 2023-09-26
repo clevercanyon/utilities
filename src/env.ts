@@ -14,6 +14,8 @@ const vars: { [x: string]: unknown } = {};
 /**
  * Defines types.
  */
+declare const MINIFLARE: boolean; // For env detection.
+
 export type GetOptions = { default?: unknown; type?: $type.EnsurableType };
 export type GetOptionsWithoutType = GetOptions & { type?: undefined };
 export type GetOptionsWithType = GetOptions & { type: $type.EnsurableType };

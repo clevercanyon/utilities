@@ -141,6 +141,11 @@ export const types: Types = {
 
     'PHP': {
         'php|phtml|phtm': { type: 'text/html', binary: false, canonical: 'php', vsCodeLang: 'php' },
+    },
+    // Other backend code formats.
+    // Not part of our dynamic exclusions.
+
+    'PHP Source': {
         'phps': { type: 'application/x-php-source', binary: false, canonical: 'phps', vsCodeLang: 'php' },
     },
     'ASP': {
@@ -161,9 +166,13 @@ export const types: Types = {
         'zsh': { type: 'text/html', binary: false, canonical: 'zsh', vsCodeLang: 'shellscript' },
         'sh': { type: 'text/html', binary: false, canonical: 'sh', vsCodeLang: 'shellscript' },
     },
-    // Other backend code formats.
-    // Not part of our dynamic exclusions.
-
+    'C': {
+        'c': { type: 'text/plain', binary: false, canonical: 'c', vsCodeLang: 'c' },
+        'cs': { type: 'text/plain', binary: false, canonical: 'cs', vsCodeLang: 'csharp' },
+        'cpp|cc': { type: 'text/plain', binary: false, canonical: 'cpp', vsCodeLang: 'cpp' },
+        'o': { type: 'text/plain', binary: false, canonical: 'o', vsCodeLang: 'cpp' },
+        'h': { type: 'text/plain', binary: false, canonical: 'h', vsCodeLang: 'cpp' },
+    },
     'Docker': {
         'dockerfile': { type: mimeTypeStream, binary: false, canonical: 'dockerfile', vsCodeLang: 'dockerfile' },
     },
@@ -176,13 +185,6 @@ export const types: Types = {
     },
     'Batch': {
         'bat': { type: 'text/plain', binary: false, canonical: 'bat', vsCodeLang: 'bat' },
-    },
-    'C': {
-        'c': { type: 'text/plain', binary: false, canonical: 'c', vsCodeLang: 'c' },
-        'cs': { type: 'text/plain', binary: false, canonical: 'cs', vsCodeLang: 'csharp' },
-        'cpp|cc': { type: 'text/plain', binary: false, canonical: 'cpp', vsCodeLang: 'cpp' },
-        'o': { type: 'text/plain', binary: false, canonical: 'o', vsCodeLang: 'cpp' },
-        'h': { type: 'text/plain', binary: false, canonical: 'h', vsCodeLang: 'cpp' },
     },
     // Frontend code (most of the time).
 

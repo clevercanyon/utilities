@@ -27,10 +27,4 @@ declare const $$__APP_BUILD_TIME_YMD__$$: string;
  *
  * <custom:start> */
 
-declare const MINIFLARE: boolean;
-declare function WorkerGlobalScope(): void;
-declare function SharedWorkerGlobalScope(): void;
-declare function ServiceWorkerGlobalScope(): void;
-declare function DedicatedWorkerGlobalScope(): void;
-
 /* </custom:end> */

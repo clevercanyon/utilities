@@ -47,15 +47,15 @@ export const extRegExp = /(?:^|[^.])\.([^\\/.]+)$/iu;
 /**
  * Static extensions.
  *
- * @note Everything except backend code used for web programming.
+ * Everything except PHP, which we use for server-side web programming. We filter PHP as a precaution. It’s highly
+ * unlikely we would ever be serving PHP statically, so let’s error on the side of caution and refuse; i.e., just in
+ * case someone makes a mistake and a PHP file containing sensitive information happens to slip through. If you really
+ * need to serve PHP statically, use the special `.phps` (source) extension, or a `.zip` file.
  *
- * @see $mime.exts in `./mime.ts` for a more verbose breakdown of these.
+ * @see $mime.exts in `./mime.ts` for the full list of extensions.
  */
 export const staticExts: string[] = $mime.exts.filter((ext) => {
-    return (
-        !['shtml', 'shtm', 'php', 'phtml', 'phtm', 'asp', 'aspx', 'rb', 'py', 'pl6', 'perl6', 'pl', 'plx', 'cgi', 'ppl', 'perl', 'sh', 'zsh', 'bash'].includes(ext) &&
-        !/^(?:shtml|shtm|php|phtml|phtm|asp|aspx|rb|py|pl|plx|cgi|ppl|perl|sh|zsh|bash)(?:[.~_-]*[0-9]+)$/u.test(ext) // Version-specific variants.
-    );
+    return !['php', 'phtml', 'phtm', 'phar'].includes(ext) && !/^(?:php|phtml|phtm)(?:[.~_-]*[0-9]+)$/u.test(ext);
 });
 
 /**
@@ -577,9 +577,11 @@ export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
         '.*', //
     ],
     'npm:Configs': [
-        'tsconfig.*', //
+        '*.config.*', //
         'wrangler.*',
-        '*.config.*',
+        'tsconfig.*',
+        'dev-types.d.ts',
+        'package.json',
         'config.gypi',
     ],
     'npm:Locks': [
@@ -635,7 +637,7 @@ export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
     // There are also a few items always included and/or excluded by NPM.
     // See: <https://docs.npmjs.com/cli/v9/configuring-npm/package-json#files>
     // See: <https://docs.npmjs.com/cli/v8/using-npm/developers?v=true#keeping-files-out-of-your-package>
-    // Other than `package.json`, `README`, `LICENSE|LICENCE`, our rules already cover everything that NPM does.
+    // Other than `package.json`, `README`, `LICENSE|LICENCE` (forced inclusions), our rules already cover everything that NPM does.
 };
 
 /**
@@ -867,11 +869,12 @@ export const defaultGitNPMIgnoresByCategory = {
     // Configs
 
     configIgnores: [
-        'tsconfig.*', //
+        '*.config.*', //
         'wrangler.*',
-        '*.config.*',
-        'config.gypi',
+        'tsconfig.*',
+        'dev-types.d.ts',
         'package.json',
+        'config.gypi',
     ],
     // Locks
 
