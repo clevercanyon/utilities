@@ -127,7 +127,7 @@ const initialHTTPState = () => ({ status: 200 });
  */
 export const useHTTP = (): HTTPContextProps => {
     if ($env.isWeb() && !$env.isTest()) {
-        throw $env.ERR_SERVER_SIDE_ONLY;
+        throw $env.errServerSideOnly;
     }
     if (!globalObp /* State not initialized? */) {
         throw new Error('Missing `globalObp`.');
@@ -150,7 +150,7 @@ export const useHTTP = (): HTTPContextProps => {
  */
 export const globalToScriptCode = (): string => {
     if ($env.isWeb() && !$env.isTest()) {
-        throw $env.ERR_SERVER_SIDE_ONLY;
+        throw $env.errServerSideOnly;
     }
     const { state } = useData();
 

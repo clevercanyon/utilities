@@ -3,15 +3,23 @@
  */
 
 import { describe, expect, test } from 'vitest';
-import { $app, $env } from '../../index.ts';
+import { $app, $env, $is } from '../../index.ts';
 
 describe('$env', async () => {
+    test('.isTest(), .test()', async () => {
+        expect($env.isTest()).toBe(true);
+
+        expect($env.test('TEST')).toBe(true);
+        expect($env.test('VITEST')).toBe(true);
+        expect($env.test('VITEST_MODE')).toBe(true);
+
+        expect($is.boolean($env.get('TEST'))).toBe(true);
+        expect($is.boolean($env.get('VITEST'))).toBe(true);
+        expect($is.string($env.get('VITEST_MODE'))).toBe(true);
+    });
     test('$env.setTopLevelObp()', async () => {
         expect($env.setTopLevelObp($app.pkgName)).toBe(undefined);
         expect($env.setTopLevelObp($app.pkgName)).toBe(undefined);
-    });
-    test('.isTest(), .test()', async () => {
-        expect($env.isTest()).toBe(true);
     });
     test('.get()', async () => {
         expect($env.set('', 'TEST_FOO', 'true')).toBe(undefined);

@@ -64,7 +64,7 @@ export { replaceNativeFetch as getFetcher }; // Exports friendly alias.
  */
 export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<PrerenderSPAReturnProps> => {
     if ($env.isWeb() && !$env.isTest()) {
-        throw $env.ERR_SERVER_SIDE_ONLY;
+        throw $env.errServerSideOnly;
     }
     const { request, appManifest, App, props = {} } = options;
     const { url } = request; // Extracts absolute URL from request.
@@ -113,7 +113,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
  * @note Client-side use only.
  */
 export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
 
     const { App, props = {} } = options; // Extract as local variables.
     const fetcher = replaceNativeFetch(); // Replaces native fetch.

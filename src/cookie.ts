@@ -82,7 +82,7 @@ export const parse = $fnꓺmemoize(6, (header?: string): { readonly [x: string]:
  * @returns      True if cookie exists.
  */
 export const exists = $fnꓺmemoize(24, (name: string): boolean => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return Object.hasOwn(parse(), name);
 });
 
@@ -95,7 +95,7 @@ export const exists = $fnꓺmemoize(24, (name: string): boolean => {
  * @returns              Cookie value, else {@see defaultValue}.
  */
 export const get = $fnꓺmemoize(24, <Default extends $type.Primitive = undefined>(name: string, defaultValue?: Default): string | Default => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     const cookies = parse(); // Parser is memoized (important).
     return Object.hasOwn(cookies, name) ? cookies[name] : (defaultValue as Default);
 });
@@ -108,7 +108,7 @@ export const get = $fnꓺmemoize(24, <Default extends $type.Primitive = undefine
  * @param options Options (all optional).
  */
 export const set = (name: string, value: string, options: Options = {}): void => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
 
     if (!nameIsValid(name)) {
         throw new Error('Invalid name: `' + name + '`.');
@@ -147,7 +147,7 @@ export const set = (name: string, value: string, options: Options = {}): void =>
  * @param options Options (all optional).
  */
 const _delete = (name: string, options: Options = {}): void => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     set(name, '', { ...options, expires: -1 });
 };
 export { _delete as delete }; // Must be exported as alias.

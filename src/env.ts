@@ -19,14 +19,13 @@ declare const MINIFLARE: boolean; // For env detection.
 export type GetOptions = { default?: unknown; type?: $type.EnsurableType };
 export type GetOptionsWithoutType = GetOptions & { type?: undefined };
 export type GetOptionsWithType = GetOptions & { type: $type.EnsurableType };
-
 export type QVTests = { [x: string]: null | undefined | string | string[] };
 
 /**
  * Exports frequently-used errors.
  */
-export const ERR_CLIENT_SIDE_ONLY = new Error('Client-side only.');
-export const ERR_SERVER_SIDE_ONLY = new Error('Server-side only.');
+export const errClientSideOnly = new Error('Client-side only.');
+export const errServerSideOnly = new Error('Server-side only.');
 
 /**
  * Checks if an object path is top-level.
@@ -261,9 +260,15 @@ export const capture = (leadingObp: string, env: object): void => {
  * Is test framework?
  *
  * @returns True if is test framework.
+ *
+ *   Vitest sets:
+ *
+ *   - `TEST=true` (boolean).
+ *   - `VITEST=true` (boolean).
+ *   - `VITEST_MODE=RUN|WATCH|...` (string).
  */
 export const isTest = $fnꓺmemoize((): boolean => {
-    return test('@top', 'TEST');
+    return test('TEST'); // Set by Vitest; maybe by Jest also.
 });
 
 /**
@@ -281,7 +286,7 @@ export const isWeb = $fnꓺmemoize((): boolean => {
  * @returns True if is web browser under a local hostname.
  */
 export const isLocalWeb = $fnꓺmemoize((): boolean => {
-    return isWeb() && $url.LOCAL_HOSTS.includes($url.currentRootHost({ withPort: false }));
+    return isWeb() && $url.localHosts().includes($url.currentRootHost({ withPort: false }));
 });
 
 /**

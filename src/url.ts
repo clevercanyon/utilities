@@ -18,27 +18,27 @@ export type AddQueryVarOptions = { replaceExisting?: boolean };
 /**
  * RFC 1738 URL encoding strategy.
  */
-export const QUERY_RFC1738 = 'QUERY_RFC1738';
+export const queryRFC1738 = Symbol('queryRFC1738');
 
 /**
  * RFC 3986 URL encoding strategy.
  */
-export const QUERY_RFC3986 = 'QUERY_RFC3986';
+export const queryRFC3986 = Symbol('queryRFC3986');
 
 /**
  * RFC 3986 encoding encoding strategy w/ AWS v4 compat.
  */
-export const QUERY_RFC3986_AWS4 = 'QUERY_RFC3986_AWS4';
+export const queryRFC3986AWS4 = Symbol('queryRFC3986AWS4');
 
 /**
- * Defines standardized local host names.
+ * Defines standardized local hosts by name.
  */
-export const STD_LOCAL_HOST_NAMES = ['local', 'localhost'];
+export const stdLocalHostsByName = (): string[] => ['local', 'localhost'];
 
 /**
  * Defines local hosts.
  */
-export const LOCAL_HOSTS = [...new Set(['[::1]', '127.0.0.1', ...STD_LOCAL_HOST_NAMES])];
+export const localHosts = (): string[] => [...new Set(['[::1]', '127.0.0.1', ...stdLocalHostsByName()])];
 
 /**
  * Gets current URL.
@@ -46,7 +46,7 @@ export const LOCAL_HOSTS = [...new Set(['[::1]', '127.0.0.1', ...STD_LOCAL_HOST_
  * @returns Current URL.
  */
 export const current = (): string => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.href;
 };
 
@@ -56,7 +56,7 @@ export const current = (): string => {
  * @returns Current referrer.
  */
 export const currentReferrer = (): string => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return document.referrer;
 };
 
@@ -66,7 +66,7 @@ export const currentReferrer = (): string => {
  * @returns Current scheme.
  */
 export const currentScheme = $fnꓺmemoize((): string => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.protocol.toLowerCase().slice(0, -1);
 });
 
@@ -78,7 +78,7 @@ export const currentScheme = $fnꓺmemoize((): string => {
  * @returns         Current host.
  */
 export const currentHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options: CurrentHostOptions = {}): string => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options, { withPort: true }) as Required<CurrentHostOptions>;
     return (opts.withPort ? location.host : location.hostname).toLowerCase();
 });
@@ -91,7 +91,7 @@ export const currentHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options: C
  * @returns         Current root host.
  */
 export const currentRootHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options: CurrentRootHostOptions = {}): string => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options, { withPort: true }) as Required<CurrentRootHostOptions>;
     return rootHost(currentHost({ withPort: opts.withPort }), { withPort: opts.withPort });
 });
@@ -102,7 +102,7 @@ export const currentRootHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (option
  * @returns Current port.
  */
 export const currentPort = $fnꓺmemoize((): string => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.port;
 });
 
@@ -112,7 +112,7 @@ export const currentPort = $fnꓺmemoize((): string => {
  * @returns Current path.
  */
 export const currentPath = (): string => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.pathname;
 };
 
@@ -122,7 +122,7 @@ export const currentPath = (): string => {
  * @returns Current subpath.
  */
 export const currentSubpath = (): string => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.pathname.replace(/^\/|\/$/gu, '');
 };
 
@@ -132,7 +132,7 @@ export const currentSubpath = (): string => {
  * @returns Current query string.
  */
 export const currentQuery = (): string => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.search.slice(1);
 };
 
@@ -142,7 +142,7 @@ export const currentQuery = (): string => {
  * @returns Current path & query string.
  */
 export const currentPathQuery = (): string => {
-    if (!$env.isWeb()) throw $env.ERR_CLIENT_SIDE_ONLY;
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.pathname + location.search;
 };
 
@@ -181,7 +181,9 @@ export const rootHost = $fnꓺmemoize({ deep: true, maxSize: 12 }, (host?: $type
     if ($str.isIPHost(strHost)) {
         return strHost.toLowerCase(); // IPs don’t support subdomains.
     }
-    if (STD_LOCAL_HOST_NAMES.includes(strHost) || STD_LOCAL_HOST_NAMES.find((x) => strHost.endsWith('.' + x))) {
+    const localHostsByName = stdLocalHostsByName(); // Call once, use below.
+
+    if (localHostsByName.includes(strHost) || localHostsByName.find((x) => strHost.endsWith('.' + x))) {
         // When the TLD itself has no extension; e.g., `local`, `localhost`, `foo.localhost`.
         return strHost.toLowerCase().split('.').slice(-1).join('.');
     }
@@ -473,11 +475,11 @@ export function removeCSOQueryVars(url?: $type.URL | string): $type.URL | string
  * Encodes a URL component.
  *
  * @param   str      String to encode.
- * @param   strategy Strategy. Default is {@see QUERY_RFC3986}.
+ * @param   strategy Strategy. Default is {@see queryRFC3986}.
  *
- *   - Use {@see QUERY_RFC3986} for {@see rawurlencode()} PHP compatibility.
- *   - Use {@see QUERY_RFC3986_AWS4} for {@see rawurlencode()} PHP w/ AWS v4 compatibility.
- *   - Use {@see QUERY_RFC1738} for {@see urlencode()} PHP compatibility.
+ *   - Use {@see queryRFC3986} for {@see rawurlencode()} PHP compatibility.
+ *   - Use {@see queryRFC3986AWS4} for {@see rawurlencode()} PHP w/ AWS v4 compatibility.
+ *   - Use {@see queryRFC1738} for {@see urlencode()} PHP compatibility.
  *
  *
  * @returns          Encoded string.
@@ -485,17 +487,17 @@ export function removeCSOQueryVars(url?: $type.URL | string): $type.URL | string
  * @note Inspired by <https://locutus.io/php/url/urlencode/>.
  * @note Inspired by <https://locutus.io/php/url/rawurlencode/>.
  */
-export const encode = (str: string, strategy: string = QUERY_RFC3986): string => {
+export const encode = (str: string, strategy: symbol = queryRFC3986): string => {
     switch (strategy) {
-        case QUERY_RFC1738:
+        case queryRFC1738:
             return encodeURIComponent(str)
                 .replace(/[!'()*~]/gu, function (c) {
                     return '%' + c.charCodeAt(0).toString(16).toUpperCase();
                 })
                 .replace(/%20/gu, '+');
 
-        case QUERY_RFC3986:
-        case QUERY_RFC3986_AWS4:
+        case queryRFC3986:
+        case queryRFC3986AWS4:
         default: // Default strategy.
             return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
                 return '%' + c.charCodeAt(0).toString(16).toUpperCase();
@@ -507,11 +509,11 @@ export const encode = (str: string, strategy: string = QUERY_RFC3986): string =>
  * Decodes a URL component.
  *
  * @param   str      String to decode.
- * @param   strategy Strategy. Default is {@see QUERY_RFC3986}.
+ * @param   strategy Strategy. Default is {@see queryRFC3986}.
  *
- *   - Use {@see QUERY_RFC3986} for {@see rawurldecode()} PHP compatibility.
- *   - Use {@see QUERY_RFC3986_AWS4} for {@see rawurldecode()} PHP w/ AWS v4 compatibility.
- *   - Use {@see QUERY_RFC1738} for {@see urldecode()} PHP compatibility.
+ *   - Use {@see queryRFC3986} for {@see rawurldecode()} PHP compatibility.
+ *   - Use {@see queryRFC3986AWS4} for {@see rawurldecode()} PHP w/ AWS v4 compatibility.
+ *   - Use {@see queryRFC1738} for {@see urldecode()} PHP compatibility.
  *
  *
  * @returns          Decoded string.
@@ -519,13 +521,13 @@ export const encode = (str: string, strategy: string = QUERY_RFC3986): string =>
  * @note Inspired by <https://locutus.io/php/url/urldecode/>.
  * @note Inspired by <https://locutus.io/php/url/rawurldecode/>.
  */
-export const decode = (str: string, strategy: string = QUERY_RFC3986): string => {
+export const decode = (str: string, strategy: symbol = queryRFC3986): string => {
     switch (strategy) {
-        case QUERY_RFC1738:
+        case queryRFC1738:
             return decodeURIComponent(str.replace(/%(?![0-9a-f]{2})/giu, () => '%25').replace(/\+/gu, '%20'));
 
-        case QUERY_RFC3986:
-        case QUERY_RFC3986_AWS4:
+        case queryRFC3986:
+        case queryRFC3986AWS4:
         default: // Default strategy.
             return decodeURIComponent(str.replace(/%(?![0-9a-f]{2})/giu, () => '%25'));
     }
