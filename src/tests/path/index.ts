@@ -43,8 +43,11 @@ describe('$path', async () => {
         expect($path.globToRegExpString('**/abc/**/*', { dot: true })).toBe(
             '^(?:(?:^|\\/|(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/)abc(?:\\/(?!\\.{1,2}(?:\\/|$))(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/|\\/|$)(?!\\.{1,2}(?:\\/|$))(?=.)[^/]*?\\/?)$',
         );
-        expect($path.globToRegExpString($path.dotGlobstarHead + '*.{abc,xyz}' + $path.dotGlobstarTail)).toBe(
-            '^(?:(|(?:(?:(?!(?:^|\\/)\\.).)*?)\\/|(?:\\/|[^/\\r\\n])*\\/)[^/]*?\\.(abc|xyz)(|\\/(?!\\.)(?:(?:(?!(?:^|\\/)\\.).)*?)|\\/(?:\\/|[^/\\r\\n])*))$',
+        expect($path.globToRegExpString($path.dotGlobstarHead + $path.dotGlobstarSingle + '.{abc,xyz}' + $path.dotGlobstarTail)).toBe(
+            '^(?:(|(?:(?:(?!(?:^|\\/)\\.).)*?)\\/|(?:\\.|[^./]|\\x2F)*\\/)([^/]*?|(?:[^/]*?|\\.)*)\\.(abc|xyz)(|(?:\\/(?!\\.)(?:(?:(?!(?:^|\\/)\\.).)*?)\\/|\\/|$)(?!\\.)(?=.)[^/]*?|\\/(?:\\.)?(?:\\.|[^./]|\\x2F)*))$',
+        );
+        expect($path.globToRegExpString($path.dotGlobstarHead + $path.dotGlobstarSingle + '.{abc,xyz}' + $path.dotGlobstarTail, { dot: true })).toBe(
+            '^(?:(|(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/|(?:\\.|[^./]|\\x2F)*\\/)([^/]*?|(?:[^/]*?|\\.)*)\\.(abc|xyz)(|(?:\\/(?!\\.{1,2}(?:\\/|$))(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/|\\/|$)(?!\\.{1,2}(?:\\/|$))(?=.)[^/]*?|\\/(?:\\.)?(?:\\.|[^./]|\\x2F)*))$',
         );
     });
     test('.newGitIgnore()', async () => {
@@ -66,6 +69,26 @@ describe('$path', async () => {
         expect($path.gitIgnoreToGlob('/.foo/bar/')).toBe('/.foo/bar/**');
         expect($path.gitIgnoreToGlob('!/.foo/bar/')).toBe('!/.foo/bar/**');
         expect($path.gitIgnoreToGlob('!/.foo/bar//')).toBe('!/.foo/bar/**');
+
+        expect($path.gitIgnoreToGlob('.foo*', { useDotGlobstars: true })).toBe('{,**/,*(.|[^.]|\\x2F)/}.foo{*,*(*|.)}{,/**/*,/?(.)*(.|[^.]|\\x2F)}');
+        expect($path.gitIgnoreToGlob('!.foo.bar', { useDotGlobstars: true })).toBe('!{,**/,*(.|[^.]|\\x2F)/}.foo.bar{,/**/*,/?(.)*(.|[^.]|\\x2F)}');
+        expect($path.gitIgnoreToGlob('.foo/bar', { useDotGlobstars: true })).toBe('.foo/bar{,/**/*,/?(.)*(.|[^.]|\\x2F)}');
+        expect($path.gitIgnoreToGlob('.foo/bar/', { useDotGlobstars: true })).toBe('.foo/bar{,/**/*,/?(.)*(.|[^.]|\\x2F)}');
+        expect($path.gitIgnoreToGlob('!.foo/bar/', { useDotGlobstars: true })).toBe('!.foo/bar{,/**/*,/?(.)*(.|[^.]|\\x2F)}');
+        expect($path.gitIgnoreToGlob('/.foo/bar', { useDotGlobstars: true })).toBe('/.foo/bar{,/**/*,/?(.)*(.|[^.]|\\x2F)}');
+        expect($path.gitIgnoreToGlob('/.foo/bar/', { useDotGlobstars: true })).toBe('/.foo/bar{,/**/*,/?(.)*(.|[^.]|\\x2F)}');
+        expect($path.gitIgnoreToGlob('!/.foo/bar/', { useDotGlobstars: true })).toBe('!/.foo/bar{,/**/*,/?(.)*(.|[^.]|\\x2F)}');
+        expect($path.gitIgnoreToGlob('!/.foo/bar//', { useDotGlobstars: true })).toBe('!/.foo/bar{,/**/*,/?(.)*(.|[^.]|\\x2F)}');
+
+        expect($path.gitIgnoreToGlob('!/.f*oo/**/**/bar/**/baz/**//**/**/**/*****/*', { useDotGlobstars: true })).toBe(
+            '!/.f{*,*(*|.)}oo/{,**/,*(.|[^.]|\\x2F)/}bar/{,**/,*(.|[^.]|\\x2F)/}baz/{,**/,*(.|[^.]|\\x2F)/}{,/**/*,/?(.)*(.|[^.]|\\x2F)}{*,*(*|.)}{,**/,*(.|[^.]|\\x2F)/}{*,*(*|.)}{,/**/*,/?(.)*(.|[^.]|\\x2F)}',
+        );
+        expect($path.gitIgnoreToGlob('!/.f*oo/**/**/bar/**/baz/**//**/**/**/*', { useDotGlobstars: true })).toBe(
+            '!/.f{*,*(*|.)}oo/{,**/,*(.|[^.]|\\x2F)/}bar/{,**/,*(.|[^.]|\\x2F)/}baz/{,**/,*(.|[^.]|\\x2F)/}/{,**/,*(.|[^.]|\\x2F)/}{*,*(*|.)}{,/**/*,/?(.)*(.|[^.]|\\x2F)}',
+        );
+        expect($path.gitIgnoreToGlob('**/.f*oo/**/**/bar/**/baz/**/**', { useDotGlobstars: true })).toBe(
+            '{,**/,*(.|[^.]|\\x2F)/}.f{*,*(*|.)}oo/{,**/,*(.|[^.]|\\x2F)/}bar/{,**/,*(.|[^.]|\\x2F)/}baz{,/**/*,/?(.)*(.|[^.]|\\x2F)}{,/**/*,/?(.)*(.|[^.]|\\x2F)}',
+        );
     });
     test('.canonicalExtVariants()', async () => {
         expect($path.canonicalExtVariants('js')).toStrictEqual(['js', 'mjs', 'cjs']);

@@ -18,24 +18,13 @@ export type GitIgnoreOptions = {
     useDefaultGitIgnores?: boolean;
     useDefaultNPMIgnores?: boolean;
 };
+export type GitIgnoreToGlobOptions = { useDotGlobstars?: boolean };
 export type GlobToRegExpOptions = MMOptions & { ignoreCase?: boolean };
 export type globToRegExpStringOptions = MMOptions & { ignoreCase?: boolean };
 export type ExtsByVSCodeLangOptions = { camelCase?: boolean; enableCodeTextual?: boolean };
 
 export type DefaultGitIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
 export type DefaultNPMIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
-
-/**
- * Defines a braced dot globstars pattern.
- *
- * Explicitly allows for dots, even if `{ dot: false }` is used in pattern matching implementation.
- *
- * @note Requires brace, extglob, and globstar support. All on by default in fast-glob/micromatch, and minimatch.
- *       It may fall back to just straight-up globstar support (with caveats) whenever extglob is not available.
- *       This will crash terribly in implementations lacking support for braces.
- */
-export const dotGlobstarHead = '{,**/,*(/|[^/\r\n])/}'; // Our testing covers this pattern.
-export const dotGlobstarTail = '{,/**,/*(/|[^/\r\n])}'; // Our testing covers this pattern.
 
 /**
  * Any extension RegExp.
@@ -69,6 +58,21 @@ export const staticExtsPipedForRegExp = staticExts.join('|');
  * @note Matches unnamed dots also; e.g., `.[ext]`.
  */
 export const staticExtRegExp = new RegExp('(?:^|[^.])\\.(' + staticExtsPipedForRegExp + ')$', 'iu');
+
+/**
+ * Defines braced dot-globstar patterns.
+ *
+ * Explicitly allows for dots, even if `{ dot: false }` is used in pattern matching implementation.
+ *
+ * @note Requires brace, extglob, and globstar support. All on by default in fast-glob/micromatch, and minimatch.
+ *       It may fall back to just straight-up globstar support (with caveats) whenever extglob is not available.
+ *       This will crash terribly in implementations lacking support for braces.
+ *
+ * @see https://replit.com/@jaswrks/Dot-Globstar-Tests?v=1
+ */
+export const dotGlobstarHead = '{,**/,*(.|[^.]|\\x2F)/}'; // Equivalent to `**/` in `{ dot: true }` mode.
+export const dotGlobstarSingle = '{*,*(*|.)}'; // Equivalent to a single `*` in `{ dot: true }` mode.
+export const dotGlobstarTail = '{,/**/*,/?(.)*(.|[^.]|\\x2F)}'; // Equivalent to `/**` in `{ dot: true }` mode.
 
 /**
  * Cleans a filesystem path.
@@ -122,6 +126,8 @@ export const hasStaticExt = (path: string): boolean => {
  *
  * @param options Options (all optional); {@see GitIgnoreOptions}.
  *
+ * @note Relativity is not altered here. Please consider relativity in your implementation.
+ *
  * @see https://o5p.me/X7mPw2
  */
 export const newGitIgnore = (options?: GitIgnoreOptions): GitIgnore => {
@@ -145,30 +151,56 @@ export const newGitIgnore = (options?: GitIgnoreOptions): GitIgnore => {
 };
 
 /**
- * Converts a `.gitignore` entry into a fast-glob pattern.
+ * Converts a `.gitignore` entry into a (micro|mini)match-compatible glob pattern.
  *
  * @param   gitIgnore Git ignore entry.
+ * @param   options   Options (all optional); {@see GitIgnoreToGlobOptions}.
  *
- * @returns           Standard fast-glob pattern.
+ * @returns           Standard (micro|mini)match-compatible glob pattern.
  *
- * @note Relativity is not altered here. Please consider relativity in your implementation
+ * @note Relativity is not altered here. Please consider relativity in your implementation.
  *
  * @see https://git-scm.com/docs/gitignore#_pattern_format.
  */
-export const gitIgnoreToGlob = (ignoreGlob: string): string => {
+export const gitIgnoreToGlob = (ignoreGlob: string, options?: GitIgnoreToGlobOptions): string => {
+    const opts = $obj.defaults({}, options || {}, { useDotGlobstars: false }) as Required<GitIgnoreToGlobOptions>;
+
+    // We also do this first so that we don’t get false-positives on relative path detection.
+    ignoreGlob = $str.rTrim(ignoreGlob, '/'); // For (micro|mini)match compatibility.
+
     const isNegated = /^!/u.test(ignoreGlob);
     const isRootPath = /^!?\//u.test(ignoreGlob);
-    const isRelativePath = /\//u.test(ignoreGlob);
+
+    // A glob is not relative if its only slashes are in head/tail globstars.
+    const isRelativePath = /\//u.test(ignoreGlob.replace(/^(?:\*\*\/)+|(?:\/\*\*)+$/gu, ''));
 
     if (isNegated /* Remove temporarily. */) {
         ignoreGlob = ignoreGlob.replace(/^!/u, '');
     }
-    ignoreGlob = $str.rTrim(ignoreGlob, '/');
+    if (opts.useDotGlobstars /* Please use this option cautiously. */) {
+        ignoreGlob = ignoreGlob
+            .replace(/(?:\*\*\/){2,}/gu, '**/')
+            .replace(/(?:\/\*\*){2,}/gu, '/**')
+            .replace(/\*\*\//gu, '[:dotGlobstarHead:]')
+            .replace(/\/\*\*/gu, '[:dotGlobstarTail:]')
+            .replace(/\*+/gu, '[:dotGlobstarSingle:]');
 
-    if (isRootPath || isRelativePath) {
-        return (isNegated ? '!' : '') + ignoreGlob + '/**';
+        ignoreGlob = ignoreGlob.replace(/\[:dotGlobstar(?:Head|Tail|Single):\]/gu, (m0: string): string =>
+            '[:dotGlobstarHead:]' === m0 ? dotGlobstarHead : '[:dotGlobstarTail:]' === m0 ? dotGlobstarTail : dotGlobstarSingle,
+        );
     }
-    return (isNegated ? '!' : '') + '**/' + ignoreGlob + '/**';
+    if (isRootPath || isRelativePath)
+        return (
+            (isNegated ? '!' : '') + //
+            ignoreGlob.replace(/(?:\/\*\*)+$/u, '') +
+            (opts.useDotGlobstars ? dotGlobstarTail : '/**')
+        );
+    return (
+        (isNegated ? '!' : '') +
+        (opts.useDotGlobstars ? dotGlobstarHead : '**/') +
+        ignoreGlob.replace(/^(?:\*\*\/)+|(?:\/\*\*)+$/gu, '') +
+        (opts.useDotGlobstars ? dotGlobstarTail : '/**')
+    );
 };
 
 /**
@@ -212,10 +244,16 @@ export const globToRegExpString = (glob: string, options?: globToRegExpStringOpt
         opts.nocase = opts.ignoreCase;
         delete opts.ignoreCase;
     }
-    return $str.mm
-        .makeRe(glob, opts)
-        .toString()
-        .replace(/^\/|\/[^/]*$/gu, '');
+    // Note: Micromatch doesn’t use any unicode-specific regexp, so a `/u` flag is not absolutely necessary.
+    // However, minimatch does — simply as an observation. We don’t use minimatch, though. So no reason to consider.
+    return (
+        $str.mm
+            .makeRe(glob, opts)
+            .toString()
+            // Strips away regExp delimiters & flags.
+            // Such that we can use this in a `new RegExp()` later.
+            .replace(/^\/|\/[^/]*$/gu, '')
+    );
 };
 
 /**
@@ -354,9 +392,6 @@ export const extsByVSCodeLang = (options?: ExtsByVSCodeLangOptions): { [x: strin
  *
  * @returns An array of extensions by dev group. The extensions within each dev group are sorted by priority with the
  *   canonical extension appearing first. Suitable for pattern matching with prioritization.
- *
- * @note While not strictly required, the dev groups used here are intentionally *not* in conflict with VS Code lang IDs.
- *       Ideally, we can merge VS Code lang IDs together with these dev groups when it’s helpful to do so.
  */
 export const jsTSExtsByDevGroup = (): { [x: string]: string[] } => {
     return {
@@ -398,6 +433,13 @@ export const jsTSExtsByDevGroup = (): { [x: string]: string[] } => {
 
 /**
  * Default git ignores, by group.
+ *
+ * These rules **must** follow `.gitignore` standards religiously. Absolutely do **not** use braces. It is ok to use a
+ * `/` when necessary; e.g., for relative paths. However, in practice, we tend to make every ignore pattern global, and
+ * we apply our rules to directories and/or files at any level of depth within a project.
+ *
+ * @see https://git-scm.com/docs/gitignore
+ * @see {$path.defaultGitNPMIgnoresByCategory} -- **must also be updated when this changes**.
  */
 export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
     'Locals': [
@@ -566,6 +608,13 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
  *
  * `npm:` prefix necessary to preserve groups from `./.gitignore`. Important we preserve not just the groups, but also
  * the insertion order so these can be extracted as a flat array of rules. Don’t remove the `npm:` prefix.
+ *
+ * These rules **must** follow `.gitignore` standards religiously. Absolutely do **not** use braces. It is ok to use a
+ * `/` when necessary; e.g., for relative paths. However, in practice, we tend to make every ignore pattern global, and
+ * we apply our rules to directories and/or files at any level of depth within a project.
+ *
+ * @see https://git-scm.com/docs/gitignore
+ * @see {$path.defaultGitNPMIgnoresByCategory} -- **must also be updated when this changes**.
  */
 export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
     ...defaultGitIgnoresByGroup,
@@ -644,6 +693,14 @@ export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
  * Default git/NPM ignores by category; for special-use cases.
  *
  * E.g., We use these breakdowns when configuring various devops tools.
+ *
+ * These rules **must** follow `.gitignore` standards religiously. Absolutely do **not** use braces. It is ok to use a
+ * `/` when necessary; e.g., for relative paths. However, in practice, we tend to make every ignore pattern global, and
+ * we apply our rules to directories and/or files at any level of depth within a project.
+ *
+ * @see https://git-scm.com/docs/gitignore
+ * @see {$path.defaultGitIgnoresByGroup} -- **must also be updated when this changes**.
+ * @see {$path.defaultNPMIgnoresByGroup} -- **must also be updated when this changes**.
  */
 export const defaultGitNPMIgnoresByCategory = {
     // Locals
@@ -887,6 +944,13 @@ export const defaultGitNPMIgnoresByCategory = {
 
     devIgnores: [
         'dev', //
+    ],
+    // Dev Files
+
+    devDotFileIgnores: [
+        // This one is already covered by our `dev` rule.
+        // Listing it here for convenience, and to keep things DRY.
+        '/dev/.files',
     ],
     // Dist
 
