@@ -28,7 +28,7 @@ export type HydrativelyRenderSPAOptions = {
     App: $preact.FnComponent<RouterProps>;
     props?: Omit<RouterProps, 'url' | 'fetcher'>;
 };
-type AppManifest = { [x: string]: { css: string[]; file: string } };
+export type AppManifest = { [x: $type.ObjectKey]: $type.Object };
 
 /**
  * Fetcher instance.
@@ -74,9 +74,10 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
     let appManifestScriptBundleSubpath: string = ''; // Script bundle.
 
     for (const htmlExt of $path.canonicalExtVariants('html')) {
-        if ($is.string(appManifest['index.' + htmlExt]?.css?.[0]) && $is.string(appManifest['index.' + htmlExt]?.file)) {
-            appManifestStyleBundleSubpath = $str.trim(appManifest['index.' + htmlExt]?.css?.[0], './');
-            appManifestScriptBundleSubpath = $str.trim(appManifest['index.' + htmlExt]?.file, './');
+        const htmlEntry = appManifest['index.' + htmlExt]; // Possibly undefined value.
+        if ($is.array(htmlEntry?.css) && $is.string(htmlEntry?.css?.[0]) && $is.string(htmlEntry?.file)) {
+            appManifestStyleBundleSubpath = $str.trim((htmlEntry.css as string[])[0], './');
+            appManifestScriptBundleSubpath = $str.trim(htmlEntry.file, './');
             break; // We can stop here.
         }
     } // Now let’s confirm we found the bundle files.

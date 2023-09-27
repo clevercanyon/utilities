@@ -118,7 +118,7 @@ type $fetch = typeof fetch | typeof cf.fetch;
 type $Error<Type extends Error = Error> = Type;
 
 type $Keyable = { [x: ObjectKey]: unknown };
-type $Object<Type extends object = $Keyable> = Type & $Keyable;
+type $Object<Type extends object = $Keyable> = $Keyable & Type;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type $AnyFn = (...args: any[]) => unknown; // See: <https://o5p.me/CwHQYM>.
