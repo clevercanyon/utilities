@@ -67,7 +67,7 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
     const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(dataState, props));
     return (
         <Context.Provider value={{ state, updateState }}>
-            <html lang={state.lang} class={$preact.classes(state.classes)} data-preact-iso>
+            <html lang={state.lang} class={$preact.classes('preact', state.classes)}>
                 {props.children}
             </html>
         </Context.Provider>

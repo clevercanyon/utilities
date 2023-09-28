@@ -61,7 +61,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
             App, // Defined above.
         });
         expect(indexHTTPState.status).toBe(200);
-        expect(indexDocType).toBe('<!DOCTYPE html>');
+        expect(indexDocType).toBe('<!doctype html>');
         expect(indexHTML).toContain('<title>index</title>');
         expect(indexHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(indexHTML).toContain('<script type="module" src="/script.js"></script>');
@@ -77,9 +77,9 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         // Populate DOM now and continue.
 
         Object.defineProperty(window, 'location', { value: new URL('http://x.tld/?a=_a&b=_b&c=_c') });
-        document.open(), document.write(indexHTML /* Must not contain doctype tag. */), document.close();
+        document.open(), document.write(indexDocType + indexHTML), document.close();
 
-        // Neither `document.write` or `(outer|inner)HTML` do not run embedded script tags, for security reasons.
+        // Neither `document.write` or `(outer|inner)HTML` run embedded script tags, for security reasons.
         // So that's why we're explicitly extracting and running script code using a `new Function()` below.
         const dataScriptCode = indexHTML.match(/<script id="data">([^<>]+)<\/script>/iu)?.[1] || '';
         // eslint-disable-next-line @typescript-eslint/no-implied-eval -- OK when testing.
@@ -108,7 +108,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         const domHydratedIndexHeadMarkup = document.querySelector('head')?.outerHTML || '';
         const domHydratedIndexBodyMarkup = document.querySelector('body')?.outerHTML || '';
 
-        expect(domHydratedIndexMarkup).toContain('<html lang="en" data-preact-iso="true">');
+        expect(domHydratedIndexMarkup).toContain('<html lang="en" class="preact">');
         expect(domHydratedIndexHeadMarkup).toContain('<title>index</title>');
         expect(domHydratedIndexHeadMarkup).toContain('<link rel="stylesheet" href="/style.css" media="all">');
         expect(domHydratedIndexHeadMarkup).toContain('<script type="module" src="/script.js"></script>');

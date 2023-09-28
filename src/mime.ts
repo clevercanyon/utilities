@@ -83,9 +83,7 @@ export const contentTypeCharset = (contentType: string): string => {
         case contentType.endsWith('+json'):
         case 'application/json' === contentType:
         case 'application/json5' === contentType:
-        case 'application/javascript' === contentType:
-        case 'application/typescript' === contentType:
-        case 'application/x-php-source' === contentType:
+        case 'application/php-source' === contentType:
         case 'application/php-archive' === contentType:
         case 'application/xml-dtd' === contentType:
         case 'application/hta' === contentType:
@@ -136,17 +134,11 @@ export const types: Types = {
     'PDF': {
         'pdf': { type: 'application/pdf', binary: true, canonical: 'pdf', vsCodeLang: vsCodeLangBinary },
     },
-    // Backend code w/ dynamic exclusons.
-    // {@see $path.staticExts} for dynamic exclusons.
+    // Backend code.
 
     'PHP': {
         'php|phtml|phtm': { type: 'text/html', binary: false, canonical: 'php', vsCodeLang: 'php' },
-    },
-    // Other backend code formats.
-    // Not part of our dynamic exclusions.
-
-    'PHP Source': {
-        'phps': { type: 'application/x-php-source', binary: false, canonical: 'phps', vsCodeLang: 'php' },
+        'phps': { type: 'application/php-source', binary: false, canonical: 'phps', vsCodeLang: 'php' },
     },
     'ASP': {
         'asp|aspx': { type: 'text/html', binary: false, canonical: 'asp', vsCodeLang: 'asp' },
@@ -177,7 +169,7 @@ export const types: Types = {
         'dockerfile': { type: mimeTypeStream, binary: false, canonical: 'dockerfile', vsCodeLang: 'dockerfile' },
     },
     'JS Automation': {
-        'jxa': { type: 'application/javascript', binary: false, canonical: 'jxa', vsCodeLang: 'jxa' },
+        'jxa': { type: 'text/javascript', binary: false, canonical: 'jxa', vsCodeLang: 'jxa' },
     },
     'AppleScript': {
         'applescript': { type: 'application/applescript', binary: false, canonical: 'applescript', vsCodeLang: 'applescript' },
@@ -189,15 +181,13 @@ export const types: Types = {
     // Frontend code (most of the time).
 
     'JavaScript': {
-        // If this changes, also update extensions lib in `clevercanyon/skeleton` dotfiles.
         'wasm': { type: 'application/wasm', binary: true, canonical: 'wasm', vsCodeLang: vsCodeLangBinary },
-        'js|mjs|cjs': { type: 'application/javascript', binary: false, canonical: 'js', vsCodeLang: 'javascript' },
-        'jsx|mjsx|cjsx': { type: 'application/javascript', binary: false, canonical: 'jsx', vsCodeLang: 'javascriptreact' },
+        'js|mjs|cjs': { type: 'text/javascript', binary: false, canonical: 'js', vsCodeLang: 'javascript' },
+        'jsx|mjsx|cjsx': { type: 'text/javascript', binary: false, canonical: 'jsx', vsCodeLang: 'javascriptreact' },
     },
     'TypeScript': {
-        // If this changes, also update extensions lib in `clevercanyon/skeleton` dotfiles.
-        'ts|mts|cts': { type: 'application/typescript', binary: false, canonical: 'ts', vsCodeLang: 'typescript' },
-        'tsx|mtsx|ctsx': { type: 'application/typescript', binary: false, canonical: 'tsx', vsCodeLang: 'typescriptreact' },
+        'ts|mts|cts': { type: 'text/typescript', binary: false, canonical: 'ts', vsCodeLang: 'typescript' },
+        'tsx|mtsx|ctsx': { type: 'text/typescript', binary: false, canonical: 'tsx', vsCodeLang: 'typescriptreact' },
     },
     'Style': {
         'css': { type: 'text/css', binary: false, canonical: 'css', vsCodeLang: 'css' },

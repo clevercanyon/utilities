@@ -22,7 +22,7 @@ export type Props = $preact.Props<RouteContextAsProps>;
  * @note No SSR style/script bundles, as this is a purely static page.
  */
 export default function Error404(props: Props): $preact.VNode<Props> {
-    if (!$env.isWeb() || $env.isTest() /* Server-side only. */) {
+    if (!$env.isWeb() || $env.isTest() /* Server-side only, with an exception for automated testing. */) {
         const { updateState: updateHTTPState } = $preact.useHTTP();
         updateHTTPState({ status: 404 }); // Record 404 error.
     }

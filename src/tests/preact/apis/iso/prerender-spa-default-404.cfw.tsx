@@ -68,7 +68,7 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
             App, // Defined above.
         });
         expect(othersOtherFooHTTPState.status).toBe(404);
-        expect(othersOtherFooDocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherFooDocType).toBe('<!doctype html>');
         expect(othersOtherFooHTML).toContain('<title>404 Error: Not Found</title>');
         expect(othersOtherFooHTML).toContain('</html>');
     });

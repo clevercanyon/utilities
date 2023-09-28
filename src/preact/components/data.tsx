@@ -123,6 +123,7 @@ const initialHTTPState = () => ({ status: 200 });
  *
  * @returns Readonly props: `{ state, updateState }`.
  *
+ * @note Server-side use only, with an exception for automated testing.
  * @note HTTP state is semi-functional on web, but we discourage use outside testing.
  */
 export const useHTTP = (): HTTPContextProps => {
@@ -146,6 +147,7 @@ export const useHTTP = (): HTTPContextProps => {
  *
  * @returns Global as embeddable script code; for SSR.
  *
+ * @note Server-side use only, with an exception for automated testing.
  * @note Dumping global script code on web works, but we discourage use outside testing.
  */
 export const globalToScriptCode = (): string => {

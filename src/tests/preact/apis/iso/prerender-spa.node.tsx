@@ -138,7 +138,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(indexHTTPState.status).toBe(200);
-        expect(indexDocType).toBe('<!DOCTYPE html>');
+        expect(indexDocType).toBe('<!doctype html>');
         expect(indexHTML).toContain('<title>index</title>');
         expect(indexHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(indexHTML).toContain('<script type="module" src="/script.js"></script>');
@@ -163,7 +163,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(blogHTTPState.status).toBe(200);
-        expect(blogDocType).toBe('<!DOCTYPE html>');
+        expect(blogDocType).toBe('<!doctype html>');
         expect(blogHTML).toContain('<title>blog</title>');
         expect(blogHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(blogHTML).toContain('<script type="module" src="/script.js"></script>');
@@ -188,7 +188,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(blogPostHTTPState.status).toBe(200);
-        expect(blogPostDocType).toBe('<!DOCTYPE html>');
+        expect(blogPostDocType).toBe('<!doctype html>');
         expect(blogPostHTML).toContain('<title>blog post</title>');
         expect(blogPostHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(blogPostHTML).toContain('<script type="module" src="/script.js"></script>');
@@ -213,7 +213,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherA1HTTPState.status).toBe(200);
-        expect(othersOtherA1DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherA1DocType).toBe('<!doctype html>');
         expect(othersOtherA1HTML).toContain('<title>other-a</title>');
         expect(othersOtherA1HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherA1HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -236,7 +236,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherA2HTTPState.status).toBe(200);
-        expect(othersOtherA2DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherA2DocType).toBe('<!doctype html>');
         expect(othersOtherA2HTML).toContain('<title>other-a</title>');
         expect(othersOtherA2HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherA2HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -261,7 +261,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherB1HTTPState.status).toBe(200);
-        expect(othersOtherB1DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherB1DocType).toBe('<!doctype html>');
         expect(othersOtherB1HTML).toContain('<title>other-b</title>');
         expect(othersOtherB1HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherB1HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -286,7 +286,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherB2HTTPState.status).toBe(200);
-        expect(othersOtherB2DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherB2DocType).toBe('<!doctype html>');
         expect(othersOtherB2HTML).toContain('<title>other-b</title>');
         expect(othersOtherB2HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherB2HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -311,7 +311,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherC1HTTPState.status).toBe(200);
-        expect(othersOtherC1DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherC1DocType).toBe('<!doctype html>');
         expect(othersOtherC1HTML).toContain('<title>other-c</title>');
         expect(othersOtherC1HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherC1HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -336,7 +336,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherC2HTTPState.status).toBe(200);
-        expect(othersOtherC2DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherC2DocType).toBe('<!doctype html>');
         expect(othersOtherC2HTML).toContain('<title>other-c</title>');
         expect(othersOtherC2HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherC2HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -361,7 +361,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherC3HTTPState.status).toBe(200);
-        expect(othersOtherC3DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherC3DocType).toBe('<!doctype html>');
         expect(othersOtherC3HTML).toContain('<title>other-c</title>');
         expect(othersOtherC3HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherC3HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -386,7 +386,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherD1HTTPState.status).toBe(404);
-        expect(othersOtherD1DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherD1DocType).toBe('<!doctype html>');
         expect(othersOtherD1HTML).toContain('<title>other-404</title>');
         expect(othersOtherD1HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherD1HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -411,7 +411,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherD2HTTPState.status).toBe(200);
-        expect(othersOtherD2DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherD2DocType).toBe('<!doctype html>');
         expect(othersOtherD2HTML).toContain('<title>other-d</title>');
         expect(othersOtherD2HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherD2HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -436,7 +436,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherD3HTTPState.status).toBe(200);
-        expect(othersOtherD3DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherD3DocType).toBe('<!doctype html>');
         expect(othersOtherD3HTML).toContain('<title>other-d</title>');
         expect(othersOtherD3HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherD3HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -461,7 +461,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherE1HTTPState.status).toBe(200);
-        expect(othersOtherE1DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherE1DocType).toBe('<!doctype html>');
         expect(othersOtherE1HTML).toContain('<title>other-e</title>');
         expect(othersOtherE1HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherE1HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -486,7 +486,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherE2HTTPState.status).toBe(200);
-        expect(othersOtherE2DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherE2DocType).toBe('<!doctype html>');
         expect(othersOtherE2HTML).toContain('<title>other-e</title>');
         expect(othersOtherE2HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherE2HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -511,7 +511,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherE3HTTPState.status).toBe(404);
-        expect(othersOtherE3DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherE3DocType).toBe('<!doctype html>');
         expect(othersOtherE3HTML).toContain('<title>other-404</title>');
         expect(othersOtherE3HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(othersOtherE3HTML).toContain('<script type="module" src="/script.js"></script>');
@@ -536,7 +536,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(othersOtherE4HTTPState.status).toBe(200);
-        expect(othersOtherE4DocType).toBe('<!DOCTYPE html>');
+        expect(othersOtherE4DocType).toBe('<!doctype html>');
         expect(othersOtherE4HTML).toContain('<title>other-e</title>');
         expect(othersOtherE4HTML).toContain('<link rel="stylesheet" href="/foo.css" media="all"/>');
         expect(othersOtherE4HTML).toContain('<script type="module" src="/foo.js"></script>');
@@ -561,7 +561,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             App, // Defined above.
         });
         expect(_404HTTPState.status).toBe(404);
-        expect(_404DocType).toBe('<!DOCTYPE html>');
+        expect(_404DocType).toBe('<!doctype html>');
         expect(_404HTML).toContain('<title>404 Error: Not Found</title>');
         expect(_404HTML).not.toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(_404HTML).not.toContain('<script type="module" src="/script.js"></script>');

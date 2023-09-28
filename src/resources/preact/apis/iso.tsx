@@ -60,6 +60,7 @@ export { replaceNativeFetch as getFetcher }; // Exports friendly alias.
  *
  * @returns         Prerendered SPA object properties; {@see PrerenderSPAReturnProps}.
  *
+ * @note Server-side use only, with an exception for automated testing.
  * @note Prerendering on web is technically doable, but we discourage use outside testing.
  */
 export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<PrerenderSPAReturnProps> => {
@@ -103,7 +104,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
     const html = !prerenderedData.html ? $preact.ssr.renderToString(<Error404 classes={'default-prerender'} />) : prerenderedData.html;
     const linkURLs = [...prerenderedData.links]; // Converts link URLs into array.
 
-    return { httpState, docType: '<!DOCTYPE html>', html, linkURLs };
+    return { httpState, docType: '<!doctype html>', html, linkURLs };
 };
 
 /**
@@ -114,14 +115,22 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
  * @note Client-side use only.
  */
 export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
+    if (!$env.isWeb() /* Web browser required; uses DOM. */) {
+        throw $env.errClientSideOnly; // Not possible.
+    }
+    const doc = document; // Shorter document alias.
+    const { App, props = {} } = options; // Extracts locals.
 
-    const { App, props = {} } = options; // Extract as local variables.
-    const fetcher = replaceNativeFetch(); // Replaces native fetch.
-
-    if (document.querySelector('html[data-preact-iso]')) {
-        hydrate(<App {...{ ...props, fetcher }} />, document);
+    (doc.childNodes || []).forEach((node) => {
+        // Please note that Preact explicitly references `(parentDom = document).firstChild`; {@see https://o5p.me/8d6YM5}.
+        // Therefore, if we don’t remove doctype/comment nodes, `firstChild` will be absolutely wrong, and Preact will crash.
+        // Removing doctype doesn’t actually change `document.compatMode`, so this seems to be ok in Chrome/Safari/Firefox tests.
+        // However, removing doctype does cause `document.doctype` to return `null`, unfortunately, so please beware.
+        if (Node.DOCUMENT_TYPE_NODE === node.nodeType || Node.COMMENT_NODE === node.nodeType) doc.removeChild(node);
+    });
+    if (doc.querySelector('html.preact') /* Our preact HTML component rendered the HTML tag? */) {
+        hydrate(<App {...{ ...props, fetcher: replaceNativeFetch() }} />, doc);
     } else {
-        $preact.render(<App {...{ ...props, fetcher }} />, document);
+        $preact.render(<App {...{ ...props }} />, doc);
     }
 };

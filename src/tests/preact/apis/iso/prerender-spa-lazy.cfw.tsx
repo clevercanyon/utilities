@@ -57,7 +57,7 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
             App, // Defined above.
         });
         expect(indexHTTPState.status).toBe(200);
-        expect(indexDocType).toBe('<!DOCTYPE html>');
+        expect(indexDocType).toBe('<!doctype html>');
         expect(indexHTML).toContain('<title>index</title>');
         expect(indexHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(indexHTML).toContain('<script type="module" src="/script.js"></script>');
@@ -80,7 +80,7 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
             App, // Defined above.
         });
         expect(lazyHTTPState.status).toBe(200);
-        expect(lazyDocType).toBe('<!DOCTYPE html>');
+        expect(lazyDocType).toBe('<!doctype html>');
         expect(lazyHTML).toContain('<title>lazy</title>');
         expect(lazyHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
         expect(lazyHTML).toContain('<script type="module" src="/script.js"></script>');
