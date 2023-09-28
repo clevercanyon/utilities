@@ -501,7 +501,7 @@ type $fnꓺMemoizable = MicroMemoize.AnyFn; // Sync or async; does not matter.
 export type $fnꓺMemoizeOptions<Fn extends MicroMemoize.AnyFn> = MicroMemoize.Options<Fn> & { deep?: boolean };
 export type $fnꓺMemoizedFunction<Fn extends MicroMemoize.AnyFn> = MicroMemoize.Memoized<Fn> & {
     flush: (this: $fnꓺMemoizedFunction<Fn>) => { fresh: $fnꓺMemoizedFunction<Fn> };
-    fresh: (this: $fnꓺMemoizedFunction<Fn>) => $fnꓺMemoizedFunction<Fn>;
+    fresh: $fnꓺMemoizedFunction<Fn>; // Magic getter.
 };
 
 /**
@@ -538,9 +538,12 @@ export function $fnꓺmemoize<Fn extends $fnꓺMemoizable>(...args: unknown[] /*
 
     Object.defineProperty(memoizedFn, 'flush', {
         value: function (this: $fnꓺMemoizedFunction<Fn>): { fresh: $fnꓺMemoizedFunction<Fn> } {
-            const { cache, options } = this;
-            cache.keys.length = cache.values.length = 0;
+            const { cache, options } = this; // Extract as locals.
+
+            cache.keys.length = cache.values.length = 0; // Forces these to empty arrays.
+            // Must use `.length` to break through `cache` refererences within memoization lib.
             if (options.onCacheChange) options.onCacheChange(cache, options, this);
+
             return { fresh: this }; // e.g., `foo.flush().fresh(a, b, c)`.
         },
     });

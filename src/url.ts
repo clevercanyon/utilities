@@ -32,13 +32,25 @@ export const queryRFC3986AWS4 = Symbol('queryRFC3986AWS4');
 
 /**
  * Defines standardized local hosts by name.
+ *
+ * @see https://en.wikipedia.org/wiki/Special-use_domain_name
  */
 export const stdLocalHostsByName = (): string[] => ['local', 'localhost'];
 
 /**
- * Defines local hosts.
+ * Defines local host patterns.
+ *
+ * These match up with the IP/DNS addresses in our SSL certificates for local development.
+ * `@clevercanyon/skeleton/dev/.files/bin/ssl-certs/generate.bash` has the complete list for review.
  */
-export const localHosts = (): string[] => [...new Set(['[::1]', '127.0.0.1', ...stdLocalHostsByName()])];
+export const localHostPatterns = $fnꓺmemoize((): string[] => [
+    ...new Set([
+        '[::1]', // IPv6 loopback address.
+        '127.0.0.1', // IPv4 loopback address.
+        ...['mac', 'loc', 'dkr', 'vm'].map((tld) => '*.' + tld),
+        ...stdLocalHostsByName().map((name) => '{,*.}' + name),
+    ]),
+]);
 
 /**
  * Gets current URL.
@@ -93,7 +105,7 @@ export const currentHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options: C
 export const currentRootHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options: CurrentRootHostOptions = {}): string => {
     if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options, { withPort: true }) as Required<CurrentRootHostOptions>;
-    return rootHost(currentHost({ withPort: opts.withPort }), { withPort: opts.withPort });
+    return rootHost(currentHost.fresh({ withPort: opts.withPort }), { withPort: opts.withPort });
 });
 
 /**
