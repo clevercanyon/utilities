@@ -286,7 +286,7 @@ export const isWeb = $fnꓺmemoize((): boolean => {
  * @returns True if is web browser under a local hostname.
  */
 export const isLocalWeb = $fnꓺmemoize((): boolean => {
-    return isWeb() && $str.matches($url.currentRootHost.fresh({ withPort: false }), $url.localHostPatterns(), { dot: false });
+    return isWeb() && $str.matches($url.currentRootHost.fresh({ withPort: false }), $url.localHostPatterns());
 });
 
 /**

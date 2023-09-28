@@ -38,12 +38,18 @@ describe('$env', async () => {
         expect($env.isLocalWeb.fresh()).toBe(false);
 
         setLoc('http://mac/path');
-        expect($env.isLocalWeb.fresh()).toBe(false);
+        expect($env.isLocalWeb.fresh()).toBe(true);
 
         setLoc('http://loc/path');
+        expect($env.isLocalWeb.fresh()).toBe(true);
+
+        setLoc('http://loc.x/path');
         expect($env.isLocalWeb.fresh()).toBe(false);
 
         setLoc('http://x.mac/path');
+        expect($env.isLocalWeb.fresh()).toBe(true);
+
+        setLoc('http://x.x.x.x.x.mac/path');
         expect($env.isLocalWeb.fresh()).toBe(true);
 
         setLoc('http://x.loc/path');
@@ -60,6 +66,12 @@ describe('$env', async () => {
 
         setLoc('http://x.localhost/path');
         expect($env.isLocalWeb.fresh()).toBe(true);
+
+        setLoc('http://[::1]/path');
+        expect($env.isLocalWeb.fresh()).toBe(true);
+
+        setLoc('http://[::11]/path');
+        expect($env.isLocalWeb.fresh()).toBe(false);
 
         setLoc(origLoc); // Restores the original `window.location`.
     });

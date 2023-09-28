@@ -45,10 +45,10 @@ export const stdLocalHostsByName = (): string[] => ['local', 'localhost'];
  */
 export const localHostPatterns = $fnꓺmemoize((): string[] => [
     ...new Set([
-        '[::1]', // IPv6 loopback address.
+        '\\[::1\\]', // IPv6 loopback address.
         '127.0.0.1', // IPv4 loopback address.
-        ...['mac', 'loc', 'dkr', 'vm'].map((tld) => '*.' + tld),
         ...stdLocalHostsByName().map((name) => '{,*.}' + name),
+        ...['mac', 'loc', 'dkr', 'vm'].map((name) => '{,*.}' + name),
     ]),
 ]);
 
