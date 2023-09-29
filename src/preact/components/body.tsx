@@ -60,7 +60,9 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
     const { state: dataState } = $preact.useData();
     if (!dataState) throw new Error('Missing data state.');
 
+    // Props from current `<Data>` state will only have an impact on 'initial' `<Body>` state.
     const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(dataState, props));
+
     return (
         <Context.Provider value={{ state, updateState }}>
             <body class={$preact.classes(state.classes)}>{props.children}</body>

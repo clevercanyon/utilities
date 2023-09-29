@@ -13,20 +13,18 @@ import { type State as HTMLState, type PartialState as PartialHTMLState } from '
  */
 export type State = {
     globalObp: string;
-    fetcher?: Fetcher;
-    html: HTMLState;
-    head: HeadState;
-    body: BodyState;
+    fetcher?: $preact.iso.Fetcher;
+    html: Omit<HTMLState, keyof HTMLState>; // None, for now.
+    head: Pick<HeadState, 'mainStyleBundle' | 'mainScriptBundle'>; // Just these.
+    body: Omit<BodyState, keyof BodyState>; // None, for now.
 };
 export type PartialState = {
     globalObp?: string;
-    fetcher?: Fetcher;
-    html?: PartialHTMLState;
-    head?: PartialHeadState;
-    body?: PartialBodyState;
+    fetcher?: $preact.iso.Fetcher;
+    html?: Omit<PartialHTMLState, keyof PartialHTMLState>; // None, for now.
+    head?: Pick<PartialHeadState, 'mainStyleBundle' | 'mainScriptBundle'>; // Just these.
+    body?: Omit<PartialBodyState, keyof PartialBodyState>; // None, for now.
 };
-type Fetcher = $preact.iso.Fetcher; // Alias.
-
 export type HTTPState = Partial<Omit<$http.ResponseConfig, 'body'>> & {
     status: number; // Marking this as required property.
 };
@@ -133,7 +131,9 @@ export const useHTTP = (): HTTPContextProps => {
     if (!globalObp /* State not initialized? */) {
         throw new Error('Missing `globalObp`.');
     }
+    // Props from current `globalObp` will only have an impact on 'initial' HTTP state.
     const state = $obp.get(globalThis, globalObp + '.http', initialHTTPState()) as HTTPState;
+
     return {
         state, // Current HTTP state.
         updateState: (updates: HTTPPartialState): void => {

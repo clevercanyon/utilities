@@ -64,7 +64,9 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
     const { state: dataState } = $preact.useData();
     if (!dataState) throw new Error('Missing data state.');
 
+    // Props from current `<Data>` state will only have an impact on 'initial' `<HTML>` state.
     const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(dataState, props));
+
     return (
         <Context.Provider value={{ state, updateState }}>
             <html lang={state.lang} class={$preact.classes('preact', state.classes)}>
