@@ -71,6 +71,12 @@ export type FnComponent<P extends Props = Props> = preact.FunctionComponent<P>;
 export type AsyncFnComponent<P extends Props = Props> = (...args: Parameters<FnComponent<P>>) => Promise<ReturnType<FnComponent<P>>>;
 export type Props<P extends object = $type.Object> = preact.RenderableProps<Readonly<P & { classes?: string | string[] }>>;
 
+export type { Props as DataProps } from './preact/components/data.tsx';
+export type { Props as HTMLProps } from './preact/components/html.tsx';
+export type { Props as HeadProps } from './preact/components/head.tsx';
+export type { Props as BodyProps } from './preact/components/body.tsx';
+export type { Props as RouterProps } from './preact/components/router.tsx';
+
 /**
  * Defines dirty props.
  */
