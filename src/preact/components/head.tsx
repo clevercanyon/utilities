@@ -122,6 +122,11 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
             ogDescription: state.ogDescription || state.description || defaultDescription,
             ogURL: state.ogURL || state.canonical || locState.canonicalURL,
             ogImage: state.ogImage || appBaseURL + '/assets/og-image.png',
+
+            // We include local testing fallbacks here for Vite’s dev server.
+            // Vite references the original filenames and transforms scss/tsx on-the-fly.
+            mainStyleBundle: state.mainStyleBundle || ($env.isLocalWeb() ? './index.scss' : ''),
+            mainScriptBundle: state.mainScriptBundle || ($env.isLocalWeb() ? './index.tsx' : ''),
         };
     }, [locState, dataState, state]);
 
