@@ -5,6 +5,7 @@
 import { default as untypedGitIgnoreFactory, type Ignore as GitIgnore } from 'ignore';
 import { type Options as MMOptions } from 'micromatch';
 import { $mime, $obj, $str, $to } from './index.ts';
+import { $fnꓺmemoize } from './resources/standalone/index.ts';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
 const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgnoreFactoryOptions) => GitIgnore;
@@ -25,13 +26,14 @@ export type ExtsByVSCodeLangOptions = { camelCase?: boolean; enableCodeTextual?:
 
 export type DefaultGitIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
 export type DefaultNPMIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
+export type DefaultGitNPMIgnoresByCategory = { [x: string]: string[] };
 
 /**
  * Any extension RegExp.
  *
  * @note Matches unnamed dots also; e.g., `.[ext]`.
  */
-export const extRegExp = /(?:^|[^.])\.([^\\/.]+)$/iu;
+export const extRegExp = $fnꓺmemoize((): RegExp => /(?:^|[^.])\.([^\\/.]+)$/iu);
 
 /**
  * Static extensions.
@@ -41,23 +43,27 @@ export const extRegExp = /(?:^|[^.])\.([^\\/.]+)$/iu;
  * case someone makes a mistake and a PHP file containing sensitive information happens to slip through. If you really
  * need to serve PHP statically, use the special `.phps` (source) extension, or a `.zip` file.
  *
- * @see $mime.exts in `./mime.ts` for the full list of extensions.
+ * @returns An array of static file extensions.
+ *
+ * @see $mime.exts() in `./mime.ts` for the full list of extensions.
  */
-export const staticExts: string[] = $mime.exts.filter((ext) => {
-    return !['php', 'phtml', 'phtm', 'phar'].includes(ext) && !/^(?:php|phtml|phtm)(?:[.~_-]*[0-9]+)$/u.test(ext);
+export const staticExts = $fnꓺmemoize((): string[] => {
+    return $mime.exts().filter((ext) => {
+        return !['php', 'phtml', 'phtm', 'phar'].includes(ext) && !/^(?:php|phtml|phtm)(?:[.~_-]*[0-9]+)$/u.test(ext);
+    });
 });
 
 /**
  * Static extensions piped for use in RegExp.
  */
-export const staticExtsPipedForRegExp = staticExts.join('|');
+export const staticExtsPipedForRegExp = $fnꓺmemoize((): string => staticExts().join('|'));
 
 /**
  * Static extension RegExp.
  *
  * @note Matches unnamed dots also; e.g., `.[ext]`.
  */
-export const staticExtRegExp = new RegExp('(?:^|[^.])\\.(' + staticExtsPipedForRegExp + ')$', 'iu');
+export const staticExtRegExp = $fnꓺmemoize((): RegExp => new RegExp('(?:^|[^.])\\.(' + staticExtsPipedForRegExp() + ')$', 'iu'));
 
 /**
  * Defines braced dot-globstar patterns.
@@ -70,9 +76,9 @@ export const staticExtRegExp = new RegExp('(?:^|[^.])\\.(' + staticExtsPipedForR
  *
  * @see https://replit.com/@jaswrks/Dot-Globstar-Tests?v=1
  */
-export const dotGlobstarHead = '{,**/,*(.|[^.]|\\x2F)/}'; // Equivalent to `**/` in `{ dot: true }` mode.
-export const dotGlobstarSingle = '{*,*(*|.)}'; // Equivalent to a single `*` in `{ dot: true }` mode.
-export const dotGlobstarTail = '{,/**/*,/?(.)*(.|[^.]|\\x2F)}'; // Equivalent to `/**` in `{ dot: true }` mode.
+export const dotGlobstarHead = (): string => '{,**/,*(.|[^.]|\\x2F)/}'; // Equivalent to `**/` in `{ dot: true }` mode.
+export const dotGlobstarSingle = (): string => '{*,*(*|.)}'; // Equivalent to a single `*` in `{ dot: true }` mode.
+export const dotGlobstarTail = (): string => '{,/**/*,/?(.)*(.|[^.]|\\x2F)}'; // Equivalent to `/**` in `{ dot: true }` mode.
 
 /**
  * Cleans a filesystem path.
@@ -94,7 +100,7 @@ export const clean = (path: string): string => {
  */
 export const ext = (path: string): string => {
     path = clean(path); // No query and/or hash.
-    return '' !== path ? extRegExp.exec(path)?.[1].toLowerCase() || '' : '';
+    return '' !== path ? extRegExp().exec(path)?.[1].toLowerCase() || '' : '';
 };
 
 /**
@@ -106,7 +112,7 @@ export const ext = (path: string): string => {
  */
 export const hasExt = (path: string): boolean => {
     path = clean(path); // No query and/or hash.
-    return '' !== path && extRegExp.test(path);
+    return '' !== path && extRegExp().test(path);
 };
 
 /**
@@ -118,7 +124,7 @@ export const hasExt = (path: string): boolean => {
  */
 export const hasStaticExt = (path: string): boolean => {
     path = clean(path); // No query and/or hash.
-    return '' !== path && extRegExp.test(path) && staticExtRegExp.test(path);
+    return '' !== path && staticExtRegExp().test(path);
 };
 
 /**
@@ -142,10 +148,10 @@ export const newGitIgnore = (options?: GitIgnoreOptions): GitIgnore => {
     const gitIgnore = gitIgnoreFactory({ ignorecase: opts.ignoreCase });
 
     if (opts.useDefaultGitIgnores) {
-        gitIgnore.add(defaultGitIgnores);
+        gitIgnore.add(defaultGitIgnores());
     }
     if (opts.useDefaultNPMIgnores) {
-        gitIgnore.add(defaultNPMIgnores);
+        gitIgnore.add(defaultNPMIgnores());
     }
     return gitIgnore;
 };
@@ -186,20 +192,20 @@ export const gitIgnoreToGlob = (ignoreGlob: string, options?: GitIgnoreToGlobOpt
             .replace(/\*+/gu, '[:dotGlobstarSingle:]');
 
         ignoreGlob = ignoreGlob.replace(/\[:dotGlobstar(?:Head|Tail|Single):\]/gu, (m0: string): string =>
-            '[:dotGlobstarHead:]' === m0 ? dotGlobstarHead : '[:dotGlobstarTail:]' === m0 ? dotGlobstarTail : dotGlobstarSingle,
+            '[:dotGlobstarHead:]' === m0 ? dotGlobstarHead() : '[:dotGlobstarTail:]' === m0 ? dotGlobstarTail() : dotGlobstarSingle(),
         );
     }
     if (isRootPath || isRelativePath)
         return (
             (isNegated ? '!' : '') + //
             ignoreGlob.replace(/(?:\/\*\*)+$/u, '') +
-            (opts.useDotGlobstars ? dotGlobstarTail : '/**')
+            (opts.useDotGlobstars ? dotGlobstarTail() : '/**')
         );
     return (
         (isNegated ? '!' : '') +
-        (opts.useDotGlobstars ? dotGlobstarHead : '**/') +
+        (opts.useDotGlobstars ? dotGlobstarHead() : '**/') +
         ignoreGlob.replace(/^(?:\*\*\/)+|(?:\/\*\*)+$/gu, '') +
-        (opts.useDotGlobstars ? dotGlobstarTail : '/**')
+        (opts.useDotGlobstars ? dotGlobstarTail() : '/**')
     );
 };
 
@@ -264,11 +270,11 @@ export const globToRegExpString = (glob: string, options?: globToRegExpStringOpt
  * @returns            An array of canonical extension variants. The extensions within each canonical group are sorted
  *   by priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const canonicalExtVariants = (canonicals: string | string[]): string[] => {
+export const canonicalExtVariants = $fnꓺmemoize({ deep: true, maxSize: 12 }, (canonicals: string | string[]): string[] => {
     canonicals = $to.array(canonicals);
     let exts: string[] = []; // Initialize.
 
-    for (const [, group] of Object.entries($mime.types)) {
+    for (const [, group] of Object.entries($mime.types())) {
         for (const [subgroupExts, subgroup] of Object.entries(group)) {
             if (canonicals.includes(subgroup.canonical)) {
                 exts = exts.concat(subgroupExts.split('|'));
@@ -276,7 +282,7 @@ export const canonicalExtVariants = (canonicals: string | string[]): string[] =>
         }
     } // Already sorted by priority in MIME types.
     return [...new Set(exts)]; // Unique extensions.
-};
+});
 
 /**
  * Gets VS Code language extensions.
@@ -286,11 +292,11 @@ export const canonicalExtVariants = (canonicals: string | string[]): string[] =>
  * @returns             An array of language extensions. The extensions within each VS Code lang group are sorted by
  *   priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
+export const vsCodeLangExts = $fnꓺmemoize({ deep: true, maxSize: 12 }, (vsCodeLangs: string | string[]): string[] => {
     vsCodeLangs = $to.array(vsCodeLangs);
     let exts: string[] = []; // Initialize.
 
-    for (const [, group] of Object.entries($mime.types)) {
+    for (const [, group] of Object.entries($mime.types())) {
         for (const [subgroupExts, subgroup] of Object.entries(group)) {
             if (vsCodeLangs.includes(subgroup.vsCodeLang)) {
                 exts = exts.concat(subgroupExts.split('|'));
@@ -298,7 +304,7 @@ export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
         }
     } // Already sorted by priority in MIME types.
     return [...new Set(exts)]; // Unique extensions.
-};
+});
 
 /**
  * Gets all MIME-type extensions by canonical extension.
@@ -306,10 +312,10 @@ export const vsCodeLangExts = (vsCodeLangs: string | string[]): string[] => {
  * @returns An array of extensions by canonical extension. The extensions within each canonical group are sorted by
  *   priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const extsByCanonical = (): { [x: string]: string[] } => {
+export const extsByCanonical = $fnꓺmemoize((): { [x: string]: string[] } => {
     let exts: { [x: string]: string[] } = {}; // Initialize.
 
-    for (const [, group] of Object.entries($mime.types)) {
+    for (const [, group] of Object.entries($mime.types())) {
         for (const [subgroupExts, subgroup] of Object.entries(group)) {
             exts[subgroup.canonical] = exts[subgroup.canonical] || [];
             exts[subgroup.canonical] = exts[subgroup.canonical].concat(subgroupExts.split('|'));
@@ -320,7 +326,7 @@ export const extsByCanonical = (): { [x: string]: string[] } => {
         exts[canonical] = [...new Set(exts[canonical])];
     }
     return exts; // Unique extensions within each canonical group.
-};
+});
 
 /**
  * Gets all MIME-type extensions by VS Code lang ID.
@@ -333,11 +339,11 @@ export const extsByCanonical = (): { [x: string]: string[] } => {
  * @note VS Code language IDs are caSe-sensitive; {@see https://o5p.me/bmWI0c}.
  *       If you pass options with `{ camelCase: true }`, please beware!
  */
-export const extsByVSCodeLang = (options?: ExtsByVSCodeLangOptions): { [x: string]: string[] } => {
+export const extsByVSCodeLang = $fnꓺmemoize({ deep: true, maxSize: 12 }, (options?: ExtsByVSCodeLangOptions): { [x: string]: string[] } => {
     let exts: { [x: string]: string[] } = {}; // Initialize.
     const opts = $obj.defaults({}, options || {}, { camelCase: false, enableCodeTextual: false }) as Required<ExtsByVSCodeLangOptions>;
 
-    for (const [, group] of Object.entries($mime.types)) {
+    for (const [, group] of Object.entries($mime.types())) {
         for (const [subgroupExts, subgroup] of Object.entries(group)) {
             let vsCodeLang = subgroup.vsCodeLang;
 
@@ -385,7 +391,7 @@ export const extsByVSCodeLang = (options?: ExtsByVSCodeLangOptions): { [x: strin
         exts[vsCodeLang] = [...new Set(exts[vsCodeLang])];
     }
     return exts; // Unique extensions within each VS Code lang ID group.
-};
+});
 
 /**
  * Gets all JavaScript/TypeScript MIME-type extensions by dev group.
@@ -393,7 +399,7 @@ export const extsByVSCodeLang = (options?: ExtsByVSCodeLangOptions): { [x: strin
  * @returns An array of extensions by dev group. The extensions within each dev group are sorted by priority with the
  *   canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const jsTSExtsByDevGroup = (): { [x: string]: string[] } => {
+export const jsTSExtsByDevGroup = $fnꓺmemoize((): { [x: string]: string[] } => {
     return {
         // Standard JS/TS.
 
@@ -429,7 +435,47 @@ export const jsTSExtsByDevGroup = (): { [x: string]: string[] } => {
         allJavaScript: ['js', 'jsx', 'mjs', 'mjsx', 'cjs', 'cjsx'],
         allTypeScript: ['ts', 'tsx', 'mts', 'mtsx', 'cts', 'ctsx'],
     };
-};
+});
+
+/**
+ * Default git ignores (as a flat array).
+ *
+ * @returns An array of glob ignore patterns.
+ */
+export const defaultGitIgnores = $fnꓺmemoize((): string[] => {
+    let flat: string[] = []; // Initialize.
+
+    for (const [, group] of Object.entries(defaultGitIgnoresByGroup())) {
+        if (!Array.isArray(group)) {
+            for (const [, subgroup] of Object.entries(group)) {
+                flat = flat.concat(subgroup);
+            }
+        } else {
+            flat = flat.concat(group);
+        }
+    }
+    return [...new Set(flat)]; // Unique ignores only.
+});
+
+/**
+ * Default NPM ignores (as a flat array).
+ *
+ * @returns An array of glob ignore patterns.
+ */
+export const defaultNPMIgnores = $fnꓺmemoize((): string[] => {
+    let flat: string[] = []; // Initialize.
+
+    for (const [, group] of Object.entries(defaultNPMIgnoresByGroup())) {
+        if (!Array.isArray(group)) {
+            for (const [, subgroup] of Object.entries(group)) {
+                flat = flat.concat(subgroup);
+            }
+        } else {
+            flat = flat.concat(group);
+        }
+    }
+    return [...new Set(flat)]; // Unique ignores only.
+});
 
 /**
  * Default git ignores, by group.
@@ -438,143 +484,458 @@ export const jsTSExtsByDevGroup = (): { [x: string]: string[] } => {
  * `/` when necessary; e.g., for relative paths. However, in practice, we tend to make every ignore pattern global, and
  * we apply our rules to directories and/or files at any level of depth within a project.
  *
+ * @returns Object; {@see DefaultGitIgnoresByGroup}.
+ *
  * @see https://git-scm.com/docs/gitignore
- * @see {$path.defaultGitNPMIgnoresByCategory} -- **must also be updated when this changes**.
+ * @see {$path.defaultGitNPMIgnoresByCategory()} -- **must also be updated when this changes**.
  */
-export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
-    'Locals': [
-        '._*', //
-        '.~*',
-        '.#*',
-    ],
-    'Envs': [
-        '.envs',
-        '*.env',
+export const defaultGitIgnoresByGroup = $fnꓺmemoize((): DefaultGitIgnoresByGroup => {
+    return {
+        'Locals': [
+            '._*', //
+            '.~*',
+            '.#*',
+        ],
+        'Envs': [
+            '.envs',
+            '*.env',
 
-        // These needed by Dotenv Vault, and to prevent dotfile contamination.
-        // i.e., Dotenv Vault appends these to ignore files if they don’t exist already.
-        // Note: *we* don’t *actually* need these — the two rules above will suffice.
-        // See: <https://o5p.me/mUn1tt> as a code reference.
-        '.env*',
-        '.flaskenv*',
-        '!.env.project',
-        '!.env.vault',
-    ],
-    'Logs': [
-        '*.log', //
-        '*.logs',
-    ],
-    'Backups': [
-        '*~', //
-        '*.bak',
-    ],
-    'Patches': [
-        '*.rej', //
-        '*.orig',
-        '*.patch',
-        '*.diff',
-    ],
-    'Editors': {
-        'VS Code': [
-            '*.code-*', //
+            // These needed by Dotenv Vault, and to prevent dotfile contamination.
+            // i.e., Dotenv Vault appends these to ignore files if they don’t exist already.
+            // Note: *we* don’t *actually* need these — the two rules above will suffice.
+            // See: <https://o5p.me/mUn1tt> as a code reference.
+            '.env*',
+            '.flaskenv*',
+            '!.env.project',
+            '!.env.vault',
+        ],
+        'Logs': [
+            '*.log', //
+            '*.logs',
+        ],
+        'Backups': [
+            '*~', //
+            '*.bak',
+        ],
+        'Patches': [
+            '*.rej', //
+            '*.orig',
+            '*.patch',
+            '*.diff',
+        ],
+        'Editors': {
+            'VS Code': [
+                '*.code-*', //
+                // '*.code-search',
+                // '*.code-workspace',
+            ],
+            'IntelliJ': [
+                '.idea', //
+            ],
+            'Vim': [
+                '.*.swp', //
+            ],
+            'CTAGs': [
+                '*.ctags', //
+            ],
+        },
+        'Tooling': {
+            'Dotenv': [
+                '.env.me', //
+            ],
+            'TypeScript': [
+                '.tscache', //
+                '*.tsbuildinfo',
+            ],
+            'Vite': [
+                '.vite', //
+                '.vitest',
+            ],
+            'Wrangler': [
+                '.wrangler', //
+                '.dev.vars',
+                '.dev.vars.*',
+            ],
+            'Rollup': [
+                '.rollup', //
+            ],
+            'Webpack': [
+                '.webpack', //
+            ],
+            'Linaria': [
+                '.linaria-cache', //
+            ],
+            'SASS': [
+                '.sass-cache', //
+            ],
+            'Docker': [
+                '.docker', //
+            ],
+            'Vagrant': [
+                '.vagrant', //
+            ],
+            'Elastic Beanstalk': [
+                '.elasticbeanstalk', //
+            ],
+        },
+        'Packages': {
+            'Yarn': [
+                '.yarn', //
+            ],
+            'Vendor': [
+                'vendor', //
+            ],
+            'NodeJS': [
+                'node_modules', //
+            ],
+            'JSPM': [
+                'jspm_packages', //
+            ],
+            'Bower': [
+                'bower_components', //
+            ],
+        },
+        'Version Control': {
+            'Git': [
+                '.git', //
+            ],
+            'Subversion': [
+                '.svn', //
+                '_svn',
+                '.svnignore',
+            ],
+            'Bazaar': [
+                '.bzr', //
+                '.bzrignore',
+            ],
+            'Mercurial': [
+                '.hg', //
+                '.hgignore',
+            ],
+        },
+        'Operating Systems': {
+            'Windows Files': [
+                'Thumbs.db', //
+                'ehthumbs.db',
+                'Desktop.ini',
+            ],
+            'Windows Dirs': [
+                '$RECYCLE.BIN', //
+            ],
+            'MacOS Files': [
+                // '._*', Already listed above.
+                'Icon\r',
+                '*.icloud',
+                '.DS_Store',
+                '.disk_label',
+                '.LSOverride',
+                '.VolumeIcon.icns',
+                '.com.apple.timemachine.*',
+            ],
+            'MacOS Dirs': [
+                '.apdisk', //
+                '*.icloud',
+                '.fseventsd',
+                '.AppleDB',
+                '.AppleDesktop',
+                '.AppleDouble',
+                '.Trashes',
+                '.TemporaryItems',
+                '.Spotlight-V100',
+                '.DocumentRevisions-V100',
+                'Network Trash Folder',
+                'Temporary Items',
+            ],
+        },
+        'Dist': [
+            'dist', //
+        ],
+    };
+});
+
+/**
+ * Default NPM ignores, by group.
+ *
+ * `npm:` prefix necessary to preserve groups from `./.gitignore`. Important we preserve not just the groups, but also
+ * the insertion order so these can be extracted as a flat array of rules. Don’t remove the `npm:` prefix.
+ *
+ * These rules **must** follow `.gitignore` standards religiously. Absolutely do **not** use braces. It is ok to use a
+ * `/` when necessary; e.g., for relative paths. However, in practice, we tend to make every ignore pattern global, and
+ * we apply our rules to directories and/or files at any level of depth within a project.
+ *
+ * @returns Object; {@see DefaultNPMIgnoresByGroup}.
+ *
+ * @see https://git-scm.com/docs/gitignore
+ * @see {$path.defaultGitNPMIgnoresByCategory()} -- **must also be updated when this changes**.
+ */
+export const defaultNPMIgnoresByGroup = $fnꓺmemoize((): DefaultNPMIgnoresByGroup => {
+    return {
+        ...defaultGitIgnoresByGroup(),
+
+        'npm:Dist': [
+            '!dist', //
+        ],
+        'npm:Dots': [
+            '.*', //
+        ],
+        'npm:Configs': [
+            '*.config.*', //
+            'wrangler.*',
+            'tsconfig.*',
+            'dev-types.d.ts',
+            'package.json',
+            'config.gypi',
+        ],
+        'npm:Locks': [
+            'yarn.lock', //
+            'composer.lock',
+            'package-lock.json',
+        ],
+        'npm:Src': [
+            'src', //
+        ],
+        'npm:Dev': [
+            'dev', //
+        ],
+        'npm:Sandbox': [
+            'sandbox', //
+        ],
+        'npm:Examples': [
+            'example', //
+            'examples',
+        ],
+        'npm:Docs': [
+            'doc', //
+            'docs',
+            '*.doc.*',
+            '*.docs.*',
+            'readme.*',
+            '*.readme.*',
+        ],
+        'npm:Tests': [
+            'test', //
+            'tests',
+            '*.test.*',
+            '*.tests.*',
+            '*.test-d.*',
+            '*.tests-d.*',
+        ],
+        'npm:Specs': [
+            'spec', //
+            'specs',
+            '*.spec.*',
+            '*.specs.*',
+            '*.spec-d.*',
+            '*.specs-d.*',
+        ],
+        'npm:Benchmarks': [
+            'bench', //
+            'benchmark',
+            'benchmarks',
+            '*.bench.*',
+            '*.benchmark.*',
+            '*.benchmarks.*',
+        ],
+        // There are also a few items always included and/or excluded by NPM.
+        // See: <https://docs.npmjs.com/cli/v9/configuring-npm/package-json#files>
+        // See: <https://docs.npmjs.com/cli/v8/using-npm/developers?v=true#keeping-files-out-of-your-package>
+        // Other than `package.json`, `README`, `LICENSE|LICENCE` (forced inclusions), our rules already cover everything that NPM does.
+    };
+});
+
+/**
+ * Default git/NPM ignores by category; for special-use cases.
+ *
+ * E.g., We use these breakdowns when configuring various devops tools.
+ *
+ * These rules **must** follow `.gitignore` standards religiously. Absolutely do **not** use braces. It is ok to use a
+ * `/` when necessary; e.g., for relative paths. However, in practice, we tend to make every ignore pattern global, and
+ * we apply our rules to directories and/or files at any level of depth within a project.
+ *
+ * @returns Object; {@see DefaultGitNPMIgnoresByCategory}.
+ *
+ * @see https://git-scm.com/docs/gitignore
+ * @see {$path.defaultGitIgnoresByGroup()} -- **must also be updated when this changes**.
+ * @see {$path.defaultNPMIgnoresByGroup()} -- **must also be updated when this changes**.
+ */
+export const defaultGitNPMIgnoresByCategory = $fnꓺmemoize((): DefaultGitNPMIgnoresByCategory => {
+    return {
+        // Locals
+
+        localIgnores: [
+            '._*', //
+            '.~*',
+            '.#*',
+        ],
+        // Envs
+
+        envIgnores: [
+            '.envs',
+            '*.env',
+
+            // These needed by Dotenv Vault, and to prevent dotfile contamination.
+            // i.e., Dotenv Vault appends these to ignore files if they don’t exist already.
+            // Note: *we* don’t *actually* need these — the two rules above will suffice.
+            // See: <https://o5p.me/mUn1tt> as a code reference.
+            '.env*',
+            '.flaskenv*',
+            '!.env.project',
+            '!.env.vault',
+        ],
+        // Logs
+
+        logIgnores: [
+            '*.log', //
+            '*.logs',
+        ],
+        // Backups
+
+        backupIgnores: [
+            '*~', //
+            '*.bak',
+        ],
+        // Patches
+
+        patchIgnores: [
+            '*.rej', //
+            '*.orig',
+            '*.patch',
+            '*.diff',
+        ],
+        // Editors
+
+        editorIgnores: [
+            // VS Code
+
+            '*.code-*',
             // '*.code-search',
             // '*.code-workspace',
+
+            // IntelliJ
+
+            '.idea',
+
+            // Vim
+
+            '.*.swp',
+
+            // CTAGs
+
+            '*.ctags',
         ],
-        'IntelliJ': [
-            '.idea', //
-        ],
-        'Vim': [
-            '.*.swp', //
-        ],
-        'CTAGs': [
-            '*.ctags', //
-        ],
-    },
-    'Tooling': {
-        'Dotenv': [
-            '.env.me', //
-        ],
-        'TypeScript': [
-            '.tscache', //
+        // Tooling
+
+        toolingIgnores: [
+            // Dotenv
+
+            '.env.me',
+
+            // TypeScript
+
+            '.tscache',
             '*.tsbuildinfo',
-        ],
-        'Vite': [
-            '.vite', //
+
+            // Vite
+
+            '.vite',
             '.vitest',
-        ],
-        'Wrangler': [
-            '.wrangler', //
+
+            // Wrangler
+
+            '.wrangler',
             '.dev.vars',
             '.dev.vars.*',
+
+            // Rollup
+
+            '.rollup',
+
+            // Webpack
+
+            '.webpack',
+
+            // Linaria
+
+            '.linaria-cache',
+
+            // SASS
+
+            '.sass-cache',
+
+            // Docker
+
+            '.docker',
+
+            // Vagrant
+
+            '.vagrant',
+
+            // Elastic Beanstalk
+
+            '.elasticbeanstalk',
         ],
-        'Rollup': [
-            '.rollup', //
+        // Packages
+
+        pkgIgnores: [
+            // Yarn
+
+            '.yarn',
+
+            // Vendor
+
+            'vendor',
+
+            // NodeJS
+
+            'node_modules',
+
+            // JSPM
+
+            'jspm_packages',
+
+            // Bower
+
+            'bower_components',
         ],
-        'Webpack': [
-            '.webpack', //
-        ],
-        'Linaria': [
-            '.linaria-cache', //
-        ],
-        'SASS': [
-            '.sass-cache', //
-        ],
-        'Docker': [
-            '.docker', //
-        ],
-        'Vagrant': [
-            '.vagrant', //
-        ],
-        'Elastic Beanstalk': [
-            '.elasticbeanstalk', //
-        ],
-    },
-    'Packages': {
-        'Yarn': [
-            '.yarn', //
-        ],
-        'Vendor': [
-            'vendor', //
-        ],
-        'NodeJS': [
-            'node_modules', //
-        ],
-        'JSPM': [
-            'jspm_packages', //
-        ],
-        'Bower': [
-            'bower_components', //
-        ],
-    },
-    'Version Control': {
-        'Git': [
-            '.git', //
-        ],
-        'Subversion': [
-            '.svn', //
+        // Version Control
+
+        vcsIgnores: [
+            // Git
+
+            '.git',
+
+            // Subversion
+
+            '.svn',
             '_svn',
             '.svnignore',
-        ],
-        'Bazaar': [
-            '.bzr', //
+
+            // Bazaar
+
+            '.bzr',
             '.bzrignore',
-        ],
-        'Mercurial': [
-            '.hg', //
+
+            // Mercurial
+
+            '.hg',
             '.hgignore',
         ],
-    },
-    'Operating Systems': {
-        'Windows Files': [
-            'Thumbs.db', //
+        // Operating Systems
+
+        osIgnores: [
+            // Windows Files
+
+            'Thumbs.db',
             'ehthumbs.db',
             'Desktop.ini',
-        ],
-        'Windows Dirs': [
-            '$RECYCLE.BIN', //
-        ],
-        'MacOS Files': [
-            // '._*', Already listed above.
+
+            // Windows Dirs
+
+            '$RECYCLE.BIN',
+
+            // MacOS Files
+
+            '._*',
             'Icon\r',
             '*.icloud',
             '.DS_Store',
@@ -582,9 +943,10 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
             '.LSOverride',
             '.VolumeIcon.icns',
             '.com.apple.timemachine.*',
-        ],
-        'MacOS Dirs': [
-            '.apdisk', //
+
+            // MacOS Dirs
+
+            '.apdisk',
             '*.icloud',
             '.fseventsd',
             '.AppleDB',
@@ -597,445 +959,111 @@ export const defaultGitIgnoresByGroup: DefaultGitIgnoresByGroup = {
             'Network Trash Folder',
             'Temporary Items',
         ],
-    },
-    'Dist': [
-        'dist', //
-    ],
-};
-
-/**
- * Default NPM ignores, by group.
- *
- * `npm:` prefix necessary to preserve groups from `./.gitignore`. Important we preserve not just the groups, but also
- * the insertion order so these can be extracted as a flat array of rules. Don’t remove the `npm:` prefix.
- *
- * These rules **must** follow `.gitignore` standards religiously. Absolutely do **not** use braces. It is ok to use a
- * `/` when necessary; e.g., for relative paths. However, in practice, we tend to make every ignore pattern global, and
- * we apply our rules to directories and/or files at any level of depth within a project.
- *
- * @see https://git-scm.com/docs/gitignore
- * @see {$path.defaultGitNPMIgnoresByCategory} -- **must also be updated when this changes**.
- */
-export const defaultNPMIgnoresByGroup: DefaultNPMIgnoresByGroup = {
-    ...defaultGitIgnoresByGroup,
-
-    'npm:Dist': [
-        '!dist', //
-    ],
-    'npm:Dots': [
-        '.*', //
-    ],
-    'npm:Configs': [
-        '*.config.*', //
-        'wrangler.*',
-        'tsconfig.*',
-        'dev-types.d.ts',
-        'package.json',
-        'config.gypi',
-    ],
-    'npm:Locks': [
-        'yarn.lock', //
-        'composer.lock',
-        'package-lock.json',
-    ],
-    'npm:Src': [
-        'src', //
-    ],
-    'npm:Dev': [
-        'dev', //
-    ],
-    'npm:Sandbox': [
-        'sandbox', //
-    ],
-    'npm:Examples': [
-        'example', //
-        'examples',
-    ],
-    'npm:Docs': [
-        'doc', //
-        'docs',
-        '*.doc.*',
-        '*.docs.*',
-        'readme.*',
-        '*.readme.*',
-    ],
-    'npm:Tests': [
-        'test', //
-        'tests',
-        '*.test.*',
-        '*.tests.*',
-        '*.test-d.*',
-        '*.tests-d.*',
-    ],
-    'npm:Specs': [
-        'spec', //
-        'specs',
-        '*.spec.*',
-        '*.specs.*',
-        '*.spec-d.*',
-        '*.specs-d.*',
-    ],
-    'npm:Benchmarks': [
-        'bench', //
-        'benchmark',
-        'benchmarks',
-        '*.bench.*',
-        '*.benchmark.*',
-        '*.benchmarks.*',
-    ],
-    // There are also a few items always included and/or excluded by NPM.
-    // See: <https://docs.npmjs.com/cli/v9/configuring-npm/package-json#files>
-    // See: <https://docs.npmjs.com/cli/v8/using-npm/developers?v=true#keeping-files-out-of-your-package>
-    // Other than `package.json`, `README`, `LICENSE|LICENCE` (forced inclusions), our rules already cover everything that NPM does.
-};
-
-/**
- * Default git/NPM ignores by category; for special-use cases.
- *
- * E.g., We use these breakdowns when configuring various devops tools.
- *
- * These rules **must** follow `.gitignore` standards religiously. Absolutely do **not** use braces. It is ok to use a
- * `/` when necessary; e.g., for relative paths. However, in practice, we tend to make every ignore pattern global, and
- * we apply our rules to directories and/or files at any level of depth within a project.
- *
- * @see https://git-scm.com/docs/gitignore
- * @see {$path.defaultGitIgnoresByGroup} -- **must also be updated when this changes**.
- * @see {$path.defaultNPMIgnoresByGroup} -- **must also be updated when this changes**.
- */
-export const defaultGitNPMIgnoresByCategory = {
-    // Locals
-
-    localIgnores: [
-        '._*', //
-        '.~*',
-        '.#*',
-    ],
-    // Envs
-
-    envIgnores: [
-        '.envs',
-        '*.env',
-
-        // These needed by Dotenv Vault, and to prevent dotfile contamination.
-        // i.e., Dotenv Vault appends these to ignore files if they don’t exist already.
-        // Note: *we* don’t *actually* need these — the two rules above will suffice.
-        // See: <https://o5p.me/mUn1tt> as a code reference.
-        '.env*',
-        '.flaskenv*',
-        '!.env.project',
-        '!.env.vault',
-    ],
-    // Logs
-
-    logIgnores: [
-        '*.log', //
-        '*.logs',
-    ],
-    // Backups
-
-    backupIgnores: [
-        '*~', //
-        '*.bak',
-    ],
-    // Patches
-
-    patchIgnores: [
-        '*.rej', //
-        '*.orig',
-        '*.patch',
-        '*.diff',
-    ],
-    // Editors
-
-    editorIgnores: [
-        // VS Code
-
-        '*.code-*',
-        // '*.code-search',
-        // '*.code-workspace',
-
-        // IntelliJ
-
-        '.idea',
-
-        // Vim
-
-        '.*.swp',
-
-        // CTAGs
-
-        '*.ctags',
-    ],
-    // Tooling
-
-    toolingIgnores: [
-        // Dotenv
-
-        '.env.me',
-
-        // TypeScript
-
-        '.tscache',
-        '*.tsbuildinfo',
-
-        // Vite
-
-        '.vite',
-        '.vitest',
-
-        // Wrangler
-
-        '.wrangler',
-        '.dev.vars',
-        '.dev.vars.*',
-
-        // Rollup
-
-        '.rollup',
-
-        // Webpack
-
-        '.webpack',
-
-        // Linaria
-
-        '.linaria-cache',
-
-        // SASS
-
-        '.sass-cache',
-
-        // Docker
-
-        '.docker',
-
-        // Vagrant
-
-        '.vagrant',
-
-        // Elastic Beanstalk
-
-        '.elasticbeanstalk',
-    ],
-    // Packages
-
-    pkgIgnores: [
-        // Yarn
-
-        '.yarn',
-
-        // Vendor
-
-        'vendor',
-
-        // NodeJS
-
-        'node_modules',
-
-        // JSPM
-
-        'jspm_packages',
-
-        // Bower
-
-        'bower_components',
-    ],
-    // Version Control
-
-    vcsIgnores: [
-        // Git
-
-        '.git',
-
-        // Subversion
-
-        '.svn',
-        '_svn',
-        '.svnignore',
-
-        // Bazaar
-
-        '.bzr',
-        '.bzrignore',
-
-        // Mercurial
-
-        '.hg',
-        '.hgignore',
-    ],
-    // Operating Systems
-
-    osIgnores: [
-        // Windows Files
-
-        'Thumbs.db',
-        'ehthumbs.db',
-        'Desktop.ini',
-
-        // Windows Dirs
-
-        '$RECYCLE.BIN',
-
-        // MacOS Files
-
-        '._*',
-        'Icon\r',
-        '*.icloud',
-        '.DS_Store',
-        '.disk_label',
-        '.LSOverride',
-        '.VolumeIcon.icns',
-        '.com.apple.timemachine.*',
-
-        // MacOS Dirs
-
-        '.apdisk',
-        '*.icloud',
-        '.fseventsd',
-        '.AppleDB',
-        '.AppleDesktop',
-        '.AppleDouble',
-        '.Trashes',
-        '.TemporaryItems',
-        '.Spotlight-V100',
-        '.DocumentRevisions-V100',
-        'Network Trash Folder',
-        'Temporary Items',
-    ],
-    // Dots
-
-    dotIgnores: [
-        '.*', //
-        // This category covers everything else we have in `./.npmignore`
-        // that isn’t already grouped in some other way by our exclusions.
-
-        // Note that `[name].tsbuildinfo` can also appear as `.tsbuildinfo`.
-        // So it’s technically a `.` file, or should be. We treat it as such.
-        '*.tsbuildinfo', // Tracks progressive project builds (local only).
-    ],
-    // Types
-
-    dtsIgnores: [
-        '*.d.ts', //
-        '*.d.tsx',
-        '*.d.cts',
-        '*.d.ctsx',
-        '*.d.mts',
-        '*.d.mtsx',
-    ],
-    // Configs
-
-    configIgnores: [
-        '*.config.*', //
-        'wrangler.*',
-        'tsconfig.*',
-        'dev-types.d.ts',
-        'package.json',
-        'config.gypi',
-    ],
-    // Locks
-
-    lockIgnores: [
-        'yarn.lock', //
-        'composer.lock',
-        'package-lock.json',
-    ],
-    // Dev
-
-    devIgnores: [
-        'dev', //
-    ],
-    // Dev Files
-
-    devDotFileIgnores: [
-        // This one is already covered by our `dev` rule.
-        // Listing it here for convenience, and to keep things DRY.
-        '/dev/.files',
-    ],
-    // Dist
-
-    distIgnores: [
-        'dist', //
-    ],
-    // Sandbox
-
-    sandboxIgnores: [
-        'sandbox', //
-    ],
-    // Examples
-
-    exampleIgnores: [
-        'example', //
-        'examples',
-    ],
-    // Docs
-
-    docIgnores: [
-        'doc', //
-        'docs',
-        '*.doc.*',
-        '*.docs.*',
-        'readme.*',
-        '*.readme.*',
-    ],
-    // Tests
-
-    testIgnores: [
-        'test', //
-        'tests',
-        '*.test.*',
-        '*.tests.*',
-        '*.test-d.*',
-        '*.tests-d.*',
-    ],
-    // Specs
-
-    specIgnores: [
-        'spec', //
-        'specs',
-        '*.spec.*',
-        '*.specs.*',
-        '*.spec-d.*',
-        '*.specs-d.*',
-    ],
-    // Benchmarks
-
-    benchIgnores: [
-        'bench', //
-        'benchmark',
-        'benchmarks',
-        '*.bench.*',
-        '*.benchmark.*',
-        '*.benchmarks.*',
-    ],
-};
-
-/**
- * Default git ignores (as a flat array).
- */
-let _defaultGitIgnores: string[] = []; // Initialize.
-for (const [, group] of Object.entries(defaultGitIgnoresByGroup)) {
-    if (!Array.isArray(group)) {
-        for (const [, subgroup] of Object.entries(group)) {
-            _defaultGitIgnores = _defaultGitIgnores.concat(subgroup);
-        }
-    } else {
-        _defaultGitIgnores = _defaultGitIgnores.concat(group);
-    }
-} // We export unique ignores only.
-export const defaultGitIgnores = [...new Set(_defaultGitIgnores)];
-
-/**
- * Default NPM ignores (as a flat array).
- */
-let _defaultNPMIgnores: string[] = []; // Initialize.
-for (const [, group] of Object.entries(defaultNPMIgnoresByGroup)) {
-    if (!Array.isArray(group)) {
-        for (const [, subgroup] of Object.entries(group)) {
-            _defaultNPMIgnores = _defaultNPMIgnores.concat(subgroup);
-        }
-    } else {
-        _defaultNPMIgnores = _defaultNPMIgnores.concat(group);
-    }
-} // We export unique ignores only.
-export const defaultNPMIgnores: string[] = [...new Set(_defaultNPMIgnores)];
+        // Dots
+
+        dotIgnores: [
+            '.*', //
+            // This category covers everything else we have in `./.npmignore`
+            // that isn’t already grouped in some other way by our exclusions.
+
+            // Note that `[name].tsbuildinfo` can also appear as `.tsbuildinfo`.
+            // So it’s technically a `.` file, or should be. We treat it as such.
+            '*.tsbuildinfo', // Tracks progressive project builds (local only).
+        ],
+        // Types
+
+        dtsIgnores: [
+            '*.d.ts', //
+            '*.d.tsx',
+            '*.d.cts',
+            '*.d.ctsx',
+            '*.d.mts',
+            '*.d.mtsx',
+        ],
+        // Configs
+
+        configIgnores: [
+            '*.config.*', //
+            'wrangler.*',
+            'tsconfig.*',
+            'dev-types.d.ts',
+            'package.json',
+            'config.gypi',
+        ],
+        // Locks
+
+        lockIgnores: [
+            'yarn.lock', //
+            'composer.lock',
+            'package-lock.json',
+        ],
+        // Dev
+
+        devIgnores: [
+            'dev', //
+        ],
+        // Dev Files
+
+        devDotFileIgnores: [
+            // This one is already covered by our `dev` rule.
+            // Listing it here for convenience, and to keep things DRY.
+            '/dev/.files',
+        ],
+        // Dist
+
+        distIgnores: [
+            'dist', //
+        ],
+        // Sandbox
+
+        sandboxIgnores: [
+            'sandbox', //
+        ],
+        // Examples
+
+        exampleIgnores: [
+            'example', //
+            'examples',
+        ],
+        // Docs
+
+        docIgnores: [
+            'doc', //
+            'docs',
+            '*.doc.*',
+            '*.docs.*',
+            'readme.*',
+            '*.readme.*',
+        ],
+        // Tests
+
+        testIgnores: [
+            'test', //
+            'tests',
+            '*.test.*',
+            '*.tests.*',
+            '*.test-d.*',
+            '*.tests-d.*',
+        ],
+        // Specs
+
+        specIgnores: [
+            'spec', //
+            'specs',
+            '*.spec.*',
+            '*.specs.*',
+            '*.spec-d.*',
+            '*.specs-d.*',
+        ],
+        // Benchmarks
+
+        benchIgnores: [
+            'bench', //
+            'benchmark',
+            'benchmarks',
+            '*.bench.*',
+            '*.benchmark.*',
+            '*.benchmarks.*',
+        ],
+    };
+});

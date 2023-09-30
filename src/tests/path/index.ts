@@ -43,10 +43,10 @@ describe('$path', async () => {
         expect($path.globToRegExpString('**/abc/**/*', { dot: true })).toBe(
             '^(?:(?:^|\\/|(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/)abc(?:\\/(?!\\.{1,2}(?:\\/|$))(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/|\\/|$)(?!\\.{1,2}(?:\\/|$))(?=.)[^/]*?\\/?)$',
         );
-        expect($path.globToRegExpString($path.dotGlobstarHead + $path.dotGlobstarSingle + '.{abc,xyz}' + $path.dotGlobstarTail)).toBe(
+        expect($path.globToRegExpString($path.dotGlobstarHead() + $path.dotGlobstarSingle() + '.{abc,xyz}' + $path.dotGlobstarTail())).toBe(
             '^(?:(|(?:(?:(?!(?:^|\\/)\\.).)*?)\\/|(?:\\.|[^./]|\\x2F)*\\/)([^/]*?|(?:[^/]*?|\\.)*)\\.(abc|xyz)(|(?:\\/(?!\\.)(?:(?:(?!(?:^|\\/)\\.).)*?)\\/|\\/|$)(?!\\.)(?=.)[^/]*?|\\/(?:\\.)?(?:\\.|[^./]|\\x2F)*))$',
         );
-        expect($path.globToRegExpString($path.dotGlobstarHead + $path.dotGlobstarSingle + '.{abc,xyz}' + $path.dotGlobstarTail, { dot: true })).toBe(
+        expect($path.globToRegExpString($path.dotGlobstarHead() + $path.dotGlobstarSingle() + '.{abc,xyz}' + $path.dotGlobstarTail(), { dot: true })).toBe(
             '^(?:(|(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/|(?:\\.|[^./]|\\x2F)*\\/)([^/]*?|(?:[^/]*?|\\.)*)\\.(abc|xyz)(|(?:\\/(?!\\.{1,2}(?:\\/|$))(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/|\\/|$)(?!\\.{1,2}(?:\\/|$))(?=.)[^/]*?|\\/(?:\\.)?(?:\\.|[^./]|\\x2F)*))$',
         );
     });
@@ -118,19 +118,22 @@ describe('$path', async () => {
         expect($is.plainObject($path.extsByVSCodeLang({ camelCase: true }))).toBe(true);
         expect($is.plainObject($path.extsByVSCodeLang({ camelCase: true, enableCodeTextual: true }))).toBe(true);
     });
-    test('.defaultGitIgnoresByGroup', async () => {
-        expect($is.plainObject($path.defaultGitIgnoresByGroup)).toBe(true);
+    test('.defaultGitIgnoresByGroup()', async () => {
+        expect($is.plainObject($path.defaultGitIgnoresByGroup())).toBe(true);
     });
-    test('.defaultGitIgnores', async () => {
-        expect($is.array($path.defaultGitIgnores)).toBe(true);
-        expect($path.defaultGitIgnores.includes('.git')).toBe(true);
-        expect($path.defaultGitIgnores.includes('.*')).toBe(false);
+    test('.defaultNPMIgnoresByGroup()', async () => {
+        expect($is.plainObject($path.defaultNPMIgnoresByGroup())).toBe(true);
     });
-    test('.defaultNPMIgnoresByGroup', async () => {
-        expect($is.plainObject($path.defaultNPMIgnoresByGroup)).toBe(true);
+    test('.defaultGitNPMIgnoresByCategory()', async () => {
+        expect($is.plainObject($path.defaultGitNPMIgnoresByCategory())).toBe(true);
     });
-    test('.defaultNPMIgnores', async () => {
-        expect($is.array($path.defaultNPMIgnores)).toBe(true);
-        expect($path.defaultNPMIgnores.includes('.*')).toBe(true);
+    test('.defaultGitIgnores()', async () => {
+        expect($is.array($path.defaultGitIgnores())).toBe(true);
+        expect($path.defaultGitIgnores().includes('.git')).toBe(true);
+        expect($path.defaultGitIgnores().includes('.*')).toBe(false);
+    });
+    test('.defaultNPMIgnores()', async () => {
+        expect($is.array($path.defaultNPMIgnores())).toBe(true);
+        expect($path.defaultNPMIgnores().includes('.*')).toBe(true);
     });
 });
