@@ -91,7 +91,7 @@ const resolveTopLevelObp = (obp: string): string => {
  *
  * @param rootObp A root object path to use as the top-level object path.
  *
- *   - Root object path is sanitized using {@see $str.obpPartSafe()} automtically.
+ *   - Root object path is sanitized using {@see $str.obpPartSafe()} automatically.
  */
 export const setTopLevelObp = (rootObp: string): void => {
     if (topLevelObpSet) {
@@ -99,6 +99,31 @@ export const setTopLevelObp = (rootObp: string): void => {
     }
     topLevelObpSet = true;
     topLevelObp = $str.obpPartSafe(rootObp);
+};
+
+/**
+ * Captures environment variables.
+ *
+ * - Order of capture matters.
+ * - Existing values are not overwritten.
+ *
+ * @param rootObp A root object path in which to place captured environment variables; e.g., `@top`.
+ * @param env     Environment variables, by object subpath.
+ *
+ *   - Root object path is sanitized using {@see $str.obpPartSafe()} automatically.
+ */
+export const capture = (rootObp: string, env: object): void => {
+    if (!varsInitialized) initializeVars();
+    rootObp = $str.obpPartSafe(rootObp);
+
+    if ('@top' === rootObp && !topLevelObpSet) {
+        throw new Error('`@top` used in capture before calling `$env.setTopLevelObp()`.');
+    }
+    for (const [subObp, value] of Object.entries(env)) {
+        if (!subObp) continue; // Empty subpath not allowable.
+        const obp = [rootObp, subObp].filter((v) => '' !== v).join('.');
+        $obp.defaultTo(vars, resolveTopLevelObp(obp), $is.string(value) ? $str.parseValue(value) : value);
+    }
 };
 
 /**
@@ -161,7 +186,7 @@ export function get(...args: unknown[]): unknown {
 
     if (1 === args.length || (2 === args.length && $is.object(args[1]))) {
         (leadingObps = ['']), (subObpOrObp = args[0] as string), (options = args[1] as GetOptions | undefined);
-    } else (leadingObps = args[0] as string | string[]), (subObpOrObp = args[1] as string), (options = args[1] as GetOptions | undefined);
+    } else (leadingObps = args[0] as string | string[]), (subObpOrObp = args[1] as string), (options = args[2] as GetOptions | undefined);
 
     let value: unknown; // Initialize value, which is populated below, if possible.
     const opts = $obj.defaults({}, options || {}, { type: undefined, default: undefined }) as GetOptions;
@@ -233,28 +258,6 @@ export function unset(...args: unknown[]): void {
     const obp = [leadingObp, subObpOrObp].filter((v) => '' !== v).join('.');
     $obp.unset(vars, resolveTopLevelObp(obp));
 }
-
-/**
- * Captures environment variables.
- *
- * - Order of capture matters.
- * - Existing values are not overwritten.
- *
- * @param leadingObp Leading object path; e.g., `@top`.
- * @param env        Environment variables, by object subpath.
- */
-export const capture = (leadingObp: string, env: object): void => {
-    if (!varsInitialized) initializeVars();
-
-    if ('@top' === leadingObp && !topLevelObpSet) {
-        throw new Error('`@top` used in capture before calling `$env.setTopLevelObp()`.');
-    }
-    for (const [subObp, value] of Object.entries(env)) {
-        if (!subObp) continue; // Empty subpath not allowable.
-        const obp = [leadingObp, subObp].filter((v) => '' !== v).join('.');
-        $obp.defaultTo(vars, resolveTopLevelObp(obp), $is.string(value) ? $str.parseValue(value) : value);
-    }
-};
 
 /**
  * Is test framework?
