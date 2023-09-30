@@ -103,6 +103,15 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                 title += ' • ' + ((state.titleSuffix || state.siteName) as string);
             }
         }
+        // We include local testing fallbacks here for Vite’s dev server.
+        let defaultMainStyleBundle, defaultMainScriptBundle; // Initialize.
+
+        if (!state.mainStyleBundle && '' !== state.mainStyleBundle && $env.isLocalWeb()) {
+            defaultMainStyleBundle = appBasePath + '/index.scss';
+        }
+        if (!state.mainScriptBundle && '' !== state.mainScriptBundle && $env.isLocalWeb()) {
+            defaultMainScriptBundle = appBasePath + '/index.tsx';
+        }
         return {
             ...state,
 
@@ -123,10 +132,8 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
             ogURL: state.ogURL || state.canonical || locState.canonicalURL,
             ogImage: state.ogImage || appBaseURL + '/assets/og-image.png',
 
-            // We include local testing fallbacks here for Vite’s dev server.
-            // Vite references the original filenames and transforms scss/tsx on-the-fly.
-            mainStyleBundle: state.mainStyleBundle || ($env.isLocalWeb() ? './index.scss' : ''),
-            mainScriptBundle: state.mainScriptBundle || ($env.isLocalWeb() ? './index.tsx' : ''),
+            mainStyleBundle: state.mainStyleBundle || defaultMainStyleBundle,
+            mainScriptBundle: state.mainScriptBundle || defaultMainScriptBundle,
         };
     }, [locState, dataState, state]);
 

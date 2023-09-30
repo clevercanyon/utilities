@@ -19,7 +19,7 @@ describe('<Router>', async () => {
         expect(
             $preact.ssr.renderToString(
                 <Router url='http://x.tld'>
-                    <Route default component={(await import('../../../preact/routes/error-404.tsx')).default} />
+                    <Route default component={(await import('../../../preact/components/error-404.tsx')).default} />
                 </Router>,
             ),
         ).toContain('</html>');

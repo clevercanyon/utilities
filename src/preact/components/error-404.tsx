@@ -4,7 +4,7 @@
 
 import { $env, $preact } from '../../index.ts';
 import { Body, HTML, Head } from '../components.tsx';
-import { type RouteContextAsProps } from '../components/router.tsx';
+import { type RouteContextAsProps } from './router.tsx';
 
 /**
  * Defines types.

@@ -53,7 +53,7 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
             </HTML>
         );
     };
-    const Error404 = $preact.lazyRoute(() => import('../../../../preact/routes/error-404.tsx'));
+    const Error404 = $preact.lazyRoute(() => import('../../../../preact/components/error-404.tsx'));
 
     // ---
 
