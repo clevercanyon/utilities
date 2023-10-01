@@ -38,7 +38,7 @@ export type State = {
     mainScriptBundle?: $type.URL | string;
 };
 export type PartialState = Partial<State>;
-export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
+export type Props = $preact.Props<PartialState>;
 
 export type ContextProps = {
     readonly state: State;
