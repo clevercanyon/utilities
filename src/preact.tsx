@@ -69,7 +69,7 @@ export type { Dispatch } from 'preact/hooks';
 export type VNode<P extends Props = Props> = preact.VNode<P>;
 export type FnComponent<P extends Props = Props> = preact.FunctionComponent<P>;
 export type AsyncFnComponent<P extends Props = Props> = (...args: Parameters<FnComponent<P>>) => Promise<ReturnType<FnComponent<P>>>;
-export type Props<P extends object = $type.Object> = preact.RenderableProps<Readonly<P & { classes?: string | string[] }>>;
+export type Props<P extends object = $type.Object> = preact.RenderableProps<Readonly<P & { classes?: unknown }>>;
 
 export type { Props as DataProps } from './preact/components/data.tsx';
 export type { Props as HTMLProps } from './preact/components/html.tsx';
@@ -114,7 +114,7 @@ export const cleanProps = <Type extends Props, Key extends keyof Type>(props: Ty
  * @see https://www.npmjs.com/package/clsx
  * @see https://www.npmjs.com/package/classnames
  */
-export const classes = (...variadicArgs: (unknown | unknown[])[]): undefined | string => {
+export const classes = (...variadicArgs: unknown[]): undefined | string => {
     let list: unknown[] = []; // Initialize.
 
     for (const args of variadicArgs) {
