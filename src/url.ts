@@ -67,6 +67,24 @@ export const current = (): string => {
 };
 
 /**
+ * Gets current app’s base URL.
+ *
+ * @returns Current app’s base URL.
+ */
+export const currentAppBase = (): string => {
+    return $env.get('APP_BASE_URL', { type: 'string', default: '' });
+};
+
+/**
+ * Gets current app’s base path.
+ *
+ * @returns Current app’s base path.
+ */
+export const currentAppBasePath = (): string => {
+    return $env.get('APP_BASE_PATH', { type: 'string', default: '' });
+};
+
+/**
  * Gets current referrer.
  *
  * @returns Current referrer.
@@ -143,13 +161,23 @@ export const currentSubpath = (): string => {
 };
 
 /**
- * Gets current query string.
+ * Gets current query string w/o leading `?`.
  *
- * @returns Current query string.
+ * @returns Current query string w/o leading `?`.
  */
 export const currentQuery = (): string => {
     if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.search.slice(1);
+};
+
+/**
+ * Gets current hash w/o leading `#`.
+ *
+ * @returns Current hash w/o leading `#`.
+ */
+export const currentHash = (): string => {
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
+    return location.hash.slice(1);
 };
 
 /**
@@ -161,6 +189,101 @@ export const currentPathQuery = (): string => {
     if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.pathname + location.search;
 };
+
+/**
+ * Gets current path, query string, and hash.
+ *
+ * @returns Current path, query string, and hash.
+ */
+export const currentPathQueryHash = (): string => {
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
+    return location.pathname + location.search + location.hash;
+};
+
+/**
+ * Formulates URL from current app’s base.
+ *
+ * @param   pathQueryHash /path?query#hash to end on.
+ *
+ * @returns               https://x.tld[/base]/path?query#hash from current app’s base.
+ *
+ * @note We intentionally do not do any parsing, validating, slicing, or dicing here.
+ *       Callers expect this will be nothing more than a prepending of the base URL.
+ */
+export const fromAppBase = (pathQueryHash: string): string => {
+    return currentAppBase() + pathQueryHash;
+};
+
+/**
+ * Formulates root-relative URL path from current app’s base path.
+ *
+ * @param   pathQueryHash /path?query#hash to end on.
+ *
+ * @returns               [/base]/path?query#hash from current app’s base path.
+ *
+ * @note We intentionally do not do any parsing, validating, slicing, or dicing here.
+ *       Callers expect this will be nothing more than a prepending of the base path.
+ */
+export const pathFromAppBase = (pathQueryHash: string): string => {
+    return currentAppBasePath() + pathQueryHash;
+};
+
+/**
+ * Tests a string URL to see if it’s absolute.
+ *
+ * @param   url String URL for this method to parse.
+ *
+ * @returns     True if the URL is absolute.
+ *
+ * @note URLs with a relative protocol are also absolute.
+ */
+export const isAbsolute = $fnꓺmemoize(12, (url: string): boolean => {
+    return /^(?:[^:/?#\s]+:)?\/\//u.test(url);
+});
+
+/**
+ * Tests a string URL to see if it’s root-relative.
+ *
+ * @param   url String URL for this method to parse.
+ *
+ * @returns     True if the URL is root-relative.
+ */
+export const isRootRelative = $fnꓺmemoize(12, (url: string): boolean => {
+    return /^\//u.test(url) && !isAbsolute(url);
+});
+
+/**
+ * Tests a string URL to see if it’s relative.
+ *
+ * @param   url String URL for this method to parse.
+ *
+ * @returns     True if the URL is relative.
+ */
+export const isRelative = $fnꓺmemoize(12, (url: string): boolean => {
+    return /^./u.test(url) || (!isAbsolute(url) && !isRootRelative(url) && !isHashOnly(url));
+});
+
+/**
+ * Tests a string URL to see if it’s a query only.
+ *
+ * @param   url String URL for this method to parse.
+ *
+ * @returns     True if the URL is a query only.
+ */
+export const isQueryOnly = $fnꓺmemoize(12, (url: string): boolean => {
+    return /^\?/u.test(url);
+});
+
+/**
+ * Tests a string URL to see if it’s a hash only.
+ *
+ * @param   url String URL for this method to parse.
+ *
+ * @returns     True if the URL is a hash only.
+ */
+export const isHashOnly = $fnꓺmemoize(12, (url: string): boolean => {
+    return /^#/u.test(url);
+});
 
 /**
  * Gets root hostname.

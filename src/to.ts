@@ -5,19 +5,60 @@
 import { $class, $is, $obj, $symbol, type $type } from './index.ts';
 
 /**
- * Casts any value as an array.
+ * Converts any value into a map.
+ *
+ * There’s no native map casting in JavaScript. `new Map(Object.entries(value))` is about the shortest you can get,
+ * unfortunately. This utility exists to abbreviate a common pattern. You can simply do `$to.map(value)`.
+ *
+ * WARNING: Beware of this utility returning maps with numeric keys for things like arrays other primitives that we cast
+ * into arrays, before casting into a map. Anything that’s not a map, array, set, or object, is simply cast as an array,
+ * then into a map. Two exceptions are `null` and `undefined`, which will convert to an empty map.
+ *
+ * @param   value Value to cast as a map.
+ *
+ * @returns       Value cast as a map.
+ */
+export const map = <Type>(value: Type): Type extends Map<unknown, unknown> ? Type : Map<unknown, unknown> => {
+    if ($is.map(value)) {
+        return value as ReturnType<typeof map<Type>>;
+        //
+    } else if ($is.array(value) || $is.set(value)) {
+        return new Map(value.entries()) as ReturnType<typeof map<Type>>;
+        //
+    } else if ($is.object(value)) {
+        return new Map(Object.entries(value)) as ReturnType<typeof map<Type>>;
+    }
+    return new Map(array(value).entries()) as ReturnType<typeof map<Type>>;
+};
+
+/**
+ * Converts any value into an array.
+ *
+ * There’s no native array casting in JavaScript, but {@see Array.from()} is available, so please consider using it
+ * before choosing this utility. That said, there are plenty of cases when simply casting to an array is desirable. For
+ * example, {@see Array.from()} will convert a string into an array of chars, whereas this utility will simply wrap the
+ * entire string into an array. {@see Array.from()} also has other quirks; {@see https://o5p.me/Ec5nzY}.
+ *
+ * WARNING: Beware of this utility returning `['']`, `[0]`, `[false]`, etc. Anything that’s not an array is simply
+ * wrapped as an array. Two exceptions are `null` and `undefined`, which will convert to an empty array.
+ *
+ * Why not spread Sets into arrays? There is no clear way to assert set-to-array conversion using TypeScript return
+ * types, and because converting a Set into an array using the spread `...` operator is already simple enough, we’ve
+ * decided not to consider Sets to be anything special here, but rather just another object type.
  *
  * @param   value Value to cast as an array.
  *
  * @returns       Value cast as an array.
- *
- * @note There is no array casting in JavaScript, but we make it work.
- * @note Beware of this returning `['']`, `[null]`, `[undefined]`, etc.
  */
 export const array = <Type>(value: Type): Type extends unknown[] ? Type : Type[] => {
-    return ($is.array(value) ? value : [value]) as Type extends unknown[] ? Type : Type[];
+    if ($is.array(value)) {
+        return value as ReturnType<typeof array<Type>>;
+        //
+    } else if ($is.nul(value)) {
+        return [] as ReturnType<typeof array<Type>>;
+    }
+    return [value] as ReturnType<typeof array<Type>>;
 };
-export { array as castArray }; // Back compat. Deprecated 2023-09-25 in favor of `array()`.
 
 /**
  * Converts any value into a plain object.

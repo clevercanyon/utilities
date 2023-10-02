@@ -3,11 +3,11 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
-import { $env, $json, $preact } from '../../../../index.ts';
+import { $env, $json, $preact, $url } from '../../../../index.ts';
 import { Body, HTML, Head, Route, Router } from '../../../../preact/components.tsx';
 import { type RouteContextAsProps, type RouterProps } from '../../../../preact/components/router.tsx';
 
-const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '' });
+const __origAppBaseURL__ = $url.currentAppBase(); // App’s base URL, as string.
 
 describe('$preact.iso.prerenderSPA() ... lazy', async () => {
     beforeAll(async () => {

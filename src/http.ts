@@ -260,18 +260,18 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
     // Populates security-related headers.
 
     if ($env.isC10n()) {
-        for (const [name, value] of Object.entries(c10nSecurityHeaders)) securityHeaders[name] = value;
+        for (const [name, value] of Object.entries(c10nSecurityHeaders())) securityHeaders[name] = value;
     } else {
-        for (const [name, value] of Object.entries(defaultSecurityHeaders)) securityHeaders[name] = value;
+        for (const [name, value] of Object.entries(defaultSecurityHeaders())) securityHeaders[name] = value;
     }
     // Populates CORs-related headers.
 
     if (cfg.enableCORs) {
         corsHeaders['access-control-max-age'] = '7200';
         corsHeaders['access-control-allow-credentials'] = 'true';
-        corsHeaders['access-control-allow-methods'] = supportedRequestMethods.join(', ');
-        corsHeaders['access-control-allow-headers'] = requestHeaderNames.join(', ');
-        corsHeaders['access-control-expose-headers'] = responseHeaderNames.join(', ');
+        corsHeaders['access-control-allow-methods'] = supportedRequestMethods().join(', ');
+        corsHeaders['access-control-allow-headers'] = requestHeaderNames().join(', ');
+        corsHeaders['access-control-expose-headers'] = responseHeaderNames().join(', ');
         corsHeaders['timing-allow-origin'] = request.headers.has('origin') ? request.headers.get('origin') || '' : '*';
         corsHeaders['access-control-allow-origin'] = request.headers.has('origin') ? request.headers.get('origin') || '' : '*';
     }
@@ -293,7 +293,7 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
  * @returns        HTTP response status text.
  */
 export const responseStatusText = (status: string | number): string => {
-    return responseStatusCodes[String(status)] || '';
+    return responseStatusCodes()[String(status)] || '';
 };
 
 /**
@@ -304,7 +304,7 @@ export const responseStatusText = (status: string | number): string => {
  * @returns         True if request has a supported method.
  */
 export const requestHasSupportedMethod = (request: $type.Request): boolean => {
-    return supportedRequestMethods.includes(request.method);
+    return supportedRequestMethods().includes(request.method);
 };
 
 /**
@@ -571,13 +571,17 @@ export const extractHeaders = (headers: $type.Headers | { [x: string]: string },
 
 /**
  * Supported HTTP request methods.
+ *
+ * @returns An array of supported HTTP request methods (uppercase).
  */
-export const supportedRequestMethods: string[] = ['OPTIONS', 'HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+export const supportedRequestMethods = (): string[] => ['OPTIONS', 'HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 /**
  * HTTP request header names.
+ *
+ * @returns An array of request header names (lowercase).
  */
-export const requestHeaderNames: string[] = [
+export const requestHeaderNames = (): string[] => [
     'a-im',
     'accept-charset',
     'accept-datetime',
@@ -698,8 +702,10 @@ export const requestHeaderNames: string[] = [
 
 /**
  * HTTP response header names.
+ *
+ * @returns An array of response header names (lowercase).
  */
-export const responseHeaderNames: string[] = [
+export const responseHeaderNames = (): string[] => [
     'accept-ch',
     'accept-patch',
     'accept-post',
@@ -817,108 +823,123 @@ export const responseHeaderNames: string[] = [
 
 /**
  * HTTP response status codes.
+ *
+ * @returns Object with status codes as props.
  */
-export const responseStatusCodes: { [x: string]: string } = {
-    '100': 'Continue',
-    '101': 'Switching Protocols',
-    '102': 'Processing',
-    '103': 'Early Hints',
+export const responseStatusCodes = (): { [x: string]: string } => {
+    return {
+        '100': 'Continue',
+        '101': 'Switching Protocols',
+        '102': 'Processing',
+        '103': 'Early Hints',
 
-    '200': 'OK',
-    '201': 'Created',
-    '202': 'Accepted',
-    '203': 'Non-Authoritative Information',
-    '204': 'No Content',
-    '205': 'Reset Content',
-    '206': 'Partial Content',
-    '207': 'Multi-Status',
-    '226': 'IM Used',
+        '200': 'OK',
+        '201': 'Created',
+        '202': 'Accepted',
+        '203': 'Non-Authoritative Information',
+        '204': 'No Content',
+        '205': 'Reset Content',
+        '206': 'Partial Content',
+        '207': 'Multi-Status',
+        '226': 'IM Used',
 
-    '300': 'Multiple Choices',
-    '301': 'Moved Permanently',
-    '302': 'Found',
-    '303': 'See Other',
-    '304': 'Not Modified',
-    '305': 'Use Proxy',
-    '306': 'Reserved',
-    '307': 'Temporary Redirect',
-    '308': 'Permanent Redirect',
+        '300': 'Multiple Choices',
+        '301': 'Moved Permanently',
+        '302': 'Found',
+        '303': 'See Other',
+        '304': 'Not Modified',
+        '305': 'Use Proxy',
+        '306': 'Reserved',
+        '307': 'Temporary Redirect',
+        '308': 'Permanent Redirect',
 
-    '400': 'Bad Request',
-    '401': 'Unauthorized',
-    '402': 'Payment Required',
-    '403': 'Forbidden',
-    '404': 'Not Found',
-    '405': 'Method Not Allowed',
-    '406': 'Not Acceptable',
-    '407': 'Proxy Authentication Required',
-    '408': 'Request Timeout',
-    '409': 'Conflict',
-    '410': 'Gone',
-    '411': 'Length Required',
-    '412': 'Precondition Failed',
-    '413': 'Request Entity Too Large',
-    '414': 'Request-URI Too Long',
-    '415': 'Unsupported Media Type',
-    '416': 'Requested Range Not Satisfiable',
-    '417': 'Expectation Failed',
-    '418': "I'm a teapot",
-    '421': 'Misdirected Request',
-    '422': 'Unprocessable Entity',
-    '423': 'Locked',
-    '424': 'Failed Dependency',
-    '426': 'Upgrade Required',
-    '428': 'Precondition Required',
-    '429': 'Too Many Requests',
-    '431': 'Request Header Fields Too Large',
-    '451': 'Unavailable For Legal Reasons',
+        '400': 'Bad Request',
+        '401': 'Unauthorized',
+        '402': 'Payment Required',
+        '403': 'Forbidden',
+        '404': 'Not Found',
+        '405': 'Method Not Allowed',
+        '406': 'Not Acceptable',
+        '407': 'Proxy Authentication Required',
+        '408': 'Request Timeout',
+        '409': 'Conflict',
+        '410': 'Gone',
+        '411': 'Length Required',
+        '412': 'Precondition Failed',
+        '413': 'Request Entity Too Large',
+        '414': 'Request-URI Too Long',
+        '415': 'Unsupported Media Type',
+        '416': 'Requested Range Not Satisfiable',
+        '417': 'Expectation Failed',
+        '418': "I'm a teapot",
+        '421': 'Misdirected Request',
+        '422': 'Unprocessable Entity',
+        '423': 'Locked',
+        '424': 'Failed Dependency',
+        '426': 'Upgrade Required',
+        '428': 'Precondition Required',
+        '429': 'Too Many Requests',
+        '431': 'Request Header Fields Too Large',
+        '451': 'Unavailable For Legal Reasons',
 
-    '500': 'Internal Server Error',
-    '501': 'Not Implemented',
-    '502': 'Bad Gateway',
-    '503': 'Service Unavailable',
-    '504': 'Gateway Timeout',
-    '505': 'HTTP Version Not Supported',
-    '506': 'Variant Also Negotiates',
-    '507': 'Insufficient Storage',
-    '510': 'Not Extended',
-    '511': 'Network Authentication Required',
+        '500': 'Internal Server Error',
+        '501': 'Not Implemented',
+        '502': 'Bad Gateway',
+        '503': 'Service Unavailable',
+        '504': 'Gateway Timeout',
+        '505': 'HTTP Version Not Supported',
+        '506': 'Variant Also Negotiates',
+        '507': 'Insufficient Storage',
+        '510': 'Not Extended',
+        '511': 'Network Authentication Required',
+    };
 };
 
 /**
  * Default security headers.
+ *
+ * @returns Object with header names as props.
  */
-export const defaultSecurityHeaders: { [x: string]: string } = {
-    'x-frame-options': 'SAMEORIGIN',
-    'x-content-type-options': 'nosniff',
-    'cross-origin-embedder-policy': 'unsafe-none',
-    'cross-origin-opener-policy': 'same-origin',
-    'cross-origin-resource-policy': 'same-origin',
-    'referrer-policy': 'strict-origin-when-cross-origin',
-    'content-security-policy':
-        "base-uri 'self'; frame-ancestors 'self'; default-src * data: blob: mediastream: 'report-sample'; style-src * data: blob: 'unsafe-inline' 'report-sample';" +
-        " object-src 'none'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample' *.clevercanyon.com *.hop.gdn *.cloudflare.com *.stripe.com" +
-        ' *.cloudflareinsights.com *.google.com *.googletagmanager.com *.google-analytics.com *.googleadservices.com googleads.g.doubleclick.net *.cookie-script.com;',
-    'permissions-policy':
-        'accelerometer=(self), autoplay=(self), camera=(self), clipboard-read=(self), clipboard-write=(self), cross-origin-isolated=(self), display-capture=(self),' +
-        ' encrypted-media=(self), fullscreen=(self), gamepad=(self), geolocation=(self), gyroscope=(self), hid=(self), idle-detection=(self), interest-cohort=(self),' +
-        ' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), payment=(self "https://js.stripe.com" "https://pay.google.com"), picture-in-picture=(self),' +
-        ' publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), sync-xhr=(self), usb=(self), window-placement=(self), xr-spatial-tracking=(self)',
+export const defaultSecurityHeaders = (): { [x: string]: string } => {
+    return {
+        'x-frame-options': 'SAMEORIGIN',
+        'x-content-type-options': 'nosniff',
+        'cross-origin-embedder-policy': 'unsafe-none',
+        'cross-origin-opener-policy': 'same-origin',
+        'cross-origin-resource-policy': 'same-origin',
+        'referrer-policy': 'strict-origin-when-cross-origin',
+        'content-security-policy':
+            "base-uri 'self'; frame-ancestors 'self'; default-src * data: blob: mediastream: 'report-sample'; style-src * data: blob: 'unsafe-inline' 'report-sample';" +
+            " object-src 'none'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample' :: 0.0.0.0 ::1 127.0.0.1 *.local *.localhost *.mac *.loc *.dkr *.vm" +
+            ' *.clevercanyon.com *.hop.gdn *.cloudflare.com *.stripe.com *.cloudflareinsights.com *.google.com *.googletagmanager.com *.google-analytics.com' +
+            ' *.googleadservices.com googleads.g.doubleclick.net *.cookie-script.com;',
+        'permissions-policy':
+            'accelerometer=(self), autoplay=(self), camera=(self), clipboard-read=(self), clipboard-write=(self), cross-origin-isolated=(self), display-capture=(self),' +
+            ' encrypted-media=(self), fullscreen=(self), gamepad=(self), geolocation=(self), gyroscope=(self), hid=(self), idle-detection=(self), interest-cohort=(self),' +
+            ' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), payment=(self "https://js.stripe.com" "https://pay.google.com"), picture-in-picture=(self),' +
+            ' publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), sync-xhr=(self), usb=(self), window-placement=(self), xr-spatial-tracking=(self)',
+    };
 };
 
 /**
  * C10n security headers.
+ *
+ * @returns Object with header names as props.
  */
-export const c10nSecurityHeaders: { [x: string]: string } = {
-    ...defaultSecurityHeaders,
+export const c10nSecurityHeaders = (): { [x: string]: string } => {
+    return {
+        ...defaultSecurityHeaders(),
 
-    'strict-transport-security': 'max-age=15552000; includeSubDomains; preload',
-    'content-security-policy':
-        'report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp; upgrade-insecure-requests; ' + defaultSecurityHeaders['content-security-policy'],
+        'strict-transport-security': 'max-age=15552000; includeSubDomains; preload',
+        'content-security-policy':
+            'report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp; upgrade-insecure-requests;' +
+            ' ' + // Ahead of our default CSP.
+            defaultSecurityHeaders()['content-security-policy'],
 
-    'nel': '{ "report_to": "default", "max_age": 31536000, "include_subdomains": true }',
-    'expect-ct': 'max-age=604800, report-uri="https://clevercanyon.report-uri.com/r/d/ct/reportOnly"',
-    'report-to':
-        '{ "group": "default", "max_age": 31536000, "endpoints": [ { "url": "https://clevercanyon.report-uri.com/a/d/g" } ], "include_subdomains": true },' +
-        ' { "group": "csp", "max_age": 31536000, "endpoints": [ { "url": "https://clevercanyon.report-uri.com/r/d/csp/enforce" } ], "include_subdomains": true }',
+        'nel': '{ "report_to": "default", "max_age": 31536000, "include_subdomains": true }',
+        'expect-ct': 'max-age=604800, report-uri="https://clevercanyon.report-uri.com/r/d/ct/reportOnly"',
+        'report-to':
+            '{ "group": "default", "max_age": 31536000, "endpoints": [ { "url": "https://clevercanyon.report-uri.com/a/d/g" } ], "include_subdomains": true },' +
+            ' { "group": "csp", "max_age": 31536000, "endpoints": [ { "url": "https://clevercanyon.report-uri.com/r/d/csp/enforce" } ], "include_subdomains": true }',
+    };
 };

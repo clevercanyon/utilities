@@ -2,16 +2,14 @@
  * Preact component.
  */
 
-import * as preact from 'preact';
-import { $env, $obj, $preact, type $type } from '../../index.ts';
+import { createContext } from 'preact';
+import { $env, $obj, $preact, $url, type $type } from '../../index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode, type State as DataState } from './data.tsx';
 
 /**
  * Defines types.
  */
-export type State = {
-    classes?: string | string[];
-
+export type State = Partial<$preact.JSX.IntrinsicElements['head']> & {
     charset?: string;
     viewport?: string;
 
@@ -36,7 +34,8 @@ export type State = {
 
     mainStyleBundle?: $type.URL | string;
     mainScriptBundle?: $type.URL | string;
-};
+} & { [x in $preact.ClassPropVariants]?: $preact.Classes };
+
 export type PartialState = Partial<State>;
 export type Props = $preact.Props<PartialState>;
 
@@ -47,8 +46,11 @@ export type ContextProps = {
 
 /**
  * Defines context.
+ *
+ * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
+ * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
  */
-const Context = preact.createContext({} as ContextProps);
+const Context = createContext({} as ContextProps);
 
 /**
  * Produces initial state.
@@ -59,7 +61,7 @@ const Context = preact.createContext({} as ContextProps);
  * @returns           Initialized state.
  */
 const initialState = (dataState: DataState, props: Props = {}): State => {
-    return $obj.mergeDeep(dataState.head, $preact.cleanProps(props)) as unknown as State;
+    return $obj.mergeDeep(dataState.head, $preact.omitProps(props, ['children'])) as unknown as State;
 };
 
 /**
@@ -92,9 +94,6 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
     const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(dataState, props));
 
     const headState = $preact.useMemo((): State => {
-        const appBaseURL = $env.get('APP_BASE_URL', { type: 'string', default: '' });
-        const appBasePath = $env.get('APP_BASE_PATH', { type: 'string', default: '' });
-
         let title = state.title || locState.url.hostname;
         const defaultDescription = 'Take the tiger by the tail.';
 
@@ -107,10 +106,10 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
         let defaultMainStyleBundle, defaultMainScriptBundle; // Initialize.
 
         if (!state.mainStyleBundle && '' !== state.mainStyleBundle && $env.isLocalWeb()) {
-            defaultMainStyleBundle = appBasePath + '/index.scss';
+            defaultMainStyleBundle = $url.pathFromAppBase('/index.scss');
         }
         if (!state.mainScriptBundle && '' !== state.mainScriptBundle && $env.isLocalWeb()) {
-            defaultMainScriptBundle = appBasePath + '/index.tsx';
+            defaultMainScriptBundle = $url.pathFromAppBase('/index.tsx');
         }
         return {
             ...state,
@@ -122,15 +121,15 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
             description: state.description || defaultDescription,
             canonical: state.canonical || locState.canonicalURL,
 
-            pngIcon: state.pngIcon || appBasePath + '/assets/icon.png',
-            svgIcon: state.svgIcon || appBasePath + '/assets/icon.svg',
+            pngIcon: state.pngIcon || $url.fromAppBase('/assets/icon.png'),
+            svgIcon: state.svgIcon || $url.fromAppBase('/assets/icon.svg'),
 
             ogSiteName: state.ogSiteName || state.siteName || locState.url.hostname,
             ogType: state.ogType || 'website',
             ogTitle: state.ogTitle || title,
             ogDescription: state.ogDescription || state.description || defaultDescription,
             ogURL: state.ogURL || state.canonical || locState.canonicalURL,
-            ogImage: state.ogImage || appBaseURL + '/assets/og-image.png',
+            ogImage: state.ogImage || $url.fromAppBase('/assets/og-image.png'),
 
             mainStyleBundle: state.mainStyleBundle || defaultMainStyleBundle,
             mainScriptBundle: state.mainScriptBundle || defaultMainScriptBundle,
@@ -139,7 +138,40 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
 
     return (
         <Context.Provider value={{ state: headState, updateState }}>
-            <head class={$preact.classes(headState.classes)}>
+            <head
+                {...{
+                    ...$preact.omitProps(headState, [
+                        'class',
+                        'children',
+
+                        'charset',
+                        'viewport',
+
+                        'robots',
+                        'canonical',
+                        'siteName',
+
+                        'title',
+                        'titleSuffix',
+                        'description',
+                        'author',
+
+                        'pngIcon',
+                        'svgIcon',
+
+                        'ogSiteName',
+                        'ogType',
+                        'ogTitle',
+                        'ogDescription',
+                        'ogURL',
+                        'ogImage',
+
+                        'mainStyleBundle',
+                        'mainScriptBundle',
+                    ]),
+                    class: $preact.classes(headState),
+                }}
+            >
                 {headState.charset && <meta charSet={headState.charset} />}
                 {headState.viewport && <meta name='viewport' content={headState.viewport} />}
 
@@ -164,7 +196,9 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                     </>
                 )}
                 {headState.mainStyleBundle && <link rel='stylesheet' href={headState.mainStyleBundle.toString()} media='all' />}
-                {headState.mainScriptBundle && (!$env.isWeb() || $env.isTest()) && <script id={'data'} dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
+                {headState.mainScriptBundle && (!$env.isWeb() || $env.isTest()) && (
+                    <script id='preact-iso-data' dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>
+                )}
                 {headState.mainScriptBundle && <script type='module' src={headState.mainScriptBundle.toString()}></script>}
 
                 {props.children}

@@ -67,8 +67,8 @@ describe('$to', async () => {
     });
     test('.array()', async () => {
         expect($to.array(NaN)).toStrictEqual([NaN]);
-        expect($to.array(null)).toStrictEqual([null]);
-        expect($to.array(undefined)).toStrictEqual([undefined]);
+        expect($to.array(null)).toStrictEqual([]);
+        expect($to.array(undefined)).toStrictEqual([]);
         expect($to.array(true)).toStrictEqual([true]);
         expect($to.array(false)).toStrictEqual([false]);
         expect($to.array(0)).toStrictEqual([0]);

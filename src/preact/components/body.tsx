@@ -2,15 +2,15 @@
  * Preact component.
  */
 
-import * as preact from 'preact';
+import { createContext } from 'preact';
 import { $obj, $preact } from '../../index.ts';
 import { type State as DataState } from './data.tsx';
 
 /**
  * Defines types.
  */
-export type State = {
-    classes?: string | string[];
+export type State = Partial<$preact.JSX.IntrinsicElements['body']> & {
+    [x in $preact.ClassPropVariants]?: $preact.Classes;
 };
 export type PartialState = Partial<State>;
 export type Props = $preact.Props<PartialState>;
@@ -22,8 +22,11 @@ export type ContextProps = Readonly<{
 
 /**
  * Defines context.
+ *
+ * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
+ * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
  */
-const Context = preact.createContext({} as ContextProps);
+const Context = createContext({} as ContextProps);
 
 /**
  * Produces initial state.
@@ -34,7 +37,7 @@ const Context = preact.createContext({} as ContextProps);
  * @returns           Initialized state.
  */
 const initialState = (dataState: DataState, props: Props = {}): State => {
-    return $obj.mergeDeep(dataState.body, $preact.cleanProps(props)) as unknown as State;
+    return $obj.mergeDeep(dataState.body, $preact.omitProps(props, ['children'])) as unknown as State;
 };
 
 /**
@@ -65,7 +68,14 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
 
     return (
         <Context.Provider value={{ state, updateState }}>
-            <body class={$preact.classes(state.classes)}>{props.children}</body>
+            <body
+                {...{
+                    ...$preact.omitProps(props, ['class', 'children']),
+                    class: $preact.classes(state),
+                }}
+            >
+                {props.children}
+            </body>
         </Context.Provider>
     );
 }

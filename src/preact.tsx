@@ -69,9 +69,9 @@ export type FnComponent<P extends Props = Props> = preact.FunctionComponent<P>;
 export type AsyncFnComponent<P extends Props = Props> = (...args: Parameters<FnComponent<P>>) => Promise<ReturnType<FnComponent<P>>>;
 
 export type VNode<P extends Props = Props> = preact.VNode<P>;
-export type Classes = TypesOfClasses | (TypesOfClasses | Classes)[];
-type TypesOfClasses = undefined | null | boolean | string | $type.Object<{ classes?: Classes }> | { [x: string]: boolean };
-export type Props<P extends object = $type.Object> = preact.RenderableProps<Readonly<P & { classes?: Classes }>>;
+export type ClassPropVariants = (typeof classPropVariants)[number];
+export type Classes = TypesOfClasses | (TypesOfClasses | Classes)[] | Set<TypesOfClasses | Classes>;
+export type Props<P extends object = $type.Object> = preact.RenderableProps<Readonly<P & { [x in ClassPropVariants]?: Classes }>>;
 
 export type { Props as DataProps } from './preact/components/data.tsx';
 export type { Props as HTMLProps } from './preact/components/html.tsx';
@@ -79,37 +79,75 @@ export type { Props as HeadProps } from './preact/components/head.tsx';
 export type { Props as BodyProps } from './preact/components/body.tsx';
 export type { Props as RouterProps } from './preact/components/router.tsx';
 
+export type { JSX } from 'preact';
 export type { Dispatch } from 'preact/hooks';
 
-/**
- * Defines dirty props.
- */
-const dirtyProps = ['key', 'jsx', 'ref', 'children', 'dangerouslySetInnerHTML'];
+export type CleanPropOptions = { undefinedValues?: boolean };
+export type OmitPropOptions = { undefinedValues?: boolean };
+
+type TypesOfClasses = // Internal class prop variant types.
+    // These types can be nested into arrays|sets infinitely deep.
+    | string
+    | undefined
+    | Map<string, boolean>
+    | $type.Object<{ [x in ClassPropVariants]?: Classes }>
+    // Signal-like is supported because JSX supports it on the `class` attribute.
+    | preact.JSX.SignalLike<string | undefined>; // Exactly the same as JSX internals.
 
 /**
- * Cleans VNode props.
+ * Defines `class` component prop variants.
  *
- * @param   props           Props that will be cleaned up.
- * @param   otherDirtyProps Optional. Any other dirty props to clean up.
+ * Never access a class variant prop literally, but rather, {@see classes()} export in this file. We accept, for a
+ * variety of reasons, multiple prop names with CSS classes in them, and in differing formats. The {@see classes()}
+ * utility will work out the variants and assemble things for you. Unless you want bugs, there is no other option.
  *
- * @returns                 A clone of {props} stripped of all dirty props.
- *
- * @note This also removes props with undefined values.
+ * @note This must remain a constant, not a function. It’s used for DRY types above.
  */
-export const cleanProps = <Type extends Props, Key extends keyof Type>(props: Type, otherDirtyProps?: Key[]): Omit<Type, Key> => {
-    return $obj.omit(props, dirtyProps.concat((otherDirtyProps || []) as string[]) as Key[], { undefinedValues: true });
+export const classPropVariants = ['class', 'classes', 'className', 'classNames'] as const;
+
+/**
+ * Omits specific component props.
+ *
+ * @param   props       Props that will be worked on here.
+ * @param   propsToOmit Specific prop keys to omit from `props`.
+ * @param   options     Options (all optional); {@see OmitPropOptions}.
+ *
+ * @returns             A clone of `props` stripped of all `propsToOmit` props.
+ *
+ * @note By default, this also removes props with undefined values.
+ * @note If `propsToOmit` includes a class prop variant, then all class prop variants are omitted.
+ */
+export const omitProps = <Type extends Props, Key extends keyof Type>(props: Type, propsToOmit: Key[], options?: OmitPropOptions): Omit<Type, Key> => {
+    const opts = $obj.defaults({}, options || {}, { undefinedValues: true }) as Required<OmitPropOptions>;
+
+    if (propsToOmit.some((v) => classPropVariants.includes(v as ClassPropVariants))) {
+        propsToOmit = [...new Set(propsToOmit.concat(classPropVariants as unknown as Key[]))];
+    }
+    return $obj.omit(props, propsToOmit, { undefinedValues: opts.undefinedValues });
 };
 
 /**
  * Formats component classes.
  *
+ * Never access a class variant prop literally, but rather, {@see classes()} export in this file. We accept, for a
+ * variety of reasons, multiple prop names with CSS classes in them, and in differing formats. The {@see classes()}
+ * utility will work out the variants and assemble things for you. Unless you want bugs, there is no other option.
+ *
+ * Never feed {@see classes()} a class prop variant literally. Instead, give it props or state that it can search
+ * within. The rule is the same, never access a class variant prop literally, and that goes also when using this
+ * utility. Pass it all of the props, or your entire state. Or feed it any other acceptible values.
+ *
  * @param   ...variadicArgs {@see Classes[]}.
  *
  *   - Strings, however deep, are split on whitespace.
- *   - Arrays are traversed recursively, looking for strings.
- *   - Objects are tested for a `classes` prop with type {@see Props['classes']}.
- *   - Objects without a `classes` prop are assumed to have class string keys w/ `true|false` values. `true` explicitly
- *       required to enable; e.g., `{ abc: true, 'd e f': true, g: 1, h: 0, i: false, jkl: true }` = `abc d e f jkl`.
+ *   - Arrays and sets are traversed recursively. We look for classes within.
+ *   - Plain objects are interpreted as component props or component state, or something else. In any plain object we look
+ *       for class prop variants within and recurse into those props looking for classes; {@see ClassPropVariants}.
+ *   - Map objects are interpreted as class name maps with boolean values. A `true` value is required to enable a string
+ *       key; e.g., `new Map(Object.entries({ abc: true, 'd e f': true, g: 1, h: 0, i: false }))` = `abc d e f`.
+ *   - Any other object type that has a string `.value` property is interpreted as a signal-like value. Signal-like values
+ *       are supported only because JSX supports them on the native `class` attribute across all HTML elements.
+ *   - Any other value, including any other types of objects, are ignored entirely.
  *
  *
  * @returns                 Space-separated classes extracted from variadic args. If empty, `undefined` is returned.
@@ -118,29 +156,38 @@ export const cleanProps = <Type extends Props, Key extends keyof Type>(props: Ty
  * @see https://www.npmjs.com/package/clsx
  * @see https://www.npmjs.com/package/classnames
  */
-export const classes = (...variadicClasses: Classes[]): undefined | string => {
+export const classes = (...variadicArgs: Classes[]): undefined | string => {
+    const sepRegExp = /\s+/u; // Initialize.
     let flat: unknown[] = []; // Initialize.
 
-    for (const args of variadicClasses) {
+    for (const args of variadicArgs) {
         for (const arg of $to.array(args)) {
+            //
             if ($is.string(arg)) {
-                flat = flat.concat(arg.split(/\s+/u));
+                flat = flat.concat(arg.split(sepRegExp));
                 //
-            } else if ($is.array(arg) /* recursive */) {
-                flat = flat.concat((classes(arg) || '').split(/\s+/u));
+            } else if ($is.array(arg) || $is.set(arg)) {
+                // Important to spread sets here, or we loop infinintely.
+                flat = flat.concat((classes([...arg]) || '').split(sepRegExp));
                 //
-            } else if ($is.object(arg)) {
-                if (Object.hasOwn(arg, 'classes')) {
-                    flat = flat.concat($to.array(arg.classes));
-                } else {
-                    for (const [classes, enable] of Object.entries(arg)) {
-                        if (true === enable) flat = flat.concat(classes.split(/\s+/u));
-                    }
+            } else if ($is.plainObject(arg)) {
+                for (const prop of classPropVariants) {
+                    if (!Object.hasOwn(arg, prop)) continue;
+                    flat = flat.concat((classes(arg[prop]) || '').split(sepRegExp));
                 }
+            } else if ($is.map(arg)) {
+                for (const [classNames, enable] of arg) {
+                    if (true !== enable || !$is.string(classNames)) continue;
+                    flat = flat.concat(classNames.split(sepRegExp));
+                }
+            } else if ($is.object(arg) && Object.hasOwn(arg, 'value')) {
+                // Important to access `.value` just once, as it may trigger side-effects.
+                const classNames = (arg as preact.JSX.SignalLike<string | undefined>).value;
+                if ($is.string(classNames)) flat = flat.concat(classNames.split(sepRegExp));
             }
         }
-    } // We only want unique, non-empty, string CSS class names.
-    flat = [...new Set(flat.filter((c) => $is.string(c)).filter((c) => $is.notEmpty(c)))];
+    } // We only want unique, non-empty class names.
+    flat = [...new Set(flat.filter((c) => $is.notEmpty(c)))];
 
-    return !flat.length ? undefined : flat.join(' ');
+    return flat.length ? flat.join(' ') : undefined;
 };

@@ -11,7 +11,7 @@ import { default as Data, type Props as DataProps } from './data.tsx';
 /**
  * Defines types.
  */
-export type Props = Omit<$preact.Props<LocationProps & DataProps & ErrorBoundaryProps & ISORouterProps>, 'classes'>;
+export type Props = Omit<$preact.Props<LocationProps & DataProps & ErrorBoundaryProps & ISORouterProps>, $preact.ClassPropVariants>;
 
 /**
  * Renders component.
@@ -48,7 +48,7 @@ export default function Router(props: Props = {}): $preact.VNode<Props> {
  * @returns                Preact component that will be lazy loaded by ISO prerenderer.
  */
 export const lazyComponent = <P extends $preact.Props = $preact.Props>(asyncComponent: $preact.AsyncFnComponent<P>): $preact.FnComponent<P> => {
-    const higherOrder = { props: {} as P }; // Contains async component props, set by reference.
+    const higherOrder = { props: {} as P }; // Contains async component props, which we access by reference.
 
     const ComponentRoute = lazyRoute(async (): Promise<$preact.FnComponent<RouteContextAsProps>> => {
         const renderedAsyncComponentVNode = await asyncComponent(higherOrder.props);

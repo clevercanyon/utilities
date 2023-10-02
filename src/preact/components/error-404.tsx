@@ -1,5 +1,5 @@
 /**
- * Preact route component.
+ * Preact component.
  */
 
 import { $env, $preact } from '../../index.ts';
@@ -27,7 +27,7 @@ export default function Error404(props: Props): $preact.VNode<Props> {
         updateHTTPState({ status: 404 }); // Record 404 error.
     }
     return (
-        <HTML>
+        <HTML classes={$preact.classes(props)}>
             <Head
                 robots={'noindex, nofollow'}
                 title={'404 Error: Not Found'}
@@ -36,7 +36,7 @@ export default function Error404(props: Props): $preact.VNode<Props> {
             >
                 <link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
             </Head>
-            <Body classes={$preact.classes(props.classes)}>
+            <Body>
                 <BodyContents />
             </Body>
         </HTML>
@@ -55,7 +55,7 @@ export default function Error404(props: Props): $preact.VNode<Props> {
  */
 export const StandAlone = (props: StandAloneProps = {}): $preact.VNode<StandAloneProps> => {
     return (
-        <html lang={'en'}>
+        <html class={$preact.classes(props)} lang={'en'}>
             <head>
                 <meta charSet={'utf-8'} />
                 <meta name='robots' content={'noindex, nofollow'} />
@@ -66,7 +66,7 @@ export const StandAlone = (props: StandAloneProps = {}): $preact.VNode<StandAlon
 
                 <link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
             </head>
-            <body class={$preact.classes(props.classes)}>
+            <body>
                 <BodyContents />
             </body>
         </html>
@@ -89,18 +89,16 @@ const BodyContents = (): $preact.VNode => {
                     <span class='error-message'>{'Not Found'}</span>
                 </h1>
                 <p class='output'>{'The resource you are looking for could not be found.'}</p>
-                <p class='output'>
-                    {'Please '}
-                    {/* eslint-disable */}
-                    {/* @ts-ignore ... onClick intentionally stringified here. */}
-                    <a href='#' onClick={'event.preventDefault(); event.stopImmediatePropagation(); history.back();'}>
-                        {'go back'}
-                    </a>
-                    {/* eslint-enable */}
-                    {' or '}
-                    <a href='/'>{'return to the front page'}</a>
-                    {'.'}
-                </p>
+                <p
+                    class='output'
+                    dangerouslySetInnerHTML={{
+                        __html: `
+                            Please
+                            <a href="#" onClick="event.preventDefault(); event.stopImmediatePropagation(); history.back();">go back</a>
+                            or <a href="/">return to the front page</a>.
+                        `,
+                    }}
+                />
                 <p class='output'>{'Good luck.'}</p>
             </div>
         </>

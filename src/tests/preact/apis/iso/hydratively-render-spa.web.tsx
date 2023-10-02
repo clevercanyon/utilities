@@ -3,11 +3,11 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { $env, $json, $preact } from '../../../../index.ts';
+import { $env, $json, $preact, $url } from '../../../../index.ts';
 import { Body, HTML, Head, Route, Router } from '../../../../preact/components.tsx';
 import type { RouteContextAsProps, RouterProps } from '../../../../preact/components/router.tsx';
 
-const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '' });
+const __origAppBaseURL__ = $url.currentAppBase(); // App’s base URL, as string.
 
 describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     beforeAll(async () => {
@@ -81,7 +81,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
 
         // Neither `document.write` or `(outer|inner)HTML` run embedded script tags, for security reasons.
         // So that's why we're explicitly extracting and running script code using a `new Function()` below.
-        const dataScriptCode = indexHTML.match(/<script id="data">([^<>]+)<\/script>/iu)?.[1] || '';
+        const dataScriptCode = indexHTML.match(/<script id="preact-iso-data">([^<>]+)<\/script>/iu)?.[1] || '';
         // eslint-disable-next-line @typescript-eslint/no-implied-eval -- OK when testing.
         if (dataScriptCode) new Function(dataScriptCode)(); // Execute script code.
 
@@ -108,7 +108,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         const domHydratedIndexHeadMarkup = document.querySelector('head')?.outerHTML || '';
         const domHydratedIndexBodyMarkup = document.querySelector('body')?.outerHTML || '';
 
-        expect(domHydratedIndexMarkup).toContain('<html lang="en" class="preact">');
+        expect(domHydratedIndexMarkup).toContain('<html class="preact" lang="en">');
         expect(domHydratedIndexHeadMarkup).toContain('<title>index</title>');
         expect(domHydratedIndexHeadMarkup).toContain('<link rel="stylesheet" href="/style.css" media="all">');
         expect(domHydratedIndexHeadMarkup).toContain('<script type="module" src="/script.js"></script>');

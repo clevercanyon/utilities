@@ -3,7 +3,7 @@
  */
 
 import { hydrate, prerender } from '@clevercanyon/preact-iso.fork';
-import { $app, $class, $env, $is, $obj, $path, $preact, $str, type $type } from '../../../index.ts';
+import { $app, $class, $env, $is, $obj, $path, $preact, $str, $url, type $type } from '../../../index.ts';
 import { type HTTPState } from '../../../preact/components/data.tsx';
 import { type Props as RouterProps } from '../../../preact/components/router.tsx';
 
@@ -68,8 +68,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
         throw $env.errServerSideOnly;
     }
     const { request, appManifest, App, props = {} } = options;
-    const { url } = request; // Extracts absolute URL from request.
-    const appBasePath = $env.get('APP_BASE_PATH', { type: 'string', default: '' });
+    const { url } = request; // Extracts absolute request URL.
 
     let appManifestStyleBundleSubpath: string = ''; // Style bundle.
     let appManifestScriptBundleSubpath: string = ''; // Script bundle.
@@ -85,8 +84,8 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
     if (!appManifestStyleBundleSubpath) throw new Error('Missing `appManifest[index.html].css[0]`.');
     if (!appManifestScriptBundleSubpath) throw new Error('Missing `appManifest[index.html].file`.');
 
-    const mainStyleBundle = appBasePath + '/' + appManifestStyleBundleSubpath;
-    const mainScriptBundle = appBasePath + '/' + appManifestScriptBundleSubpath;
+    const mainStyleBundle = $url.pathFromAppBase('/' + appManifestStyleBundleSubpath);
+    const mainScriptBundle = $url.pathFromAppBase('/' + appManifestScriptBundleSubpath);
 
     const fetcher = replaceNativeFetch();
     const prerenderedData = await prerender(App, {
@@ -101,7 +100,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
 
     const Error404 = (await import('../../../preact/components/error-404.tsx')).StandAlone;
     const { state: httpState } = !prerenderedData.html ? { state: { status: 404 } } : $preact.useHTTP();
-    const html = !prerenderedData.html ? $preact.ssr.renderToString(<Error404 classes={'default-prerender'} />) : prerenderedData.html;
+    const html = !prerenderedData.html ? $preact.ssr.renderToString(<Error404 classes='default-prerender' />) : prerenderedData.html;
     const linkURLs = [...prerenderedData.links]; // Converts link URLs into array.
 
     return { httpState, docType: '<!doctype html>', html, linkURLs };

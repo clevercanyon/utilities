@@ -2,7 +2,7 @@
  * Preact component.
  */
 
-import * as preact from 'preact';
+import { createContext } from 'preact';
 import { $app, $env, $http, $json, $obj, $obp, $preact, $str } from '../../index.ts';
 import { type State as BodyState, type PartialState as PartialBodyState } from './body.tsx';
 import { type State as HeadState, type PartialState as PartialHeadState } from './head.tsx';
@@ -30,8 +30,8 @@ export type HTTPState = Partial<Omit<$http.ResponseConfig, 'body'>> & {
 };
 export type HTTPPartialState = Partial<HTTPState>;
 
-export type Props = Omit<$preact.Props<PartialState>, 'classes'>;
-export type GlobalProps = Partial<Props & { http?: HTTPPartialState }>;
+export type Props = Omit<$preact.Props<PartialState>, $preact.ClassPropVariants>;
+export type GlobalProps = Partial<Omit<Props, 'children'> & { http?: HTTPPartialState }>;
 
 export type ContextProps = Readonly<{
     state: State;
@@ -49,8 +49,11 @@ let globalObp = ''; // Initialize.
 
 /**
  * Defines data context.
+ *
+ * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
+ * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
  */
-const Context = preact.createContext({} as ContextProps);
+const Context = createContext({} as ContextProps);
 
 /**
  * Produces initial state.
@@ -70,8 +73,8 @@ const initialState = (props: Props = {}): State => {
     }
     const state = $obj.mergeDeep(
         { html: {}, head: {}, body: {} },
-        $preact.cleanProps(globalProps, ['http']),
-        $preact.cleanProps(props), // `<Data>` props.
+        $preact.omitProps(globalProps, ['http']),
+        $preact.omitProps(props, ['children']),
         { globalObp }, // Calculated above.
     ) as unknown as State;
 
