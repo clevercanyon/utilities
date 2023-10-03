@@ -2,14 +2,15 @@
  * All Preact components.
  */
 
-export { default as Aside } from './components/aside.tsx';
-export { default as Body } from './components/body.tsx';
-export { default as Data } from './components/data.tsx';
-export { default as Error404 } from './components/error-404.tsx';
-export { default as Head } from './components/head.tsx';
-export { default as HTML } from './components/html.tsx';
-export { default as Link } from './components/link.tsx';
-export { default as Main } from './components/main.tsx';
-export { default as Midsection } from './components/midsection.tsx';
-export { Route, default as Router } from './components/router.tsx';
-export { default as Wrapper } from './components/wrapper.tsx';
+export { default as Aside, type Props as AsideProps } from './components/aside.tsx';
+export { default as Body, type Props as BodyProps } from './components/body.tsx';
+export { default as Data, type Props as DataProps } from './components/data.tsx';
+export { default as Error404, type Props as Error404Props } from './components/error-404.tsx';
+export { default as Head, type Props as HeadProps } from './components/head.tsx';
+export { default as HTML, type Props as HTMLProps } from './components/html.tsx';
+export { default as Layout, type Props as LayoutProps } from './components/layout.tsx';
+export { default as Link, type Props as LinkProps } from './components/link.tsx';
+export { default as Main, type Props as MainProps } from './components/main.tsx';
+export { default as Midsection, type Props as MidsectionProps } from './components/midsection.tsx';
+export { Route, default as Router, type LocationProps, type RouteContextAsProps, type RouteProps, type Props as RouterProps } from './components/router.tsx';
+export { default as Wrapper, type Props as WrapperProps } from './components/wrapper.tsx';

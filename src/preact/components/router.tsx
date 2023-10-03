@@ -6,7 +6,7 @@ import { ErrorBoundary, Router as ISORouter, Location, Route, lazyRoute, useRout
 import { type ErrorBoundaryProps } from '@clevercanyon/preact-iso.fork/lazy';
 import { type RouterProps as ISORouterProps, type LocationProps, type RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';
 import { $is, $preact } from '../../index.ts';
-import { default as Data, type Props as DataProps } from './data.tsx';
+import { Data, type DataProps } from '../components.tsx';
 
 /**
  * Defines types.

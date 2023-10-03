@@ -54,6 +54,7 @@ export * as ssr from './resources/preact/apis/ssr.tsx';
 export { useHTML } from './preact/components/html.tsx';
 export { useHead } from './preact/components/head.tsx';
 export { useBody } from './preact/components/body.tsx';
+export { useLayout } from './preact/components/layout.tsx';
 export { useData, useHTTP } from './preact/components/data.tsx';
 export { useLocation, useRoute } from './preact/components/router.tsx';
 
@@ -65,6 +66,9 @@ export { lazyRoute, lazyComponent } from './preact/components/router.tsx';
 /**
  * Defines types.
  */
+export type { JSX } from 'preact';
+export type { Dispatch } from 'preact/hooks';
+
 export type FnComponent<P extends Props = Props> = preact.FunctionComponent<P>;
 export type AsyncFnComponent<P extends Props = Props> = (...args: Parameters<FnComponent<P>>) => Promise<ReturnType<FnComponent<P>>>;
 
@@ -72,15 +76,6 @@ export type VNode<P extends Props = Props> = preact.VNode<P>;
 export type ClassPropVariants = (typeof classPropVariants)[number];
 export type Classes = TypesOfClasses | (TypesOfClasses | Classes)[] | Set<TypesOfClasses | Classes>;
 export type Props<P extends object = $type.Object> = preact.RenderableProps<Readonly<P & { [x in ClassPropVariants]?: Classes }>>;
-
-export type { Props as DataProps } from './preact/components/data.tsx';
-export type { Props as HTMLProps } from './preact/components/html.tsx';
-export type { Props as HeadProps } from './preact/components/head.tsx';
-export type { Props as BodyProps } from './preact/components/body.tsx';
-export type { Props as RouterProps } from './preact/components/router.tsx';
-
-export type { JSX } from 'preact';
-export type { Dispatch } from 'preact/hooks';
 
 export type CleanPropOptions = { undefinedValues?: boolean };
 export type OmitPropOptions = { undefinedValues?: boolean };

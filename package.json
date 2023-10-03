@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.300",
+    "version": "1.0.301",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -136,6 +136,11 @@
             "import": "./dist/preact/components/html.js",
             "default": "./dist/preact/components/html.js"
         },
+        "./preact/components/layout": {
+            "types": "./dist/types/preact/components/layout.d.ts",
+            "import": "./dist/preact/components/layout.js",
+            "default": "./dist/preact/components/layout.js"
+        },
         "./preact/components/link": {
             "types": "./dist/types/preact/components/link.d.ts",
             "import": "./dist/preact/components/link.js",
@@ -217,7 +222,7 @@
         "micro-memoize": "^4.1.2",
         "micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.66",
         "preact": "^10.18.1",
-        "preact-render-to-string": "^6.2.1",
+        "preact-render-to-string": "^6.2.2",
         "react": "npm:@preact/compat@^17.1.2",
         "react-dom": "npm:@preact/compat@^17.1.2",
         "semver": "^7.5.4"

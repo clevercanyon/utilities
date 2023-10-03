@@ -3,8 +3,7 @@
  */
 
 import { $json, $preact } from '../../../../../../index.ts';
-import { Body, HTML, Head } from '../../../../../../preact/components.tsx';
-import { type RouteContextAsProps } from '../../../../../../preact/components/router.tsx';
+import { Body, HTML, Head, type RouteContextAsProps } from '../../../../../../preact/components.tsx';
 
 /**
  * Defines types.

@@ -4,8 +4,8 @@
 
 import { hydrate, prerender } from '@clevercanyon/preact-iso.fork';
 import { $app, $class, $env, $is, $obj, $path, $preact, $str, $url, type $type } from '../../../index.ts';
+import { type RouterProps } from '../../../preact/components.tsx';
 import { type HTTPState } from '../../../preact/components/data.tsx';
-import { type Props as RouterProps } from '../../../preact/components/router.tsx';
 
 /**
  * Defines types.

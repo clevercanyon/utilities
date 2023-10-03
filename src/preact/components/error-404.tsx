@@ -3,8 +3,7 @@
  */
 
 import { $env, $preact } from '../../index.ts';
-import { Body, HTML, Head } from '../components.tsx';
-import { type RouteContextAsProps } from './router.tsx';
+import { Body, HTML, Head, type RouteContextAsProps } from '../components.tsx';
 
 /**
  * Defines types.

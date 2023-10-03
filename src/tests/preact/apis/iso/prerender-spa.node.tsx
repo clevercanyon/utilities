@@ -4,8 +4,7 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { $env, $json, $preact, $url } from '../../../../index.ts';
-import { Body, HTML, Head, Route, Router } from '../../../../preact/components.tsx';
-import { type RouteContextAsProps, type RouterProps } from '../../../../preact/components/router.tsx';
+import { Body, HTML, Head, Route, Router, type RouteContextAsProps, type RouterProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $url.currentAppBase(); // App’s base URL, as string.
 
