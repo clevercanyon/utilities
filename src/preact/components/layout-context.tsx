@@ -8,11 +8,14 @@ import { $preact } from '../../index.ts';
 /**
  * Props interface.
  */
-export type Props = $preact.Props<{
-    variant: string;
-}>;
+export type Props = Omit<
+    $preact.Props<{
+        variant?: string;
+    }>,
+    $preact.ClassPropVariants
+>;
 export type ContextProps = Readonly<{
-    variant: string;
+    variant: string | 'default';
 }>;
 
 /**
@@ -30,8 +33,8 @@ const Context = createContext({} as ContextProps);
  *
  * @returns       VNode / JSX element.
  */
-export default function Layout(props: Props): $preact.VNode<Props> {
-    return <Context.Provider value={{ variant: props.variant }}>{props.children}</Context.Provider>;
+export default function LayoutContext(props: Props): $preact.VNode<Props> {
+    return <Context.Provider value={{ variant: props.variant || 'default' }}>{props.children}</Context.Provider>;
 }
 
 /**

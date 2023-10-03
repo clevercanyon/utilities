@@ -54,8 +54,8 @@ export * as ssr from './resources/preact/apis/ssr.tsx';
 export { useHTML } from './preact/components/html.tsx';
 export { useHead } from './preact/components/head.tsx';
 export { useBody } from './preact/components/body.tsx';
-export { useLayout } from './preact/components/layout.tsx';
 export { useData, useHTTP } from './preact/components/data.tsx';
+export { useLayout } from './preact/components/layout-context.tsx';
 export { useLocation, useRoute } from './preact/components/router.tsx';
 
 /**
