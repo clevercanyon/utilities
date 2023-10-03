@@ -10,12 +10,12 @@ import { $class, $obj } from './index.ts';
 let rawPropsInitialized = false;
 
 /**
- * Contains a runtime cache of instances.
+ * Contains a cache of instances.
  */
 const instances: { [x: string]: $class.Brand } = {};
 
 /**
- * Raw props keyed by brand numeronym.
+ * Raw props keyed by brand slug.
  */
 const rawProps: { [x: string]: $class.BrandRawProps } = {};
 
@@ -27,59 +27,56 @@ const rawProps: { [x: string]: $class.BrandRawProps } = {};
 export const add = (props: $class.BrandRawProps): void => {
     if (!rawPropsInitialized) initializeRawProps();
 
-    if (Object.hasOwn(rawProps, props.n7m)) {
-        throw new Error('Brand exists already.');
+    if (Object.hasOwn(rawProps, props.slug)) {
+        throw new Error('Brand slug exists already.');
     }
-    rawProps[props.n7m] = props;
+    rawProps[props.slug] = props;
 };
 
 /**
  * Gets a brand instance.
  *
- * @param   q Brand numeronym, slug, or var.
+ * @param   slug Brand slug.
  *
- * @returns   Brand {@see $class.Brand}.
+ * @returns      Brand {@see $class.Brand}.
  */
-export const get = (q: string): $class.Brand => {
+export const get = (slug: string): $class.Brand => {
     if (!rawPropsInitialized) initializeRawProps();
 
-    q = '&' === q ? 'c10n' : q;
-    if (!q) throw new Error('Missing brand query.');
+    slug = '&' === slug ? 'clevercanyon' : slug;
+    // `&` is a self-referential `clevercanyon` alias.
 
-    if (!rawProps[q] /* Try searching by `slug|var`. */) {
-        for (const [n7m, props] of Object.entries(rawProps))
-            if (q === props.slug || q === props.var) {
-                if (rawProps[n7m]) return get(n7m);
-            }
-        throw new Error('Missing brand for query: `' + q + '`.');
+    if (!slug || !rawProps[slug]) {
+        throw new Error('Missing brand: `' + slug + '`.');
     }
-    const n7m = q; // n7m (numeronym).
-
-    if (instances[n7m]) {
-        return instances[n7m];
+    if (instances[slug]) {
+        return instances[slug];
     }
-    const Brand = $class.getBrand();
+    const Brand = $class.getBrand(); // Brand class.
 
-    if ('&' === rawProps[n7m].org || rawProps[n7m].org === n7m) {
-        instances[n7m] = new Brand({ ...rawProps[n7m], org: undefined });
+    if (rawProps[slug].org === slug) {
+        // In this case we have to first instantiate the `org` itself, because the `org` reference is cyclic.
+        // It is therefore handled by the class constructor, which interprets `undefined` as a self-referential `org`.
+        instances[slug] = new Brand({ ...rawProps[slug], org: undefined });
     } else {
-        instances[n7m] = new Brand({ ...rawProps[n7m], org: get(rawProps[n7m].org) });
+        // Otherwise, we simply acquire the `org` brand before instantiating.
+        instances[slug] = new Brand({ ...rawProps[slug], org: get(rawProps[slug].org) });
     }
-    return instances[n7m];
+    return instances[slug];
 };
 
 /**
- * Initializes raw props by numeronym.
+ * Initializes raw props.
  */
 const initializeRawProps = (): void => {
     if (rawPropsInitialized) return;
     rawPropsInitialized = true;
 
     /**
-     * Clever Canyon.
+     * Clever Canyon, LLC.
      */
-    rawProps.c10n = {
-        org: '&',
+    rawProps.clevercanyon = {
+        org: 'clevercanyon',
         type: 'corp',
         legalName: 'Clever Canyon, LLC',
         address: {
@@ -149,12 +146,12 @@ const initializeRawProps = (): void => {
     };
 
     /**
-     * Hop.gdn by Clever Canyon.
+     * Clever Canyon, LLC (dba: Hop.gdn).
      */
-    rawProps.h1p = $obj.mergeDeep(rawProps.c10n, {
+    rawProps.hop = $obj.mergeDeep(rawProps.clevercanyon, {
         $set: {
-            org: 'c10n',
-            type: 'dba',
+            org: 'clevercanyon',
+            type: 'dba', // Doing business as.
             legalName: 'Clever Canyon, LLC (dba: Hop.gdn)',
 
             n7m: 'h1p',

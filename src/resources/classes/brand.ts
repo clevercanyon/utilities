@@ -24,6 +24,7 @@ export type Class = $class.Utility & ClassInterface;
 
 declare class ClassInterface {
     public readonly org: Class;
+
     public readonly type: Type;
     public readonly legalName: string;
     public readonly address: {
@@ -158,7 +159,7 @@ export const getClass = (): Constructor => {
         public readonly name!: string;
 
         /**
-         * Namespace; e.g., `My_Brand`.
+         * Namespace; e.g., `MyBrand`.
          */
         public readonly namespace!: string;
 
@@ -188,17 +189,17 @@ export const getClass = (): Constructor => {
         public readonly varPrefix!: string;
 
         /**
-         * Slogan; e.g., `My Brand rocks.`.
+         * Slogan; e.g., `We rock.`.
          */
         public readonly slogan!: string;
 
         /**
-         * Description; e.g., `We’re the people behind My Brand.`.
+         * Description; e.g., `We’re the people that rock.`.
          */
         public readonly description!: string;
 
         /**
-         * Icon on light bg, with dimensions.
+         * Icon, with dimensions.
          */
         public readonly icon!: {
             readonly png: string;
@@ -208,7 +209,7 @@ export const getClass = (): Constructor => {
         };
 
         /**
-         * Logo on light bg, with dimensions.
+         * Logog, with dimensions.
          */
         public readonly logo!: {
             readonly png: string;
@@ -218,7 +219,7 @@ export const getClass = (): Constructor => {
         };
 
         /**
-         * Image for OG tags, with dimensions.
+         * OG image, with dimensions.
          */
         public readonly ogImage!: {
             readonly png: string;
@@ -228,7 +229,7 @@ export const getClass = (): Constructor => {
         };
 
         /**
-         * Any/all social profile URLs.
+         * Social profile URLs.
          */
         public readonly socialProfiles!: {
             readonly [x: string]: string;
@@ -250,8 +251,6 @@ export const getClass = (): Constructor => {
          */
         public constructor(props: C9rProps | Class) {
             super(); // Parent constructor.
-
-            // const isClone = props instanceof (Class as Constructor);
 
             for (const [key, value] of $obj.keyAndSymbolEntries(props)) {
                 this[key] = value; // Property assignments.
