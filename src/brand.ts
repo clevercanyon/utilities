@@ -131,6 +131,10 @@ const initializeRawProps = (): void => {
             width: 2400,
             height: 1260,
         },
+        policies: {
+            terms: 'https://clevercanyon.com/terms',
+            privacy: 'https://clevercanyon.com/privacy',
+        },
         socialProfiles: {
             twitter: 'https://twitter.com/clevercanyon',
             linkedin: 'https://www.linkedin.com/company/clevercanyon',

@@ -79,6 +79,10 @@ declare class ClassInterface {
         readonly width: number;
         readonly height: number;
     };
+    public readonly policies: {
+        terms: string;
+        privacy: string;
+    };
     public readonly socialProfiles: {
         readonly [x: string]: string;
     };
@@ -226,6 +230,14 @@ export const getClass = (): Constructor => {
             readonly svg: string;
             readonly width: number;
             readonly height: number;
+        };
+
+        /**
+         * Policies; terms/privacy.
+         */
+        public readonly policies!: {
+            terms: string;
+            privacy: string;
         };
 
         /**
