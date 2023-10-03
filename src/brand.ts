@@ -67,11 +67,12 @@ const rawProps = (): { readonly [x: string]: $class.BrandRawProps } => {
         slugPrefix: 'clevercanyon-',
         varPrefix: 'clevercanyon_',
 
-        aws: {
-            s3: {
-                bucket: 'clevercanyon',
-                cdnDomain: 'cdn.clevercanyon.com',
-            },
+        socialProfiles: {
+            twitter: 'https://twitter.com/clevercanyon',
+            linkedin: 'https://www.linkedin.com/company/clevercanyon',
+            facebook: 'https://www.facebook.com/clevercanyon',
+            github: 'https://github.com/clevercanyon',
+            npm: 'https://www.npmjs.com/org/clevercanyon',
         },
         google: {
             analytics: {
@@ -101,23 +102,11 @@ const rawProps = (): { readonly [x: string]: $class.BrandRawProps } => {
             width: 1060,
             height: 120,
         },
-        icon: {
-            url: 'https://cdn.clevercanyon.com/assets/brands/c10n/icon.png',
-            width: 1024,
-            height: 1024,
-        },
         slug: 'hop',
         var: 'hop',
 
         slugPrefix: 'hop-',
         varPrefix: 'hop_',
-
-        aws: {
-            s3: {
-                bucket: 'hop-gdn',
-                cdnDomain: 'cdn.hop.gdn',
-            },
-        },
     }) as unknown as $class.BrandRawProps;
 
     return props;

@@ -67,11 +67,8 @@ declare class ClassInterface {
     public readonly slugPrefix: string;
     public readonly varPrefix: string;
 
-    public readonly aws: {
-        readonly s3: {
-            readonly bucket: string;
-            readonly cdnDomain: string;
-        };
+    public readonly socialProfiles: {
+        readonly [x: string]: string;
     };
     public readonly google: {
         readonly analytics: {
@@ -208,13 +205,10 @@ export const getClass = (): Constructor => {
         public readonly varPrefix!: string;
 
         /**
-         * AWS properties.
+         * Any/all social profile URLs.
          */
-        public readonly aws!: {
-            readonly s3: {
-                readonly bucket: string;
-                readonly cdnDomain: string;
-            };
+        public readonly socialProfiles!: {
+            readonly [x: string]: string;
         };
 
         /**

@@ -228,8 +228,11 @@ describe('$to', async () => {
             'slugPrefix',
             'varPrefix',
 
-            'aws.s3.bucket',
-            'aws.s3.cdnDomain',
+            'socialProfiles.twitter',
+            'socialProfiles.linkedin',
+            'socialProfiles.facebook',
+            'socialProfiles.github',
+            'socialProfiles.npm',
 
             'google.analytics.ga4GtagId',
         ]);
