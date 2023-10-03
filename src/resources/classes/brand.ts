@@ -45,6 +45,7 @@ declare class ClassInterface {
 
     public readonly n7m: string;
     public readonly name: string;
+
     public readonly namespace: string;
     public readonly domain: string;
 

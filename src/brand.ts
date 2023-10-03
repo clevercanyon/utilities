@@ -103,6 +103,7 @@ const initializeRawProps = (): void => {
 
         n7m: 'c10n',
         name: 'Clever Canyon',
+
         namespace: 'Clever_Canyon',
         domain: 'clevercanyon.com',
 
@@ -145,10 +146,11 @@ const initializeRawProps = (): void => {
     rawProps.h1p = $obj.mergeDeep(rawProps.c10n, {
         org: 'c10n',
         type: 'dba',
-        legalName: 'Hop.gdn by Clever Canyon, LLC',
+        legalName: 'Clever Canyon, LLC (dba: Hop.gdn)',
 
         n7m: 'h1p',
         name: 'Hop.gdn',
+
         namespace: 'Hop',
         domain: 'hop.gdn',
 
