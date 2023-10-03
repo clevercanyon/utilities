@@ -10,12 +10,14 @@ import { $preact } from '../../index.ts';
  */
 export type Props = Omit<
     $preact.Props<{
+        dark?: boolean;
         variant?: string;
     }>,
     $preact.ClassPropVariants
 >;
 export type ContextProps = Readonly<{
-    variant: string | 'default';
+    dark: boolean;
+    variant: string;
 }>;
 
 /**
@@ -34,7 +36,16 @@ const Context = createContext({} as ContextProps);
  * @returns       VNode / JSX element.
  */
 export default function LayoutContext(props: Props): $preact.VNode<Props> {
-    return <Context.Provider value={{ variant: props.variant || 'default' }}>{props.children}</Context.Provider>;
+    return (
+        <Context.Provider
+            value={{
+                dark: props.dark || false,
+                variant: props.variant || 'default',
+            }}
+        >
+            {props.children}
+        </Context.Provider>
+    );
 }
 
 /**
