@@ -116,15 +116,23 @@ const initializeRawProps = (): void => {
         slogan: 'Cleverly crafted digital brands.',
         description: 'We’re transforming ideas into digital realities.',
 
+        icon: {
+            png: 'https://cdn.clevercanyon.com/assets/brands/c10n/icon.png',
+            svg: 'https://cdn.clevercanyon.com/assets/brands/c10n/icon.svg',
+            width: 1024,
+            height: 1024,
+        },
         logo: {
-            url: 'https://cdn.clevercanyon.com/assets/brands/c10n/logo-on-light-bgs.png',
+            png: 'https://cdn.clevercanyon.com/assets/brands/c10n/logo-on-light-bgs.png',
+            svg: 'https://cdn.clevercanyon.com/assets/brands/c10n/logo-on-light-bgs.svg',
             width: 1060,
             height: 120,
         },
-        icon: {
-            url: 'https://cdn.clevercanyon.com/assets/brands/c10n/icon.png',
-            width: 1024,
-            height: 1024,
+        ogImage: {
+            png: 'https://cdn.clevercanyon.com/assets/brands/c10n/og-image.png',
+            svg: 'https://cdn.clevercanyon.com/assets/brands/c10n/og-image.svg',
+            width: 2400,
+            height: 1260,
         },
         socialProfiles: {
             twitter: 'https://twitter.com/clevercanyon',
@@ -164,10 +172,23 @@ const initializeRawProps = (): void => {
             slogan: 'Masters of the digital divide.',
             description: 'Great things, built on great technology.',
 
+            icon: {
+                png: 'https://cdn.clevercanyon.com/assets/brands/h1p/icon.png',
+                svg: 'https://cdn.clevercanyon.com/assets/brands/h1p/icon.svg',
+                width: 1024,
+                height: 1024,
+            },
             logo: {
-                url: 'https://cdn.clevercanyon.com/assets/brands/c10n/hop-gdn-logo-on-light-bgs.png',
+                png: 'https://cdn.clevercanyon.com/assets/brands/h1p/logo-on-light-bgs.png',
+                svg: 'https://cdn.clevercanyon.com/assets/brands/h1p/logo-on-light-bgs.svg',
                 width: 1060,
                 height: 120,
+            },
+            ogImage: {
+                png: 'https://cdn.clevercanyon.com/assets/brands/h1p/og-image.png',
+                svg: 'https://cdn.clevercanyon.com/assets/brands/h1p/og-image.svg',
+                width: 2400,
+                height: 1260,
             },
         },
     }) as unknown as $class.BrandRawProps;

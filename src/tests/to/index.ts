@@ -220,13 +220,20 @@ describe('$to', async () => {
             'slogan',
             'description',
 
-            'logo.url',
+            'icon.png',
+            'icon.svg',
+            'icon.width',
+            'icon.height',
+
+            'logo.png',
+            'logo.svg',
             'logo.width',
             'logo.height',
 
-            'icon.url',
-            'icon.width',
-            'icon.height',
+            'ogImage.png',
+            'ogImage.svg',
+            'ogImage.width',
+            'ogImage.height',
 
             'socialProfiles.twitter',
             'socialProfiles.linkedin',

@@ -60,13 +60,21 @@ declare class ClassInterface {
     public readonly slogan: string;
     public readonly description: string;
 
-    public readonly logo: {
-        readonly url: string;
+    public readonly icon: {
+        readonly png: string;
+        readonly svg: string;
         readonly width: number;
         readonly height: number;
     };
-    public readonly icon: {
-        readonly url: string;
+    public readonly logo: {
+        readonly png: string;
+        readonly svg: string;
+        readonly width: number;
+        readonly height: number;
+    };
+    public readonly ogImage: {
+        readonly png: string;
+        readonly svg: string;
         readonly width: number;
         readonly height: number;
     };
@@ -190,19 +198,31 @@ export const getClass = (): Constructor => {
         public readonly description!: string;
 
         /**
-         * Logo on light bg with dimensions.
+         * Icon on light bg, with dimensions.
          */
-        public readonly logo!: {
-            readonly url: string;
+        public readonly icon!: {
+            readonly png: string;
+            readonly svg: string;
             readonly width: number;
             readonly height: number;
         };
 
         /**
-         * Icon on light bg with dimensions.
+         * Logo on light bg, with dimensions.
          */
-        public readonly icon!: {
-            readonly url: string;
+        public readonly logo!: {
+            readonly png: string;
+            readonly svg: string;
+            readonly width: number;
+            readonly height: number;
+        };
+
+        /**
+         * Image for OG tags, with dimensions.
+         */
+        public readonly ogImage!: {
+            readonly png: string;
+            readonly svg: string;
             readonly width: number;
             readonly height: number;
         };
