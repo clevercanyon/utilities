@@ -163,6 +163,23 @@ describe('$str', async () => {
         expect($str.upperCase('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { asciiOnly: true })) //
             .toBe('AEIO UAEIOUAEIOUY AEIOU YAEIOU AEIO UANO AN OAEIOUY AEIOU YC C AA');
     });
+    test('.studlyCase()', async () => {
+        expect($str.studlyCase('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('HeļlṏꓺWɵrḻɖ');
+        expect($str.studlyCase('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('HeļlṏꓺWɵrḻɖ');
+
+        expect($str.studlyCase('Foo-bar-bazBiz-PascalCase-snake_case-kebab-case')).toBe('FooBarBazBizPascalCaseSnakeCaseKebabCase');
+        expect($str.studlyCase('Foo bar bazBiz PascalCase snake_case kebab-case')).toBe('FooBarBazBizPascalCaseSnakeCaseKebabCase');
+
+        expect($str.studlyCase('aeiouAEIOUaeiouyAEIOUYaeiouAEIOUanoANOaeiouyAEIOUYçÇßØøÅåÆæœ')).toBe('AeiouAeioUaeiouyAeiouYaeiouAeioUanoAnOaeiouyAeiouYçÇßØøÅåÆæœ');
+        expect($str.studlyCase('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('ÀèìòùÀèìòÙáéíóúýÁéíóúÝâêîôûÂêîôÛãñõÃñÕäëïöüÿÄëïöüŸçÇßØøÅåÆæœ');
+        expect($str.studlyCase('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('ÀèìòÙàèìòùáéíóúýÁéíóúÝâêîôûÂêîôÛãñõÃñÕäëïöüÿÄëïöüŸçÇßØøÅåÆæœ');
+
+        expect($str.studlyCase('1ÀÈÌÒÙ àèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { letterFirst: 'X' })) //
+            .toBe('X1ÀèìòùÀèìòùáéíóúýÁéíóúÝâêîôûÂêîôÛãñõÃñÕäëïöüÿÄëïöüŸçÇßØøÅåÆæœ');
+
+        expect($str.studlyCase('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { asciiOnly: true })) //
+            .toBe('AeioUaeiouaeiouyAeiouYaeiouAeioUanoAnOaeiouyAeiouYcCAa');
+    });
     test('.camelCase()', async () => {
         expect($str.camelCase('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('heļlṏꓺwɵrḻɖ');
         expect($str.camelCase('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('heļlṏꓺwɵrḻɖ');

@@ -9,6 +9,8 @@ let Defined: Constructor | undefined; // Cache.
 /**
  * Defines types.
  */
+export type Type = 'corp' | 'dba' | 'site';
+
 export type RawProps = Omit<ClassInterface, 'org'> & {
     readonly org: string;
 };
@@ -22,7 +24,7 @@ export type Class = $class.Utility & ClassInterface;
 
 declare class ClassInterface {
     public readonly org: Class;
-    public readonly type: string;
+    public readonly type: Type;
     public readonly legalName: string;
     public readonly address: {
         readonly street: string;
@@ -94,9 +96,9 @@ export const getClass = (): Constructor => {
         public readonly org!: Class;
 
         /**
-         * Type; e.g., `corp`, `dba`.
+         * Type; {@see Type}.
          */
-        public readonly type!: string;
+        public readonly type!: Type;
 
         /**
          * Legal name; e.g., `My Brand, Inc.`.

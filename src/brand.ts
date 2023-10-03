@@ -80,7 +80,7 @@ const initializeRawProps = (): void => {
      */
     rawProps.c10n = {
         org: '&',
-        type: 'corporation',
+        type: 'corp',
         legalName: 'Clever Canyon, LLC',
         address: {
             street: '9 N River Rd #660',
@@ -104,7 +104,7 @@ const initializeRawProps = (): void => {
         n7m: 'c10n',
         name: 'Clever Canyon',
 
-        namespace: 'Clever_Canyon',
+        namespace: 'CleverCanyon',
         domain: 'clevercanyon.com',
 
         slug: 'clevercanyon',
@@ -144,29 +144,31 @@ const initializeRawProps = (): void => {
      * Hop.gdn by Clever Canyon.
      */
     rawProps.h1p = $obj.mergeDeep(rawProps.c10n, {
-        org: 'c10n',
-        type: 'dba',
-        legalName: 'Clever Canyon, LLC (dba: Hop.gdn)',
+        $set: {
+            org: 'c10n',
+            type: 'dba',
+            legalName: 'Clever Canyon, LLC (dba: Hop.gdn)',
 
-        n7m: 'h1p',
-        name: 'Hop.gdn',
+            n7m: 'h1p',
+            name: 'Hop.gdn',
 
-        namespace: 'Hop',
-        domain: 'hop.gdn',
+            namespace: 'Hop',
+            domain: 'hop.gdn',
 
-        slug: 'hop',
-        var: 'hop',
+            slug: 'hop',
+            var: 'hop',
 
-        slugPrefix: 'hop-',
-        varPrefix: 'hop_',
+            slugPrefix: 'hop-',
+            varPrefix: 'hop_',
 
-        slogan: 'Masters of the digital divide.',
-        description: 'Great things, built on great technology.',
+            slogan: 'Masters of the digital divide.',
+            description: 'Great things, built on great technology.',
 
-        logo: {
-            url: 'https://cdn.clevercanyon.com/assets/brands/c10n/hop-gdn-logo-on-light-bgs.png',
-            width: 1060,
-            height: 120,
+            logo: {
+                url: 'https://cdn.clevercanyon.com/assets/brands/c10n/hop-gdn-logo-on-light-bgs.png',
+                width: 1060,
+                height: 120,
+            },
         },
     }) as unknown as $class.BrandRawProps;
 };

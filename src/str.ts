@@ -29,6 +29,7 @@ export type TitleCaseOptions = { asciiOnly?: boolean; splitOnWhitespaceOnly?: bo
 export type LowerCaseOptions = { asciiOnly?: boolean; splitOnWhitespaceOnly?: boolean };
 export type UpperCaseOptions = LowerCaseOptions; // Same options as lowerCase.
 
+export type StudlyCaseOptions = { asciiOnly?: boolean; letterFirst?: string };
 export type CamelCaseOptions = { asciiOnly?: boolean; letterFirst?: string };
 export type KebabCaseOptions = { asciiOnly?: boolean; letterFirst?: string };
 export type SnakeCaseOptions = KebabCaseOptions; // Same options as kebabCase.
@@ -400,7 +401,10 @@ export const titleCase = (str: string, options?: TitleCaseOptions): string => {
         words = splitWords(asciiOnly(words.join(' ')), { whitespaceOnly: opts.splitOnWhitespaceOnly });
     }
     for (let key = 0; key < words.length; key++) {
-        words[key] = words[key].split(/([\p{Pd}]+)/u).map((word) => capitalize(word)).join(''); // prettier-ignore
+        words[key] = words[key]
+            .split(/([\p{Pd}]+)/u)
+            .map((word) => capitalize(word))
+            .join('');
     }
     return words.join(' ');
 };
@@ -436,6 +440,33 @@ export const upperCase = (str: string, options?: UpperCaseOptions): string => {
 };
 
 /**
+ * Splits a string into words, then re-joins using StudyCase.
+ *
+ * @param   str     String to modify.
+ * @param   options Options (all optional).
+ *
+ * @returns         Modified string.
+ */
+export const studlyCase = (str: string, options?: StudlyCaseOptions): string => {
+    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<StudlyCaseOptions>;
+    let words = splitWords(str); // Splits words intelligently.
+
+    if (opts.asciiOnly /* Split again. */) {
+        words = splitWords(asciiOnly(words.join(' ')));
+    }
+    for (let key = 0; key < words.length; key++) {
+        words[key] = capitalize(words[key]);
+
+        if (0 === key) {
+            if (opts.letterFirst && !/^\p{L}/u.test(words[key])) {
+                words[key] = opts.letterFirst + words[key];
+            }
+        }
+    }
+    return words.join('');
+};
+
+/**
  * Splits a string into words, then re-joins using camelCase.
  *
  * @param   str     String to modify.
@@ -453,7 +484,6 @@ export const camelCase = (str: string, options?: CamelCaseOptions): string => {
     for (let key = 0; key < words.length; key++) {
         if (0 === key) {
             words[key] = words[key].toLowerCase();
-
             if (opts.letterFirst && !/^\p{L}/u.test(words[key])) {
                 words[key] = opts.letterFirst + words[key];
             }
