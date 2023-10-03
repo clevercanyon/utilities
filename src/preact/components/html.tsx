@@ -10,7 +10,7 @@ import { type State as DataState } from './data.tsx';
  * Defines types.
  */
 export type State = Partial<$preact.JSX.IntrinsicElements['html']> & {
-    lang?: string; // String value only.
+    lang: string; // String value only.
 } & { [x in $preact.ClassPropVariants]?: $preact.Classes };
 
 export type PartialState = Partial<State>;
@@ -37,7 +37,7 @@ const Context = createContext({} as ContextProps);
  *
  * @returns           Initialized state.
  */
-const initialState = (dataState: DataState, props: Props = {}): State => {
+const initialState = (dataState: DataState, props: Props): State => {
     return $obj.mergeDeep({ lang: 'en' }, dataState.html, $preact.omitProps(props, ['children'])) as unknown as State;
 };
 
@@ -64,6 +64,9 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
     const { state: dataState } = $preact.useData();
     if (!dataState) throw new Error('Missing data state.');
 
+    const { state: layoutState } = $preact.useLayout();
+    // Note: Layout optional; `<HTML>` can be used outside of a `<LayoutContext>`.
+
     // Props from current `<Data>` state will only have an impact on 'initial' `<HTML>` state.
     const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(dataState, props));
 
@@ -72,7 +75,7 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
             <html
                 {...{
                     ...$preact.omitProps(props, ['class', 'lang', 'children']),
-                    class: $preact.classes(state, 'preact'),
+                    class: $preact.classes(layoutState?.dark ? 'dark' : '', state, 'preact'),
                     lang: state.lang,
                 }}
             >
