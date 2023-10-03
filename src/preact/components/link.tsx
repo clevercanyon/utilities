@@ -17,8 +17,8 @@ export type Props = $preact.Props<Partial<$preact.JSX.IntrinsicElements['a']>> &
  * `<link>` is equivalent to `<a>`, but this automatically handles an app’s base path. In the future we may extend this
  * further to support `<button>` elements, or to support differing behaviors. Please stay tuned for more.
  *
- * - WARNING: Do not use this with a dummy `#`; {@see https://o5p.me/OwYOMI}.
- * - WARNING: Do not use this w/o a child node; {@see https://o5p.me/OwYOMI}.
+ * - WARNING: Do not use this or any `<a>` with a dummy `#`; {@see https://o5p.me/OwYOMI}.
+ * - WARNING: Do not use this or any `<a>` without a child node; {@see https://o5p.me/OwYOMI}.
  *
  * @param   props Component props.
  *

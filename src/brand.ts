@@ -5,22 +5,80 @@
 import { $class, $obj } from './index.ts';
 
 /**
- * Brand instances.
+ * Tracks initialization.
+ */
+let rawPropsInitialized = false;
+
+/**
+ * Contains a runtime cache of instances.
  */
 const instances: { [x: string]: $class.Brand } = {};
 
 /**
- * Gets raw brand props by N7M (numeronym).
- *
- * @returns Raw brand props by N7M (numeronym).
+ * Raw props keyed by brand numeronym.
  */
-const rawProps = (): { readonly [x: string]: $class.BrandRawProps } => {
-    const props: { [x: string]: $class.BrandRawProps } = {};
+const rawProps: { [x: string]: $class.BrandRawProps } = {};
+
+/**
+ * Adds a new brand at runtime.
+ *
+ * @param props Raw brand props; {@see $class.BrandRawProps}.
+ */
+export const add = (props: $class.BrandRawProps): void => {
+    if (!rawPropsInitialized) initializeRawProps();
+
+    if (Object.hasOwn(rawProps, props.n7m)) {
+        throw new Error('Brand exists already.');
+    }
+    rawProps[props.n7m] = props;
+};
+
+/**
+ * Gets a brand instance.
+ *
+ * @param   q Brand numeronym, slug, or var.
+ *
+ * @returns   Brand {@see $class.Brand}.
+ */
+export const get = (q: string): $class.Brand => {
+    if (!rawPropsInitialized) initializeRawProps();
+
+    q = '&' === q ? 'c10n' : q;
+    if (!q) throw new Error('Missing brand query.');
+
+    if (!rawProps[q] /* Try searching by `slug|var`. */) {
+        for (const [n7m, props] of Object.entries(rawProps))
+            if (q === props.slug || q === props.var) {
+                if (rawProps[n7m]) return get(n7m);
+            }
+        throw new Error('Missing brand for query: `' + q + '`.');
+    }
+    const n7m = q; // n7m (numeronym).
+
+    if (instances[n7m]) {
+        return instances[n7m];
+    }
+    const Brand = $class.getBrand();
+
+    if ('&' === rawProps[n7m].org || rawProps[n7m].org === n7m) {
+        instances[n7m] = new Brand({ ...rawProps[n7m], org: undefined });
+    } else {
+        instances[n7m] = new Brand({ ...rawProps[n7m], org: get(rawProps[n7m].org) });
+    }
+    return instances[n7m];
+};
+
+/**
+ * Initializes raw props by numeronym.
+ */
+const initializeRawProps = (): void => {
+    if (rawPropsInitialized) return;
+    rawPropsInitialized = true;
 
     /**
      * Clever Canyon.
      */
-    props.c10n = {
+    rawProps.c10n = {
         org: '&',
         type: 'corporation',
         legalName: 'Clever Canyon, LLC',
@@ -84,7 +142,7 @@ const rawProps = (): { readonly [x: string]: $class.BrandRawProps } => {
     /**
      * Hop.gdn by Clever Canyon.
      */
-    props.h1p = $obj.mergeDeep(props.c10n, {
+    rawProps.h1p = $obj.mergeDeep(rawProps.c10n, {
         org: 'c10n',
         type: 'dba',
         legalName: 'Hop.gdn by Clever Canyon, LLC',
@@ -108,41 +166,4 @@ const rawProps = (): { readonly [x: string]: $class.BrandRawProps } => {
         slugPrefix: 'hop-',
         varPrefix: 'hop_',
     }) as unknown as $class.BrandRawProps;
-
-    return props;
-};
-
-/**
- * Gets a brand instance.
- *
- * @param   q Brand numeronym, slug, or var.
- *
- * @returns   Brand {@see $class.Brand}.
- */
-export const get = (q: string): $class.Brand => {
-    const raw = rawProps();
-
-    q = '&' === q ? 'c10n' : q;
-    if (!q) throw new Error('Missing brand query.');
-
-    if (!raw[q] /* Try searching by `slug|var`. */) {
-        for (const [_n7m, _raw] of Object.entries(raw))
-            if (q === _raw.slug || q === _raw.var) {
-                if (raw[_n7m]) return get(_n7m);
-            }
-        throw new Error('Missing brand for query: `' + q + '`.');
-    }
-    const n7m = q; // n7m (numeronym).
-
-    if (instances[n7m]) {
-        return instances[n7m];
-    }
-    const Brand = $class.getBrand();
-
-    if ('&' === raw[n7m].org || raw[n7m].org === n7m) {
-        instances[n7m] = new Brand({ ...raw[n7m], org: undefined });
-    } else {
-        instances[n7m] = new Brand({ ...raw[n7m], org: get(raw[n7m].org) });
-    }
-    return instances[n7m];
 };
