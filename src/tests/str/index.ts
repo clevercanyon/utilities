@@ -24,6 +24,13 @@ describe('$str', async () => {
         expect($str.fromChars($str.toChars('abcdefghijklmnopqrstuvwxyzꓺ0123456789'))).toBe('abcdefghijklmnopqrstuvwxyzꓺ0123456789');
         expect($str.fromChars($str.toChars('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ'))).toBe('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ');
     });
+    test('.numeronym()', async () => {
+        expect($str.numeronym('x')).toBe('x1x');
+        expect($str.numeronym('hop')).toBe('h1p');
+        expect($str.numeronym('clevercanyon')).toBe('c10n');
+        expect($str.numeronym('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('h6l');
+        expect($str.numeronym('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('a52a');
+    });
     test('.deburr()', async () => {
         expect($str.deburr('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('hello, ꓺ ... 🦊 wɵrlɖ!');
         expect($str.deburr('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('aeiouAEIOUaeiouyAEIOUYaeiouAEIOUanoANOaeiouyAEIOUYcCßØøAaÆæœ');

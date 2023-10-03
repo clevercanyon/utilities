@@ -16,6 +16,7 @@ let unescHTMLDiv: HTMLElement; // Initialize.
 const escHTMLEntityMap: { [x: string]: string } = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 const unescHTMLCharMap: { [x: string]: string } = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
 
+// Please be cautious, this has the `g`, and therefore it has state.
 const wordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p{L})|(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})|(?<=[\p{L}\p{N}])(?=\p{Lu}\p{Ll}))/gu;
 
 /**
@@ -235,6 +236,25 @@ export const lTrim = (str: string, additionalChars?: string, options?: TrimOptio
  */
 export const rTrim = (str: string, additionalChars?: string, options?: TrimOptions): string => {
     return trim(str, additionalChars, { ...(options || {}), left: false, right: true });
+};
+
+/* ---
+ * Numeronym utilities.
+ */
+
+/**
+ * Converts a string into a numeronym.
+ *
+ * @param   str String to numeronym.
+ *
+ * @returns     Numeronym of input string.
+ */
+export const numeronym = (str: string): string => {
+    str = asciiOnly(str).toLowerCase();
+    str = str.replace(/[^a-z0-9]+/gu, '');
+
+    if (str.length < 3) str += 'x'.repeat(3 - str.length);
+    return str[0] + String(str.length - 2) + str[str.length - 1];
 };
 
 /* ---
