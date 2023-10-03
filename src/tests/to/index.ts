@@ -211,6 +211,12 @@ describe('$to', async () => {
             'namespace',
             'domain',
 
+            'slug',
+            'var',
+
+            'slugPrefix',
+            'varPrefix',
+
             'slogan',
             'description',
 
@@ -221,12 +227,6 @@ describe('$to', async () => {
             'icon.url',
             'icon.width',
             'icon.height',
-
-            'slug',
-            'var',
-
-            'slugPrefix',
-            'varPrefix',
 
             'socialProfiles.twitter',
             'socialProfiles.linkedin',

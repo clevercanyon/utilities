@@ -106,6 +106,12 @@ const initializeRawProps = (): void => {
         namespace: 'Clever_Canyon',
         domain: 'clevercanyon.com',
 
+        slug: 'clevercanyon',
+        var: 'clevercanyon',
+
+        slugPrefix: 'clevercanyon-',
+        varPrefix: 'clevercanyon_',
+
         slogan: 'Cleverly crafted digital brands.',
         description: 'We’re transforming ideas into digital realities.',
 
@@ -119,12 +125,6 @@ const initializeRawProps = (): void => {
             width: 1024,
             height: 1024,
         },
-        slug: 'clevercanyon',
-        var: 'clevercanyon',
-
-        slugPrefix: 'clevercanyon-',
-        varPrefix: 'clevercanyon_',
-
         socialProfiles: {
             twitter: 'https://twitter.com/clevercanyon',
             linkedin: 'https://www.linkedin.com/company/clevercanyon',
@@ -152,6 +152,12 @@ const initializeRawProps = (): void => {
         namespace: 'Hop',
         domain: 'hop.gdn',
 
+        slug: 'hop',
+        var: 'hop',
+
+        slugPrefix: 'hop-',
+        varPrefix: 'hop_',
+
         slogan: 'Masters of the digital divide.',
         description: 'Great things, built on great technology.',
 
@@ -160,10 +166,5 @@ const initializeRawProps = (): void => {
             width: 1060,
             height: 120,
         },
-        slug: 'hop',
-        var: 'hop',
-
-        slugPrefix: 'hop-',
-        varPrefix: 'hop_',
     }) as unknown as $class.BrandRawProps;
 };

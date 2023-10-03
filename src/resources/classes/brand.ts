@@ -48,6 +48,12 @@ declare class ClassInterface {
     public readonly namespace: string;
     public readonly domain: string;
 
+    public readonly slug: string;
+    public readonly var: string;
+
+    public readonly slugPrefix: string;
+    public readonly varPrefix: string;
+
     public readonly slogan: string;
     public readonly description: string;
 
@@ -61,12 +67,6 @@ declare class ClassInterface {
         readonly width: number;
         readonly height: number;
     };
-    public readonly slug: string;
-    public readonly var: string;
-
-    public readonly slugPrefix: string;
-    public readonly varPrefix: string;
-
     public readonly socialProfiles: {
         readonly [x: string]: string;
     };
@@ -157,34 +157,6 @@ export const getClass = (): Constructor => {
         public readonly domain!: string;
 
         /**
-         * Slogan; e.g., `My Brand rocks.`.
-         */
-        public readonly slogan!: string;
-
-        /**
-         * Description; e.g., `We’re the people behind My Brand.`.
-         */
-        public readonly description!: string;
-
-        /**
-         * Logo on light background including dimensions.
-         */
-        public readonly logo!: {
-            readonly url: string;
-            readonly width: number;
-            readonly height: number;
-        };
-
-        /**
-         * Icon on light background including dimensions.
-         */
-        public readonly icon!: {
-            readonly url: string;
-            readonly width: number;
-            readonly height: number;
-        };
-
-        /**
          * Slug; e.g., `my-brand`.
          */
         public readonly slug!: string;
@@ -203,6 +175,34 @@ export const getClass = (): Constructor => {
          * Var prefix; e.g., `my_brand_`.
          */
         public readonly varPrefix!: string;
+
+        /**
+         * Slogan; e.g., `My Brand rocks.`.
+         */
+        public readonly slogan!: string;
+
+        /**
+         * Description; e.g., `We’re the people behind My Brand.`.
+         */
+        public readonly description!: string;
+
+        /**
+         * Logo on light bg with dimensions.
+         */
+        public readonly logo!: {
+            readonly url: string;
+            readonly width: number;
+            readonly height: number;
+        };
+
+        /**
+         * Icon on light bg with dimensions.
+         */
+        public readonly icon!: {
+            readonly url: string;
+            readonly width: number;
+            readonly height: number;
+        };
 
         /**
          * Any/all social profile URLs.
