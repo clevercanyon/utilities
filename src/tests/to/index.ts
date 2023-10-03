@@ -189,19 +189,49 @@ describe('$to', async () => {
         const flatBrand = $to.flatObject(brand);
         expect(Object.keys(flatBrand)).toStrictEqual([
             'org', // Circular.
+            'type',
+            'legalName',
+
+            'address.street',
+            'address.city',
+            'address.state',
+            'address.zip',
+            'address.country',
+
+            'founder.name',
+            'founder.description',
+            'founder.image.url',
+            'founder.image.width',
+            'founder.image.height',
+            'foundingDate',
+            'numberOfEmployees',
+
             'n7m',
             'name',
             'namespace',
+            'domain',
+
+            'slogan',
+            'description',
+
+            'logo.url',
+            'logo.width',
+            'logo.height',
+
+            'icon.url',
+            'icon.width',
+            'icon.height',
+
             'slug',
             'var',
+
             'slugPrefix',
             'varPrefix',
-            'rootDomain',
+
             'aws.s3.bucket',
             'aws.s3.cdnDomain',
+
             'google.analytics.ga4GtagId',
-            'cloudflare.accountId',
-            'cloudflare.zoneId',
         ]);
     });
     test('.plainFlatObject()', async () => {

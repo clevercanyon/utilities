@@ -9,40 +9,10 @@ let Defined: Constructor | undefined; // Cache.
 /**
  * Defines types.
  */
-type BaseProps = {
-    readonly n7m: string;
-
-    readonly name: string;
-    readonly namespace: string;
-
-    readonly slug: string;
-    readonly var: string;
-
-    readonly slugPrefix: string;
-    readonly varPrefix: string;
-
-    readonly rootDomain: string;
-
-    readonly aws: {
-        readonly s3: {
-            readonly bucket: string;
-            readonly cdnDomain: string;
-        };
-    };
-    readonly google: {
-        readonly analytics: {
-            readonly ga4GtagId: string;
-        };
-    };
-    readonly cloudflare: {
-        readonly accountId: string;
-        readonly zoneId: string;
-    };
-};
-export type RawProps = BaseProps & {
+export type RawProps = Omit<ClassInterface, 'org'> & {
     readonly org: string;
 };
-export type C9rProps = BaseProps & {
+export type C9rProps = Omit<ClassInterface, 'org'> & {
     readonly org?: Class | undefined;
 };
 export type Constructor = {
@@ -52,18 +22,50 @@ export type Class = $class.Utility & ClassInterface;
 
 declare class ClassInterface {
     public readonly org: Class;
-    public readonly n7m: string;
+    public readonly type: string;
+    public readonly legalName: string;
+    public readonly address: {
+        readonly street: string;
+        readonly city: string;
+        readonly state: string;
+        readonly zip: string;
+        readonly country: string;
+    };
+    public readonly founder: {
+        name: string;
+        description: string;
+        image: {
+            url: string;
+            width: number;
+            height: number;
+        };
+    };
+    public readonly foundingDate: string;
+    public readonly numberOfEmployees: number;
 
+    public readonly n7m: string;
     public readonly name: string;
     public readonly namespace: string;
+    public readonly domain: string;
 
+    public readonly slogan: string;
+    public readonly description: string;
+
+    public readonly logo: {
+        readonly url: string;
+        readonly width: number;
+        readonly height: number;
+    };
+    public readonly icon: {
+        readonly url: string;
+        readonly width: number;
+        readonly height: number;
+    };
     public readonly slug: string;
     public readonly var: string;
 
     public readonly slugPrefix: string;
     public readonly varPrefix: string;
-
-    public readonly rootDomain: string;
 
     public readonly aws: {
         readonly s3: {
@@ -75,10 +77,6 @@ declare class ClassInterface {
         readonly analytics: {
             readonly ga4GtagId: string;
         };
-    };
-    public readonly cloudflare: {
-        readonly accountId: string;
-        readonly zoneId: string;
     };
     public constructor(props: C9rProps | Class);
 }
@@ -98,6 +96,50 @@ export const getClass = (): Constructor => {
         public readonly org!: Class;
 
         /**
+         * Type; e.g., `corp`, `dba`.
+         */
+        public readonly type!: string;
+
+        /**
+         * Legal name; e.g., `My Brand, Inc.`.
+         */
+        public readonly legalName!: string;
+
+        /**
+         * Address broken out into parts.
+         */
+        public readonly address!: {
+            readonly street: string;
+            readonly city: string;
+            readonly state: string;
+            readonly zip: string;
+            readonly country: string;
+        };
+
+        /**
+         * Brand founder; broken out into parts.
+         */
+        public readonly founder!: {
+            name: string;
+            description: string;
+            image: {
+                url: string;
+                width: number;
+                height: number;
+            };
+        };
+
+        /**
+         * Founding date; e.g., `2023-10-03`.
+         */
+        public readonly foundingDate!: string;
+
+        /**
+         * Number of employees; e.g., `10`.
+         */
+        public readonly numberOfEmployees!: number;
+
+        /**
          * N7M; e.g., `m5d`.
          */
         public readonly n7m!: string;
@@ -111,6 +153,39 @@ export const getClass = (): Constructor => {
          * Namespace; e.g., `My_Brand`.
          */
         public readonly namespace!: string;
+
+        /**
+         * Domain; e.g., `my-brand.com`.
+         */
+        public readonly domain!: string;
+
+        /**
+         * Slogan; e.g., `My Brand rocks.`.
+         */
+        public readonly slogan!: string;
+
+        /**
+         * Description; e.g., `We’re the people behind My Brand.`.
+         */
+        public readonly description!: string;
+
+        /**
+         * Logo on light background including dimensions.
+         */
+        public readonly logo!: {
+            readonly url: string;
+            readonly width: number;
+            readonly height: number;
+        };
+
+        /**
+         * Icon on light background including dimensions.
+         */
+        public readonly icon!: {
+            readonly url: string;
+            readonly width: number;
+            readonly height: number;
+        };
 
         /**
          * Slug; e.g., `my-brand`.
@@ -133,11 +208,6 @@ export const getClass = (): Constructor => {
         public readonly varPrefix!: string;
 
         /**
-         * Root domain; e.g., `my-brand.com`.
-         */
-        public readonly rootDomain!: string;
-
-        /**
          * AWS properties.
          */
         public readonly aws!: {
@@ -154,14 +224,6 @@ export const getClass = (): Constructor => {
             readonly analytics: {
                 readonly ga4GtagId: string;
             };
-        };
-
-        /**
-         * Cloudflare properties.
-         */
-        public readonly cloudflare!: {
-            readonly accountId: string;
-            readonly zoneId: string;
         };
 
         /**

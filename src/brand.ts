@@ -2,7 +2,7 @@
  * Brand utilities.
  */
 
-import { $class } from './index.ts';
+import { $class, $obj } from './index.ts';
 
 /**
  * Brand instances.
@@ -10,19 +10,63 @@ import { $class } from './index.ts';
 const instances: { [x: string]: $class.Brand } = {};
 
 /**
- * Raw brand props by N7M.
+ * Gets raw brand props by N7M (numeronym).
+ *
+ * @returns Raw brand props by N7M (numeronym).
  */
-const rawProps: { readonly [x: string]: $class.BrandRawProps } = {
-    c10n: {
-        org: 'c10n',
+const rawProps = (): { readonly [x: string]: $class.BrandRawProps } => {
+    const props: { [x: string]: $class.BrandRawProps } = {};
+
+    /**
+     * Clever Canyon.
+     */
+    props.c10n = {
+        org: '&',
+        type: 'corporation',
+        legalName: 'Clever Canyon, LLC',
+        address: {
+            street: '9 N River Rd #660',
+            city: 'Auburn',
+            state: 'ME',
+            zip: '04210',
+            country: 'US',
+        },
+        founder: {
+            name: 'Jason Caldwell',
+            description: 'Engineering Manager, Consultant, Staff Engineer',
+            image: {
+                url: 'https://cdn.clevercanyon.com/assets/brands/c10n/founder.png',
+                width: 1200,
+                height: 1200,
+            },
+        },
+        foundingDate: '2023-10-03',
+        numberOfEmployees: 10,
+
         n7m: 'c10n',
         name: 'Clever Canyon',
         namespace: 'Clever_Canyon',
+        domain: 'clevercanyon.com',
+
+        slogan: 'Cleverly crafted digital brands.',
+        description: 'We’re transforming ideas into digital realities.',
+
+        logo: {
+            url: 'https://cdn.clevercanyon.com/assets/brands/c10n/logo-on-light-bgs.png',
+            width: 1060,
+            height: 120,
+        },
+        icon: {
+            url: 'https://cdn.clevercanyon.com/assets/brands/c10n/icon.png',
+            width: 1024,
+            height: 1024,
+        },
         slug: 'clevercanyon',
         var: 'clevercanyon',
+
         slugPrefix: 'clevercanyon-',
         varPrefix: 'clevercanyon_',
-        rootDomain: 'clevercanyon.com',
+
         aws: {
             s3: {
                 bucket: 'clevercanyon',
@@ -34,37 +78,49 @@ const rawProps: { readonly [x: string]: $class.BrandRawProps } = {
                 ga4GtagId: 'G-Y5BS7MMHMD',
             },
         },
-        cloudflare: {
-            accountId: 'f1176464a976947aa5665d989814a4b1',
-            zoneId: 'a53c8701e8dffd42e05c53010869f580',
-        },
-    },
-    h1p: {
+    };
+
+    /**
+     * Hop.gdn by Clever Canyon.
+     */
+    props.h1p = $obj.mergeDeep(props.c10n, {
         org: 'c10n',
+        type: 'dba',
+        legalName: 'Hop.gdn by Clever Canyon, LLC',
+
         n7m: 'h1p',
-        name: 'Hop',
+        name: 'Hop.gdn',
         namespace: 'Hop',
+        domain: 'hop.gdn',
+
+        slogan: 'Masters of the digital divide.',
+        description: 'Great things, built on great technology.',
+
+        logo: {
+            url: 'https://cdn.clevercanyon.com/assets/brands/c10n/hop-gdn-logo-on-light-bgs.png',
+            width: 1060,
+            height: 120,
+        },
+        icon: {
+            url: 'https://cdn.clevercanyon.com/assets/brands/c10n/icon.png',
+            width: 1024,
+            height: 1024,
+        },
         slug: 'hop',
         var: 'hop',
+
         slugPrefix: 'hop-',
         varPrefix: 'hop_',
-        rootDomain: 'hop.gdn',
+
         aws: {
             s3: {
                 bucket: 'hop-gdn',
                 cdnDomain: 'cdn.hop.gdn',
             },
         },
-        google: {
-            analytics: {
-                ga4GtagId: 'G-Y5BS7MMHMD',
-            },
-        },
-        cloudflare: {
-            accountId: 'f1176464a976947aa5665d989814a4b1',
-            zoneId: 'a53c8701e8dffd42e05c53010869f580',
-        },
-    },
+    }) as unknown as $class.BrandRawProps;
+
+    return props;
 };
 
 /**
@@ -72,18 +128,19 @@ const rawProps: { readonly [x: string]: $class.BrandRawProps } = {
  *
  * @param   q Brand numeronym, slug, or var.
  *
- * @returns   Brand {@see $class.BrandClass}.
+ * @returns   Brand {@see $class.Brand}.
  */
 export const get = (q: string): $class.Brand => {
-    q = '&' === q ? 'c10n' : q; // Self-referential query.
-    if (!q) throw new Error('Empty brand query.'); // Failure.
+    const raw = rawProps();
 
-    if (!rawProps[q] /* Not an n7m. Try searching by `slug|var`. */) {
-        for (const [_n7m, _rawProps] of Object.entries(rawProps)) {
-            if (q === _rawProps.slug || q === _rawProps.var) {
-                if (rawProps[_n7m]) return get(_n7m);
+    q = '&' === q ? 'c10n' : q;
+    if (!q) throw new Error('Missing brand query.');
+
+    if (!raw[q] /* Try searching by `slug|var`. */) {
+        for (const [_n7m, _raw] of Object.entries(raw))
+            if (q === _raw.slug || q === _raw.var) {
+                if (raw[_n7m]) return get(_n7m);
             }
-        }
         throw new Error('Missing brand for query: `' + q + '`.');
     }
     const n7m = q; // n7m (numeronym).
@@ -91,12 +148,12 @@ export const get = (q: string): $class.Brand => {
     if (instances[n7m]) {
         return instances[n7m];
     }
-    const Brand = $class.getBrand(); // Class.
+    const Brand = $class.getBrand();
 
-    if (rawProps[n7m].org === n7m) {
-        instances[n7m] = new Brand({ ...rawProps[n7m], org: undefined });
+    if ('&' === raw[n7m].org || raw[n7m].org === n7m) {
+        instances[n7m] = new Brand({ ...raw[n7m], org: undefined });
     } else {
-        instances[n7m] = new Brand({ ...rawProps[n7m], org: get(rawProps[n7m].org) });
+        instances[n7m] = new Brand({ ...raw[n7m], org: get(raw[n7m].org) });
     }
-    return instances[n7m]; // Brand instance.
+    return instances[n7m];
 };
