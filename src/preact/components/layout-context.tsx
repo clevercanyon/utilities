@@ -6,7 +6,7 @@ import { createContext } from 'preact';
 import { $obj, $preact } from '../../index.ts';
 
 /**
- * Props interface.
+ * Defines types.
  */
 export type State = {
     dark: boolean;
@@ -57,7 +57,7 @@ const reduceState = (state: State, updates: PartialState): State => {
  *
  * @param   props Component props.
  *
- * @returns       VNode / JSX element.
+ * @returns       VNode / JSX element tree.
  */
 export default function LayoutContext(props: Props): $preact.VNode<Props> {
     const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(props));

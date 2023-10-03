@@ -5,7 +5,7 @@
 import { $preact } from '../../index.ts';
 
 /**
- * Props interface.
+ * Defines types.
  */
 export type Props = $preact.Props<Partial<$preact.JSX.IntrinsicElements['aside']>>;
 
@@ -16,7 +16,7 @@ export type Props = $preact.Props<Partial<$preact.JSX.IntrinsicElements['aside']
  *
  * @param   props Component props.
  *
- * @returns       VNode / JSX element.
+ * @returns       VNode / JSX element tree.
  */
 export default function Aside(props: Props = {}): $preact.VNode<Props> {
     return (

@@ -63,8 +63,8 @@ export const lazyComponent = <P extends $preact.Props = $preact.Props>(asyncComp
         );
     };
     if (asyncComponent.name /* For debugging. */) {
-        ComponentRoute.displayName = asyncComponent.name + 'Route';
         ComponentRouter.displayName = asyncComponent.name + 'Router';
+        ComponentRoute.displayName = asyncComponent.name + 'Route';
     }
     return ComponentRouter;
 };

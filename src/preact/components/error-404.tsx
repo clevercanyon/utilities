@@ -75,7 +75,7 @@ export const StandAlone = (props: StandAloneProps = {}): $preact.VNode<StandAlon
 /**
  * Produces 404 page body contents.
  *
- * @returns Commmon body contents tree.
+ * @returns Body contents vNode / JSX element tree.
  */
 const BodyContents = (): $preact.VNode => {
     return (

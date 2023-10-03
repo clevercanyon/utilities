@@ -5,7 +5,7 @@
 import { $preact } from '../../index.ts';
 
 /**
- * Props interface.
+ * Defines types.
  */
 export type Props = $preact.Props<Partial<$preact.JSX.IntrinsicElements['div']>>;
 
@@ -17,7 +17,7 @@ export type Props = $preact.Props<Partial<$preact.JSX.IntrinsicElements['div']>>
  *
  * @param   props Component props.
  *
- * @returns       VNode / JSX element.
+ * @returns       VNode / JSX element tree.
  */
 export default function Wrapper(props: Props = {}): $preact.VNode<Props> {
     return $preact.createElement('x-wrapper' as 'div', {

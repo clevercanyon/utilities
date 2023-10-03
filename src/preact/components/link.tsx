@@ -5,7 +5,7 @@
 import { $preact, $url } from '../../index.ts';
 
 /**
- * Props interface.
+ * Defines types.
  */
 export type Props = $preact.Props<Partial<$preact.JSX.IntrinsicElements['a']>> & {
     href?: string; // String value only.
@@ -22,7 +22,7 @@ export type Props = $preact.Props<Partial<$preact.JSX.IntrinsicElements['a']>> &
  *
  * @param   props Component props.
  *
- * @returns       VNode / JSX element.
+ * @returns       VNode / JSX element tree.
  */
 export default function Link(props: Props): $preact.VNode<Props> {
     let href = props.href || undefined; // Initialize.
