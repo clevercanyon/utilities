@@ -11,10 +11,10 @@ let Defined: Constructor | undefined; // Cache.
  */
 export type Type = 'corp' | 'dba' | 'site';
 
-export type RawProps = Omit<ClassInterface, 'org'> & {
+export type RawProps = Omit<ClassInterfaceProps, 'org'> & {
     readonly org: string;
 };
-export type C9rProps = Omit<ClassInterface, 'org'> & {
+export type C9rProps = Omit<ClassInterfaceProps, 'org'> & {
     readonly org?: Class | undefined;
 };
 export type Constructor = {
@@ -86,13 +86,10 @@ declare class ClassInterface {
     public readonly socialProfiles: {
         readonly [x: string]: string;
     };
-    public readonly google: {
-        readonly analytics: {
-            readonly ga4GtagId: string;
-        };
-    };
     public constructor(props: C9rProps | Class);
+    public rawProps(): RawProps;
 }
+type ClassInterfaceProps = Omit<ClassInterface, 'constructor' | 'rawProps'>;
 
 /**
  * Brand class factory.
@@ -248,15 +245,6 @@ export const getClass = (): Constructor => {
         };
 
         /**
-         * Google properties.
-         */
-        public readonly google!: {
-            readonly analytics: {
-                readonly ga4GtagId: string;
-            };
-        };
-
-        /**
          * Object constructor.
          *
          * @param props Props or {@see Interface} instance.
@@ -270,6 +258,15 @@ export const getClass = (): Constructor => {
             if (!(this.org instanceof (Defined as Constructor))) {
                 this.org = this; // Circular.
             }
+        }
+
+        /**
+         * Produces raw props.
+         *
+         * @returns Object {@see RawProps}.
+         */
+        public rawProps(): RawProps {
+            return { ...this, org: this.org.slug };
         }
     };
     return Object.defineProperty(Defined, 'name', {

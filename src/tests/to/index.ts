@@ -243,8 +243,6 @@ describe('$to', async () => {
             'socialProfiles.facebook',
             'socialProfiles.github',
             'socialProfiles.npm',
-
-            'google.analytics.ga4GtagId',
         ]);
     });
     test('.plainFlatObject()', async () => {

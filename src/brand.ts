@@ -2,7 +2,7 @@
  * Brand utilities.
  */
 
-import { $class, $obj, $str, $to, $url } from './index.ts';
+import { $app, $class, $obj, $str, $url } from './index.ts';
 
 /**
  * Tracks initialization.
@@ -152,11 +152,6 @@ const initializeRawProps = (): void => {
             github: 'https://github.com/clevercanyon',
             npm: 'https://www.npmjs.com/org/clevercanyon',
         },
-        google: {
-            analytics: {
-                ga4GtagId: 'G-Y5BS7MMHMD',
-            },
-        },
     };
 
     /**
@@ -218,33 +213,30 @@ export const addApp = (options: AddAppOptions): string => {
     const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<AddAppOptions>;
     const org = get(opts.org); // Expands org slug into brand instance.
 
-    // e.g., `@organization/[basename]` from `./package.json` file.
-    const pkgBasename = opts.pkgName.replace(/^@/u, '').split('/')[1] || opts.pkgName;
-
-    const pkgBasenameAsN7m = $str.numeronym(pkgBasename);
-    const pkgBasenameAsName = $str.titleCase(pkgBasename);
-    const pkgBasenameAsNamespace = $str.studlyCase(pkgBasename, { asciiOnly: true, letterFirst: 'X' });
-    const pkgBasenameAsSlug = $str.kebabCase(pkgBasename, { asciiOnly: true, letterFirst: 'x' });
-    const pkgBasenameAsVar = $str.snakeCase(pkgBasename, { asciiOnly: true, letterFirst: 'x' });
+    const pkgSlug = $app.pkgSlug(opts.pkgName);
+    const pkgSlugAsN7m = $str.numeronym(pkgSlug);
+    const pkgSlugAsName = $str.titleCase(pkgSlug);
+    const pkgSlugAsNamespace = $str.studlyCase(pkgSlug, { asciiOnly: true, letterFirst: 'X' });
+    const pkgSlugAsVar = $str.snakeCase(pkgSlug, { asciiOnly: true, letterFirst: 'x' });
 
     add(
         $obj.mergeDeep(
-            $to.plainObjectDeep(org),
+            org.rawProps(),
             {
                 org: opts.org,
                 type: opts.type,
 
-                n7m: pkgBasenameAsN7m,
-                name: pkgBasenameAsName,
+                n7m: pkgSlugAsN7m,
+                name: pkgSlugAsName,
 
-                namespace: pkgBasenameAsNamespace,
-                domain: pkgBasenameAsSlug + '.' + org.domain,
+                namespace: pkgSlugAsNamespace,
+                domain: pkgSlug + '.' + org.domain,
 
-                slug: pkgBasenameAsSlug,
-                var: pkgBasenameAsVar,
+                slug: pkgSlug,
+                var: pkgSlugAsVar,
 
-                slugPrefix: pkgBasenameAsSlug + '-',
-                varPrefix: pkgBasenameAsVar + '_',
+                slugPrefix: pkgSlug + '-',
+                varPrefix: pkgSlugAsVar + '_',
 
                 icon: {
                     png: $url.fromAppBase('/assets/icon.png'),
@@ -262,5 +254,5 @@ export const addApp = (options: AddAppOptions): string => {
             opts.props,
         ) as unknown as $class.BrandRawProps,
     );
-    return pkgBasenameAsSlug;
+    return pkgSlug;
 };
