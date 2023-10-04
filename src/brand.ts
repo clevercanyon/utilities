@@ -2,7 +2,7 @@
  * Brand utilities.
  */
 
-import { $class, $obj } from './index.ts';
+import { $class, $obj, $str, $to, $url } from './index.ts';
 
 /**
  * Tracks initialization.
@@ -18,6 +18,16 @@ const instances: { [x: string]: $class.Brand } = {};
  * Raw props keyed by brand slug.
  */
 const rawProps: { [x: string]: $class.BrandRawProps } = {};
+
+/**
+ * Defines types.
+ */
+export type AddAppOptions = {
+    org: string;
+    type: string;
+    pkgName: string;
+    props?: Partial<$class.BrandRawProps>;
+};
 
 /**
  * Adds a new brand at runtime.
@@ -90,7 +100,7 @@ const initializeRawProps = (): void => {
             name: 'Jason Caldwell',
             description: 'Engineering Manager, Consultant, Staff Engineer',
             image: {
-                url: 'https://cdn.clevercanyon.com/assets/brands/c10n/founder.png',
+                url: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/founder.png',
                 width: 1200,
                 height: 1200,
             },
@@ -114,20 +124,20 @@ const initializeRawProps = (): void => {
         description: 'We’re transforming ideas into digital realities.',
 
         icon: {
-            png: 'https://cdn.clevercanyon.com/assets/brands/c10n/icon.png',
-            svg: 'https://cdn.clevercanyon.com/assets/brands/c10n/icon.svg',
+            png: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/icon.png',
+            svg: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/icon.svg',
             width: 1024,
             height: 1024,
         },
         logo: {
-            png: 'https://cdn.clevercanyon.com/assets/brands/c10n/logo-on-light-bgs.png',
-            svg: 'https://cdn.clevercanyon.com/assets/brands/c10n/logo-on-light-bgs.svg',
+            png: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/logo-on-light-bgs.png',
+            svg: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/logo-on-light-bgs.svg',
             width: 1060,
             height: 120,
         },
         ogImage: {
-            png: 'https://cdn.clevercanyon.com/assets/brands/c10n/og-image.png',
-            svg: 'https://cdn.clevercanyon.com/assets/brands/c10n/og-image.svg',
+            png: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/og-image.png',
+            svg: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/og-image.svg',
             width: 2400,
             height: 1260,
         },
@@ -174,23 +184,83 @@ const initializeRawProps = (): void => {
             description: 'Great things, built on great technology.',
 
             icon: {
-                png: 'https://cdn.clevercanyon.com/assets/brands/h1p/icon.png',
-                svg: 'https://cdn.clevercanyon.com/assets/brands/h1p/icon.svg',
+                png: 'https://cdn.clevercanyon.com/assets/brands/hop/icon.png',
+                svg: 'https://cdn.clevercanyon.com/assets/brands/hop/icon.svg',
                 width: 1024,
                 height: 1024,
             },
             logo: {
-                png: 'https://cdn.clevercanyon.com/assets/brands/h1p/logo-on-light-bgs.png',
-                svg: 'https://cdn.clevercanyon.com/assets/brands/h1p/logo-on-light-bgs.svg',
+                png: 'https://cdn.clevercanyon.com/assets/brands/hop/logo-on-light-bgs.png',
+                svg: 'https://cdn.clevercanyon.com/assets/brands/hop/logo-on-light-bgs.svg',
                 width: 1060,
                 height: 120,
             },
             ogImage: {
-                png: 'https://cdn.clevercanyon.com/assets/brands/h1p/og-image.png',
-                svg: 'https://cdn.clevercanyon.com/assets/brands/h1p/og-image.svg',
+                png: 'https://cdn.clevercanyon.com/assets/brands/hop/og-image.png',
+                svg: 'https://cdn.clevercanyon.com/assets/brands/hop/og-image.svg',
                 width: 2400,
                 height: 1260,
             },
         },
     }) as unknown as $class.BrandRawProps;
+};
+
+/**
+ * Adds app as a brand, at runtime.
+ *
+ * @param   options Required; {@see AddAppOptions}.
+ *
+ * @returns         Slug for the new brand at runtime.
+ */
+export const addApp = (options: AddAppOptions): string => {
+    if (!rawPropsInitialized) initializeRawProps();
+
+    const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<AddAppOptions>;
+    const org = get(opts.org); // Expands org slug into brand instance.
+
+    // e.g., `@organization/[basename]` from `./package.json` file.
+    const pkgBasename = opts.pkgName.replace(/^@/u, '').split('/')[1] || opts.pkgName;
+
+    const pkgBasenameAsN7m = $str.numeronym(pkgBasename);
+    const pkgBasenameAsName = $str.titleCase(pkgBasename);
+    const pkgBasenameAsNamespace = $str.studlyCase(pkgBasename, { asciiOnly: true, letterFirst: 'X' });
+    const pkgBasenameAsSlug = $str.kebabCase(pkgBasename, { asciiOnly: true, letterFirst: 'x' });
+    const pkgBasenameAsVar = $str.snakeCase(pkgBasename, { asciiOnly: true, letterFirst: 'x' });
+
+    add(
+        $obj.mergeDeep(
+            $to.plainObjectDeep(org),
+            {
+                org: opts.org,
+                type: opts.type,
+
+                n7m: pkgBasenameAsN7m,
+                name: pkgBasenameAsName,
+
+                namespace: pkgBasenameAsNamespace,
+                domain: pkgBasenameAsSlug + '.' + org.domain,
+
+                slug: pkgBasenameAsSlug,
+                var: pkgBasenameAsVar,
+
+                slugPrefix: pkgBasenameAsSlug + '-',
+                varPrefix: pkgBasenameAsVar + '_',
+
+                icon: {
+                    png: $url.fromAppBase('/assets/icon.png'),
+                    svg: $url.fromAppBase('/assets/icon.svg'),
+                },
+                logo: {
+                    png: $url.fromAppBase('/assets/logo.png'),
+                    svg: $url.fromAppBase('/assets/logo.svg'),
+                },
+                ogImage: {
+                    png: $url.fromAppBase('/assets/og-image.png'),
+                    svg: $url.fromAppBase('/assets/og-image.svg'),
+                },
+            },
+            opts.props,
+        ) as unknown as $class.BrandRawProps,
+    );
+    return pkgBasenameAsSlug;
 };

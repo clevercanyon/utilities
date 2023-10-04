@@ -235,6 +235,9 @@ describe('$to', async () => {
             'ogImage.width',
             'ogImage.height',
 
+            'policies.terms',
+            'policies.privacy',
+
             'socialProfiles.twitter',
             'socialProfiles.linkedin',
             'socialProfiles.facebook',
