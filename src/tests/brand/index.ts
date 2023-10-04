@@ -15,14 +15,15 @@ describe('$brand', async () => {
     });
     test('.addApp()', async () => {
         const brand = $brand.addApp({
-            org: 'hop',
+            org: '@clevercanyon/hop.gdn',
             type: 'site',
             pkgName: '@foo/bar-baz.x.tld',
             baseURL: 'https://bar-baz.x.tld',
+            props: {},
         });
         expect(brand.slug).toBe('bar-baz-x-tld');
         expect(brand.hostname).toBe('bar-baz.x.tld');
-        expect(brand.org).toBe($brand.get('hop'));
+        expect(brand.org).toBe($brand.get('@clevercanyon/hop.gdn'));
         expect(brand.org.org).toBe($brand.get('&'));
         expect($obj.tag(brand)).toBe($app.pkgName + '/Brand');
     });

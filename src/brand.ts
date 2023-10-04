@@ -15,7 +15,7 @@ let rawPropsInitialized = false;
 const instances: { [x: string]: $class.Brand } = {};
 
 /**
- * Raw props keyed by brand slug.
+ * Raw props keyed by package name.
  */
 const rawProps: { [x: string]: $class.BrandRawProps } = {};
 
@@ -33,51 +33,52 @@ export type AddAppOptions = {
 /**
  * Adds a new brand at runtime.
  *
- * @param   props Raw brand props; {@see $class.BrandRawProps}.
+ * @param   pkgName The brand’s package name.
+ * @param   props   Raw brand props; {@see $class.BrandRawProps}.
  *
- * @returns       Brand instance {@see $class.Brand}.
+ * @returns         Brand instance {@see $class.Brand}.
  */
-export const add = (props: $class.BrandRawProps): $class.Brand => {
+export const add = (pkgName: string, props: $class.BrandRawProps): $class.Brand => {
     if (!rawPropsInitialized) initializeRawProps();
 
-    if (Object.hasOwn(rawProps, props.slug)) {
-        throw new Error('Brand slug exists already.');
+    if (Object.hasOwn(rawProps, pkgName)) {
+        throw new Error('Brand `' + pkgName + '` exists already.');
     }
-    rawProps[props.slug] = props;
+    rawProps[pkgName] = props;
 
-    return get(props.slug);
+    return get(pkgName);
 };
 
 /**
  * Gets a brand instance.
  *
- * @param   slug Brand slug.
+ * @param   pkgName Brand package name.
  *
- * @returns      Brand instance {@see $class.Brand}.
+ * @returns         Brand instance {@see $class.Brand}.
  */
-export const get = (slug: string): $class.Brand => {
+export const get = (pkgName: string): $class.Brand => {
     if (!rawPropsInitialized) initializeRawProps();
 
-    slug = '&' === slug ? 'clevercanyon' : slug;
-    // `&` is a self-referential `clevercanyon` alias.
+    pkgName = '&' === pkgName ? '@clevercanyon/clevercanyon.com' : pkgName;
+    // `&` is a self-referential Clever Canyon brand alias.
 
-    if (!slug || !rawProps[slug]) {
-        throw new Error('Missing brand: `' + slug + '`.');
+    if (!pkgName || !rawProps[pkgName]) {
+        throw new Error('Missing brand: `' + pkgName + '`.');
     }
-    if (instances[slug]) {
-        return instances[slug];
+    if (instances[pkgName]) {
+        return instances[pkgName];
     }
     const Brand = $class.getBrand(); // Brand class.
 
-    if (rawProps[slug].org === slug) {
+    if (rawProps[pkgName].org === pkgName) {
         // In this case we have to first instantiate the `org` itself, because the `org` reference is cyclic.
         // It is therefore handled by the class constructor, which interprets `undefined` as a self-referential `org`.
-        instances[slug] = new Brand({ ...rawProps[slug], org: undefined });
+        instances[pkgName] = new Brand({ ...rawProps[pkgName], org: undefined });
     } else {
         // Otherwise, we simply acquire the `org` brand before instantiating.
-        instances[slug] = new Brand({ ...rawProps[slug], org: get(rawProps[slug].org) });
+        instances[pkgName] = new Brand({ ...rawProps[pkgName], org: get(rawProps[pkgName].org) });
     }
-    return instances[slug];
+    return instances[pkgName];
 };
 
 /**
@@ -90,8 +91,8 @@ const initializeRawProps = (): void => {
     /**
      * Clever Canyon, LLC.
      */
-    rawProps.clevercanyon = {
-        org: 'clevercanyon',
+    rawProps['@clevercanyon/clevercanyon.com'] = {
+        org: '@clevercanyon/clevercanyon.com',
         type: 'corp',
         legalName: 'Clever Canyon, LLC',
         address: {
@@ -116,6 +117,7 @@ const initializeRawProps = (): void => {
         n7m: 'c10n',
         name: 'Clever Canyon',
 
+        pkgName: '@clevercanyon/clevercanyon.com',
         namespace: 'CleverCanyon',
         hostname: 'clevercanyon.com',
 
@@ -162,15 +164,16 @@ const initializeRawProps = (): void => {
     /**
      * Clever Canyon, LLC (dba: Hop.gdn).
      */
-    rawProps.hop = $obj.mergeDeep(rawProps.clevercanyon, {
+    rawProps['@clevercanyon/hop.gdn'] = $obj.mergeDeep(rawProps.clevercanyon, {
         $set: {
-            org: 'clevercanyon',
+            org: '@clevercanyon/clevercanyon.com',
             type: 'dba', // Doing business as.
             legalName: 'Clever Canyon, LLC (dba: Hop.gdn)',
 
             n7m: 'h1p',
             name: 'Hop.gdn',
 
+            pkgName: '@clevercanyon/hop.gdn',
             namespace: 'Hop',
             hostname: 'hop.gdn',
 
@@ -224,6 +227,7 @@ export const addApp = (options: AddAppOptions): $class.Brand => {
     const pkgSlugAsVar = $str.snakeCase(pkgSlug, { asciiOnly: true, letterFirst: 'x' });
 
     return add(
+        opts.pkgName,
         $obj.mergeDeep(
             org.rawProps(),
             {
@@ -233,6 +237,7 @@ export const addApp = (options: AddAppOptions): $class.Brand => {
                 n7m: pkgSlugAsN7m,
                 name: pkgSlugAsName,
 
+                pkgName: opts.pkgName,
                 namespace: pkgSlugAsNamespace,
                 hostname: baseURLHostname,
 

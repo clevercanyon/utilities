@@ -209,6 +209,7 @@ describe('$to', async () => {
             'n7m',
             'name',
 
+            'pkgName',
             'namespace',
             'hostname',
 

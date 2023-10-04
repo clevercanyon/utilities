@@ -49,6 +49,7 @@ declare class ClassInterface {
     public readonly n7m: string;
     public readonly name: string;
 
+    public readonly pkgName: string;
     public readonly namespace: string;
     public readonly hostname: string;
 
@@ -150,7 +151,7 @@ export const getClass = (): Constructor => {
         public readonly numberOfEmployees!: number;
 
         /**
-         * N7M; e.g., `m5d`.
+         * Numeronym; e.g., `m5d`.
          */
         public readonly n7m!: string;
 
@@ -158,6 +159,11 @@ export const getClass = (): Constructor => {
          * Name; e.g., `My Brand`.
          */
         public readonly name!: string;
+
+        /**
+         * Pkg name; e.g., `@org/my-brand`.
+         */
+        public readonly pkgName!: string;
 
         /**
          * Namespace; e.g., `MyBrand`.
