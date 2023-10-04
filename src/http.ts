@@ -374,7 +374,7 @@ export const requestIsFromUser = $fnꓺmemoize(2, (request: $type.Request): bool
 export const requestPathIsInvalid = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
     url = url || $url.parse(request.url);
 
-    if (!url || !url.pathname || '/' === url.pathname) {
+    if (!url.pathname || '/' === url.pathname) {
         return false; // Not possible, or early return on `/`.
     }
     return /\\|\/{2,}|\.{2,}/iu.test(url.pathname);
@@ -391,7 +391,7 @@ export const requestPathIsInvalid = $fnꓺmemoize(2, (request: $type.Request, ur
 export const requestPathIsForbidden = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
     url = url || $url.parse(request.url);
 
-    if (!url || !url.pathname || '/' === url.pathname) {
+    if (!url.pathname || '/' === url.pathname) {
         return false; // Not possible, or early return on `/`.
     }
     if (/(?:^|\/)\./iu.test(url.pathname) && !/^\/\.well-known(?:$|\/)/iu.test(url.pathname)) {
@@ -457,7 +457,7 @@ export const requestPathHasDynamicBase = $fnꓺmemoize(2, (request: $type.Reques
     }
     url = url || $url.parse(request.url);
 
-    if (!url || !url.pathname || '/' === url.pathname) {
+    if (!url.pathname || '/' === url.pathname) {
         return false; // Not possible, or early return on `/`.
     }
     return /^\/?(api|wp-json)(?:$|\/)/iu.test(url.pathname);
@@ -477,7 +477,7 @@ export const requestPathIsPotentiallyDynamic = $fnꓺmemoize(2, (request: $type.
     }
     url = url || $url.parse(request.url);
 
-    if (!url || !url.pathname || '/' === url.pathname) {
+    if (!url.pathname || '/' === url.pathname) {
         return false; // Not possible, or early return on `/`.
     }
     return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml|sitemaps\/.*\.xml)$/iu.test(url.pathname);
@@ -494,7 +494,7 @@ export const requestPathIsPotentiallyDynamic = $fnꓺmemoize(2, (request: $type.
 export const requestPathIsSEORelatedFile = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
     url = url || $url.parse(request.url);
 
-    if (!url || !url.pathname || '/' === url.pathname) {
+    if (!url.pathname || '/' === url.pathname) {
         return false; // Not possible, or early return on `/`.
     }
     return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml|sitemaps\/.*\.xml|favicon\.ico)$/iu.test(url.pathname);
@@ -511,7 +511,7 @@ export const requestPathIsSEORelatedFile = $fnꓺmemoize(2, (request: $type.Requ
 export const requestPathIsInAdmin = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
     url = url || $url.parse(request.url);
 
-    if (!url || !url.pathname || '/' === url.pathname) {
+    if (!url.pathname || '/' === url.pathname) {
         return false; // Not possible, or early return on `/`.
     }
     return /(?:^|\/)(?:wp[_-])?admin(?:$|\/)/iu.test(url.pathname) && !/(?:^|\/)wp[_-]admin\/admin[_-]ajax\.php$/iu.test(url.pathname);
@@ -529,14 +529,16 @@ export const requestPathIsInAdmin = $fnꓺmemoize(2, (request: $type.Request, ur
 export const requestPathHasStaticExtension = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL, exts?: string[] | RegExp): boolean => {
     url = url || $url.parse(request.url);
 
-    if (!url || !url.pathname || '/' === url.pathname) {
+    if (!url.pathname || '/' === url.pathname) {
         return false; // Not possible, or early return on `/`.
     }
-    if ($is.regExp(exts)) {
-        return $path.hasExt(url.pathname) && exts.test(url.pathname);
-    }
-    if ($is.array(exts) && exts.length) {
-        return $path.hasExt(url.pathname) && new RegExp('(?:^|[^.])\\.(?:' + exts.map($str.escRegExp).join('|') + ')$', 'ui').test(url.pathname);
+    if (exts) {
+        if ($is.regExp(exts)) {
+            return exts.test(url.pathname);
+            //
+        } else if ($is.array(exts) && exts.length) {
+            return new RegExp('(?:^|[^.])\\.(?:' + exts.map((e) => $str.escRegExp(e)).join('|') + ')$', 'ui').test(url.pathname);
+        }
     }
     return $path.hasStaticExt(url.pathname);
 });

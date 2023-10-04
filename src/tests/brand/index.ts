@@ -14,14 +14,14 @@ describe('$brand', async () => {
         expect($is.string(brand.n7m)).toBe(true);
     });
     test('.addApp()', async () => {
-        const slug = $brand.addApp({
+        const brand = $brand.addApp({
             org: 'hop',
             type: 'site',
-            pkgName: '@foo/bar-baz.buz',
+            pkgName: '@foo/bar-baz.x.tld',
+            baseURL: 'https://bar-baz.x.tld',
         });
-        expect(slug).toBe('bar-baz-buz');
-
-        const brand = $brand.get(slug);
+        expect(brand.slug).toBe('bar-baz-x-tld');
+        expect(brand.hostname).toBe('bar-baz.x.tld');
         expect(brand.org).toBe($brand.get('hop'));
         expect(brand.org.org).toBe($brand.get('&'));
         expect($obj.tag(brand)).toBe($app.pkgName + '/Brand');

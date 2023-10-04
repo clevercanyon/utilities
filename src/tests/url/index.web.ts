@@ -42,9 +42,9 @@ describe('$url', async () => {
         expect($url.currentPathQuery()).toBe('/');
     });
     test('.parse()', async () => {
-        expect(($url.parse() as URL).toString()).toBe('http://localhost:3000/');
-        expect(($url.parse('https://abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
-        expect(($url.parse('//abc.tld/path/xyz.ext') as URL).toString()).toBe('http://abc.tld/path/xyz.ext');
+        expect($url.parse().toString()).toBe('http://localhost:3000/');
+        expect($url.parse('https://abc.tld/path/xyz.ext').toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.parse('//abc.tld/path/xyz.ext').toString()).toBe('http://abc.tld/path/xyz.ext');
     });
     test('.getQueryVar()', async () => {
         expect($url.getQueryVar('abc')).toBe(undefined);

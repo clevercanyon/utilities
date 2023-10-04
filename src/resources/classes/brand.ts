@@ -50,7 +50,7 @@ declare class ClassInterface {
     public readonly name: string;
 
     public readonly namespace: string;
-    public readonly domain: string;
+    public readonly hostname: string;
 
     public readonly slug: string;
     public readonly var: string;
@@ -165,9 +165,9 @@ export const getClass = (): Constructor => {
         public readonly namespace!: string;
 
         /**
-         * Domain; e.g., `my-brand.com`.
+         * Hostname; e.g., `my-brand.com`.
          */
-        public readonly domain!: string;
+        public readonly hostname!: string;
 
         /**
          * Slug; e.g., `my-brand`.

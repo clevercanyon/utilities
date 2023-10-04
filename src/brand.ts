@@ -26,21 +26,26 @@ export type AddAppOptions = {
     org: string;
     type: string;
     pkgName: string;
+    baseURL: string;
     props?: Partial<$class.BrandRawProps>;
 };
 
 /**
  * Adds a new brand at runtime.
  *
- * @param props Raw brand props; {@see $class.BrandRawProps}.
+ * @param   props Raw brand props; {@see $class.BrandRawProps}.
+ *
+ * @returns       Brand instance {@see $class.Brand}.
  */
-export const add = (props: $class.BrandRawProps): void => {
+export const add = (props: $class.BrandRawProps): $class.Brand => {
     if (!rawPropsInitialized) initializeRawProps();
 
     if (Object.hasOwn(rawProps, props.slug)) {
         throw new Error('Brand slug exists already.');
     }
     rawProps[props.slug] = props;
+
+    return get(props.slug);
 };
 
 /**
@@ -48,7 +53,7 @@ export const add = (props: $class.BrandRawProps): void => {
  *
  * @param   slug Brand slug.
  *
- * @returns      Brand {@see $class.Brand}.
+ * @returns      Brand instance {@see $class.Brand}.
  */
 export const get = (slug: string): $class.Brand => {
     if (!rawPropsInitialized) initializeRawProps();
@@ -112,7 +117,7 @@ const initializeRawProps = (): void => {
         name: 'Clever Canyon',
 
         namespace: 'CleverCanyon',
-        domain: 'clevercanyon.com',
+        hostname: 'clevercanyon.com',
 
         slug: 'clevercanyon',
         var: 'clevercanyon',
@@ -167,7 +172,7 @@ const initializeRawProps = (): void => {
             name: 'Hop.gdn',
 
             namespace: 'Hop',
-            domain: 'hop.gdn',
+            hostname: 'hop.gdn',
 
             slug: 'hop',
             var: 'hop',
@@ -205,13 +210,12 @@ const initializeRawProps = (): void => {
  *
  * @param   options Required; {@see AddAppOptions}.
  *
- * @returns         Slug for the new brand at runtime.
+ * @returns         Brand instance {@see $class.Brand}.
  */
-export const addApp = (options: AddAppOptions): string => {
-    if (!rawPropsInitialized) initializeRawProps();
-
+export const addApp = (options: AddAppOptions): $class.Brand => {
     const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<AddAppOptions>;
-    const org = get(opts.org); // Expands org slug into brand instance.
+    const org = get(opts.org); // Expands org slug into org brand instance.
+    const baseURLHostname = $url.parse(opts.baseURL).hostname;
 
     const pkgSlug = $app.pkgSlug(opts.pkgName);
     const pkgSlugAsN7m = $str.numeronym(pkgSlug);
@@ -219,7 +223,7 @@ export const addApp = (options: AddAppOptions): string => {
     const pkgSlugAsNamespace = $str.studlyCase(pkgSlug, { asciiOnly: true, letterFirst: 'X' });
     const pkgSlugAsVar = $str.snakeCase(pkgSlug, { asciiOnly: true, letterFirst: 'x' });
 
-    add(
+    return add(
         $obj.mergeDeep(
             org.rawProps(),
             {
@@ -230,7 +234,7 @@ export const addApp = (options: AddAppOptions): string => {
                 name: pkgSlugAsName,
 
                 namespace: pkgSlugAsNamespace,
-                domain: pkgSlug + '.' + org.domain,
+                hostname: baseURLHostname,
 
                 slug: pkgSlug,
                 var: pkgSlugAsVar,
@@ -239,20 +243,19 @@ export const addApp = (options: AddAppOptions): string => {
                 varPrefix: pkgSlugAsVar + '_',
 
                 icon: {
-                    png: $url.fromAppBase('/assets/icon.png'),
-                    svg: $url.fromAppBase('/assets/icon.svg'),
+                    png: opts.baseURL + '/assets/icon.png',
+                    svg: opts.baseURL + '/assets/icon.svg',
                 },
                 logo: {
-                    png: $url.fromAppBase('/assets/logo.png'),
-                    svg: $url.fromAppBase('/assets/logo.svg'),
+                    png: opts.baseURL + '/assets/logo.png',
+                    svg: opts.baseURL + '/assets/logo.svg',
                 },
                 ogImage: {
-                    png: $url.fromAppBase('/assets/og-image.png'),
-                    svg: $url.fromAppBase('/assets/og-image.svg'),
+                    png: opts.baseURL + '/assets/og-image.png',
+                    svg: opts.baseURL + '/assets/og-image.svg',
                 },
             },
             opts.props,
         ) as unknown as $class.BrandRawProps,
     );
-    return pkgSlug;
 };

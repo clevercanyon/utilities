@@ -208,8 +208,9 @@ describe('$to', async () => {
 
             'n7m',
             'name',
+
             'namespace',
-            'domain',
+            'hostname',
 
             'slug',
             'var',

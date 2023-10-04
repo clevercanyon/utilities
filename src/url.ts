@@ -33,9 +33,11 @@ export const queryRFC3986AWS4 = Symbol('queryRFC3986AWS4');
 /**
  * Defines standardized local hosts by name.
  *
+ * These can be used as hostnames, or as TLDs; e.g., `local`, `x.local`.
+ *
  * @see https://en.wikipedia.org/wiki/Special-use_domain_name
  */
-export const stdLocalHostsByName = (): string[] => ['local', 'localhost'];
+export const stdLocalHostnames = (): string[] => ['local', 'localhost'];
 
 /**
  * Defines local host patterns.
@@ -51,8 +53,11 @@ export const localHostPatterns = $fnꓺmemoize((): string[] => [
         '\\[::1\\]', // IPv6 loopback address.
         '127.0.0.1', // IPv4 loopback address.
 
-        ...stdLocalHostsByName().map((name) => '{,*.}' + name),
-        ...['mac', 'loc', 'dkr', 'vm'].map((name) => '{,*.}' + name),
+        // These can be used as hostnames, or as TLDs; e.g., `local`, `x.local`.
+        ...stdLocalHostnames().map((name) => '{,*.}' + name),
+
+        // These can only be used as TLDs; e.g., `x.mac`, `x.loc`, etc.
+        ...['mac', 'loc', 'dkr', 'vm'].map((name) => '*.' + name),
     ]),
 ]);
 
@@ -209,6 +214,8 @@ export const currentPathQueryHash = (): string => {
  *
  * @note We intentionally do not do any parsing, validating, slicing, or dicing here.
  *       Callers expect this will be nothing more than a prepending of the base URL.
+ *
+ * @todo Should this throw if there is no base URL?
  */
 export const fromAppBase = (pathQueryHash: string): string => {
     return currentAppBase() + pathQueryHash;
@@ -306,27 +313,34 @@ export const rootHost = $fnꓺmemoize({ deep: true, maxSize: 12 }, (host?: $type
             throw new Error('Missing `host`.');
         }
     }
+    // `host` becomes a string value.
+    let hostname: string; // Defined below.
+
     if ($is.url(host)) {
-        host = host.host; // May include port number.
+        const url = host; // As URL object here.
+        (host = url.host), (hostname = url.hostname);
+        //
+    } else if ($str.isIPv6Host(host)) {
+        // e.g., `[::1]:3000`, always in brackets.
+        hostname = host.replace(/(\])(?::[0-9]+)$/u, '$1');
+    } else {
+        // e.g., `:3000`, following a host; e.g., name|IP.
+        hostname = host.replace(/:[0-9]+$/u, '');
     }
-    let strHost = String(host || ''); // Force string.
+    host = host.toLowerCase();
+    hostname = hostname.toLowerCase();
+    if (!opts.withPort) host = hostname;
 
-    if (!opts.withPort) {
-        if ($str.isIPv6Host(strHost)) {
-            // e.g., `[::1]:3000`, always in brackets.
-            strHost = strHost.replace(/(\])(?::[0-9]+)?$/u, '$1');
-        } else strHost = strHost.replace(/:[0-9]+$/u, '');
+    if ($str.isIPHost(host)) {
+        return host; // IPs don’t support subdomains.
     }
-    if ($str.isIPHost(strHost)) {
-        return strHost.toLowerCase(); // IPs don’t support subdomains.
-    }
-    const localHostsByName = stdLocalHostsByName(); // Call once, use below.
+    const localHostnames = stdLocalHostnames(); // Once and use below.
 
-    if (localHostsByName.includes(strHost) || localHostsByName.find((x) => strHost.endsWith('.' + x))) {
+    if (localHostnames.includes(hostname) || localHostnames.find((localHostname) => hostname.endsWith('.' + localHostname))) {
         // When the TLD itself has no extension; e.g., `local`, `localhost`, `foo.localhost`.
-        return strHost.toLowerCase().split('.').slice(-1).join('.');
+        return host.split('.').slice(-1).join('.');
     }
-    return strHost.toLowerCase().split('.').slice(-2).join('.');
+    return host.split('.').slice(-2).join('.');
 });
 
 /**
@@ -340,27 +354,30 @@ export const rootHost = $fnꓺmemoize({ deep: true, maxSize: 12 }, (host?: $type
  *
  *   - Optional in browser; i.e., default is {@see current()}.
  *
- * @param   options Options (all optional). Default is `{ throwOnError: true }`.
+ * @param   options Options (all optional); {@see ParseOptions}.
  *
  * @returns         A {@see URL} instance. On failure this either throws an error or returns `undefined`.
  *
  *   - `throwOnError` defaults to `true`. {@see tryParse()} for the opposite default behavior.
  */
-export const parse = (url?: $type.URL | string, base?: $type.URL | string, options: ParseOptions = {}): $type.URL | undefined => {
-    const opts = $obj.defaults({}, options, { throwOnError: true }) as Required<ParseOptions>;
+export const parse = <Options extends ParseOptions>(
+    url?: $type.URL | string,
+    base?: $type.URL | string,
+    options?: Options,
+): Options extends ParseOptions & { throwOnError: false } ? $type.URL | undefined : $type.URL => {
+    const opts = $obj.defaults({}, options || {}, { throwOnError: true }) as Required<ParseOptions>;
 
     if (undefined === url) {
-        if ($env.isWeb()) {
-            url = current();
-        } else {
+        if ($env.isWeb()) url = current();
+        else {
             throw new Error('Missing `url`.');
         }
     }
     if (undefined === base) {
         base = $env.isWeb() ? current() : '';
     }
-    let strURL = String($is.url(url) ? url.toString() : url);
-    let strBase = String($is.url(base) ? base.toString() : base);
+    let strURL = url.toString();
+    let strBase = base.toString();
 
     if (strURL && /^\/\//u.test(strURL)) {
         strURL = strURL.replace(/^\/\//u, ($env.isWeb() ? currentScheme() : 'https') + '://');
@@ -368,7 +385,7 @@ export const parse = (url?: $type.URL | string, base?: $type.URL | string, optio
     if (strBase && /^\/\//u.test(strBase)) {
         strBase = strBase.replace(/^\/\//u, ($env.isWeb() ? currentScheme() : 'https') + '://');
     }
-    return $fn.try(() => new URL(strURL, strBase || undefined), undefined, { throwOnError: opts.throwOnError })();
+    return $fn.try(() => new URL(strURL, strBase || undefined), undefined, { throwOnError: opts.throwOnError })() as ReturnType<typeof parse<Options>>;
 };
 
 /**
@@ -376,11 +393,13 @@ export const parse = (url?: $type.URL | string, base?: $type.URL | string, optio
  *
  * @param   url     URL for this method to parse.
  * @param   base    Base URL. Required for relative URLs.
- * @param   options Options (all optional) — `{ throwOnError: false }` is always on.
+ * @param   options Options (all optional); {@see TryParseOptions}.
  *
  * @returns         A {@see URL} instance, else `undefined` on failure.
+ *
+ *   - `throwOnError` is forced `false`. {@see parse()} if you need control over this behavior.
  */
-export const tryParse = (url?: $type.URL | string, base?: $type.URL | string, options: TryParseOptions = {}): $type.URL | undefined => {
+export const tryParse = (url?: $type.URL | string, base?: $type.URL | string, options?: TryParseOptions): $type.URL | undefined => {
     return parse(url, base, { ...options, throwOnError: false });
 };
 
@@ -398,7 +417,7 @@ export const tryParse = (url?: $type.URL | string, base?: $type.URL | string, op
 export const getQueryVar = (name: string, url?: $type.URL | string): string | undefined => {
     const objURL = parse(url);
 
-    if (!objURL || !objURL.searchParams.has(name)) {
+    if (!objURL.searchParams.has(name)) {
         return undefined; // Does not exist.
     }
     return objURL.searchParams.get(name) || '';
@@ -433,7 +452,7 @@ export function getQueryVars(names: string[] | $type.URL | string = [], url?: $t
     const objURL = parse(url);
     const vars: { [x: string]: string } = {};
 
-    if (!objURL || ![...objURL.searchParams].length) {
+    if (![...objURL.searchParams].length) {
         return vars; // No query string variables.
     }
     for (const [name, value] of objURL.searchParams) {
@@ -494,9 +513,6 @@ export function addQueryVars(vars: { [x: string]: string }, url?: $type.URL | st
     const rtnObjURL = $is.url(url);
     const objURL = parse(url);
 
-    if (!objURL) {
-        return url || ''; // Not possible.
-    }
     for (const [name, value] of Object.entries(vars)) {
         if (opts.replaceExisting || !objURL.searchParams.has(name)) {
             objURL.searchParams.set(name, value);
@@ -564,9 +580,6 @@ export function removeQueryVars(names: string[] | $type.URL | string = [], url?:
     const rtnObjURL = $is.url(url);
     const objURL = parse(url);
 
-    if (!objURL) {
-        return url || ''; // Not possible.
-    }
     for (const name of Array.from(objURL.searchParams.keys())) {
         if (!names.length || names.includes(name)) {
             objURL.searchParams.delete(name);
@@ -597,9 +610,6 @@ export function removeCSOQueryVars(url?: $type.URL | string): $type.URL | string
     const rtnObjURL = $is.url(url);
     const objURL = parse(url);
 
-    if (!objURL) {
-        return url || ''; // Not possible.
-    }
     for (const name of Array.from(objURL.searchParams.keys())) {
         if (/^(?:ut[mx]_[a-z_0-9]+|_g[al]|(?:gcl|dcl|msclk|fbcl)(?:id|src)|wbraid|_ck)$/iu.test(name)) {
             objURL.searchParams.delete(name);

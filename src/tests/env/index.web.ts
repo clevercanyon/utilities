@@ -38,10 +38,10 @@ describe('$env', async () => {
         expect($env.isLocalWeb.fresh()).toBe(false);
 
         setLoc('http://mac/path');
-        expect($env.isLocalWeb.fresh()).toBe(true);
+        expect($env.isLocalWeb.fresh()).toBe(false);
 
         setLoc('http://loc/path');
-        expect($env.isLocalWeb.fresh()).toBe(true);
+        expect($env.isLocalWeb.fresh()).toBe(false);
 
         setLoc('http://loc.x/path');
         expect($env.isLocalWeb.fresh()).toBe(false);

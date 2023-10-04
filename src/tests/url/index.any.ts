@@ -8,17 +8,38 @@ import { $url } from '../../index.ts';
 describe('$url', async () => {
     test('.rootHost()', async () => {
         expect($url.rootHost('abc.tld')).toBe('abc.tld');
-        expect($url.rootHost('abc.xyz.tld')).toBe('xyz.tld');
+        expect($url.rootHost('abc.Xyz.tld')).toBe('xyz.tld');
+
+        expect($url.rootHost('Abc.xyz.tld:3000')).toBe('xyz.tld:3000');
+        expect($url.rootHost('abc.Xyz.tld:3000', { withPort: false })).toBe('xyz.tld');
+
+        expect($url.rootHost(new URL('https://abc.xyz.tld:3000'))).toBe('xyz.tld:3000');
+        expect($url.rootHost(new URL('https://abc.xyz.tld:3000'), { withPort: false })).toBe('xyz.tld');
+
+        expect($url.rootHost('abc.xyz.mac')).toBe('xyz.mac');
+        expect($url.rootHost('abc.xyz.loc')).toBe('xyz.loc');
+        expect($url.rootHost('abc.xyz.local')).toBe('local');
+        expect($url.rootHost('abc.xyz.localhost')).toBe('localhost');
+
+        expect($url.rootHost('Localhost')).toBe('localhost');
+        expect($url.rootHost('Localhost:3000')).toBe('localhost:3000');
+        expect($url.rootHost('Localhost:3000', { withPort: false })).toBe('localhost');
+
+        expect($url.rootHost(new URL('https://Localhost'))).toBe('localhost');
+        expect($url.rootHost(new URL('https://Localhost:3000'))).toBe('localhost:3000');
+        expect($url.rootHost(new URL('https://Localhost:3000'), { withPort: false })).toBe('localhost');
     });
     test('.parse()', async () => {
-        expect(($url.parse(new URL('https://abc.tld/path/xyz.ext')) as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
-        expect(($url.parse('https://abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
-        expect(($url.parse('//abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect(() => $url.parse('::invalid::')).toThrow();
+        expect($url.parse(new URL('https://abc.tld/path/xyz.ext')).toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.parse('https://abc.tld/path/xyz.ext').toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.parse('//abc.tld/path/xyz.ext').toString()).toBe('https://abc.tld/path/xyz.ext');
     });
     test('.tryParse()', async () => {
-        expect(($url.parse(new URL('https://abc.tld/path/xyz.ext')) as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
-        expect(($url.parse('https://abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
-        expect(($url.parse('//abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.tryParse('::invalid::')).toBe(undefined);
+        expect(($url.tryParse(new URL('https://abc.tld/path/xyz.ext')) as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect(($url.tryParse('https://abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect(($url.tryParse('//abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
     });
     test('.getQueryVar()', async () => {
         expect($url.getQueryVar('abc', 'https://abc.tld/path/xyz.ext?abc')).toBe('');
