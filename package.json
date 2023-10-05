@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.325",
+    "version": "1.0.326",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -182,7 +182,7 @@
             "default": "./dist/version.js"
         }
     },
-    "sideEffects": ["**/*.{css,scss,less}"],
+    "sideEffects": ["**/*.{css,scss,less}", "./src/resources/init.ts"],
     "module": "./dist/index.js",
     "main": "./dist/index.js",
     "browser": "",

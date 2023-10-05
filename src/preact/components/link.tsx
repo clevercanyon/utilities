@@ -7,9 +7,11 @@ import { $preact, $url } from '../../index.ts';
 /**
  * Defines types.
  */
-export type Props = $preact.Props<Partial<$preact.JSX.IntrinsicElements['a']>> & {
-    href?: string; // String value only.
-};
+export type Props = $preact.Props<
+    Partial<$preact.JSX.IntrinsicElements['a']> & {
+        href?: string; // String value only.
+    }
+>;
 
 /**
  * Renders component.

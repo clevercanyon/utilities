@@ -182,8 +182,9 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                 {headState.description && <meta name='description' content={headState.description} />}
                 {headState.author && <meta name='author' content={headState.author} />}
 
-                {headState.pngIcon && <link rel='icon' href={headState.pngIcon.toString()} type='image/png' />}
-                {headState.svgIcon && <link rel='icon' href={headState.svgIcon.toString()} type='image/svg+xml' />}
+                {headState.svgIcon && <link rel='icon' type='image/svg+xml' sizes='any' href={headState.svgIcon.toString()} />}
+                {headState.pngIcon && <link rel='icon' type='image/png' sizes='any' href={headState.pngIcon.toString()} />}
+                {headState.pngIcon && <link rel='apple-touch-icon' type='image/png' sizes='any' href={headState.pngIcon.toString()} />}
 
                 {headState.ogSiteName && headState.ogType && headState.ogTitle && headState.ogDescription && headState.ogURL && headState.ogImage && (
                     <>
