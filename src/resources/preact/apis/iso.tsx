@@ -100,7 +100,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
 
     const Error404 = (await import('../../../preact/components/error-404.tsx')).StandAlone;
     const { state: httpState } = !prerenderedData.html ? { state: { status: 404 } } : $preact.useHTTP();
-    const html = !prerenderedData.html ? $preact.ssr.renderToString(<Error404 classes='default-prerender' />) : prerenderedData.html;
+    const html = !prerenderedData.html ? $preact.ssr.renderToString(<Error404 class='default-prerender' />) : prerenderedData.html;
     const linkURLs = [...prerenderedData.links]; // Converts link URLs into array.
 
     return { httpState, docType: '<!doctype html>', html, linkURLs };

@@ -26,7 +26,7 @@ export default function Error404(props: Props): $preact.VNode<Props> {
         updateHTTPState({ status: 404 }); // Record 404 error.
     }
     return (
-        <HTML classes={$preact.classes(props)}>
+        <HTML class={$preact.classes(props)}>
             <Head
                 robots={'noindex, nofollow'}
                 title={'404 Error: Not Found'}
