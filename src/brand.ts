@@ -164,7 +164,7 @@ const initializeRawProps = (): void => {
     /**
      * Clever Canyon, LLC (dba: Hop.gdn).
      */
-    rawProps['@clevercanyon/hop.gdn'] = $obj.mergeDeep(rawProps.clevercanyon, {
+    rawProps['@clevercanyon/hop.gdn'] = $obj.mergeDeep(rawProps['@clevercanyon/clevercanyon.com'], {
         $set: {
             org: '@clevercanyon/clevercanyon.com',
             type: 'dba', // Doing business as.
