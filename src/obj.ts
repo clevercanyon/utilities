@@ -2,6 +2,8 @@
  * Object utilities.
  */
 
+import './resources/init.ts';
+
 import { $class, $is, $symbol, type $type } from './index.ts';
 import * as $standalone from './resources/standalone/index.ts';
 import { $fnꓺmemoize } from './resources/standalone/index.ts';

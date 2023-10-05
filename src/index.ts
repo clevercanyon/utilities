@@ -2,6 +2,8 @@
  * All utilities.
  */
 
+import './resources/init.ts';
+
 export * as $app from './app.ts';
 export * as $brand from './brand.ts';
 export * as $class from './class.ts';

@@ -2,6 +2,8 @@
  * All Preact components.
  */
 
+import '../resources/init.ts';
+
 export { default as Body, type Props as BodyProps } from './components/body.tsx';
 export { default as Data, type Props as DataProps } from './components/data.tsx';
 export { default as Error404, type Props as Error404Props } from './components/error-404.tsx';

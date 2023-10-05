@@ -2,6 +2,8 @@
  * Time utilities.
  */
 
+import './resources/init.ts';
+
 import { DateTime as Time } from 'luxon';
 import { $app, $class, $is, $obj, $symbol, type $type } from './index.ts';
 

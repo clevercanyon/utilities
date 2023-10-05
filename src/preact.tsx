@@ -3,6 +3,8 @@
  */
 // organize-imports-ignore
 
+import './resources/init.ts';
+
 import type * as preact from 'preact';
 import { $is, $obj, $to, type $type } from './index.ts';
 

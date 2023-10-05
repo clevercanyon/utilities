@@ -2,6 +2,8 @@
  * String utilities.
  */
 
+import './resources/init.ts';
+
 import ipRegex from 'ip-regex';
 import { default as mm, type Options as MMOptions } from 'micromatch';
 import { $env, $is, $obj } from './index.ts';

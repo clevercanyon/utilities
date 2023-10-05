@@ -3,6 +3,8 @@
  */
 // organize-imports-ignore
 
+import './resources/init.ts';
+
 export {
     $symbolꓺobjTag as objTag, //
     $symbolꓺobjStringTag as objStringTag,

@@ -2,6 +2,8 @@
  * HTTP utilities.
  */
 
+import './resources/init.ts';
+
 import { $env, $is, $obj, $path, $str, $time, $url, type $type } from './index.ts';
 import { $fnꓺmemoize } from './resources/standalone/index.ts';
 

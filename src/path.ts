@@ -2,6 +2,8 @@
  * Path utilities.
  */
 
+import './resources/init.ts';
+
 import { default as untypedGitIgnoreFactory, type Ignore as GitIgnore } from 'ignore';
 import { type Options as MMOptions } from 'micromatch';
 import { $mime, $obj, $str, $to } from './index.ts';

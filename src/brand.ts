@@ -2,6 +2,8 @@
  * Brand utilities.
  */
 
+import './resources/init.ts';
+
 import { $app, $class, $obj, $str, $url } from './index.ts';
 
 /**

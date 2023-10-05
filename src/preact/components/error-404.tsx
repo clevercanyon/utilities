@@ -2,6 +2,8 @@
  * Preact component.
  */
 
+import '../../resources/init.ts';
+
 import { $env, $preact } from '../../index.ts';
 import { Body, HTML, Head, type RouteContextAsProps } from '../components.tsx';
 

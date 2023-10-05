@@ -2,6 +2,8 @@
  * Preact component.
  */
 
+import '../../resources/init.ts';
+
 import { createContext } from 'preact';
 import { $obj, $preact } from '../../index.ts';
 import { type State as DataState } from './data.tsx';

@@ -2,6 +2,8 @@
  * Preact component.
  */
 
+import '../../resources/init.ts';
+
 import { createContext } from 'preact';
 import { $obj, $preact } from '../../index.ts';
 

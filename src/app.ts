@@ -2,6 +2,8 @@
  * App utilities.
  */
 
+import './resources/init.ts';
+
 import { $str } from './index.ts';
 import * as $standalone from './resources/standalone/index.ts';
 

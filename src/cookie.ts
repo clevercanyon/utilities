@@ -2,6 +2,8 @@
  * Cookie utilities.
  */
 
+import './resources/init.ts';
+
 import { $env, $obj, $str, $url, type $type } from './index.ts';
 import { $fnꓺmemoize } from './resources/standalone/index.ts';
 

@@ -2,6 +2,8 @@
  * Crypto utilities.
  */
 
+import './resources/init.ts';
+
 import { $obj } from './index.ts';
 import { $fnꓺmemoize } from './resources/standalone/index.ts';
 

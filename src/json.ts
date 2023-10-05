@@ -2,6 +2,8 @@
  * JSON utilities.
  */
 
+import './resources/init.ts';
+
 import { $is, $obj } from './index.ts';
 
 /**

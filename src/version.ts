@@ -2,6 +2,8 @@
  * Version utilities.
  */
 
+import './resources/init.ts';
+
 export { default as $ } from 'semver';
 
 export { default as isValid } from 'semver/functions/valid.js';

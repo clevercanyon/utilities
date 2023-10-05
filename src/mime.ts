@@ -2,6 +2,8 @@
  * MIME utilities.
  */
 
+import './resources/init.ts';
+
 import { $path } from './index.ts';
 import { $fnꓺmemoize } from './resources/standalone/index.ts';
 

@@ -2,6 +2,8 @@
  * Class utilities.
  */
 
+import './resources/init.ts';
+
 import { type $type } from './index.ts';
 
 /**

@@ -2,6 +2,8 @@
  * Function utilities.
  */
 
+import './resources/init.ts';
+
 import { $is, $obj, type $type } from './index.ts';
 import * as $standalone from './resources/standalone/index.ts';
 import { type $fnꓺMemoizeOptions, type $fnꓺMemoizedFunction } from './resources/standalone/index.ts';

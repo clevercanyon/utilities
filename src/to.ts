@@ -2,6 +2,8 @@
  * Data conversion utilities.
  */
 
+import './resources/init.ts';
+
 import { $class, $is, $obj, $symbol, type $type } from './index.ts';
 
 /**

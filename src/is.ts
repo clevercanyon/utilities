@@ -2,6 +2,8 @@
  * Conditional utilities.
  */
 
+import './resources/init.ts';
+
 import { $app, $class, $env, $obj, type $type } from './index.ts';
 import * as $standalone from './resources/standalone/index.ts';
 

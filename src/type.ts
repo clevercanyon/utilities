@@ -3,6 +3,8 @@
  */
 // organize-imports-ignore
 
+import './resources/init.ts';
+
 import { $to } from './index.js';
 import type { DateTime as luxonꓺDateTime } from 'luxon';
 import type * as cf from '@cloudflare/workers-types/experimental';

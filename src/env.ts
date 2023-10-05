@@ -2,6 +2,8 @@
  * Environment utilities.
  */
 
+import './resources/init.ts';
+
 import { $app, $is, $obj, $obp, $str, $to, $type, $url } from './index.ts';
 import { $fnꓺmemoize } from './resources/standalone/index.ts';
 

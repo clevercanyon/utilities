@@ -2,6 +2,8 @@
  * Preact component.
  */
 
+import '../../resources/init.ts';
+
 import { ErrorBoundary, Router as ISORouter, Location, Route, lazyRoute, useRoute } from '@clevercanyon/preact-iso.fork';
 import { type ErrorBoundaryProps } from '@clevercanyon/preact-iso.fork/lazy';
 import { type RouterProps as ISORouterProps, type LocationProps, type RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';

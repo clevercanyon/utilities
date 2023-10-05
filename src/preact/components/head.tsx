@@ -2,6 +2,8 @@
  * Preact component.
  */
 
+import '../../resources/init.ts';
+
 import { createContext } from 'preact';
 import { $env, $obj, $preact, $url, type $type } from '../../index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode, type State as DataState } from './data.tsx';

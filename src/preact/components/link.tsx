@@ -2,6 +2,8 @@
  * Preact component.
  */
 
+import '../../resources/init.ts';
+
 import { $preact, $url } from '../../index.ts';
 
 /**

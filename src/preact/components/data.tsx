@@ -2,6 +2,8 @@
  * Preact component.
  */
 
+import '../../resources/init.ts';
+
 import { createContext } from 'preact';
 import { $app, $env, $http, $json, $obj, $obp, $preact, $str } from '../../index.ts';
 import { type State as BodyState, type PartialState as PartialBodyState } from './body.tsx';

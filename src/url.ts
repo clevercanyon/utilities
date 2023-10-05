@@ -2,6 +2,8 @@
  * URL utilities.
  */
 
+import './resources/init.ts';
+
 import { $env, $fn, $is, $obj, $str, type $type } from './index.ts';
 import { $fnꓺmemoize } from './resources/standalone/index.ts';
 
