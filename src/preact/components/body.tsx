@@ -1,6 +1,4 @@
-/**
- * Preact component.
- */
+/** Preact component. */
 
 import '../../resources/init.ts';
 
@@ -8,9 +6,7 @@ import { createContext } from 'preact';
 import { $obj, $preact } from '../../index.ts';
 import { type State as DataState } from './data.tsx';
 
-/**
- * Defines types.
- */
+/** Defines types. */
 export type State = Partial<Omit<$preact.JSX.IntrinsicElements['body'], 'children' | 'dangerouslySetInnerHTML'>> & {
     [x in $preact.ClassPropVariants]?: $preact.Classes;
 };
