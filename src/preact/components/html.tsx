@@ -11,7 +11,7 @@ import { type State as DataState } from './data.tsx';
 /**
  * Defines types.
  */
-export type State = Partial<$preact.JSX.IntrinsicElements['html']> & {
+export type State = Partial<Omit<$preact.JSX.IntrinsicElements['html'], 'children' | 'dangerouslySetInnerHTML'>> & {
     lang: string; // String value only.
 } & { [x in $preact.ClassPropVariants]?: $preact.Classes };
 
@@ -76,7 +76,7 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
         <Context.Provider value={{ state, updateState }}>
             <html
                 {...{
-                    ...$preact.omitProps(props, ['class', 'lang', 'children']),
+                    ...$preact.omitProps(state, ['class', 'lang']),
                     class: $preact.classes(layoutState?.dark ? 'dark' : '', state, 'preact'),
                     lang: state.lang,
                 }}

@@ -220,7 +220,6 @@ const initializeRawProps = (): void => {
 export const addApp = (options: AddAppOptions): $class.Brand => {
     const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<AddAppOptions>;
     const org = get(opts.org); // Expands org slug into org brand instance.
-    const baseURLHostname = $url.parse(opts.baseURL).hostname;
 
     const pkgSlug = $app.pkgSlug(opts.pkgName);
     const pkgSlugAsN7m = $str.numeronym(pkgSlug);
@@ -241,7 +240,7 @@ export const addApp = (options: AddAppOptions): $class.Brand => {
 
                 pkgName: opts.pkgName,
                 namespace: pkgSlugAsNamespace,
-                hostname: baseURLHostname,
+                hostname: $url.parse(opts.baseURL).hostname,
 
                 slug: pkgSlug,
                 var: pkgSlugAsVar,
@@ -250,16 +249,16 @@ export const addApp = (options: AddAppOptions): $class.Brand => {
                 varPrefix: pkgSlugAsVar + '_',
 
                 icon: {
-                    png: opts.baseURL + '/assets/icon.png',
-                    svg: opts.baseURL + '/assets/icon.svg',
+                    png: new URL('./assets/icon.png', opts.baseURL).toString(),
+                    svg: new URL('./assets/icon.svg', opts.baseURL).toString(),
                 },
                 logo: {
-                    png: opts.baseURL + '/assets/logo.png',
-                    svg: opts.baseURL + '/assets/logo.svg',
+                    png: new URL('./assets/logo.png', opts.baseURL).toString(),
+                    svg: new URL('./assets/logo.svg', opts.baseURL).toString(),
                 },
                 ogImage: {
-                    png: opts.baseURL + '/assets/og-image.png',
-                    svg: opts.baseURL + '/assets/og-image.svg',
+                    png: new URL('./assets/og-image.png', opts.baseURL).toString(),
+                    svg: new URL('./assets/og-image.svg', opts.baseURL).toString(),
                 },
             },
             opts.props,

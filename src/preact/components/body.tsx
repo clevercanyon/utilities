@@ -11,7 +11,7 @@ import { type State as DataState } from './data.tsx';
 /**
  * Defines types.
  */
-export type State = Partial<$preact.JSX.IntrinsicElements['body']> & {
+export type State = Partial<Omit<$preact.JSX.IntrinsicElements['body'], 'children' | 'dangerouslySetInnerHTML'>> & {
     [x in $preact.ClassPropVariants]?: $preact.Classes;
 };
 export type PartialState = Partial<State>;
@@ -72,7 +72,7 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
         <Context.Provider value={{ state, updateState }}>
             <body
                 {...{
-                    ...$preact.omitProps(props, ['class', 'children']),
+                    ...$preact.omitProps(state, ['class']),
                     class: $preact.classes(state),
                 }}
             >

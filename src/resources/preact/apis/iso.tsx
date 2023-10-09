@@ -22,7 +22,6 @@ export type PrerenderSPAReturnProps = {
     httpState: HTTPState;
     docType: string;
     html: string;
-    linkURLs: string[];
 };
 export type HydrativelyRenderSPAOptions = {
     App: $preact.FnComponent<RouterProps>;
@@ -69,6 +68,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
     }
     const { request, appManifest, App, props = {} } = options;
     const { url } = request; // Extracts absolute request URL.
+    const base = $url.appBase(); // Base URL from app environment vars.
 
     let appManifestStyleBundleSubpath: string = ''; // Style bundle.
     let appManifestScriptBundleSubpath: string = ''; // Script bundle.
@@ -84,14 +84,15 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
     if (!appManifestStyleBundleSubpath) throw new Error('Missing `appManifest[index.html].css[0]`.');
     if (!appManifestScriptBundleSubpath) throw new Error('Missing `appManifest[index.html].file`.');
 
-    const mainStyleBundle = $url.pathFromAppBase('/' + appManifestStyleBundleSubpath);
-    const mainScriptBundle = $url.pathFromAppBase('/' + appManifestScriptBundleSubpath);
+    const mainStyleBundle = $url.pathFromAppBase('./' + appManifestStyleBundleSubpath);
+    const mainScriptBundle = $url.pathFromAppBase('./' + appManifestScriptBundleSubpath);
 
     const fetcher = replaceNativeFetch();
     const prerenderedData = await prerender(App, {
         props: {
             ...props, // Props given by options.
             url, // Absolute URL extracted from request.
+            base, // Base URL from app-driven environment vars.
             fetcher, // Preact ISO fetcher; {@see replaceNativeFetch()}.
             head: $obj.mergeDeep({ mainStyleBundle, mainScriptBundle }, props.head),
         },
@@ -101,9 +102,8 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
     const Error404 = (await import('../../../preact/components/error-404.tsx')).StandAlone;
     const { state: httpState } = !prerenderedData.html ? { state: { status: 404 } } : $preact.useHTTP();
     const html = !prerenderedData.html ? $preact.ssr.renderToString(<Error404 class='default-prerender' />) : prerenderedData.html;
-    const linkURLs = [...prerenderedData.links]; // Converts link URLs into array.
 
-    return { httpState, docType: '<!doctype html>', html, linkURLs };
+    return { httpState, docType: '<!doctype html>', html };
 };
 
 /**

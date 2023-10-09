@@ -73,24 +73,26 @@ export type EnsuredType<Type> =
 /**
  * Utility types.
  */
-export type PartialTuple<__Tuple extends unknown[], __Extracted extends unknown[] = []> = //
+export type Writeable<Type> = { -readonly [Prop in keyof Type]: Type[Prop] };
+export type DeepWriteable<Type> = { -readonly [Prop in keyof Type]: DeepWriteable<Type[Prop]> };
+
+export type PartialTuple<Tuple extends unknown[], Extracted extends unknown[] = []> = //
     // If the tuple provided contains at least one required value.
-    __Tuple extends [infer __Next, ...infer __Remaining]
+    Tuple extends [infer Next, ...infer __Remaining]
         ? // Recurse with remaining + first being partial (i.e., optional) now.
-          PartialTuple<__Remaining, [...__Extracted, __Next?]>
+          PartialTuple<__Remaining, [...Extracted, Next?]>
         : // Else, return with an empty tuple.
-          [...__Extracted, /* empty */ ...__Tuple];
+          [...Extracted, /* empty */ ...Tuple];
 
 export type PartialParameters<Type extends $Function> = PartialTuple<Parameters<Type>>;
-
-export type RemainingParameters<__Provided extends unknown[], __Expected extends unknown[]> = //
+export type RemainingParameters<Provided extends unknown[], Expected extends unknown[]> = //
     // If the expected parameters contains at least one required value.
-    __Expected extends [infer unusedꓺ__FirstExpected, ...infer __RestExpected]
+    Expected extends [infer unusedꓺFirstExpected, ...infer RestExpected]
         ? // If provided parameters contains at least one required value, recurse with one item less in each.
-          __Provided extends [infer unusedꓺ__FirstProvided, ...infer __RestProvided]
-            ? RemainingParameters<__RestProvided, __RestExpected>
+          Provided extends [infer unusedꓺFirstProvided, ...infer RestProvided]
+            ? RemainingParameters<RestProvided, RestExpected>
             : // Else, remaining parameters unchanged.
-              __Expected
+              Expected
         : // Else, no more parameters.
           [];
 

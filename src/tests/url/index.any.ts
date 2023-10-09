@@ -2,10 +2,125 @@
  * Test suite.
  */
 
-import { describe, expect, test } from 'vitest';
-import { $url } from '../../index.ts';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { $env, $url } from '../../index.ts';
+
+const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '' });
 
 describe('$url', async () => {
+    beforeAll(async () => {
+        $env.set('APP_BASE_URL', 'https://x.tld/base/');
+    });
+    afterAll(async () => {
+        $env.set('APP_BASE_URL', __origAppBaseURL__);
+        $url.appBase.flush(), $url.appBasePath.flush();
+    });
+    test('.appBase()', async () => {
+        expect($url.appBase()).toBe('https://x.tld/base/');
+    });
+    test('.appBasePath()', async () => {
+        expect($url.appBasePath()).toBe('/base/');
+    });
+    test('.fromAppBase()', async () => {
+        expect($url.fromAppBase('path')).toBe('https://x.tld/base/path');
+        expect($url.fromAppBase('path/')).toBe('https://x.tld/base/path/');
+
+        expect($url.fromAppBase('./path')).toBe('https://x.tld/base/path');
+        expect($url.fromAppBase('./path/')).toBe('https://x.tld/base/path/');
+
+        expect($url.fromAppBase('https://x.tld/path')).toBe('https://x.tld/path');
+        expect($url.fromAppBase('https://x.tld/path/')).toBe('https://x.tld/path/');
+
+        expect($url.fromAppBase(new URL('https://x.tld/path'))).toBe('https://x.tld/path');
+        expect($url.fromAppBase(new URL('https://x.tld/path/'))).toBe('https://x.tld/path/');
+    });
+    test('.pathFromAppBase()', async () => {
+        expect($url.pathFromAppBase('path')).toBe('/base/path');
+        expect($url.pathFromAppBase('path/')).toBe('/base/path/');
+
+        expect($url.pathFromAppBase('./path')).toBe('/base/path');
+        expect($url.pathFromAppBase('./path/')).toBe('/base/path/');
+
+        expect($url.pathFromAppBase('https://x.tld/path')).toBe('/path');
+        expect($url.pathFromAppBase('https://x.tld/path/')).toBe('/path/');
+
+        expect($url.pathFromAppBase(new URL('https://x.tld/path'))).toBe('/path');
+        expect($url.pathFromAppBase(new URL('https://x.tld/path/'))).toBe('/path/');
+    });
+    test('.addAppBasePath()', async () => {
+        expect($url.addAppBasePath('path')).toBe('/base/path');
+        expect($url.addAppBasePath('path/')).toBe('/base/path/');
+
+        expect($url.addAppBasePath('./path')).toBe('/base/path');
+        expect($url.addAppBasePath('./path/')).toBe('/base/path/');
+
+        expect($url.addAppBasePath('https://x.tld/path')).toBe('https://x.tld/base/path');
+        expect($url.addAppBasePath('https://x.tld/path/')).toBe('https://x.tld/base/path/');
+
+        expect($url.addAppBasePath(new URL('https://x.tld/path')) instanceof URL).toBe(true);
+        expect($url.addAppBasePath(new URL('https://x.tld/path/')) instanceof URL).toBe(true);
+
+        expect($url.addAppBasePath(new URL('https://x.tld/path')).toString()).toBe('https://x.tld/base/path');
+        expect($url.addAppBasePath(new URL('https://x.tld/path/')).toString()).toBe('https://x.tld/base/path/');
+    });
+    test('.removeAppBasePath()', async () => {
+        expect($url.removeAppBasePath('/base/path')).toBe('./path');
+        expect($url.removeAppBasePath('/base/path/')).toBe('./path/');
+
+        expect($url.removeAppBasePath('./base/path')).toBe('./path');
+        expect($url.removeAppBasePath('./base/path/')).toBe('./path/');
+
+        expect($url.removeAppBasePath('https://x.tld/base/path')).toBe('https://x.tld/path');
+        expect($url.removeAppBasePath('https://x.tld/base/path/')).toBe('https://x.tld/path/');
+
+        expect($url.removeAppBasePath(new URL('https://x.tld/base/path')) instanceof URL).toBe(true);
+        expect($url.removeAppBasePath(new URL('https://x.tld/base/path/')) instanceof URL).toBe(true);
+
+        expect($url.removeAppBasePath(new URL('https://x.tld/base/path')).toString()).toBe('https://x.tld/path');
+        expect($url.removeAppBasePath(new URL('https://x.tld/base/path/')).toString()).toBe('https://x.tld/path/');
+    });
+    test('.isAbsolute()', async () => {
+        expect($url.isAbsolute('::invalid::')).toBe(false);
+        expect($url.isAbsolute('/path/xyz.ext')).toBe(false);
+        expect($url.isAbsolute(new URL('https://abc.tld/path/xyz.ext'))).toBe(true);
+        expect($url.isAbsolute('https://abc.tld/path/xyz.ext')).toBe(true);
+        expect($url.isAbsolute('//abc.tld/path/xyz.ext')).toBe(true);
+        expect($url.isAbsolute('//')).toBe(true);
+        expect($url.isAbsolute('')).toBe(false);
+    });
+    test('.isProtoRelative()', async () => {
+        expect($url.isProtoRelative('::invalid::')).toBe(false);
+        expect($url.isProtoRelative('/path/xyz.ext')).toBe(false);
+        expect($url.isProtoRelative(new URL('https://abc.tld/path/xyz.ext'))).toBe(false);
+        expect($url.isProtoRelative('https://abc.tld/path/xyz.ext')).toBe(false);
+        expect($url.isProtoRelative('//abc.tld/path/xyz.ext')).toBe(true);
+        expect($url.isProtoRelative('//')).toBe(true);
+        expect($url.isProtoRelative('')).toBe(false);
+    });
+    test('.isRootRelative()', async () => {
+        expect($url.isRootRelative('::invalid::')).toBe(false);
+        expect($url.isRootRelative('/path/xyz.ext')).toBe(true);
+        expect($url.isRootRelative(new URL('https://abc.tld/path/xyz.ext'))).toBe(false);
+        expect($url.isRootRelative('https://abc.tld/path/xyz.ext')).toBe(false);
+        expect($url.isRootRelative('//abc.tld/path/xyz.ext')).toBe(false);
+        expect($url.isRootRelative('/abc.tld/path/xyz.ext')).toBe(true);
+        expect($url.isRootRelative('//')).toBe(false);
+        expect($url.isRootRelative('/')).toBe(true);
+        expect($url.isRootRelative('')).toBe(false);
+    });
+    test('.isRelative()', async () => {
+        expect($url.isRelative('::invalid::')).toBe(true);
+        expect($url.isRelative('/path/xyz.ext')).toBe(false);
+        expect($url.isRelative(new URL('https://abc.tld/path/xyz.ext'))).toBe(false);
+        expect($url.isRelative('https://abc.tld/path/xyz.ext')).toBe(false);
+        expect($url.isRelative('//abc.tld/path/xyz.ext')).toBe(false);
+        expect($url.isRelative('/abc.tld/path/xyz.ext')).toBe(false);
+        expect($url.isRelative('./abc.tld/path/xyz.ext')).toBe(true);
+        expect($url.isRelative('abc.tld/path/xyz.ext')).toBe(true);
+        expect($url.isRelative('//')).toBe(false);
+        expect($url.isRelative('/')).toBe(false);
+        expect($url.isRelative('')).toBe(true);
+    });
     test('.rootHost()', async () => {
         expect($url.rootHost('abc.tld')).toBe('abc.tld');
         expect($url.rootHost('abc.Xyz.tld')).toBe('xyz.tld');
@@ -13,8 +128,8 @@ describe('$url', async () => {
         expect($url.rootHost('Abc.xyz.tld:3000')).toBe('xyz.tld:3000');
         expect($url.rootHost('abc.Xyz.tld:3000', { withPort: false })).toBe('xyz.tld');
 
-        expect($url.rootHost(new URL('https://abc.xyz.tld:3000'))).toBe('xyz.tld:3000');
-        expect($url.rootHost(new URL('https://abc.xyz.tld:3000'), { withPort: false })).toBe('xyz.tld');
+        expect($url.rootHost(new URL('https://abc.xyz.tld:3000/'))).toBe('xyz.tld:3000');
+        expect($url.rootHost(new URL('https://abc.xyz.tld:3000/'), { withPort: false })).toBe('xyz.tld');
 
         expect($url.rootHost('abc.xyz.mac')).toBe('xyz.mac');
         expect($url.rootHost('abc.xyz.loc')).toBe('xyz.loc');
@@ -25,64 +140,181 @@ describe('$url', async () => {
         expect($url.rootHost('Localhost:3000')).toBe('localhost:3000');
         expect($url.rootHost('Localhost:3000', { withPort: false })).toBe('localhost');
 
-        expect($url.rootHost(new URL('https://Localhost'))).toBe('localhost');
-        expect($url.rootHost(new URL('https://Localhost:3000'))).toBe('localhost:3000');
-        expect($url.rootHost(new URL('https://Localhost:3000'), { withPort: false })).toBe('localhost');
+        expect($url.rootHost(new URL('https://Localhost/'))).toBe('localhost');
+        expect($url.rootHost(new URL('https://Localhost:3000/'))).toBe('localhost:3000');
+        expect($url.rootHost(new URL('https://Localhost:3000/'), { withPort: false })).toBe('localhost');
     });
     test('.parse()', async () => {
         expect(() => $url.parse('::invalid::')).toThrow();
         expect($url.parse(new URL('https://abc.tld/path/xyz.ext')).toString()).toBe('https://abc.tld/path/xyz.ext');
         expect($url.parse('https://abc.tld/path/xyz.ext').toString()).toBe('https://abc.tld/path/xyz.ext');
         expect($url.parse('//abc.tld/path/xyz.ext').toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.parse('path/xyz.ext', '//abc.tld/').toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.parse('./path/xyz.ext', '//abc.tld/').toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.parse('../path/xyz.ext', '//abc.tld/').toString()).toBe('https://abc.tld/path/xyz.ext');
     });
     test('.tryParse()', async () => {
         expect($url.tryParse('::invalid::')).toBe(undefined);
-        expect(($url.tryParse(new URL('https://abc.tld/path/xyz.ext')) as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
-        expect(($url.tryParse('https://abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
-        expect(($url.tryParse('//abc.tld/path/xyz.ext') as URL).toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.tryParse(new URL('https://abc.tld/path/xyz.ext'))?.toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.tryParse('https://abc.tld/path/xyz.ext')?.toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.tryParse('//abc.tld/path/xyz.ext')?.toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.tryParse('path/xyz.ext', '//abc.tld/')?.toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.tryParse('./path/xyz.ext', '//abc.tld/')?.toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.tryParse('../path/xyz.ext', '//abc.tld/')?.toString()).toBe('https://abc.tld/path/xyz.ext');
+    });
+    test('.toCanonical()', async () => {
+        expect(() => $url.toCanonical('::invalid::')).toThrow();
+        expect($url.toCanonical(new URL('https://abc.tld/path/xyz.ext?query#hash'))?.toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.toCanonical('https://abc.tld/path/xyz.ext?query#hash')?.toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.toCanonical('//abc.tld/path/xyz.ext?query#hash')?.toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.toCanonical('path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.toCanonical('./path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.toCanonical('../path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('https://abc.tld/path/xyz.ext');
+    });
+    test('.toPath()', async () => {
+        expect(() => $url.toPath('::invalid::')).toThrow();
+        expect($url.toPath(new URL('https://abc.tld/path/xyz.ext'))?.toString()).toBe('/path/xyz.ext');
+        expect($url.toPath('https://abc.tld/path/xyz.ext?query#hash')?.toString()).toBe('/path/xyz.ext');
+        expect($url.toPath('//abc.tld/path/xyz.ext?query#hash')?.toString()).toBe('/path/xyz.ext');
+        expect($url.toPath('path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('/path/xyz.ext');
+        expect($url.toPath('./path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('/path/xyz.ext');
+        expect($url.toPath('../path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('/path/xyz.ext');
+    });
+    test('.toPathQuery()', async () => {
+        expect(() => $url.toPathQuery('::invalid::')).toThrow();
+        expect($url.toPathQuery(new URL('https://abc.tld/path/xyz.ext'))?.toString()).toBe('/path/xyz.ext');
+        expect($url.toPathQuery('https://abc.tld/path/xyz.ext?query#hash')?.toString()).toBe('/path/xyz.ext?query');
+        expect($url.toPathQuery('//abc.tld/path/xyz.ext?query#hash')?.toString()).toBe('/path/xyz.ext?query');
+        expect($url.toPathQuery('path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('/path/xyz.ext?query');
+        expect($url.toPathQuery('./path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('/path/xyz.ext?query');
+        expect($url.toPathQuery('../path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('/path/xyz.ext?query');
+    });
+    test('.toPathQueryHash()', async () => {
+        expect(() => $url.toPathQueryHash('::invalid::')).toThrow();
+        expect($url.toPathQueryHash(new URL('https://abc.tld/path/xyz.ext'))?.toString()).toBe('/path/xyz.ext');
+        expect($url.toPathQueryHash('https://abc.tld/path/xyz.ext?query#hash')?.toString()).toBe('/path/xyz.ext?query#hash');
+        expect($url.toPathQueryHash('//abc.tld/path/xyz.ext?query#hash')?.toString()).toBe('/path/xyz.ext?query#hash');
+        expect($url.toPathQueryHash('path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('/path/xyz.ext?query#hash');
+        expect($url.toPathQueryHash('./path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('/path/xyz.ext?query#hash');
+        expect($url.toPathQueryHash('../path/xyz.ext?query#hash', '//abc.tld/')?.toString()).toBe('/path/xyz.ext?query#hash');
     });
     test('.getQueryVar()', async () => {
         expect($url.getQueryVar('abc', 'https://abc.tld/path/xyz.ext?abc')).toBe('');
         expect($url.getQueryVar('abc', 'https://abc.tld/path/xyz.ext?abc=a.b.c')).toBe('a.b.c');
+        expect($url.getQueryVar('abc', 'path/xyz.ext?abc=a.b.c', 'https://abc.tld/')).toBe('a.b.c');
+        expect($url.getQueryVar('abc', './path/xyz.ext?abc=a.b.c', 'https://abc.tld/')).toBe('a.b.c');
+        expect($url.getQueryVar('abc', '../path/xyz.ext?abc=a.b.c', 'https://abc.tld/')).toBe('a.b.c');
     });
     test('.getQueryVars()', async () => {
-        expect($url.getQueryVars('abc', 'https://abc.tld/path/xyz.ext?abc')).toStrictEqual({ abc: '' });
-        expect($url.getQueryVars('abc', 'https://abc.tld/path/xyz.ext?abc=a.b.c')).toStrictEqual({ abc: 'a.b.c' });
+        expect($url.getQueryVars(['abc'], 'https://abc.tld/path/xyz.ext?abc')).toStrictEqual({ abc: '' });
+        expect($url.getQueryVars(['abc'], 'https://abc.tld/path/xyz.ext?abc=a.b.c')).toStrictEqual({ abc: 'a.b.c' });
+        expect($url.getQueryVars(['abc'], 'path/xyz.ext?abc=a.b.c', 'https://abc.tld/')).toStrictEqual({ abc: 'a.b.c' });
+        expect($url.getQueryVars(['abc'], './path/xyz.ext?abc=a.b.c', 'https://abc.tld/')).toStrictEqual({ abc: 'a.b.c' });
+        expect($url.getQueryVars(['abc'], '../path/xyz.ext?abc=a.b.c', 'https://abc.tld/')).toStrictEqual({ abc: 'a.b.c' });
     });
     test('.addQueryVar()', async () => {
         expect($url.addQueryVar('abc', '', 'https://abc.tld/path/xyz.ext')).toBe('https://abc.tld/path/xyz.ext?abc=');
         expect($url.addQueryVar('abc', 'a.b.c', 'https://abc.tld/path/xyz.ext')).toBe('https://abc.tld/path/xyz.ext?abc=a.b.c');
+        expect($url.addQueryVar('abc', 'a.b.c', 'path/xyz.ext', 'https://abc.tld/')).toBe('/path/xyz.ext?abc=a.b.c');
+        expect($url.addQueryVar('abc', 'a.b.c', './path/xyz.ext', 'https://abc.tld/')).toBe('/path/xyz.ext?abc=a.b.c');
+        expect($url.addQueryVar('abc', 'a.b.c', '../path/xyz.ext', 'https://abc.tld/')).toBe('/path/xyz.ext?abc=a.b.c');
+
+        expect($url.addQueryVar('abc', '', new URL('https://abc.tld/path/xyz.ext')) instanceof URL).toBe(true);
+        expect($url.addQueryVar('abc', 'a.b.c', new URL('https://abc.tld/path/xyz.ext')) instanceof URL).toBe(true);
+        expect($url.addQueryVar('abc', 'a.b.c', new URL('https://abc.tld/path/xyz.ext'), new URL('https://abc.tld/')) instanceof URL).toBe(true);
 
         expect($url.addQueryVar('abc', '', new URL('https://abc.tld/path/xyz.ext')).toString()).toBe('https://abc.tld/path/xyz.ext?abc=');
         expect($url.addQueryVar('abc', 'a.b.c', new URL('https://abc.tld/path/xyz.ext')).toString()).toBe('https://abc.tld/path/xyz.ext?abc=a.b.c');
+        expect($url.addQueryVar('abc', 'a.b.c', new URL('https://abc.tld/path/xyz.ext'), new URL('https://abc.tld/')).toString()).toBe('https://abc.tld/path/xyz.ext?abc=a.b.c');
+
+        expect($url.addQueryVar('abc', 'a.b.c', 'https://abc.tld/path/xyz.ext?abc=abc&y=0&x=0&z=0', '', { replaceExisting: false })).toBe(
+            'https://abc.tld/path/xyz.ext?abc=abc&x=0&y=0&z=0',
+        );
+        expect($url.addQueryVar('abc', 'a.b.c', './path/xyz.ext?abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'), { replaceExisting: false })).toBe(
+            '/path/xyz.ext?abc=abc&x=0&y=0&z=0',
+        );
+        expect($url.addQueryVar('abc', 'a.b.c', '../path/xyz.ext?abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'), { replaceExisting: true })).toBe(
+            '/path/xyz.ext?abc=a.b.c&x=0&y=0&z=0',
+        );
     });
     test('.addQueryVars()', async () => {
         expect($url.addQueryVars({ abc: '' }, 'https://abc.tld/path/xyz.ext')).toBe('https://abc.tld/path/xyz.ext?abc=');
         expect($url.addQueryVars({ abc: 'a.b.c' }, 'https://abc.tld/path/xyz.ext')).toBe('https://abc.tld/path/xyz.ext?abc=a.b.c');
+        expect($url.addQueryVars({ abc: 'a.b.c' }, 'path/xyz.ext', 'https://abc.tld/')).toBe('/path/xyz.ext?abc=a.b.c');
+        expect($url.addQueryVars({ abc: 'a.b.c' }, './path/xyz.ext', 'https://abc.tld/')).toBe('/path/xyz.ext?abc=a.b.c');
+        expect($url.addQueryVars({ abc: 'a.b.c' }, '../path/xyz.ext', 'https://abc.tld/')).toBe('/path/xyz.ext?abc=a.b.c');
+
+        expect($url.addQueryVars({ abc: '' }, new URL('https://abc.tld/path/xyz.ext')) instanceof URL).toBe(true);
+        expect($url.addQueryVars({ abc: 'a.b.c' }, new URL('https://abc.tld/path/xyz.ext')) instanceof URL).toBe(true);
+        expect($url.addQueryVars({ abc: 'a.b.c' }, new URL('https://abc.tld/path/xyz.ext'), new URL('https://abc.tld/')) instanceof URL).toBe(true);
 
         expect($url.addQueryVars({ abc: '' }, new URL('https://abc.tld/path/xyz.ext')).toString()).toBe('https://abc.tld/path/xyz.ext?abc=');
         expect($url.addQueryVars({ abc: 'a.b.c' }, new URL('https://abc.tld/path/xyz.ext')).toString()).toBe('https://abc.tld/path/xyz.ext?abc=a.b.c');
+        expect($url.addQueryVars({ abc: 'a.b.c' }, new URL('https://abc.tld/path/xyz.ext'), new URL('https://abc.tld/')).toString()).toBe('https://abc.tld/path/xyz.ext?abc=a.b.c');
+
+        expect($url.addQueryVars({ abc: 'a.b.c' }, 'https://abc.tld/path/xyz.ext?abc=abc&y=0&x=0&z=0', '', { replaceExisting: false })).toBe(
+            'https://abc.tld/path/xyz.ext?abc=abc&x=0&y=0&z=0',
+        );
+        expect($url.addQueryVars({ abc: 'a.b.c' }, './path/xyz.ext?abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'), { replaceExisting: false })).toBe(
+            '/path/xyz.ext?abc=abc&x=0&y=0&z=0',
+        );
+        expect($url.addQueryVars({ abc: 'a.b.c' }, '../path/xyz.ext?abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'), { replaceExisting: true })).toBe(
+            '/path/xyz.ext?abc=a.b.c&x=0&y=0&z=0',
+        );
     });
     test('.removeQueryVar()', async () => {
         expect($url.removeQueryVar('abc', 'https://abc.tld/path/xyz.ext?abc=')).toBe('https://abc.tld/path/xyz.ext');
         expect($url.removeQueryVar('abc', 'https://abc.tld/path/xyz.ext?abc=a.b.c')).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.removeQueryVar('abc', 'path/xyz.ext?abc=a.b.c', 'https://abc.tld/')).toBe('/path/xyz.ext');
+        expect($url.removeQueryVar('abc', './path/xyz.ext?abc=a.b.c', 'https://abc.tld/')).toBe('/path/xyz.ext');
+        expect($url.removeQueryVar('abc', '../path/xyz.ext?abc=a.b.c', 'https://abc.tld/')).toBe('/path/xyz.ext');
+
+        expect($url.removeQueryVar('abc', new URL('https://abc.tld/path/xyz.ext?abc=')) instanceof URL).toBe(true);
+        expect($url.removeQueryVar('abc', new URL('https://abc.tld/path/xyz.ext?abc=a.b.c')) instanceof URL).toBe(true);
+        expect($url.removeQueryVar('abc', new URL('https://abc.tld/path/xyz.ext?abc=a.b.c'), new URL('https://abc.tld/')) instanceof URL).toBe(true);
 
         expect($url.removeQueryVar('abc', new URL('https://abc.tld/path/xyz.ext?abc=')).toString()).toBe('https://abc.tld/path/xyz.ext');
         expect($url.removeQueryVar('abc', new URL('https://abc.tld/path/xyz.ext?abc=a.b.c')).toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.removeQueryVar('abc', new URL('https://abc.tld/path/xyz.ext?abc=a.b.c'), new URL('https://abc.tld/')).toString()).toBe('https://abc.tld/path/xyz.ext');
+
+        expect($url.removeQueryVar('abc', 'https://abc.tld/path/xyz.ext?abc=abc&y=0&x=0&z=0', '')).toBe('https://abc.tld/path/xyz.ext?x=0&y=0&z=0');
+        expect($url.removeQueryVar('abc', './path/xyz.ext?abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'))).toBe('/path/xyz.ext?x=0&y=0&z=0');
+        expect($url.removeQueryVar('abc', '../path/xyz.ext?abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'))).toBe('/path/xyz.ext?x=0&y=0&z=0');
     });
     test('.removeQueryVars()', async () => {
         expect($url.removeQueryVars(['abc'], 'https://abc.tld/path/xyz.ext?abc=')).toBe('https://abc.tld/path/xyz.ext');
         expect($url.removeQueryVars(['abc'], 'https://abc.tld/path/xyz.ext?abc=a.b.c')).toBe('https://abc.tld/path/xyz.ext');
 
+        expect($url.removeQueryVars(['abc'], new URL('https://abc.tld/path/xyz.ext?abc=')) instanceof URL).toBe(true);
+        expect($url.removeQueryVars(['abc'], new URL('https://abc.tld/path/xyz.ext?abc=a.b.c')) instanceof URL).toBe(true);
+        expect($url.removeQueryVars(['abc'], new URL('https://abc.tld/path/xyz.ext?abc=a.b.c'), new URL('https://abc.tld/')) instanceof URL).toBe(true);
+
         expect($url.removeQueryVars(['abc'], new URL('https://abc.tld/path/xyz.ext?abc=')).toString()).toBe('https://abc.tld/path/xyz.ext');
         expect($url.removeQueryVars(['abc'], new URL('https://abc.tld/path/xyz.ext?abc=a.b.c')).toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.removeQueryVars(['abc'], new URL('https://abc.tld/path/xyz.ext?abc=a.b.c'), new URL('https://abc.tld/')).toString()).toBe('https://abc.tld/path/xyz.ext');
+
+        expect($url.removeQueryVars(['abc'], 'https://abc.tld/path/xyz.ext?abc=abc&y=0&x=0&z=0', '')).toBe('https://abc.tld/path/xyz.ext?x=0&y=0&z=0');
+        expect($url.removeQueryVars(['abc'], './path/xyz.ext?abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'))).toBe('/path/xyz.ext?x=0&y=0&z=0');
+        expect($url.removeQueryVars(['abc'], '../path/xyz.ext?abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'))).toBe('/path/xyz.ext?x=0&y=0&z=0');
     });
     test('.removeCSOQueryVars()', async () => {
         expect($url.removeCSOQueryVars('https://abc.tld/path/xyz.ext?utm_abc=&utm_xyz=')).toBe('https://abc.tld/path/xyz.ext');
         expect($url.removeCSOQueryVars('https://abc.tld/path/xyz.ext?utm_abc=a.b.c&utm_xyz=x.y.z')).toBe('https://abc.tld/path/xyz.ext');
 
+        expect($url.removeCSOQueryVars(new URL('https://abc.tld/path/xyz.ext?utm_abc=&utm_xyz=')) instanceof URL).toBe(true);
+        expect($url.removeCSOQueryVars(new URL('https://abc.tld/path/xyz.ext?utm_abc=a.b.c&utm_xyz=x.y.z')) instanceof URL).toBe(true);
+        expect($url.removeCSOQueryVars(new URL('https://abc.tld/path/xyz.ext?utm_abc=a.b.c&utm_xyz=x.y.z', new URL('https://abc.tld/'))) instanceof URL).toBe(true);
+
         expect($url.removeCSOQueryVars(new URL('https://abc.tld/path/xyz.ext?utm_abc=&utm_xyz=')).toString()).toBe('https://abc.tld/path/xyz.ext');
         expect($url.removeCSOQueryVars(new URL('https://abc.tld/path/xyz.ext?utm_abc=a.b.c&utm_xyz=x.y.z')).toString()).toBe('https://abc.tld/path/xyz.ext');
+        expect($url.removeCSOQueryVars(new URL('https://abc.tld/path/xyz.ext?utm_abc=a.b.c&utm_xyz=x.y.z', new URL('https://abc.tld/'))).toString()).toBe(
+            'https://abc.tld/path/xyz.ext',
+        );
+        expect($url.removeCSOQueryVars('https://abc.tld/path/xyz.ext?utm_abc=a.b.c&utm_xyz=x.y.z&abc=abc&y=0&x=0&z=0', '')).toBe(
+            'https://abc.tld/path/xyz.ext?abc=abc&x=0&y=0&z=0',
+        );
+        expect($url.removeCSOQueryVars('./path/xyz.ext?utm_abc=a.b.c&utm_xyz=x.y.z&abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'))).toBe('/path/xyz.ext?abc=abc&x=0&y=0&z=0');
+        expect($url.removeCSOQueryVars('../path/xyz.ext?utm_abc=a.b.c&utm_xyz=x.y.z&abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'))).toBe('/path/xyz.ext?abc=abc&x=0&y=0&z=0');
     });
     test('.encode()', async () => {
         expect($url.encode('abcdefghijklmnopqrstuvwxyz 🦊 ꓺ 0123456789 !"\'()*~ ßÅåÆæœ')) //

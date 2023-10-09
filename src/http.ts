@@ -134,7 +134,7 @@ export const prepareResponse = (request: $type.Request, config?: ResponseConfig)
         return new Response(cfg.body, {
             status: cfg.status,
             statusText: responseStatusText(cfg.status),
-            headers: prepareResponseHeaders(request, new URL('http://x'), cfg),
+            headers: prepareResponseHeaders(request, new URL('https://0.0.0.0/'), cfg),
         });
     }
     // The case of `405` (default status) is in conflict with CORs being enabled; i.e., `OPTIONS` method is ok.

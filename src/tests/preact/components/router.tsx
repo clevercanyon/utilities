@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { $env, $preact, $url } from '../../../index.ts';
 import { Route, Router } from '../../../preact/components.tsx';
 
-const __origAppBaseURL__ = $url.currentAppBase(); // App’s base URL, as string.
+const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '' });
 
 describe('<Router>', async () => {
     beforeAll(async () => {
@@ -14,6 +14,8 @@ describe('<Router>', async () => {
     });
     afterAll(async () => {
         $env.set('APP_BASE_URL', __origAppBaseURL__);
+        $url.appBase.flush();
+        $url.appBasePath.flush();
     });
     test('basics', async () => {
         expect(

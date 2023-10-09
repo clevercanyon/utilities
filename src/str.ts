@@ -413,7 +413,7 @@ export const capitalize = (str: string): string => {
  * @returns         Modified string.
  *
  * @someday https://o5p.me/7mS5cw ... Can this be smarter?
- * @someday For some added inspiration, see: <https://o5p.me/DChQQ2>.
+ *          For some added inspiration, see: <https://o5p.me/DChQQ2>.
  */
 export const titleCase = (str: string, options?: TitleCaseOptions): string => {
     const opts = $obj.defaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<TitleCaseOptions>;

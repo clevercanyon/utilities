@@ -291,7 +291,7 @@ export const isWeb = $fnꓺmemoize((): boolean => {
  * @returns True if is web browser under a local hostname.
  */
 export const isLocalWeb = $fnꓺmemoize((): boolean => {
-    return isWeb() && $str.matches($url.currentRootHost.fresh({ withPort: false }), $url.localHostPatterns());
+    return isWeb() && $str.matches($url.currentRootHost({ withPort: false }), $url.localHostPatterns());
 });
 
 /**
@@ -303,8 +303,8 @@ export const isWebViaJSDOM = $fnꓺmemoize((): boolean => {
     return (
         'Window' in globalThis && $is.function(Window) &&
         'Navigator' in globalThis && $is.function(Navigator) &&
-        'navigator' in globalThis && $is.object(navigator) &&
-        navigator instanceof Navigator && navigator.userAgent.includes('jsdom/')
+        'navigator' in globalThis && navigator instanceof Navigator &&
+        navigator.userAgent.includes('jsdom/')
     ); // prettier-ignore
 });
 
@@ -326,8 +326,8 @@ export const isCFW = $fnꓺmemoize((): boolean => {
     return (
         isServiceWorker() && // `ServiceWorkerGlobalScope`.
         'Navigator' in globalThis && $is.function(Navigator) &&
-        'navigator' in globalThis && $is.object(navigator) &&
-        navigator instanceof Navigator && 'Cloudflare-Workers' === navigator.userAgent
+        'navigator' in globalThis && navigator instanceof Navigator &&
+        'Cloudflare-Workers' === navigator.userAgent
     ) || isCFWViaMiniflare(); // prettier-ignore
 });
 
@@ -340,8 +340,8 @@ export const isCFWViaMiniflare = $fnꓺmemoize((): boolean => {
     return (
         'MINIFLARE' in globalThis && true === MINIFLARE &&
         'Navigator' in globalThis && $is.function(Navigator) &&
-        'navigator' in globalThis && $is.object(navigator) &&
-        navigator instanceof Navigator && 'Cloudflare-Workers' === navigator.userAgent
+        'navigator' in globalThis && navigator instanceof Navigator &&
+        'Cloudflare-Workers' === navigator.userAgent
     ); // prettier-ignore
 });
 

@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { $env, $json, $preact, $url } from '../../../../index.ts';
 import { Body, HTML, Head, Route, Router, type RouteContextAsProps, type RouterProps } from '../../../../preact/components.tsx';
 
-const __origAppBaseURL__ = $url.currentAppBase(); // App’s base URL, as string.
+const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '' });
 
 describe('$preact.iso.prerenderSPA() default-404', async () => {
     beforeAll(async () => {
@@ -14,6 +14,8 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
     });
     afterAll(async () => {
         $env.set('APP_BASE_URL', __origAppBaseURL__);
+        $url.appBase.flush();
+        $url.appBasePath.flush();
     });
     const App = (props: RouterProps): $preact.VNode<RouterProps> => {
         return (

@@ -16,16 +16,16 @@ import { type State as HTMLState, type PartialState as PartialHTMLState } from '
 export type State = {
     globalObp: string;
     fetcher?: $preact.iso.Fetcher;
-    html: Omit<HTMLState, keyof HTMLState>; // None, for now.
-    head: Pick<HeadState, 'mainStyleBundle' | 'mainScriptBundle'>; // Just these.
-    body: Omit<BodyState, keyof BodyState>; // None, for now.
+    html: Omit<HTMLState, keyof HTMLState>;
+    head: Pick<HeadState, 'mainStyleBundle' | 'mainScriptBundle'>;
+    body: Omit<BodyState, keyof BodyState>;
 };
 export type PartialState = {
     globalObp?: string;
     fetcher?: $preact.iso.Fetcher;
-    html?: Omit<PartialHTMLState, keyof PartialHTMLState>; // None, for now.
-    head?: Pick<PartialHeadState, 'mainStyleBundle' | 'mainScriptBundle'>; // Just these.
-    body?: Omit<PartialBodyState, keyof PartialBodyState>; // None, for now.
+    html?: Omit<PartialHTMLState, keyof PartialHTMLState>;
+    head?: Pick<PartialHeadState, 'mainStyleBundle' | 'mainScriptBundle'>;
+    body?: Omit<PartialBodyState, keyof PartialBodyState>;
 };
 export type HTTPState = Partial<Omit<$http.ResponseConfig, 'body'>> & {
     status: number; // Marking this as required property.

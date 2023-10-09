@@ -5,13 +5,13 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $env, $obj, $preact, $url, type $type } from '../../index.ts';
+import { $env, $obj, $preact, type $type } from '../../index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode, type State as DataState } from './data.tsx';
 
 /**
  * Defines types.
  */
-export type State = Partial<$preact.JSX.IntrinsicElements['head']> & {
+export type State = Partial<Omit<$preact.JSX.IntrinsicElements['head'], 'children' | 'dangerouslySetInnerHTML'>> & {
     charset?: string;
     viewport?: string;
 
@@ -107,11 +107,12 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
         // We include local testing fallbacks here for Vite’s dev server.
         let defaultMainStyleBundle, defaultMainScriptBundle; // Initialize.
 
+        // @todo Make this detection more Vite-specific.
         if (!state.mainStyleBundle && '' !== state.mainStyleBundle && $env.isLocalWeb()) {
-            defaultMainStyleBundle = $url.pathFromAppBase('/index.scss');
+            defaultMainStyleBundle = locState.pathFromBase('./index.scss');
         }
         if (!state.mainScriptBundle && '' !== state.mainScriptBundle && $env.isLocalWeb()) {
-            defaultMainScriptBundle = $url.pathFromAppBase('/index.tsx');
+            defaultMainScriptBundle = locState.pathFromBase('./index.tsx');
         }
         return {
             ...state,
@@ -123,15 +124,15 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
             description: state.description || defaultDescription,
             canonical: state.canonical || locState.canonicalURL,
 
-            pngIcon: state.pngIcon || $url.fromAppBase('/assets/icon.png'),
-            svgIcon: state.svgIcon || $url.fromAppBase('/assets/icon.svg'),
+            pngIcon: state.pngIcon || locState.fromBase('./assets/icon.png'),
+            svgIcon: state.svgIcon || locState.fromBase('./assets/icon.svg'),
 
             ogSiteName: state.ogSiteName || state.siteName || locState.url.hostname,
             ogType: state.ogType || 'website',
             ogTitle: state.ogTitle || title,
             ogDescription: state.ogDescription || state.description || defaultDescription,
             ogURL: state.ogURL || state.canonical || locState.canonicalURL,
-            ogImage: state.ogImage || $url.fromAppBase('/assets/og-image.png'),
+            ogImage: state.ogImage || locState.fromBase('./assets/og-image.png'),
 
             mainStyleBundle: state.mainStyleBundle || defaultMainStyleBundle,
             mainScriptBundle: state.mainScriptBundle || defaultMainScriptBundle,
@@ -144,7 +145,6 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                 {...{
                     ...$preact.omitProps(headState, [
                         'class',
-                        'children',
 
                         'charset',
                         'viewport',
@@ -174,6 +174,8 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                     class: $preact.classes(headState),
                 }}
             >
+                {locState.base && <base href={locState.base.toString()} />}
+
                 {headState.charset && <meta charSet={headState.charset} />}
                 {headState.viewport && <meta name='viewport' content={headState.viewport} />}
 

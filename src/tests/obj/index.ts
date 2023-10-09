@@ -284,7 +284,7 @@ describe('$obj', async () => {
         expect($obj.clone(abcdObj)).toStrictEqual(abcdObj);
         expect($obj.tags($obj.clone(abcdObj))).toStrictEqual($obj.tags(abcdObj));
 
-        const url = new URL('https://example.com');
+        const url = new URL('https://example.com/');
         expect($obj.clone(url) === url).toBe(false);
         expect($obj.clone(url)).toStrictEqual(url);
         expect($obj.tags($obj.clone(url))).toStrictEqual($obj.tags(url));
@@ -349,7 +349,7 @@ describe('$obj', async () => {
         expect($obj.cloneDeep(abcdObj)).toStrictEqual(abcdObj);
         expect($obj.tags($obj.cloneDeep(abcdObj))).toStrictEqual($obj.tags(abcdObj));
 
-        const url = new URL('https://example.com');
+        const url = new URL('https://example.com/');
         expect($obj.cloneDeep(url) === url).toBe(false);
         expect($obj.cloneDeep(url)).toStrictEqual(url);
         expect($obj.tags($obj.cloneDeep(url))).toStrictEqual($obj.tags(url));
@@ -499,7 +499,7 @@ describe('$obj', async () => {
         expect(Object.keys($obj.mergeDeep(abcObj13, { $propSortOrder: ['c', 'a', 'b'] }))).toStrictEqual(['c', 'a', 'b']);
         expect(abcObj13).toStrictEqual({ a: 'a', b: 'b', c: 'c' });
 
-        const url14 = new URL('https://example.com');
+        const url14 = new URL('https://example.com/');
         const set14 = new Set([0, new Set([0, 0])]);
         const brand14 = $brand.get('&');
         const abcObj14 = { a: 'a', b: 'b', c: 'c' };
@@ -812,7 +812,7 @@ describe('$obj', async () => {
         expect(Object.keys($obj.mergeClonesDeep(abcObj13, { $propSortOrder: ['c', 'a', 'b'] }))).toStrictEqual(['c', 'a', 'b']);
         expect(abcObj13).toStrictEqual({ a: 'a', b: 'b', c: 'c' });
 
-        const url14 = new URL('https://example.com');
+        const url14 = new URL('https://example.com/');
         const set14 = new Set([0, new Set([0, 0])]);
         const brand14 = $brand.get('&');
         const abcObj14 = { a: 'a', b: 'b', c: 'c' };
@@ -832,7 +832,7 @@ describe('$obj', async () => {
         expect(result14.d).not.toBe(plainObj14.d);
         expect(result14.e).not.toBe(plainObj14.e);
 
-        const url15 = new URL('https://example.com');
+        const url15 = new URL('https://example.com/');
         const set15 = new Set([0, new Set([0, 0])]);
         const brand15 = $brand.get('&');
         const abcObj15 = { a: 'a', b: 'b', c: 'c' };
@@ -960,7 +960,7 @@ describe('$obj', async () => {
         expect(abcObj14).toStrictEqual(['d', 'e', 'f']);
         expect(defObj14).toStrictEqual(['d', 'e', 'f']);
 
-        const url15 = new URL('https://example.com');
+        const url15 = new URL('https://example.com/');
         const set15 = new Set([0, new Set([0, 0])]);
         const brand15 = $brand.get('&');
         const abcObj15 = { a: 'a', b: 'b', c: 'c' };
@@ -1085,7 +1085,7 @@ describe('$obj', async () => {
         expect(abcObj14).toStrictEqual(['d', 'e', 'f']);
         expect(defObj14).toStrictEqual(['d', 'e', 'f']);
 
-        const url15 = new URL('https://example.com');
+        const url15 = new URL('https://example.com/');
         const set15 = new Set([0, new Set([0, 0])]);
         const brand15 = $brand.get('&');
         const abcObj15 = { a: 'a', b: 'b', c: 'c' };

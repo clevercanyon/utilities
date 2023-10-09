@@ -476,8 +476,8 @@ describe('$is', async () => {
         expect($is.date($brand.get('&'))).toBe(false);
     });
     test('.url()', async () => {
-        expect($is.url(new URL('https://example.com'))).toBe(true);
-        expect($is.url($url.parse('https://example.com'))).toBe(true);
+        expect($is.url(new URL('https://example.com/'))).toBe(true);
+        expect($is.url($url.parse('https://example.com/'))).toBe(true);
 
         expect($is.url($time.parse())).toBe(false);
         expect($is.url($brand.get('&'))).toBe(false);

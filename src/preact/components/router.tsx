@@ -24,7 +24,7 @@ export type Props = Omit<$preact.Props<LocationProps & DataProps & ErrorBoundary
  */
 export default function Router(props: Props = {}): $preact.VNode<Props> {
     return $is.empty(useRoute()) ? (
-        <Location url={props.url}>
+        <Location url={props.url} base={props.base}>
             <Data globalObp={props.globalObp} fetcher={props.fetcher} html={props.html} head={props.head} body={props.body}>
                 <ErrorBoundary onError={props.onError}>
                     <ISORouter onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
