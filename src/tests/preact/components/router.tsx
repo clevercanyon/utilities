@@ -20,7 +20,7 @@ describe('<Router>', async () => {
     test('basics', async () => {
         expect(
             $preact.ssr.renderToString(
-                <Router url={$url.appBase()} base={$url.appBase()}>
+                <Router url={$url.appBase()} baseURL={$url.appBase()}>
                     <Route default component={(await import('../../../preact/components/error-404.tsx')).default} />
                 </Router>,
             ),

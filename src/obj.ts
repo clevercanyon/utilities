@@ -168,7 +168,6 @@ export const hasOwn = <Type, Key extends $type.ObjectKey>(value: Type, key: Key)
  *   - String keys in their insertion order.
  *   - Symbol keys in their insertion order.
  *
- *
  * @note Unlike {@see Object.keys()}, this returns symbol keys also.
  * @note Key order matches that of `{ ...spread }` and {@see Object.keys()}.
  * @note Regarding enumerability and ownership, see: <https://o5p.me/cht9Ot>.
@@ -187,7 +186,6 @@ export const keysAndSymbols = $standalone.$objꓺkeysAndSymbols;
  *   - Numeric keys in ascending order.
  *   - String keys in their insertion order.
  *   - Symbol keys in their insertion order.
- *
  *
  * @note For further details, {@see keysAndSymbols()}.
  * @note Unlike {@see Object.entries()}, this returns symbol keys also.
@@ -730,7 +728,6 @@ export const patchClonesDeep = ((...args: Parameters<$class.ObjMCHandler>): Retu
  *   - However, if no differences, this returns the original `target` object by reference, which allows `target` to be
  *       compared to the return value of this function in order to determine if changes occurred or not.
  *
- *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
 export const updateDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
@@ -773,7 +770,6 @@ export const updateDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnTyp
  *
  *   - However, if no differences, this returns the original `target` object by reference, which allows `target` to be
  *       compared to the return value of this function in order to determine if changes occurred or not.
- *
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */

@@ -249,7 +249,6 @@ export const pathFromCurrentBase = (parseable: $type.URL | string): string => {
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
  *
- *
  * @see addBasePath()
  */
 export function addCurrentBasePath(parseable: $type.URL): $type.URL;
@@ -267,7 +266,6 @@ export function addCurrentBasePath(parseable: $type.URL | string): $type.URL | s
  * @returns           Parseable URL or string without current base path.
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
- *
  *
  * @see removeBasePath()
  */
@@ -338,7 +336,6 @@ export const pathFromAppBase = $fnꓺmemoize(24, (parseable: $type.URL | string)
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
  *
- *
  * @see addBasePath()
  */
 function _addAppBasePath(parseable: $type.URL): $type.URL;
@@ -357,7 +354,6 @@ export const addAppBasePath = $fnꓺmemoize(24, _addAppBasePath);
  * @returns           Parseable URL or string without app’s base path.
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
- *
  *
  * @see removeBasePath()
  */
@@ -382,7 +378,6 @@ export const removeAppBasePath = $fnꓺmemoize(24, _removeAppBasePath);
  * @returns           Parseable URL or string with base path.
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
- *
  *
  * @note See also `clevercanyon/preact-iso.fork/render.js/addBasePath()`.
  */
@@ -421,7 +416,6 @@ export function addBasePath(parseable: $type.URL | string, base: $type.URL | str
  * @returns           Parseable URL or string without base path.
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
- *
  *
  * @note See also `clevercanyon/preact-iso.fork/render.js/removeBasePath()`.
  */
@@ -578,7 +572,6 @@ export const rootHost = $fnꓺmemoize({ deep: true, maxSize: 12 }, (host?: $type
  *   - On failure this throws an error, or returns `undefined`, depending on `throwOnError` option.
  *   - `throwOnError` defaults to `true`. {@see tryParse()} for the opposite default behavior.
  *
- *
  * @note An empty string is also considered to be relative (i.e., not absolute) by {@see isRelative()}, {@see isAbsolute()}, and {@see URL}.
  * @note An empty string is not accepted by {@see URL} for the `base` value, so please pass a real base, or `undefined`; e.g., by not passing one.
  */
@@ -717,7 +710,7 @@ export const getQueryVar = (name: string, parseable?: $type.URL | string, base?:
  * @param   names     Optional array of query variable names to get; i.e., excluding all others.
  *
  *   - Default is `[]`, which gets all query variables.
- *
+ *   - //
  * @param   parseable Parseable URL or string. Optional in browser; i.e., default is {@see current()}.
  * @param   base      Base URL. Required when parsing a URL that’s not absolute.
  *
@@ -838,7 +831,7 @@ export function removeQueryVar(name: string, parseable?: $type.URL | string, bas
  * @param   names     Optional array of query variable names to remove; i.e., keeping all others.
  *
  *   - Default is `[]`, which removes all query variables.
- *
+ *   - //
  * @param   parseable Parseable URL or string. Optional in browser; i.e., default is {@see current()}.
  * @param   base      Base URL. Required when parsing a URL that’s not absolute.
  *
@@ -942,7 +935,6 @@ export const queryRFC3986AWS4 = Symbol('queryRFC3986AWS4');
  *   - Use {@see queryRFC3986AWS4} for {@see rawurlencode()} PHP w/ AWS v4 compatibility.
  *   - Use {@see queryRFC1738} for {@see urlencode()} PHP compatibility.
  *
- *
  * @returns          Encoded string.
  *
  * @note Inspired by <https://locutus.io/php/url/urlencode/>.
@@ -975,7 +967,6 @@ export const encode = (str: string, strategy: symbol = queryRFC3986): string => 
  *   - Use {@see queryRFC3986} for {@see rawurldecode()} PHP compatibility.
  *   - Use {@see queryRFC3986AWS4} for {@see rawurldecode()} PHP w/ AWS v4 compatibility.
  *   - Use {@see queryRFC1738} for {@see urldecode()} PHP compatibility.
- *
  *
  * @returns          Decoded string.
  *

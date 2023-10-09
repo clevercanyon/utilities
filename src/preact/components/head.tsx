@@ -63,7 +63,7 @@ const Context = createContext({} as ContextProps);
  * @returns           Initialized state.
  */
 const initialState = (dataState: DataState, props: Props = {}): State => {
-    return $obj.mergeDeep(dataState.head, $preact.omitProps(props, ['children'])) as unknown as State;
+    return $obj.mergeDeep({}, dataState.head, $preact.omitProps(props, ['children'])) as unknown as State;
 };
 
 /**
@@ -174,7 +174,7 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                     class: $preact.classes(headState),
                 }}
             >
-                {locState.base && <base href={locState.base.toString()} />}
+                {locState.baseURL && <base href={locState.baseURL.toString()} />}
 
                 {headState.charset && <meta charSet={headState.charset} />}
                 {headState.viewport && <meta name='viewport' content={headState.viewport} />}

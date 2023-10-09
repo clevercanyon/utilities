@@ -172,7 +172,7 @@ export const parseValue = (str: string): unknown => {
  * @param   additionalChars Additional characters to trim.
  *
  *   - Whitespace is always trimmed, regardless.
- *
+ *   - //
  * @param   options         Default is `{ left: true, right: true }`.
  *
  * @returns                 Trimmed string.
@@ -215,7 +215,7 @@ export const trim = (str: string, additionalChars?: string, options?: TrimOption
  * @param   additionalChars Additional characters to left-trim.
  *
  *   - Whitespace is always left-trimmed, regardless.
- *
+ *   - //
  * @param   options         `{ left: true, right: false }` are enforced options.
  *
  * @returns                 Left-trimmed string.
@@ -231,7 +231,7 @@ export const lTrim = (str: string, additionalChars?: string, options?: TrimOptio
  * @param   additionalChars Additional characters to right-trim.
  *
  *   - Whitespace is always right-trimmed, regardless.
- *
+ *   - //
  * @param   options         `{ left: false, right: true }` are enforced options.
  *
  * @returns                 Right-trimmed string.
@@ -821,7 +821,6 @@ export { mm }; // Micromatch library.
  *   - Default options are: `{ ignoreCase: false, dot: true }`.
  *   - For caSe-insensitive matching, pass `{ ignoreCase: true }`.
  *   - For all other available options, please {@see MatchesOptions}.
- *
  *
  * @returns         True if `str` matches any `pattern`.
  *

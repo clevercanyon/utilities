@@ -30,7 +30,6 @@ const documentCookieMap: Map<string, string | undefined> = new Map();
  *
  *   - Optional on web. Default is `document.cookie`.
  *
- *
  * @returns        Parsed cookies object.
  *
  * @note Function is memoized. Parsed cookies object is readonly.

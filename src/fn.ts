@@ -75,7 +75,6 @@ export const memoize = $standalone.$fnꓺmemoize; // From standalone library.
  *   - It only makes sense to set `{ throwOnError: true }` whenever there’s a `catchReturn` value. Otherwise, there is no
  *       point in using this utility to begin with; i.e., if you’re going to throw an error, there’s no need to ‘try’.
  *
- *
  * @returns             Invocation return value, else `catchReturn` value (if passed), else {@see Error}.
  */
 function _try<Fn extends $type.Function>(fn: Fn): TryFunction<Fn, $type.Error>;
@@ -139,7 +138,6 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
  *
  *   - Default is: `{ leadingEdge: true, waitTime: 750, trailingEdge: true }`
  *   - The `debounceMode` option is for internal use only. Do not pass. Instead, {@see debounce()}.
- *
  *
  * @returns         Throttled sync or async function.
  */
@@ -206,7 +204,6 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
  * @param   options Options (all optional); {@see DebounceOptions}.
  *
  *   - Default is: `{ leadingEdge: true, waitTime: 750, trailingEdge: true }`
- *
  *
  * @returns         Debounced sync or async function.
  */

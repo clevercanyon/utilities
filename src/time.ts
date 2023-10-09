@@ -53,7 +53,6 @@ export const currentUser = new Intl.DateTimeFormat().resolvedOptions();
  *   - Default `from` value is `now`.
  *   - {@see parse()} for further details.
  *
- *
  * @returns      Timestamp in whole seconds, as an integer.
  */
 export const stamp = (from: From = 'now'): number => {
@@ -68,7 +67,6 @@ export const stamp = (from: From = 'now'): number => {
  *   - Default `from` value is `now`.
  *   - {@see parse()} for further details.
  *
- *
  * @returns      Timestamp in seconds, as a float, supporting fractional seconds.
  */
 export const floatStamp = (from: From = 'now'): number => {
@@ -82,7 +80,6 @@ export const floatStamp = (from: From = 'now'): number => {
  *
  *   - Default `from` value is `now`.
  *   - {@see parse()} for further details.
- *
  *
  * @returns      Timestamp in whole milliseconds, as an integer.
  */
@@ -120,7 +117,7 @@ i18nFormats.dateTime = { ...i18nFormats.date, ...i18nFormats.time };
  *
  *   - Default `from` value is `now`.
  *   - {@see parse()} for further details.
- *
+ *   - //
  * @param   options Options (all optional). Defaults are geared to current user.
  *
  *   - Default timezone is the current user’s timezone. For others, see: https://o5p.me/mVQqsS.
@@ -130,7 +127,6 @@ i18nFormats.dateTime = { ...i18nFormats.date, ...i18nFormats.time };
  *       - Format can be given in kebab-case, pointing to an Intl config object key. See: https://o5p.me/fZPB9R.
  *       - Format can also be given as one of these config object constants. See: https://o5p.me/fZPB9R.
  *       - Format can also be given as a custom config object. See: https://o5p.me/lHJPfq.
- *
  *
  * @returns         By default, datetime in full w/ seconds, using current user’s zone/locale.
  */
@@ -161,12 +157,11 @@ export const i18n = (from: From = 'now', options?: I18nOptions): string => {
  * @param   from                    Parseable `from` value.
  *
  *   - Please refer to source code for parseable `from` values.
- *
+ *   - //
  * @param   options                 Options (all optional).
  *
  *   - Default timezone is `utc`. For others, see: https://o5p.me/mVQqsS.
  *   - Default i18n locale is `en-US`. For others, see: https://o5p.me/qLAeRe.
- *
  *
  * @returns {@see $type.Time}         Time instance in requested timezone.
  *

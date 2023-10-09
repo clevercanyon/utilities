@@ -554,7 +554,6 @@ export const requestPathHasStaticExtension = $fnꓺmemoize(2, (request: $type.Re
  *   - Note that a {@see Headers} object always contains lowercase keys. Therefore, this option is only applicable when a
  *       string-keyed object is passed; i.e., if {@see Headers} are passed, this will always return lowercase keys.
  *
- *
  * @returns         Extracted headers, as a plain object.
  */
 export const extractHeaders = (headers: $type.Headers | { [x: string]: string }, options?: ExtractHeaderOptions): { [x: string]: string } => {

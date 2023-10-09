@@ -146,7 +146,6 @@ export const omitProps = <Type extends Props, Key extends keyof Type>(props: Typ
  *       are supported only because JSX supports them on the native `class` attribute across all HTML elements.
  *   - Any other value, including any other types of objects, are ignored entirely.
  *
- *
  * @returns                 Space-separated classes extracted from variadic args. If empty, `undefined` is returned.
  *   Note: `undefined` is deliberately returned when classes are empty. It’s to avoid adding `class=""` unnecessarily.
  *

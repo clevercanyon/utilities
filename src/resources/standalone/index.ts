@@ -285,7 +285,6 @@ export const $objꓺtags = (value: unknown, deepTags?: Set<string>): string[] =>
  *   - String keys in their insertion order.
  *   - Symbol keys in their insertion order.
  *
- *
  * @note Unlike {@see Object.keys()}, this returns symbol keys also.
  * @note Key order matches that of `{ ...spread }` and {@see Object.keys()}.
  * @note Regarding enumerability and ownership, see: <https://o5p.me/cht9Ot>.

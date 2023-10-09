@@ -165,7 +165,7 @@ const initializeVars = (): void => {
  *   - Can be passed as a string or an array of strings.
  *   - The array order given is the order in which queries are run.
  *   - If not passed, or empty, `obpOrSubObp` is treated as a full object path.
- *
+ *   - //
  * @param   subObpOrObp Subpath, or full object path if `leadingObps` are not passed, or empty.
  * @param   options     Options (all optional). {@see GetOptions} for details.
  *
@@ -411,7 +411,6 @@ export const isC10n = (tests: QVTests = {}): boolean => test('@top', 'APP_IS_C10
  *
  *   - To test that a query var simply exists, use `{ [var]: '*' }`.
  *   - To test that a query var exists and is not empty, and not `'0'`, use `{ [var]: '?*' }`.
- *
  *
  * @returns             True if environment variable is not empty, not `'0'`, and all tests pass.
  *

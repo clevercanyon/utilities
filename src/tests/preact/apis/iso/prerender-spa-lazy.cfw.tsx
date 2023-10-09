@@ -28,7 +28,7 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
 
         const App = (props: RouterProps): $preact.VNode<RouterProps> => {
             return (
-                <Router {...{ ...$preact.omitProps(props, ['children']) }}>
+                <Router {...props}>
                     <Route path='/' component={Index} />
                     <Route path='/lazy/*' component={Lazy} />
                     <Route default component={Error404} />

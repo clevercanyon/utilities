@@ -19,7 +19,7 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
     });
     const App = (props: RouterProps): $preact.VNode<RouterProps> => {
         return (
-            <Router {...{ ...$preact.omitProps(props, ['children']) }}>
+            <Router {...props}>
                 <Route path='./' component={Index} />
                 <Route path='./others/*' component={Others} />
                 <Route default component={Error404} />

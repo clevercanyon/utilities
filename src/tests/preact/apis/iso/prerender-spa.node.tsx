@@ -19,7 +19,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
     });
     const App = (props: RouterProps): $preact.VNode<RouterProps> => {
         return (
-            <Router {...{ ...$preact.omitProps(props, ['children']) }}>
+            <Router {...props}>
                 <Route path='./' component={Index} />
                 <Route path='./blog' component={Blog} />
                 <Route path='./blog/post/:id' component={Blog} />

@@ -68,7 +68,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
     }
     const { request, appManifest, App, props = {} } = options;
     const { url } = request; // Extracts absolute request URL.
-    const base = $url.appBase(); // Base URL from app environment vars.
+    const baseURL = $url.appBase(); // Base URL from app env vars.
 
     let appManifestStyleBundleSubpath: string = ''; // Style bundle.
     let appManifestScriptBundleSubpath: string = ''; // Script bundle.
@@ -92,7 +92,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
         props: {
             ...props, // Props given by options.
             url, // Absolute URL extracted from request.
-            base, // Base URL from app-driven environment vars.
+            baseURL, // Base URL from app environment vars.
             fetcher, // Preact ISO fetcher; {@see replaceNativeFetch()}.
             head: $obj.mergeDeep({ mainStyleBundle, mainScriptBundle }, props.head),
         },

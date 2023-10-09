@@ -23,7 +23,6 @@ export type Code = { init: string; set: string };
  *
  *   - See also: `endOwn` option, which changes the return value of this function.
  *
- *
  * @note Object paths do not support symbol keys whatsoever.
  */
 export const has = (objValue: unknown, path: $type.ObjectPath | $type.ObjectPath[], separator: string = '.', opts: { endOwn?: boolean } = {}): boolean => {
