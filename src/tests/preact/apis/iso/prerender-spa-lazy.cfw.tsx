@@ -10,7 +10,7 @@ const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '
 
 describe('$preact.iso.prerenderSPA() ... lazy', async () => {
     beforeAll(async () => {
-        $env.set('APP_BASE_URL', 'http://x.tld');
+        $env.set('APP_BASE_URL', 'http://x.tld/');
     });
     afterAll(async () => {
         $env.set('APP_BASE_URL', __origAppBaseURL__);
@@ -28,7 +28,7 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
 
         const App = (props: RouterProps): $preact.VNode<RouterProps> => {
             return (
-                <Router {...props}>
+                <Router {...{ ...$preact.omitProps(props, ['children']) }}>
                     <Route path='/' component={Index} />
                     <Route path='/lazy/*' component={Lazy} />
                     <Route default component={Error404} />
@@ -60,10 +60,10 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
         expect(indexHTTPState.status).toBe(200);
         expect(indexDocType).toBe('<!doctype html>');
         expect(indexHTML).toContain('<title>index</title>');
-        expect(indexHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(indexHTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(indexHTML).toContain('"path":"/"');
-        expect(indexHTML).toContain('"pathQuery":"/?a=_a&b=_b&c=_c"');
+        expect(indexHTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(indexHTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(indexHTML).toContain('"path":"./"');
+        expect(indexHTML).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
         expect(indexHTML).toContain('"restPath":""');
         expect(indexHTML).toContain('"restPathQuery":""');
         expect(indexHTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -83,10 +83,10 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
         expect(lazyHTTPState.status).toBe(200);
         expect(lazyDocType).toBe('<!doctype html>');
         expect(lazyHTML).toContain('<title>lazy</title>');
-        expect(lazyHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(lazyHTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(lazyHTML).toContain('"path":"/lazy"');
-        expect(lazyHTML).toContain('"pathQuery":"/lazy?a=_a&b=_b&c=_c"');
+        expect(lazyHTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(lazyHTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(lazyHTML).toContain('"path":"./lazy"');
+        expect(lazyHTML).toContain('"pathQuery":"./lazy?a=_a&b=_b&c=_c"');
         expect(lazyHTML).toContain('"restPath":""');
         expect(lazyHTML).toContain('"restPathQuery":""');
         expect(lazyHTML).toContain('"query":"?a=_a&b=_b&c=_c"');

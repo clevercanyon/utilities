@@ -10,7 +10,7 @@ const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '
 
 describe('$preact.iso.prerenderSPA()', async () => {
     beforeAll(async () => {
-        $env.set('APP_BASE_URL', 'http://x.tld');
+        $env.set('APP_BASE_URL', 'http://x.tld/');
     });
     afterAll(async () => {
         $env.set('APP_BASE_URL', __origAppBaseURL__);
@@ -19,11 +19,11 @@ describe('$preact.iso.prerenderSPA()', async () => {
     });
     const App = (props: RouterProps): $preact.VNode<RouterProps> => {
         return (
-            <Router {...props}>
-                <Route path='/' component={Index} />
-                <Route path='/blog' component={Blog} />
-                <Route path='/blog/post/:id' component={Blog} />
-                <Route path='/others/*' component={Others} />
+            <Router {...{ ...$preact.omitProps(props, ['children']) }}>
+                <Route path='./' component={Index} />
+                <Route path='./blog' component={Blog} />
+                <Route path='./blog/post/:id' component={Blog} />
+                <Route path='./others/*' component={Others} />
                 <Route default component={Error404} />
             </Router>
         );
@@ -41,7 +41,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
     const Blog = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
         return (
             <HTML>
-                <Head title={/^\/blog\/post\//u.test(props.path || '') ? 'blog post' : 'blog'} />
+                <Head title={/^\.\/blog\/post\//u.test(props.path || '') ? 'blog post' : 'blog'} />
                 <Body>
                     <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
                 </Body>
@@ -51,12 +51,12 @@ describe('$preact.iso.prerenderSPA()', async () => {
     const Others = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
         return (
             <Router {...props}>
-                <Route path='/other-a/:x' component={OtherA} />
-                <Route path='/other-b/*' component={OtherB} />
-                <Route path='/other-c/:x*' component={OtherC} />
-                <Route path='/other-d/:x+' component={OtherD} />
-                <Route path='/other-e/:x?' component={OtherE} />
-                <Route path='/other-a/*' component={OtherA} />
+                <Route path='./other-a/:x' component={OtherA} />
+                <Route path='./other-b/*' component={OtherB} />
+                <Route path='./other-c/:x*' component={OtherC} />
+                <Route path='./other-d/:x+' component={OtherD} />
+                <Route path='./other-e/:x?' component={OtherE} />
+                <Route path='./other-a/*' component={OtherA} />
                 <Route default component={OtherDefault404} />
             </Router>
         );
@@ -141,10 +141,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(indexHTTPState.status).toBe(200);
         expect(indexDocType).toBe('<!doctype html>');
         expect(indexHTML).toContain('<title>index</title>');
-        expect(indexHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(indexHTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(indexHTML).toContain('"path":"/"');
-        expect(indexHTML).toContain('"pathQuery":"/?a=_a&b=_b&c=_c"');
+        expect(indexHTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(indexHTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(indexHTML).toContain('"path":"./"');
+        expect(indexHTML).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
         expect(indexHTML).toContain('"restPath":""');
         expect(indexHTML).toContain('"restPathQuery":""');
         expect(indexHTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -166,10 +166,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(blogHTTPState.status).toBe(200);
         expect(blogDocType).toBe('<!doctype html>');
         expect(blogHTML).toContain('<title>blog</title>');
-        expect(blogHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(blogHTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(blogHTML).toContain('"path":"/blog"');
-        expect(blogHTML).toContain('"pathQuery":"/blog?a=_a&b=_b&c=_c"');
+        expect(blogHTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(blogHTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(blogHTML).toContain('"path":"./blog"');
+        expect(blogHTML).toContain('"pathQuery":"./blog?a=_a&b=_b&c=_c"');
         expect(blogHTML).toContain('"restPath":""');
         expect(blogHTML).toContain('"restPathQuery":""');
         expect(blogHTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -191,10 +191,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(blogPostHTTPState.status).toBe(200);
         expect(blogPostDocType).toBe('<!doctype html>');
         expect(blogPostHTML).toContain('<title>blog post</title>');
-        expect(blogPostHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(blogPostHTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(blogPostHTML).toContain('"path":"/blog/post/123"');
-        expect(blogPostHTML).toContain('"pathQuery":"/blog/post/123?a=_a&b=_b&c=_c"');
+        expect(blogPostHTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(blogPostHTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(blogPostHTML).toContain('"path":"./blog/post/123"');
+        expect(blogPostHTML).toContain('"pathQuery":"./blog/post/123?a=_a&b=_b&c=_c"');
         expect(blogPostHTML).toContain('"restPath":""');
         expect(blogPostHTML).toContain('"restPathQuery":""');
         expect(blogPostHTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -216,10 +216,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherA1HTTPState.status).toBe(200);
         expect(othersOtherA1DocType).toBe('<!doctype html>');
         expect(othersOtherA1HTML).toContain('<title>other-a</title>');
-        expect(othersOtherA1HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherA1HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherA1HTML).toContain('"path":"/other-a/123"');
-        expect(othersOtherA1HTML).toContain('"pathQuery":"/other-a/123?a=_a&b=_b&c=_c"');
+        expect(othersOtherA1HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherA1HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherA1HTML).toContain('"path":"./other-a/123"');
+        expect(othersOtherA1HTML).toContain('"pathQuery":"./other-a/123?a=_a&b=_b&c=_c"');
         expect(othersOtherA1HTML).toContain('"restPath":""');
         expect(othersOtherA1HTML).toContain('"restPathQuery":""');
         expect(othersOtherA1HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -239,12 +239,12 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherA2HTTPState.status).toBe(200);
         expect(othersOtherA2DocType).toBe('<!doctype html>');
         expect(othersOtherA2HTML).toContain('<title>other-a</title>');
-        expect(othersOtherA2HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherA2HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherA2HTML).toContain('"path":"/other-a/123/another"');
-        expect(othersOtherA2HTML).toContain('"pathQuery":"/other-a/123/another?a=_a&b=_b&c=_c"');
-        expect(othersOtherA2HTML).toContain('"restPath":"/123/another"');
-        expect(othersOtherA2HTML).toContain('"restPathQuery":"/123/another?a=_a&b=_b&c=_c"');
+        expect(othersOtherA2HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherA2HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherA2HTML).toContain('"path":"./other-a/123/another"');
+        expect(othersOtherA2HTML).toContain('"pathQuery":"./other-a/123/another?a=_a&b=_b&c=_c"');
+        expect(othersOtherA2HTML).toContain('"restPath":"./123/another"');
+        expect(othersOtherA2HTML).toContain('"restPathQuery":"./123/another?a=_a&b=_b&c=_c"');
         expect(othersOtherA2HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
         expect(othersOtherA2HTML).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
         expect(othersOtherA2HTML).toContain('"params":{}');
@@ -264,10 +264,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherB1HTTPState.status).toBe(200);
         expect(othersOtherB1DocType).toBe('<!doctype html>');
         expect(othersOtherB1HTML).toContain('<title>other-b</title>');
-        expect(othersOtherB1HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherB1HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherB1HTML).toContain('"path":"/other-b"');
-        expect(othersOtherB1HTML).toContain('"pathQuery":"/other-b?a=_a&b=_b&c=_c"');
+        expect(othersOtherB1HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherB1HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherB1HTML).toContain('"path":"./other-b"');
+        expect(othersOtherB1HTML).toContain('"pathQuery":"./other-b?a=_a&b=_b&c=_c"');
         expect(othersOtherB1HTML).toContain('"restPath":""');
         expect(othersOtherB1HTML).toContain('"restPathQuery":""');
         expect(othersOtherB1HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -289,12 +289,12 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherB2HTTPState.status).toBe(200);
         expect(othersOtherB2DocType).toBe('<!doctype html>');
         expect(othersOtherB2HTML).toContain('<title>other-b</title>');
-        expect(othersOtherB2HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherB2HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherB2HTML).toContain('"path":"/other-b/123"');
-        expect(othersOtherB2HTML).toContain('"pathQuery":"/other-b/123?a=_a&b=_b&c=_c"');
-        expect(othersOtherB2HTML).toContain('"restPath":"/123"');
-        expect(othersOtherB2HTML).toContain('"restPathQuery":"/123?a=_a&b=_b&c=_c"');
+        expect(othersOtherB2HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherB2HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherB2HTML).toContain('"path":"./other-b/123"');
+        expect(othersOtherB2HTML).toContain('"pathQuery":"./other-b/123?a=_a&b=_b&c=_c"');
+        expect(othersOtherB2HTML).toContain('"restPath":"./123"');
+        expect(othersOtherB2HTML).toContain('"restPathQuery":"./123?a=_a&b=_b&c=_c"');
         expect(othersOtherB2HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
         expect(othersOtherB2HTML).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
         expect(othersOtherB2HTML).toContain('"params":{}');
@@ -314,10 +314,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherC1HTTPState.status).toBe(200);
         expect(othersOtherC1DocType).toBe('<!doctype html>');
         expect(othersOtherC1HTML).toContain('<title>other-c</title>');
-        expect(othersOtherC1HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherC1HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherC1HTML).toContain('"path":"/other-c"');
-        expect(othersOtherC1HTML).toContain('"pathQuery":"/other-c?a=_a&b=_b&c=_c"');
+        expect(othersOtherC1HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherC1HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherC1HTML).toContain('"path":"./other-c"');
+        expect(othersOtherC1HTML).toContain('"pathQuery":"./other-c?a=_a&b=_b&c=_c"');
         expect(othersOtherC1HTML).toContain('"restPath":""');
         expect(othersOtherC1HTML).toContain('"restPathQuery":""');
         expect(othersOtherC1HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -339,10 +339,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherC2HTTPState.status).toBe(200);
         expect(othersOtherC2DocType).toBe('<!doctype html>');
         expect(othersOtherC2HTML).toContain('<title>other-c</title>');
-        expect(othersOtherC2HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherC2HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherC2HTML).toContain('"path":"/other-c/123"');
-        expect(othersOtherC2HTML).toContain('"pathQuery":"/other-c/123?a=_a&b=_b&c=_c"');
+        expect(othersOtherC2HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherC2HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherC2HTML).toContain('"path":"./other-c/123"');
+        expect(othersOtherC2HTML).toContain('"pathQuery":"./other-c/123?a=_a&b=_b&c=_c"');
         expect(othersOtherC2HTML).toContain('"restPath":""');
         expect(othersOtherC2HTML).toContain('"restPathQuery":""');
         expect(othersOtherC2HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -364,10 +364,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherC3HTTPState.status).toBe(200);
         expect(othersOtherC3DocType).toBe('<!doctype html>');
         expect(othersOtherC3HTML).toContain('<title>other-c</title>');
-        expect(othersOtherC3HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherC3HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherC3HTML).toContain('"path":"/other-c/123/456/789"');
-        expect(othersOtherC3HTML).toContain('"pathQuery":"/other-c/123/456/789?a=_a&b=_b&c=_c"');
+        expect(othersOtherC3HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherC3HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherC3HTML).toContain('"path":"./other-c/123/456/789"');
+        expect(othersOtherC3HTML).toContain('"pathQuery":"./other-c/123/456/789?a=_a&b=_b&c=_c"');
         expect(othersOtherC3HTML).toContain('"restPath":""');
         expect(othersOtherC3HTML).toContain('"restPathQuery":""');
         expect(othersOtherC3HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -389,10 +389,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherD1HTTPState.status).toBe(404);
         expect(othersOtherD1DocType).toBe('<!doctype html>');
         expect(othersOtherD1HTML).toContain('<title>other-404</title>');
-        expect(othersOtherD1HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherD1HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherD1HTML).toContain('"path":"/other-d"');
-        expect(othersOtherD1HTML).toContain('"pathQuery":"/other-d?a=_a&b=_b&c=_c"');
+        expect(othersOtherD1HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherD1HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherD1HTML).toContain('"path":"./other-d"');
+        expect(othersOtherD1HTML).toContain('"pathQuery":"./other-d?a=_a&b=_b&c=_c"');
         expect(othersOtherD1HTML).toContain('"restPath":""');
         expect(othersOtherD1HTML).toContain('"restPathQuery":""');
         expect(othersOtherD1HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -414,10 +414,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherD2HTTPState.status).toBe(200);
         expect(othersOtherD2DocType).toBe('<!doctype html>');
         expect(othersOtherD2HTML).toContain('<title>other-d</title>');
-        expect(othersOtherD2HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherD2HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherD2HTML).toContain('"path":"/other-d/123"');
-        expect(othersOtherD2HTML).toContain('"pathQuery":"/other-d/123?a=_a&b=_b&c=_c"');
+        expect(othersOtherD2HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherD2HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherD2HTML).toContain('"path":"./other-d/123"');
+        expect(othersOtherD2HTML).toContain('"pathQuery":"./other-d/123?a=_a&b=_b&c=_c"');
         expect(othersOtherD2HTML).toContain('"restPath":""');
         expect(othersOtherD2HTML).toContain('"restPathQuery":""');
         expect(othersOtherD2HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -439,10 +439,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherD3HTTPState.status).toBe(200);
         expect(othersOtherD3DocType).toBe('<!doctype html>');
         expect(othersOtherD3HTML).toContain('<title>other-d</title>');
-        expect(othersOtherD3HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherD3HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherD3HTML).toContain('"path":"/other-d/123/456"');
-        expect(othersOtherD3HTML).toContain('"pathQuery":"/other-d/123/456?a=_a&b=_b&c=_c"');
+        expect(othersOtherD3HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherD3HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherD3HTML).toContain('"path":"./other-d/123/456"');
+        expect(othersOtherD3HTML).toContain('"pathQuery":"./other-d/123/456?a=_a&b=_b&c=_c"');
         expect(othersOtherD3HTML).toContain('"restPath":""');
         expect(othersOtherD3HTML).toContain('"restPathQuery":""');
         expect(othersOtherD3HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -464,10 +464,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherE1HTTPState.status).toBe(200);
         expect(othersOtherE1DocType).toBe('<!doctype html>');
         expect(othersOtherE1HTML).toContain('<title>other-e</title>');
-        expect(othersOtherE1HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherE1HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherE1HTML).toContain('"path":"/other-e"');
-        expect(othersOtherE1HTML).toContain('"pathQuery":"/other-e?a=_a&b=_b&c=_c"');
+        expect(othersOtherE1HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherE1HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherE1HTML).toContain('"path":"./other-e"');
+        expect(othersOtherE1HTML).toContain('"pathQuery":"./other-e?a=_a&b=_b&c=_c"');
         expect(othersOtherE1HTML).toContain('"restPath":""');
         expect(othersOtherE1HTML).toContain('"restPathQuery":""');
         expect(othersOtherE1HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -489,10 +489,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherE2HTTPState.status).toBe(200);
         expect(othersOtherE2DocType).toBe('<!doctype html>');
         expect(othersOtherE2HTML).toContain('<title>other-e</title>');
-        expect(othersOtherE2HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherE2HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherE2HTML).toContain('"path":"/other-e/123"');
-        expect(othersOtherE2HTML).toContain('"pathQuery":"/other-e/123?a=_a&b=_b&c=_c"');
+        expect(othersOtherE2HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherE2HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherE2HTML).toContain('"path":"./other-e/123"');
+        expect(othersOtherE2HTML).toContain('"pathQuery":"./other-e/123?a=_a&b=_b&c=_c"');
         expect(othersOtherE2HTML).toContain('"restPath":""');
         expect(othersOtherE2HTML).toContain('"restPathQuery":""');
         expect(othersOtherE2HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -514,10 +514,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherE3HTTPState.status).toBe(404);
         expect(othersOtherE3DocType).toBe('<!doctype html>');
         expect(othersOtherE3HTML).toContain('<title>other-404</title>');
-        expect(othersOtherE3HTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(othersOtherE3HTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(othersOtherE3HTML).toContain('"path":"/other-e/123/456"');
-        expect(othersOtherE3HTML).toContain('"pathQuery":"/other-e/123/456?a=_a&b=_b&c=_c"');
+        expect(othersOtherE3HTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(othersOtherE3HTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(othersOtherE3HTML).toContain('"path":"./other-e/123/456"');
+        expect(othersOtherE3HTML).toContain('"pathQuery":"./other-e/123/456?a=_a&b=_b&c=_c"');
         expect(othersOtherE3HTML).toContain('"restPath":""');
         expect(othersOtherE3HTML).toContain('"restPathQuery":""');
         expect(othersOtherE3HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -539,10 +539,10 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherE4HTTPState.status).toBe(200);
         expect(othersOtherE4DocType).toBe('<!doctype html>');
         expect(othersOtherE4HTML).toContain('<title>other-e</title>');
-        expect(othersOtherE4HTML).toContain('<link rel="stylesheet" href="/foo.css" media="all"/>');
-        expect(othersOtherE4HTML).toContain('<script type="module" src="/foo.js"></script>');
-        expect(othersOtherE4HTML).toContain('"path":"/other-e/123"');
-        expect(othersOtherE4HTML).toContain('"pathQuery":"/other-e/123?a=_a&b=_b&c=_c"');
+        expect(othersOtherE4HTML).toContain('<link rel="stylesheet" href="./foo.css" media="all"/>');
+        expect(othersOtherE4HTML).toContain('<script type="module" src="./foo.js"></script>');
+        expect(othersOtherE4HTML).toContain('"path":"./other-e/123"');
+        expect(othersOtherE4HTML).toContain('"pathQuery":"./other-e/123?a=_a&b=_b&c=_c"');
         expect(othersOtherE4HTML).toContain('"restPath":""');
         expect(othersOtherE4HTML).toContain('"restPathQuery":""');
         expect(othersOtherE4HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -564,8 +564,8 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(_404HTTPState.status).toBe(404);
         expect(_404DocType).toBe('<!doctype html>');
         expect(_404HTML).toContain('<title>404 Error: Not Found</title>');
-        expect(_404HTML).not.toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(_404HTML).not.toContain('<script type="module" src="/script.js"></script>');
+        expect(_404HTML).not.toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(_404HTML).not.toContain('<script type="module" src="./script.js"></script>');
         expect(_404HTML).toContain('</html>');
 
         // ---

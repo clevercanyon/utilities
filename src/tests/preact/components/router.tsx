@@ -10,7 +10,7 @@ const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '
 
 describe('<Router>', async () => {
     beforeAll(async () => {
-        $env.set('APP_BASE_URL', 'http://x.tld');
+        $env.set('APP_BASE_URL', 'http://x.tld/');
     });
     afterAll(async () => {
         $env.set('APP_BASE_URL', __origAppBaseURL__);
@@ -20,7 +20,7 @@ describe('<Router>', async () => {
     test('basics', async () => {
         expect(
             $preact.ssr.renderToString(
-                <Router url='http://x.tld'>
+                <Router url={$url.appBase()} base={$url.appBase()}>
                     <Route default component={(await import('../../../preact/components/error-404.tsx')).default} />
                 </Router>,
             ),

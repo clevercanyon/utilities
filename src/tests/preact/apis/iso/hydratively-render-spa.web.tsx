@@ -10,7 +10,7 @@ const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '
 
 describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     beforeAll(async () => {
-        $env.set('APP_BASE_URL', 'http://x.tld');
+        $env.set('APP_BASE_URL', 'http://x.tld/');
     });
     afterAll(async () => {
         $env.set('APP_BASE_URL', __origAppBaseURL__);
@@ -19,10 +19,10 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     });
     const App = (props: RouterProps): $preact.VNode<RouterProps> => {
         return (
-            <Router {...props}>
-                <Route path='/' component={Index} />
-                <Route path='/blog' component={Blog} />
-                <Route path='/blog/post/:id' component={Blog} />
+            <Router {...{ ...$preact.omitProps(props, ['children']) }}>
+                <Route path='./' component={Index} />
+                <Route path='./blog' component={Blog} />
+                <Route path='./blog/post/:id' component={Blog} />
                 <Route default component={Error404} />
             </Router>
         );
@@ -64,10 +64,10 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         expect(indexHTTPState.status).toBe(200);
         expect(indexDocType).toBe('<!doctype html>');
         expect(indexHTML).toContain('<title>index</title>');
-        expect(indexHTML).toContain('<link rel="stylesheet" href="/style.css" media="all"/>');
-        expect(indexHTML).toContain('<script type="module" src="/script.js"></script>');
-        expect(indexHTML).toContain('"path":"/"');
-        expect(indexHTML).toContain('"pathQuery":"/?a=_a&b=_b&c=_c"');
+        expect(indexHTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
+        expect(indexHTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(indexHTML).toContain('"path":"./"');
+        expect(indexHTML).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
         expect(indexHTML).toContain('"restPath":""');
         expect(indexHTML).toContain('"restPathQuery":""');
         expect(indexHTML).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -90,11 +90,10 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         const domIndexBodyMarkup = document.querySelector('body')?.outerHTML || '';
 
         expect(domIndexHeadMarkup).toContain('<title>index</title>');
-        expect(domIndexHeadMarkup).toContain('<link rel="stylesheet" href="/style.css" media="all">');
-        expect(domIndexHeadMarkup).toContain('<script type="module" src="/script.js"></script>');
-        expect(domIndexBodyMarkup).toContain('"path":"/"');
-        expect(domIndexBodyMarkup).toContain('"path":"/"');
-        expect(domIndexBodyMarkup).toContain('"pathQuery":"/?a=_a&b=_b&c=_c"');
+        expect(domIndexHeadMarkup).toContain('<link rel="stylesheet" href="./style.css" media="all">');
+        expect(domIndexHeadMarkup).toContain('<script type="module" src="./script.js"></script>');
+        expect(domIndexBodyMarkup).toContain('"path":"./"');
+        expect(domIndexBodyMarkup).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
         expect(domIndexBodyMarkup).toContain('"restPath":""');
         expect(domIndexBodyMarkup).toContain('"restPathQuery":""');
         expect(domIndexBodyMarkup).toContain('"query":"?a=_a&b=_b&c=_c"');
@@ -111,10 +110,10 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
 
         expect(domHydratedIndexMarkup).toContain('<html class="preact" lang="en">');
         expect(domHydratedIndexHeadMarkup).toContain('<title>index</title>');
-        expect(domHydratedIndexHeadMarkup).toContain('<link rel="stylesheet" href="/style.css" media="all">');
-        expect(domHydratedIndexHeadMarkup).toContain('<script type="module" src="/script.js"></script>');
-        expect(domHydratedIndexBodyMarkup).toContain('"path":"/"');
-        expect(domHydratedIndexBodyMarkup).toContain('"pathQuery":"/?a=_a&b=_b&c=_c"');
+        expect(domHydratedIndexHeadMarkup).toContain('<link rel="stylesheet" href="./style.css" media="all">');
+        expect(domHydratedIndexHeadMarkup).toContain('<script type="module" src="./script.js"></script>');
+        expect(domHydratedIndexBodyMarkup).toContain('"path":"./"');
+        expect(domHydratedIndexBodyMarkup).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
         expect(domHydratedIndexBodyMarkup).toContain('"restPath":""');
         expect(domHydratedIndexBodyMarkup).toContain('"restPathQuery":""');
         expect(domHydratedIndexBodyMarkup).toContain('"query":"?a=_a&b=_b&c=_c"');

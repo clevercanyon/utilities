@@ -76,16 +76,16 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
     for (const htmlExt of $path.canonicalExtVariants('html')) {
         const htmlEntry = appManifest['index.' + htmlExt]; // Possibly undefined value.
         if ($is.array(htmlEntry?.css) && $is.string(htmlEntry?.css?.[0]) && $is.string(htmlEntry?.file)) {
-            appManifestStyleBundleSubpath = $str.trim((htmlEntry.css as string[])[0], './');
-            appManifestScriptBundleSubpath = $str.trim(htmlEntry.file, './');
+            appManifestStyleBundleSubpath = $str.lTrim((htmlEntry.css as string[])[0], './');
+            appManifestScriptBundleSubpath = $str.lTrim(htmlEntry.file, './');
             break; // We can stop here.
         }
     } // Now let’s confirm we found the bundle files.
     if (!appManifestStyleBundleSubpath) throw new Error('Missing `appManifest[index.html].css[0]`.');
     if (!appManifestScriptBundleSubpath) throw new Error('Missing `appManifest[index.html].file`.');
 
-    const mainStyleBundle = $url.pathFromAppBase('./' + appManifestStyleBundleSubpath);
-    const mainScriptBundle = $url.pathFromAppBase('./' + appManifestScriptBundleSubpath);
+    const mainStyleBundle = './' + appManifestStyleBundleSubpath;
+    const mainScriptBundle = './' + appManifestScriptBundleSubpath;
 
     const fetcher = replaceNativeFetch();
     const prerenderedData = await prerender(App, {

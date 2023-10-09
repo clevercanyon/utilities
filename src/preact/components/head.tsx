@@ -109,10 +109,10 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
 
         // @todo Make this detection more Vite-specific.
         if (!state.mainStyleBundle && '' !== state.mainStyleBundle && $env.isLocalWeb()) {
-            defaultMainStyleBundle = locState.pathFromBase('./index.scss');
+            defaultMainStyleBundle = './index.scss';
         }
         if (!state.mainScriptBundle && '' !== state.mainScriptBundle && $env.isLocalWeb()) {
-            defaultMainScriptBundle = locState.pathFromBase('./index.tsx');
+            defaultMainScriptBundle = './index.tsx';
         }
         return {
             ...state,

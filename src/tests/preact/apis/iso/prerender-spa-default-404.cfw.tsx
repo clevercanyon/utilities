@@ -10,7 +10,7 @@ const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '
 
 describe('$preact.iso.prerenderSPA() default-404', async () => {
     beforeAll(async () => {
-        $env.set('APP_BASE_URL', 'http://x.tld');
+        $env.set('APP_BASE_URL', 'http://x.tld/');
     });
     afterAll(async () => {
         $env.set('APP_BASE_URL', __origAppBaseURL__);
@@ -19,9 +19,9 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
     });
     const App = (props: RouterProps): $preact.VNode<RouterProps> => {
         return (
-            <Router {...props}>
-                <Route path='/' component={Index} />
-                <Route path='/others/*' component={Others} />
+            <Router {...{ ...$preact.omitProps(props, ['children']) }}>
+                <Route path='./' component={Index} />
+                <Route path='./others/*' component={Others} />
                 <Route default component={Error404} />
             </Router>
         );
@@ -39,7 +39,7 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
     const Others = (): $preact.VNode<RouteContextAsProps> => {
         return (
             <Router {...$preact.useRoute()}>
-                <Route path='/other' component={Other} />
+                <Route path='./other' component={Other} />
                 {/* No default route in this nested router. */}
             </Router>
         );
