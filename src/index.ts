@@ -7,6 +7,7 @@ import './resources/init.ts';
 export * as $app from './app.ts';
 export * as $brand from './brand.ts';
 export * as $class from './class.ts';
+export * as $color from './color.ts';
 export * as $cookie from './cookie.ts';
 export * as $crypto from './crypto.ts';
 export * as $env from './env.ts';

@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.335",
+    "version": "1.0.336",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -40,6 +40,11 @@
             "types": "./dist/types/class.d.ts",
             "import": "./dist/class.js",
             "default": "./dist/class.js"
+        },
+        "./color": {
+            "types": "./dist/types/color.d.ts",
+            "import": "./dist/color.js",
+            "default": "./dist/color.js"
         },
         "./cookie": {
             "types": "./dist/types/cookie.d.ts",
@@ -210,7 +215,8 @@
         "preact-render-to-string": "^6.2.2",
         "react": "npm:@preact/compat@^17.1.2",
         "react-dom": "npm:@preact/compat@^17.1.2",
-        "semver": "^7.5.4"
+        "semver": "^7.5.4",
+        "tailwindcss": "^3.3.3"
     },
     "peerDependenciesMeta": {},
     "optionalDependencies": {},
