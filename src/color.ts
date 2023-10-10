@@ -4,7 +4,7 @@
 
 import './resources/init.ts';
 
-import twColors from '../node_modules/tailwindcss/colors.js';
+import twColors from 'tailwindcss/colors.js';
 import { $is, $obj } from './index.ts';
 
 /**
