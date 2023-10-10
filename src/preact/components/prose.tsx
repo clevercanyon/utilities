@@ -30,7 +30,15 @@ export default function Prose(props: Props = {}): $preact.VNode<Props> {
         'gte-desktop:prose-lg',
     ];
     if (as.includes('-') /* Custom tag? */) {
-        return <Custom {...{ as, ...$preact.omitProps(props, ['as', 'color', 'class']), class: $preact.classes(proseClasses, props) }} />;
+        return (
+            <Custom
+                {...{
+                    as,
+                    ...$preact.omitProps(props, ['as', 'color', 'class']),
+                    class: $preact.classes(proseClasses, props),
+                }}
+            />
+        );
     }
     return $preact.createElement(as as 'div' | 'span', {
         ...$preact.omitProps(props, ['as', 'color', 'class']),
