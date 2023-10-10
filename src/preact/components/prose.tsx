@@ -9,7 +9,7 @@ import { Custom, type CustomProps } from '../components.tsx';
  * Defines types.
  */
 export type Props = Partial<CustomProps> & {
-    as?: string; // HTML tag name.
+    as?: string; // HTML tag name to use.
     color?: string; // Prose color class.
 };
 
@@ -25,7 +25,7 @@ export default function Prose(props: Props = {}): $preact.VNode<Props> {
     const proseClasses = [
         'prose', //
         'max-w-none',
-        color, // e.g., `prose-neutral`.
+        color, // Class.
         'dark:prose-invert',
         'gte-desktop:prose-lg',
     ];
