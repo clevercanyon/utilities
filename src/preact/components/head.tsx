@@ -174,13 +174,12 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                     class: $preact.classes(headState),
                 }}
             >
-                {locState.baseURL && <base href={locState.baseURL.toString()} />}
-
                 {headState.charset && <meta charSet={headState.charset} />}
+                {locState.baseURL && <base href={locState.baseURL.toString()} />}
                 {headState.viewport && <meta name='viewport' content={headState.viewport} />}
 
                 {headState.robots && <meta name='robots' content={headState.robots} />}
-                {headState.canonical && <link rel='canonical' href={headState.canonical.toString()} />}
+                {headState.canonical && <link rel='canonical' type={undefined} href={headState.canonical.toString()} />}
 
                 {headState.title && <title>{headState.title}</title>}
                 {headState.description && <meta name='description' content={headState.description} />}
