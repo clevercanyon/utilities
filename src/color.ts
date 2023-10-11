@@ -83,6 +83,8 @@ export const hex3To6Chars = (hex: string): string => {
  * @param   options Options (all optional); {@see HexToRGBOptions}.
  *
  * @returns         RGB. By default, as `rgb()` for use in HTML.
+ *
+ * @todo Add support for alpha setting.
  */
 export const hexToRGB = <Options extends HexToRGBOptions>(hex: string, options?: Options): Options extends { format: 'object' } ? RGBObject : string => {
     const opts = $obj.defaults({}, options || {}, { format: 'rgb()' }) as Required<HexToRGBOptions>;
@@ -106,7 +108,7 @@ export const hexToRGB = <Options extends HexToRGBOptions>(hex: string, options?:
         }
         case 'rgb()':
         default: {
-            return `rgb(${r}, ${g}, ${b})` as ReturnType<typeof hexToRGB<Options>>;
+            return `rgb(${r} ${g} ${b})` as ReturnType<typeof hexToRGB<Options>>;
         }
     }
 };
