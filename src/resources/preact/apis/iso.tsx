@@ -16,7 +16,7 @@ export type PrerenderSPAOptions = {
     request: $type.Request;
     appManifest: AppManifest;
     App: $preact.FnComponent<RouterProps>;
-    props?: Omit<RouterProps, 'url' | 'fetcher'>;
+    props?: Omit<RouterProps, 'url' | 'baseURL' | 'fetcher'>;
 };
 export type PrerenderSPAReturnProps = {
     httpState: HTTPState;
@@ -25,7 +25,7 @@ export type PrerenderSPAReturnProps = {
 };
 export type HydrativelyRenderSPAOptions = {
     App: $preact.FnComponent<RouterProps>;
-    props?: Omit<RouterProps, 'url' | 'fetcher'>;
+    props?: Omit<RouterProps, 'url' | 'baseURL' | 'fetcher'>;
 };
 export type AppManifest = { [x: $type.ObjectKey]: $type.Object };
 

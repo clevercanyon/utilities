@@ -71,19 +71,21 @@ export { lazyRoute, lazyComponent } from './preact/components/router.tsx';
 export type { JSX } from 'preact';
 export type { Dispatch } from 'preact/hooks';
 
-export type FnComponent<P extends Props = Props> = preact.FunctionComponent<P>;
-export type AsyncFnComponent<P extends Props = Props> = (...args: Parameters<FnComponent<P>>) => Promise<ReturnType<FnComponent<P>>>;
+export type FnComponent<Type extends Props = Props> = preact.FunctionComponent<Type>;
+export type AsyncFnComponent<Type extends Props = Props> = (...args: Parameters<FnComponent<Type>>) => Promise<ReturnType<FnComponent<Type>>>;
+export type VNode<Type extends Props = Props> = preact.VNode<Type>; // Function components return a VNode.
 
-export type VNode<P extends Props = Props> = preact.VNode<P>;
+export type Props<Type extends object = $type.Object> = Readonly<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>>;
+export type Context<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
+export type State<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
+
 export type ClassPropVariants = (typeof classPropVariants)[number];
 export type Classes = TypesOfClasses | (TypesOfClasses | Classes)[] | Set<TypesOfClasses | Classes>;
-export type Props<P extends object = $type.Object> = preact.RenderableProps<Readonly<P & { [x in ClassPropVariants]?: Classes }>>;
 
-export type CleanPropOptions = { undefinedValues?: boolean };
 export type OmitPropOptions = { undefinedValues?: boolean };
 
-type TypesOfClasses = // Internal class prop variant types.
-    // These types can be nested into arrays|sets infinitely deep.
+type TypesOfClasses = // Internal class prop variants.
+    //Types can be nested into arrays|sets infinitely deep.
     | string
     | undefined
     | Map<string, boolean>
@@ -100,7 +102,11 @@ type TypesOfClasses = // Internal class prop variant types.
  *
  * @note This must remain a constant, not a function. It’s used for DRY types above.
  */
-export const classPropVariants = ['class', 'classes', 'className', 'classNames'] as const;
+export const classPropVariants = ['class', 'classes', 'className', 'classNames'] as const; // Also makes this readonly.
+
+// Additional supporting utility functions for `class` prop variants.
+export const classPropVariantsRegExpStr = (): string => '^class(?:es|Names?)?$';
+export const classPropVariantsRegExp = (): RegExp => new RegExp(classPropVariantsRegExpStr(), 'u');
 
 /**
  * Omits specific component props.
@@ -124,66 +130,86 @@ export const omitProps = <Type extends Props, Key extends keyof Type>(props: Typ
 };
 
 /**
- * Formats component classes.
+ * Gets component classes.
  *
- * Never access a class variant prop literally, but rather, {@see classes()} export in this file. We accept, for a
- * variety of reasons, multiple prop names with CSS classes in them, and in differing formats. The {@see classes()}
- * utility will work out the variants and assemble things for you. Unless you want bugs, there is no other option.
+ * Never access a class prop variant literally, but rather, use this utility. We accept, for a variety of reasons,
+ * multiple prop names with CSS classes in them, and in differing formats. This utility will work out the variants and
+ * assemble things for you. Unless you want bugs, there is no other option. Use this utility!
  *
- * Never feed {@see classes()} a class prop variant literally. Instead, give it props or state that it can search
- * within. The rule is the same, never access a class variant prop literally, and that goes also when using this
+ * Never feed this utility a class prop variant literally. Instead, give it props or state that it can search within.
+ * The rule is the same as above, never access a class prop variant literally, and that goes also when using this
  * utility. Pass it all of the props, or your entire state. Or feed it any other acceptible values.
  *
- * @param   ...variadicArgs {@see Classes[]}.
+ * @param   args Variadic; {@see Classes[]}.
  *
  *   - Strings, however deep, are split on whitespace.
  *   - Arrays and sets are traversed recursively. We look for classes within.
  *   - Plain objects are interpreted as component props or component state, or something else. In any plain object we look
  *       for class prop variants within and recurse into those props looking for classes; {@see ClassPropVariants}.
- *   - Map objects are interpreted as class name maps with boolean values. A `true` value is required to enable a string
- *       key; e.g., `new Map(Object.entries({ abc: true, 'd e f': true, g: 1, h: 0, i: false }))` = `abc d e f`.
+ *   - Map objects are interpreted as class maps with boolean values. A `true` value is required to enable a string key;
+ *       e.g., `new Map(Object.entries({ abc: true, 'd e f': true, g: 1, h: 0, i: false }))` = `abc d e f`.
  *   - Any other object type that has a string `.value` property is interpreted as a signal-like value. Signal-like values
  *       are supported only because JSX supports them on the native `class` attribute across all HTML elements.
  *   - Any other value, including any other types of objects, are ignored entirely.
  *
- * @returns                 Space-separated classes extracted from variadic args. If empty, `undefined` is returned.
- *   Note: `undefined` is deliberately returned when classes are empty. It’s to avoid adding `class=""` unnecessarily.
+ * @returns      Space-separated classes extracted from variadic args. If empty, `undefined` is returned. Note:
+ *   `undefined` is deliberately returned when classes are empty. It’s to avoid adding `class=""` unnecessarily.
  *
  * @see https://www.npmjs.com/package/clsx
  * @see https://www.npmjs.com/package/classnames
  */
-export const classes = (...variadicArgs: Classes[]): undefined | string => {
-    const sepRegExp = /\s+/u; // Initialize.
+export const classes = (...args: Classes[]): undefined | string => {
     let flat: unknown[] = []; // Initialize.
+    const map = classesꓺhelper(args);
 
-    for (const args of variadicArgs) {
-        for (const arg of $to.array(args)) {
-            //
-            if ($is.string(arg)) {
-                flat = flat.concat(arg.split(sepRegExp));
-                //
-            } else if ($is.array(arg) || $is.set(arg)) {
-                // Important to spread sets here, or we loop infinintely.
-                flat = flat.concat((classes([...arg]) || '').split(sepRegExp));
-                //
-            } else if ($is.plainObject(arg)) {
-                for (const prop of classPropVariants) {
-                    if (!Object.hasOwn(arg, prop)) continue;
-                    flat = flat.concat((classes(arg[prop]) || '').split(sepRegExp));
-                }
-            } else if ($is.map(arg)) {
-                for (const [classNames, enable] of arg) {
-                    if (true !== enable || !$is.string(classNames)) continue;
-                    flat = flat.concat(classNames.split(sepRegExp));
-                }
-            } else if ($is.object(arg) && Object.hasOwn(arg, 'value')) {
-                // Important to access `.value` just once, as it may trigger side-effects.
-                const classNames = (arg as preact.JSX.SignalLike<string | undefined>).value;
-                if ($is.string(classNames)) flat = flat.concat(classNames.split(sepRegExp));
-            }
-        }
-    } // We only want unique, non-empty class names.
+    for (const [className] of map) flat.push(className);
     flat = [...new Set(flat.filter((c) => $is.notEmpty(c)))];
 
     return flat.length ? flat.join(' ') : undefined;
+};
+
+/**
+ * Gets component classes as an array.
+ *
+ * @param   args Variadic; {@see classes()}.
+ *
+ * @returns      An array of component classes.
+ */
+export const splitClasses = (...args: Classes[]) => (classes(...args) || '').split(/\s+/u);
+
+/**
+ * Helps get component classes.
+ *
+ * @param   allArgs All arguments passed to {@see classes()}.
+ * @param   map     Internal recursive use only. Please do not pass.
+ *
+ * @returns         `Map<string, true>` of all enabled classes.
+ */
+const classesꓺhelper = (allArgs: Classes[], map: Map<string, true> = new Map()): Map<string, true> => {
+    for (const args of allArgs) {
+        for (const arg of $to.array(args)) {
+            if ($is.array(arg)) {
+                classesꓺhelper(arg, map);
+                //
+            } else if ($is.set(arg)) {
+                classesꓺhelper([...arg], map);
+                //
+            } else if ($is.string(arg)) {
+                arg.split(/\s+/u).map((c) => map.set(c, true));
+                //
+            } else if ($is.map(arg)) {
+                for (const [classNames, enable] of arg)
+                    ($is.string(classNames) ? classNames : '').split(/\s+/u).map((c) => {
+                        true === enable ? map.set(c, true) : map.delete(c);
+                    });
+            } else if ($is.plainObject(arg)) {
+                for (const prop of classPropVariants) {
+                    if (Object.hasOwn(arg, prop)) classesꓺhelper([arg[prop]], map);
+                }
+            } else if ($is.object(arg) && Object.hasOwn(arg, 'value')) {
+                classesꓺhelper([(arg as preact.JSX.SignalLike<string | undefined>).value], map);
+            }
+        }
+    }
+    return map;
 };

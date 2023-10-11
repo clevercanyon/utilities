@@ -11,13 +11,15 @@ import { type State as DataState } from './data.tsx';
 /**
  * Defines types.
  */
-export type State = Partial<Omit<$preact.JSX.IntrinsicElements['body'], 'children' | 'dangerouslySetInnerHTML'>> & {
-    [x in $preact.ClassPropVariants]?: $preact.Classes;
-};
-export type PartialState = Partial<State>;
+export type State = $preact.State<
+    Partial<$preact.JSX.IntrinsicElements['body']> & {
+        [x in $preact.ClassPropVariants]?: $preact.Classes;
+    }
+>;
+export type PartialState = $preact.State<Partial<State>>;
 export type Props = $preact.Props<PartialState>;
 
-export type ContextProps = Readonly<{
+export type ContextProps = $preact.Context<{
     state: State;
     updateState: $preact.Dispatch<PartialState>;
 }>;

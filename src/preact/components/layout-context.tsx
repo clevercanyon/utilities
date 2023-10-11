@@ -10,17 +10,16 @@ import { $obj, $preact } from '../../index.ts';
 /**
  * Defines types.
  */
-export type State = {
-    dark: boolean;
+export type State = $preact.State<{
     variant: string;
-};
-export type PartialState = Partial<State>;
+}>;
+export type PartialState = $preact.State<Partial<State>>;
 export type Props = Omit<$preact.Props<PartialState>, $preact.ClassPropVariants>;
 
-export type ContextProps = {
-    readonly state: State;
-    readonly updateState: $preact.Dispatch<PartialState>;
-};
+export type ContextProps = $preact.Context<{
+    state: State;
+    updateState: $preact.Dispatch<PartialState>;
+}>;
 
 /**
  * Defines context.
@@ -33,13 +32,12 @@ const Context = createContext({} as ContextProps);
 /**
  * Produces initial state.
  *
- * @param   dataState <Data> state.
- * @param   props     Component props.
+ * @param   props Component props.
  *
- * @returns           Initialized state.
+ * @returns       Initialized state.
  */
 const initialState = (props: Props = {}): State => {
-    return $obj.mergeDeep({ dark: false, variant: 'default' }, $preact.omitProps(props, ['children'])) as unknown as State;
+    return $obj.mergeDeep({ variant: 'default' }, $preact.omitProps(props, ['children'])) as unknown as State;
 };
 
 /**

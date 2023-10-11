@@ -8,10 +8,11 @@ import { Custom, type CustomProps } from '../components.tsx';
 /**
  * Defines types.
  */
-export type Props = Partial<CustomProps> & {
-    as?: string; // HTML tag name to use.
-    color?: string; // Prose color class.
-};
+export type Props = $preact.Props<
+    Partial<CustomProps> & {
+        as?: string; // HTML tag name to use.
+    }
+>;
 
 /**
  * Renders component.
@@ -19,13 +20,14 @@ export type Props = Partial<CustomProps> & {
  * @param   props Component props.
  *
  * @returns       VNode / JSX element tree.
+ *
+ * @note A class map can be used to disable default classes; {@see $preact.classes()}.
  */
 export default function Prose(props: Props = {}): $preact.VNode<Props> {
-    const { as = 'div', color = '' } = props;
+    const { as = 'div' } = props;
     const proseClasses = [
         'prose', //
         'max-w-none',
-        color, // Class.
         'dark:prose-invert',
         'gte-desktop:prose-lg',
     ];
@@ -33,15 +35,14 @@ export default function Prose(props: Props = {}): $preact.VNode<Props> {
         return (
             <Custom
                 {...{
-                    as,
-                    ...$preact.omitProps(props, ['as', 'color', 'class']),
-                    class: $preact.classes(proseClasses, props),
+                    ...$preact.omitProps(props, ['as', 'class']),
+                    ...{ as, class: $preact.classes(proseClasses, props) },
                 }}
             />
         );
     }
     return $preact.createElement(as as 'div' | 'span', {
-        ...$preact.omitProps(props, ['as', 'color', 'class']),
+        ...$preact.omitProps(props, ['as', 'class']),
         class: $preact.classes(proseClasses, props),
     }) as $preact.VNode<Props>;
 }

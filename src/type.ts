@@ -78,9 +78,9 @@ export type DeepWriteable<Type> = { -readonly [Prop in keyof Type]: DeepWriteabl
 
 export type PartialTuple<Tuple extends unknown[], Extracted extends unknown[] = []> = //
     // If the tuple provided contains at least one required value.
-    Tuple extends [infer Next, ...infer __Remaining]
+    Tuple extends [infer Next, ...infer Remaining]
         ? // Recurse with remaining + first being partial (i.e., optional) now.
-          PartialTuple<__Remaining, [...Extracted, Next?]>
+          PartialTuple<Remaining, [...Extracted, Next?]>
         : // Else, return with an empty tuple.
           [...Extracted, /* empty */ ...Tuple];
 

@@ -13,33 +13,31 @@ import { type State as HTMLState, type PartialState as PartialHTMLState } from '
 /**
  * Defines types.
  */
-export type State = {
+export type State = $preact.State<{
     globalObp: string;
     fetcher?: $preact.iso.Fetcher;
-    html: Omit<HTMLState, keyof HTMLState>;
-    head: Pick<HeadState, 'mainStyleBundle' | 'mainScriptBundle'>;
-    body: Omit<BodyState, keyof BodyState>;
-};
-export type PartialState = {
+    html: Omit<HTMLState, keyof HTMLState>; // Only impacts initial HTML state. None at this time.
+    head: Pick<HeadState, 'mainStyleBundle' | 'mainScriptBundle'>; // Only impacts initial head state.
+    body: Omit<BodyState, keyof BodyState>; // Only impacts initial body state. None at this time.
+}>;
+export type PartialState = $preact.State<{
     globalObp?: string;
     fetcher?: $preact.iso.Fetcher;
-    html?: Omit<PartialHTMLState, keyof PartialHTMLState>;
-    head?: Pick<PartialHeadState, 'mainStyleBundle' | 'mainScriptBundle'>;
-    body?: Omit<PartialBodyState, keyof PartialBodyState>;
-};
-export type HTTPState = Partial<Omit<$http.ResponseConfig, 'body'>> & {
-    status: number; // Marking this as required property.
-};
-export type HTTPPartialState = Partial<HTTPState>;
+    html?: Omit<PartialHTMLState, keyof PartialHTMLState>; // Only impacts initial HTML state. None at this time.
+    head?: Pick<PartialHeadState, 'mainStyleBundle' | 'mainScriptBundle'>; // Only impacts initial head state.
+    body?: Omit<PartialBodyState, keyof PartialBodyState>; // Only impacts initial body state. None at this time.
+}>;
+export type HTTPState = $preact.State<Partial<Omit<$http.ResponseConfig, 'body'>> & { status: number }>;
+export type HTTPPartialState = $preact.State<Partial<HTTPState>>;
 
+export type GlobalProps = Readonly<Partial<{ http?: HTTPPartialState } & Pick<PartialState, 'html' | 'head' | 'body'>>>;
 export type Props = Omit<$preact.Props<PartialState>, $preact.ClassPropVariants>;
-export type GlobalProps = Partial<Omit<Props, 'children'> & { http?: HTTPPartialState }>;
 
-export type ContextProps = Readonly<{
+export type ContextProps = $preact.Context<{
     state: State;
     updateState: $preact.Dispatch<PartialState>;
 }>;
-export type HTTPContextProps = Readonly<{
+export type HTTPContextProps = $preact.Context<{
     state: HTTPState;
     updateState: (updates: HTTPPartialState) => void;
 }>;

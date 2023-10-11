@@ -11,17 +11,18 @@ import { type State as DataState } from './data.tsx';
 /**
  * Defines types.
  */
-export type State = Partial<Omit<$preact.JSX.IntrinsicElements['html'], 'children' | 'dangerouslySetInnerHTML'>> & {
-    lang: string; // String value only.
-} & { [x in $preact.ClassPropVariants]?: $preact.Classes };
-
-export type PartialState = Partial<State>;
+export type State = $preact.State<
+    Partial<$preact.JSX.IntrinsicElements['html']> & {
+        lang: string; // String value only.
+    } & { [x in $preact.ClassPropVariants]?: $preact.Classes }
+>;
+export type PartialState = $preact.State<Partial<State>>;
 export type Props = $preact.Props<PartialState>;
 
-export type ContextProps = {
-    readonly state: State;
-    readonly updateState: $preact.Dispatch<PartialState>;
-};
+export type ContextProps = $preact.Context<{
+    state: State;
+    updateState: $preact.Dispatch<PartialState>;
+}>;
 
 /**
  * Defines context.
@@ -66,9 +67,6 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
     const { state: dataState } = $preact.useData();
     if (!dataState) throw new Error('Missing data state.');
 
-    const { state: layoutState } = $preact.useLayout();
-    // Note: Layout optional; `<HTML>` can be used outside of a `<LayoutContext>`.
-
     // Props from current `<Data>` state will only have an impact on 'initial' `<HTML>` state.
     const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(dataState, props));
 
@@ -77,7 +75,7 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
             <html
                 {...{
                     ...$preact.omitProps(state, ['class', 'lang']),
-                    class: $preact.classes(layoutState?.dark ? 'dark' : '', state, 'preact'),
+                    class: $preact.classes(state, 'preact'),
                     lang: state.lang,
                 }}
             >

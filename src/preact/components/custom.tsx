@@ -11,7 +11,7 @@ import { $preact } from '../../index.ts';
  */
 export type Props = $preact.Props<
     Partial<$preact.JSX.IntrinsicElements['div'] | $preact.JSX.IntrinsicElements['span']> & {
-        as: string; // HTML tag name.
+        as: string; // Custom HTML tag name; must include a dash.
     }
 >;
 
@@ -32,7 +32,7 @@ export default function Custom(props: Props): $preact.VNode<Props> {
     const displayClasses = classes ? '' : 'block';
 
     return $preact.createElement(as as 'div' | 'span', {
-        ...$preact.omitProps(props, ['as', 'class']), // Does not omit `children`.
+        ...$preact.omitProps(props, ['as', 'class']),
         class: $preact.classes(displayClasses, classes),
     }) as $preact.VNode<Props>;
 }

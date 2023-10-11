@@ -49,14 +49,14 @@ export default function Router(props: Props = {}): $preact.VNode<Props> {
  *
  * @returns                Preact component that will be lazy loaded by ISO prerenderer.
  */
-export const lazyComponent = <P extends $preact.Props = $preact.Props>(asyncComponent: $preact.AsyncFnComponent<P>): $preact.FnComponent<P> => {
-    const higherOrder = { props: {} as P }; // Contains async component props, which we access by reference.
+export const lazyComponent = <Props extends $preact.Props = $preact.Props>(asyncComponent: $preact.AsyncFnComponent<Props>): $preact.FnComponent<Props> => {
+    const higherOrder = { props: {} as Props }; // Contains async component props, which we access by reference.
 
     const ComponentRoute = lazyRoute(async (): Promise<$preact.FnComponent<RouteContextAsProps>> => {
         const renderedAsyncComponentVNode = await asyncComponent(higherOrder.props);
         return (unusedꓺprops: RouteContextAsProps) => renderedAsyncComponentVNode;
     });
-    const ComponentRouter = (props: Parameters<$preact.AsyncFnComponent<P>>[0]): Awaited<ReturnType<$preact.AsyncFnComponent<P>>> => {
+    const ComponentRouter = (props: Parameters<$preact.AsyncFnComponent<Props>>[0]): Awaited<ReturnType<$preact.AsyncFnComponent<Props>>> => {
         higherOrder.props = props; // Populates async component props.
         return (
             <Router>

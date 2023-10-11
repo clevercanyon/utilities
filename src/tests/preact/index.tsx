@@ -30,6 +30,21 @@ describe('$preact', async () => {
         ).toBe('a b c d e f g h i j k l m n o p');
 
         expect(
+            $preact.classes(
+                $to.map({ a: true }) as Map<string, boolean>,
+                $to.map({ b: true }) as Map<string, boolean>,
+                $to.map({ c: true }) as Map<string, boolean>,
+                $to.map({ 'd e f': true }) as Map<string, boolean>,
+                'g h i',
+                ['j k  l', 'm'],
+                'n',
+                'o\rp',
+                $to.map({ 'n o': false }) as Map<string, boolean>,
+                $to.map({ 'p': false }) as Map<string, boolean>,
+            ),
+        ).toBe('a b c d e f g h i j k l m'); // `n o p` disabled by class maps.
+
+        expect(
             $preact.classes([
                 [
                     [

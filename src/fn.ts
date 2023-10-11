@@ -13,29 +13,29 @@ import { type $fnꓺMemoizeOptions, type $fnꓺMemoizedFunction } from './resour
  */
 export type { $fnꓺMemoizeOptions as MemoizeOptions, $fnꓺMemoizedFunction as MemoizedFunction };
 
-export type TryFunction<__Fn extends $type.Function, __CatchReturns> = __Fn extends $type.AsyncFunction
-    ? (...args: Parameters<__Fn>) => Promise<Awaited<ReturnType<__Fn>> | __CatchReturns>
-    : (...args: Parameters<__Fn>) => ReturnType<__Fn> | __CatchReturns;
+export type TryFunction<Fn extends $type.Function, CatchReturns> = Fn extends $type.AsyncFunction
+    ? (...args: Parameters<Fn>) => Promise<Awaited<ReturnType<Fn>> | CatchReturns>
+    : (...args: Parameters<Fn>) => ReturnType<Fn> | CatchReturns;
 
-export type CurriedFunction<__Fn extends $type.Function, __Provided extends unknown[]> =
+export type CurriedFunction<Fn extends $type.Function, Provided extends unknown[]> =
     // If there is at least one required parameter remaining, return new curried function; else invocation return value.
-    <__Remaining extends $type.PartialTuple<$type.RemainingParameters<__Provided, Parameters<__Fn>>>>(...args: __Remaining) => CurriedReturn<__Fn, [...__Provided, ...__Remaining]>;
+    <Remaining extends $type.PartialTuple<$type.RemainingParameters<Provided, Parameters<Fn>>>>(...args: Remaining) => CurriedReturn<Fn, [...Provided, ...Remaining]>;
 
-export type CurriedReturn<__Fn extends $type.Function, __Provided extends unknown[]> = //
+export type CurriedReturn<Fn extends $type.Function, Provided extends unknown[]> = //
     // If there is at least one required parameter remaining.
-    $type.RemainingParameters<__Provided, Parameters<__Fn>> extends [unknown, ...unknown[]]
+    $type.RemainingParameters<Provided, Parameters<Fn>> extends [unknown, ...unknown[]]
         ? // Then return a new curried function.
-          CurriedFunction<__Fn, __Provided>
+          CurriedFunction<Fn, Provided>
         : // Else, invocation return value.
-          ReturnType<__Fn>;
+          ReturnType<Fn>;
 
 export type TryOptions = { throwOnError?: boolean };
 export type ThrottleOptions = ThrottleDebounceCommonOptions & { debounceMode?: boolean };
 export type DebounceOptions = ThrottleDebounceCommonOptions; // Nothing more to add at this time.
 type ThrottleDebounceCommonOptions = { leadingEdge?: boolean; waitTime?: number; trailingEdge?: boolean };
 
-export type ThrottledFunction<__Fn extends $type.Function> = {
-    (this: ThisParameterType<__Fn>, ...args: Parameters<__Fn>): Promise<ReturnType<__Fn>>;
+export type ThrottledFunction<Fn extends $type.Function> = {
+    (this: ThisParameterType<Fn>, ...args: Parameters<Fn>): Promise<ReturnType<Fn>>;
     $onLeadingEdge: () => void;
     $onTrailingEdge: () => void;
     flush: () => void;

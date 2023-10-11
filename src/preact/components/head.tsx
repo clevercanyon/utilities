@@ -11,40 +11,41 @@ import { globalToScriptCode as dataGlobalToScriptCode, type State as DataState }
 /**
  * Defines types.
  */
-export type State = Partial<Omit<$preact.JSX.IntrinsicElements['head'], 'children' | 'dangerouslySetInnerHTML'>> & {
-    charset?: string;
-    viewport?: string;
+export type State = $preact.State<
+    Partial<$preact.JSX.IntrinsicElements['head']> & {
+        charset?: string;
+        viewport?: string;
 
-    robots?: string;
-    canonical?: $type.URL | string;
-    siteName?: string;
+        robots?: string;
+        canonical?: $type.URL | string;
+        siteName?: string;
 
-    title?: string;
-    titleSuffix?: string;
-    description?: string;
-    author?: string;
+        title?: string;
+        titleSuffix?: string;
+        description?: string;
+        author?: string;
 
-    pngIcon?: $type.URL | string;
-    svgIcon?: $type.URL | string;
+        pngIcon?: $type.URL | string;
+        svgIcon?: $type.URL | string;
 
-    ogSiteName?: string;
-    ogType?: string;
-    ogTitle?: string;
-    ogDescription?: string;
-    ogURL?: $type.URL | string;
-    ogImage?: $type.URL | string;
+        ogSiteName?: string;
+        ogType?: string;
+        ogTitle?: string;
+        ogDescription?: string;
+        ogURL?: $type.URL | string;
+        ogImage?: $type.URL | string;
 
-    mainStyleBundle?: $type.URL | string;
-    mainScriptBundle?: $type.URL | string;
-} & { [x in $preact.ClassPropVariants]?: $preact.Classes };
-
-export type PartialState = Partial<State>;
+        mainStyleBundle?: $type.URL | string;
+        mainScriptBundle?: $type.URL | string;
+    } & { [x in $preact.ClassPropVariants]?: $preact.Classes }
+>;
+export type PartialState = $preact.State<Partial<State>>;
 export type Props = $preact.Props<PartialState>;
 
-export type ContextProps = {
-    readonly state: State;
-    readonly updateState: $preact.Dispatch<PartialState>;
-};
+export type ContextProps = $preact.Context<{
+    state: State;
+    updateState: $preact.Dispatch<PartialState>;
+}>;
 
 /**
  * Defines context.
