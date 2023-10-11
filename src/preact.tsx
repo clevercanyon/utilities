@@ -7,6 +7,7 @@ import './resources/init.ts';
 
 import type * as preact from 'preact';
 import { $is, $obj, $to, type $type } from './index.ts';
+import { $fnꓺmemoize } from './resources/standalone/index.ts';
 
 /**
  * Exports Preact.
@@ -79,7 +80,7 @@ export type Props<Type extends object = $type.Object> = Readonly<preact.Renderab
 export type Context<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type State<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 
-export type ClassPropVariants = (typeof classPropVariants)[number];
+export type ClassPropVariants = (typeof internalClassPropVariants)[number];
 export type Classes = TypesOfClasses | (TypesOfClasses | Classes)[] | Set<TypesOfClasses | Classes>;
 
 export type OmitPropOptions = { undefinedValues?: boolean };
@@ -102,11 +103,12 @@ type TypesOfClasses = // Internal class prop variants.
  *
  * @note This must remain a constant, not a function. It’s used for DRY types above.
  */
-export const classPropVariants = ['class', 'classes', 'className', 'classNames'] as const; // Also makes this readonly.
+const internalClassPropVariants = ['class', 'classes', 'className', 'classNames'] as const;
 
 // Additional supporting utility functions for `class` prop variants.
-export const classPropVariantsRegExpStr = (): string => '^class(?:es|Names?)?$';
-export const classPropVariantsRegExp = (): RegExp => new RegExp(classPropVariantsRegExpStr(), 'u');
+export const classPropVariants = $fnꓺmemoize((): string[] => [...internalClassPropVariants]);
+export const classPropVariantsRegExpStr = $fnꓺmemoize((): string => '^class(?:es|Names?)?$');
+export const classPropVariantsRegExp = $fnꓺmemoize((): RegExp => new RegExp(classPropVariantsRegExpStr(), 'u'));
 
 /**
  * Omits specific component props.
@@ -123,8 +125,8 @@ export const classPropVariantsRegExp = (): RegExp => new RegExp(classPropVariant
 export const omitProps = <Type extends Props, Key extends keyof Type>(props: Type, propsToOmit: Key[], options?: OmitPropOptions): Omit<Type, Key> => {
     const opts = $obj.defaults({}, options || {}, { undefinedValues: true }) as Required<OmitPropOptions>;
 
-    if (propsToOmit.some((v) => classPropVariants.includes(v as ClassPropVariants))) {
-        propsToOmit = [...new Set(propsToOmit.concat(classPropVariants as unknown as Key[]))];
+    if (propsToOmit.some((v) => internalClassPropVariants.includes(v as ClassPropVariants))) {
+        propsToOmit = [...new Set(propsToOmit.concat(internalClassPropVariants as unknown as Key[]))];
     }
     return $obj.omit(props, propsToOmit, { undefinedValues: opts.undefinedValues });
 };
@@ -203,7 +205,7 @@ const classesꓺhelper = (allArgs: Classes[], map: Map<string, true> = new Map()
                         true === enable ? map.set(c, true) : map.delete(c);
                     });
             } else if ($is.plainObject(arg)) {
-                for (const prop of classPropVariants) {
+                for (const prop of internalClassPropVariants) {
                     if (Object.hasOwn(arg, prop)) classesꓺhelper([arg[prop]], map);
                 }
             } else if ($is.object(arg) && Object.hasOwn(arg, 'value')) {
