@@ -7,7 +7,7 @@ import { $color } from '../../index.ts';
 
 describe('$color', async () => {
     test('.tw()', async () => {
-        expect($color.tw()).toMatchObject({
+        expect($color.tw()).toStrictEqual({
             inherit: 'inherit',
             current: 'currentColor',
             transparent: 'transparent',
@@ -314,27 +314,87 @@ describe('$color', async () => {
             '900': '#0f172a',
             '950': '#020617',
         });
+        expect($color.tw('slate', 50)).toBe('#f8fafc');
         expect($color.tw('slate', 500)).toBe('#64748b');
+        expect($color.tw('slate', 950)).toBe('#020617');
     });
-    test('.hexNoHash()', async () => {
-        expect($color.hexNoHash('fff')).toBe('fff');
-        expect($color.hexNoHash('#fff')).toBe('fff');
+    test('.parse()', async () => {
+        expect(() => $color.parse('fff')).toThrow();
+        expect(() => $color.parse('FFF')).toThrow();
+        expect(() => $color.parse('ffffff')).toThrow();
+        expect(() => $color.parse('ffffff80')).toThrow();
+
+        expect($color.parse('#fff')).toBe('#ffffff');
+        expect($color.parse('#FFF')).toBe('#ffffff');
+        expect($color.parse('#ffffff')).toBe('#ffffff');
+        expect($color.parse('#ffffff80')).toBe('#ffffff80');
+        expect($color.parse('#FFB3CBBF')).toBe('#ffb3cbbf');
+
+        expect($color.parse('rgb(255 179 203)')).toBe('#ffb3cb');
+        expect($color.parse('rgb(255 179 203 / 1)')).toBe('#ffb3cb');
+        expect($color.parse('rgba(255, 179, 203, 1)')).toBe('#ffb3cb');
+
+        expect($color.parse('rgb(255 179 203 / 0.75)')).toBe('#ffb3cbbf');
+        expect($color.parse('rgba(255, 179, 203, 0.75)')).toBe('#ffb3cbbf');
+
+        expect($color.parse('hsl(341, 100%, 85%)')).toBe('#ffb3cb');
+        expect($color.parse('hsl(341 100% 85% / 1)')).toBe('#ffb3cb');
+        expect($color.parse('hsla(341, 100%, 85%, 1)')).toBe('#ffb3cb');
+
+        expect($color.parse('hsl(341 100% 85% / 0.75)')).toBe('#ffb3cbbf');
+        expect($color.parse('hsla(341, 100%, 85%, 0.75)')).toBe('#ffb3cbbf');
     });
-    test('.hex3To6Chars()', async () => {
-        expect($color.hex3To6Chars('fff')).toBe('ffffff');
-        expect($color.hex3To6Chars('#fff')).toBe('#ffffff');
+    test('.toRGB()', async () => {
+        expect($color.toRGB('#FFB3CBBF')).toBe('rgb(255 179 203 / 0.749)');
+        expect($color.toRGB('rgb(255 179 203 / 0.749)')).toBe('rgb(255 179 203 / 0.749)');
+        expect($color.toRGB('hsl(341 100% 85% / 0.75)')).toBe('rgb(255 179 203 / 0.749)');
     });
-    test('.hexToRGB()', async () => {
-        expect($color.hexToRGB('fff')).toBe('rgb(255, 255, 255)');
-        expect($color.hexToRGB('#fecdd3')).toBe('rgb(254, 205, 211)');
-
-        expect($color.hexToRGB('fff', { format: 'object' })).toStrictEqual({ r: 255, g: 255, b: 255 });
-        expect($color.hexToRGB('#fecdd3', { format: 'object' })).toStrictEqual({ r: 254, g: 205, b: 211 });
-
-        expect($color.hexToRGB('fff', { format: 'r g b' })).toBe('255 255 255');
-        expect($color.hexToRGB('#fecdd3', { format: 'r g b' })).toBe('254 205 211');
-
-        expect($color.hexToRGB('fff', { format: 'rgb()' })).toBe('rgb(255, 255, 255)');
-        expect($color.hexToRGB('#fecdd3', { format: 'rgb()' })).toBe('rgb(254, 205, 211)');
+    test('.toHSL()', async () => {
+        expect($color.toHSL('#FFB3CBBF')).toBe('hsl(341 100% 85% / 0.749)');
+        expect($color.toHSL('rgb(255 179 203 / 0.749)')).toBe('hsl(341 100% 85% / 0.749)');
+        expect($color.toHSL('hsl(341 100% 85% / 0.75)')).toBe('hsl(341 100% 85% / 0.749)');
+    });
+    test('.lighten()', async () => {
+        expect($color.lighten('#000000', 0.75)).toBe('#bfbfbf');
+    });
+    test('.darken()', async () => {
+        expect($color.darken('#bfbfbf', 0.75)).toBe('#000000');
+    });
+    test('.saturate()', async () => {
+        expect($color.saturate('#9f6960d6', 0.75)).toBe('#ff2600d6');
+    });
+    test('.desaturate()', async () => {
+        expect($color.desaturate('#ff2600d6', 0.75)).toBe('#9f6960d6');
+    });
+    test('.strengthen()', async () => {
+        expect($color.strengthen('#0022ff40', 0.75)).toBe('#0022ff');
+    });
+    test('.weaken()', async () => {
+        expect($color.weaken('#0022ff', 0.75)).toBe('#0022ff40');
+    });
+    test('.spin()', async () => {
+        expect($color.spin('#0022ff', 180)).toBe('#ffdd00');
+        expect($color.spin('#ffdd00', 180)).toBe('#0022ff');
+    });
+    test('.mix()', async () => {
+        expect($color.mix('#fff700', '#0000ff', 0.5)).toBe('#807c80');
+    });
+    test('.getScale()', async () => {
+        expect($color.getScale('#fff', '#000', '#ccc')(0)).toBe('#ffffff');
+        expect($color.getScale('#fff', '#000', '#ccc')(0.5)).toBe('#000000');
+        expect($color.getScale('#fff', '#000', '#ccc')(1)).toBe('#cccccc');
+    });
+    test('.getContrast()', async () => {
+        expect($color.getContrast('#fff', '#000')).toBe(21);
+    });
+    test('.getLuminance()', async () => {
+        expect($color.getLuminance('#fff')).toBe(1);
+    });
+    test('.getReadable()', async () => {
+        expect($color.getReadable('#fff')).toBe('#000000');
+    });
+    test('.contrastOK()', async () => {
+        expect($color.contrastOK('#fff', '#000')).toBe(true);
+        expect($color.contrastOK('#fff', '#fff')).toBe(false);
     });
 });

@@ -35,20 +35,20 @@ describe('$time', async () => {
         expect($time.i18n('2023-01-01T00:00:00Z', { zone: 'utc', locale: 'en-US' })).toBe('Sun, Jan 1, 2023, 12:00:00 AM UTC');
         expect($time.i18n('2023-01-01T00:00:00.001Z', { zone: 'utc', locale: 'en-US' })).toBe('Sun, Jan 1, 2023, 12:00:00 AM UTC');
 
-        expect($time.i18n('2023-01-01', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.date })).toBe('Sun, Jan 1, 2023');
-        expect($time.i18n('2023-01-01T00:00:00', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.date })).toBe('Sun, Jan 1, 2023');
-        expect($time.i18n('2023-01-01T00:00:00Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.date })).toBe('Sun, Jan 1, 2023');
-        expect($time.i18n('2023-01-01T00:00:00.001Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.date })).toBe('Sun, Jan 1, 2023');
+        expect($time.i18n('2023-01-01', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().date })).toBe('Sun, Jan 1, 2023');
+        expect($time.i18n('2023-01-01T00:00:00', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().date })).toBe('Sun, Jan 1, 2023');
+        expect($time.i18n('2023-01-01T00:00:00Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().date })).toBe('Sun, Jan 1, 2023');
+        expect($time.i18n('2023-01-01T00:00:00.001Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().date })).toBe('Sun, Jan 1, 2023');
 
-        expect($time.i18n('2023-01-01', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.time })).toBe('12:00:00 AM UTC');
-        expect($time.i18n('2023-01-01T00:00:00', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.time })).toBe('12:00:00 AM UTC');
-        expect($time.i18n('2023-01-01T00:00:00Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.time })).toBe('12:00:00 AM UTC');
-        expect($time.i18n('2023-01-01T00:00:00.001Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.time })).toBe('12:00:00 AM UTC');
+        expect($time.i18n('2023-01-01', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().time })).toBe('12:00:00 AM UTC');
+        expect($time.i18n('2023-01-01T00:00:00', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().time })).toBe('12:00:00 AM UTC');
+        expect($time.i18n('2023-01-01T00:00:00Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().time })).toBe('12:00:00 AM UTC');
+        expect($time.i18n('2023-01-01T00:00:00.001Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().time })).toBe('12:00:00 AM UTC');
 
-        expect($time.i18n('2023-01-01', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.dateTime })).toBe('Sun, Jan 1, 2023, 12:00:00 AM UTC');
-        expect($time.i18n('2023-01-01T00:00:00', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.dateTime })).toBe('Sun, Jan 1, 2023, 12:00:00 AM UTC');
-        expect($time.i18n('2023-01-01T00:00:00Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.dateTime })).toBe('Sun, Jan 1, 2023, 12:00:00 AM UTC');
-        expect($time.i18n('2023-01-01T00:00:00.001Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats.dateTime })).toBe('Sun, Jan 1, 2023, 12:00:00 AM UTC');
+        expect($time.i18n('2023-01-01', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().dateTime })).toBe('Sun, Jan 1, 2023, 12:00:00 AM UTC');
+        expect($time.i18n('2023-01-01T00:00:00', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().dateTime })).toBe('Sun, Jan 1, 2023, 12:00:00 AM UTC');
+        expect($time.i18n('2023-01-01T00:00:00Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().dateTime })).toBe('Sun, Jan 1, 2023, 12:00:00 AM UTC');
+        expect($time.i18n('2023-01-01T00:00:00.001Z', { zone: 'utc', locale: 'en-US', format: $time.i18nFormats().dateTime })).toBe('Sun, Jan 1, 2023, 12:00:00 AM UTC');
 
         expect($time.i18n('2023-01-01', { zone: 'America/New_York', locale: 'en-US' })).toBe('Sat, Dec 31, 2022, 7:00:00 PM EST');
         expect($time.i18n('2023-01-01T00:00:00', { zone: 'America/New_York', locale: 'en-US' })).toBe('Sat, Dec 31, 2022, 7:00:00 PM EST');

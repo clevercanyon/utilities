@@ -135,7 +135,7 @@
         "tsconfig.*": true,
         "dev-types.d.ts": true,
         "config.gypi": true,
-        "dev/.files": false,
+        "dev/.files": true,
         ".yarn": true,
         "vendor": true,
         "node_modules": true,

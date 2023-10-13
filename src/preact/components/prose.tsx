@@ -28,7 +28,6 @@ export default function Prose(props: Props = {}): $preact.VNode<Props> {
     const proseClasses = [
         'prose', //
         'max-w-none',
-        'dark:prose-invert',
         'gte-desktop:prose-lg',
     ];
     if (as.includes('-') /* Custom tag? */) {
