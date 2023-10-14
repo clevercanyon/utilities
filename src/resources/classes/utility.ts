@@ -2,7 +2,7 @@
  * Utility class.
  */
 
-import { $app, $class } from '../../index.ts';
+import { $app, $class, type $type } from '../../index.ts';
 
 let Defined: Constructor | undefined; // Cache.
 
@@ -13,7 +13,7 @@ export type Constructor = {
     readonly appPkgName: string;
     new (): Class; // Takes in nothing.
 };
-export type Class = $class.Base & ClassInterface;
+export type Class = $type.Base & ClassInterface;
 
 declare class ClassInterface {
     public static readonly appPkgName: string;

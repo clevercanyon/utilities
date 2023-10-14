@@ -2,7 +2,7 @@
  * Base class.
  */
 
-import { $app, $class, $obj, $symbol, type $type } from '../../index.ts';
+import { $app, $obj, $symbol, type $type } from '../../index.ts';
 
 let Defined: Constructor | undefined; // Cache.
 
@@ -21,13 +21,13 @@ declare class ClassInterface {
 
     public constructor(); // Takes in nothing.
 
-    public get [$symbol.objTag](): ReturnType<$class.ObjTagSymbolFn>;
-    public get [$symbol.objStringTag](): ReturnType<$class.ObjStringTagSymbolFn>;
+    public get [$symbol.objTag](): ReturnType<$type.ObjTagSymbolFn>;
+    public get [$symbol.objStringTag](): ReturnType<$type.ObjStringTagSymbolFn>;
 
-    public [$symbol.objToPlain](): ReturnType<$class.ObjToPlainSymbolFn>;
-    public [$symbol.objToEquals](): ReturnType<$class.ObjToEqualsSymbolFn>;
-    public [$symbol.objToJSON](): ReturnType<$class.ObjToJSONSymbolFn>;
-    public [$symbol.objToClone](...args: Parameters<$class.ObjToCloneSymbolFn>): ReturnType<$class.ObjToCloneSymbolFn>;
+    public [$symbol.objToPlain](): ReturnType<$type.ObjToPlainSymbolFn>;
+    public [$symbol.objToEquals](): ReturnType<$type.ObjToEqualsSymbolFn>;
+    public [$symbol.objToJSON](): ReturnType<$type.ObjToJSONSymbolFn>;
+    public [$symbol.objToClone](...args: Parameters<$type.ObjToCloneSymbolFn>): ReturnType<$type.ObjToCloneSymbolFn>;
 }
 
 /**
@@ -65,7 +65,7 @@ export const getClass = (): Constructor => {
          *
          * @returns Object tag (aka: class name).
          */
-        public get [$symbol.objTag](): ReturnType<$class.ObjTagSymbolFn> {
+        public get [$symbol.objTag](): ReturnType<$type.ObjTagSymbolFn> {
             const c9r = $obj.c9r(this) as Constructor;
             return (c9r.appPkgName || '?') + '/' + (c9r.name || '?');
         }
@@ -75,7 +75,7 @@ export const getClass = (): Constructor => {
          *
          * @returns Object tag (aka: class name).
          */
-        public get [$symbol.objStringTag](): ReturnType<$class.ObjStringTagSymbolFn> {
+        public get [$symbol.objStringTag](): ReturnType<$type.ObjStringTagSymbolFn> {
             const c9r = $obj.c9r(this) as Constructor;
             return (c9r.appPkgName || '?') + '/' + (c9r.name || '?');
         }
@@ -85,7 +85,7 @@ export const getClass = (): Constructor => {
          *
          * @returns Object to derive a plain object from.
          */
-        public [$symbol.objToPlain](): ReturnType<$class.ObjToPlainSymbolFn> {
+        public [$symbol.objToPlain](): ReturnType<$type.ObjToPlainSymbolFn> {
             return this; // Object to derive a plain object from.
         }
 
@@ -94,7 +94,7 @@ export const getClass = (): Constructor => {
          *
          * @returns Object to derive an equals check from.
          */
-        public [$symbol.objToEquals](): ReturnType<$class.ObjToEqualsSymbolFn> {
+        public [$symbol.objToEquals](): ReturnType<$type.ObjToEqualsSymbolFn> {
             return this; // Object to derive an equals check from.
         }
 
@@ -105,7 +105,7 @@ export const getClass = (): Constructor => {
          *
          * @returns     What value to derive a JSON value from.
          */
-        public [$symbol.objToJSON](): ReturnType<$class.ObjToJSONSymbolFn> {
+        public [$symbol.objToJSON](): ReturnType<$type.ObjToJSONSymbolFn> {
             return this; // What value to derive a JSON value from.
         }
 
@@ -116,7 +116,7 @@ export const getClass = (): Constructor => {
          *
          * @returns      A shallow or deep clone of this object.
          */
-        public [$symbol.objToClone]({ deep, opts, circular }: Parameters<$class.ObjToCloneSymbolFn>[0]): ReturnType<$class.ObjToCloneSymbolFn> {
+        public [$symbol.objToClone]({ deep, opts, circular }: Parameters<$type.ObjToCloneSymbolFn>[0]): ReturnType<$type.ObjToCloneSymbolFn> {
             const c9r = $obj.c9r(this) as Constructor;
 
             if (deep /* Produces a deep clone. */) {

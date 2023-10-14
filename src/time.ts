@@ -5,7 +5,7 @@
 import './resources/init.ts';
 
 import { DateTime as Time } from 'luxon';
-import { $app, $class, $is, $obj, $symbol, type $type } from './index.ts';
+import { $app, $is, $obj, $symbol, type $type } from './index.ts';
 import { $fnꓺmemoize } from './resources/standalone/index.ts';
 
 let prototypeInitialized: boolean = false; // Initialized once only.
@@ -268,17 +268,17 @@ const initializePrototype = (): void => {
     prototypeInitialized = true;
 
     Object.defineProperty(Time.prototype, $symbol.objTag, {
-        get: function (this: $type.Time): ReturnType<$class.ObjTagSymbolFn> {
+        get: function (this: $type.Time): ReturnType<$type.ObjTagSymbolFn> {
             return $app.pkgName + '/Time'; // {@see $obj.tag()}.
         },
     });
     Object.defineProperty(Time.prototype, $symbol.objToPlain, {
-        value: function (this: $type.Time): ReturnType<$class.ObjToPlainSymbolFn> {
+        value: function (this: $type.Time): ReturnType<$type.ObjToPlainSymbolFn> {
             return this.setZone('utc').toObject(); // See: <https://o5p.me/4iEe01>.
         },
     });
     Object.defineProperty(Time.prototype, $symbol.objToClone, {
-        value: function (this: $type.Time): ReturnType<$class.ObjToCloneSymbolFn> {
+        value: function (this: $type.Time): ReturnType<$type.ObjToCloneSymbolFn> {
             return this.reconfigure({}); // See: <https://o5p.me/dXNmVy>.
         },
     });

@@ -8,6 +8,8 @@ import { type $type } from './index.ts';
 
 /**
  * Defines types/exports.
+ *
+ * @note All types are re-exported by `$type`.
  */
 export type ObjTagSymbolFn = () => string;
 export type ObjStringTagSymbolFn = () => string;

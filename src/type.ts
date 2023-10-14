@@ -5,7 +5,7 @@
 
 import './resources/init.ts';
 
-import { $to } from './index.js';
+import { $to } from './index.ts';
 import { type DateTime as luxonꓺDateTime } from 'luxon';
 import type * as cf from '@cloudflare/workers-types/experimental';
 
@@ -24,17 +24,18 @@ export type Primitive = null | undefined | boolean | number | bigint | string | 
 export type ObjectEntries<Type extends object = $Object> = [keyof Type, Type[keyof Type]][];
 export type ObjectC9r = { new (...args: unknown[]): $Object } | ObjectConstructor;
 
-export type { cf }; // Cloudflare worker type exports.
-
 export type { $URL as URL };
 export type { $Request as Request };
 export type { $Response as Response };
 export type { $BodyInit as BodyInit };
 export type { $Headers as Headers };
 export type { $fetch as fetch };
-
 export type { $Error as Error };
+
 export type { luxonꓺDateTime as Time };
+export type * from './class.ts';
+
+export type { cf }; // Cloudflare worker type exports.
 
 export type EnsurableType =
     | 'boolean' | 'boolean[]'

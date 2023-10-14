@@ -10,7 +10,7 @@ import { type HTTPState } from '../../../preact/components/data.tsx';
 /**
  * Defines types.
  */
-export type Fetcher = $class.Fetcher;
+export type Fetcher = $type.Fetcher;
 
 export type PrerenderSPAOptions = {
     request: $type.Request;
@@ -32,14 +32,14 @@ export type AppManifest = { [x: $type.ObjectKey]: $type.Object };
 /**
  * Fetcher instance.
  */
-let fetcher: $class.Fetcher | undefined;
+let fetcher: $type.Fetcher | undefined;
 
 /**
  * Replaces native fetch and returns fetcher instance.
  *
- * @returns {@see $classꓺFetcherInterface} Instance.
+ * @returns {@see $type.Fetcher} Instance.
  */
-export const replaceNativeFetch = (): $class.Fetcher => {
+export const replaceNativeFetch = (): $type.Fetcher => {
     if (!fetcher) {
         const Fetcher = $class.getFetcher();
         fetcher = new Fetcher({

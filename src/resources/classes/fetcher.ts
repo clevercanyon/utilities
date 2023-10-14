@@ -16,7 +16,7 @@ export type C9rProps = {
 export type Constructor = {
     new (props?: C9rProps | Class): Class;
 };
-export type Class = $class.Utility & ClassInterface;
+export type Class = $type.Utility & ClassInterface;
 
 declare class ClassInterface {
     public readonly global: Global;

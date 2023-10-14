@@ -2,7 +2,7 @@
  * Brand utility class.
  */
 
-import { $class, $obj } from '../../index.ts';
+import { $class, $obj, type $type } from '../../index.ts';
 
 let Defined: Constructor | undefined; // Cache.
 
@@ -20,7 +20,7 @@ export type C9rProps = Omit<ClassInterfaceProps, 'org'> & {
 export type Constructor = {
     new (props: C9rProps | Class): Class;
 };
-export type Class = $class.Utility & ClassInterface;
+export type Class = $type.Utility & ClassInterface;
 
 declare class ClassInterface {
     public readonly org: Class;

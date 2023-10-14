@@ -8,7 +8,7 @@ import { $class, $is, $symbol, type $type } from './index.ts';
 import * as $standalone from './resources/standalone/index.ts';
 import { $fnꓺmemoize } from './resources/standalone/index.ts';
 
-let mc: $class.ObjMC; // Object MC class instance.
+let mc: $type.ObjMC; // Object MC class instance.
 let mcInitialized: boolean = false; // Initialized once only.
 
 /**
@@ -369,7 +369,7 @@ export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: M
         }
     }
     if (value[$symbol.objToClone] && $is.function(value[$symbol.objToClone])) {
-        const clone = (value[$symbol.objToClone] as $class.ObjToCloneSymbolFn)({ deep: false, opts, circular, inDeep: false });
+        const clone = (value[$symbol.objToClone] as $type.ObjToCloneSymbolFn)({ deep: false, opts, circular, inDeep: false });
 
         if ($is.object(clone)) {
             return clone as Type | $type.Object;
@@ -472,7 +472,7 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
         }
     }
     if (value[$symbol.objToClone] && $is.function(value[$symbol.objToClone])) {
-        const clone = (value[$symbol.objToClone] as $class.ObjToCloneSymbolFn)({ deep: true, opts, circular, inDeep });
+        const clone = (value[$symbol.objToClone] as $type.ObjToCloneSymbolFn)({ deep: true, opts, circular, inDeep });
 
         if ($is.object(clone)) {
             circular.set(value, clone);
@@ -566,7 +566,7 @@ const mcInitialize = (): void => {
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const mcCustom = (): $class.ObjMC => {
+export const mcCustom = (): $type.ObjMC => {
     if (!mcInitialized) mcInitialize();
     return mc.newInstance();
 };
@@ -595,10 +595,10 @@ export const mcCustom = (): $class.ObjMC => {
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const mergeDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
+export const mergeDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.mergeDeep(...args);
-}) as $class.ObjMCHandler;
+}) as $type.ObjMCHandler;
 
 /**
  * ```js
@@ -625,10 +625,10 @@ export const mergeDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const mergeClonesDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
+export const mergeClonesDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.mergeClonesDeep(...args);
-}) as $class.ObjMCHandler;
+}) as $type.ObjMCHandler;
 
 /**
  * ```js
@@ -656,10 +656,10 @@ export const mergeClonesDeep = ((...args: Parameters<$class.ObjMCHandler>): Retu
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const patchDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
+export const patchDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.patchDeep(...args);
-}) as $class.ObjMCHandler;
+}) as $type.ObjMCHandler;
 
 /**
  * ```js
@@ -686,10 +686,10 @@ export const patchDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const patchClonesDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
+export const patchClonesDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.patchClonesDeep(...args);
-}) as $class.ObjMCHandler;
+}) as $type.ObjMCHandler;
 
 /**
  * ```js
@@ -730,10 +730,10 @@ export const patchClonesDeep = ((...args: Parameters<$class.ObjMCHandler>): Retu
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const updateDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
+export const updateDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.updateDeep(...args);
-}) as $class.ObjMCHandler;
+}) as $type.ObjMCHandler;
 
 /**
  * ```js
@@ -773,10 +773,10 @@ export const updateDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnTyp
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const updateClonesDeep = ((...args: Parameters<$class.ObjMCHandler>): ReturnType<$class.ObjMCHandler> => {
+export const updateClonesDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
     if (!mcInitialized) mcInitialize();
     return mc.updateClonesDeep(...args);
-}) as $class.ObjMCHandler;
+}) as $type.ObjMCHandler;
 
 /**
  * Maps all values in an object (by default, a shallow clone) to a callback function.

@@ -4,7 +4,7 @@
 
 import './resources/init.ts';
 
-import { $class, $is, $obj, $symbol, type $type } from './index.ts';
+import { $is, $obj, $symbol, type $type } from './index.ts';
 
 /**
  * Converts any value into a map.
@@ -75,7 +75,7 @@ export const plainObject = (value: unknown): $type.Object => {
     }
     for (const fnKey of [$symbol.objToPlain, $symbol.objToJSON]) {
         if (value[fnKey] && $is.function(value[fnKey])) {
-            const derivation = (value[fnKey] as $class.ObjToPlainSymbolFn | $class.ObjToJSONSymbolFn)();
+            const derivation = (value[fnKey] as $type.ObjToPlainSymbolFn | $type.ObjToJSONSymbolFn)();
 
             if ($is.object(derivation)) {
 				value = derivation; break;

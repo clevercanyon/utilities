@@ -12,7 +12,7 @@ let Defined: Constructor | undefined; // Cache.
 export type Constructor = {
     new (): Class; // Takes in nothing.
 };
-export type Class = $class.Utility & ClassInterface;
+export type Class = $type.Utility & ClassInterface;
 
 declare class ClassInterface {
     public readonly kinds: {

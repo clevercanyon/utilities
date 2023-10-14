@@ -4,7 +4,7 @@
 
 import './resources/init.ts';
 
-import { $app, $class, $env, $obj, type $type } from './index.ts';
+import { $app, $env, $obj, type $type } from './index.ts';
 import * as $standalone from './resources/standalone/index.ts';
 
 let structuredCloneableObjectTags: string[];
@@ -521,7 +521,7 @@ export const error = (value: unknown): value is $type.Error => {
  *
  * @returns       True if value is a brand.
  */
-export const brand = (value: unknown): value is $class.Brand => {
+export const brand = (value: unknown): value is $type.Brand => {
     return object(value) && objectOfTag(value, $app.pkgName + '/Brand');
 };
 

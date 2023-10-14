@@ -4,7 +4,7 @@
 
 import './resources/init.ts';
 
-import { $app, $class, $obj, $str, $url } from './index.ts';
+import { $app, $class, $obj, $str, $url, type $type } from './index.ts';
 
 /**
  * Tracks initialization.
@@ -14,12 +14,12 @@ let rawPropsInitialized = false;
 /**
  * Contains a cache of instances.
  */
-const instances: { [x: string]: $class.Brand } = {};
+const instances: { [x: string]: $type.Brand } = {};
 
 /**
  * Raw props keyed by package name.
  */
-const rawProps: { [x: string]: $class.BrandRawProps } = {};
+const rawProps: { [x: string]: $type.BrandRawProps } = {};
 
 /**
  * Defines types.
@@ -29,18 +29,18 @@ export type AddAppOptions = {
     type: string;
     pkgName: string;
     baseURL: string;
-    props?: Partial<$class.BrandRawProps>;
+    props?: Partial<$type.BrandRawProps>;
 };
 
 /**
  * Adds a new brand at runtime.
  *
  * @param   pkgName The brand’s package name.
- * @param   props   Raw brand props; {@see $class.BrandRawProps}.
+ * @param   props   Raw brand props; {@see $type.BrandRawProps}.
  *
- * @returns         Brand instance {@see $class.Brand}.
+ * @returns         Brand instance {@see $type.Brand}.
  */
-export const add = (pkgName: string, props: $class.BrandRawProps): $class.Brand => {
+export const add = (pkgName: string, props: $type.BrandRawProps): $type.Brand => {
     if (!rawPropsInitialized) initializeRawProps();
 
     if (Object.hasOwn(rawProps, pkgName)) {
@@ -56,9 +56,9 @@ export const add = (pkgName: string, props: $class.BrandRawProps): $class.Brand 
  *
  * @param   pkgName Brand package name.
  *
- * @returns         Brand instance {@see $class.Brand}.
+ * @returns         Brand instance {@see $type.Brand}.
  */
-export const get = (pkgName: string): $class.Brand => {
+export const get = (pkgName: string): $type.Brand => {
     if (!rawPropsInitialized) initializeRawProps();
 
     pkgName = '&' === pkgName ? '@clevercanyon/clevercanyon.com' : pkgName;
@@ -207,7 +207,7 @@ const initializeRawProps = (): void => {
                 height: 1260,
             },
         },
-    }) as unknown as $class.BrandRawProps;
+    }) as unknown as $type.BrandRawProps;
 };
 
 /**
@@ -215,9 +215,9 @@ const initializeRawProps = (): void => {
  *
  * @param   options Required; {@see AddAppOptions}.
  *
- * @returns         Brand instance {@see $class.Brand}.
+ * @returns         Brand instance {@see $type.Brand}.
  */
-export const addApp = (options: AddAppOptions): $class.Brand => {
+export const addApp = (options: AddAppOptions): $type.Brand => {
     const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<AddAppOptions>;
     const org = get(opts.org); // Expands org slug into org brand instance.
 
@@ -262,6 +262,6 @@ export const addApp = (options: AddAppOptions): $class.Brand => {
                 },
             },
             opts.props,
-        ) as unknown as $class.BrandRawProps,
+        ) as unknown as $type.BrandRawProps,
     );
 };
