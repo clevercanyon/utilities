@@ -352,10 +352,10 @@ export const getReadable = (color: string): string => {
  *
  * @param   fgColor  Parseable color; {@see https://o5p.me/ce0m3O}.
  * @param   bgColor  Parseable color; {@see https://o5p.me/ce0m3O}.
- * @param   standard Standard by which to determine. Default is `aa`.
+ * @param   standard Standard by which to determine. Default is `aaa`.
  *
  * @returns          True if the `fgColor` against the `bgColor` meets contrast standard.
  */
-export const contrastOK = (fgColor: string, bgColor: string, standard: 'decorative' | 'readable' | 'aa' | 'aaa' = 'aa'): boolean => {
+export const contrastOK = (fgColor: string, bgColor: string, standard: 'decorative' | 'readable' | 'aa' | 'aaa' = 'aaa'): boolean => {
     return !c2k.hasBadContrast(parse(fgColor), standard, parse(bgColor));
 };
