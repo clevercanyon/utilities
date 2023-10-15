@@ -170,7 +170,7 @@ const initializeRawProps = (): void => {
         $set: {
             org: '@clevercanyon/clevercanyon.com',
             type: 'dba', // Doing business as.
-            legalName: 'Clever Canyon, LLC (dba: Hop.gdn)',
+            legalName: 'Clever Canyon, LLC',
 
             n7m: 'h1p',
             name: 'Hop.gdn',
