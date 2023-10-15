@@ -101,9 +101,7 @@ export const getClass = (): Constructor => {
         /**
          * {@see $json.stringify()} helper.
          *
-         * @param   key Optional. Specific object key.
-         *
-         * @returns     What value to derive a JSON value from.
+         * @returns What value to derive a JSON value from.
          */
         public [$symbol.objToJSON](): ReturnType<$type.ObjToJSONSymbolFn> {
             return this; // What value to derive a JSON value from.

@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, test } from 'vitest';
-import { $json } from '../../index.ts';
+import { $brand, $json } from '../../index.ts';
 
 describe('$json', async () => {
     test('.stringify() .parse()', async () => {
@@ -99,5 +99,8 @@ describe('$json', async () => {
         expect($json.stringify(obj3)).not.toBe(JSON.stringify(obj3));
         expect($json.stringify(obj3)).toBe('{"a":"_a","b":"_b","c":"_c","d":[null,null,true,false,1,"x",{"x":"_x"},[0],{"__dataType":"Set","__data":["a","b","c"]},{"__dataType":"Map","__data":[["a","_a"],["b","_b"],["c","_c"]]}]}'); // prettier-ignore
         expect($json.parse($json.stringify(obj3))).toStrictEqual(obj3After);
+
+        // Ensure this works against Brand instance w/ circular refs.
+        expect('string' === typeof $json.stringify($brand.get('&'))).toBe(true);
     });
 });

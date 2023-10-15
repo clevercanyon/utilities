@@ -3,19 +3,33 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { $env, $json, $preact, $url } from '../../../../index.ts';
+import { $brand, $env, $json, $preact, $url } from '../../../../index.ts';
 import { Body, HTML, Head, Route, Router, type RouteContextAsProps, type RouterProps } from '../../../../preact/components.tsx';
 
-const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '' });
+const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
+const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 
 describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     beforeAll(async () => {
         $env.set('APP_BASE_URL', 'http://x.tld/');
+        $env.set(
+            'APP_BRAND',
+            $brand.addApp({
+                org: '@clevercanyon/hop.gdn',
+                type: 'site',
+                pkgName: '@clevercanyon/x.tld',
+                baseURL: $url.appBase(),
+                props: {},
+            }),
+        );
     });
     afterAll(async () => {
         $env.set('APP_BASE_URL', __origAppBaseURL__);
         $url.appBase.flush();
         $url.appBasePath.flush();
+
+        $env.set('APP_BRAND', __origAppBrand__);
+        $brand.remove('@clevercanyon/x.tld');
     });
     const App = (props: RouterProps): $preact.VNode<RouterProps> => {
         return (

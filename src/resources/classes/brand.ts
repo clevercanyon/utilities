@@ -2,14 +2,14 @@
  * Brand utility class.
  */
 
-import { $class, $obj, type $type } from '../../index.ts';
+import { $class, $obj, $symbol, type $type } from '../../index.ts';
 
 let Defined: Constructor | undefined; // Cache.
 
 /**
  * Defines types.
  */
-export type Type = 'corp' | 'dba' | 'site';
+export type Type = 'corp' | 'org' | 'site';
 
 export type RawProps = Omit<ClassInterfaceProps, 'org'> & {
     readonly org: string;
@@ -24,8 +24,8 @@ export type Class = $type.Utility & ClassInterface;
 
 declare class ClassInterface {
     public readonly org: Class;
-
     public readonly type: Type;
+
     public readonly legalName: string;
     public readonly address: {
         readonly street: string;
@@ -36,6 +36,7 @@ declare class ClassInterface {
     };
     public readonly founder: {
         name: string;
+        website: string;
         description: string;
         image: {
             url: string;
@@ -51,7 +52,9 @@ declare class ClassInterface {
 
     public readonly pkgName: string;
     public readonly namespace: string;
+
     public readonly hostname: string;
+    public readonly url: string;
 
     public readonly slug: string;
     public readonly var: string;
@@ -132,6 +135,7 @@ export const getClass = (): Constructor => {
          */
         public readonly founder!: {
             name: string;
+            website: string;
             description: string;
             image: {
                 url: string;
@@ -174,6 +178,11 @@ export const getClass = (): Constructor => {
          * Hostname; e.g., `my-brand.com`.
          */
         public readonly hostname!: string;
+
+        /**
+         * URL; e.g., `https://my-brand.com/`.
+         */
+        public readonly url!: string;
 
         /**
          * Slug; e.g., `my-brand`.
@@ -264,6 +273,16 @@ export const getClass = (): Constructor => {
             if (!(this.org instanceof (Defined as Constructor))) {
                 this.org = this; // Circular.
             }
+        }
+
+        /**
+         * {@see $json.stringify()} helper.
+         *
+         * @returns What value to derive a JSON value from.
+         */
+        public [$symbol.objToJSON](): ReturnType<$type.ObjToJSONSymbolFn> {
+            if (this.org === this) return { ...this, org: null };
+            return super[$symbol.objToJSON]();
         }
 
         /**

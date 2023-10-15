@@ -199,6 +199,7 @@ describe('$to', async () => {
             'address.country',
 
             'founder.name',
+            'founder.website',
             'founder.description',
             'founder.image.url',
             'founder.image.width',
@@ -211,7 +212,9 @@ describe('$to', async () => {
 
             'pkgName',
             'namespace',
+
             'hostname',
+            'url',
 
             'slug',
             'var',

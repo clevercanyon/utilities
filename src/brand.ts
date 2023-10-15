@@ -25,8 +25,8 @@ const rawProps: { [x: string]: $type.BrandRawProps } = {};
  * Defines types.
  */
 export type AddAppOptions = {
-    org: string;
-    type: string;
+    org: $type.BrandRawProps['org'];
+    type: $type.BrandRawProps['type'];
     pkgName: string;
     baseURL: string;
     props?: Partial<$type.BrandRawProps>;
@@ -49,6 +49,19 @@ export const add = (pkgName: string, props: $type.BrandRawProps): $type.Brand =>
     rawProps[pkgName] = props;
 
     return get(pkgName);
+};
+
+/**
+ * Removes a brand at runtime.
+ *
+ * @param pkgName The brand’s package name.
+ */
+export const remove = (pkgName: string): void => {
+    if (!rawPropsInitialized) initializeRawProps();
+
+    if (Object.hasOwn(rawProps, pkgName)) {
+        delete rawProps[pkgName];
+    }
 };
 
 /**
@@ -95,7 +108,8 @@ const initializeRawProps = (): void => {
      */
     rawProps['@clevercanyon/clevercanyon.com'] = {
         org: '@clevercanyon/clevercanyon.com',
-        type: 'corp',
+        type: 'corp', // Corporation.
+
         legalName: 'Clever Canyon, LLC',
         address: {
             street: '9 N River Rd #660',
@@ -106,6 +120,7 @@ const initializeRawProps = (): void => {
         },
         founder: {
             name: 'Jason Caldwell',
+            website: 'https://jaswrks.com/',
             description: 'Engineering Manager, Consultant, Staff Engineer',
             image: {
                 url: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/founder.png',
@@ -121,7 +136,9 @@ const initializeRawProps = (): void => {
 
         pkgName: '@clevercanyon/clevercanyon.com',
         namespace: 'CleverCanyon',
+
         hostname: 'clevercanyon.com',
+        url: 'https://clevercanyon.com/',
 
         slug: 'clevercanyon',
         var: 'clevercanyon',
@@ -169,15 +186,16 @@ const initializeRawProps = (): void => {
     rawProps['@clevercanyon/hop.gdn'] = $obj.mergeDeep(rawProps['@clevercanyon/clevercanyon.com'], {
         $set: {
             org: '@clevercanyon/clevercanyon.com',
-            type: 'dba', // Doing business as.
-            legalName: 'Clever Canyon, LLC',
+            type: 'org', // Organization.
 
             n7m: 'h1p',
             name: 'Hop.gdn',
 
             pkgName: '@clevercanyon/hop.gdn',
             namespace: 'Hop',
+
             hostname: 'hop.gdn',
+            url: 'https://hop.gdn/',
 
             slug: 'hop',
             var: 'hop',
@@ -240,7 +258,9 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
 
                 pkgName: opts.pkgName,
                 namespace: pkgSlugAsNamespace,
+
                 hostname: $url.parse(opts.baseURL).hostname,
+                url: opts.baseURL, // We simply use base URL.
 
                 slug: pkgSlug,
                 var: pkgSlugAsVar,
