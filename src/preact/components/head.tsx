@@ -191,7 +191,7 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                 {headState.viewport && <meta name='viewport' content={headState.viewport} />}
 
                 {headState.robots && <meta name='robots' content={headState.robots} />}
-                {headState.canonical && <link rel='canonical' type={undefined} href={headState.canonical.toString()} />}
+                {headState.canonical && <link rel='canonical' href={headState.canonical.toString()} />}
 
                 {headState.title && <title>{headState.title}</title>}
                 {headState.description && <meta name='description' content={headState.description} />}
@@ -218,6 +218,7 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                 {headState.mainScriptBundle && <script type='module' src={headState.mainScriptBundle.toString()}></script>}
 
                 {props.children}
+
                 <StructuredData {...{ brand, headState }} />
             </head>
         </Context.Provider>
