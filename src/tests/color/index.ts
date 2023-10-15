@@ -390,8 +390,13 @@ describe('$color', async () => {
     test('.getLuminance()', async () => {
         expect($color.getLuminance('#fff')).toBe(1);
     });
+    test('.isDark()', async () => {
+        expect($color.isDark('#000')).toBe(true);
+        expect($color.isDark('#fff')).toBe(false);
+    });
     test('.getReadable()', async () => {
         expect($color.getReadable('#fff')).toBe('#000000');
+        expect($color.getReadable('#000')).toBe('#ffffff');
     });
     test('.contrastOK()', async () => {
         expect($color.contrastOK('#fff', '#000')).toBe(true);

@@ -28,12 +28,12 @@ export type TailwindColorShades<Name extends TailwindColorName> = Pick<TailwindC
 export type TailwindShadedColorShades<Name extends TailwindShadedColorName> = Pick<TailwindColorsWithShades, Name>;
 
 export type ToRGBOptions = { as?: 'default' | 'array' | 'object' };
-export type RGBArray = [string, string, string, string];
-export type RGBObject = { r: string; g: string; b: string; a: string };
+export type RGBArray = [number, number, number, number];
+export type RGBObject = { r: number; g: number; b: number; a: number };
 
 export type ToHSLOptions = { as?: 'default' | 'array' | 'object' };
-export type HSLArray = [string, string, string, string];
-export type HSLObject = { h: string; s: string; l: string; a: string };
+export type HSLArray = [number, number, number, number];
+export type HSLObject = { h: number; s: number; l: number; a: number };
 
 /**
  * Gets Tailwind CSS color(s).
@@ -137,10 +137,11 @@ export const toRGB = <Options extends ToRGBOptions>(
     const a = String(parseFloat(c2k.guard(0, 1, _a).toFixed(3)));
 
     if ('array' === opts.as) {
-        return [r, g, b, a] as ReturnType<typeof toRGB<Options>>;
+        return [r, g, b, a].map(Number) as ReturnType<typeof toRGB<Options>>;
     }
     if ('object' === opts.as) {
-        return { r, g, b, a } as ReturnType<typeof toRGB<Options>>;
+        const n = Number; // Shorter alias.
+        return { r: n(r), g: n(g), b: n(b), a: n(a) } as ReturnType<typeof toRGB<Options>>;
     }
     return ('rgb(' + [r, g, b].join(' ') + ' / ' + a + ')') as ReturnType<typeof toRGB<Options>>;
 };
@@ -181,10 +182,11 @@ export const toHSL = <Options extends ToHSLOptions>(
     const a = String(parseFloat(c2k.guard(0, 1, _a).toFixed(3)));
 
     if ('array' === opts.as) {
-        return [h, s, l, a] as ReturnType<typeof toHSL<Options>>;
+        return [h, s, l, a].map(Number) as ReturnType<typeof toHSL<Options>>;
     }
     if ('object' === opts.as) {
-        return { h, s, l, a } as ReturnType<typeof toHSL<Options>>;
+        const n = Number; // Shorter alias.
+        return { h: n(h), s: n(s), l: n(l), a: n(a) } as ReturnType<typeof toHSL<Options>>;
     }
     return ('hsl(' + [h, s, l].join(' ') + ' / ' + a + ')') as ReturnType<typeof toHSL<Options>>;
 };
@@ -337,14 +339,38 @@ export const getLuminance = (color: string): number => {
 };
 
 /**
+ * Checks if a color is dark.
+ *
+ * @param   color Parseable color; {@see https://o5p.me/ce0m3O}.
+ *
+ * @returns       True if color is considered dark.
+ */
+export const isDark = (color: string): boolean => {
+    const rgb = toRGB(color, { as: 'object' });
+
+    // If there’s an alpha channel, use luminance.
+    // This is the default algo used by color2k package.
+    if (rgb.a < 1) return getLuminance(color) <= 0.179;
+
+    // {@see https://24ways.org/2010/calculating-color-contrast}.
+    // YIQ equation used by NPM 'color' package and '//coolors.co'.
+    return (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000 < 128;
+};
+
+/**
  * Gets a readable color, given a contrasting color.
  *
  * @param   color Parseable color; {@see https://o5p.me/ce0m3O}.
  *
- * @returns       Hex color code; e.g., `#xxxxxx[xx]` (black or white).
+ * @returns       Hex color code; e.g., `#xxxxxx[xx]`.
+ *
+ *   - Returns `#ffffff` (white) for dark colors.
+ *   - Returns `#000000` (black) for other colors.
+ *
+ * @see isDark() for details regarding dark detection algo.
  */
 export const getReadable = (color: string): string => {
-    return c2k.toHex(c2k.readableColor(parse(color)));
+    return isDark(color) ? '#ffffff' : '#000000';
 };
 
 /**
@@ -352,10 +378,10 @@ export const getReadable = (color: string): string => {
  *
  * @param   fgColor  Parseable color; {@see https://o5p.me/ce0m3O}.
  * @param   bgColor  Parseable color; {@see https://o5p.me/ce0m3O}.
- * @param   standard Standard by which to determine. Default is `aaa`.
+ * @param   standard Standard by which to determine. Default is `aa` (4.5:1).
  *
  * @returns          True if the `fgColor` against the `bgColor` meets contrast standard.
  */
-export const contrastOK = (fgColor: string, bgColor: string, standard: 'decorative' | 'readable' | 'aa' | 'aaa' = 'aaa'): boolean => {
+export const contrastOK = (fgColor: string, bgColor: string, standard: 'decorative' | 'readable' | 'aa' | 'aaa' = 'aa'): boolean => {
     return !c2k.hasBadContrast(parse(fgColor), standard, parse(bgColor));
 };
