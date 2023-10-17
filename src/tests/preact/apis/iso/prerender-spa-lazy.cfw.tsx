@@ -4,7 +4,7 @@
 
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { $brand, $env, $json, $preact, $url } from '../../../../index.ts';
-import { Body, HTML, Head, Route, Router, type RouteContextAsProps, type RouterProps } from '../../../../preact/components.tsx';
+import { Body, HTML, Head, Root, Route, type RootProps, type RouteContextAsProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
@@ -40,13 +40,13 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
         });
         vi.stubGlobal('fetch', globalFetchMock); // Used by lazy route.
 
-        const App = (props: RouterProps): $preact.VNode<RouterProps> => {
+        const App = (props: RootProps): $preact.VNode<RootProps> => {
             return (
-                <Router {...props}>
+                <Root {...props}>
                     <Route path='/' component={Index} />
                     <Route path='/lazy/*' component={Lazy} />
                     <Route default component={Error404} />
-                </Router>
+                </Root>
             );
         };
         const Index = (): $preact.VNode<RouteContextAsProps> => {

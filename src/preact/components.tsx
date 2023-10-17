@@ -12,4 +12,5 @@ export { default as Head, type Props as HeadProps } from './components/head.tsx'
 export { default as HTML, type Props as HTMLProps } from './components/html.tsx';
 export { default as LayoutContext, type Props as LayoutContextProps } from './components/layout-context.tsx';
 export { default as Prose, type Props as ProseProps } from './components/prose.tsx';
-export { Route, default as Router, type LocationProps, type RouteContextAsProps, type RouteProps, type Props as RouterProps } from './components/router.tsx';
+export { default as Root, type Props as RootProps } from './components/root.tsx';
+export { Location, Route, default as Router, type LocationProps, type RouteContextAsProps, type RouteProps, type Props as RouterProps } from './components/router.tsx';

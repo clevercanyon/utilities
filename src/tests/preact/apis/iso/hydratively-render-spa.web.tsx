@@ -4,7 +4,7 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { $brand, $env, $json, $preact, $url } from '../../../../index.ts';
-import { Body, HTML, Head, Route, Router, type RouteContextAsProps, type RouterProps } from '../../../../preact/components.tsx';
+import { Body, HTML, Head, Root, Route, type RootProps, type RouteContextAsProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
@@ -31,17 +31,17 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         $env.set('APP_BRAND', __origAppBrand__);
         $brand.remove('@clevercanyon/x.tld');
     });
-    const App = (props: RouterProps): $preact.VNode<RouterProps> => {
+    const App = (props: RootProps): $preact.VNode<RootProps> => {
         return (
-            <Router {...props}>
+            <Root {...props}>
                 <Route path='./' component={Index} />
                 <Route path='./blog' component={Blog} />
                 <Route path='./blog/post/:id' component={Blog} />
                 <Route default component={Error404} />
-            </Router>
+            </Root>
         );
     };
-    const Index = (unusedꓺprops: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+    const Index = (): $preact.VNode => {
         return (
             <HTML>
                 <Head title={'index'} />

@@ -4,15 +4,17 @@
 
 import '../../resources/init.ts';
 
-import { createContext } from 'preact';
 import { $env, $is, $json, $obj, $preact, type $type } from '../../index.ts';
-import { globalToScriptCode as dataGlobalToScriptCode, type State as DataState } from './data.tsx';
+import { globalToScriptCode as dataGlobalToScriptCode } from './data.tsx';
 
 /**
  * Defines types.
  */
 export type State = $preact.State<
     Partial<$preact.JSX.IntrinsicElements['head']> & {
+        // State initialized yet?
+        initialized?: boolean;
+
         charset?: string;
         viewport?: string;
 
@@ -43,44 +45,30 @@ export type State = $preact.State<
     } & { [x in $preact.ClassPropVariants]?: $preact.Classes }
 >;
 export type PartialState = $preact.State<Partial<State>>;
+export type PartialStateUpdates = Omit<PartialState, 'initialized'>;
+
 export type Props = $preact.Props<PartialState>;
 
 export type ContextProps = $preact.Context<{
     state: State;
-    updateState: $preact.Dispatch<PartialState>;
+    updateState: $preact.Dispatch<PartialStateUpdates>;
 }>;
-type StructuredDataProps = $preact.Props<{ brand: $type.Brand; headState: State }>;
-
-/**
- * Defines context.
- *
- * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
- * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
- */
-const Context = createContext({} as ContextProps);
+type StructuredDataꓺHelperProps = $preact.Props<{ brand: $type.Brand; state: State }>;
 
 /**
  * Produces initial state.
  *
- * @param   dataState <Data> state.
- * @param   props     Component props.
+ * @param   dataHeadState Head state.
+ * @param   props         Component props.
  *
- * @returns           Initialized state.
+ * @returns               Initialized state.
+ *
+ * @note `<Data>` props contains some initial passable `<Head>` component props.
+ *       These props only have an impact on initial `<Head>` state; {@see Data.PassableHeadProps}.
+ *       e.g., `mainStyleBundle`, `mainScriptBundle`.
  */
-const initialState = (dataState: DataState, props: Props = {}): State => {
-    return $obj.mergeDeep({}, dataState.head, $preact.omitProps(props, ['children'])) as unknown as State;
-};
-
-/**
- * Reduces state updates.
- *
- * @param   state   Current state.
- * @param   updates State updates.
- *
- * @returns         New state, if changed; else old state.
- */
-const reduceState = (state: State, updates: PartialState): State => {
-    return $obj.updateDeep(state, updates) as unknown as State;
+const initialState = (dataHeadState: PartialState, props: Props = {}): State => {
+    return $obj.mergeDeep({ initialized: true }, dataHeadState, $preact.omitProps(props, ['children'])) as unknown as State;
 };
 
 /**
@@ -89,6 +77,9 @@ const reduceState = (state: State, updates: PartialState): State => {
  * @param   props Component props.
  *
  * @returns       VNode / JSX element tree.
+ *
+ * @note `<Head>` state is stored in `<Data>` so it’s available
+ *       across all contexts; i.e., at any nested level of the DOM.
  */
 export default function Head(props: Props = {}): $preact.VNode<Props> {
     const brand = $env.get('APP_BRAND') as $type.Brand;
@@ -97,136 +88,136 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
     const { state: locState } = $preact.useLocation();
     if (!locState) throw new Error('Missing location state.');
 
-    const { state: dataState } = $preact.useData();
+    const { state: dataState, updateState: updateDataState } = $preact.useData();
     if (!dataState) throw new Error('Missing data state.');
 
-    // Props from current `<Data>` state will only have an impact on 'initial' `<Head>` state.
-    const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(dataState, props));
-
-    const headState = $preact.useMemo((): State => {
-        let title = state.title || locState.url.hostname;
+    let { head: actualState } = dataState; // `<Data>` holds `<Head>` state.
+    if (!actualState.initialized /* If not initialized, do it now, in real-time. */) {
+        // Absent a real-time update, SSR fails, as it doesn’t wait for an async update.
+        actualState = initialState(actualState, props);
+        updateDataState({ head: actualState });
+    }
+    const state = $preact.useMemo((): State => {
+        let title = actualState.title || locState.url.hostname;
+        let defaultMainStyleBundle, defaultMainScriptBundle;
         const defaultDescription = 'Take the tiger by the tail.';
 
-        if (state.titleSuffix /* String or `true` to enable. */) {
-            if ($is.string(state.titleSuffix)) {
-                title += state.titleSuffix;
-            } else if (state.siteName || brand.name) {
-                title += ' • ' + (state.siteName || brand.name);
+        if (!actualState.mainStyleBundle && '' !== actualState.mainStyleBundle) {
+            // Local test fallback assumes we are loading with Vite’s dev server.
+            defaultMainStyleBundle = $env.isLocalWeb() ? './index.scss' : './index.css';
+        }
+        if (!actualState.mainScriptBundle && '' !== actualState.mainScriptBundle) {
+            // Local test fallback assumes we are loading with Vite’s dev server.
+            defaultMainScriptBundle = $env.isLocalWeb() ? './index.tsx' : './index.js';
+        }
+        if (actualState.titleSuffix /* String or `true` to enable. */) {
+            if ($is.string(actualState.titleSuffix)) {
+                title += actualState.titleSuffix;
+            } else if (actualState.siteName || brand.name) {
+                title += ' • ' + (actualState.siteName || brand.name);
             }
         }
-        // We include local test fallbacks for Vite’s dev server.
-        let defaultMainStyleBundle, defaultMainScriptBundle;
-
-        if (!state.mainStyleBundle && '' !== state.mainStyleBundle && $env.isLocalWeb()) {
-            defaultMainStyleBundle = './index.scss';
-        }
-        if (!state.mainScriptBundle && '' !== state.mainScriptBundle && $env.isLocalWeb()) {
-            defaultMainScriptBundle = './index.tsx';
-        }
         return {
-            ...state,
+            ...actualState,
 
-            charset: state.charset || 'utf-8',
-            viewport: state.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',
+            charset: actualState.charset || 'utf-8',
+            viewport: actualState.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',
 
             title, // See title generation above.
-            description: state.description || defaultDescription,
-            canonical: state.canonical || locState.canonicalURL,
+            description: actualState.description || defaultDescription,
+            canonical: actualState.canonical || locState.canonicalURL,
 
-            pngIcon: state.pngIcon || locState.fromBase('./assets/icon.png'),
-            svgIcon: state.svgIcon || locState.fromBase('./assets/icon.svg'),
+            pngIcon: actualState.pngIcon || locState.fromBase('./assets/icon.png'),
+            svgIcon: actualState.svgIcon || locState.fromBase('./assets/icon.svg'),
 
-            ogSiteName: state.ogSiteName || state.siteName || brand.name || locState.url.hostname,
-            ogType: state.ogType || 'website',
-            ogTitle: state.ogTitle || title,
-            ogDescription: state.ogDescription || state.description || defaultDescription,
-            ogURL: state.ogURL || state.canonical || locState.canonicalURL,
-            ogImage: state.ogImage || locState.fromBase('./assets/og-image.png'),
+            ogSiteName: actualState.ogSiteName || actualState.siteName || brand.name || locState.url.hostname,
+            ogType: actualState.ogType || 'website',
+            ogTitle: actualState.ogTitle || title,
+            ogDescription: actualState.ogDescription || actualState.description || defaultDescription,
+            ogURL: actualState.ogURL || actualState.canonical || locState.canonicalURL,
+            ogImage: actualState.ogImage || locState.fromBase('./assets/og-image.png'),
 
-            mainStyleBundle: state.mainStyleBundle || defaultMainStyleBundle,
-            mainScriptBundle: state.mainScriptBundle || defaultMainScriptBundle,
+            mainStyleBundle: actualState.mainStyleBundle || defaultMainStyleBundle,
+            mainScriptBundle: actualState.mainScriptBundle || defaultMainScriptBundle,
         };
-    }, [locState, dataState, state]);
+    }, [locState, actualState]);
 
     return (
-        <Context.Provider value={{ state: headState, updateState }}>
-            <head
-                {...{
-                    ...$preact.omitProps(headState, [
-                        'class',
+        <head
+            {...{
+                ...$preact.omitProps(state, [
+                    'class',
+                    'initialized',
 
-                        'charset',
-                        'viewport',
+                    'charset',
+                    'viewport',
 
-                        'robots',
-                        'publishTime',
-                        'lastModifiedTime',
-                        'canonical',
-                        'structuredData',
+                    'robots',
+                    'publishTime',
+                    'lastModifiedTime',
+                    'canonical',
+                    'structuredData',
 
-                        'siteName',
-                        'title',
-                        'titleSuffix',
-                        'description',
-                        'author',
+                    'siteName',
+                    'title',
+                    'titleSuffix',
+                    'description',
+                    'author',
 
-                        'pngIcon',
-                        'svgIcon',
+                    'pngIcon',
+                    'svgIcon',
 
-                        'ogSiteName',
-                        'ogType',
-                        'ogTitle',
-                        'ogDescription',
-                        'ogURL',
-                        'ogImage',
+                    'ogSiteName',
+                    'ogType',
+                    'ogTitle',
+                    'ogDescription',
+                    'ogURL',
+                    'ogImage',
 
-                        'mainStyleBundle',
-                        'mainScriptBundle',
-                    ]),
-                    class: $preact.classes(headState),
-                }}
-            >
-                {headState.charset && <meta charSet={headState.charset} />}
-                {locState.baseURL && <base href={locState.baseURL.toString()} />}
-                {headState.viewport && <meta name='viewport' content={headState.viewport} />}
+                    'mainStyleBundle',
+                    'mainScriptBundle',
+                ]),
+                class: $preact.classes(state),
+            }}
+        >
+            {state.charset && <meta charSet={state.charset} />}
+            {locState.baseURL && <base href={locState.baseURL.toString()} />}
+            {state.viewport && <meta name='viewport' content={state.viewport} />}
 
-                {headState.robots && <meta name='robots' content={headState.robots} />}
-                {headState.canonical && <link rel='canonical' href={headState.canonical.toString()} />}
+            {state.robots && <meta name='robots' content={state.robots} />}
+            {state.canonical && <link rel='canonical' href={state.canonical.toString()} />}
 
-                {headState.title && <title>{headState.title}</title>}
-                {headState.description && <meta name='description' content={headState.description} />}
-                {headState.author && <meta name='author' content={headState.author} />}
+            {state.title && <title>{state.title}</title>}
+            {state.description && <meta name='description' content={state.description} />}
+            {state.author && <meta name='author' content={state.author} />}
 
-                {headState.svgIcon && <link rel='icon' type='image/svg+xml' sizes='any' href={headState.svgIcon.toString()} />}
-                {headState.pngIcon && <link rel='icon' type='image/png' sizes='any' href={headState.pngIcon.toString()} />}
-                {headState.pngIcon && <link rel='apple-touch-icon' type='image/png' sizes='any' href={headState.pngIcon.toString()} />}
+            {state.svgIcon && <link rel='icon' type='image/svg+xml' sizes='any' href={state.svgIcon.toString()} />}
+            {state.pngIcon && <link rel='icon' type='image/png' sizes='any' href={state.pngIcon.toString()} />}
+            {state.pngIcon && <link rel='apple-touch-icon' type='image/png' sizes='any' href={state.pngIcon.toString()} />}
 
-                {headState.ogSiteName && headState.ogType && headState.ogTitle && headState.ogDescription && headState.ogURL && headState.ogImage && (
-                    <>
-                        <meta property='og:site_name' content={headState.ogSiteName} />
-                        <meta property='og:type' content={headState.ogType} />
-                        <meta property='og:title' content={headState.ogTitle} />
-                        <meta property='og:description' content={headState.ogDescription} />
-                        <meta property='og:url' content={headState.ogURL.toString()} />
-                        <meta property='og:image' content={headState.ogImage.toString()} />
-                    </>
-                )}
-                {headState.mainStyleBundle && <link rel='stylesheet' href={headState.mainStyleBundle.toString()} media='all' />}
-                {headState.mainScriptBundle && (!$env.isWeb() || $env.isTest()) && (
-                    <script id='preact-iso-data' dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>
-                )}
-                {headState.mainScriptBundle && <script type='module' src={headState.mainScriptBundle.toString()}></script>}
+            {state.ogSiteName && state.ogType && state.ogTitle && state.ogDescription && state.ogURL && state.ogImage && (
+                <>
+                    <meta property='og:site_name' content={state.ogSiteName} />
+                    <meta property='og:type' content={state.ogType} />
+                    <meta property='og:title' content={state.ogTitle} />
+                    <meta property='og:description' content={state.ogDescription} />
+                    <meta property='og:url' content={state.ogURL.toString()} />
+                    <meta property='og:image' content={state.ogImage.toString()} />
+                </>
+            )}
+            {state.mainStyleBundle && <link rel='stylesheet' href={state.mainStyleBundle.toString()} media='all' />}
+            {state.mainScriptBundle && (!$env.isWeb() || $env.isTest()) && <script id='preact-iso-data' dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
+            {state.mainScriptBundle && <script type='module' src={state.mainScriptBundle.toString()}></script>}
 
-                {props.children}
+            {props.children}
 
-                <StructuredData {...{ brand, headState }} />
-            </head>
-        </Context.Provider>
+            <StructuredDataꓺHelper {...{ brand, state }} />
+        </head>
     );
 }
 
 /**
- * Renders component.
+ * Helps render component.
  *
  * @param   props Component props.
  *
@@ -235,12 +226,12 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
  * @see https://schema.org/ -- for details regarding graph entries.
  * @see https://o5p.me/bgYQaB -- for details from Google regarding what they need, and why.
  */
-const StructuredData = (props: StructuredDataProps): $preact.VNode<StructuredDataProps> => {
+const StructuredDataꓺHelper = (props: StructuredDataꓺHelperProps): $preact.VNode<StructuredDataꓺHelperProps> => {
     const { state: htmlState } = $preact.useHTML();
     if (!htmlState) throw new Error('Missing HTML state.');
 
-    const { brand, headState } = props;
-    if (!headState.ogURL) throw new Error('Missing ogURL.');
+    const { brand, state } = props;
+    if (!state.ogURL) throw new Error('Missing ogURL.');
 
     // Organization graph(s).
 
@@ -331,9 +322,9 @@ const StructuredData = (props: StructuredDataProps): $preact.VNode<StructuredDat
     // WebPage graph.
     // {@see https://schema.org/WebPage}.
 
-    const pageURL = headState.ogURL.toString();
-    const pageTitle = (headState.ogTitle || '').split(' • ')[0];
-    const pageDescription = headState.ogDescription || '';
+    const pageURL = state.ogURL.toString();
+    const pageTitle = (state.ogTitle || '').split(' • ')[0];
+    const pageDescription = state.ogDescription || '';
 
     const pageGraph = $obj.mergeDeep(
         {
@@ -348,12 +339,12 @@ const StructuredData = (props: StructuredDataProps): $preact.VNode<StructuredDat
             inLanguage: htmlState.lang || 'en',
             author: [
                 { '@id': siteGraph['@id'] }, // Site, and maybe a person.
-                ...(headState.author ? [{ '@type': 'Person', name: headState.author }] : []),
+                ...(state.author ? [{ '@type': 'Person', name: state.author }] : []),
             ],
-            datePublished: headState.publishTime?.toString() || '',
-            dateModified: headState.lastModifiedTime?.toString() || '',
+            datePublished: state.publishTime?.toString() || '',
+            dateModified: state.lastModifiedTime?.toString() || '',
 
-            ...(headState.ogImage
+            ...(state.ogImage
                 ? {
                       primaryImageOfPage: {
                           '@type': 'ImageObject',
@@ -361,8 +352,8 @@ const StructuredData = (props: StructuredDataProps): $preact.VNode<StructuredDat
 
                           width: brand.ogImage.width,
                           height: brand.ogImage.height,
-                          url: headState.ogImage.toString(),
-                          caption: headState.ogDescription || '',
+                          url: state.ogImage.toString(),
+                          caption: state.ogDescription || '',
                       },
                       image: [{ '@id': pageURL + '#primaryImg' }],
                   }
@@ -371,7 +362,7 @@ const StructuredData = (props: StructuredDataProps): $preact.VNode<StructuredDat
             isPartOf: { '@id': siteGraph['@id'] },
             ...(orgGraphs.length ? { publisher: { '@id': orgGraphs.at(-1)?.['@id'] } } : {}),
         },
-        headState.structuredData, // Allows `<Head>` to merge customizations.
+        state.structuredData, // Allows `<Head>` to merge customizations.
     );
     // Composition.
     // {@see https://schema.org/}.
@@ -384,8 +375,21 @@ const StructuredData = (props: StructuredDataProps): $preact.VNode<StructuredDat
 };
 
 /**
- * Defines context hook.
+ * Defines pseudo context hook.
  *
- * @returns Readonly context: `{ state, updateState }`.
+ * @returns Pseudo context props {@see ContextProps}.
+ *
+ * @note `<Head>` state is stored in `<Data>` so it’s available
+ *       across all contexts; i.e., at any nested level of the DOM.
  */
-export const useHead = (): ContextProps => $preact.useContext(Context);
+export const useHead = (): ContextProps => {
+    const { state: dataState, updateState: updateDataState } = $preact.useData();
+    if (!dataState) throw new Error('Missing data state.');
+
+    return {
+        state: dataState.head as unknown as ContextProps['state'],
+        updateState: (updates: Parameters<ContextProps['updateState']>[0]): ReturnType<ContextProps['updateState']> => {
+            updateDataState({ head: $obj.omit(updates, ['initialized']) });
+        },
+    };
+};

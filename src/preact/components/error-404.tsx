@@ -20,12 +20,12 @@ export type Props = $preact.Props<RouteContextAsProps>;
  *
  * @returns       VNode / JSX element tree.
  *
- * @note No SSR style/script bundles, as this is a purely static page.
+ * @note Purely static, so no style/script bundles server-side.
  */
 export default function Error404(props: Props): $preact.VNode<Props> {
     if (!$env.isWeb() || $env.isTest() /* Server-side only, with an exception for automated testing. */) {
         const { updateState: updateHTTPState } = $preact.useHTTP();
-        updateHTTPState({ status: 404 }); // Record 404 error.
+        updateHTTPState({ status: 404 }); // Records 404 error.
     }
     return (
         <HTML class={$preact.classes(props)}>
@@ -33,7 +33,7 @@ export default function Error404(props: Props): $preact.VNode<Props> {
                 robots={'noindex, nofollow'}
                 title={'404 Error: Not Found'}
                 description={'The resource you are looking for could not be found.'}
-                {...(!$env.isWeb() ? { mainStyleBundle: '', mainScriptBundle: '' } : {})}
+                {...($env.isWeb() ? {} : { mainStyleBundle: '', mainScriptBundle: '' })}
             >
                 <link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
             </Head>

@@ -4,16 +4,15 @@
 
 import '../../resources/init.ts';
 
-import { ErrorBoundary, Router as ISORouter, Location, Route, lazyRoute, useRoute } from '@clevercanyon/preact-iso.fork';
+import { ErrorBoundary, Router as ISORouter, Route, lazyRoute } from '@clevercanyon/preact-iso.fork';
 import { type ErrorBoundaryProps } from '@clevercanyon/preact-iso.fork/lazy';
-import { type RouterProps as ISORouterProps, type LocationProps, type RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';
-import { $is, $preact } from '../../index.ts';
-import { Data, type DataProps } from '../components.tsx';
+import { type RouterProps as ISORouterProps, type RouteContextAsProps } from '@clevercanyon/preact-iso.fork/router';
+import { $preact } from '../../index.ts';
 
 /**
  * Defines types.
  */
-export type Props = Omit<$preact.Props<LocationProps & DataProps & ErrorBoundaryProps & ISORouterProps>, $preact.ClassPropVariants>;
+export type Props = Omit<$preact.Props<ErrorBoundaryProps & ISORouterProps>, $preact.ClassPropVariants>;
 
 /**
  * Renders component.
@@ -23,18 +22,8 @@ export type Props = Omit<$preact.Props<LocationProps & DataProps & ErrorBoundary
  * @returns       VNode / JSX element tree.
  */
 export default function Router(props: Props = {}): $preact.VNode<Props> {
-    return $is.empty(useRoute()) ? (
-        <Location url={props.url} baseURL={props.baseURL}>
-            <Data globalObp={props.globalObp} fetcher={props.fetcher} html={props.html} head={props.head} body={props.body}>
-                <ErrorBoundary onError={props.onError}>
-                    <ISORouter onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
-                        {props.children}
-                    </ISORouter>
-                </ErrorBoundary>
-            </Data>
-        </Location>
-    ) : (
-        <ErrorBoundary>
+    return (
+        <ErrorBoundary onError={props.onError}>
             <ISORouter onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
                 {props.children}
             </ISORouter>

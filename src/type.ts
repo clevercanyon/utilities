@@ -74,8 +74,8 @@ export type EnsuredType<Type> =
 /**
  * Utility types.
  */
-export type Writeable<Type> = { -readonly [Prop in keyof Type]: Type[Prop] };
-export type DeepWriteable<Type> = { -readonly [Prop in keyof Type]: DeepWriteable<Type[Prop]> };
+export type Writable<Type> = { -readonly [Prop in keyof Type]: Type[Prop] };
+export type DeepWritable<Type> = { -readonly [Prop in keyof Type]: DeepWritable<Type[Prop]> };
 
 export type PartialTuple<Tuple extends unknown[], Extracted extends unknown[] = []> = //
     // If the tuple provided contains at least one required value.

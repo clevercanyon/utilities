@@ -68,19 +68,24 @@ export { lazyRoute, lazyComponent } from './preact/components/router.tsx';
 
 /**
  * Defines types.
+ *
+ * @note: `AsyncFnComponent` is a special type passed into `lazyComponent()`,
+ *         which returns an acceptible `FnComponent`. It is not valid anywhere else.
  */
 export type { JSX } from 'preact';
 export type { Dispatch } from 'preact/hooks';
 
 export type FnComponent<Type extends Props = Props> = preact.FunctionComponent<Type>;
 export type AsyncFnComponent<Type extends Props = Props> = (...args: Parameters<FnComponent<Type>>) => Promise<ReturnType<FnComponent<Type>>>;
+export type ClassComponent<Type extends Props = Props, Type2 extends State = State> = preact.ComponentClass<Type, Type2>;
+export type AnyComponent<Type extends Props = Props, Type2 extends State = State> = FnComponent<Type> | ClassComponent<Type, Type2>;
 export type VNode<Type extends Props = Props> = preact.VNode<Type>; // Function components return a VNode.
 
 export type Props<Type extends object = $type.Object> = Readonly<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>>;
 export type Context<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type State<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 
-export type ClassPropVariants = (typeof internalClassPropVariants)[number];
+export type ClassPropVariants = $type.Writable<typeof internalClassPropVariants>[number];
 export type Classes = TypesOfClasses | (TypesOfClasses | Classes)[] | Set<TypesOfClasses | Classes>;
 
 export type OmitPropOptions = { undefinedValues?: boolean };
@@ -101,7 +106,7 @@ type TypesOfClasses = // Internal class prop variants.
  * variety of reasons, multiple prop names with CSS classes in them, and in differing formats. The {@see classes()}
  * utility will work out the variants and assemble things for you. Unless you want bugs, there is no other option.
  *
- * @note This must remain a constant, not a function. It’s used for DRY types above.
+ * @note This must remain a `const`. It’s used to keep types DRY in this file.
  */
 const internalClassPropVariants = ['class', 'classes', 'className', 'classNames'] as const;
 

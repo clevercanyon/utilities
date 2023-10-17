@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.347",
+    "version": "1.0.348",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -150,6 +150,11 @@
             "types": "./dist/types/preact/components/prose.d.ts",
             "import": "./dist/preact/components/prose.js",
             "default": "./dist/preact/components/prose.js"
+        },
+        "./preact/components/root": {
+            "types": "./dist/types/preact/components/root.d.ts",
+            "import": "./dist/preact/components/root.js",
+            "default": "./dist/preact/components/root.js"
         },
         "./preact/components/router": {
             "types": "./dist/types/preact/components/router.d.ts",

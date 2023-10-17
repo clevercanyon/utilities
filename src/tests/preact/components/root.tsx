@@ -4,12 +4,12 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { $brand, $env, $preact, $url } from '../../../index.ts';
-import { Route, Router } from '../../../preact/components.tsx';
+import { Root, Route } from '../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 
-describe('<Router>', async () => {
+describe('<Root>', async () => {
     beforeAll(async () => {
         $env.set('APP_BASE_URL', 'http://x.tld/');
         $env.set(
@@ -34,9 +34,9 @@ describe('<Router>', async () => {
     test('basics', async () => {
         expect(
             $preact.ssr.renderToString(
-                <Router url={$url.appBase()} baseURL={$url.appBase()}>
+                <Root url={$url.appBase()} baseURL={$url.appBase()}>
                     <Route default component={(await import('../../../preact/components/error-404.tsx')).default} />
-                </Router>,
+                </Root>,
             ),
         ).toContain('</html>');
     });

@@ -4,7 +4,7 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { $brand, $env, $json, $preact, $url } from '../../../../index.ts';
-import { Body, HTML, Head, Route, Router, type RouteContextAsProps, type RouterProps } from '../../../../preact/components.tsx';
+import { Body, HTML, Head, Root, Route, Router, type RootProps, type RouteContextAsProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
@@ -31,13 +31,13 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
         $env.set('APP_BRAND', __origAppBrand__);
         $brand.remove('@clevercanyon/x.tld');
     });
-    const App = (props: RouterProps): $preact.VNode<RouterProps> => {
+    const App = (props: RootProps): $preact.VNode<RootProps> => {
         return (
-            <Router {...props}>
+            <Root {...props}>
                 <Route path='./' component={Index} />
                 <Route path='./others/*' component={Others} />
                 <Route default component={Error404} />
-            </Router>
+            </Root>
         );
     };
     const Index = (): $preact.VNode<RouteContextAsProps> => {
