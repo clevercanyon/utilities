@@ -4,8 +4,8 @@
 
 import '../resources/init.ts';
 
+export { default as As, type Props as AsProps } from './components/as.tsx';
 export { default as Body, type Props as BodyProps } from './components/body.tsx';
-export { default as Custom, type Props as CustomProps } from './components/custom.tsx';
 export { default as Data, type Props as DataProps } from './components/data.tsx';
 export { default as Error404, type Props as Error404Props } from './components/error-404.tsx';
 export { default as Head, type Props as HeadProps } from './components/head.tsx';

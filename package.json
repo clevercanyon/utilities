@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.351",
+    "version": "1.0.352",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -111,15 +111,15 @@
             "import": "./dist/preact/components.js",
             "default": "./dist/preact/components.js"
         },
+        "./preact/components/as": {
+            "types": "./dist/types/preact/components/as.d.ts",
+            "import": "./dist/preact/components/as.js",
+            "default": "./dist/preact/components/as.js"
+        },
         "./preact/components/body": {
             "types": "./dist/types/preact/components/body.d.ts",
             "import": "./dist/preact/components/body.js",
             "default": "./dist/preact/components/body.js"
-        },
-        "./preact/components/custom": {
-            "types": "./dist/types/preact/components/custom.d.ts",
-            "import": "./dist/preact/components/custom.js",
-            "default": "./dist/preact/components/custom.js"
         },
         "./preact/components/data": {
             "types": "./dist/types/preact/components/data.d.ts",

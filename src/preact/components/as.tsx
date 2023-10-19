@@ -11,7 +11,7 @@ import { $preact } from '../../index.ts';
  */
 export type Props = $preact.Props<
     Partial<$preact.JSX.IntrinsicElements['div'] | $preact.JSX.IntrinsicElements['span']> & {
-        as: string; // Custom HTML tag name; must include a dash.
+        tag?: string; // HTML tag name. Remember to use a dash in any custom tags.
     }
 >;
 
@@ -21,18 +21,17 @@ export type Props = $preact.Props<
  * @param   props Component props.
  *
  * @returns       VNode / JSX element tree.
+ *
+ * @note If no `tag` prop, the default tag is a `<div>`.
+ * @note If no classes, and it’s a custom tag, default class is `block`.
  */
-export default function Custom(props: Props): $preact.VNode<Props> {
-    const { as } = props;
-
-    if (!as.includes('-')) {
-        throw new Error('Custom tag missing `-`.');
-    }
+export default function As(props: Props): $preact.VNode<Props> {
+    const tag = props.tag || 'div';
     const classes = $preact.classes(props);
-    const displayClasses = classes ? '' : 'block';
+    const displayClasses = !classes && tag.includes('-') ? 'block' : '';
 
-    return $preact.createElement(as as 'div' | 'span', {
-        ...$preact.omitProps(props, ['as', 'class']),
+    return $preact.createElement(tag as 'div' | 'span', {
+        ...$preact.omitProps(props, ['tag', 'class']),
         class: $preact.classes(displayClasses, classes),
     }) as $preact.VNode<Props>;
 }
