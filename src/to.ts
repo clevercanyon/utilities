@@ -52,7 +52,7 @@ export const map = <Type>(value: Type): Type extends Map<unknown, unknown> ? Typ
  *
  * @returns       Value cast as an array.
  */
-export const array = <Type>(value: Type): Type extends unknown[] ? Type : Type[] => {
+export const array = <Type>(value: Type): Type extends unknown[] ? Type : Type extends undefined | null ? [] : Type[] => {
     if ($is.array(value)) {
         return value as ReturnType<typeof array<Type>>;
         //

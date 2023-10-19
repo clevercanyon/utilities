@@ -2,7 +2,7 @@
  * Preact API.
  */
 
-import { $app, $class, $env, $is, $obj, $obp, $path, $preact, $str, $url, type $type } from '../../../index.ts';
+import { $app, $class, $env, $is, $obj, $obp, $path, $preact, $str, $to, $url, type $type } from '../../../index.ts';
 import { type RootProps } from '../../../preact/components.tsx';
 import { defaultGlobalObp, type GlobalState } from '../../../preact/components/data.tsx';
 import { default as prerender } from './iso/prerender.tsx';
@@ -129,69 +129,75 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
     }
     const { App, props = {} } = options;
     const doc: Document = document; // Shorter alias.
-    let docNode: Document = doc; // Virtual in some cases.
 
     /**
-     * Preact explicitly references `.firstChild`; {@see https://o5p.me/8d6YM5}. Therefore, if we don’t remove
-     * doctype/comment nodes, `.firstChild` will be absolutely wrong, and Preact will crash. Removing doctype doesn’t
-     * actually change `document.compatMode`, so this seems to be ok in Chrome/Safari/Firefox tests. However, removing
-     * doctype does cause `document.doctype` to return `null`, unfortunately, so please beware.
-     */
-    (doc.childNodes || []).forEach((node) => {
-        if (Node.DOCUMENT_TYPE_NODE === node.nodeType || Node.COMMENT_NODE === node.nodeType) {
-            doc.removeChild(node); // Removes doctype and comment nodes.
-        }
-    });
-
-    /**
-     * On local web with Vite HMR/Prefresh.
+     * This creates a virtual document node, because we need to be able to replace the existing `<html>` node when
+     * location state changes. Without a virtual document node, `insertBefore()` will crash, because there can only be a
+     * single child node in our actual `document`. Inspired by root fragment; {@see https://o5p.me/aMHdC2}.
      *
-     * This creates a virtual document node for HMR/prefresh, because we need to be able to replace the existing
-     * `<html>` node via HMR. Without a virtual document node, `insertBefore()` will crash, because there can only be a
-     * single child node under `document`. Vite prefresh w/Preact isn’t smart enough by itself, so this fixes.
+     * Also, using a virtual node obviates the need to remove other child nodes in the document, such as the doctype
+     * node, or comment nodes. Preact explicitly references `firstChild`; {@see https://o5p.me/8d6YM5}. Without a
+     * virtual document node, we’d have to remove doctype/comment nodes, such that `firstChild` would be correct,
+     * otherwise Preact will crash. Removing doctype is not ideal, so this is much better.
      *
-     * @note Inspired by Preact Root Fragment; {@see https://o5p.me/aMHdC2}.
+     * @note We only need to supply the properties/methods that Preact needs.
+     *       According to the author, this is more than adequate; {@see https://o5p.me/eCCIoa}.
      */
-    if ($env.isLocalWebVitePrefresh()) {
-        docNode = (() => {
-            const html = (): HTMLHtmlElement | null => doc.querySelector('html');
-            const initialHTMLNode = html(); // Initial HTML node reference.
+    const virtualDoc = (() => {
+        const vDoc = {
+            parentNode: null,
+            parentElement: null,
+            nodeType: Node.DOCUMENT_NODE,
 
-            const virtualDoc: $type.Object = {
-                nodeType: 1,
-                parentNode: null,
+            firstChild: null as HTMLHtmlElement | null,
+            lastChild: null as HTMLHtmlElement | null,
+            childNodes: [] as HTMLHtmlElement[],
 
-                firstChild: initialHTMLNode,
-                childNodes: [initialHTMLNode],
+            nextSibling: null, // No siblings.
+            previousSibling: null, // No siblings.
 
-                replaceChild: (c: HTMLHtmlElement) => {
-                    doc.replaceChild(c, html() as HTMLHtmlElement);
-                    virtualDoc.firstChild = html();
-                },
-                removeChild: (c: HTMLHtmlElement) => {
-                    doc.removeChild(c); // No change.
-                    virtualDoc.firstChild = html();
-                },
-            }; // We want these to follow the same pattern as `replaceChild()`.
-            virtualDoc.insertBefore = virtualDoc.appendChild = virtualDoc.replaceChild;
+            ᨀhtml(): HTMLHtmlElement | null {
+                return doc.querySelector('html');
+            },
+            ᨀupdateProps(): true {
+                this.firstChild = this.ᨀhtml();
+                this.lastChild = this.firstChild;
+                this.childNodes = $to.array(this.firstChild);
+                return true; // Always; no exceptions.
+            },
+            ᨀreplaceOrAppendChild(child: HTMLHtmlElement): true {
+                if (this.firstChild /* <html> */) {
+                    doc.replaceChild(child, this.firstChild);
+                } else doc.appendChild(child);
+                return this.ᨀupdateProps();
+            },
+            appendChild(child: HTMLHtmlElement): HTMLHtmlElement {
+                return this.ᨀreplaceOrAppendChild(child) && child;
+            },
+            insertBefore(newNode: HTMLHtmlElement): HTMLHtmlElement {
+                return this.ᨀreplaceOrAppendChild(newNode) && newNode;
+            },
+            replaceChild(newChild: HTMLHtmlElement, oldChild: HTMLHtmlElement): HTMLHtmlElement {
+                return this.ᨀreplaceOrAppendChild(newChild) && oldChild;
+            },
+            removeChild(child: HTMLHtmlElement): HTMLHtmlElement {
+                return doc.removeChild(child) && this.ᨀupdateProps() && child;
+            },
+        };
+        vDoc.ᨀupdateProps(); // Initialize.
 
-            // Note: `__k` is `_children` in Preact bundle.
-            // {@see https://o5p.me/1mZOFk} map in mangle.json.
-            (doc as unknown as $type.Object).__k = virtualDoc;
-
-            return virtualDoc;
-        })() as unknown as Document;
-    }
+        // Note: `__k` is `_children` in Preact bundle.
+        // {@see https://o5p.me/1mZOFk} map in mangle.json.
+        return ((doc as unknown as $type.Object).__k = vDoc);
+    })() as unknown as Document;
 
     /**
      * Hydrates when applicable; else renders.
-     *
-     * @note Uses `docNode`, which is potentially a virtual node.
      */
     if (doc.querySelector('html.preact') /* Our preact HTML component rendered the HTML tag? */) {
-        $preact.hydrate(<App {...props} />, docNode);
+        $preact.hydrate(<App {...props} />, virtualDoc);
     } else {
-        $preact.render(<App {...props} />, docNode);
+        $preact.render(<App {...props} />, virtualDoc);
     }
 
     /**

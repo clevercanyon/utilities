@@ -178,7 +178,6 @@ const initialState = (props: Props): ActualState => {
     return {
         wasPush: true,
         baseURL, // Does not change.
-        // This is `./` relative to base.
         pathQuery: $url.removeBasePath($url.toPathQuery(url), baseURL),
     };
 };
@@ -259,19 +258,30 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
     if (!url /* Ignores empty URLs and/or invalid updates. */) {
         return state; // Not applicable.
     }
-    // Forces a canonical path for consistency.
-    url.pathname = $url.parse($url.toCanonical(url)).pathname;
-
     if (url.origin !== state.baseURL.origin /* Ignores external URLs. */) {
         return state; // Not applicable.
     }
     if (!['http:', 'https:'].includes(url.protocol) /* Ignores `mailto:`, `tel:`, etc. */) {
         return state; // Not applicable.
     }
-    if (url.hash /* Ignores on-page hash changes; i.e., let browser handle. */) {
-        const newPathQueryHash = $url.removeBasePath($url.toPathQueryHash(url), state.baseURL);
-        if (new RegExp('^' + $str.escRegExp(state.pathQuery) + '#', 'u').test(newPathQueryHash)) return state;
-    } // In the case of a hash changing when the `pathQuery` changes, state updates, and our {@see Router()} handles.
+    // ---
+    // Prepares data for a potential state update.
+
+    // Forces a canonical path for consistency.
+    url.pathname = $url.parse($url.toCanonical(url)).pathname;
+
+    // Prepares variables that will be added to the returned state.
+    const wasPush = isPush || false; // `pathQuery` is `./` relative to base.
+    const pathQuery = $url.removeBasePath($url.toPathQuery(url), state.baseURL);
+
+    // ---
+    // Further validates a potential state update.
+
+    if (state.pathQuery === pathQuery) {
+        return state; // No point; we’re already at this location.
+        // This also ignores on-page hash changes. We let browser handle.
+        // If `pathQuery` *and* hash change, our router handles hash changes.
+    }
 
     // ---
     // Updates history state.
@@ -285,10 +295,5 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
             history.replaceState(null, '', url);
         }
     }
-    return {
-        ...state,
-        wasPush: isPush || false,
-        // This is `./` relative to base.
-        pathQuery: $url.removeBasePath($url.toPathQuery(url), state.baseURL),
-    };
+    return { ...state, wasPush, pathQuery };
 };

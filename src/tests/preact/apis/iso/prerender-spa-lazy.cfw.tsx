@@ -59,7 +59,7 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
                 </HTML>
             );
         };
-        const Lazy = $preact.lazyRoute(() => import('./x-imports/routes/lazy.tsx'));
+        const Lazy = $preact.lazyRoute(() => import('./ex-imports/routes/lazy.tsx'));
         const Error404 = $preact.lazyRoute(() => import('../../../../preact/components/error-404.tsx'));
 
         const {
