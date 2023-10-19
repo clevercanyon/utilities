@@ -4,7 +4,7 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { $brand, $env, $json, $preact, $url } from '../../../../index.ts';
-import { Body, HTML, Head, Root, Route, Router, type RootProps, type RouteContextAsProps } from '../../../../preact/components.tsx';
+import { Body, HTML, Head, Root, Route, Router, type RootProps, type RoutedProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
@@ -40,7 +40,7 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
             </Root>
         );
     };
-    const Index = (): $preact.VNode<RouteContextAsProps> => {
+    const Index = (): $preact.VNode<RoutedProps> => {
         return (
             <HTML>
                 <Head title={'index'} />
@@ -50,7 +50,7 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
             </HTML>
         );
     };
-    const Others = (): $preact.VNode<RouteContextAsProps> => {
+    const Others = (): $preact.VNode<RoutedProps> => {
         return (
             <Router {...$preact.useRoute()}>
                 <Route path='./other' component={Other} />
@@ -58,7 +58,7 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
             </Router>
         );
     };
-    const Other = (): $preact.VNode<RouteContextAsProps> => {
+    const Other = (): $preact.VNode<RoutedProps> => {
         return (
             <HTML>
                 <Head title={'other'} />

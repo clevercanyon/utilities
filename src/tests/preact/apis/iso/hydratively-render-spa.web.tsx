@@ -4,7 +4,7 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { $brand, $env, $json, $preact, $url } from '../../../../index.ts';
-import { Body, HTML, Head, Root, Route, type RootProps, type RouteContextAsProps } from '../../../../preact/components.tsx';
+import { Body, HTML, Head, Root, Route, type RootProps, type RoutedProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
@@ -35,26 +35,14 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         return (
             <Root {...props}>
                 <Route path='./' component={Index} />
-                <Route path='./blog' component={Blog} />
-                <Route path='./blog/post/:id' component={Blog} />
                 <Route default component={Error404} />
             </Root>
         );
     };
-    const Index = (): $preact.VNode => {
+    const Index = (unusedꓺprops: RoutedProps): $preact.VNode<RoutedProps> => {
         return (
             <HTML>
                 <Head title={'index'} />
-                <Body>
-                    <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
-                </Body>
-            </HTML>
-        );
-    };
-    const Blog = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
-        return (
-            <HTML>
-                <Head title={/^\/blog\/post\//u.test(props.path || '') ? 'blog post' : 'blog'} />
                 <Body>
                     <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
                 </Body>

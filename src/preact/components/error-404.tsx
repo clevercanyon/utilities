@@ -5,13 +5,13 @@
 import '../../resources/init.ts';
 
 import { $env, $preact } from '../../index.ts';
-import { Body, HTML, Head, type RouteContextAsProps } from '../components.tsx';
+import { Body, HTML, Head, type RoutedProps } from '../components.tsx';
 
 /**
  * Defines types.
  */
 export type StandAloneProps = $preact.Props;
-export type Props = $preact.Props<RouteContextAsProps>;
+export type Props = $preact.Props<RoutedProps>;
 
 /**
  * Renders route component.

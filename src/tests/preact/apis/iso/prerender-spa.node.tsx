@@ -4,7 +4,7 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { $brand, $env, $json, $preact, $url } from '../../../../index.ts';
-import { Body, HTML, Head, Root, Route, Router, type RootProps, type RouteContextAsProps } from '../../../../preact/components.tsx';
+import { Body, HTML, Head, Root, Route, Router, type RootProps, type RoutedProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
@@ -52,7 +52,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             </HTML>
         );
     };
-    const Blog = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+    const Blog = (props: RoutedProps): $preact.VNode<RoutedProps> => {
         return (
             <HTML>
                 <Head title={/^\.\/blog\/post\//u.test(props.path || '') ? 'blog post' : 'blog'} />
@@ -62,7 +62,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             </HTML>
         );
     };
-    const Others = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+    const Others = (props: RoutedProps): $preact.VNode<RoutedProps> => {
         return (
             <Router {...props}>
                 <Route path='./other-a/:x' component={OtherA} />
@@ -75,7 +75,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             </Router>
         );
     };
-    const OtherA = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+    const OtherA = (props: RoutedProps): $preact.VNode<RoutedProps> => {
         return (
             <HTML>
                 <Head title={'other-a'} />
@@ -85,7 +85,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             </HTML>
         );
     };
-    const OtherB = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+    const OtherB = (props: RoutedProps): $preact.VNode<RoutedProps> => {
         return (
             <HTML>
                 <Head title={'other-b'} />
@@ -95,7 +95,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             </HTML>
         );
     };
-    const OtherC = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+    const OtherC = (props: RoutedProps): $preact.VNode<RoutedProps> => {
         return (
             <HTML>
                 <Head title={'other-c'} />
@@ -105,7 +105,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             </HTML>
         );
     };
-    const OtherD = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+    const OtherD = (props: RoutedProps): $preact.VNode<RoutedProps> => {
         return (
             <HTML>
                 <Head title={'other-d'} />
@@ -115,7 +115,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             </HTML>
         );
     };
-    const OtherE = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+    const OtherE = (props: RoutedProps): $preact.VNode<RoutedProps> => {
         return (
             <HTML>
                 <Head title={'other-e'} />
@@ -125,7 +125,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             </HTML>
         );
     };
-    const OtherDefault404 = (props: RouteContextAsProps): $preact.VNode<RouteContextAsProps> => {
+    const OtherDefault404 = (props: RoutedProps): $preact.VNode<RoutedProps> => {
         const { updateState: updateHTTPState } = $preact.useHTTP();
         updateHTTPState({ status: 404 }); // Record 404 error.
 

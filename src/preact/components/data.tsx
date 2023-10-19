@@ -146,11 +146,7 @@ const initialState = (props: Props): State => {
 };
 
 /**
- * Renders component.
- *
- * @param   props Component props.
- *
- * @returns       VNode / JSX element tree.
+ * Defines component.
  *
  * @note Using `Component`, not `$preact.Component`, because this occurs inline. We can’t use our own cyclic
  *       utilities inline, only inside functions. So we use `Component` directly from `preact` in this specific case.

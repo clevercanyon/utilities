@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.349",
+    "version": "1.0.350",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -146,6 +146,11 @@
             "import": "./dist/preact/components/layout-context.js",
             "default": "./dist/preact/components/layout-context.js"
         },
+        "./preact/components/location": {
+            "types": "./dist/types/preact/components/location.d.ts",
+            "import": "./dist/preact/components/location.js",
+            "default": "./dist/preact/components/location.js"
+        },
         "./preact/components/prose": {
             "types": "./dist/types/preact/components/prose.d.ts",
             "import": "./dist/preact/components/prose.js",
@@ -197,7 +202,7 @@
             "default": "./dist/version.js"
         }
     },
-    "sideEffects": ["**/*.{css,scss,less}", "./src/resources/init.ts"],
+    "sideEffects": ["**/*.{css,scss,less}", "./src/resources/init.ts", "./src/resources/preact/apis/iso/lazy.tsx"],
     "module": "./dist/index.js",
     "main": "./dist/index.js",
     "browser": "",
@@ -210,7 +215,6 @@
     },
     "dependencies": {},
     "peerDependencies": {
-        "@clevercanyon/preact-iso.fork": "^2.3.83",
         "color2k": "^2.0.2",
         "ignore": "^5.2.4",
         "ip-regex": "^5.0.0",
@@ -248,7 +252,7 @@
                     "appType": "lib",
                     "targetEnv": "any",
                     "entryFiles": ["./src/*.{ts,tsx}", "./src/preact/{*,*/*}.{ts,tsx}"],
-                    "sideEffects": []
+                    "sideEffects": ["./src/resources/preact/apis/iso/lazy.tsx"]
                 },
                 "ssrBuild": {
                     "appType": "",

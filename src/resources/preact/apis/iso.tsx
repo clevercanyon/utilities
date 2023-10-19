@@ -2,10 +2,10 @@
  * Preact API.
  */
 
-import { hydrate, prerender } from '@clevercanyon/preact-iso.fork';
 import { $app, $class, $env, $is, $obj, $obp, $path, $preact, $str, $url, type $type } from '../../../index.ts';
 import { type RootProps } from '../../../preact/components.tsx';
 import { defaultGlobalObp, type GlobalState } from '../../../preact/components/data.tsx';
+import { default as prerender } from './iso/prerender.tsx';
 
 /**
  * Defines types.
@@ -189,7 +189,7 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
      * @note Uses `docNode`, which is potentially a virtual node.
      */
     if (doc.querySelector('html.preact') /* Our preact HTML component rendered the HTML tag? */) {
-        hydrate(<App {...props} />, docNode);
+        $preact.hydrate(<App {...props} />, docNode);
     } else {
         $preact.render(<App {...props} />, docNode);
     }

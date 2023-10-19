@@ -59,12 +59,13 @@ export { useHead } from './preact/components/head.tsx';
 export { useBody } from './preact/components/body.tsx';
 export { useData, useHTTP } from './preact/components/data.tsx';
 export { useLayout } from './preact/components/layout-context.tsx';
-export { useLocation, useRoute } from './preact/components/router.tsx';
+export { useLocation } from './preact/components/location.tsx';
+export { useRoute } from './preact/components/router.tsx';
 
 /**
  * Exports our Preact lazy loaders.
  */
-export { lazyRoute, lazyComponent } from './preact/components/router.tsx';
+export { lazyRoute, lazyComponent } from './resources/preact/apis/iso/lazy.tsx';
 
 /**
  * Defines types.
@@ -84,6 +85,7 @@ export type VNode<Type extends Props = Props> = preact.VNode<Type>; // Function 
 export type Props<Type extends object = $type.Object> = Readonly<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>>;
 export type Context<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type State<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
+export type Ref<Type = unknown> = preact.RefObject<Type>;
 
 export type ClassPropVariants = $type.Writable<typeof internalClassPropVariants>[number];
 export type Classes = TypesOfClasses | (TypesOfClasses | Classes)[] | Set<TypesOfClasses | Classes>;

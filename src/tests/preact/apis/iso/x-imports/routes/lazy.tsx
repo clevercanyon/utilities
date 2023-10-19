@@ -3,12 +3,12 @@
  */
 
 import { $json, $preact } from '../../../../../../index.ts';
-import { Body, HTML, Head, type RouteContextAsProps } from '../../../../../../preact/components.tsx';
+import { Body, HTML, Head, type RoutedProps } from '../../../../../../preact/components.tsx';
 
 /**
  * Defines types.
  */
-export type Props = $preact.Props<RouteContextAsProps>;
+export type Props = $preact.Props<RoutedProps>;
 export type LazyProps = $preact.Props<{
     a: string;
     b: string;

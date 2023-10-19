@@ -2,6 +2,8 @@
  * Preact component.
  */
 
+import '../../resources/init.ts';
+
 import { $preact } from '../../index.ts';
 import { Custom, type CustomProps } from '../components.tsx';
 

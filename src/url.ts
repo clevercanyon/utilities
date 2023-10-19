@@ -378,8 +378,6 @@ export const removeAppBasePath = $fnꓺmemoize(24, _removeAppBasePath);
  * @returns           Parseable URL or string with base path.
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
- *
- * @note See also `clevercanyon/preact-iso.fork/render.js/addBasePath()`.
  */
 export function addBasePath(parseable: $type.URL, base: $type.URL | string): $type.URL;
 export function addBasePath(parseable: string, base: $type.URL | string): string;
@@ -416,8 +414,6 @@ export function addBasePath(parseable: $type.URL | string, base: $type.URL | str
  * @returns           Parseable URL or string without base path.
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
- *
- * @note See also `clevercanyon/preact-iso.fork/render.js/removeBasePath()`.
  */
 export function removeBasePath(parseable: $type.URL, base: $type.URL | string): $type.URL;
 export function removeBasePath(parseable: string, base: $type.URL | string): string;
