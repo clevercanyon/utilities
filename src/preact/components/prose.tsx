@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { $preact } from '../../index.ts';
-import { As, type AsProps } from '../components.tsx';
+import { default as As, type Props as AsProps } from '../components/as.tsx';
 
 /**
  * Defines types.

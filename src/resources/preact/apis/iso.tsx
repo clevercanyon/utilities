@@ -3,8 +3,8 @@
  */
 
 import { $app, $class, $env, $is, $obj, $obp, $path, $preact, $str, $to, $url, type $type } from '../../../index.ts';
-import { type RootProps } from '../../../preact/components.tsx';
 import { defaultGlobalObp, type GlobalState } from '../../../preact/components/data.tsx';
+import { type Props as RootProps } from '../../../preact/components/root.tsx';
 import { default as prerender } from './iso/prerender.tsx';
 
 /**

@@ -5,7 +5,7 @@
 import { options as preactꓺoptions } from 'preact';
 import { useRef, useState } from 'preact/hooks';
 import { $is, $preact, type $type } from '../../../../index.ts';
-import { Route, Router, type RoutedProps } from '../../../../preact/components.tsx';
+import { Route, default as Router, type RoutedProps } from '../../../../preact/components/router.tsx';
 
 /**
  * Defines types.

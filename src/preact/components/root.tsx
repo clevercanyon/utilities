@@ -5,7 +5,9 @@
 import '../../resources/init.ts';
 
 import { $preact } from '../../index.ts';
-import { Data, Location, Router, type DataProps, type LocationProps, type RouterProps } from '../components.tsx';
+import { default as Data, type Props as DataProps } from '../components/data.tsx';
+import { default as Location, type Props as LocationProps } from '../components/location.tsx';
+import { default as Router, type Props as RouterProps } from '../components/router.tsx';
 
 /**
  * Defines types.

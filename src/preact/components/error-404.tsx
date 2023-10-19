@@ -5,7 +5,10 @@
 import '../../resources/init.ts';
 
 import { $env, $preact } from '../../index.ts';
-import { Body, HTML, Head, type RoutedProps } from '../components.tsx';
+import { default as Body } from '../components/body.tsx';
+import { default as Head } from '../components/head.tsx';
+import { default as HTML } from '../components/html.tsx';
+import { type RoutedProps } from '../components/router.tsx';
 
 /**
  * Defines types.
