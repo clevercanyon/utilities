@@ -87,20 +87,19 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
     const mainStyleBundle = './' + appManifestStyleBundleSubpath;
     const mainScriptBundle = './' + appManifestScriptBundleSubpath;
 
-    const prerenderedData = await prerender(App, {
-        props: {
-            ...props, // Option props.
+    const appProps = {
+        ...props, // Option props.
 
-            // `<Location>` props.
-            url, // Absolute URL extracted from request.
-            baseURL, // Base URL from app environment vars.
+        // `<Location>` props.
+        url, // Absolute URL extracted from request.
+        baseURL, // Base URL from app environment vars.
 
-            // `<Data>` props.
-            globalObp, // Global object path.
-            fetcher, // Preact ISO fetcher; {@see replaceNativeFetch()}.
-            head: $obj.mergeDeep({ mainStyleBundle, mainScriptBundle }, props.head),
-        },
-    }); // Restores native fetch on prerender completion.
+        // `<Data>` props.
+        globalObp, // Global object path.
+        fetcher, // Preact ISO fetcher; {@see replaceNativeFetch()}.
+        head: $obj.mergeDeep({ mainStyleBundle, mainScriptBundle }, props.head),
+    };
+    const prerenderedData = await prerender(App, { props: appProps });
     fetcher.restoreNativeFetch(); // Restore to avoid conflicts.
 
     let html = prerenderedData.html; // Prerendered HTML markup.
@@ -110,8 +109,8 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
         httpState = { ...httpState, status: 404 };
         $obp.set(globalThis, globalObp + '.http', httpState);
 
-        const Error404 = (await import('../../../preact/components/error-404.tsx')).StandAlone;
-        html = $preact.ssr.renderToString(<Error404 class='default-prerender' />);
+        const Error404StandAlone = (await import('../../../preact/components/error-404.tsx')).StandAlone;
+        html = $preact.ssr.renderToString(<Error404StandAlone class='default-prerender' />);
     }
     return { httpState, docType: '<!doctype html>', html };
 };
@@ -123,40 +122,92 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
  *
  * @note This is strictly for client-side use only. No exceptions.
  *       Local testing using jsDOM is fine, since that `$env.isWeb()`.
- *
- * @todo Explore `preact.options.__` (aka: `.__root`) as a means by which to address a known re-render bug. {@see
- *   https://github.com/preactjs/preact/blob/main/src/render.js#L16}.
  */
 export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void => {
     if (!$env.isWeb() /* Web browser required; uses DOM. */) {
         throw $env.errClientSideOnly; // Not possible.
     }
-    const doc = document; // Shorter alias.
     const { App, props = {} } = options;
+    const doc: Document = document; // Shorter alias.
+    let docNode: Document = doc; // Virtual in some cases.
 
-    // Regarding props from server-side prerender.
-
-    // `<Location>` props.
-    //    `url`: It’s either already in props, or auto-detected in a web browser, so no need to populate here.
-    //    `baseURL`: It’s either already in props, or auto-detected in a web browser, so no need to populate here.
-    //               e.g., using `<base href>` already inserted by `<Head>` server-side.
-
-    // `<Data>` props.
-    //    `globalObp`: It’s either already in props, or `<Data>` will use default, so no need to populate here.
-    //    `fetcher`: It’s either already in props, or `<Data>` will use default, so no need to populate here.
-    //    `head`: What isn’t already in props will already be in global script code, so no need to populate here.
-    //            e.g., `mainStyleBundle`, `mainScriptBundle`.
-
+    /**
+     * Preact explicitly references `.firstChild`; {@see https://o5p.me/8d6YM5}. Therefore, if we don’t remove
+     * doctype/comment nodes, `.firstChild` will be absolutely wrong, and Preact will crash. Removing doctype doesn’t
+     * actually change `document.compatMode`, so this seems to be ok in Chrome/Safari/Firefox tests. However, removing
+     * doctype does cause `document.doctype` to return `null`, unfortunately, so please beware.
+     */
     (doc.childNodes || []).forEach((node) => {
-        // Please note that Preact explicitly references `(parentDom = document).firstChild`; {@see https://o5p.me/8d6YM5}.
-        // Therefore, if we don’t remove doctype/comment nodes, `firstChild` will be absolutely wrong, and Preact will crash.
-        // Removing doctype doesn’t actually change `document.compatMode`, so this seems to be ok in Chrome/Safari/Firefox tests.
-        // However, removing doctype does cause `document.doctype` to return `null`, unfortunately, so please beware.
-        if (Node.DOCUMENT_TYPE_NODE === node.nodeType || Node.COMMENT_NODE === node.nodeType) doc.removeChild(node);
+        if (Node.DOCUMENT_TYPE_NODE === node.nodeType || Node.COMMENT_NODE === node.nodeType) {
+            doc.removeChild(node); // Removes doctype and comment nodes.
+        }
     });
-    if (doc.querySelector('html.preact') /* Our preact HTML component rendered the HTML tag? */) {
-        hydrate(<App {...props} />, doc);
-    } else {
-        $preact.render(<App {...props} />, doc);
+
+    /**
+     * On local web with Vite HMR/Prefresh.
+     *
+     * This creates a virtual document node for HMR/prefresh, because we need to be able to replace the existing
+     * `<html>` node via HMR. Without a virtual document node, `insertBefore()` will crash, because there can only be a
+     * single child node under `document`. Vite prefresh w/Preact isn’t smart enough by itself, so this fixes.
+     *
+     * @note Inspired by Preact Root Fragment; {@see https://o5p.me/aMHdC2}.
+     */
+    if ($env.isLocalWebVitePrefresh()) {
+        docNode = (() => {
+            const html = (): HTMLHtmlElement | null => doc.querySelector('html');
+            const initialHTMLNode = html(); // Initial HTML node reference.
+
+            const virtualDoc: $type.Object = {
+                nodeType: 1,
+                parentNode: null,
+
+                firstChild: initialHTMLNode,
+                childNodes: [initialHTMLNode],
+
+                replaceChild: (c: HTMLHtmlElement) => {
+                    doc.replaceChild(c, html() as HTMLHtmlElement);
+                    virtualDoc.firstChild = html();
+                },
+                removeChild: (c: HTMLHtmlElement) => {
+                    doc.removeChild(c); // No change.
+                    virtualDoc.firstChild = html();
+                },
+            }; // We want these to follow the same pattern as `replaceChild()`.
+            virtualDoc.insertBefore = virtualDoc.appendChild = virtualDoc.replaceChild;
+
+            // Note: `__k` is `_children` in Preact bundle.
+            // {@see https://o5p.me/1mZOFk} map in mangle.json.
+            (doc as unknown as $type.Object).__k = virtualDoc;
+
+            return virtualDoc;
+        })() as unknown as Document;
     }
+
+    /**
+     * Hydrates when applicable; else renders.
+     *
+     * @note Uses `docNode`, which is potentially a virtual node.
+     */
+    if (doc.querySelector('html.preact') /* Our preact HTML component rendered the HTML tag? */) {
+        hydrate(<App {...props} />, docNode);
+    } else {
+        $preact.render(<App {...props} />, docNode);
+    }
+
+    /**
+     * Regarding `<App>` props from server-side prerender.
+     *
+     * `<Location>` props.
+     *
+     * - `url`: It’s either already in props, or auto-detected in a web browser, so no need to populate here.
+     * - `baseURL`: It’s either already in props, or auto-detected in a web browser, so no need to populate here. e.g.,
+     *   using `<base href>` already inserted by `<Head>` server-side.
+     *
+     * `<Data>` props.
+     *
+     * - `globalObp`: It’s either already in props, or `<Data>` will use default, so no need to populate here.
+     * - `fetcher`: It’s either already in props, or `<Data>` will use default, so no need to populate here.
+     * - `head`: What isn’t already in props will already be in global script code; e.g., `mainStyleBundle`,
+     *   `mainScriptBundle`, so no need to populate here.
+     */
 };

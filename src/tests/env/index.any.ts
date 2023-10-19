@@ -85,6 +85,9 @@ describe('$env', async () => {
         expect($env.get('@global', 'BUZ')).toBe(true);
         expect($env.get('@global', 'FUZ')).toBe('fuz');
     });
+    test('.isVite()', async () => {
+        expect($env.isVite()).toBe(true);
+    });
     test('.isC10n(), .test()', async () => {
         expect($env.isC10n()).toBe(false);
 

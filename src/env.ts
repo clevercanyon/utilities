@@ -295,6 +295,24 @@ export const isLocalWeb = $fnꓺmemoize((): boolean => {
 });
 
 /**
+ * Is web browser under a local hostname and Vite dev server is running?
+ *
+ * @returns True if is web browser under a local hostname and Vite dev server is running.
+ */
+export const isLocalWebVite = (): boolean => {
+    return isLocalWeb() && isVite();
+};
+
+/**
+ * Is web browser under a local hostname and Vite dev server is running with HMR/prefresh?
+ *
+ * @returns True if is web browser under a local hostname and Vite dev server is running with HMR/prefresh.
+ */
+export const isLocalWebVitePrefresh = (): boolean => {
+    return isLocalWebVite() && '__PREFRESH__' in globalThis;
+};
+
+/**
  * Is web browser via JS DOM?
  *
  * @returns True if is web browser via JS DOM?
@@ -388,9 +406,24 @@ export const isServiceWorker = $fnꓺmemoize((): boolean => {
  *
  * @returns       True if is operated by Clever Canyon.
  *
- * @note Not memoizing because env variables can change at runtime.
+ *   - If different tests are passed, meaning of return value potentially changes.
  */
-export const isC10n = (tests: QVTests = {}): boolean => test('@top', 'APP_IS_C10N', tests);
+export const isC10n = (tests: QVTests = {}): boolean => test('APP_IS_C10N', tests);
+
+/**
+ * Is Vite dev server running an app?
+ *
+ * @param   tests Optional tests. {@see test()} for details.
+ *
+ * @returns       True if Vite dev server is running an app.
+ *
+ *   - If different tests are passed, meaning of return value potentially changes.
+ *
+ * @note By default, this also returns `true` when running tests; because that’s how Vitest works.
+ *       The test files are served by Vite’s dev server; i.e., `serve` is the Vite command internally.
+ *       If you’d like to avoid that condition, you can simply check `if (!$env.isTest())`.
+ */
+export const isVite = (tests: QVTests = { serve: '*' }): boolean => test('APP_IS_VITE', tests);
 
 /**
  * Tests an environment variable's query vars.

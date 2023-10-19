@@ -162,8 +162,8 @@ const initialState = (props: Props): State => {
 export default class Data extends Component<Props, State> {
     state: State; // State type.
 
-    constructor(props: Props = {}) {
-        super(props); // Parent.
+    constructor(props: Props = {}, context: unknown = {}) {
+        super(props, context);
         this.state = initialState(props);
     }
 
@@ -177,11 +177,13 @@ export default class Data extends Component<Props, State> {
         });
     }
 
-    shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+    shouldComponentUpdate(nextProps: Props, nextState: State, nextContext: unknown): boolean {
         const sameProps = nextProps === this.props;
+        const sameContext = nextContext === this.context;
         const sameState = nextState === this.state;
 
-        if (!sameProps) return true; // We must re-render.
+        if (!sameProps) return true; // Must re-render.
+        if (!sameContext) return true; // Must re-render.
         if (sameState) return false; // No reason to re-render.
 
         if (nextState.head.initialized && !this.state.head.initialized) {

@@ -102,13 +102,11 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
         let defaultMainStyleBundle, defaultMainScriptBundle;
         const defaultDescription = 'Take the tiger by the tail.';
 
-        if (!actualState.mainStyleBundle && '' !== actualState.mainStyleBundle) {
-            // Local test fallback assumes we are loading with Vite’s dev server.
-            defaultMainStyleBundle = $env.isLocalWeb() ? './index.scss' : './index.css';
+        if (!actualState.mainStyleBundle && '' !== actualState.mainStyleBundle && $env.isLocalWebVite()) {
+            defaultMainStyleBundle = './index.scss'; // Vite dev server uses original extension.
         }
-        if (!actualState.mainScriptBundle && '' !== actualState.mainScriptBundle) {
-            // Local test fallback assumes we are loading with Vite’s dev server.
-            defaultMainScriptBundle = $env.isLocalWeb() ? './index.tsx' : './index.js';
+        if (!actualState.mainScriptBundle && '' !== actualState.mainScriptBundle && $env.isLocalWebVite()) {
+            defaultMainScriptBundle = './index.tsx'; // Vite dev server uses original extension.
         }
         if (actualState.titleSuffix /* String or `true` to enable. */) {
             if ($is.string(actualState.titleSuffix)) {
