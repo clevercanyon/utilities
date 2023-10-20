@@ -6,7 +6,7 @@ import './resources/init.ts';
 
 import { $class, $is, $symbol, type $type } from './index.ts';
 import * as $standalone from './resources/standalone/index.ts';
-import { $fnꓺmemoize } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 let mc: $type.ObjMC; // Object MC class instance.
 let mcInitialized: boolean = false; // Initialized once only.
@@ -61,7 +61,7 @@ export const plainC9rStr = $standalone.$objꓺplainC9rStr;
  * @note Please read the details above regarding the special case of `[tag]:[cn]`.
  * @note Please see: <https://o5p.me/ownLcv> for details regarding `[Symbol.toStringTag]`.
  */
-export const tag = $fnꓺmemoize(64, $standalone.$objꓺtag);
+export const tag = $fnꓺmemo(64, $standalone.$objꓺtag);
 
 /**
  * Gets a value’s own and/or inherited `[Symbol.toStringTag]` object tags.
@@ -73,7 +73,7 @@ export const tag = $fnꓺmemoize(64, $standalone.$objꓺtag);
  *
  * @note Please {@see tag()} for details regarding the special case of `[tag]:[cn]`.
  */
-export const tags = $fnꓺmemoize(64, (value: unknown): string[] => $standalone.$objꓺtags(value));
+export const tags = $fnꓺmemo(64, (value: unknown): string[] => $standalone.$objꓺtags(value));
 
 /**
  * Gets a value’s constructor.

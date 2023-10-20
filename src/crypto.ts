@@ -5,7 +5,7 @@
 import './resources/init.ts';
 
 import { $obj } from './index.ts';
-import { $fnꓺmemoize } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 const textEncoder: TextEncoder = new TextEncoder();
 
@@ -23,7 +23,7 @@ export type HashAlgorithm = 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
  *
  * @returns     SHA-1 hash. 40 hexadecimals in length.
  */
-export const sha1 = $fnꓺmemoize(2, async (str: string): Promise<string> => buildHash('sha-1', str));
+export const sha1 = $fnꓺmemo(2, async (str: string): Promise<string> => buildHash('sha-1', str));
 
 /**
  * Generates an HMAC SHA-1 hash.
@@ -33,7 +33,7 @@ export const sha1 = $fnꓺmemoize(2, async (str: string): Promise<string> => bui
  *
  * @returns     HMAC SHA-1 hash. 40 hexadecimals in length.
  */
-export const hmacSHA1 = $fnꓺmemoize(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-1', str, key));
+export const hmacSHA1 = $fnꓺmemo(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-1', str, key));
 
 /**
  * Generates a SHA-256 hash.
@@ -42,7 +42,7 @@ export const hmacSHA1 = $fnꓺmemoize(2, async (str: string, key: string): Promi
  *
  * @returns     SHA-256 hash. 64 hexadecimals in length.
  */
-export const sha256 = $fnꓺmemoize(2, async (str: string): Promise<string> => buildHash('sha-256', str));
+export const sha256 = $fnꓺmemo(2, async (str: string): Promise<string> => buildHash('sha-256', str));
 
 /**
  * Generates an HMAC SHA-256 hash.
@@ -52,7 +52,7 @@ export const sha256 = $fnꓺmemoize(2, async (str: string): Promise<string> => b
  *
  * @returns     HMAC SHA-256 hash. 64 hexadecimals in length.
  */
-export const hmacSHA256 = $fnꓺmemoize(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-256', str, key));
+export const hmacSHA256 = $fnꓺmemo(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-256', str, key));
 
 /**
  * Generates a SHA-384 hash.
@@ -61,7 +61,7 @@ export const hmacSHA256 = $fnꓺmemoize(2, async (str: string, key: string): Pro
  *
  * @returns     SHA-384 hash. 96 hexadecimals in length.
  */
-export const sha384 = $fnꓺmemoize(2, async (str: string): Promise<string> => buildHash('sha-384', str));
+export const sha384 = $fnꓺmemo(2, async (str: string): Promise<string> => buildHash('sha-384', str));
 
 /**
  * Generates an HMAC SHA-384 hash.
@@ -71,7 +71,7 @@ export const sha384 = $fnꓺmemoize(2, async (str: string): Promise<string> => b
  *
  * @returns     HMAC SHA-384 hash. 96 hexadecimals in length.
  */
-export const hmacSHA384 = $fnꓺmemoize(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-384', str, key));
+export const hmacSHA384 = $fnꓺmemo(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-384', str, key));
 
 /**
  * Generates a SHA-512 hash.
@@ -80,7 +80,7 @@ export const hmacSHA384 = $fnꓺmemoize(2, async (str: string, key: string): Pro
  *
  * @returns     SHA-512 hash. 128 hexadecimals in length.
  */
-export const sha512 = $fnꓺmemoize(2, async (str: string): Promise<string> => buildHash('sha-512', str));
+export const sha512 = $fnꓺmemo(2, async (str: string): Promise<string> => buildHash('sha-512', str));
 
 /**
  * Generates an HMAC SHA-512 hash.
@@ -90,7 +90,7 @@ export const sha512 = $fnꓺmemoize(2, async (str: string): Promise<string> => b
  *
  * @returns     HMAC SHA-512 hash. 128 hexadecimals in length.
  */
-export const hmacSHA512 = $fnꓺmemoize(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-512', str, key));
+export const hmacSHA512 = $fnꓺmemo(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-512', str, key));
 
 /**
  * Random number generator.

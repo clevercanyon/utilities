@@ -3,7 +3,7 @@
  */
 
 import { beforeEach, describe, expect, test } from 'vitest';
-import { $brand, $env, $is, $obj, $symbol, $time, $url } from '../../index.ts';
+import { $brand, $class, $env, $is, $obj, $symbol, $time, $url } from '../../index.ts';
 
 describe('$is', async () => {
     class Custom {
@@ -609,5 +609,118 @@ describe('$is', async () => {
         expect($is.structuredCloneable($time.parse())).toBe(false);
         expect($is.structuredCloneable(Symbol('x'))).toBe(false);
         expect($is.structuredCloneable(() => null)).toBe(false);
+    });
+    test('.equal()', async () => {
+        const fn1 = () => 1;
+        const fn2 = () => ({ _2: 2 });
+
+        const Fetcher = $class.getFetcher();
+        const fetcher1 = new Fetcher();
+        const fetcher2 = new Fetcher();
+
+        expect($is.equal(undefined, undefined)).toBe(true);
+        expect($is.equal(null, null)).toBe(true);
+
+        expect($is.equal(true, true)).toBe(true);
+        expect($is.equal(false, false)).toBe(true);
+
+        expect($is.equal(0, 0)).toBe(true);
+        expect($is.equal('0', '0')).toBe(true);
+
+        expect($is.equal(1, 1)).toBe(true);
+        expect($is.equal('1', '1')).toBe(true);
+
+        expect($is.equal(BigInt('0'), BigInt('0'))).toBe(true);
+        expect($is.equal(BigInt('1'), BigInt('1'))).toBe(true);
+
+        expect($is.equal(fn1, fn1)).toBe(true);
+        expect($is.equal(fn2, fn2)).toBe(true);
+
+        expect($is.equal(fetcher1, fetcher1)).toBe(true);
+        expect($is.equal(fetcher2, fetcher2)).toBe(true);
+
+        // ---
+
+        expect($is.equal(undefined, null)).toBe(false);
+        expect($is.equal(null, undefined)).toBe(false);
+
+        expect($is.equal(true, false)).toBe(false);
+        expect($is.equal(false, true)).toBe(false);
+
+        expect($is.equal(0, 1)).toBe(false);
+        expect($is.equal('0', '1')).toBe(false);
+
+        expect($is.equal(1, 0)).toBe(false);
+        expect($is.equal('1', '0')).toBe(false);
+
+        expect($is.equal(BigInt('0'), BigInt('1'))).toBe(false);
+        expect($is.equal(BigInt('1'), BigInt('0'))).toBe(false);
+
+        expect($is.equal(fn1, fn2)).toBe(false);
+        expect($is.equal(fn2, fn1)).toBe(false);
+
+        expect($is.equal(fetcher1, fetcher2)).toBe(false);
+        expect($is.equal(fetcher2, fetcher1)).toBe(false);
+    });
+    test('.deepEqual()', async () => {
+        const fn1 = () => 1;
+        const fn2 = () => ({ _2: 2 });
+
+        const Fetcher = $class.getFetcher();
+        const fetcher1 = new Fetcher();
+        const fetcher2 = new Fetcher();
+
+        expect($is.deepEqual(undefined, undefined)).toBe(true);
+        expect($is.deepEqual(null, null)).toBe(true);
+
+        expect($is.deepEqual(true, true)).toBe(true);
+        expect($is.deepEqual(false, false)).toBe(true);
+
+        expect($is.deepEqual(0, 0)).toBe(true);
+        expect($is.deepEqual('0', '0')).toBe(true);
+
+        expect($is.deepEqual(1, 1)).toBe(true);
+        expect($is.deepEqual('1', '1')).toBe(true);
+
+        expect($is.deepEqual(BigInt('0'), BigInt('0'))).toBe(true);
+        expect($is.deepEqual(BigInt('1'), BigInt('1'))).toBe(true);
+
+        expect($is.deepEqual(fn1, fn1)).toBe(true);
+        expect($is.deepEqual(fn2, fn2)).toBe(true);
+
+        expect($is.deepEqual(fetcher1, fetcher1)).toBe(true);
+        expect($is.deepEqual(fetcher2, fetcher2)).toBe(true);
+
+        expect($is.deepEqual({ fetcher1 }, { fetcher1 })).toBe(true);
+        expect($is.deepEqual({ fetcher2 }, { fetcher2 })).toBe(true);
+
+        // ---
+
+        expect($is.deepEqual(undefined, null)).toBe(false);
+        expect($is.deepEqual(null, undefined)).toBe(false);
+
+        expect($is.deepEqual(true, false)).toBe(false);
+        expect($is.deepEqual(false, true)).toBe(false);
+
+        expect($is.deepEqual(0, 1)).toBe(false);
+        expect($is.deepEqual('0', '1')).toBe(false);
+
+        expect($is.deepEqual(1, 0)).toBe(false);
+        expect($is.deepEqual('1', '0')).toBe(false);
+
+        expect($is.deepEqual(BigInt('0'), BigInt('1'))).toBe(false);
+        expect($is.deepEqual(BigInt('1'), BigInt('0'))).toBe(false);
+
+        expect($is.deepEqual(fn1, fn2)).toBe(false);
+        expect($is.deepEqual(fn2, fn1)).toBe(false);
+
+        expect($is.deepEqual(fetcher1, fetcher2)).toBe(false);
+        expect($is.deepEqual(fetcher2, fetcher1)).toBe(false);
+
+        expect($is.deepEqual({ fetcher1 }, { fetcher2 })).toBe(false);
+        expect($is.deepEqual({ fetcher2 }, { fetcher1 })).toBe(false);
+
+        expect($is.deepEqual({ fetcher1 }, { fetcher1: fetcher2 })).toBe(false);
+        expect($is.deepEqual({ fetcher2 }, { fetcher2: fetcher1 })).toBe(false);
     });
 });

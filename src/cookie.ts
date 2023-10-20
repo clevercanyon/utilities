@@ -5,7 +5,7 @@
 import './resources/init.ts';
 
 import { $env, $obj, $str, $url, type $type } from './index.ts';
-import { $fnꓺmemoize } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 /**
  * Defines types.
@@ -34,7 +34,7 @@ const documentCookieMap: Map<string, string | undefined> = new Map();
  *
  * @note Function is memoized. Parsed cookies object is readonly.
  */
-export const parse = $fnꓺmemoize(6, (header?: string): { readonly [x: string]: string } => {
+export const parse = $fnꓺmemo(6, (header?: string): { readonly [x: string]: string } => {
     let isDocumentCookieHeader = false;
     const cookies: { [x: string]: string } = {};
 
@@ -82,7 +82,7 @@ export const parse = $fnꓺmemoize(6, (header?: string): { readonly [x: string]:
  *
  * @returns      True if cookie exists.
  */
-export const exists = $fnꓺmemoize(24, (name: string): boolean => {
+export const exists = $fnꓺmemo(24, (name: string): boolean => {
     if (!$env.isWeb()) throw $env.errClientSideOnly;
     return Object.hasOwn(parse(), name);
 });
@@ -95,7 +95,7 @@ export const exists = $fnꓺmemoize(24, (name: string): boolean => {
  *
  * @returns              Cookie value, else {@see defaultValue}.
  */
-export const get = $fnꓺmemoize(24, <Default extends $type.Primitive = undefined>(name: string, defaultValue?: Default): string | Default => {
+export const get = $fnꓺmemo(24, <Default extends $type.Primitive = undefined>(name: string, defaultValue?: Default): string | Default => {
     if (!$env.isWeb()) throw $env.errClientSideOnly;
     const cookies = parse(); // Parser is memoized (important).
     return Object.hasOwn(cookies, name) ? cookies[name] : (defaultValue as Default);

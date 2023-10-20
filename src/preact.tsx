@@ -7,7 +7,7 @@ import './resources/init.ts';
 
 import type * as preact from 'preact';
 import { $is, $obj, $to, type $type } from './index.ts';
-import { $fnꓺmemoize } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 /**
  * Exports Preact.
@@ -134,9 +134,9 @@ type TypesOfClasses = // Internal class prop variants.
 const internalClassPropVariants = ['class', 'classes', 'className', 'classNames'] as const;
 
 // Additional supporting utility functions for `class` prop variants.
-export const classPropVariants = $fnꓺmemoize((): string[] => [...internalClassPropVariants]);
-export const classPropVariantsRegExpStr = $fnꓺmemoize((): string => '^class(?:es|Names?)?$');
-export const classPropVariantsRegExp = $fnꓺmemoize((): RegExp => new RegExp(classPropVariantsRegExpStr(), 'u'));
+export const classPropVariants = $fnꓺmemo((): string[] => [...internalClassPropVariants]);
+export const classPropVariantsRegExpStr = $fnꓺmemo((): string => '^class(?:es|Names?)?$');
+export const classPropVariantsRegExp = $fnꓺmemo((): RegExp => new RegExp(classPropVariantsRegExpStr(), 'u'));
 
 /**
  * Omits specific component props.

@@ -6,12 +6,12 @@ import './resources/init.ts';
 
 import { $is, $obj, type $type } from './index.ts';
 import * as $standalone from './resources/standalone/index.ts';
-import { type $fnꓺMemoizeOptions, type $fnꓺMemoizedFunction } from './resources/standalone/index.ts';
+import { type $fnꓺMemoOptions, type $fnꓺMemoizedFunction } from './resources/standalone/index.ts';
 
 /**
  * Defines types.
  */
-export type { $fnꓺMemoizeOptions as MemoizeOptions, $fnꓺMemoizedFunction as MemoizedFunction };
+export type { $fnꓺMemoOptions as MemoOptions, $fnꓺMemoizedFunction as MemoizedFunction };
 
 export type TryFunction<Fn extends $type.Function, CatchReturns> = Fn extends $type.AsyncFunction
     ? (...args: Parameters<Fn>) => Promise<Awaited<ReturnType<Fn>> | CatchReturns>
@@ -57,13 +57,11 @@ export const noOp = $standalone.$fnꓺnoOp; // From standalone library.
  * - **WARNING**: Please do _not_ use this particular copy from within the `clevercanyon/utilities` package. Instead, use
  *   the standalone source of this utility in order to avoid problems with circular dependencies.
  *
- * @param   ...args {@see $standalone.$fnꓺmemoize} for details.
+ * @param   args Variadic args; {@see $standalone.$fnꓺmemo} for details.
  *
- * @returns         Memoized function. {@see $standalone.$fnꓺmemoize} for details.
- *
- * @see https://www.npmjs.com/package/micro-memoize
+ * @returns      Memoized function. {@see MemoizedFunction}.
  */
-export const memoize = $standalone.$fnꓺmemoize; // From standalone library.
+export const memo = $standalone.$fnꓺmemo; // From standalone library.
 
 /**
  * Tries to invoke a sync or async function.

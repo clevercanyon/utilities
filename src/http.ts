@@ -5,7 +5,7 @@
 import './resources/init.ts';
 
 import { $env, $is, $obj, $path, $str, $time, $url, type $type } from './index.ts';
-import { $fnꓺmemoize } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 /**
  * Defines types.
@@ -316,7 +316,7 @@ export const requestHasSupportedMethod = (request: $type.Request): boolean => {
  *
  * @returns         True if request has a cacheable request method.
  */
-export const requestHasCacheableMethod = $fnꓺmemoize(2, (request: $type.Request): boolean => {
+export const requestHasCacheableMethod = $fnꓺmemo(2, (request: $type.Request): boolean => {
     return requestHasSupportedMethod(request) && ['HEAD', 'GET'].includes(request.method);
 });
 
@@ -328,7 +328,7 @@ export const requestHasCacheableMethod = $fnꓺmemoize(2, (request: $type.Reques
  *
  * @returns                True if request method needs content headers.
  */
-export const requestNeedsContentHeaders = $fnꓺmemoize(2, (request: $type.Request, responseStatus: number): boolean => {
+export const requestNeedsContentHeaders = $fnꓺmemo(2, (request: $type.Request, responseStatus: number): boolean => {
     return 204 !== responseStatus && requestHasSupportedMethod(request) && !['OPTIONS'].includes(request.method);
 });
 
@@ -340,7 +340,7 @@ export const requestNeedsContentHeaders = $fnꓺmemoize(2, (request: $type.Reque
  *
  * @returns                True if request method needs content body.
  */
-export const requestNeedsContentBody = $fnꓺmemoize(2, (request: $type.Request, responseStatus: number): boolean => {
+export const requestNeedsContentBody = $fnꓺmemo(2, (request: $type.Request, responseStatus: number): boolean => {
     return 204 !== responseStatus && requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method);
 });
 
@@ -351,7 +351,7 @@ export const requestNeedsContentBody = $fnꓺmemoize(2, (request: $type.Request,
  *
  * @returns         True if request is coming from an identified user.
  */
-export const requestIsFromUser = $fnꓺmemoize(2, (request: $type.Request): boolean => {
+export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean => {
     if (request.headers.has('authorization')) {
         return true; // Authorization header.
     }
@@ -373,7 +373,7 @@ export const requestIsFromUser = $fnꓺmemoize(2, (request: $type.Request): bool
  *
  * @returns         True if request path is invalid.
  */
-export const requestPathIsInvalid = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+export const requestPathIsInvalid = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
     url = url || $url.parse(request.url);
 
     if (!url.pathname || '/' === url.pathname) {
@@ -390,7 +390,7 @@ export const requestPathIsInvalid = $fnꓺmemoize(2, (request: $type.Request, ur
  *
  * @returns         True if request path is forbidden.
  */
-export const requestPathIsForbidden = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+export const requestPathIsForbidden = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
     url = url || $url.parse(request.url);
 
     if (!url.pathname || '/' === url.pathname) {
@@ -425,7 +425,7 @@ export const requestPathIsForbidden = $fnꓺmemoize(2, (request: $type.Request, 
  *
  * @returns         True if request is dynamic.
  */
-export const requestPathIsDynamic = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+export const requestPathIsDynamic = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
     return (
         requestPathHasDynamicBase(request, url) || //
         requestPathIsPotentiallyDynamic(request, url) ||
@@ -441,7 +441,7 @@ export const requestPathIsDynamic = $fnꓺmemoize(2, (request: $type.Request, ur
  *
  * @returns         True if request is static.
  */
-export const requestPathIsStatic = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+export const requestPathIsStatic = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
     return !requestPathIsDynamic(request, url);
 });
 
@@ -453,7 +453,7 @@ export const requestPathIsStatic = $fnꓺmemoize(2, (request: $type.Request, url
  *
  * @returns         True if request path has a dynamic base.
  */
-export const requestPathHasDynamicBase = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+export const requestPathHasDynamicBase = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
     if (!$env.isC10n()) {
         return false; // Not applicable.
     }
@@ -473,7 +473,7 @@ export const requestPathHasDynamicBase = $fnꓺmemoize(2, (request: $type.Reques
  *
  * @returns         True if request path is potentially dynamic.
  */
-export const requestPathIsPotentiallyDynamic = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+export const requestPathIsPotentiallyDynamic = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
     if (!$env.isC10n()) {
         return false; // Not applicable.
     }
@@ -493,7 +493,7 @@ export const requestPathIsPotentiallyDynamic = $fnꓺmemoize(2, (request: $type.
  *
  * @returns         True if request path is an SEO file.
  */
-export const requestPathIsSEORelatedFile = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+export const requestPathIsSEORelatedFile = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
     url = url || $url.parse(request.url);
 
     if (!url.pathname || '/' === url.pathname) {
@@ -510,7 +510,7 @@ export const requestPathIsSEORelatedFile = $fnꓺmemoize(2, (request: $type.Requ
  *
  * @returns         True if request path is in `/(?:wp-)?admin`.
  */
-export const requestPathIsInAdmin = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL): boolean => {
+export const requestPathIsInAdmin = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
     url = url || $url.parse(request.url);
 
     if (!url.pathname || '/' === url.pathname) {
@@ -528,7 +528,7 @@ export const requestPathIsInAdmin = $fnꓺmemoize(2, (request: $type.Request, ur
  *
  * @returns         True if request path has a static file extension.
  */
-export const requestPathHasStaticExtension = $fnꓺmemoize(2, (request: $type.Request, url?: $type.URL, exts?: string[] | RegExp): boolean => {
+export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL, exts?: string[] | RegExp): boolean => {
     url = url || $url.parse(request.url);
 
     if (!url.pathname || '/' === url.pathname) {

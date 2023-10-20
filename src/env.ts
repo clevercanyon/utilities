@@ -5,7 +5,7 @@
 import './resources/init.ts';
 
 import { $app, $is, $obj, $obp, $str, $to, $type, $url } from './index.ts';
-import { $fnꓺmemoize } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 let topLevelObp: string = '';
 let topLevelObpSet: boolean = false;
@@ -272,7 +272,7 @@ export function unset(...args: unknown[]): void {
  *   - `VITEST=true` (boolean).
  *   - `VITEST_MODE=RUN|WATCH|...` (string).
  */
-export const isTest = $fnꓺmemoize((): boolean => {
+export const isTest = $fnꓺmemo((): boolean => {
     return test('TEST'); // Set by Vitest; maybe by Jest also.
 });
 
@@ -281,7 +281,7 @@ export const isTest = $fnꓺmemoize((): boolean => {
  *
  * @returns True if is web.
  */
-export const isWeb = $fnꓺmemoize((): boolean => {
+export const isWeb = $fnꓺmemo((): boolean => {
     return ('Window' in globalThis && $is.function(Window) && globalThis instanceof Window) || isWebViaJSDOM();
 });
 
@@ -290,7 +290,7 @@ export const isWeb = $fnꓺmemoize((): boolean => {
  *
  * @returns True if is web browser under a local hostname.
  */
-export const isLocalWeb = $fnꓺmemoize((): boolean => {
+export const isLocalWeb = $fnꓺmemo((): boolean => {
     return isWeb() && $str.matches($url.currentRootHost({ withPort: false }), $url.localHostPatterns());
 });
 
@@ -317,7 +317,7 @@ export const isLocalWebVitePrefresh = (): boolean => {
  *
  * @returns True if is web browser via JS DOM?
  */
-export const isWebViaJSDOM = $fnꓺmemoize((): boolean => {
+export const isWebViaJSDOM = $fnꓺmemo((): boolean => {
     return (
         'Window' in globalThis && $is.function(Window) &&
         'Navigator' in globalThis && $is.function(Navigator) &&
@@ -331,7 +331,7 @@ export const isWebViaJSDOM = $fnꓺmemoize((): boolean => {
  *
  * @returns True if is node.
  */
-export const isNode = $fnꓺmemoize((): boolean => {
+export const isNode = $fnꓺmemo((): boolean => {
     return 'process' in globalThis && $is.object(process) && $is.object(process.versions) && 'node' in process.versions;
 });
 
@@ -340,7 +340,7 @@ export const isNode = $fnꓺmemoize((): boolean => {
  *
  * @returns True if is Cloudflare worker.
  */
-export const isCFW = $fnꓺmemoize((): boolean => {
+export const isCFW = $fnꓺmemo((): boolean => {
     return (
         isServiceWorker() && // `ServiceWorkerGlobalScope`.
         'Navigator' in globalThis && $is.function(Navigator) &&
@@ -354,7 +354,7 @@ export const isCFW = $fnꓺmemoize((): boolean => {
  *
  * @returns True if is Cloudflare worker via miniflare.
  */
-export const isCFWViaMiniflare = $fnꓺmemoize((): boolean => {
+export const isCFWViaMiniflare = $fnꓺmemo((): boolean => {
     return (
         'MINIFLARE' in globalThis && true === MINIFLARE &&
         'Navigator' in globalThis && $is.function(Navigator) &&
@@ -368,7 +368,7 @@ export const isCFWViaMiniflare = $fnꓺmemoize((): boolean => {
  *
  * @returns True if is worker.
  */
-export const isWorker = $fnꓺmemoize((): boolean => {
+export const isWorker = $fnꓺmemo((): boolean => {
     return 'WorkerGlobalScope' in globalThis && $is.function(WorkerGlobalScope) && globalThis instanceof WorkerGlobalScope;
 });
 
@@ -377,7 +377,7 @@ export const isWorker = $fnꓺmemoize((): boolean => {
  *
  * @returns True if is dedicated worker.
  */
-export const isDedicatedWorker = $fnꓺmemoize((): boolean => {
+export const isDedicatedWorker = $fnꓺmemo((): boolean => {
     return 'DedicatedWorkerGlobalScope' in globalThis && $is.function(DedicatedWorkerGlobalScope) && globalThis instanceof DedicatedWorkerGlobalScope;
 });
 
@@ -386,7 +386,7 @@ export const isDedicatedWorker = $fnꓺmemoize((): boolean => {
  *
  * @returns True if is shared worker.
  */
-export const isSharedWorker = $fnꓺmemoize((): boolean => {
+export const isSharedWorker = $fnꓺmemo((): boolean => {
     return 'SharedWorkerGlobalScope' in globalThis && $is.function(SharedWorkerGlobalScope) && globalThis instanceof SharedWorkerGlobalScope;
 });
 
@@ -395,7 +395,7 @@ export const isSharedWorker = $fnꓺmemoize((): boolean => {
  *
  * @returns True if is service worker.
  */
-export const isServiceWorker = $fnꓺmemoize((): boolean => {
+export const isServiceWorker = $fnꓺmemo((): boolean => {
     return 'ServiceWorkerGlobalScope' in globalThis && $is.function(ServiceWorkerGlobalScope) && globalThis instanceof ServiceWorkerGlobalScope;
 });
 

@@ -7,7 +7,7 @@ import './resources/init.ts';
 import { default as untypedGitIgnoreFactory, type Ignore as GitIgnore } from 'ignore';
 import { type Options as MMOptions } from 'micromatch';
 import { $mime, $obj, $str, $to } from './index.ts';
-import { $fnꓺmemoize } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
 const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgnoreFactoryOptions) => GitIgnore;
@@ -35,7 +35,7 @@ export type DefaultGitNPMIgnoresByCategory = { [x: string]: string[] };
  *
  * @note Matches unnamed dots also; e.g., `.[ext]`.
  */
-export const extRegExp = $fnꓺmemoize((): RegExp => /(?:^|[^.])\.([^\\/.]+)$/iu);
+export const extRegExp = $fnꓺmemo((): RegExp => /(?:^|[^.])\.([^\\/.]+)$/iu);
 
 /**
  * Static extensions.
@@ -49,7 +49,7 @@ export const extRegExp = $fnꓺmemoize((): RegExp => /(?:^|[^.])\.([^\\/.]+)$/iu
  *
  * @see $mime.exts() in `./mime.ts` for the full list of extensions.
  */
-export const staticExts = $fnꓺmemoize((): string[] => {
+export const staticExts = $fnꓺmemo((): string[] => {
     return $mime.exts().filter((ext) => {
         return !['php', 'phtml', 'phtm', 'phar'].includes(ext) && !/^(?:php|phtml|phtm)(?:[.~_-]*[0-9]+)$/u.test(ext);
     });
@@ -58,14 +58,14 @@ export const staticExts = $fnꓺmemoize((): string[] => {
 /**
  * Static extensions piped for use in RegExp.
  */
-export const staticExtsPipedForRegExp = $fnꓺmemoize((): string => staticExts().join('|'));
+export const staticExtsPipedForRegExp = $fnꓺmemo((): string => staticExts().join('|'));
 
 /**
  * Static extension RegExp.
  *
  * @note Matches unnamed dots also; e.g., `.[ext]`.
  */
-export const staticExtRegExp = $fnꓺmemoize((): RegExp => new RegExp('(?:^|[^.])\\.(' + staticExtsPipedForRegExp() + ')$', 'iu'));
+export const staticExtRegExp = $fnꓺmemo((): RegExp => new RegExp('(?:^|[^.])\\.(' + staticExtsPipedForRegExp() + ')$', 'iu'));
 
 /**
  * Defines braced dot-globstar patterns.
@@ -272,7 +272,7 @@ export const globToRegExpString = (glob: string, options?: globToRegExpStringOpt
  * @returns            An array of canonical extension variants. The extensions within each canonical group are sorted
  *   by priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const canonicalExtVariants = $fnꓺmemoize({ deep: true, maxSize: 12 }, (canonicals: string | string[]): string[] => {
+export const canonicalExtVariants = $fnꓺmemo({ deep: true, maxSize: 12 }, (canonicals: string | string[]): string[] => {
     canonicals = $to.array(canonicals);
     let exts: string[] = []; // Initialize.
 
@@ -294,7 +294,7 @@ export const canonicalExtVariants = $fnꓺmemoize({ deep: true, maxSize: 12 }, (
  * @returns             An array of language extensions. The extensions within each VS Code lang group are sorted by
  *   priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const vsCodeLangExts = $fnꓺmemoize({ deep: true, maxSize: 12 }, (vsCodeLangs: string | string[]): string[] => {
+export const vsCodeLangExts = $fnꓺmemo({ deep: true, maxSize: 12 }, (vsCodeLangs: string | string[]): string[] => {
     vsCodeLangs = $to.array(vsCodeLangs);
     let exts: string[] = []; // Initialize.
 
@@ -314,7 +314,7 @@ export const vsCodeLangExts = $fnꓺmemoize({ deep: true, maxSize: 12 }, (vsCode
  * @returns An array of extensions by canonical extension. The extensions within each canonical group are sorted by
  *   priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const extsByCanonical = $fnꓺmemoize((): { [x: string]: string[] } => {
+export const extsByCanonical = $fnꓺmemo((): { [x: string]: string[] } => {
     let exts: { [x: string]: string[] } = {}; // Initialize.
 
     for (const [, group] of Object.entries($mime.types())) {
@@ -341,7 +341,7 @@ export const extsByCanonical = $fnꓺmemoize((): { [x: string]: string[] } => {
  * @note VS Code language IDs are caSe-sensitive; {@see https://o5p.me/bmWI0c}.
  *       If you pass options with `{ camelCase: true }`, please beware!
  */
-export const extsByVSCodeLang = $fnꓺmemoize({ deep: true, maxSize: 12 }, (options?: ExtsByVSCodeLangOptions): { [x: string]: string[] } => {
+export const extsByVSCodeLang = $fnꓺmemo({ deep: true, maxSize: 12 }, (options?: ExtsByVSCodeLangOptions): { [x: string]: string[] } => {
     let exts: { [x: string]: string[] } = {}; // Initialize.
     const opts = $obj.defaults({}, options || {}, { camelCase: false, enableCodeTextual: false }) as Required<ExtsByVSCodeLangOptions>;
 
@@ -401,7 +401,7 @@ export const extsByVSCodeLang = $fnꓺmemoize({ deep: true, maxSize: 12 }, (opti
  * @returns An array of extensions by dev group. The extensions within each dev group are sorted by priority with the
  *   canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const jsTSExtsByDevGroup = $fnꓺmemoize((): { [x: string]: string[] } => {
+export const jsTSExtsByDevGroup = $fnꓺmemo((): { [x: string]: string[] } => {
     return {
         // Standard JS/TS.
 
@@ -444,7 +444,7 @@ export const jsTSExtsByDevGroup = $fnꓺmemoize((): { [x: string]: string[] } =>
  *
  * @returns An array of glob ignore patterns.
  */
-export const defaultGitIgnores = $fnꓺmemoize((): string[] => {
+export const defaultGitIgnores = $fnꓺmemo((): string[] => {
     let flat: string[] = []; // Initialize.
 
     for (const [, group] of Object.entries(defaultGitIgnoresByGroup())) {
@@ -464,7 +464,7 @@ export const defaultGitIgnores = $fnꓺmemoize((): string[] => {
  *
  * @returns An array of glob ignore patterns.
  */
-export const defaultNPMIgnores = $fnꓺmemoize((): string[] => {
+export const defaultNPMIgnores = $fnꓺmemo((): string[] => {
     let flat: string[] = []; // Initialize.
 
     for (const [, group] of Object.entries(defaultNPMIgnoresByGroup())) {
@@ -491,7 +491,7 @@ export const defaultNPMIgnores = $fnꓺmemoize((): string[] => {
  * @see https://git-scm.com/docs/gitignore
  * @see {$path.defaultGitNPMIgnoresByCategory()} -- **must also be updated when this changes**.
  */
-export const defaultGitIgnoresByGroup = $fnꓺmemoize((): DefaultGitIgnoresByGroup => {
+export const defaultGitIgnoresByGroup = $fnꓺmemo((): DefaultGitIgnoresByGroup => {
     return {
         'Locals': [
             '._*', //
@@ -670,7 +670,7 @@ export const defaultGitIgnoresByGroup = $fnꓺmemoize((): DefaultGitIgnoresByGro
  * @see https://git-scm.com/docs/gitignore
  * @see {$path.defaultGitNPMIgnoresByCategory()} -- **must also be updated when this changes**.
  */
-export const defaultNPMIgnoresByGroup = $fnꓺmemoize((): DefaultNPMIgnoresByGroup => {
+export const defaultNPMIgnoresByGroup = $fnꓺmemo((): DefaultNPMIgnoresByGroup => {
     return {
         ...defaultGitIgnoresByGroup(),
 
@@ -760,7 +760,7 @@ export const defaultNPMIgnoresByGroup = $fnꓺmemoize((): DefaultNPMIgnoresByGro
  * @see {$path.defaultGitIgnoresByGroup()} -- **must also be updated when this changes**.
  * @see {$path.defaultNPMIgnoresByGroup()} -- **must also be updated when this changes**.
  */
-export const defaultGitNPMIgnoresByCategory = $fnꓺmemoize((): DefaultGitNPMIgnoresByCategory => {
+export const defaultGitNPMIgnoresByCategory = $fnꓺmemo((): DefaultGitNPMIgnoresByCategory => {
     return {
         // Locals
 

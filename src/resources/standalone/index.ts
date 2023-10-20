@@ -494,10 +494,10 @@ const $fnꓺmicroMemoize = microMemoizeWithBrokenTypes as unknown as $fnꓺMicro
 type $fnꓺMicroMemoizeꓺFn = <Fn extends MicroMemoize.AnyFn>(fn: Fn | MicroMemoize.Memoized<Fn>, options?: MicroMemoize.Options<Fn>) => MicroMemoize.Memoized<Fn>;
 
 /**
- * Defines memoize utility types.
+ * Defines memoization utility types.
  */
 type $fnꓺMemoizable = MicroMemoize.AnyFn; // Sync or async; does not matter.
-export type $fnꓺMemoizeOptions<Fn extends MicroMemoize.AnyFn> = MicroMemoize.Options<Fn> & { deep?: boolean };
+export type $fnꓺMemoOptions<Fn extends MicroMemoize.AnyFn> = MicroMemoize.Options<Fn> & { deep?: boolean };
 export type $fnꓺMemoizedFunction<Fn extends MicroMemoize.AnyFn> = MicroMemoize.Memoized<Fn> & {
     flush: (this: $fnꓺMemoizedFunction<Fn>) => { fresh: $fnꓺMemoizedFunction<Fn> };
     fresh: $fnꓺMemoizedFunction<Fn>; // Magic getter.
@@ -506,24 +506,28 @@ export type $fnꓺMemoizedFunction<Fn extends MicroMemoize.AnyFn> = MicroMemoize
 /**
  * Exports memoize utility function.
  *
- * @param   ...args {@see $fnꓺmemoize()} signatures.
+ * @param   ...args {@see $fnꓺmemo()} signatures.
  *
  * @returns         Memoized function; {@see $fnꓺMemoizedFn}.
+ *
+ * @see $fnꓺmemoꓺflushꓺhelper
+ * @see $fnꓺmemoꓺfreshꓺhelper
+ * @see https://www.npmjs.com/package/micro-memoize
  */
-export function $fnꓺmemoize<Fn extends $fnꓺMemoizable>(fn: Fn | $fnꓺMemoizedFunction<Fn>, options?: $fnꓺMemoizeOptions<Fn>): $fnꓺMemoizedFunction<Fn>;
-export function $fnꓺmemoize<Fn extends $fnꓺMemoizable>(options: $fnꓺMemoizeOptions<Fn>, fn: Fn | $fnꓺMemoizedFunction<Fn>): $fnꓺMemoizedFunction<Fn>;
-export function $fnꓺmemoize<Fn extends $fnꓺMemoizable>(maxSize: number, fn: Fn | $fnꓺMemoizedFunction<Fn>): $fnꓺMemoizedFunction<Fn>;
+export function $fnꓺmemo<Fn extends $fnꓺMemoizable>(fn: Fn | $fnꓺMemoizedFunction<Fn>, options?: $fnꓺMemoOptions<Fn>): $fnꓺMemoizedFunction<Fn>;
+export function $fnꓺmemo<Fn extends $fnꓺMemoizable>(options: $fnꓺMemoOptions<Fn>, fn: Fn | $fnꓺMemoizedFunction<Fn>): $fnꓺMemoizedFunction<Fn>;
+export function $fnꓺmemo<Fn extends $fnꓺMemoizable>(maxSize: number, fn: Fn | $fnꓺMemoizedFunction<Fn>): $fnꓺMemoizedFunction<Fn>;
 
-export function $fnꓺmemoize<Fn extends $fnꓺMemoizable>(...args: unknown[] /* see function signatures above. */): $fnꓺMemoizedFunction<Fn> {
-    let fn: Fn | $fnꓺMemoizedFunction<Fn>, options: $fnꓺMemoizeOptions<Fn> | undefined, memoizedFn: $fnꓺMemoizedFunction<Fn>, deep: boolean;
+export function $fnꓺmemo<Fn extends $fnꓺMemoizable>(...args: unknown[] /* see function signatures above. */): $fnꓺMemoizedFunction<Fn> {
+    let fn: Fn | $fnꓺMemoizedFunction<Fn>, options: $fnꓺMemoOptions<Fn> | undefined, memoizedFn: $fnꓺMemoizedFunction<Fn>, deep: boolean;
 
     if ($isꓺfunction(args[0])) {
         fn = args[0] as Fn | $fnꓺMemoizedFunction<Fn>;
-        options = args[1] as $fnꓺMemoizeOptions<Fn> | undefined;
+        options = args[1] as $fnꓺMemoOptions<Fn> | undefined;
     } else {
         if ('number' === typeof args[0]) {
-            options = { maxSize: args[0] } as $fnꓺMemoizeOptions<Fn>;
-        } else options = args[0] as $fnꓺMemoizeOptions<Fn> | undefined;
+            options = { maxSize: args[0] } as $fnꓺMemoOptions<Fn>;
+        } else options = args[0] as $fnꓺMemoOptions<Fn> | undefined;
         fn = args[1] as Fn | $fnꓺMemoizedFunction<Fn>;
     }
     deep = options?.deep || false;
@@ -535,22 +539,39 @@ export function $fnꓺmemoize<Fn extends $fnꓺMemoizable>(...args: unknown[] /*
         ...options, // Implementation-specific options.
     }) as $fnꓺMemoizedFunction<Fn>;
 
-    Object.defineProperty(memoizedFn, 'flush', {
-        value: function (this: $fnꓺMemoizedFunction<Fn>): { fresh: $fnꓺMemoizedFunction<Fn> } {
-            const { cache, options } = this; // Extract as locals.
+    Object.defineProperty(memoizedFn, 'flush', { value: $fnꓺmemoꓺflushꓺhelper<Fn> });
+    Object.defineProperty(memoizedFn, 'fresh', { get: $fnꓺmemoꓺfreshꓺhelper<Fn> });
 
-            cache.keys.length = cache.values.length = 0; // Forces these to empty arrays.
-            // Must use `.length` to break through `cache` refererences within memoization lib.
-            if (options.onCacheChange) options.onCacheChange(cache, options, this);
-
-            return { fresh: this }; // e.g., `foo.flush().fresh(a, b, c)`.
-        },
-    });
-    Object.defineProperty(memoizedFn, 'fresh', {
-        get: function (this: $fnꓺMemoizedFunction<Fn>): $fnꓺMemoizedFunction<Fn> {
-            this.flush(); // Automatically flushes the cache.
-            return this; // e.g., `foo.fresh(a, b, c)`.
-        },
-    });
     return memoizedFn;
 }
+
+/**
+ * Flushes a memoized function’s memo cache.
+ *
+ * @example
+ *     `foo.flush().fresh(a, b, c)`.
+ *
+ * @see $fnꓺmemo()
+ */
+const $fnꓺmemoꓺflushꓺhelper = function <Fn extends $fnꓺMemoizable>(this: $fnꓺMemoizedFunction<Fn>): { fresh: $fnꓺMemoizedFunction<Fn> } {
+    const { cache, options } = this; // Extracts locals.
+
+    cache.keys.length = cache.values.length = 0; // Forces these to empty arrays.
+    // Must use `.length` to break through `cache` refererences within memoization lib.
+    if (options.onCacheChange) options.onCacheChange(cache, options, this);
+
+    return { fresh: this }; // e.g., `foo.flush().fresh(a, b, c)`.
+};
+
+/**
+ * Flushes a memoized function’s memo cache.
+ *
+ * @example
+ *     `foo.fresh(a, b, c)`;
+ *
+ * @see $fnꓺmemo()
+ */
+const $fnꓺmemoꓺfreshꓺhelper = function <Fn extends $fnꓺMemoizable>(this: $fnꓺMemoizedFunction<Fn>): $fnꓺMemoizedFunction<Fn> {
+    this.flush(); // Automatically flushes the cache.
+    return this; // e.g., `foo.fresh(a, b, c)`.
+};

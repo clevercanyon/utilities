@@ -5,7 +5,7 @@
 import './resources/init.ts';
 
 import { $env, $is, $obj, $str, type $type } from './index.ts';
-import { $fnꓺmemoize } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 /**
  * Defines types.
@@ -40,7 +40,7 @@ export const stdLocalHostnames = (): string[] => ['local', 'localhost'];
  * These match up with the IP/DNS addresses in our SSL certificates for local development.
  * `@clevercanyon/skeleton/dev/.files/bin/ssl-certs/generate.bash` has the complete list for review.
  */
-export const localHostPatterns = $fnꓺmemoize((): string[] => [
+export const localHostPatterns = $fnꓺmemo((): string[] => [
     ...new Set([
         '\\[::\\]', // IPv6 null address.
         '0.0.0.0', // IPv4 null address.
@@ -87,7 +87,7 @@ export const currentReferrer = (): string => {
  *
  * @returns         Current scheme. By default, without the `:` mark.
  */
-export const currentScheme = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options?: CurrentSchemeOptions): string => {
+export const currentScheme = $fnꓺmemo({ deep: true, maxSize: 2 }, (options?: CurrentSchemeOptions): string => {
     if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options || {}, { withMark: false }) as Required<CurrentSchemeOptions>;
     return opts.withMark ? location.protocol : location.protocol.slice(0, -1);
@@ -100,7 +100,7 @@ export const currentScheme = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options?
  *
  * @returns         Current host. By default, with possible port number.
  */
-export const currentHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options?: CurrentHostOptions): string => {
+export const currentHost = $fnꓺmemo({ deep: true, maxSize: 2 }, (options?: CurrentHostOptions): string => {
     if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options || {}, { withPort: true }) as Required<CurrentHostOptions>;
     return opts.withPort ? location.host : location.hostname;
@@ -113,7 +113,7 @@ export const currentHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options?: 
  *
  * @returns         Current root host. By default, with possible port number.
  */
-export const currentRootHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (options?: CurrentRootHostOptions): string => {
+export const currentRootHost = $fnꓺmemo({ deep: true, maxSize: 2 }, (options?: CurrentRootHostOptions): string => {
     if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options || {}, { withPort: true }) as Required<CurrentRootHostOptions>;
     return rootHost(currentHost(), { withPort: opts.withPort });
@@ -124,7 +124,7 @@ export const currentRootHost = $fnꓺmemoize({ deep: true, maxSize: 2 }, (option
  *
  * @returns Current port.
  */
-export const currentPort = $fnꓺmemoize((): string => {
+export const currentPort = $fnꓺmemo((): string => {
     if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.port;
 });
@@ -287,7 +287,7 @@ export function removeCurrentBasePath(parseable: $type.URL | string): $type.URL 
  *
  * @throws  If `APP_BASE_URL` is missing.
  */
-export const appBase = $fnꓺmemoize((): string => {
+export const appBase = $fnꓺmemo((): string => {
     let appBaseURL: string; // Initialize.
 
     if (!(appBaseURL = $env.get('APP_BASE_URL', { type: 'string', default: '' }))) {
@@ -301,7 +301,7 @@ export const appBase = $fnꓺmemoize((): string => {
  *
  * @returns App’s base path.
  */
-export const appBasePath = $fnꓺmemoize((): string => {
+export const appBasePath = $fnꓺmemo((): string => {
     return parse(appBase()).pathname;
 });
 
@@ -312,7 +312,7 @@ export const appBasePath = $fnꓺmemoize((): string => {
  *
  * @returns           A full URL from app’s base.
  */
-export const fromAppBase = $fnꓺmemoize(24, (parseable: $type.URL | string): string => {
+export const fromAppBase = $fnꓺmemo(24, (parseable: $type.URL | string): string => {
     return parse(parseable, appBase()).toString();
 });
 
@@ -323,7 +323,7 @@ export const fromAppBase = $fnꓺmemoize(24, (parseable: $type.URL | string): st
  *
  * @returns           `/base/path?query#hash` from app’s base.
  */
-export const pathFromAppBase = $fnꓺmemoize(24, (parseable: $type.URL | string): string => {
+export const pathFromAppBase = $fnꓺmemo(24, (parseable: $type.URL | string): string => {
     return toPathQueryHash(fromAppBase(parseable));
 });
 
@@ -344,7 +344,7 @@ function _addAppBasePath(parseable: string): string;
 function _addAppBasePath(parseable: $type.URL | string): $type.URL | string {
     return addBasePath(parseable, appBase());
 }
-export const addAppBasePath = $fnꓺmemoize(24, _addAppBasePath);
+export const addAppBasePath = $fnꓺmemo(24, _addAppBasePath);
 
 /**
  * Removes app’s base path.
@@ -363,7 +363,7 @@ function _removeAppBasePath(parseable: string): string;
 function _removeAppBasePath(parseable: $type.URL | string): $type.URL | string {
     return removeBasePath(parseable, appBase());
 }
-export const removeAppBasePath = $fnꓺmemoize(24, _removeAppBasePath);
+export const removeAppBasePath = $fnꓺmemo(24, _removeAppBasePath);
 
 /* ---
  * General base utilities.
@@ -457,7 +457,7 @@ export function removeBasePath(parseable: $type.URL | string, base: $type.URL | 
  * @note Protocol-relative URLs are also considered absolute.
  * @note Passing a full URL is allowed, but obviously it is absolute.
  */
-export const isAbsolute = $fnꓺmemoize(12, (parseable: $type.URL | string): boolean => {
+export const isAbsolute = $fnꓺmemo(12, (parseable: $type.URL | string): boolean => {
     return /^(?:[^:/?#\s]+:)?\/\//u.test(parseable.toString());
 });
 
@@ -471,7 +471,7 @@ export const isAbsolute = $fnꓺmemoize(12, (parseable: $type.URL | string): boo
  * @note Protocol-relative URLs are also considered absolute.
  * @note Passing a full URL is allowed, but obviously it’s not protocol-relative.
  */
-export const isProtoRelative = $fnꓺmemoize(12, (parseable: $type.URL | string): boolean => {
+export const isProtoRelative = $fnꓺmemo(12, (parseable: $type.URL | string): boolean => {
     return /^\/\//u.test(parseable.toString());
 });
 
@@ -484,7 +484,7 @@ export const isProtoRelative = $fnꓺmemoize(12, (parseable: $type.URL | string)
  *
  * @note Passing a full URL is allowed, but obviously it’s not root-relative.
  */
-export const isRootRelative = $fnꓺmemoize(12, (parseable: $type.URL | string): boolean => {
+export const isRootRelative = $fnꓺmemo(12, (parseable: $type.URL | string): boolean => {
     return /^\//u.test(parseable.toString()) && !isAbsolute(parseable);
 });
 
@@ -498,7 +498,7 @@ export const isRootRelative = $fnꓺmemoize(12, (parseable: $type.URL | string):
  * @note Passing a full URL is allowed, but obviously it’s not relative.
  * @note An empty string is also considered to be relative; same as {@see URL}.
  */
-export const isRelative = $fnꓺmemoize(12, (parseable: $type.URL | string): boolean => {
+export const isRelative = $fnꓺmemo(12, (parseable: $type.URL | string): boolean => {
     return '.' === parseable.toString()[0] || (!isAbsolute(parseable) && !isRootRelative(parseable));
 });
 
@@ -514,7 +514,7 @@ export const isRelative = $fnꓺmemoize(12, (parseable: $type.URL | string): boo
  *
  * @returns         Root hostname. By default, with possible port number.
  */
-export const rootHost = $fnꓺmemoize({ deep: true, maxSize: 12 }, (host?: $type.URL | string, options?: RootHostOptions): string => {
+export const rootHost = $fnꓺmemo({ deep: true, maxSize: 12 }, (host?: $type.URL | string, options?: RootHostOptions): string => {
     const opts = $obj.defaults({}, options || {}, { withPort: true }) as Required<RootHostOptions>;
 
     if (undefined === host) {

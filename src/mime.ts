@@ -5,7 +5,7 @@
 import './resources/init.ts';
 
 import { $path } from './index.ts';
-import { $fnꓺmemoize } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 // Frequently used strings.
 const vsCodeLangBinary = 'code-text-binary';
@@ -117,7 +117,7 @@ export const contentTypeCharset = (contentType: string): string => {
  *       If there are variants, please list them explicitly. For anything dynamic-ish,
  *       exceptions will have to be made in your implementation — not here.
  */
-export const types = $fnꓺmemoize((): Types => {
+export const types = $fnꓺmemo((): Types => {
     return {
         // Documents.
 
@@ -466,7 +466,7 @@ export const types = $fnꓺmemoize((): Types => {
  *
  * @returns An array of file extensions.
  */
-export const exts = $fnꓺmemoize((): string[] => {
+export const exts = $fnꓺmemo((): string[] => {
     let flat: string[] = []; // Initialize.
 
     for (const [, group] of Object.entries(types())) {
@@ -480,11 +480,11 @@ export const exts = $fnꓺmemoize((): string[] => {
 /**
  * Extensions piped for use in RegExp.
  */
-export const extsPipedForRegExp = $fnꓺmemoize((): string => exts().join('|'));
+export const extsPipedForRegExp = $fnꓺmemo((): string => exts().join('|'));
 
 /**
  * Extensions prepared as a RegExp.
  *
  * @note Matches unnamed dots also; e.g., `.[ext]`.
  */
-export const extsRegExp = $fnꓺmemoize((): RegExp => new RegExp('(?:^|[^.])\\.(' + extsPipedForRegExp() + ')$', 'iu'));
+export const extsRegExp = $fnꓺmemo((): RegExp => new RegExp('(?:^|[^.])\\.(' + extsPipedForRegExp() + ')$', 'iu'));

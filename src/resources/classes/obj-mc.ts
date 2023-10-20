@@ -482,9 +482,9 @@ export const getClass = (): Constructor => {
             // Only create a deep clone when merging|patching clones, or when doing an immutable update.
             // Otherwise, lossless; i.e., simply transfer any unsupported object types.
 
-            if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind) && $is.deepEqual(a, b)) {
+            if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind) && (undefined === b || $is.deepEqual(a, b))) {
                 circular.get(a)?.set(b, a);
-                return a; // Returns `a` when there are no differences.
+                return a; // Returns `a` when there is no `b`, or when there are no differences.
                 //
             } else if ([this.kinds.MERGE_CLONES_DEEP, this.kinds.PATCH_CLONES_DEEP, this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind)) {
                 const bElseAClone = $obj.cloneDeep(bElseA);

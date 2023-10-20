@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { $fn } from '../../index.ts';
 
 describe('$fn', async () => {
@@ -38,5 +38,31 @@ describe('$fn', async () => {
     test('.debounce()', async () => {
         const testFn = (a: string, b: string, c: string) => ({ a, b, c });
         await expect($fn.debounce(testFn)('a', 'b', 'c')).resolves.toStrictEqual({ a: 'a', b: 'b', c: 'c' });
+    });
+    test('.memo()', async () => {
+        const fn1Mock = vi.fn((): boolean => true);
+        const fn1 = $fn.memo({ maxSize: 1 }, fn1Mock);
+
+        expect(fn1()).toBe(true);
+        expect(fn1()).toBe(true);
+        expect(fn1Mock).toHaveBeenCalledTimes(1);
+
+        const fn2Mock = vi.fn((rtn: boolean): boolean => rtn);
+        const fn2 = $fn.memo({ maxSize: 2 }, fn2Mock);
+
+        expect(fn2(true)).toBe(true);
+        expect(fn2(false)).toBe(false);
+        expect(fn2(true)).toBe(true);
+        expect(fn2(false)).toBe(false);
+        expect(fn2Mock).toHaveBeenCalledTimes(2);
+
+        const fn3Mock = vi.fn((rtn: { value: [boolean] }): boolean => rtn.value[0]);
+        const fn3 = $fn.memo({ maxSize: 2, deep: true }, fn3Mock);
+
+        expect(fn3({ value: [true] })).toBe(true);
+        expect(fn3({ value: [false] })).toBe(false);
+        expect(fn3({ value: [true] })).toBe(true);
+        expect(fn3({ value: [false] })).toBe(false);
+        expect(fn3Mock).toHaveBeenCalledTimes(2);
     });
 });

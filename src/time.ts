@@ -6,7 +6,7 @@ import './resources/init.ts';
 
 import { DateTime as Time } from 'luxon';
 import { $app, $is, $obj, $symbol, type $type } from './index.ts';
-import { $fnꓺmemoize } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 let prototypeInitialized: boolean = false; // Initialized once only.
 
@@ -128,7 +128,7 @@ export const milliStamp = (from: From = 'now'): number => {
  *
  * @note {@see i18n()} `format` option.
  */
-export const i18nFormats = $fnꓺmemoize((): Readonly<I18nFormats> => {
+export const i18nFormats = $fnꓺmemo((): Readonly<I18nFormats> => {
     const formats = {} as I18nFormats;
 
     formats.date = {

@@ -3,7 +3,7 @@
  */
 
 import { beforeEach, describe, expect, test } from 'vitest';
-import { $app, $brand, $is, $obj, $symbol, $time } from '../../index.ts';
+import { $app, $brand, $class, $is, $obj, $symbol, $time } from '../../index.ts';
 
 describe('$obj', async () => {
     class Custom {
@@ -1244,6 +1244,16 @@ describe('$obj', async () => {
         expect(result20).not.toBe(abcObj20);
         expect(abcMap20).toStrictEqual(new Map(Object.entries({ a: 'a', b: 'b', c: 'c' })));
         expect(abcObj20).toStrictEqual(new Map(Object.entries({ a: 'a', b: 'b', c: 'c' })));
+
+        const abcObj21 = { a: 'a', b: 'b', c: () => true };
+        expect($obj.updateDeep(abcObj21, { a: 'a', b: 'b' })).toBe(abcObj21);
+        expect($is.deepEqual(abcObj21, $obj.updateDeep(abcObj21, { a: 'a', b: 'b' }))).toBe(true);
+
+        const FetcherClassForAbcObj22 = $class.getFetcher();
+        const fetcherForAbcObj22 = new FetcherClassForAbcObj22();
+        const abcObj22 = { a: 'a', b: 'b', c: fetcherForAbcObj22 };
+        expect($obj.updateDeep(abcObj22, { a: 'a', b: 'b' })).toBe(abcObj22);
+        expect($is.deepEqual(abcObj22, $obj.updateDeep(abcObj22, { a: 'a', b: 'b' }))).toBe(true);
     });
     test('.updateClonesDeep()', async () => {
         expect($obj.updateClonesDeep(null, { a: 'a' }, { b: 'b' }, { c: 'c' })).toStrictEqual({ a: 'a', b: 'b', c: 'c' });

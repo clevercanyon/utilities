@@ -156,10 +156,8 @@ const initialState = (props: Props): State => {
  *       In particular, `<Head>` does a state update to initialize itself, and we definitely don’t want to re-render.
  */
 export default class Data extends Component<Props, State> {
-    state: State; // State type.
-
-    constructor(props: Props = {}, context: unknown = {}) {
-        super(props, context);
+    constructor(props: Props = {}) {
+        super(props);
         this.state = initialState(props);
     }
 
@@ -173,13 +171,11 @@ export default class Data extends Component<Props, State> {
         });
     }
 
-    shouldComponentUpdate(nextProps: Props, nextState: State, nextContext: unknown): boolean {
+    shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
         const sameProps = nextProps === this.props;
-        const sameContext = nextContext === this.context;
         const sameState = nextState === this.state;
 
         if (!sameProps) return true; // Must re-render.
-        if (!sameContext) return true; // Must re-render.
         if (sameState) return false; // No reason to re-render.
 
         if (nextState.head.initialized && !this.state.head.initialized) {
@@ -187,7 +183,7 @@ export default class Data extends Component<Props, State> {
             const { head: unusedꓺcurrentHead, ...currentStateWithoutHead } = this.state;
 
             if ($is.deepEqual(nextStateWithoutHead, currentStateWithoutHead)) {
-                return false; // No reason to re-render. Only `<Head>` is updating.
+                return false; // No reason to re-render. `<Head>` is simply initializing.
             }
         }
         return true; // Otherwise.
