@@ -82,6 +82,8 @@ const initialState = (dataHeadState: PartialState, props: Props = {}): State => 
  *       across all contexts; i.e., at any nested level of the DOM.
  */
 export default function Head(props: Props = {}): $preact.VNode<Props> {
+    const isWeb = $env.isWeb(); // Used several times below.
+
     const brand = $env.get('APP_BRAND') as $type.Brand;
     if (!brand) throw new Error('Missing brand.');
 
@@ -139,6 +141,8 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
             mainScriptBundle: actualState.mainScriptBundle || defaultMainScriptBundle,
         };
     }, [locState, actualState]);
+
+    $preact.useLayoutEffect(onLayoutEffect);
 
     return (
         <head
@@ -203,13 +207,13 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                     <meta property='og:image' content={state.ogImage.toString()} />
                 </>
             )}
-            {state.mainStyleBundle && <link rel='stylesheet' href={state.mainStyleBundle.toString()} media='all' />}
-            {state.mainScriptBundle && (!$env.isWeb() || $env.isTest()) && <script id='preact-iso-data' dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
+            {state.mainStyleBundle && <link rel='stylesheet' href={state.mainStyleBundle.toString()} media='all' onLoad={() => onLoadMainStyleBundle()} />}
+            {state.mainScriptBundle && (!isWeb || $env.isTest()) && <script id='preact-iso-data' dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
             {state.mainScriptBundle && <script type='module' src={state.mainScriptBundle.toString()}></script>}
 
             {props.children}
 
-            <StructuredDataꓺHelper {...{ brand, state }} />
+            <StructuredData {...{ brand, state }} />
         </head>
     );
 }
@@ -224,7 +228,7 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
  * @see https://schema.org/ -- for details regarding graph entries.
  * @see https://o5p.me/bgYQaB -- for details from Google regarding what they need, and why.
  */
-const StructuredDataꓺHelper = (props: StructuredDataꓺHelperProps): $preact.VNode<StructuredDataꓺHelperProps> => {
+const StructuredData = (props: StructuredDataꓺHelperProps): $preact.VNode<StructuredDataꓺHelperProps> => {
     const { state: htmlState } = $preact.useHTML();
     if (!htmlState) throw new Error('Missing HTML state.');
 
@@ -390,4 +394,42 @@ export const useHead = (): ContextProps => {
             updateDataState({ head: $obj.omit(updates, ['initialized']) });
         },
     };
+};
+
+/* ---
+ * Misc utilities.
+ */
+
+/**
+ * Handles layout effect.
+ */
+const onLayoutEffect = (): void => {
+    if (!$env.isWeb()) return;
+    const bodyStyle = getBodyStyle();
+
+    bodyStyle.transitionProperty = 'opacity';
+    bodyStyle.transitionDuration = '100ms';
+    bodyStyle.visibility = 'hidden';
+    bodyStyle.opacity = '0';
+};
+
+/**
+ * Handles onLoad event for main style bundle.
+ */
+const onLoadMainStyleBundle = (): void => {
+    if (!$env.isWeb()) return;
+    const bodyStyle = getBodyStyle();
+
+    bodyStyle.visibility = 'visible';
+    bodyStyle.opacity = '1';
+};
+
+/**
+ * Gets body style.
+ *
+ * @returns {@see HTMLBodyElement['style']} Object.
+ */
+const getBodyStyle = (): HTMLBodyElement['style'] & $type.Object => {
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
+    return (document.querySelector('body') as HTMLBodyElement).style as ReturnType<typeof getBodyStyle>;
 };
