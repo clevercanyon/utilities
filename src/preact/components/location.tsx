@@ -192,17 +192,16 @@ const initialState = (props: Props): ActualState => {
  */
 const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[0]): ActualState => {
     let url, isPush, isClick; // Initialize.
-    const xIsObject = $is.object(x);
+    const isObject = $is.object(x);
+    const isWeb = $env.isWeb();
     // ---
     // Case handlers for various types of state updates.
 
-    if (xIsObject && 'click' === (x as MouseEvent).type) {
+    if (isObject && 'click' === (x as MouseEvent).type) {
         const event = x as MouseEvent;
         isClick = isPush = true; // Click event is a push.
+        if (!isWeb) return state; // Not possible.
 
-        if (!$env.isWeb()) {
-            return state; // Not possible.
-        }
         if ($is.number(event.button) && 0 !== event.button) {
             // {@see https://o5p.me/OJrHBs} for details.
             return state; // Not a left-click; let browser handle.
@@ -225,16 +224,14 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
         }
         url = $url.parse(a.href, state.baseURL);
         //
-    } else if (xIsObject && 'popstate' === (x as PopStateEvent).type) {
+    } else if (isObject && 'popstate' === (x as PopStateEvent).type) {
         const unusedꓺevent = x as PopStateEvent;
         // Popstate history event is a change, not a push.
+        if (!isWeb) return state; // Not applicable.
 
-        if (!$env.isWeb()) {
-            return state; // Not applicable.
-        }
         url = $url.parse(location.href, state.baseURL);
         //
-    } else if (xIsObject) {
+    } else if (isObject) {
         isPush = true; // Object passed in is a push.
 
         if (!x.pathQuery || 'string' !== typeof x.pathQuery) {
@@ -242,7 +239,7 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
         }
         url = $url.parse($str.lTrim(x.pathQuery, '/'), state.baseURL);
         //
-    } else if (!xIsObject && $is.string(x)) {
+    } else if (!isObject && $is.string(x)) {
         isPush = true; // String passed in is a push.
 
         const pathQuery = x; // As `pathQuery`.
@@ -278,15 +275,15 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
     // Further validates a potential state update.
 
     if (state.pathQuery === pathQuery) {
+        if (isWeb && isClick) (x as MouseEvent).preventDefault();
         return state; // No point; we’re already at this location.
         // This also ignores on-page hash changes. We let browser handle.
-        // If `pathQuery` *and* hash change, our router handles hash changes.
     }
 
     // ---
     // Updates history state.
 
-    if ($env.isWeb() /* Only possible in a browser. */) {
+    if (isWeb /* Only possible in a browser. */) {
         if (isClick) (x as MouseEvent).preventDefault();
 
         if (true === isPush) {
