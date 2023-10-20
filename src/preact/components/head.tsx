@@ -408,17 +408,17 @@ const onLayoutEffect = (locState: LocationState): void => {
     if (!locState.wasPush || !$env.isWeb()) return;
 
     const html = $dom.require('html');
-    const htmlStyle = html.style;
+    const htmlStyles = $dom.stylesOf(html);
+    const htmlInlineStyles = html.style;
 
     const body = $dom.require('body');
-    const bodyStyles = $dom.stylesOf(body);
-    const bodyStyle = body.style;
+    const bodyInlineStyles = body.style;
 
-    htmlStyle.backgroundColor = bodyStyles.backgroundColor;
-    bodyStyle.transitionProperty = 'opacity';
-    bodyStyle.transitionDuration = '100ms';
-    bodyStyle.visibility = 'hidden';
-    bodyStyle.opacity = '0';
+    htmlInlineStyles.backgroundColor = htmlStyles.backgroundColor;
+    bodyInlineStyles.transitionProperty = 'opacity';
+    bodyInlineStyles.transitionDuration = '100ms';
+    bodyInlineStyles.visibility = 'hidden';
+    bodyInlineStyles.opacity = '0';
 };
 
 /**
@@ -430,8 +430,8 @@ const onLoadMainStyleBundle = (locState: LocationState): void => {
     if (!locState.wasPush || !$env.isWeb()) return;
 
     const body = $dom.require('body');
-    const bodyStyle = body.style;
+    const bodyInlineStyles = body.style;
 
-    bodyStyle.visibility = 'visible';
-    bodyStyle.opacity = '1';
+    bodyInlineStyles.visibility = 'visible';
+    bodyInlineStyles.opacity = '1';
 };
