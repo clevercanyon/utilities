@@ -275,7 +275,10 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
     // Further validates a potential state update.
 
     if (state.pathQuery === pathQuery) {
-        if (isWeb && isClick) (x as MouseEvent).preventDefault();
+        if (isWeb && isClick && !url.hash) {
+            (x as MouseEvent).preventDefault();
+            scrollTo(0, 0); // To top of page.
+        }
         return state; // No point; we’re already at this location.
         // This also ignores on-page hash changes. We let browser handle.
     }
