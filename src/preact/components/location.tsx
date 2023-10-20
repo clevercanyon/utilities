@@ -152,10 +152,8 @@ const initialState = (props: Props): ActualState => {
         baseURL = $url.parse(baseURL);
     } else if (baseURL && $is.string(baseURL)) {
         baseURL = $url.parse(baseURL);
-    } else if ($env.isWeb()) {
-        baseURL = $url.parse($url.currentBase());
     } else {
-        throw new Error('Missing `baseURL`.');
+        baseURL = $url.parse($url.appBase());
     }
     // We intentionally do not trim a trailing slash from the base URL.
     // The trailing slash is important to `URL()` when forming paths from base.
