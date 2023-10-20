@@ -4,8 +4,9 @@
 
 import '../../resources/init.ts';
 
-import { $env, $is, $json, $obj, $preact, type $type } from '../../index.ts';
+import { $dom, $env, $is, $json, $obj, $preact, type $type } from '../../index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode } from './data.tsx';
+import { type State as LocationState } from './location.tsx';
 
 /**
  * Defines types.
@@ -82,8 +83,6 @@ const initialState = (dataHeadState: PartialState, props: Props = {}): State => 
  *       across all contexts; i.e., at any nested level of the DOM.
  */
 export default function Head(props: Props = {}): $preact.VNode<Props> {
-    const isWeb = $env.isWeb(); // Used several times below.
-
     const brand = $env.get('APP_BRAND') as $type.Brand;
     if (!brand) throw new Error('Missing brand.');
 
@@ -142,7 +141,7 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
         };
     }, [locState, actualState]);
 
-    $preact.useLayoutEffect(onLayoutEffect);
+    $preact.useLayoutEffect(() => onLayoutEffect(locState));
 
     return (
         <head
@@ -207,8 +206,8 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                     <meta property='og:image' content={state.ogImage.toString()} />
                 </>
             )}
-            {state.mainStyleBundle && <link rel='stylesheet' href={state.mainStyleBundle.toString()} media='all' onLoad={() => onLoadMainStyleBundle()} />}
-            {state.mainScriptBundle && (!isWeb || $env.isTest()) && <script id='preact-iso-data' dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
+            {state.mainStyleBundle && <link rel='stylesheet' href={state.mainStyleBundle.toString()} media='all' onLoad={() => onLoadMainStyleBundle(locState)} />}
+            {state.mainScriptBundle && (!$env.isWeb() || $env.isTest()) && <script id='preact-iso-data' dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
             {state.mainScriptBundle && <script type='module' src={state.mainScriptBundle.toString()}></script>}
 
             {props.children}
@@ -402,11 +401,20 @@ export const useHead = (): ContextProps => {
 
 /**
  * Handles layout effect.
+ *
+ * @param locState Location state.
  */
-const onLayoutEffect = (): void => {
-    if (!$env.isWeb()) return;
-    const bodyStyle = getBodyStyle();
+const onLayoutEffect = (locState: LocationState): void => {
+    if (!locState.wasPush || !$env.isWeb()) return;
 
+    const html = $dom.require('html');
+    const htmlStyle = html.style;
+
+    const body = $dom.require('body');
+    const bodyStyles = $dom.stylesOf(body);
+    const bodyStyle = body.style;
+
+    htmlStyle.backgroundColor = bodyStyles.backgroundColor;
     bodyStyle.transitionProperty = 'opacity';
     bodyStyle.transitionDuration = '100ms';
     bodyStyle.visibility = 'hidden';
@@ -415,21 +423,15 @@ const onLayoutEffect = (): void => {
 
 /**
  * Handles onLoad event for main style bundle.
+ *
+ * @param locState Location state.
  */
-const onLoadMainStyleBundle = (): void => {
-    if (!$env.isWeb()) return;
-    const bodyStyle = getBodyStyle();
+const onLoadMainStyleBundle = (locState: LocationState): void => {
+    if (!locState.wasPush || !$env.isWeb()) return;
+
+    const body = $dom.require('body');
+    const bodyStyle = body.style;
 
     bodyStyle.visibility = 'visible';
     bodyStyle.opacity = '1';
-};
-
-/**
- * Gets body style.
- *
- * @returns {@see HTMLBodyElement['style']} Object.
- */
-const getBodyStyle = (): HTMLBodyElement['style'] & $type.Object => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
-    return (document.querySelector('body') as HTMLBodyElement).style as ReturnType<typeof getBodyStyle>;
 };

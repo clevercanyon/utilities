@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.360",
+    "version": "1.0.361",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -55,6 +55,11 @@
             "types": "./dist/types/crypto.d.ts",
             "import": "./dist/crypto.js",
             "default": "./dist/crypto.js"
+        },
+        "./dom": {
+            "types": "./dist/types/dom.d.ts",
+            "import": "./dist/dom.js",
+            "default": "./dist/dom.js"
         },
         "./env": {
             "types": "./dist/types/env.d.ts",

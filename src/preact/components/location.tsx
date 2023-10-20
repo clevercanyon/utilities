@@ -174,7 +174,7 @@ const initialState = (props: Props): ActualState => {
         throw new Error('URL `origin` mismatch.');
     }
     return {
-        wasPush: true,
+        wasPush: false,
         baseURL, // Does not change.
         pathQuery: $url.removeBasePath($url.toPathQuery(url), baseURL),
     };
