@@ -46,6 +46,27 @@ export {
 } from 'preact/hooks';
 
 /**
+ * Exports Preact signals.
+ */
+export {
+    Signal,
+    signal,
+    computed,
+    effect,
+    batch,
+    untracked, //
+} from '@preact/signals';
+
+/**
+ * Exports Preact signal hooks.
+ */
+export {
+    useSignal,
+    useComputed,
+    useSignalEffect, //
+} from '@preact/signals';
+
+/**
  * Exports our Preact APIs.
  */
 export * as iso from './resources/preact/apis/iso.tsx';
@@ -216,6 +237,7 @@ const classesꓺhelper = (allArgs: Classes[], map: Map<string, true> = new Map()
                     if (Object.hasOwn(arg, prop)) classesꓺhelper([arg[prop]], map);
                 }
             } else if ($is.object(arg) && Object.hasOwn(arg, 'value')) {
+                // Note: accessing `.value` subscribes us to the signal-like value.
                 classesꓺhelper([(arg as preact.JSX.SignalLike<string | undefined>).value], map);
             }
         }
