@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $env, $preact, $str, $url, type $type } from '../../index.ts';
+import { $dom, $env, $preact, $str, $url, type $type } from '../../index.ts';
 import { LazyErrorBoundary, type LazyErrorBoundaryProps } from '../../resources/preact/apis/iso/lazy.tsx';
 
 /**
@@ -254,12 +254,12 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             prevLocationPathQuery.current !== locState.pathQuery //
         ) {
             if (locState.wasPushed && $env.isWeb() /* Handles scroll location. */) {
-                const currentHash = $url.currentHash(); // e.g., `element-id`.
-                const currentHashElementById = currentHash ? document.getElementById(currentHash) : null;
+                const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
+                const currentHashElement = currentHash ? $dom.query('#' + currentHash) : undefined;
 
-                if (currentHashElementById) {
-                    currentHashElementById.scrollIntoView();
-                } else scrollTo(0, 0); // To top of page.
+                if (currentHashElement) {
+                    currentHashElement.scrollIntoView({ behavior: 'auto' });
+                } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
             }
             if (props.onLoadEnd && currentRouteIsLoading.current) props.onLoadEnd();
             if (props.onRouteChange) props.onRouteChange();
