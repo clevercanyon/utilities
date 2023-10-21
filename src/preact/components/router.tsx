@@ -30,11 +30,13 @@ export type RouteProps = Omit<
     $preact.ClassPropVariants
 >;
 export type RouteContextProps = $preact.Context<{
-    // Relative `./` to base.
+    // These are relative `./` to base.
+    // And, these are relative `./` to parent route.
     path: string;
     pathQuery: string;
 
-    // Relative `./` to base.
+    // These are relative `./` to base.
+    // And, these are relative `./` to parent route.
     restPath: string;
     restPathQuery: string;
 
@@ -166,10 +168,12 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         // i,e., In current context of potentially nested routers.
         let routeContext = {
             // These are `./` relative to base.
+            // And, these are relative `./` to parent route.
             path: context.restPath || locState.path,
             pathQuery: context.restPathQuery || locState.pathQuery,
 
             // These are `./` relative to base.
+            // And, these are relative `./` to parent route.
             restPath: '', // Potentially populated by `pathMatchesRoutePattern()`.
             restPathQuery: '', // Potentially populated by `pathMatchesRoutePattern()`.
 
@@ -184,7 +188,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         ($preact.toChildArray(props.children) as $preact.VNode<RouteProps>[]).some((childVNode): boolean => {
             let matchingRouteContext: RouteContextProps | undefined;
 
-            if ((matchingRouteContext = pathMatchesRoutePattern(context.restPath || locState.path, childVNode.props.path || '', routeContext))) {
+            if ((matchingRouteContext = pathMatchesRoutePattern(routeContext.path, childVNode.props.path || '', routeContext))) {
                 return Boolean((matchingChildVNode = $preact.cloneElement(childVNode, (routeContext = matchingRouteContext))));
             }
             if (!defaultChildVNode && childVNode.props.default) {
@@ -313,7 +317,7 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
 
         if (routePatternPartValueIsParam) {
             if (!routePatternPartValue) {
-                return; // Invalid pattern, missing param name.
+                return; // Pattern is missing param name.
             }
             if (!pathPart && !['?', '*'].includes(routePatternPartFlag)) {
                 return; // Missing a required path part parameter.
@@ -321,7 +325,7 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
             if (['+', '*'].includes(routePatternPartFlag) /* Greedy. */) {
                 // Path parameter keys/values. Greedy, in this particular case.
                 newRouteContext.params[routePatternPartValue] = pathParts.slice(i).map(decodeURIComponent).join('/');
-                break; // We can stop here on greedy params; i.e., we’ve got everything in this param now.
+                break; // We can stop here on greedy params; i.e., we’ve got everything in this param.
             } else if (pathPart) {
                 // Path parameter keys/values. A single part in this case.
                 newRouteContext.params[routePatternPartValue] = decodeURIComponent(pathPart);
@@ -329,13 +333,14 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
         } else {
             if (pathPart === routePatternPartValue) continue;
 
-            if (pathPart && '*' === routePatternPartFlag) {
+            if ('*' === routePatternPartFlag) {
                 // These are `./` relative to base.
+                // And, these are relative `./` to parent route.
                 newRouteContext.restPath = './' + pathParts.slice(i).join('/');
                 newRouteContext.restPathQuery = newRouteContext.restPath + newRouteContext.query;
                 break; // We can stop here; i.e., the rest can be parsed by nested routes.
             }
-            return; // Part is missing, or not an exact match, and not a wildcard `*` match either.
+            return; // Part is not an exact match, and not a wildcard `*` match either.
         }
     }
     return newRouteContext;
