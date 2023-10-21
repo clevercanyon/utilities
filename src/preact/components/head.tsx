@@ -410,7 +410,7 @@ export const useHead = (): ContextProps => {
 const onLayoutEffect = (state: State, locState: LocationState): void => {
     if (!$env.isWeb()) return;
 
-    $dom.onReady(() => {
+    $dom.onNextFrame(() => {
         const html = $dom.require('html');
         const htmlInlineStyles = html.style;
 
@@ -422,7 +422,7 @@ const onLayoutEffect = (state: State, locState: LocationState): void => {
         if (!locState.isInitial && !bodyInlineStyles.opacity) {
             bodyInlineStyles.transitionProperty = 'opacity';
             bodyInlineStyles.transitionDuration = '250ms';
-            bodyInlineStyles.visibility = 'hidden';
+            bodyInlineStyles.display = 'none';
             bodyInlineStyles.opacity = '0';
         }
     });
@@ -431,20 +431,24 @@ const onLayoutEffect = (state: State, locState: LocationState): void => {
 /**
  * Handles onLoad event for main style bundle.
  *
- * @param locState Current `<Location>` state.
+ * @param locState        Current `<Location>` state.
+ * @param updateDataState `<Data>` state updater.
  */
 const onLoadMainStyleBundle = (locState: LocationState, updateDataState: DataContextProps['updateState']): void => {
     if (!$env.isWeb()) return;
 
     $dom.onReady(() => {
-        updateDataState({ head: { htmlBGColor: $dom.stylesOf('html').backgroundColor } });
-
+        if (locState.isInitial) {
+            updateDataState({ head: { htmlBGColor: $dom.stylesOf('html').backgroundColor } });
+        }
         if (!locState.isInitial) {
-            const body = $dom.require('body');
-            const bodyInlineStyles = body.style;
+            $dom.onNextFrame(() => {
+                const body = $dom.require('body');
+                const bodyInlineStyles = body.style;
 
-            bodyInlineStyles.visibility = 'visible';
-            bodyInlineStyles.opacity = '1';
+                bodyInlineStyles.display = 'block';
+                bodyInlineStyles.opacity = '1';
+            });
         }
     });
 };

@@ -37,6 +37,38 @@ export const onLoad = (callback: () => void): void => {
 };
 
 /**
+ * Fires a callback on the next frame.
+ *
+ * @param callback Callback.
+ */
+export const onNextFrame = (callback: () => void): void => {
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
+    requestAnimationFrame(callback);
+};
+
+/**
+ * Fires a callback after the next frame.
+ *
+ * Callback is invoked after the browser has a painted a new frame. We accomplish this by combining use of the very
+ * popular {@see requestAnimationFrame} (RAF) with {@see setTimeout()} (timeout) to invoke a callback after the next
+ * frame. Additionally, we schedule a timeout in parallel to rAF to ensure the callback is invoked even if RAF doesn't
+ * fire; e.g., if the browser tab is not visible.
+ *
+ * @param callback Callback.
+ */
+export const afterNextFrame = (callback: () => void): void => {
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
+
+    const done = () => {
+        clearTimeout(timeout);
+        cancelAnimationFrame(raf);
+        setTimeout(callback);
+    };
+    const timeout = setTimeout(done, 100);
+    const raf = requestAnimationFrame(done);
+};
+
+/**
  * Fires a callback on a named event.
  *
  * @param eventName Event name. Required always.
