@@ -86,6 +86,10 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
     if (!requestHasSupportedMethod(request)) {
         throw prepareResponse(request, { status: 405 });
     }
+    if (requestPathHasInvalidTrailingSlash(request, url)) {
+        url.pathname = $str.rTrim(url.pathname, '/'); // Remove.
+        throw prepareResponse(request, { status: 301, headers: { location: url.toString() } });
+    }
     if (cfg.enableRewrites && !request.headers.has('x-rewrite-url') /* e.g., Cloudflare workers using cache API. */) {
         const originalURL = url; // For comparison w/ headers added below.
 
@@ -380,6 +384,26 @@ export const requestPathIsInvalid = $fnꓺmemo(2, (request: $type.Request, url?:
         return false; // Not possible, or early return on `/`.
     }
     return /\\|\/{2,}|\.{2,}/iu.test(url.pathname);
+});
+
+/**
+ * Request path has an invalid trailing slash?
+ *
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path has an invalid trailing slash.
+ */
+export const requestPathHasInvalidTrailingSlash = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
+    if (!$env.isC10n()) {
+        return false; // Not applicable.
+    }
+    url = url || $url.parse(request.url);
+
+    if (!url.pathname || '/' === url.pathname) {
+        return false; // Not possible, or early return on `/`.
+    }
+    return url.pathname.endsWith('/');
 });
 
 /**
