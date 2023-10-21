@@ -294,6 +294,7 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
         return; // Not possible.
     }
     // These are `./` relative to base.
+    // And, these are relative `./` to parent route.
     const pathParts = $str.lTrim(path, './').split('/').filter(Boolean);
     const routePatternParts = $str.lTrim(routePattern, './').split('/').filter(Boolean);
 
@@ -331,15 +332,15 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
                 newRouteContext.params[routePatternPartValue] = decodeURIComponent(pathPart);
             }
         } else {
-            if (pathPart === routePatternPartValue) continue;
-
-            if ('*' === routePatternPartFlag) {
+            if (!routePatternPartValue && '*' === routePatternPartFlag) {
                 // These are `./` relative to base.
                 // And, these are relative `./` to parent route.
                 newRouteContext.restPath = './' + pathParts.slice(i).join('/');
                 newRouteContext.restPathQuery = newRouteContext.restPath + newRouteContext.query;
                 break; // We can stop here; i.e., the rest can be parsed by nested routes.
             }
+            if (pathPart === routePatternPartValue) continue;
+
             return; // Part is not an exact match, and not a wildcard `*` match either.
         }
     }

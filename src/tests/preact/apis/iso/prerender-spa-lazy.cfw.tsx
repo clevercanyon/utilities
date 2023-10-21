@@ -101,8 +101,8 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
         expect(lazyHTML).toContain('<script type="module" src="./script.js"></script>');
         expect(lazyHTML).toContain('"path":"./lazy"');
         expect(lazyHTML).toContain('"pathQuery":"./lazy?a=_a&b=_b&c=_c"');
-        expect(lazyHTML).toContain('"restPath":""');
-        expect(lazyHTML).toContain('"restPathQuery":""');
+        expect(lazyHTML).toContain('"restPath":"./"');
+        expect(lazyHTML).toContain('"restPathQuery":"./?a=_a&b=_b&c=_c"');
         expect(lazyHTML).toContain('"query":"?a=_a&b=_b&c=_c"');
         expect(lazyHTML).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
         expect(lazyHTML).toContain('"params":{}');

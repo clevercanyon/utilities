@@ -282,8 +282,8 @@ describe('$preact.iso.prerenderSPA()', async () => {
         expect(othersOtherB1HTML).toContain('<script type="module" src="./script.js"></script>');
         expect(othersOtherB1HTML).toContain('"path":"./other-b"');
         expect(othersOtherB1HTML).toContain('"pathQuery":"./other-b?a=_a&b=_b&c=_c"');
-        expect(othersOtherB1HTML).toContain('"restPath":""');
-        expect(othersOtherB1HTML).toContain('"restPathQuery":""');
+        expect(othersOtherB1HTML).toContain('"restPath":"./"');
+        expect(othersOtherB1HTML).toContain('"restPathQuery":"./?a=_a&b=_b&c=_c"');
         expect(othersOtherB1HTML).toContain('"query":"?a=_a&b=_b&c=_c"');
         expect(othersOtherB1HTML).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
         expect(othersOtherB1HTML).toContain('"params":{}');
