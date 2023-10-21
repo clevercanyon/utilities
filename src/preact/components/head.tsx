@@ -411,19 +411,15 @@ const onLayoutEffect = (state: State, locState: LocationState): void => {
     if (!$env.isWeb()) return;
 
     $dom.onNextFrame(() => {
-        const html = $dom.require('html');
-        const htmlInlineStyles = html.style;
-
-        const body = $dom.require('body');
-        const bodyInlineStyles = body.style;
-
-        htmlInlineStyles.backgroundColor = state.htmlBGColor || '';
-
-        if (!locState.isInitial && !bodyInlineStyles.opacity) {
-            bodyInlineStyles.transitionProperty = 'opacity';
-            bodyInlineStyles.transitionDuration = '250ms';
-            bodyInlineStyles.display = 'none';
-            bodyInlineStyles.opacity = '0';
+        let html, body; // Initialize.
+        if ((html = $dom.query('html') && (body = $dom.query('body')))) {
+            html.style.backgroundColor = state.htmlBGColor || '';
+            if (!locState.isInitial && !body.style.opacity) {
+                body.style.transitionProperty = 'opacity';
+                body.style.transitionDuration = '250ms';
+                body.style.display = 'none';
+                body.style.opacity = '0';
+            }
         }
     });
 };
@@ -439,15 +435,20 @@ const onLoadMainStyleBundle = (locState: LocationState, updateDataState: DataCon
 
     $dom.onReady(() => {
         if (locState.isInitial) {
-            updateDataState({ head: { htmlBGColor: $dom.stylesOf('html').backgroundColor } });
+            $dom.onNextFrame(() => {
+                let html; // Initialize.
+                if ((html = $dom.query('html'))) {
+                    updateDataState({ head: { htmlBGColor: $dom.stylesOf(html).backgroundColor } });
+                }
+            });
         }
         if (!locState.isInitial) {
             $dom.onNextFrame(() => {
-                const body = $dom.require('body');
-                const bodyInlineStyles = body.style;
-
-                bodyInlineStyles.display = 'block';
-                bodyInlineStyles.opacity = '1';
+                let body; // Initialize.
+                if ((body = $dom.require('body'))) {
+                    body.style.display = 'block';
+                    body.style.opacity = '1';
+                }
             });
         }
     });

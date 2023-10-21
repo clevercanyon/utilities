@@ -4,7 +4,7 @@
 
 import '../../resources/init.ts';
 
-import { createContext } from 'preact';
+import { Component, createContext } from 'preact';
 import { $app, $env, $is, $json, $obj, $obp, $preact, $str, type $type } from '../../index.ts';
 import { type PartialState as PartialHeadState } from './head.tsx';
 
@@ -146,47 +146,59 @@ const initialState = (props: Props): State => {
 };
 
 /**
- * Reduces state updates.
+ * Defines component.
  *
- * @param   state   Current state.
- * @param   updates State updates.
- *
- * @returns         New state, if changed; else old state.
- */
-const reduceState = (state: State, updates: PartialStateUpdates): State => {
-    return $obj.updateDeep(state, $obj.omit(updates, ['globalObp'])) as unknown as State;
-};
-
-/**
- * Renders component.
- *
- * @param   props Component props.
- *
- * @returns       VNode / JSX element tree.
- *
- * @note Using `shouldComponentUpdate()` to gain control over renders at this super high level of the DOM tree.
+ * @note Using `Component`, not `$preact.Component`, because this occurs inline. We can’t use our own cyclic
+ *       utilities inline, only inside functions. So we use `Component` directly from `preact` in this specific case.
+ * ---
+ * @note Using a class component to gain greater control over state updates at this super high level of the DOM tree.
  *       The goal is to avoid re-rendering when `<Data>` state changes, if possible, because it re-renders everything.
- *       In particular, `<Head>` does state updates to initialize itself, and we definitely don’t want to re-render.
+ *       In particular, `<Head>` does a state update to initialize itself, and we definitely don’t want to re-render.
  */
-export default function Data(this: $preact.Component<Props>, props: Props = {}): $preact.VNode<Props> {
-    const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(props));
+export default class Data extends Component<Props, State> {
+    constructor(props: Props = {}) {
+        super(props);
+        this.state = initialState(props);
+    }
 
-    this.shouldComponentUpdate = (nextProps: Props, nextState: State): boolean => {
-        const sameProps = nextProps === props;
-        const sameState = nextState === state;
+    updateState<Updates extends PartialStateUpdates>(updates: Updates): void {
+        updates = $obj.omit(updates, ['globalObp']) as Updates;
+
+        this.setState((): Updates | null => {
+            const newState = $obj.updateDeep(this.state, updates);
+            // Returning `null` tells Preact no; {@see https://o5p.me/9BaxT3}.
+            return newState !== this.state ? (newState as Updates) : null;
+        });
+    }
+
+    shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+        const sameProps = nextProps === this.props;
+        const sameState = nextState === this.state;
 
         if (!sameProps) return true; // Must re-render.
         if (sameState) return false; // No reason to re-render.
 
         const { head: unusedꓺnextHead, ...nextStateWithoutHead } = nextState;
-        const { head: unusedꓺcurrentHead, ...currentStateWithoutHead } = state;
+        const { head: unusedꓺcurrentHead, ...currentStateWithoutHead } = this.state;
 
         if ($is.deepEqual(nextStateWithoutHead, currentStateWithoutHead)) {
-            return false; // No reason to re-render. Only `<Head>` updating.
+            return false; // No reason to re-render. Only `<Head>` is updating.
         }
         return true; // Otherwise.
-    };
-    return <Context.Provider value={{ state, updateState }}>{props.children}</Context.Provider>;
+    }
+
+    render(): $preact.VNode<Props> {
+        return (
+            <Context.Provider
+                value={{
+                    state: this.state as unknown as ContextProps['state'],
+                    updateState: (u: Parameters<ContextProps['updateState']>[0]): ReturnType<ContextProps['updateState']> => this.updateState(u),
+                }}
+            >
+                {this.props.children}
+            </Context.Provider>
+        );
+    }
 }
 
 /**
