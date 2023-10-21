@@ -259,7 +259,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         ) {
             if (locState.wasPushed && $env.isWeb() /* Handles scroll location. */) {
                 const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
-                const currentHashElement = currentHash ? $dom.query('#' + currentHash) : undefined;
+                const currentHashElement = currentHash ? $dom.query('#' + currentHash) : null;
 
                 if (currentHashElement) {
                     currentHashElement.scrollIntoView({ behavior: 'auto' });

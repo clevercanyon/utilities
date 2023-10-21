@@ -2,7 +2,7 @@
  * Preact API.
  */
 
-import { $app, $class, $env, $is, $obj, $obp, $path, $preact, $str, $to, $url, type $type } from '../../../index.ts';
+import { $app, $class, $dom, $env, $is, $obj, $obp, $path, $preact, $str, $to, $url, type $type } from '../../../index.ts';
 import { defaultGlobalObp, type GlobalState } from '../../../preact/components/data.tsx';
 import { type Props as RootProps } from '../../../preact/components/root.tsx';
 import { default as prerender } from './iso/prerender.tsx';
@@ -157,7 +157,7 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
             previousSibling: null, // No siblings.
 
             ᨀhtml(): HTMLHtmlElement | null {
-                return doc.querySelector('html');
+                return $dom.query('html');
             },
             ᨀupdateProps(): true {
                 this.firstChild = this.ᨀhtml();
@@ -166,7 +166,8 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
                 return true; // Always; no exceptions.
             },
             ᨀreplaceOrAppendChild(child: HTMLHtmlElement): true {
-                if (this.firstChild /* <html> */) {
+                this.ᨀupdateProps();
+                if (this.firstChild) {
                     doc.replaceChild(child, this.firstChild);
                 } else doc.appendChild(child);
                 return this.ᨀupdateProps();
