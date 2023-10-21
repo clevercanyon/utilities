@@ -2,7 +2,7 @@
  * Preact API.
  */
 
-import { $app, $class, $dom, $env, $is, $obj, $obp, $path, $preact, $str, $to, $url, type $type } from '../../../index.ts';
+import { $app, $class, $dom, $env, $is, $obj, $obp, $path, $preact, $str, $url, type $type } from '../../../index.ts';
 import { defaultGlobalObp, type GlobalState } from '../../../preact/components/data.tsx';
 import { type Props as RootProps } from '../../../preact/components/root.tsx';
 import { default as prerender } from './iso/prerender.tsx';
@@ -151,25 +151,24 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
 
             firstChild: null as HTMLHtmlElement | null,
             lastChild: null as HTMLHtmlElement | null,
-            childNodes: [] as HTMLHtmlElement[],
+            childNodes: {} as NodeListOf<HTMLHtmlElement>,
 
             nextSibling: null, // No siblings.
             previousSibling: null, // No siblings.
 
-            ᨀhtml(): HTMLHtmlElement | null {
-                return $dom.query('html');
-            },
             ᨀupdateProps(): true {
-                this.firstChild = this.ᨀhtml();
-                this.lastChild = this.firstChild;
-                this.childNodes = $to.array(this.firstChild);
-                return true; // Always; no exceptions.
+                this.childNodes = $dom.query(['html']);
+                this.firstChild = this.lastChild = $dom.query('html');
+                return true; // Always returns true.
             },
             ᨀreplaceOrAppendChild(child: HTMLHtmlElement): true {
-                this.ᨀupdateProps();
+                // This ensures that we begin from an accurate perspective.
+                this.ᨀupdateProps(); // e.g., in the case of `<html>.remove()`.
+
                 if (this.firstChild) {
                     doc.replaceChild(child, this.firstChild);
                 } else doc.appendChild(child);
+
                 return this.ᨀupdateProps();
             },
             appendChild(child: HTMLHtmlElement): HTMLHtmlElement {
