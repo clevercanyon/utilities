@@ -109,7 +109,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
         httpState = { ...httpState, status: 404 };
         $obp.set(globalThis, globalObp + '.http', httpState);
 
-        const Error404StandAlone = (await import('../../../preact/components/error-404.tsx')).StandAlone;
+        const Error404StandAlone = (await import('../../../preact/components/404.tsx')).StandAlone;
         html = $preact.ssr.renderToString(<Error404StandAlone class='default-prerender' />);
     }
     return { httpState, docType: '<!doctype html>', html };

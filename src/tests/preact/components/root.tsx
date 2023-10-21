@@ -35,7 +35,7 @@ describe('<Root>', async () => {
         expect(
             $preact.ssr.renderToString(
                 <Root url={$url.appBase()} baseURL={$url.appBase()}>
-                    <Route default component={(await import('../../../preact/components/error-404.tsx')).default} />
+                    <Route default component={(await import('../../../preact/components/404.tsx')).default} />
                 </Root>,
             ),
         ).toContain('</html>');

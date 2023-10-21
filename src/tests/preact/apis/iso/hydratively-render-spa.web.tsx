@@ -49,7 +49,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
             </HTML>
         );
     };
-    const Error404 = $preact.lazyRoute(() => import('../../../../preact/components/error-404.tsx'));
+    const Error404 = $preact.lazyRoute(() => import('../../../../preact/components/404.tsx'));
 
     // ---
 

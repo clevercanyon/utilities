@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.368",
+    "version": "1.0.369",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -116,6 +116,11 @@
             "import": "./dist/preact/components.js",
             "default": "./dist/preact/components.js"
         },
+        "./preact/components/404": {
+            "types": "./dist/types/preact/components/404.d.ts",
+            "import": "./dist/preact/components/404.js",
+            "default": "./dist/preact/components/404.js"
+        },
         "./preact/components/as": {
             "types": "./dist/types/preact/components/as.d.ts",
             "import": "./dist/preact/components/as.js",
@@ -130,11 +135,6 @@
             "types": "./dist/types/preact/components/data.d.ts",
             "import": "./dist/preact/components/data.js",
             "default": "./dist/preact/components/data.js"
-        },
-        "./preact/components/error-404": {
-            "types": "./dist/types/preact/components/error-404.d.ts",
-            "import": "./dist/preact/components/error-404.js",
-            "default": "./dist/preact/components/error-404.js"
         },
         "./preact/components/head": {
             "types": "./dist/types/preact/components/head.d.ts",
