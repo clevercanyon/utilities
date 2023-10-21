@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { $dom, $env, $is, $json, $obj, $preact, type $type } from '../../index.ts';
-import { globalToScriptCode as dataGlobalToScriptCode } from './data.tsx';
+import { globalToScriptCode as dataGlobalToScriptCode, type ContextProps as DataContextProps } from './data.tsx';
 import { type State as LocationState } from './location.tsx';
 
 /**
@@ -15,6 +15,7 @@ export type State = $preact.State<
     Partial<$preact.JSX.IntrinsicElements['head']> & {
         // State initialized yet?
         initialized?: boolean;
+        htmlBGColor?: string;
 
         charset?: string;
         viewport?: string;
@@ -141,7 +142,7 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
         };
     }, [locState, actualState]);
 
-    $preact.useLayoutEffect(() => onLayoutEffect(locState));
+    $preact.useLayoutEffect(() => onLayoutEffect(state, locState));
 
     return (
         <head
@@ -149,6 +150,7 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                 ...$preact.omitProps(state, [
                     'class',
                     'initialized',
+                    'htmlBGColor',
 
                     'charset',
                     'viewport',
@@ -206,7 +208,7 @@ export default function Head(props: Props = {}): $preact.VNode<Props> {
                     <meta property='og:image' content={state.ogImage.toString()} />
                 </>
             )}
-            {state.mainStyleBundle && <link rel='stylesheet' href={state.mainStyleBundle.toString()} media='all' onLoad={() => onLoadMainStyleBundle(locState)} />}
+            {state.mainStyleBundle && <link rel='stylesheet' href={state.mainStyleBundle.toString()} media='all' onLoad={() => onLoadMainStyleBundle(locState, updateDataState)} />}
             {state.mainScriptBundle && (!$env.isWeb() || $env.isTest()) && <script id='preact-iso-data' dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
             {state.mainScriptBundle && <script type='module' src={state.mainScriptBundle.toString()}></script>}
 
@@ -402,36 +404,45 @@ export const useHead = (): ContextProps => {
 /**
  * Handles layout effect.
  *
- * @param locState Location state.
+ * @param state    Current `<Head>` state.
+ * @param locState Current `<Location>` state.
  */
-const onLayoutEffect = (locState: LocationState): void => {
-    if (!locState.wasPush || !$env.isWeb()) return;
+const onLayoutEffect = (state: State, locState: LocationState): void => {
+    if (!$env.isWeb()) return;
 
     const html = $dom.require('html');
-    const htmlStyles = $dom.stylesOf(html);
     const htmlInlineStyles = html.style;
 
     const body = $dom.require('body');
     const bodyInlineStyles = body.style;
 
-    htmlInlineStyles.backgroundColor = htmlStyles.backgroundColor;
-    bodyInlineStyles.transitionProperty = 'opacity';
-    bodyInlineStyles.transitionDuration = '100ms';
-    bodyInlineStyles.visibility = 'hidden';
-    bodyInlineStyles.opacity = '0';
+    htmlInlineStyles.backgroundColor = state.htmlBGColor || '';
+
+    if (locState.wasPush) {
+        bodyInlineStyles.transitionProperty = 'opacity';
+        bodyInlineStyles.transitionDuration = '100ms';
+        bodyInlineStyles.visibility = 'hidden';
+        bodyInlineStyles.opacity = '0';
+    }
 };
 
 /**
  * Handles onLoad event for main style bundle.
  *
- * @param locState Location state.
+ * @param locState Current `<Location>` state.
  */
-const onLoadMainStyleBundle = (locState: LocationState): void => {
-    if (!locState.wasPush || !$env.isWeb()) return;
+const onLoadMainStyleBundle = (locState: LocationState, updateDataState: DataContextProps['updateState']): void => {
+    if (!$env.isWeb()) return;
 
-    const body = $dom.require('body');
-    const bodyInlineStyles = body.style;
+    $dom.onReady(() => {
+        updateDataState({ head: { htmlBGColor: $dom.stylesOf('html').backgroundColor } });
 
-    bodyInlineStyles.visibility = 'visible';
-    bodyInlineStyles.opacity = '1';
+        if (locState.wasPush) {
+            const body = $dom.require('body');
+            const bodyInlineStyles = body.style;
+
+            bodyInlineStyles.visibility = 'visible';
+            bodyInlineStyles.opacity = '1';
+        }
+    });
 };

@@ -7,6 +7,21 @@ import './resources/init.ts';
 import { $env, $is, $to } from './index.ts';
 
 /**
+ * Fires a callback on document ready state.
+ *
+ * @param callback Callback.
+ */
+export const onReady = (callback: () => void): void => {
+    if (!$env.isWeb()) throw $env.errClientSideOnly;
+
+    if ('loading' !== document.readyState) {
+        callback(); // Fires callback immediately.
+    } else {
+        document.addEventListener('DOMContentLoaded', () => callback());
+    }
+};
+
+/**
  * Queries DOM element(s).
  *
  * @param   selectors Selectors. Comma-delimited string or array.
