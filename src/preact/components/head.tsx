@@ -410,20 +410,22 @@ export const useHead = (): ContextProps => {
 const onLayoutEffect = (state: State, locState: LocationState): void => {
     if (!$env.isWeb()) return;
 
-    const html = $dom.require('html');
-    const htmlInlineStyles = html.style;
+    $dom.onReady(() => {
+        const html = $dom.require('html');
+        const htmlInlineStyles = html.style;
 
-    const body = $dom.require('body');
-    const bodyInlineStyles = body.style;
+        const body = $dom.require('body');
+        const bodyInlineStyles = body.style;
 
-    htmlInlineStyles.backgroundColor = state.htmlBGColor || '';
+        htmlInlineStyles.backgroundColor = state.htmlBGColor || '';
 
-    if (!locState.isInitial && !bodyInlineStyles.opacity) {
-        bodyInlineStyles.transitionProperty = 'opacity';
-        bodyInlineStyles.transitionDuration = '250ms';
-        bodyInlineStyles.visibility = 'hidden';
-        bodyInlineStyles.opacity = '0';
-    }
+        if (!locState.isInitial && !bodyInlineStyles.opacity) {
+            bodyInlineStyles.transitionProperty = 'opacity';
+            bodyInlineStyles.transitionDuration = '250ms';
+            bodyInlineStyles.visibility = 'hidden';
+            bodyInlineStyles.opacity = '0';
+        }
+    });
 };
 
 /**
