@@ -138,7 +138,8 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
     const routerHasEverCommitted = $preact.useRef(false);
 
     const previousRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
-    const prevLocationWasPush = $preact.useRef(locState.wasPush);
+    const prevLocationisInitial = $preact.useRef(locState.isInitial);
+    const prevLocationWasPushed = $preact.useRef(locState.wasPushed);
     const prevLocationPathQuery = $preact.useRef(locState.pathQuery);
 
     const currentRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
@@ -193,7 +194,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         });
         return <RouteContext.Provider value={routeContext}>{matchingChildVNode || defaultChildVNode}</RouteContext.Provider>;
         //
-    }, [locState.wasPush, locState.pathQuery]);
+    }, [locState.isInitial, locState.wasPushed, locState.pathQuery]);
 
     // If rendering succeeds synchronously, we shouldn't render previous children.
     const previousRouteSnapshot = previousRoute.current;
@@ -247,8 +248,12 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         routerHasEverCommitted.current = true; // Obviously true at this point.
 
         // The new current route is loaded and rendered?
-        if (prevLocationWasPush.current !== locState.wasPush || prevLocationPathQuery.current !== locState.pathQuery) {
-            if (locState.wasPush && $env.isWeb() /* Handles scroll location. */) {
+        if (
+            prevLocationisInitial.current !== locState.isInitial ||
+            prevLocationWasPushed.current !== locState.wasPushed ||
+            prevLocationPathQuery.current !== locState.pathQuery //
+        ) {
+            if (locState.wasPushed && $env.isWeb() /* Handles scroll location. */) {
                 const currentHash = $url.currentHash(); // e.g., `element-id`.
                 const currentHashElementById = currentHash ? document.getElementById(currentHash) : null;
 
@@ -259,10 +264,12 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             if (props.onLoadEnd && currentRouteIsLoading.current) props.onLoadEnd();
             if (props.onRouteChange) props.onRouteChange();
 
-            (prevLocationWasPush.current = locState.wasPush), (prevLocationPathQuery.current = locState.pathQuery);
+            (prevLocationisInitial.current = locState.isInitial), //
+                (prevLocationWasPushed.current = locState.wasPushed),
+                (prevLocationPathQuery.current = locState.pathQuery);
             currentRouteIsLoading.current = false; // Loading complete.
         }
-    }, [locState.wasPush, locState.pathQuery, layoutTicks]);
+    }, [locState.isInitial, locState.wasPushed, locState.pathQuery, layoutTicks]);
 
     // Note: `currentRoute` MUST render first to trigger a thrown promise.
     return <>{[$preact.createElement(RenderRefRoute, { r: currentRoute }), $preact.createElement(RenderRefRoute, { r: previousRoute })]}</>;

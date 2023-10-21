@@ -418,9 +418,9 @@ const onLayoutEffect = (state: State, locState: LocationState): void => {
 
     htmlInlineStyles.backgroundColor = state.htmlBGColor || '';
 
-    if (locState.wasPush) {
+    if (!locState.isInitial && !bodyInlineStyles.opacity) {
         bodyInlineStyles.transitionProperty = 'opacity';
-        bodyInlineStyles.transitionDuration = '100ms';
+        bodyInlineStyles.transitionDuration = '250ms';
         bodyInlineStyles.visibility = 'hidden';
         bodyInlineStyles.opacity = '0';
     }
@@ -437,7 +437,7 @@ const onLoadMainStyleBundle = (locState: LocationState, updateDataState: DataCon
     $dom.onReady(() => {
         updateDataState({ head: { htmlBGColor: $dom.stylesOf('html').backgroundColor } });
 
-        if (locState.wasPush) {
+        if (!locState.isInitial) {
             const body = $dom.require('body');
             const bodyInlineStyles = body.style;
 

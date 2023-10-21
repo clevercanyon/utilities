@@ -18,16 +18,18 @@ export type Props = Omit<
     $preact.ClassPropVariants
 >;
 export type ActualState = $preact.State<{
-    wasPush: boolean; // URL push?
-    baseURL: $type.URL; // Base URL.
-    pathQuery: string; // Relative `./` to base.
+    isInitial: boolean;
+    wasPushed: boolean;
+    pathQuery: string;
+    baseURL: $type.URL;
 }>;
 export type PartialActualState = $preact.State<Partial<ActualState>>;
-export type PartialActualStateUpdates = Omit<PartialActualState, 'wasPush' | 'baseURL'>;
+export type PartialActualStateUpdates = Omit<PartialActualState, 'isInitial' | 'wasPushed' | 'baseURL'>;
 
 export type State = $preact.State<{
     // URL push?
-    wasPush: boolean;
+    isInitial: boolean;
+    wasPushed: boolean;
 
     // Base URL & path.
     baseURL: $type.URL;
@@ -82,7 +84,8 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
         return {
             state: {
                 ...actualState, // State.
-                // `wasPush: boolean`.
+                // `isInitial: boolean`.
+                // `wasPushed: boolean`.
 
                 // Base URL & path.
                 baseURL: actualState.baseURL, // URL instance.
@@ -112,7 +115,7 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
             },
             updateState, // i.e., Location reducer updates state.
         };
-    }, [actualState.wasPush, actualState.pathQuery]) as ContextProps;
+    }, [actualState.isInitial, actualState.wasPushed, actualState.pathQuery]) as ContextProps;
 
     $preact.useLayoutEffect(() => {
         addEventListener('click', updateState);
@@ -122,7 +125,7 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
             removeEventListener('click', updateState);
             removeEventListener('popstate', updateState);
         };
-    }, [actualState.wasPush, actualState.pathQuery]);
+    }, [actualState.isInitial, actualState.wasPushed, actualState.pathQuery]);
 
     return <Context.Provider value={contextProps}>{props.children}</Context.Provider>;
 }
@@ -174,7 +177,8 @@ const initialState = (props: Props): ActualState => {
         throw new Error('URL `origin` mismatch.');
     }
     return {
-        wasPush: false,
+        isInitial: true,
+        wasPushed: false,
         baseURL, // Does not change.
         pathQuery: $url.removeBasePath($url.toPathQuery(url), baseURL),
     };
@@ -266,7 +270,8 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
     url.pathname = $url.parse($url.toCanonical(url)).pathname;
 
     // Prepares variables that will be added to the returned state.
-    const wasPush = isPush || false; // `pathQuery` is `./` relative to base.
+    const isInitial = false; // We’re updating; so this is always `false`.
+    const wasPushed = isPush || false; // `pathQuery` is `./` relative to base.
     const pathQuery = $url.removeBasePath($url.toPathQuery(url), state.baseURL);
 
     // ---
@@ -293,5 +298,5 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
             history.replaceState(null, '', url);
         }
     }
-    return { ...state, wasPush, pathQuery };
+    return { ...state, isInitial, wasPushed, pathQuery };
 };
