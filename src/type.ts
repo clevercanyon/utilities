@@ -74,6 +74,7 @@ export type EnsuredType<Type> =
 /**
  * Utility types.
  */
+
 export type Writable<Type> = { -readonly [Prop in keyof Type]: Type[Prop] };
 export type DeepWritable<Type> = { -readonly [Prop in keyof Type]: DeepWritable<Type[Prop]> };
 

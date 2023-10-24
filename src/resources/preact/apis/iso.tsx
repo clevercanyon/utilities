@@ -18,11 +18,11 @@ export type PrerenderSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
 };
-export type PrerenderSPAReturnProps = {
+export type PrerenderSPAPromise = Promise<{
     httpState: GlobalState['http'];
     docType: string;
     html: string;
-};
+}>;
 export type HydrativelyRenderSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
@@ -45,7 +45,8 @@ export const replaceNativeFetch = (): $type.Fetcher => {
         fetcher = new Fetcher({ globalObp: $str.obpPartSafe($app.pkgName) + '.preactISOFetcher' });
     }
     fetcher.replaceNativeFetch();
-    return fetcher; // {@see $type.Fetcher}.
+
+    return fetcher;
 };
 
 /**
@@ -53,15 +54,14 @@ export const replaceNativeFetch = (): $type.Fetcher => {
  *
  * @param   options Options; {@see PrerenderSPAOptions}.
  *
- * @returns         Prerendered SPA object properties; {@see PrerenderSPAReturnProps}.
+ * @returns         Prerendered SPA promise; {@see PrerenderSPAPromise}.
  *
- * @note Server-side use only, with an exception for automated testing.
- * @note Prerendering on web is technically doable, but we discourage use outside testing.
+ * @requiredEnv ssr -- This utility must only be used server-side.
  */
-export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<PrerenderSPAReturnProps> => {
-    if ($env.isWeb() && !$env.isTest()) {
-        throw $env.errServerSideOnly;
-    }
+export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPromise => {
+    if (!$env.isSSR()) throw $env.errSSROnly;
+
+    // Extracts options into local variables.
     const { request, appManifest, App, props = {} } = options;
 
     const url = props.url || request.url;
@@ -109,8 +109,8 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
         httpState = { ...httpState, status: 404 };
         $obp.set(globalThis, globalObp + '.http', httpState);
 
-        const Error404StandAlone = (await import('../../../preact/components/404.tsx')).StandAlone;
-        html = $preact.ssr.renderToString(<Error404StandAlone class='default-prerender' />);
+        const StandAlone404 = (await import('../../../preact/components/404.tsx')).StandAlone;
+        html = $preact.ssr.renderToString(<StandAlone404 class='preact-iso-404' />);
     }
     return { httpState, docType: '<!doctype html>', html };
 };
@@ -120,84 +120,24 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): Promise<Preren
  *
  * @param options Options; {@see HydrativelyRenderSPAOptions}.
  *
- * @note This is strictly for client-side use only. No exceptions.
- *       Local testing using jsDOM is fine, since that `$env.isWeb()`.
+ * @requiredEnv web -- This utility must only be used client-side.
  */
 export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void => {
-    if (!$env.isWeb() /* Web browser required; uses DOM. */) {
-        throw $env.errClientSideOnly; // Not possible.
-    }
-    const { App, props = {} } = options;
-    const doc: Document = document; // Shorter alias.
+    if (!$env.isWeb()) throw $env.errWebOnly;
+
+    let appToHydrate, appToRender; // Queried below.
+    const { App, props = {} } = options; // As local vars.
 
     /**
-     * This creates a virtual document node, because we need to be able to replace the existing `<html>` node when
-     * location state changes. Without a virtual document node, `insertBefore()` will crash, because there can only be a
-     * single child node in our actual `document`. Inspired by root fragment; {@see https://o5p.me/aMHdC2}.
-     *
-     * Also, using a virtual node obviates the need to remove other child nodes in the document, such as the doctype
-     * node, or comment nodes. Preact explicitly references `firstChild`; {@see https://o5p.me/8d6YM5}. Without a
-     * virtual document node, we’d have to remove doctype/comment nodes, such that `firstChild` would be correct,
-     * otherwise Preact will crash. Removing doctype is not ideal, so this is much better.
-     *
-     * @note We only need to supply the properties/methods that Preact needs.
-     *       According to the author, this is more than adequate; {@see https://o5p.me/eCCIoa}.
+     * Hydrates when applicable, else renders.
      */
-    const virtualDoc = (() => {
-        const vDoc = {
-            parentNode: null,
-            parentElement: null,
-            nodeType: Node.DOCUMENT_NODE,
-
-            firstChild: null as HTMLHtmlElement | null,
-            lastChild: null as HTMLHtmlElement | null,
-            childNodes: {} as NodeListOf<HTMLHtmlElement>,
-
-            nextSibling: null, // No siblings.
-            previousSibling: null, // No siblings.
-
-            ᨀupdateProps(): true {
-                this.childNodes = $dom.query(['html']);
-                this.firstChild = this.lastChild = $dom.query('html');
-                return true; // Always returns true.
-            },
-            ᨀreplaceOrAppendChild(child: HTMLHtmlElement): true {
-                // This ensures that we begin from an accurate perspective.
-                this.ᨀupdateProps(); // e.g., in the case of `<html>.remove()`.
-
-                if (this.firstChild) {
-                    doc.replaceChild(child, this.firstChild);
-                } else doc.appendChild(child);
-
-                return this.ᨀupdateProps();
-            },
-            appendChild(child: HTMLHtmlElement): HTMLHtmlElement {
-                return this.ᨀreplaceOrAppendChild(child) && child;
-            },
-            insertBefore(newNode: HTMLHtmlElement): HTMLHtmlElement {
-                return this.ᨀreplaceOrAppendChild(newNode) && newNode;
-            },
-            replaceChild(newChild: HTMLHtmlElement, oldChild: HTMLHtmlElement): HTMLHtmlElement {
-                return this.ᨀreplaceOrAppendChild(newChild) && oldChild;
-            },
-            removeChild(child: HTMLHtmlElement): HTMLHtmlElement {
-                return doc.removeChild(child) && this.ᨀupdateProps() && child;
-            },
-        };
-        vDoc.ᨀupdateProps(); // Initialize.
-
-        // Note: `__k` is `_children` in Preact bundle.
-        // {@see https://o5p.me/1mZOFk} map in mangle.json.
-        return ((doc as unknown as $type.Object).__k = vDoc);
-    })() as unknown as Document;
-
-    /**
-     * Hydrates when applicable; else renders.
-     */
-    if (doc.querySelector('html.preact') /* Our preact HTML component rendered the HTML tag? */) {
-        $preact.hydrate(<App {...props} />, virtualDoc);
+    if ((appToHydrate = $dom.query('body > x-preact-app[data-hydrate]'))) {
+        $preact.hydrate(<App {...props} />, appToHydrate);
+        //
+    } else if ((appToRender = $dom.query('body > x-preact-app'))) {
+        $preact.render(<App {...props} />, appToRender);
     } else {
-        $preact.render(<App {...props} />, virtualDoc);
+        throw new Error('Missing <x-preact-app>.');
     }
 
     /**

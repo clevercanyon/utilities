@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $obj, $preact } from '../../index.ts';
+import { $dom, $env, $obj, $preact } from '../../index.ts';
 
 /**
  * Defines types.
@@ -15,7 +15,7 @@ export type State = $preact.State<
         lang: string; // String value only.
     } & { [x in $preact.ClassPropVariants]?: $preact.Classes }
 >;
-export type PartialState = $preact.State<Partial<State>>;
+export type PartialState = Partial<State>;
 export type PartialStateUpdates = PartialState;
 export type Props = $preact.Props<PartialState>;
 
@@ -40,7 +40,7 @@ const Context = createContext({} as ContextProps);
  * @returns       Initialized state.
  */
 const initialState = (props: Props): State => {
-    return $obj.mergeDeep({ lang: 'en' }, $preact.omitProps(props, ['children'])) as unknown as State;
+    return $obj.mergeDeep({ lang: 'en-US' }, $preact.omitProps(props, ['children'])) as unknown as State;
 };
 
 /**
@@ -63,18 +63,26 @@ const reduceState = (state: State, updates: PartialStateUpdates): State => {
  * @returns       VNode / JSX element tree.
  */
 export default function HTML(props: Props = {}): $preact.VNode<Props> {
-    const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(props));
+    const [actualState, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(props));
+
+    const state = $preact.useMemo((): State => {
+        return {
+            ...$preact.omitProps(actualState, ['class', 'lang']),
+            class: $preact.classes(actualState),
+            lang: actualState.lang,
+        };
+    }, [actualState]);
+
+    if ($env.isWeb()) {
+        $preact.useLayoutEffect(() => {
+            $dom.newAtts($dom.require('html'), state);
+        });
+    }
     return (
         <Context.Provider value={{ state, updateState }}>
-            <html
-                {...{
-                    ...$preact.omitProps(state, ['class', 'lang']),
-                    class: $preact.classes(state, 'preact'),
-                    lang: state.lang,
-                }}
-            >
-                {props.children}
-            </html>
+            {/* Client-side renders context only. <html> server-side. */}
+            {/* eslint-disable-next-line jsx-a11y/html-has-lang -- lang is ok. */}
+            {$env.isWeb() ? <>{props.children}</> : <html {...state}>{props.children}</html>}
         </Context.Provider>
     );
 }

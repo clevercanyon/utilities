@@ -2,7 +2,7 @@
  * Preact ISO.
  */
 
-import { $is, $obj, $preact } from '../../../../index.ts';
+import { $env, $is, $obj, $preact } from '../../../../index.ts';
 
 /**
  * Defines types.
@@ -20,16 +20,20 @@ export type PrerenderResult = { html: string };
  * @param   options          Options (all optional); {@see PrerenderOptions}.
  *
  * @returns                  Promise of {@see PrerenderResult}.
+ *
+ * @note This utility must only be used server-side.
  */
 export default async function prerender(componentOrVNode: $preact.AnyComponent | $preact.VNode, options?: PrerenderOptions): Promise<PrerenderResult> {
+    if (!$env.isSSR()) throw $env.errSSROnly;
+
     let vNode: $preact.VNode; // Initializes vNode.
     let currentDepth = 0; // Initializes current depth.
     const opts = $obj.defaults({}, options || {}, { props: {}, maxDepth: 10 }) as Required<PrerenderOptions>;
 
     if ($is.function(componentOrVNode)) {
-        vNode = $preact.createElement(componentOrVNode as $preact.AnyComponent, opts.props);
+        vNode = $preact.create(componentOrVNode as $preact.AnyComponent, opts.props);
     } else {
-        vNode = $preact.cloneElement(componentOrVNode as $preact.VNode, opts.props);
+        vNode = $preact.clone(componentOrVNode as $preact.VNode, opts.props);
     }
     const render = (): Promise<string> | string => {
         if (++currentDepth > opts.maxDepth) {

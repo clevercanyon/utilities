@@ -4,14 +4,14 @@
 
 import './resources/init.ts';
 
-import { $is, $obj } from './index.ts';
+import { $is, $obj, type $type } from './index.ts';
 
 /**
  * Defines types.
  */
 export type StringifyOptions = {
     noReplacer?: boolean;
-    pretty?: boolean;
+    pretty?: boolean | number;
 };
 
 /**
@@ -19,15 +19,20 @@ export type StringifyOptions = {
  *
  * @param   value Value to convert into JSON.
  *
- * @returns       JSON (i.e., string value), else `undefined`.
+ * @returns       JSON-encoded string; else `undefined`.
  */
-function _stringify(value: unknown, options?: StringifyOptions): string;
-function _stringify(value: undefined, options?: StringifyOptions): undefined;
-function _stringify(value: unknown | undefined, options?: StringifyOptions): string | undefined {
+export function stringify(value: $type.Function, options?: StringifyOptions): undefined;
+export function stringify(value: undefined, options?: StringifyOptions): undefined;
+export function stringify(value: unknown, options?: StringifyOptions): string;
+
+export function stringify(value: unknown | undefined, options?: StringifyOptions): undefined | string {
     const opts = $obj.defaults({}, options || {}, { noReplacer: false, pretty: false }) as Required<StringifyOptions>;
-    return JSON.stringify(value, opts.noReplacer ? undefined : replacer, opts.pretty ? 4 : undefined);
+
+    const circular: Set<object> = new Set(); // Tracks circular references.
+    const space = opts.pretty ? ($is.number(opts.pretty) ? opts.pretty : 4) : undefined;
+
+    return JSON.stringify(value, opts.noReplacer ? undefined : (key, value) => replacer(key, value, circular), space);
 }
-export { _stringify as stringify }; // Must export as alias.
 
 /**
  * Converts JSON back into original value.
@@ -48,12 +53,15 @@ export const parse = (json: string | undefined): unknown => {
  *
  * @returns       Value to JSON-encode.
  */
-const replacer = (key: string, value: unknown): unknown => {
+const replacer = (key: string, value: unknown, circular: Set<object>): unknown => {
     if ($is.object(value)) {
+        if (circular.has(value)) return undefined; // Omit.
+        circular.add(value); // Tracks circular references.
+
         if ($is.set(value)) {
             return { __dataType: 'Set', __data: [...value] };
-            //
-        } else if ($is.map(value)) {
+        }
+        if ($is.map(value)) {
             return { __dataType: 'Map', __data: [...value] };
         }
     }
@@ -72,8 +80,8 @@ const reviver = (key: string, value: unknown): unknown => {
     if ($is.object(value)) {
         if ('Set' === value.__dataType && $is.array(value.__data)) {
             return new Set(value.__data);
-            //
-        } else if ('Map' === value.__dataType && $is.array(value.__data)) {
+        }
+        if ('Map' === value.__dataType && $is.array(value.__data)) {
             return new Map(value.__data as [[unknown, unknown]]);
         }
     }

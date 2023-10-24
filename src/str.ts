@@ -6,7 +6,7 @@ import './resources/init.ts';
 
 import ipRegex from 'ip-regex';
 import { default as mm, type Options as MMOptions } from 'micromatch';
-import { $env, $is, $obj } from './index.ts';
+import { $dom, $env, $is, $obj } from './index.ts';
 
 const textEncoder: TextEncoder = new TextEncoder();
 const textDecoder: TextDecoder = new TextDecoder();
@@ -682,8 +682,7 @@ export const escHTML = (str: string, options?: EscHTMLOptions): string => {
  */
 export const unescHTML = (str: string): string => {
     if ($env.isWeb()) {
-        unescHTMLDiv ??= document.createElement('div');
-
+        unescHTMLDiv ??= $dom.create('div');
         unescHTMLDiv.innerHTML = str;
         return unescHTMLDiv.innerText;
     }

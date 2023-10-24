@@ -23,14 +23,14 @@ export type Props = $preact.Props<
  * @returns       VNode / JSX element tree.
  *
  * @note If no `tag` prop, the default tag is a `<div>`.
- * @note If no classes, and it’s a custom tag, default class is `block`.
+ * @note If no classes|style, and it’s a custom tag, default class is `block`.
  */
 export default function As(props: Props): $preact.VNode<Props> {
     const tag = props.tag || 'div';
     const classes = $preact.classes(props);
-    const displayClasses = !classes && tag.includes('-') ? 'block' : '';
+    const displayClasses = !classes && !props.style && tag.includes('-') ? 'block' : '';
 
-    return $preact.createElement(tag as 'div' | 'span', {
+    return $preact.create(tag as 'div' | 'span', {
         ...$preact.omitProps(props, ['tag', 'class']),
         class: $preact.classes(displayClasses, classes),
     }) as $preact.VNode<Props>;

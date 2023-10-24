@@ -3,7 +3,7 @@
  */
 
 import { beforeEach, describe, expect, test } from 'vitest';
-import { $brand, $class, $env, $is, $obj, $symbol, $time, $url } from '../../index.ts';
+import { $brand, $class, $dom, $env, $is, $obj, $symbol, $time, $url } from '../../index.ts';
 
 describe('$is', async () => {
     class Custom {
@@ -491,16 +491,16 @@ describe('$is', async () => {
     });
     test('.node()', async () => {
         if ($env.isWeb()) {
-            expect($is.node(document.createElement('div'))).toBe(true);
-            expect($is.node(document.createElement('span'))).toBe(true);
+            expect($is.node($dom.create('div'))).toBe(true);
+            expect($is.node($dom.create('span'))).toBe(true);
         }
         expect($is.node($time.parse())).toBe(false);
         expect($is.node($url.parse('https://example.com'))).toBe(false);
     });
     test('.element()', async () => {
         if ($env.isWeb()) {
-            expect($is.element(document.createElement('div'))).toBe(true);
-            expect($is.element(document.createElement('span'))).toBe(true);
+            expect($is.element($dom.create('div'))).toBe(true);
+            expect($is.element($dom.create('span'))).toBe(true);
         }
         expect($is.element($time.parse())).toBe(false);
         expect($is.element($url.parse('https://example.com'))).toBe(false);

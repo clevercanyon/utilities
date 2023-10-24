@@ -64,9 +64,10 @@ export const localHostPatterns = $fnꓺmemo((): string[] => [
  * Gets current URL.
  *
  * @returns Current; i.e., a full URL.
+ *
+ * @requiredEnv web
  */
 export const current = (): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.href;
 };
 
@@ -74,9 +75,10 @@ export const current = (): string => {
  * Gets current referrer.
  *
  * @returns Current referrer.
+ *
+ * @requiredEnv web
  */
 export const currentReferrer = (): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return document.referrer;
 };
 
@@ -86,9 +88,10 @@ export const currentReferrer = (): string => {
  * @param   options Optional (all optional); {@see CurrentSchemeOptions}.
  *
  * @returns         Current scheme. By default, without the `:` mark.
+ *
+ * @requiredEnv web
  */
 export const currentScheme = $fnꓺmemo({ deep: true, maxSize: 2 }, (options?: CurrentSchemeOptions): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options || {}, { withMark: false }) as Required<CurrentSchemeOptions>;
     return opts.withMark ? location.protocol : location.protocol.slice(0, -1);
 });
@@ -99,9 +102,10 @@ export const currentScheme = $fnꓺmemo({ deep: true, maxSize: 2 }, (options?: C
  * @param   options Options (all optional); {@see CurrentHostOptions}.
  *
  * @returns         Current host. By default, with possible port number.
+ *
+ * @requiredEnv web
  */
 export const currentHost = $fnꓺmemo({ deep: true, maxSize: 2 }, (options?: CurrentHostOptions): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options || {}, { withPort: true }) as Required<CurrentHostOptions>;
     return opts.withPort ? location.host : location.hostname;
 });
@@ -112,9 +116,10 @@ export const currentHost = $fnꓺmemo({ deep: true, maxSize: 2 }, (options?: Cur
  * @param   options Options (all optional); {@see CurrentRootHostOptions}.
  *
  * @returns         Current root host. By default, with possible port number.
+ *
+ * @requiredEnv web
  */
 export const currentRootHost = $fnꓺmemo({ deep: true, maxSize: 2 }, (options?: CurrentRootHostOptions): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options || {}, { withPort: true }) as Required<CurrentRootHostOptions>;
     return rootHost(currentHost(), { withPort: opts.withPort });
 });
@@ -123,9 +128,10 @@ export const currentRootHost = $fnꓺmemo({ deep: true, maxSize: 2 }, (options?:
  * Gets current port.
  *
  * @returns Current port.
+ *
+ * @requiredEnv web
  */
 export const currentPort = $fnꓺmemo((): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.port;
 });
 
@@ -133,9 +139,10 @@ export const currentPort = $fnꓺmemo((): string => {
  * Gets current path.
  *
  * @returns Current path.
+ *
+ * @requiredEnv web
  */
 export const currentPath = (): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.pathname;
 };
 
@@ -143,9 +150,10 @@ export const currentPath = (): string => {
  * Gets current subpath.
  *
  * @returns Current subpath.
+ *
+ * @requiredEnv web
  */
 export const currentSubpath = (): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.pathname.replace(/^\/+|\/+$/gu, '');
 };
 
@@ -155,9 +163,10 @@ export const currentSubpath = (): string => {
  * @param   options Options (all optional); {@see CurrentQueryOptions}.
  *
  * @returns         Current query. By default, w/o leading `?` mark.
+ *
+ * @requiredEnv web
  */
 export const currentQuery = (options?: CurrentQueryOptions): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options || {}, { withMark: false }) as Required<CurrentQueryOptions>;
     return opts.withMark ? location.search : location.search.slice(1);
 };
@@ -168,9 +177,10 @@ export const currentQuery = (options?: CurrentQueryOptions): string => {
  * @param   options Options (all optional); {@see CurrentHashOptions}.
  *
  * @returns         Current hash. By default, w/o leading `#` mark.
+ *
+ * @requiredEnv web
  */
 export const currentHash = (options?: CurrentHashOptions): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     const opts = $obj.defaults({}, options || {}, { withMark: false }) as Required<CurrentHashOptions>;
     return opts.withMark ? location.hash : location.hash.slice(1);
 };
@@ -179,9 +189,10 @@ export const currentHash = (options?: CurrentHashOptions): string => {
  * Gets current path & query.
  *
  * @returns Current path & query.
+ *
+ * @requiredEnv web
  */
 export const currentPathQuery = (): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.pathname + location.search;
 };
 
@@ -189,9 +200,10 @@ export const currentPathQuery = (): string => {
  * Gets current path, query, and hash.
  *
  * @returns Current path, query, and hash.
+ *
+ * @requiredEnv web
  */
 export const currentPathQueryHash = (): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return location.pathname + location.search + location.hash;
 };
 
@@ -203,9 +215,10 @@ export const currentPathQueryHash = (): string => {
  * Gets current base URL.
  *
  * @returns Current base URL; i.e., a full URL.
+ *
+ * @requiredEnv web
  */
 export const currentBase = (): string => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return document.baseURI;
 };
 
@@ -213,6 +226,8 @@ export const currentBase = (): string => {
  * Gets current base path.
  *
  * @returns Current base path.
+ *
+ * @requiredEnv web
  */
 export const currentBasePath = (): string => {
     return parse(currentBase()).pathname;
@@ -224,6 +239,8 @@ export const currentBasePath = (): string => {
  * @param   parseable Parseable URL or string.
  *
  * @returns           A full URL from current base.
+ *
+ * @requiredEnv web
  */
 export const fromCurrentBase = (parseable: $type.URL | string): string => {
     return parse(parseable, currentBase()).toString();
@@ -235,6 +252,8 @@ export const fromCurrentBase = (parseable: $type.URL | string): string => {
  * @param   parseable Parseable URL or string.
  *
  * @returns           `[/base]/path?query#hash` from current base.
+ *
+ * @requiredEnv web
  */
 export const pathFromCurrentBase = (parseable: $type.URL | string): string => {
     return toPathQueryHash(fromCurrentBase(parseable));
@@ -248,6 +267,8 @@ export const pathFromCurrentBase = (parseable: $type.URL | string): string => {
  * @returns           Parseable URL or string with current base path.
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
+ *
+ * @requiredEnv web
  *
  * @see addBasePath()
  */
@@ -266,6 +287,8 @@ export function addCurrentBasePath(parseable: $type.URL | string): $type.URL | s
  * @returns           Parseable URL or string without current base path.
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
+ *
+ * @requiredEnv web
  *
  * @see removeBasePath()
  */
@@ -513,6 +536,8 @@ export const isRelative = $fnꓺmemo(12, (parseable: $type.URL | string): boolea
  * @param   options Options (all optional); {@see RootHostOptions}.
  *
  * @returns         Root hostname. By default, with possible port number.
+ *
+ * @requiredEnv web -- When `host` is not given explicitly.
  */
 export const rootHost = $fnꓺmemo({ deep: true, maxSize: 12 }, (host?: $type.URL | string, options?: RootHostOptions): string => {
     const opts = $obj.defaults({}, options || {}, { withPort: true }) as Required<RootHostOptions>;
@@ -570,6 +595,8 @@ export const rootHost = $fnꓺmemo({ deep: true, maxSize: 12 }, (host?: $type.UR
  *
  * @note An empty string is also considered to be relative (i.e., not absolute) by {@see isRelative()}, {@see isAbsolute()}, and {@see URL}.
  * @note An empty string is not accepted by {@see URL} for the `base` value, so please pass a real base, or `undefined`; e.g., by not passing one.
+ *
+ * @requiredEnv web -- When `parseable` is not given explicitly.
  */
 export const parse = <Options extends ParseOptions>(
     parseable?: $type.URL | string,
@@ -582,7 +609,6 @@ export const parse = <Options extends ParseOptions>(
 
     if (undefined === parseable) {
         if ($env.isWeb()) parseable = current();
-        // Keep in mind, there is no way to detect the current URL outside of the web.
         // If not on the web, and a URL was not passed in, then it’s simply not parseable.
         // So we flag that as a dev-related error, and not as a parse error in our try/catch block below.
         else throw new Error('Missing `url`.');
@@ -615,6 +641,8 @@ export const parse = <Options extends ParseOptions>(
  * @returns           A {@see URL} instance, else `undefined`.
  *
  * @someday {@see URL.canParse()} Not well supported at this time; {@see https://o5p.me/hRDw1w}.
+ *
+ * @requiredEnv web -- When `parseable` is not given explicitly.
  */
 export const tryParse = (parseable?: $type.URL | string, base?: $type.URL | string, options?: TryParseOptions): $type.URL | undefined => {
     return parse(parseable, base, { ...options, throwOnError: false });

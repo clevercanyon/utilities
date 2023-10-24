@@ -4,95 +4,98 @@
 
 import '../../resources/init.ts';
 
-import { $env, $preact } from '../../index.ts';
+import { $env, $is, $preact } from '../../index.ts';
 import { default as Body } from './body.tsx';
 import { default as Head } from './head.tsx';
 import { default as HTML } from './html.tsx';
-import { type RoutedProps } from './router.tsx';
 
 /**
- * Defines types.
+ * Renders component.
+ *
+ * - This has its own main style bundle.
+ * - This is purely static. It does not use a main script bundle.
+ * - This must only be used as a route and it does not accept props.
+ *
+ * Because this uses its own stylesheet, it must swap the main style bundle out and use its own. This is also why apps
+ * should prefer to create their own 404 error route. Ideally, one that can leverage an app’s existing styles.
+ *
+ * @returns VNode / JSX element tree.
  */
-export type StandAloneProps = $preact.Props;
-export type Props = $preact.Props<RoutedProps>;
-
-/**
- * Renders route component.
- *
- * @param   props Component props.
- *
- * @returns       VNode / JSX element tree.
- *
- * @note Purely static, so no style/script bundles server-side.
- */
-export default function Error404(props: Props): $preact.VNode<Props> {
-    if (!$env.isWeb() || $env.isTest() /* Server-side only, with an exception for automated testing. */) {
+export default function Route404(): $preact.VNode {
+    if ($is.empty($preact.useRoute())) {
+        throw new Error('Must only be used as a route.');
+    }
+    if ($env.isSSR()) {
         const { updateState: updateHTTPState } = $preact.useHTTP();
         updateHTTPState({ status: 404 }); // Records 404 error.
     }
     return (
-        <HTML class={$preact.classes(props)}>
+        <HTML>
             <Head
-                robots={'noindex, nofollow'}
-                title={'404 Error: Not Found'}
-                description={'The resource you are looking for could not be found.'}
-                {...($env.isWeb() ? {} : { mainStyleBundle: '', mainScriptBundle: '' })}
-            >
-                <link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
-            </Head>
+                robots='noindex, nofollow'
+                title='404 Error: Not Found'
+                description='The resource you are looking for could not be found.'
+                //
+                mainStyleBundle='https://cdn.clevercanyon.com/assets/uploads/404.css'
+                mainScriptBundle='' // Purely static. It does not use a main script bundle.
+                useLayoutEffect={true} // Because we want the stylesheet applied asap.
+            />
             <Body>
-                <BodyContents />
+                <Content />
             </Body>
         </HTML>
     );
 }
 
 /**
- * Renders stand-alone component.
+ * Renders component.
  *
- * @param   props Stand-alone component props.
+ * This component should be easy to render as a string and then for it be easily dropped into any system, serving as a
+ * default 404 error page; e.g., for a Cloudflare Pages site serving static assets. It does not depend on `<Location>`,
+ * `<Data>`, `<Router>`, `<HTML>`, or any other context and/or component outside of this file.
  *
- * @returns       Stand-alone vNode / JSX element tree.
+ * @param   props Component props.
  *
- * @note This component should be easy to render as a string and then for it be easily
- * dropped into any system, serving as a 404 error page; e.g., for a Cloudflare Pages site.
+ * @returns       VNode / JSX element tree.
+ *
+ * @requiredEnv ssr -- This component must only be used server-side.
  */
-export const StandAlone = (props: StandAloneProps = {}): $preact.VNode<StandAloneProps> => {
+export const StandAlone = (props: $preact.Props<{ lang?: string }> = {}): $preact.VNode<$preact.Props<{ lang?: string }>> => {
+    if (!$env.isSSR()) throw $env.errSSROnly;
     return (
-        <html class={$preact.classes(props)} lang={'en'}>
+        <html class={$preact.classes(props)} lang={props.lang || 'en-US'}>
             <head>
-                <meta charSet={'utf-8'} />
-                <meta name='robots' content={'noindex, nofollow'} />
-                <meta name='viewport' content={'width=device-width, initial-scale=1.0, minimum-scale=1.0'} />
+                <meta charSet='utf-8' />
+                <meta name='robots' content='noindex, nofollow' />
+                <meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0' />
 
-                <title>{'404 Error: Not Found'}</title>
-                <meta name='description' content={'The resource you are looking for could not be found.'} />
+                <title>404 Error: Not Found</title>
+                <meta name='description' content='The resource you are looking for could not be found.' />
 
                 <link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
             </head>
             <body>
-                <BodyContents />
+                <Content />
             </body>
         </html>
     );
 };
 
 /**
- * Produces 404 page body contents.
+ * Renders component.
  *
- * @returns Body contents vNode / JSX element tree.
+ * @returns VNode / JSX element tree.
  */
-const BodyContents = (): $preact.VNode => {
+const Content = (): $preact.VNode => {
     return (
         <>
             <div class='noise' />
             <div class='overlay' />
             <div class='terminal'>
                 <h1>
-                    {'404 Error: '}
-                    <span class='error-message'>{'Not Found'}</span>
+                    404 Error: <span class='error-message'>Not Found</span>
                 </h1>
-                <p class='output'>{'The resource you are looking for could not be found.'}</p>
+                <p class='output'>The resource you are looking for could not be found.</p>
                 <p
                     class='output'
                     dangerouslySetInnerHTML={{
@@ -103,7 +106,7 @@ const BodyContents = (): $preact.VNode => {
                         `,
                     }}
                 />
-                <p class='output'>{'Good luck.'}</p>
+                <p class='output'>Good luck.</p>
             </div>
         </>
     );

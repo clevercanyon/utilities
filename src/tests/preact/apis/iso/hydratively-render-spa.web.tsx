@@ -35,7 +35,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         return (
             <Root {...props}>
                 <Route path='./' component={Index} />
-                <Route default component={Error404} />
+                <Route default component={Route404} />
             </Root>
         );
     };
@@ -49,7 +49,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
             </HTML>
         );
     };
-    const Error404 = $preact.lazyRoute(() => import('../../../../preact/components/404.tsx'));
+    const Route404 = $preact.lazyRoute(() => import('../../../../preact/components/404.tsx'));
 
     // ---
 

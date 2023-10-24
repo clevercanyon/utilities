@@ -10,12 +10,9 @@ import { Route, default as Router, type RoutedProps } from '../../../../preact/c
 /**
  * Defines types.
  */
-export type LazyErrorBoundaryProps = Omit<
-    $preact.Props<{
-        onError?: (error: $type.Error) => void;
-    }>,
-    $preact.ClassPropVariants
->;
+export type LazyErrorBoundaryProps = $preact.BasicProps<{
+    onError?: (error: $type.Error) => void;
+}>;
 export type LazyRouteLoader = () => Promise<{ default: $preact.AnyComponent<RoutedProps> } | $preact.AnyComponent<RoutedProps>>;
 
 /**
@@ -57,7 +54,7 @@ export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedPr
             });
         }
         if (undefined !== component) {
-            return $preact.createElement(component, props);
+            return $preact.create(component, props);
             //
         } else if (!didChainPromiseResolution.current) {
             didChainPromiseResolution.current = true;

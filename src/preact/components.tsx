@@ -4,7 +4,7 @@
 
 import '../resources/init.ts';
 
-export { default as Error404, type Props as Error404Props } from './components/404.tsx';
+export { default as Route404 } from './components/404.tsx';
 export { default as As, type Props as AsProps } from './components/as.tsx';
 export { default as Body, type Props as BodyProps } from './components/body.tsx';
 export { default as Data, type Props as DataProps } from './components/data.tsx';

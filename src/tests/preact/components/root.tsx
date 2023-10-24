@@ -3,8 +3,8 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { $brand, $env, $preact, $url } from '../../../index.ts';
-import { Root, Route } from '../../../preact/components.tsx';
+import { $brand, $env, $json, $preact, $url } from '../../../index.ts';
+import { Body, HTML, Head, Root, Route } from '../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
@@ -32,12 +32,25 @@ describe('<Root>', async () => {
         $brand.remove('@clevercanyon/x.tld');
     });
     test('basics', async () => {
-        expect(
-            $preact.ssr.renderToString(
-                <Root url={$url.appBase()} baseURL={$url.appBase()}>
-                    <Route default component={(await import('../../../preact/components/404.tsx')).default} />
-                </Root>,
-            ),
-        ).toContain('</html>');
+        const Index = (): $preact.VNode => {
+            return (
+                <HTML>
+                    <Head class='index' data-index={''}>
+                        <meta name='foo' content='bar' />
+                        <script>let foo = 'bar';</script>
+                    </Head>
+                    <Body>
+                        <pre dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></pre>
+                    </Body>
+                </HTML>
+            );
+        };
+        const html = $preact.ssr.renderToString(
+            <Root url={$url.appBase()} baseURL={$url.appBase()}>
+                <Route default component={Index} />
+            </Root>,
+        );
+        console.log(html);
+        expect(html).toContain('</html>');
     });
 });

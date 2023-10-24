@@ -4,7 +4,7 @@
 
 import './resources/init.ts';
 
-import { $app, $env, $obj, type $type } from './index.ts';
+import { $app, $env, $obj, $preact, type $type } from './index.ts';
 import * as $standalone from './resources/standalone/index.ts';
 
 let structuredCloneableObjectTags: string[];
@@ -575,9 +575,27 @@ export const regExp = (value: unknown): value is RegExp => {
  * @param   value Value to consider.
  *
  * @returns       True if value is DOM node.
+ *
+ * @requiredEnv web
  */
 export const node = (value: unknown): value is Node => {
     return $env.isWeb() && value instanceof Node;
+};
+
+/**
+ * Checks if value is a preact vNode.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is a preact vNode.
+ *
+ * @see https://o5p.me/jSIg3C -- JSX runtime.
+ * @see https://o5p.me/GqM0aR -- Preact vNode.
+ */
+export const vNode = (value: unknown): value is $type.Object<{ type: string; props: $type.Object }> => {
+    return $preact.isVNode(value) && plainObject(value)
+        && Object.hasOwn(value, 'type') && Object.hasOwn(value, 'props')
+        && Object.hasOwn(value, '__e' /* `__e` = `_dom` */); // prettier-ignore
 };
 
 /**
@@ -586,9 +604,24 @@ export const node = (value: unknown): value is Node => {
  * @param   value Value to consider.
  *
  * @returns       True if value is DOM element.
+ *
+ * @requiredEnv web
  */
 export const element = (value: unknown): value is Element => {
     return $env.isWeb() && value instanceof Element;
+};
+
+/**
+ * Checks if value is an HTML element.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is an HTML element.
+ *
+ * @requiredEnv web
+ */
+export const htmlElement = (value: unknown): value is HTMLElement => {
+    return $env.isWeb() && value instanceof HTMLElement;
 };
 
 /**

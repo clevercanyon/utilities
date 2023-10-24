@@ -4,18 +4,17 @@
 
 import '../../resources/init.ts';
 
-import { $dom, $env, $is, $json, $obj, $preact, type $type } from '../../index.ts';
+import { Component } from 'preact';
+import { $dom, $env, $fn, $is, $json, $obj, $preact, type $type } from '../../index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode, type ContextProps as DataContextProps } from './data.tsx';
-import { type State as LocationState } from './location.tsx';
+import { type State as HTMLState } from './html.tsx';
 
 /**
  * Defines types.
  */
 export type State = $preact.State<
     Partial<$preact.JSX.IntrinsicElements['head']> & {
-        // State initialized yet?
-        initialized?: boolean;
-        htmlBGColor?: string;
+        // class?: Variants below.
 
         charset?: string;
         viewport?: string;
@@ -44,262 +43,416 @@ export type State = $preact.State<
 
         mainStyleBundle?: $type.URL | string;
         mainScriptBundle?: $type.URL | string;
+
+        append?: $preact.VNode[];
+        useLayoutEffect?: boolean;
     } & { [x in $preact.ClassPropVariants]?: $preact.Classes }
 >;
-export type PartialState = $preact.State<Partial<State>>;
-export type PartialStateUpdates = Omit<PartialState, 'initialized'>;
+export type PartialState = Partial<State>;
+export type PartialStateUpdates = Omit<PartialState, ImmutableStateKeys>;
 
+export type ComputedState = State &
+    Required<
+        Pick<
+            State,
+            | 'charset'
+            | 'viewport'
+            //
+            | 'canonical'
+            //
+            | 'title'
+            | 'description'
+            //
+            | 'pngIcon'
+            | 'svgIcon'
+            //
+            | 'ogSiteName'
+            | 'ogType'
+            | 'ogTitle'
+            | 'ogDescription'
+            | 'ogURL'
+            | 'ogImage'
+            //
+            | 'append'
+            | 'useLayoutEffect'
+        >
+    >;
 export type Props = $preact.Props<PartialState>;
 
 export type ContextProps = $preact.Context<{
-    state: State;
+    state: ComputedState;
     updateState: $preact.Dispatch<PartialStateUpdates>;
+    forceFullUpdate: Head['forceFullUpdate'];
 }>;
-type StructuredDataꓺHelperProps = $preact.Props<{ brand: $type.Brand; state: State }>;
 
 /**
- * Produces initial state.
+ * Defines a list of all prop keys.
  *
- * @param   dataHeadState Head state.
- * @param   props         Component props.
- *
- * @returns               Initialized state.
- *
- * @note `<Data>` props contains some initial passable `<Head>` component props.
- *       These props only have an impact on initial `<Head>` state; {@see Data.PassableHeadProps}.
- *       e.g., `mainStyleBundle`, `mainScriptBundle`.
+ * We need this so it’s possible to filter the full list of props and distinguish between intrinsic `<head>` attributes
+ * and configurable props to the `<Head>` component. This variable must remain a `const`, as it keeps types DRY.
  */
-const initialState = (dataHeadState: PartialState, props: Props = {}): State => {
-    return $obj.mergeDeep({ initialized: true }, dataHeadState, $preact.omitProps(props, ['children'])) as unknown as State;
-};
+const propKeys = [
+    'class',
+
+    'charset',
+    'viewport',
+
+    'robots',
+    'publishTime',
+    'lastModifiedTime',
+    'canonical',
+    'structuredData',
+
+    'siteName',
+    'title',
+    'titleSuffix',
+    'description',
+    'author',
+
+    'pngIcon',
+    'svgIcon',
+
+    'ogSiteName',
+    'ogType',
+    'ogTitle',
+    'ogDescription',
+    'ogURL',
+    'ogImage',
+
+    'mainStyleBundle',
+    'mainScriptBundle',
+
+    'append',
+    'useLayoutEffect',
+] as const; // Expanded into a type.
+type PropKeys = $type.Writable<typeof propKeys>[number];
 
 /**
- * Renders component.
+ * Defines a list of immutable state keys.
  *
- * @param   props Component props.
+ * Some state keys are immutable. For example, we don’t want `mainScriptBundle` to change, because that leads to it
+ * being removed, then added back in again — based on state. When added back in, the script re-initialzes, which is bad;
+ * e.g., attemting to rehydrate, etc. Note: This variable must remain a `const`, as it keeps types DRY.
  *
- * @returns       VNode / JSX element tree.
- *
- * @note `<Head>` state is stored in `<Data>` so it’s available
- *       across all contexts; i.e., at any nested level of the DOM.
+ * - `charset` should not ever change within a document, as it would require separate encoding.
+ * - `baseURL` Cannot change whatsoever. Safari and Firefox only parse this once on first load.
+ * - `mainScriptBundle` Cannot load/unload, then load again, which leads to many problems.
  */
-export default function Head(props: Props = {}): $preact.VNode<Props> {
-    const brand = $env.get('APP_BRAND') as $type.Brand;
-    if (!brand) throw new Error('Missing brand.');
+const immutableStateKeys = ['charset', 'baseURL', 'mainScriptBundle'] as const;
+type ImmutableStateKeys = $type.Writable<typeof immutableStateKeys>[number];
 
-    const { state: locState } = $preact.useLocation();
-    if (!locState) throw new Error('Missing location state.');
+/**
+ * Defines component.
+ *
+ * Using a class component so there can be external references to the current `<Head>` component instance. Using
+ * `Component`, not `$preact.Component`, because this occurs inline. We can’t use our own cyclic utilities inline, only
+ * inside functions. So we use `Component` directly from `preact` in this specific case.
+ *
+ * `<Data>` state contains some initial, passable `<Head>` state keys. These serve as default props for `<Head>` when
+ * they are not defined elsewhere. e.g., `mainStyleBundle`, `mainScriptBundle`. `<Data>` state also contains a
+ * high-level reference to the current `<Head>` `instance`, such that it becomes available across all contexts.
+ */
+export default class Head extends Component<Props, State> {
+    // These are defined on first render.
+    forceDataUpdate: DataContextProps['forceUpdate'] | undefined;
+    computedState: ComputedState | undefined;
 
-    const { state: dataState, updateState: updateDataState } = $preact.useData();
-    if (!dataState) throw new Error('Missing data state.');
+    constructor(props: Props = {}) {
+        super(props); // Parent constructor.
 
-    let { head: actualState } = dataState; // `<Data>` holds `<Head>` state.
-    if (!actualState.initialized /* If not initialized, do it now, in real-time. */) {
-        // Absent a real-time update, SSR fails, as it doesn’t wait for an async update.
-        actualState = initialState(actualState, props);
-        updateDataState({ head: actualState });
+        this.state = $preact.omitProps(props, ['children']);
+        // this.forceDataUpdate ...defined on first render.
+        // this.computedState ...defined on first render.
     }
-    const state = $preact.useMemo((): State => {
-        let title = actualState.title || locState.url.hostname;
-        let defaultMainStyleBundle, defaultMainScriptBundle;
-        const defaultDescription = 'Take the tiger by the tail.';
 
-        if (!actualState.mainStyleBundle && '' !== actualState.mainStyleBundle && $env.isLocalWebVite()) {
-            defaultMainStyleBundle = './index.scss'; // Vite dev server uses original extension.
-        }
-        if (!actualState.mainScriptBundle && '' !== actualState.mainScriptBundle && $env.isLocalWebVite()) {
-            defaultMainScriptBundle = './index.tsx'; // Vite dev server uses original extension.
-        }
-        if (actualState.titleSuffix /* String or `true` to enable. */) {
-            if ($is.string(actualState.titleSuffix)) {
-                title += actualState.titleSuffix;
-            } else if (actualState.siteName || brand.name) {
-                title += ' • ' + (actualState.siteName || brand.name);
+    forceFullUpdate(callback?: () => void): void {
+        if (!this.forceDataUpdate) throw new Error();
+        this.forceDataUpdate(callback);
+    }
+
+    updateState<Updates extends PartialStateUpdates>(updates: Updates): void {
+        this.setState((currentState: State): Updates | null => {
+            // Some keys in state are not allowed to change whatsoever.
+            updates = $obj.omit(updates, immutableStateKeys as unknown as string[]) as Updates;
+
+            const newState = $obj.updateDeep(currentState, updates);
+            // Returning `null` tells Preact no; {@see https://o5p.me/9BaxT3}.
+            return newState !== currentState ? (newState as Updates) : null;
+        });
+    }
+
+    append(vNodes: $preact.VNode | $preact.VNode[]): void {
+        this.updateState({ $concat: { append: $preact.toChildArray(vNodes) } } as PartialStateUpdates);
+    }
+
+    render(): $preact.VNode<Props> | undefined {
+        // Each app must configure its brand at runtime.
+        const brand = $env.get('APP_BRAND') as $type.Brand;
+
+        // Gathers state.
+
+        const { state: locState } = $preact.useLocation();
+        const { state: dataState, ...data } = $preact.useData();
+        const { state: htmlState } = $preact.useHTML();
+
+        // Initializes local variables.
+
+        const { children } = this.props; // Current children.
+        const actualState = this.state; // Current actual state.
+        let state: ComputedState; // Populated below w/ computed state.
+
+        // Updates instance / cross-references.
+
+        dataState.head.instance = this; // Updates `<Head>` instance reference in real-time.
+        data.updateState({ head: { instance: this } }); // Async update to ensure data integrity.
+        this.forceDataUpdate = data.forceUpdate; // Allow us to force a `<Data>` update from `<Head>`.
+
+        // Memoizes computed state.
+
+        state = this.computedState = $preact.useMemo((): ComputedState => {
+            let title = actualState.title || locState.url.hostname;
+            const defaultDescription = 'Take the tiger by the tail.';
+
+            if (actualState.titleSuffix /* String or `true` to enable. */) {
+                if ($is.string(actualState.titleSuffix)) {
+                    title += actualState.titleSuffix;
+                } else if (actualState.siteName || brand.name) {
+                    title += ' • ' + (actualState.siteName || brand.name);
+                }
             }
-        }
-        return {
-            ...actualState,
+            let defaultMainStyleBundle, defaultMainScriptBundle; // When applicable/possible.
 
-            charset: actualState.charset || 'utf-8',
-            viewport: actualState.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',
+            if (!actualState.mainStyleBundle && '' !== actualState.mainStyleBundle && $env.isLocalWebVite()) {
+                defaultMainStyleBundle = './index.scss'; // Vite dev server uses original extension.
+            }
+            if (!actualState.mainScriptBundle && '' !== actualState.mainScriptBundle && $env.isLocalWebVite()) {
+                defaultMainScriptBundle = './index.tsx'; // Vite dev server uses original extension.
+            }
+            return {
+                ...actualState,
 
-            title, // See title generation above.
-            description: actualState.description || defaultDescription,
-            canonical: actualState.canonical || locState.canonicalURL,
+                charset: actualState.charset || 'utf-8',
+                viewport: actualState.viewport || 'width=device-width, initial-scale=1.0, minimum-scale=1.0',
 
-            pngIcon: actualState.pngIcon || locState.fromBase('./assets/icon.png'),
-            svgIcon: actualState.svgIcon || locState.fromBase('./assets/icon.svg'),
+                title, // See title generation above.
+                description: actualState.description || defaultDescription,
+                canonical: actualState.canonical || locState.canonicalURL,
 
-            ogSiteName: actualState.ogSiteName || actualState.siteName || brand.name || locState.url.hostname,
-            ogType: actualState.ogType || 'website',
-            ogTitle: actualState.ogTitle || title,
-            ogDescription: actualState.ogDescription || actualState.description || defaultDescription,
-            ogURL: actualState.ogURL || actualState.canonical || locState.canonicalURL,
-            ogImage: actualState.ogImage || locState.fromBase('./assets/og-image.png'),
+                pngIcon: actualState.pngIcon || locState.fromBase('./assets/icon.png'),
+                svgIcon: actualState.svgIcon || locState.fromBase('./assets/icon.svg'),
 
-            mainStyleBundle: actualState.mainStyleBundle || defaultMainStyleBundle,
-            mainScriptBundle: actualState.mainScriptBundle || defaultMainScriptBundle,
-        };
-    }, [locState, actualState]);
+                ogSiteName: actualState.ogSiteName || actualState.siteName || brand.name || locState.url.hostname,
+                ogType: actualState.ogType || 'website',
+                ogTitle: actualState.ogTitle || title,
+                ogDescription: actualState.ogDescription || actualState.description || defaultDescription,
+                ogURL: actualState.ogURL || actualState.canonical || locState.canonicalURL,
+                ogImage: actualState.ogImage || locState.fromBase('./assets/og-image.png'),
 
-    $preact.useLayoutEffect(() => onLayoutEffect(state, locState));
+                mainStyleBundle: '' === actualState.mainStyleBundle ? '' : actualState.mainStyleBundle || dataState.head.mainStyleBundle || defaultMainStyleBundle,
+                mainScriptBundle: '' === actualState.mainScriptBundle ? '' : actualState.mainScriptBundle || dataState.head.mainScriptBundle || defaultMainScriptBundle,
 
-    return (
-        <head
-            {...{
-                ...$preact.omitProps(state, [
-                    'class',
-                    'initialized',
-                    'htmlBGColor',
+                append: actualState.append || [], // Default is empty array.
+                useLayoutEffect: actualState.useLayoutEffect || false, // Default is `false`; i.e., `useEffect()`.
+            };
+        }, [brand, locState, dataState, actualState]);
 
-                    'charset',
-                    'viewport',
+        // Memoizes attributes.
 
-                    'robots',
-                    'publishTime',
-                    'lastModifiedTime',
-                    'canonical',
-                    'structuredData',
-
-                    'siteName',
-                    'title',
-                    'titleSuffix',
-                    'description',
-                    'author',
-
-                    'pngIcon',
-                    'svgIcon',
-
-                    'ogSiteName',
-                    'ogType',
-                    'ogTitle',
-                    'ogDescription',
-                    'ogURL',
-                    'ogImage',
-
-                    'mainStyleBundle',
-                    'mainScriptBundle',
-                ]),
+        const atts = $preact.useMemo((): PartialState => {
+            return {
+                ...$preact.omitProps(state, propKeys as unknown as PropKeys[]),
                 class: $preact.classes(state),
-            }}
-        >
-            {state.charset && <meta charSet={state.charset} />}
-            {locState.baseURL && <base href={locState.baseURL.toString()} />}
-            {state.viewport && <meta name='viewport' content={state.viewport} />}
+            };
+        }, [state]);
 
-            {state.robots && <meta name='robots' content={state.robots} />}
-            {state.canonical && <link rel='canonical' href={state.canonical.toString()} />}
+        // Memoizes vNodes for all keyed & unkeyed children.
 
-            {state.title && <title>{state.title}</title>}
-            {state.description && <meta name='description' content={state.description} />}
-            {state.author && <meta name='author' content={state.author} />}
+        const vNodes = $preact.useMemo((): { [x: string]: $preact.VNode } => {
+            const h = $preact.h; // We prefer more concise code here.
 
-            {state.svgIcon && <link rel='icon' type='image/svg+xml' sizes='any' href={state.svgIcon.toString()} />}
-            {state.pngIcon && <link rel='icon' type='image/png' sizes='any' href={state.pngIcon.toString()} />}
-            {state.pngIcon && <link rel='apple-touch-icon' type='image/png' sizes='any' href={state.pngIcon.toString()} />}
+            const childVNodes = {
+                charset: h('meta', { charset: state.charset }),
+                baseURL: h('base', { href: locState.baseURL.toString() }),
+                viewport: h('meta', { name: 'viewport', content: state.viewport }),
 
-            {state.ogSiteName && state.ogType && state.ogTitle && state.ogDescription && state.ogURL && state.ogImage && (
-                <>
-                    <meta property='og:site_name' content={state.ogSiteName} />
-                    <meta property='og:type' content={state.ogType} />
-                    <meta property='og:title' content={state.ogTitle} />
-                    <meta property='og:description' content={state.ogDescription} />
-                    <meta property='og:url' content={state.ogURL.toString()} />
-                    <meta property='og:image' content={state.ogImage.toString()} />
-                </>
-            )}
-            {state.mainStyleBundle && <link rel='stylesheet' href={state.mainStyleBundle.toString()} media='all' onLoad={() => onLoadMainStyleBundle(locState, updateDataState)} />}
-            {state.mainScriptBundle && (!$env.isWeb() || $env.isTest()) && <script id='preact-iso-data' dangerouslySetInnerHTML={{ __html: dataGlobalToScriptCode() }}></script>}
-            {state.mainScriptBundle && <script type='module' src={state.mainScriptBundle.toString()}></script>}
+                canonical: h('link', { rel: 'canonical', href: state.canonical.toString() }),
+                ...(state.robots ? { robots: h('meta', { name: 'robots', content: state.robots }) } : {}),
 
-            {props.children}
+                title: h('title', {}, state.title),
+                description: h('meta', { name: 'description', content: state.description }),
+                ...(state.author ? { author: h('meta', { name: 'author', content: state.author }) } : {}),
 
-            <StructuredData {...{ brand, state }} />
-        </head>
-    );
+                svgIcon: h('link', { rel: 'icon', type: 'image/svg+xml', sizes: 'any', href: state.svgIcon.toString() }),
+                pngIcon: h('link', { rel: 'icon', type: 'image/png', sizes: 'any', href: state.pngIcon.toString() }),
+                appleTouchIcon: h('link', { rel: 'apple-touch-icon', type: 'image/png', sizes: 'any', href: state.pngIcon.toString() }),
+
+                ogSiteName: h('meta', { property: 'og:site_name', content: state.ogSiteName }),
+                ogType: h('meta', { property: 'og:type', content: state.ogType }),
+                ogTitle: h('meta', { property: 'og:title', content: state.ogTitle }),
+                ogDescription: h('meta', { property: 'og:description', content: state.ogDescription }),
+                ogURL: h('meta', { property: 'og:url', content: state.ogURL.toString() }),
+                ogImage: h('meta', { property: 'og:image', content: state.ogImage.toString() }),
+
+                ...(state.mainStyleBundle ? { mainStyleBundle: h('link', { rel: 'stylesheet', href: state.mainStyleBundle.toString(), media: 'all' }) } : {}), // prettier-ignore
+                ...(state.mainScriptBundle && $env.isSSR() ? { preactISOData: h('script', { id: 'preact-iso-data', dangerouslySetInnerHTML: { __html: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore
+                ...(state.mainScriptBundle ? { mainScriptBundle: h('script', { type: 'module', src: state.mainScriptBundle.toString() }) } : {}), // prettier-ignore
+
+                ...(Object.fromEntries($preact.toChildArray(children).filter((c) => $is.vNode(c)).map((c, i) => ['_' + String(i), c])) as { [x: string]: $preact.VNode }), // prettier-ignore
+                ...(Object.fromEntries($preact.toChildArray(state.append).filter((a) => $is.vNode(a)).map((a, i) => ['__' + String(i), a])) as { [x: string]: $preact.VNode }), // prettier-ignore
+
+                structuredData: h('script', { type: 'application/ld+json', dangerouslySetInnerHTML: { __html: generateStructuredData({ brand, htmlState, state }) } }), // prettier-ignore
+            } as unknown as { [x: string]: $preact.VNode }; // We cast this as a generic array of vNodes, of any type.
+
+            for (const [key, vNode] of Object.entries(childVNodes)) {
+                // vNode keys beginning with `_` are unkeyed nodes from `props.children`.
+                if (!key.startsWith('_')) (vNode.props as $type.Object)['data-key'] = key; // Keys vNodes.
+            }
+            return childVNodes;
+        }, [brand, locState, dataState, htmlState, children, state]);
+
+        // Configures client-side effects.
+
+        if ($env.isWeb()) {
+            // Memoizes effect that runs when `atts` changes.
+
+            const onAttsChangeEffect = $preact.useMemo((): (() => void) => {
+                return $fn.memo(1, (): void => {
+                    $dom.newAtts($dom.require('head'), atts); // `<head {...atts}>`.
+                });
+            }, [atts]);
+
+            // Memoizes effect that runs when `locState` changes.
+
+            const onLocStateChangeEffect = $preact.useMemo((): (() => void) => {
+                return $fn.memo(1, (): void => {
+                    $dom.require('head').childNodes.forEach((node) => {
+                        if (!$is.htmlElement(node) || !node.dataset.key) {
+                            node.remove(); // Removes unkeyed nodes.
+                        } else if (!Object.hasOwn(vNodes, node.dataset.key)) {
+                            node.remove(); // Removes keyed nodes that are stale.
+                        }
+                    });
+                });
+            }, [locState]);
+
+            // Memoizes effect that runs when `vNodes` changes.
+
+            const onVNodesChangeEffect = $preact.useMemo((): (() => void) => {
+                return $fn.memo(1, (): void => {
+                    const head = $dom.require('head');
+
+                    for (const [, vNode] of Object.entries(vNodes)) {
+                        if (Object.hasOwn(vNode.props, 'data-key')) {
+                            const key = vNode.props['data-key'] as string;
+                            let existing; // A potentially existing node.
+
+                            if ((existing = $dom.query('head > [data-key=' + key + ']'))) {
+                                $dom.setAtts(existing, vNode.props);
+                            } else {
+                                head.appendChild($dom.create(vNode.type as string, vNode.props));
+                            }
+                        } else if ($is.string(vNode.type) && (!Object.hasOwn(vNode.props, 'children') || $is.primitive(vNode.props.children))) {
+                            head.appendChild($dom.create(vNode.type, vNode.props));
+                        } else {
+                            throw new Error('Component child in <Head>. Use plain JSX.');
+                        }
+                    }
+                });
+            }, [vNodes]);
+
+            // Runs effects.
+
+            const runEffects = (): void => {
+                onAttsChangeEffect(), onLocStateChangeEffect(), onVNodesChangeEffect();
+            };
+            $preact.useLayoutEffect(() => (state.useLayoutEffect ? runEffects() : undefined));
+            $preact.useEffect(() => (!state.useLayoutEffect ? runEffects() : undefined));
+
+            return; // Client-side has effects only.
+        }
+        return <head {...atts}>{Object.values(vNodes)}</head>;
+    }
 }
 
 /**
- * Helps render component.
+ * Generates structured data.
  *
- * @param   props Component props.
+ * @param   options See types in signature.
  *
- * @returns       VNode / JSX element tree.
+ * @returns         JSON-encoded structured data.
  *
  * @see https://schema.org/ -- for details regarding graph entries.
  * @see https://o5p.me/bgYQaB -- for details from Google regarding what they need, and why.
  */
-const StructuredData = (props: StructuredDataꓺHelperProps): $preact.VNode<StructuredDataꓺHelperProps> => {
-    const { state: htmlState } = $preact.useHTML();
-    if (!htmlState) throw new Error('Missing HTML state.');
-
-    const { brand, state } = props;
-    if (!state.ogURL) throw new Error('Missing ogURL.');
+const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLState; state: ComputedState }): string => {
+    const { brand, htmlState, state } = options;
 
     // Organization graph(s).
 
     const orgGraphs = []; // Initialize.
-    let _currentOrg = brand.org; // Initialize.
-    let _previousOrg = undefined; // Initialize.
+    (() => {
+        let currentOrg = brand.org; // Initialize.
+        let previousOrg = undefined; // Initialize.
 
-    // {@see https://schema.org/Corporation}.
-    // {@see https://schema.org/Organization}.
+        // {@see https://schema.org/Corporation}.
+        // {@see https://schema.org/Organization}.
 
-    while (_currentOrg && _currentOrg !== _previousOrg) {
-        orgGraphs.unshift({
-            '@type':
-                'corp' === _currentOrg.type
-                    ? 'Corporation' //
-                    : 'Organization',
-            '@id': _currentOrg.url + '#' + _currentOrg.type,
+        while (currentOrg && currentOrg !== previousOrg) {
+            orgGraphs.unshift({
+                '@type':
+                    'corp' === currentOrg.type
+                        ? 'Corporation' //
+                        : 'Organization',
+                '@id': currentOrg.url + '#' + currentOrg.type,
 
-            url: _currentOrg.url,
-            name: _currentOrg.name,
-            legalName: _currentOrg.legalName,
-            address: {
-                '@type': 'PostalAddress',
-                '@id': _currentOrg.url + '#addr',
-                streetAddress: _currentOrg.address.street,
-                addressLocality: _currentOrg.address.city,
-                addressRegion: _currentOrg.address.state,
-                postalCode: _currentOrg.address.zip,
-                addressCountry: _currentOrg.address.country,
-            },
-            founder: {
-                '@type': 'Person',
-                '@id': _currentOrg.founder.website + '#founder',
-                name: _currentOrg.founder.name,
-                description: _currentOrg.founder.description,
-                image: {
-                    '@type': 'ImageObject',
-                    '@id': _currentOrg.founder.website + '#founderImg',
-                    url: _currentOrg.founder.image.url,
-                    width: _currentOrg.founder.image.width,
-                    height: _currentOrg.founder.image.height,
-                    caption: _currentOrg.founder.name,
+                url: currentOrg.url,
+                name: currentOrg.name,
+                legalName: currentOrg.legalName,
+                address: {
+                    '@type': 'PostalAddress',
+                    '@id': currentOrg.url + '#addr',
+                    streetAddress: currentOrg.address.street,
+                    addressLocality: currentOrg.address.city,
+                    addressRegion: currentOrg.address.state,
+                    postalCode: currentOrg.address.zip,
+                    addressCountry: currentOrg.address.country,
                 },
-            },
-            foundingDate: _currentOrg.foundingDate,
-            numberOfEmployees: _currentOrg.numberOfEmployees,
+                founder: {
+                    '@type': 'Person',
+                    '@id': currentOrg.founder.website + '#founder',
+                    name: currentOrg.founder.name,
+                    description: currentOrg.founder.description,
+                    image: {
+                        '@type': 'ImageObject',
+                        '@id': currentOrg.founder.website + '#founderImg',
+                        url: currentOrg.founder.image.url,
+                        width: currentOrg.founder.image.width,
+                        height: currentOrg.founder.image.height,
+                        caption: currentOrg.founder.name,
+                    },
+                },
+                foundingDate: currentOrg.foundingDate,
+                numberOfEmployees: currentOrg.numberOfEmployees,
 
-            slogan: _currentOrg.slogan,
-            description: _currentOrg.description,
-            logo: {
-                '@type': 'ImageObject',
-                '@id': _currentOrg.url + '#logo',
-                url: _currentOrg.logo.png,
-                width: _currentOrg.logo.width,
-                height: _currentOrg.logo.height,
-                caption: _currentOrg.name,
-            },
-            image: { '@id': _currentOrg.url + '#logo' },
-            sameAs: Object.values(_currentOrg.socialProfiles),
+                slogan: currentOrg.slogan,
+                description: currentOrg.description,
+                logo: {
+                    '@type': 'ImageObject',
+                    '@id': currentOrg.url + '#logo',
+                    url: currentOrg.logo.png,
+                    width: currentOrg.logo.width,
+                    height: currentOrg.logo.height,
+                    caption: currentOrg.name,
+                },
+                image: { '@id': currentOrg.url + '#logo' },
+                sameAs: Object.values(currentOrg.socialProfiles),
 
-            ...(_previousOrg ? { subOrganization: { '@id': _previousOrg.url + '#' + _previousOrg.type } } : {}),
-            ...(_currentOrg.org !== _currentOrg ? { parentOrganization: { '@id': _currentOrg.org.url + '#' + _currentOrg.org.type } } : {}),
-        });
-        (_previousOrg = _currentOrg), (_currentOrg = _currentOrg.org);
-    }
+                ...(previousOrg ? { subOrganization: { '@id': previousOrg.url + '#' + previousOrg.type } } : {}),
+                ...(currentOrg.org !== currentOrg ? { parentOrganization: { '@id': currentOrg.org.url + '#' + currentOrg.org.type } } : {}),
+            });
+            (previousOrg = currentOrg), (currentOrg = currentOrg.org);
+        }
+    })();
     // WebSite graph.
     // {@see https://schema.org/WebSite}.
 
@@ -339,7 +492,7 @@ const StructuredData = (props: StructuredDataꓺHelperProps): $preact.VNode<Stru
             headline: pageTitle,
             description: pageDescription,
 
-            inLanguage: htmlState.lang || 'en',
+            inLanguage: htmlState.lang || 'en-US',
             author: [
                 { '@id': siteGraph['@id'] }, // Site, and maybe a person.
                 ...(state.author ? [{ '@type': 'Person', name: state.author }] : []),
@@ -374,82 +527,40 @@ const StructuredData = (props: StructuredDataꓺHelperProps): $preact.VNode<Stru
         '@context': 'https://schema.org/',
         '@graph': [...orgGraphs, siteGraph, pageGraph],
     };
-    return <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: $json.stringify(data, { pretty: true }) }}></script>;
+    return $json.stringify(data, { pretty: true });
 };
 
 /**
  * Defines pseudo context hook.
  *
- * @returns Pseudo context props {@see ContextProps}.
+ * `<Data>` state contains a high-level reference to the current `<Head>` instance, such that it becomes available
+ * across all contexts vs. standalone, as `<Head>` actually is. We update the `<Head>` reference on render, so this
+ * works anytime after `<Head>` has rendered for the first time; i.e., pretty much anywhere within an app.
  *
- * @note `<Head>` state is stored in `<Data>` so it’s available
- *       across all contexts; i.e., at any nested level of the DOM.
+ * In reality, `<Head>` stands alone. Updating its state will not re-render anything except `<Head>` itself. This is
+ * intentionally the case, as it allows for things to get dropped into the `<Head>`, like styles/scripts, without it
+ * causing a full re-render. However, there are a few things that do cause `<Head>` to re-render.
+ *
+ * - If `<Location>` changes state, everything re-renders, including `<Head>`, which is the most common scenario. When you
+ *   want `<Head>` to change, change `<Location>` state. This is fundamentally how `<Head>` is intended to work.
+ * - If anything else above `<Head>` re-renders; e.g., `<Data>` or `<HTML>`, then most everything re-renders.
+ *
+ * Otherwise, if you update `<Head>` state in a way that should result in a full re-rendering of everything from
+ * `<Data>` on down, you can use the `forceFullUpdate()` utility provided by the `useHead()` hook.
+ *
+ * Some `<Head>` state keys are immutable; {@see ImmutableStateKeys}.
+ *
+ * @returns Pseudo context props {@see ContextProps}.
  */
 export const useHead = (): ContextProps => {
-    const { state: dataState, updateState: updateDataState } = $preact.useData();
-    if (!dataState) throw new Error('Missing data state.');
+    const { state: dataState } = $preact.useData();
 
-    return {
-        state: dataState.head as unknown as ContextProps['state'],
-        updateState: (updates: Parameters<ContextProps['updateState']>[0]): ReturnType<ContextProps['updateState']> => {
-            updateDataState({ head: $obj.omit(updates, ['initialized']) });
-        },
-    };
-};
+    const instance = dataState.head.instance;
+    if (!instance) throw new Error('Missing <Head> instance.');
 
-/* ---
- * Misc utilities.
- */
+    const state = instance.computedState as ComputedState;
+    const updateState = instance.updateState.bind(instance);
+    const forceFullUpdate = instance.forceFullUpdate.bind(instance);
 
-/**
- * Handles layout effect.
- *
- * @param state    Current `<Head>` state.
- * @param locState Current `<Location>` state.
- */
-const onLayoutEffect = (state: State, locState: LocationState): void => {
-    if (!$env.isWeb()) return;
-
-    $dom.onNextFrame(() => {
-        let html, body; // Initialize.
-        if ((html = $dom.query('html') && (body = $dom.query('body')))) {
-            html.style.backgroundColor = state.htmlBGColor || '';
-            if (!locState.isInitial && !body.style.opacity) {
-                body.style.transitionProperty = 'opacity';
-                body.style.transitionDuration = '250ms';
-                body.style.display = 'none';
-                body.style.opacity = '0';
-            }
-        }
-    });
-};
-
-/**
- * Handles onLoad event for main style bundle.
- *
- * @param locState        Current `<Location>` state.
- * @param updateDataState `<Data>` state updater.
- */
-const onLoadMainStyleBundle = (locState: LocationState, updateDataState: DataContextProps['updateState']): void => {
-    if (!$env.isWeb()) return;
-
-    $dom.onReady(() => {
-        if (locState.isInitial) {
-            $dom.onNextFrame(() => {
-                let html; // Initialize.
-                if ((html = $dom.query('html'))) {
-                    updateDataState({ head: { htmlBGColor: $dom.stylesOf(html).backgroundColor } });
-                }
-            });
-        }
-        if (!locState.isInitial) {
-            $dom.onNextFrame(() => {
-                let body; // Initialize.
-                if ((body = $dom.require('body'))) {
-                    body.style.display = 'block';
-                    body.style.opacity = '1';
-                }
-            });
-        }
-    });
+    return { state, updateState, forceFullUpdate };
 };

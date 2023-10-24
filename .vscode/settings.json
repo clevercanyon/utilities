@@ -138,7 +138,7 @@
         "dev/.files": true,
         ".yarn": true,
         "vendor": true,
-        "node_modules": false,
+        "node_modules": true,
         "jspm_packages": true,
         "bower_components": true,
         "yarn.lock": true,

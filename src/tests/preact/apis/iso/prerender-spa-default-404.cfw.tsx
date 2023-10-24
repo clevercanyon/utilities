@@ -36,7 +36,7 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
             <Root {...props}>
                 <Route path='./' component={Index} />
                 <Route path='./others/*' component={Others} />
-                <Route default component={Error404} />
+                <Route default component={Route404} />
             </Root>
         );
     };
@@ -68,7 +68,7 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
             </HTML>
         );
     };
-    const Error404 = $preact.lazyRoute(() => import('../../../../preact/components/404.tsx'));
+    const Route404 = $preact.lazyRoute(() => import('../../../../preact/components/404.tsx'));
 
     // ---
 

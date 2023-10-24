@@ -6,41 +6,41 @@ import '../../resources/init.ts';
 
 import { Component, createContext } from 'preact';
 import { $app, $env, $is, $json, $obj, $obp, $preact, $str, type $type } from '../../index.ts';
-import { type PartialState as PartialHeadState } from './head.tsx';
+import { type default as HeadInstance, type PartialState as PartialHeadState } from './head.tsx';
 
 /**
  * Defines data types.
  *
- * @note `<Data>` props contains some initial passable `<Head>` component props.
- *       These props only have an impact on initial `<Head>` state; {@see PassableHeadProps}.
- *       e.g., `mainStyleBundle`, `mainScriptBundle`.
- * ---
- * @note `<Head>` state is stored in `<Data>` so it’s available
- *       across all contexts; i.e., at any nested level of the DOM.
+ * `<Data>` state contains some initial, passable `<Head>` state keys. These serve as default props for `<Head>` when
+ * they are not defined elsewhere. e.g., `mainStyleBundle`, `mainScriptBundle`. `<Data>` state also contains a
+ * high-level reference to the current `<Head>` instance, such that it becomes available across all contexts.
  */
 export type State = $preact.State<{
     globalObp: string;
     fetcher: $preact.iso.Fetcher;
-    head: PartialHeadState;
+    head: {
+        instance?: HeadInstance;
+    } & Pick<PartialHeadState, PassableHeadStateKeys>;
 }>;
 export type PartialState = $preact.State<{
-    globalObp?: string;
-    fetcher?: $preact.iso.Fetcher;
-    head?: PartialHeadState;
+    globalObp?: State['globalObp'];
+    fetcher?: State['fetcher'];
+    head?: Partial<State['head']>;
 }>;
-export type PartialStateUpdates = Omit<PartialState, 'globalObp'>;
-
-export type Props = Omit<
-    $preact.Props<
-        Omit<PartialState, 'head'> & {
-            head?: Pick<PartialHeadState, PassableHeadProps>;
-        } // Passable head props only.
-    >, // Omits class prop variants.
-    $preact.ClassPropVariants
+export type PartialStateUpdates = $preact.State<
+    Omit<Pick<PartialState, UpdatableStateKeys>, 'head'> & {
+        head?: Partial<Pick<State['head'], UpdatableHeadStateKeys>>;
+    }
+>;
+export type Props = $preact.BasicProps<
+    Omit<PartialState, 'head'> & {
+        head?: Partial<Pick<State['head'], PassableHeadStateKeys>>;
+    }
 >;
 export type ContextProps = $preact.Context<{
     state: State;
     updateState: $preact.Dispatch<PartialStateUpdates>;
+    forceUpdate: Data['forceUpdate']; // Used by `<Head>`.
 }>;
 export type HTTPContextProps = $preact.Context<{
     state: GlobalState['http'];
@@ -50,46 +50,82 @@ export type HTTPContextProps = $preact.Context<{
 /**
  * Defines global types.
  *
- * Global, meaning via a global variable.
- *
- * @note All of these must be JSON serializable.
- *       Why? We dump it into preact ISO script code.
- * ---
- * @note Global state is how we store server-side rendering info
- *       and share it with the browser, which reads global ISO state.
- *       Global state is made available to a browser via script code.
+ * Global, meaning via a global variable. Global state is how we store server-side rendering info and share it with the
+ * browser, which reads global ISO state. Global state is made available to a browser via script code. Please remember,
+ * all of these must be JSON serializable. Why? We dump them into preact ISO script code.
  */
 export type GlobalState = $preact.State<{
     http: { status: number };
-    head: Pick<PartialHeadState, PassableHeadProps>;
+    head: Pick<PartialHeadState, PassableHeadStateKeys>;
 }>;
 export type PartialGlobalState = $preact.State<{
-    http?: { status?: number };
-    head?: Pick<PartialHeadState, PassableHeadProps>;
+    http?: Partial<GlobalState['http']>;
+    head?: Partial<GlobalState['head']>;
 }>;
-export type PartialGlobalStateUpdates = Omit<PartialGlobalState, 'head'>;
+export type MergeableGlobalState = $preact.State<
+    Omit<Pick<PartialGlobalState, MergeableGlobalStateKeys>, 'head'> & {
+        head?: Partial<Pick<GlobalState['head'], MergeableGlobalHeadStateKeys>>;
+    }
+>;
+export type PartialGlobalStateUpdates = $preact.State<
+    Omit<Pick<PartialGlobalState, UpdatableGlobalStateKeys>, 'http'> & {
+        http?: Partial<Pick<GlobalState['http'], UpdatableGlobalHTTPStateKeys>>;
+    }
+>;
+
+/**
+ * Defines passable `<Head>` state keys.
+ *
+ * - This variable must remain a `const`, as it keeps types DRY.
+ * - Please do not export this variable, it is for internal use only.
+ */
+const passableHeadStateKeys = ['mainStyleBundle', 'mainScriptBundle'] as const;
+type PassableHeadStateKeys = $type.Writable<typeof passableHeadStateKeys>[number];
+
+/**
+ * Defines updatable keys in state.
+ *
+ * - These variables must remain `const`, as they keep types DRY.
+ * - Please do not export these variables, they are for internal use only.
+ */
+const updatableStateKeys = ['head'] as const;
+const updatableHeadStateKeys = ['instance'] as const;
+
+type UpdatableStateKeys = $type.Writable<typeof updatableStateKeys>[number];
+type UpdatableHeadStateKeys = $type.Writable<typeof updatableHeadStateKeys>[number];
+
+/**
+ * Defines mergable keys in global state.
+ *
+ * - These variables must remain `const`, as they keep types DRY.
+ * - Please do not export these variables, they are for internal use only.
+ */
+const mergeableGlobalStateKeys = ['head'] as const;
+const mergeableGlobalHeadStateKeys = ['mainStyleBundle', 'mainScriptBundle'] as const;
+
+type MergeableGlobalStateKeys = $type.Writable<typeof mergeableGlobalStateKeys>[number];
+type MergeableGlobalHeadStateKeys = $type.Writable<typeof mergeableGlobalHeadStateKeys>[number];
+
+/**
+ * Defines updatable keys in global state.
+ *
+ * - These variables must remain `const`, as they keep types DRY.
+ * - Please do not export these variables, they are for internal use only.
+ */
+const updatableGlobalStateKeys = ['http'] as const;
+const updatableGlobalHTTPStateKeys = ['status'] as const;
+
+type UpdatableGlobalStateKeys = $type.Writable<typeof updatableGlobalStateKeys>[number];
+type UpdatableGlobalHTTPStateKeys = $type.Writable<typeof updatableGlobalHTTPStateKeys>[number];
 
 /**
  * Defines default global object path.
+ *
+ * This is also called upon by our ISO prerenderer.
  */
 export const defaultGlobalObp = (): string => {
     return $str.obpPartSafe($app.pkgName) + '.preactISOData';
 };
-
-/**
- * Defines passable head props.
- *
- * @note All of these must be JSON serializable.
- *       Why? We dump it into preact ISO script code.
- * ---
- * @note `<Data>` props contains some initial passable `<Head>` component props.
- *       These props only have an impact on initial `<Head>` state.
- *       e.g., `mainStyleBundle`, `mainScriptBundle`.
- * ---
- * @note Must remain a `const`. This keeps types DRY in this file.
- */
-const passableHeadProps = ['mainStyleBundle', 'mainScriptBundle'] as const;
-type PassableHeadProps = $type.Writable<typeof passableHeadProps>[number];
 
 /**
  * Defines context.
@@ -102,20 +138,38 @@ const Context = createContext({} as ContextProps);
 /**
  * Produces initial global state.
  *
+ * Global, meaning via a global variable. Global state is how we store server-side rendering info and share it with the
+ * browser, which reads global ISO state. Global state is made available to a browser via script code. Please remember,
+ * all of these must be JSON serializable. Why? We dump them into preact ISO script code.
+ *
+ * Our initial HTTP state is always the same, and only relevant server-side. Also, HTTP state is pseudo-state stored in
+ * the global state variable, but is not actually a part of the `<Data>` state. It’s just handled here in the `<Data>`
+ * layer along with the {@see useHTTP()} hook, which provides a way to update the global HTTP state.
+ *
+ * The order of precedence in the initial deep state merge, from left to right, is: global state from a prior
+ * server-side rendering; i.e., if now on the web; followed by relevant `<Data>` props, which form our default state,
+ * and then finally any props satisfied explicitly by our global state initializer.
+ *
  * @param   globalObp Object path.
  * @param   props     Component props.
  *
  * @returns           Initialized global state.
  */
 const initialGlobalState = (globalObp: string, props: Props): GlobalState => {
-    const webState = $env.isWeb() ? $obp.get(globalThis, globalObp) : {};
+    let cleanSSRState; // Initialize.
 
-    const state = $obj.mergeDeep(
-        { http: { status: 200 }, head: props.head || {} },
-        // Our initial HTTP state is always the same, and only relevant server-side.
-        // In fact, HTTP state should only be updated server-side via `useHTTP()`.
-        $obj.omit(webState || {}, ['http']),
-    ) as unknown as GlobalState;
+    // Global state from a prior server-side rendering.
+    if ($env.isWeb() && (cleanSSRState = $obp.get(globalThis, globalObp) as $type.Writable<PartialGlobalState>)) {
+        cleanSSRState = $obj.pick(cleanSSRState, mergeableGlobalStateKeys as unknown as string[]);
+        cleanSSRState.head = $obj.pick(cleanSSRState.head || {}, mergeableGlobalHeadStateKeys as unknown as string[]);
+    }
+    // Default state based only on props.
+    const propState = {
+        http: { status: 200 }, // Our initial HTTP state is always the same.
+        head: $obj.pick(props.head || {}, mergeableGlobalHeadStateKeys as unknown as string[]),
+    };
+    // Current prop state is merged into global SSR state.
+    const state = $obj.mergeDeep(cleanSSRState || {}, propState) as GlobalState;
 
     // Synchronizes global object path.
     $obp.set(globalThis, globalObp, state);
@@ -124,50 +178,38 @@ const initialGlobalState = (globalObp: string, props: Props): GlobalState => {
 };
 
 /**
- * Produces initial state.
- *
- * @param   props Component props.
- *
- * @returns       Initialized state.
- */
-const initialState = (props: Props): State => {
-    const globalObp = props.globalObp || defaultGlobalObp();
-    const global = initialGlobalState(globalObp, props); // @ `globalObp`.
-    const fetcher = props.fetcher || $preact.iso.replaceNativeFetch();
-
-    const state = $obj.mergeDeep(
-        { head: {} }, // Before props.
-        $preact.omitProps(global, ['http']),
-        $preact.omitProps(props, ['children']),
-        { $set: { globalObp, fetcher } },
-    ) as unknown as State;
-
-    return state; // Initial state.
-};
-
-/**
  * Defines component.
  *
- * @note Using `Component`, not `$preact.Component`, because this occurs inline. We can’t use our own cyclic
- *       utilities inline, only inside functions. So we use `Component` directly from `preact` in this specific case.
- * ---
- * @note Using a class component to gain greater control over state updates at this super high level of the DOM tree.
- *       The goal is to avoid re-rendering when `<Data>` state changes, if possible, because it re-renders everything.
- *       In particular, `<Head>` does a state update to initialize itself, and we definitely don’t want to re-render.
+ * Using a class component for more control over re-renders; e.g., to avoid re-rendering when `<Head>` updates its
+ * `instance`. Using `Component`, not `$preact.Component`, because this occurs inline. We can’t use our own cyclic
+ * utilities inline, only inside functions. So we use `Component` directly from `preact` in this specific case.
+ *
+ * The order of precedence in the initial deep state merge, from left to right, is: relevant keys in global state,
+ * followed by relevant `<Data>` props; and then `<Data>` state keys satisfied explicitly by our initializer.
  */
 export default class Data extends Component<Props, State> {
     constructor(props: Props = {}) {
-        super(props);
-        this.state = initialState(props);
+        super(props); // Parent constructor.
+
+        const globalObp = props.globalObp || defaultGlobalObp();
+        const globalState = initialGlobalState(globalObp, props);
+        const fetcher = props.fetcher || $preact.iso.replaceNativeFetch();
+
+        this.state = $obj.mergeDeep(
+            $obj.pick(globalState, mergeableGlobalStateKeys as unknown as string[]),
+            $preact.omitProps(props, ['globalObp', 'fetcher', 'children']), //
+            { $set: { globalObp, fetcher }, head: {} },
+        ) as unknown as State;
     }
 
     updateState<Updates extends PartialStateUpdates>(updates: Updates): void {
-        updates = $obj.omit(updates, ['globalObp']) as Updates;
+        this.setState((currentState: State): Updates | null => {
+            const cleanUpdates = $obj.pick(updates, updatableStateKeys as unknown as string[]) as $type.Writable<Updates>;
+            cleanUpdates.head = $obj.pick(cleanUpdates.head || {}, updatableHeadStateKeys as unknown as string[]);
 
-        this.setState((): Updates | null => {
-            const newState = $obj.updateDeep(this.state, updates);
+            const newState = $obj.updateDeep(currentState, cleanUpdates);
             // Returning `null` tells Preact no; {@see https://o5p.me/9BaxT3}.
-            return newState !== this.state ? (newState as Updates) : null;
+            return newState !== currentState ? (newState as Updates) : null;
         });
     }
 
@@ -178,11 +220,17 @@ export default class Data extends Component<Props, State> {
         if (!sameProps) return true; // Must re-render.
         if (sameState) return false; // No reason to re-render.
 
-        const { head: unusedꓺnextHead, ...nextStateWithoutHead } = nextState;
-        const { head: unusedꓺcurrentHead, ...currentStateWithoutHead } = this.state;
+        const nextRelevantState = $obj.pick(nextState, updatableStateKeys as unknown as string[]) as $type.Writable<PartialState>;
+        nextRelevantState.head = $obj.pick(nextRelevantState.head || {}, updatableHeadStateKeys as unknown as string[]);
 
-        if ($is.deepEqual(nextStateWithoutHead, currentStateWithoutHead)) {
-            return false; // No reason to re-render. Only `<Head>` is updating.
+        const currentRelevantState = $obj.pick(this.state, updatableStateKeys as unknown as string[]) as $type.Writable<PartialState>;
+        currentRelevantState.head = $obj.pick(currentRelevantState.head || {}, updatableHeadStateKeys as unknown as string[]);
+
+        // We don’t want to re-render when `<Head>` simply updates its instance.
+        delete nextRelevantState.head.instance, delete currentRelevantState.head.instance;
+
+        if ($is.deepEqual(nextRelevantState, currentRelevantState)) {
+            return false; // No reason to re-render.
         }
         return true; // Otherwise.
     }
@@ -191,8 +239,9 @@ export default class Data extends Component<Props, State> {
         return (
             <Context.Provider
                 value={{
-                    state: this.state as unknown as ContextProps['state'],
-                    updateState: (u: Parameters<ContextProps['updateState']>[0]): ReturnType<ContextProps['updateState']> => this.updateState(u),
+                    state: this.state,
+                    updateState: (updates) => this.updateState(updates),
+                    forceUpdate: (callback) => this.forceUpdate(callback),
                 }}
             >
                 {this.props.children}
@@ -213,24 +262,20 @@ export const useData = (): ContextProps => $preact.useContext(Context);
  *
  * @returns Pseudo context props {@see HTTPContextProps}.
  *
- * @note Server-side use only, with an exception for automated testing.
- * @note HTTP state is semi-functional on web, but we discourage use outside testing.
+ * @requiredEnv ssr -- This hook must only be used server-side.
  */
 export const useHTTP = (): HTTPContextProps => {
-    if ($env.isWeb() && !$env.isTest()) {
-        throw $env.errServerSideOnly;
-    }
-    const { state } = useData();
+    if (!$env.isSSR()) throw $env.errSSROnly;
 
-    if (!state || !state.globalObp) {
-        throw new Error('Missing `globalObp`.');
-    }
+    const { state } = useData(); // For `globalObp` reference.
     const httpState = $obp.get(globalThis, state.globalObp + '.http') as GlobalState['http'];
 
     return {
-        state: httpState as unknown as HTTPContextProps['state'],
-        updateState: (updates: Parameters<HTTPContextProps['updateState']>[0]): ReturnType<HTTPContextProps['updateState']> => {
-            $obp.set(globalThis, state.globalObp + '.http', $obj.mergeDeep(httpState, updates));
+        state: httpState,
+        updateState: (updates): void => {
+            const httpState = $obp.get(globalThis, state.globalObp + '.http');
+            updates = $obj.pick(updates, updatableGlobalHTTPStateKeys as unknown as string[]);
+            $obp.set(globalThis, state.globalObp + '.http', $obj.updateDeep(httpState, updates));
         },
     };
 };
@@ -238,34 +283,26 @@ export const useHTTP = (): HTTPContextProps => {
 /**
  * Converts global state into embeddable script code.
  *
- * @returns Global state as embeddable script code; for preact ISO.
+ * @param   state Current `<Data>` state.
  *
- * @note Server-side use only, with an exception for automated testing.
- * @note Dumping global script code on web works, but we discourage use outside testing.
+ * @returns       Global state as embeddable script code; for preact ISO.
+ *
+ * @requiredEnv ssr -- This utility must only be used server-side.
  */
-export const globalToScriptCode = (): string => {
-    if ($env.isWeb() && !$env.isTest()) {
-        throw $env.errServerSideOnly;
-    }
-    const { state } = useData();
-    const { state: httpState } = useHTTP();
+export const globalToScriptCode = (state: State): string => {
+    if (!$env.isSSR()) throw $env.errSSROnly;
 
-    if (!state || !state.globalObp) {
-        throw new Error('Missing `globalObp`.');
-    } else if (!httpState || !httpState.status) {
-        throw new Error('Missing `httpState`.');
-    }
+    // We use `<Data>` state to acquire `globalObp`.
     const globalScriptCode = $obp.toScriptCode(state.globalObp);
 
-    const httpProps = httpState; // All of this must be JSON serializable.
-    const headProps = $obj.pick(state.head, passableHeadProps as unknown as PassableHeadProps[]);
+    const cleanGlobalState = $obj.pick(state, mergeableGlobalStateKeys as unknown as string[]) as $type.Writable<PartialGlobalState>;
+    cleanGlobalState.head = $obj.pick(cleanGlobalState.head || {}, mergeableGlobalHeadStateKeys as unknown as string[]);
 
-    let scriptCode = globalScriptCode.init; // Initializes global variables.
-    scriptCode += ' ' + globalScriptCode.set + '.http = ' + $json.stringify(httpProps) + ';';
-    scriptCode += ' ' + globalScriptCode.set + '.head = ' + $json.stringify(headProps) + ';';
+    let scriptCode = globalScriptCode.init; // Initializes global vars in script code.
+    scriptCode += ' ' + globalScriptCode.set + ' = ' + $json.stringify(cleanGlobalState) + ';';
 
     // We also dump the script code from our accompanying fetcher.
     scriptCode += state.fetcher ? ' ' + state.fetcher.globalToScriptCode() : '';
 
-    return scriptCode; // i.e., Global variables to be used in a `<script>` tag.
+    return scriptCode; // To be used in a `<script>` tag.
 };

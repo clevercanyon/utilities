@@ -19,9 +19,9 @@ export type Options = {
 };
 
 /**
- * Defines DOM cookie map.
+ * Defines web cookie map.
  */
-const documentCookieMap: Map<string, string | undefined> = new Map();
+const webCookieMap: Map<string, string | undefined> = new Map();
 
 /**
  * Parses a cookie header.
@@ -33,15 +33,17 @@ const documentCookieMap: Map<string, string | undefined> = new Map();
  * @returns        Parsed cookies object.
  *
  * @note Function is memoized. Parsed cookies object is readonly.
+ *
+ * @requiredEnv web -- When `header` is not given explicitly.
  */
 export const parse = $fnꓺmemo(6, (header?: string): { readonly [x: string]: string } => {
-    let isDocumentCookieHeader = false;
+    let isWebCookieHeader = false;
     const cookies: { [x: string]: string } = {};
 
     if (undefined === header) {
         if ($env.isWeb()) {
             header = document.cookie;
-            isDocumentCookieHeader = true;
+            isWebCookieHeader = true;
         } else {
             throw new Error('Missing `header`.');
         }
@@ -62,9 +64,9 @@ export const parse = $fnꓺmemo(6, (header?: string): { readonly [x: string]: st
         value = $str.unquote(value, { type: 'double' });
         cookies[$url.decode(name)] = $url.decode(value);
     }
-    if (isDocumentCookieHeader) {
+    if (isWebCookieHeader) {
         // Reflect latest runtime cookie changes.
-        for (const [key, value] of documentCookieMap.entries()) {
+        for (const [key, value] of webCookieMap.entries()) {
             if (undefined === value) {
                 delete cookies[key]; // Deleted cookie.
             } else {
@@ -81,9 +83,10 @@ export const parse = $fnꓺmemo(6, (header?: string): { readonly [x: string]: st
  * @param   name Cookie name.
  *
  * @returns      True if cookie exists.
+ *
+ * @requiredEnv web
  */
 export const exists = $fnꓺmemo(24, (name: string): boolean => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     return Object.hasOwn(parse(), name);
 });
 
@@ -94,9 +97,10 @@ export const exists = $fnꓺmemo(24, (name: string): boolean => {
  * @param   defaultValue Defaults to undefined.
  *
  * @returns              Cookie value, else {@see defaultValue}.
+ *
+ * @requiredEnv web
  */
 export const get = $fnꓺmemo(24, <Default extends $type.Primitive = undefined>(name: string, defaultValue?: Default): string | Default => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     const cookies = parse(); // Parser is memoized (important).
     return Object.hasOwn(cookies, name) ? cookies[name] : (defaultValue as Default);
 });
@@ -107,10 +111,10 @@ export const get = $fnꓺmemo(24, <Default extends $type.Primitive = undefined>(
  * @param name    Cookie name.
  * @param value   Cookie value.
  * @param options Options (all optional).
+ *
+ * @requiredEnv web
  */
 export const set = (name: string, value: string, options: Options = {}): void => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
-
     if (!nameIsValid(name)) {
         throw new Error('Invalid name: `' + name + '`.');
     }
@@ -134,9 +138,9 @@ export const set = (name: string, value: string, options: Options = {}): void =>
     document.cookie = $url.encode(name) + '=' + $url.encode(value) + domain + path + expires + samesite + secure;
 
     if ('' === value && opts.expires && opts.expires <= -1) {
-        documentCookieMap.set(name, undefined); // Deleted cookie.
+        webCookieMap.set(name, undefined); // Deleted cookie.
     } else {
-        documentCookieMap.set(name, value); // Cookie’s latest value.
+        webCookieMap.set(name, value); // Cookie’s latest value.
     }
     parse.flush(), exists.flush(), get.flush(); // Flushes memoization cache.
 };
@@ -146,12 +150,13 @@ export const set = (name: string, value: string, options: Options = {}): void =>
  *
  * @param name    Cookie name.
  * @param options Options (all optional).
+ *
+ * @requiredEnv web
  */
 const _delete = (name: string, options: Options = {}): void => {
-    if (!$env.isWeb()) throw $env.errClientSideOnly;
     set(name, '', { ...options, expires: -1 });
 };
-export { _delete as delete }; // Must be exported as alias.
+export { _delete as delete }; // Must export as alias.
 
 /**
  * Checks if a cookie name is valid.

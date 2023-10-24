@@ -15,16 +15,28 @@ import { $fnꓺmemo } from './resources/standalone/index.ts';
 export {
     Component,
     Fragment,
-    cloneElement,
-    createContext,
-    createElement,
+    //
     createRef,
-    h,
-    hydrate,
-    isValidElement,
-    options,
+    createContext,
+    //
+    // createElement, // We prefer `create`.
+    createElement as create, // i.e., we prefer this.
+    // `h`  is an alias of the more verbose `create`, `createElement`.
+    h, // `h` is short for hyperscript. Meaning, "JavaScript that produces HTML".
+    //
+    // cloneElement, // We prefer `clone`.
+    cloneElement as clone, // i.e., we prefer this.
+    //
+    // isValidElement, // We prefer `isVNode`.
+    isValidElement as isVNode, // i.e., we prefer this.
+    // Please note that `isVNode`, `isValidElement` are extremely naive.
+    // Instead, see: `$is.vNode()`, which is more exhaustive.
+    //
     render,
-    toChildArray, //
+    hydrate,
+    //
+    toChildArray,
+    options,
 } from 'preact';
 
 /**
@@ -91,11 +103,11 @@ export { lazyRoute, lazyComponent } from './resources/preact/apis/iso/lazy.tsx';
 /**
  * Defines types.
  *
- * @note: `AsyncFnComponent` is a special type passed into `lazyComponent()`,
- *         which returns an acceptible `FnComponent`. It is not valid anywhere else.
+ * `AsyncFnComponent` is a special type passed to `lazyComponent()`, which returns an acceptible `FnComponent`. It is
+ * not valid anywhere else. Please do not use it arbitrarily; i.e., rare to find a need for it outside these utilities.
  */
-export type { JSX } from 'preact';
 export type { Dispatch } from 'preact/hooks';
+export type { JSX, ComponentChildren as Children } from 'preact';
 
 export type FnComponent<Type extends Props = Props> = preact.FunctionComponent<Type>;
 export type AsyncFnComponent<Type extends Props = Props> = (...args: Parameters<FnComponent<Type>>) => Promise<ReturnType<FnComponent<Type>>>;
@@ -103,7 +115,9 @@ export type ClassComponent<Type extends Props = Props, Type2 extends State = Sta
 export type AnyComponent<Type extends Props = Props, Type2 extends State = State> = FnComponent<Type> | ClassComponent<Type, Type2>;
 export type VNode<Type extends Props = Props> = preact.VNode<Type>; // Function components return a VNode.
 
+export type BasicProps<Type extends object = $type.Object> = Readonly<preact.RenderableProps<Type>>;
 export type Props<Type extends object = $type.Object> = Readonly<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>>;
+
 export type Context<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type State<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type Ref<Type = unknown> = preact.RefObject<Type>;

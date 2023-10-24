@@ -5,28 +5,21 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $env, $is, $preact, $str, $url, type $type } from '../../index.ts';
+import { $dom, $env, $is, $preact, $str, $url, type $type } from '../../index.ts';
 
 /**
  * Defines types.
  */
-export type Props = Omit<
-    $preact.Props<{
-        url?: $type.URL | string;
-        baseURL?: $type.URL | string;
-    }>,
-    $preact.ClassPropVariants
->;
-export type ActualState = $preact.State<{
+export type State = $preact.State<{
     isInitial: boolean;
     wasPushed: boolean;
     pathQuery: string;
     baseURL: $type.URL;
 }>;
-export type PartialActualState = $preact.State<Partial<ActualState>>;
-export type PartialActualStateUpdates = Omit<PartialActualState, 'isInitial' | 'wasPushed' | 'baseURL'>;
+export type PartialState = Partial<State>;
+export type PartialStateUpdates = Pick<PartialState, 'pathQuery'>;
 
-export type State = $preact.State<{
+export type ComputedState = $preact.State<{
     // URL push?
     isInitial: boolean;
     wasPushed: boolean;
@@ -50,11 +43,14 @@ export type State = $preact.State<{
     fromBase(parseable: $type.URL | string): string;
     pathFromBase(parseable: $type.URL | string): string;
 }>;
-export type PartialState = $preact.State<Partial<State>>;
-
+export type Props = $preact.BasicProps<{
+    url?: $type.URL | string;
+    baseURL?: $type.URL | string;
+}>;
 export type ContextProps = $preact.Context<{
-    state: State;
-    updateState: $preact.Dispatch<PartialActualStateUpdates | MouseEvent | PopStateEvent | string>;
+    state: ComputedState;
+    push: $preact.Dispatch<PartialStateUpdates | string>;
+    updateState: $preact.Dispatch<PartialStateUpdates | MouseEvent | PopStateEvent | string>;
 }>;
 
 /**
@@ -74,7 +70,8 @@ const Context = createContext({} as ContextProps);
  */
 export default function Location(props: Props = {}): $preact.VNode<Props> {
     const [actualState, updateState] = $preact.useReducer(reducer, undefined, () => initialState(props));
-    const contextProps = /* Updates only when actual state changes. */ $preact.useMemo(() => {
+
+    const state = $preact.useMemo((): ComputedState => {
         const url = $url.parse(actualState.pathQuery, actualState.baseURL);
         const canonicalURL = $url.parse($url.toCanonical(url));
 
@@ -82,42 +79,39 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
         url.pathname = canonicalURL.pathname; // Consistency.
 
         return {
-            state: {
-                ...actualState, // State.
-                // `isInitial: boolean`.
-                // `wasPushed: boolean`.
+            ...actualState, // State.
+            // `isInitial: boolean`.
+            // `wasPushed: boolean`.
 
-                // Base URL & path.
-                baseURL: actualState.baseURL, // URL instance.
-                // ↓ Typically has a trailing slash.
-                basePath: $url.toPath(actualState.baseURL),
+            // Base URL & path.
+            baseURL: actualState.baseURL, // URL instance.
+            // ↓ Typically has a trailing slash.
+            basePath: $url.toPath(actualState.baseURL),
 
-                // Current URL w/o hash.
-                url, // URL instance.
-                canonicalURL, // URL instance.
+            // Current URL w/o hash.
+            url, // URL instance.
+            canonicalURL, // URL instance.
 
-                // These are `./` relative to base.
-                path: $url.removeBasePath($url.toPath(url), actualState.baseURL),
-                pathQuery: $url.removeBasePath($url.toPathQuery(url), actualState.baseURL),
+            // These are `./` relative to base.
+            path: $url.removeBasePath($url.toPath(url), actualState.baseURL),
+            pathQuery: $url.removeBasePath($url.toPathQuery(url), actualState.baseURL),
 
-                // Query variables.
-                query: url.search, // Leading `?`.
-                queryVars: $url.getQueryVars(url),
+            // Query variables.
+            query: url.search, // Leading `?`.
+            queryVars: $url.getQueryVars(url),
 
-                // Utility methods.
+            // Utility methods.
 
-                fromBase(parseable: $type.URL | string) {
-                    return $url.parse(parseable, actualState.baseURL).toString();
-                },
-                pathFromBase(parseable: $type.URL | string) {
-                    return $url.toPathQueryHash($url.parse(parseable, actualState.baseURL));
-                },
+            fromBase(parseable: $type.URL | string) {
+                return $url.parse(parseable, actualState.baseURL).toString();
             },
-            updateState, // i.e., Location reducer updates state.
+            pathFromBase(parseable: $type.URL | string) {
+                return $url.toPathQueryHash($url.parse(parseable, actualState.baseURL));
+            },
         };
-    }, [actualState.isInitial, actualState.wasPushed, actualState.pathQuery]) as ContextProps;
+    }, [actualState.isInitial, actualState.wasPushed, actualState.pathQuery]);
 
-    $preact.useLayoutEffect(() => {
+    $preact.useEffect(() => {
         addEventListener('click', updateState);
         addEventListener('popstate', updateState);
 
@@ -127,7 +121,7 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
         };
     }, [actualState.isInitial, actualState.wasPushed, actualState.pathQuery]);
 
-    return <Context.Provider value={contextProps}>{props.children}</Context.Provider>;
+    return <Context.Provider value={{ state, push: updateState, updateState }}>{props.children}</Context.Provider>;
 }
 
 /**
@@ -148,7 +142,7 @@ export const useLocation = (): ContextProps => $preact.useContext(Context);
  *
  * @returns       Initial component state.
  */
-const initialState = (props: Props): ActualState => {
+const initialState = (props: Props): State => {
     let { url, baseURL } = props; // Initialize.
 
     if (baseURL && $is.url(baseURL)) {
@@ -191,8 +185,10 @@ const initialState = (props: Props): ActualState => {
  * @param   x     Event or another type of update.
  *
  * @returns       New state; else original state if no changes.
+ *
+ * @todo SEO: Consider forcing full page changes whenever a bot is navigating the site.
  */
-const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[0]): ActualState => {
+const reducer = (state: State, x: Parameters<ContextProps['updateState']>[0]): State => {
     let url, isPush, isClick; // Initialize.
     const isObject = $is.object(x);
     const isWeb = $env.isWeb();
@@ -200,9 +196,10 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
     // Case handlers for various types of state updates.
 
     if (isObject && 'click' === (x as MouseEvent).type) {
-        const event = x as MouseEvent;
-        isClick = isPush = true; // Click event is a push.
         if (!isWeb) return state; // Not possible.
+
+        const event = x as MouseEvent;
+        isClick = isPush = true; // Click = push.
 
         if ($is.number(event.button) && 0 !== event.button) {
             // {@see https://o5p.me/OJrHBs} for details.
@@ -227,9 +224,10 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
         url = $url.parse(a.href, state.baseURL);
         //
     } else if (isObject && 'popstate' === (x as PopStateEvent).type) {
+        if (!isWeb) return state; // Not applicable.
+
         const unusedꓺevent = x as PopStateEvent;
         // Popstate history event is a change, not a push.
-        if (!isWeb) return state; // Not applicable.
 
         url = $url.parse(location.href, state.baseURL);
         //
@@ -245,10 +243,8 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
         isPush = true; // String passed in is a push.
 
         const pathQuery = x; // As `pathQuery`.
+        if (!pathQuery) return state; // Not applicable.
 
-        if (!pathQuery) {
-            return state; // Not applicable.
-        }
         url = $url.parse($str.lTrim(pathQuery, '/'), state.baseURL);
     }
     // ---
@@ -280,7 +276,7 @@ const reducer = (state: ActualState, x: Parameters<ContextProps['updateState']>[
     if (state.pathQuery === pathQuery) {
         if (isWeb && isClick && !url.hash) {
             (x as MouseEvent).preventDefault();
-            scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            $dom.afterNextFrame(() => scrollTo({ top: 0, left: 0, behavior: 'auto' }));
         }
         return state; // No point; we’re already at this location.
         // This also ignores on-page hash changes. We let browser handle.

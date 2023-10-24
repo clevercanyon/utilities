@@ -26,8 +26,8 @@ export type QVTests = { [x: string]: null | undefined | string | string[] };
 /**
  * Exports frequently-used errors.
  */
-export const errClientSideOnly = new Error('Client-side only.');
-export const errServerSideOnly = new Error('Server-side only.');
+export const errWebOnly = new Error('Web only.');
+export const errSSROnly = new Error('SSR only.');
 
 /**
  * Checks if an object path is top-level.
@@ -262,9 +262,9 @@ export function unset(...args: unknown[]): void {
 }
 
 /**
- * Is test framework?
+ * Checks if environment is a test framework.
  *
- * @returns True if is test framework.
+ * @returns True or false.
  *
  *   Vitest sets:
  *
@@ -277,45 +277,18 @@ export const isTest = $fnꓺmemo((): boolean => {
 });
 
 /**
- * Is web browser?
+ * Checks if environment is a web browser.
  *
- * @returns True if is web.
+ * @returns True or false.
  */
 export const isWeb = $fnꓺmemo((): boolean => {
     return ('Window' in globalThis && $is.function(Window) && globalThis instanceof Window) || isWebViaJSDOM();
 });
 
 /**
- * Is web browser under a local hostname?
+ * Checks if environment is a web browser via jsdom.
  *
- * @returns True if is web browser under a local hostname.
- */
-export const isLocalWeb = $fnꓺmemo((): boolean => {
-    return isWeb() && $str.matches($url.currentRootHost({ withPort: false }), $url.localHostPatterns());
-});
-
-/**
- * Is web browser under a local hostname and Vite dev server is running?
- *
- * @returns True if is web browser under a local hostname and Vite dev server is running.
- */
-export const isLocalWebVite = (): boolean => {
-    return isLocalWeb() && isVite();
-};
-
-/**
- * Is web browser under a local hostname and Vite dev server is running with HMR/prefresh?
- *
- * @returns True if is web browser under a local hostname and Vite dev server is running with HMR/prefresh.
- */
-export const isLocalWebVitePrefresh = (): boolean => {
-    return isLocalWebVite() && '__PREFRESH__' in globalThis;
-};
-
-/**
- * Is web browser via JS DOM?
- *
- * @returns True if is web browser via JS DOM?
+ * @returns True or false.
  */
 export const isWebViaJSDOM = $fnꓺmemo((): boolean => {
     return (
@@ -327,18 +300,56 @@ export const isWebViaJSDOM = $fnꓺmemo((): boolean => {
 });
 
 /**
- * Is node?
+ * Checks if environment is a web browser under a local hostname.
  *
- * @returns True if is node.
+ * @returns True or false.
+ */
+export const isLocalWeb = $fnꓺmemo((): boolean => {
+    return isWeb() && $str.matches($url.currentRootHost({ withPort: false }), $url.localHostPatterns());
+});
+
+/**
+ * Checks if environment is a web browser under a local hostname and Vite dev server is running.
+ *
+ * @returns True or false.
+ */
+export const isLocalWebVite = (): boolean => {
+    return isLocalWeb() && isVite();
+};
+
+/**
+ * Checks if environment is a web browser under a local hostname and Vite dev server is running with HMR/prefresh?
+ *
+ * @returns True or false.
+ */
+export const isLocalWebVitePrefresh = (): boolean => {
+    return isLocalWebVite() && '__PREFRESH__' in globalThis;
+};
+
+/**
+ * Checks if environment is the server-side for an {@see isWeb()} app.
+ *
+ * @returns True or false.
+ *
+ * @note We intentionally do not get specific with the environment checks here,
+ *       as this must only be used as an antonym for {@see isWeb()}.
+ *       Binary; i.e., either {@see isWeb()} or {@see isSSR()}.
+ */
+export const isSSR = $fnꓺmemo((): boolean => !isWeb());
+
+/**
+ * Checks if environment is node.
+ *
+ * @returns True or false.
  */
 export const isNode = $fnꓺmemo((): boolean => {
     return 'process' in globalThis && $is.object(process) && $is.object(process.versions) && 'node' in process.versions;
 });
 
 /**
- * Is Cloudflare worker?
+ * Checks if environment is a Cloudflare worker.
  *
- * @returns True if is Cloudflare worker.
+ * @returns True or false.
  */
 export const isCFW = $fnꓺmemo((): boolean => {
     return (
@@ -350,9 +361,9 @@ export const isCFW = $fnꓺmemo((): boolean => {
 });
 
 /**
- * Is Cloudflare worker via miniflare?
+ * Checks if environment is a Cloudflare worker via miniflare.
  *
- * @returns True if is Cloudflare worker via miniflare.
+ * @returns True or false.
  */
 export const isCFWViaMiniflare = $fnꓺmemo((): boolean => {
     return (
@@ -364,64 +375,64 @@ export const isCFWViaMiniflare = $fnꓺmemo((): boolean => {
 });
 
 /**
- * Is worker?
+ * Checks if environment is a worker.
  *
- * @returns True if is worker.
+ * @returns True or false.
  */
 export const isWorker = $fnꓺmemo((): boolean => {
     return 'WorkerGlobalScope' in globalThis && $is.function(WorkerGlobalScope) && globalThis instanceof WorkerGlobalScope;
 });
 
 /**
- * Is dedicated worker?
+ * Checks if environment is a dedicated worker.
  *
- * @returns True if is dedicated worker.
+ * @returns True or false.
  */
 export const isDedicatedWorker = $fnꓺmemo((): boolean => {
     return 'DedicatedWorkerGlobalScope' in globalThis && $is.function(DedicatedWorkerGlobalScope) && globalThis instanceof DedicatedWorkerGlobalScope;
 });
 
 /**
- * Is shared worker?
+ * Checks if environment is a shared worker.
  *
- * @returns True if is shared worker.
+ * @returns True or false.
  */
 export const isSharedWorker = $fnꓺmemo((): boolean => {
     return 'SharedWorkerGlobalScope' in globalThis && $is.function(SharedWorkerGlobalScope) && globalThis instanceof SharedWorkerGlobalScope;
 });
 
 /**
- * Is service worker?
+ * Checks if environment is a service worker.
  *
- * @returns True if is service worker.
+ * @returns True or false.
  */
 export const isServiceWorker = $fnꓺmemo((): boolean => {
     return 'ServiceWorkerGlobalScope' in globalThis && $is.function(ServiceWorkerGlobalScope) && globalThis instanceof ServiceWorkerGlobalScope;
 });
 
 /**
- * Is operated by Clever Canyon?
+ * Checks if environment is operated by Clever Canyon.
  *
  * @param   tests Optional tests. {@see test()} for details.
  *
- * @returns       True if is operated by Clever Canyon.
+ * @returns       True if environment is operated by Clever Canyon.
  *
  *   - If different tests are passed, meaning of return value potentially changes.
  */
 export const isC10n = (tests: QVTests = {}): boolean => test('APP_IS_C10N', tests);
 
 /**
- * Is Vite dev server running an app?
+ * Checks if environment is a Vite dev server running an app.
  *
  * @param   tests Optional tests. {@see test()} for details.
  *
- * @returns       True if Vite dev server is running an app.
+ * @returns       True if environment is a Vite dev server running an app.
  *
  *   - If different tests are passed, meaning of return value potentially changes.
  *
  * @note By default, this also returns `true` when running tests; because that’s how Vitest works.
  *       The test files are served by Vite’s dev server; i.e., `serve` is the Vite command internally.
- *       If you’d like to avoid that condition, you can simply check `if (!$env.isTest())`.
+ *       If you’d like to avoid that condition you can simply check `if (!$env.isTest())`.
  */
 export const isVite = (tests: QVTests = { serve: '*' }): boolean => test('APP_IS_VITE', tests);
 

@@ -5,7 +5,8 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $obj, $preact } from '../../index.ts';
+import { $dom, $env, $obj, $preact } from '../../index.ts';
+import { default as As } from './as.tsx';
 
 /**
  * Defines types.
@@ -15,7 +16,7 @@ export type State = $preact.State<
         [x in $preact.ClassPropVariants]?: $preact.Classes;
     }
 >;
-export type PartialState = $preact.State<Partial<State>>;
+export type PartialState = Partial<State>;
 export type PartialStateUpdates = PartialState;
 export type Props = $preact.Props<PartialState>;
 
@@ -63,17 +64,32 @@ const reduceState = (state: State, updates: PartialStateUpdates): State => {
  * @returns       VNode / JSX element tree.
  */
 export default function Body(props: Props = {}): $preact.VNode<Props> {
-    const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(props));
+    const [actualState, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(props));
+
+    const state = $preact.useMemo((): State => {
+        return {
+            ...$preact.omitProps(actualState, ['class']),
+            class: $preact.classes(actualState),
+        };
+    }, [actualState]);
+
+    if ($env.isWeb()) {
+        $preact.useLayoutEffect(() => {
+            $dom.newAtts($dom.require('body'), state);
+        });
+    }
     return (
         <Context.Provider value={{ state, updateState }}>
-            <body
-                {...{
-                    ...$preact.omitProps(state, ['class']),
-                    class: $preact.classes(state),
-                }}
-            >
-                {props.children}
-            </body>
+            {/* Client-side renders context only. <body> server-side. */}
+            {$env.isWeb() ? (
+                <>{props.children}</>
+            ) : (
+                <body {...state}>
+                    <As tag='x-preact-app' data-hydrate={''}>
+                        {props.children}
+                    </As>
+                </body>
+            )}
         </Context.Provider>
     );
 }
@@ -81,6 +97,6 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
 /**
  * Defines context hook.
  *
- * @returns {@see ContextProps} Context.
+ * @returns Context props {@see ContextProps}.
  */
 export const useBody = (): ContextProps => $preact.useContext(Context);

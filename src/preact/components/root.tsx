@@ -12,7 +12,7 @@ import { default as Router, type Props as RouterProps } from '../components/rout
 /**
  * Defines types.
  */
-export type Props = Omit<$preact.Props<LocationProps & DataProps & RouterProps>, $preact.ClassPropVariants>;
+export type Props = $preact.BasicProps<LocationProps & DataProps & RouterProps>;
 
 /**
  * Renders component.

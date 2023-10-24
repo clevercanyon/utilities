@@ -7,6 +7,23 @@ import './resources/init.ts';
 import { $is, $obj, $symbol, type $type } from './index.ts';
 
 /**
+ * Converts any value into a string.
+ *
+ * This is almost exactly the same as `String()`, except `null`, `undefined` are converted to an empty string instead of
+ * `'null'`, `'undefined'`. Otherwise, `true`, `false`, objects, etc, are all handled the same as {@see String()}.
+ *
+ * There is no reason to use this arbitrarily when converting to a string. Rather, this is for special cases when
+ * converting to a clean string (i.e., not converting `null`, `undefined`) to a string, is desirable.
+ *
+ * @param   value Value to cast as a string.
+ *
+ * @returns       Value cast as a string.
+ */
+export const string = (value: unknown): string => {
+    return $is.nul(value) ? '' : String(value);
+};
+
+/**
  * Converts any value into a map.
  *
  * There’s no native map casting in JavaScript. `new Map(Object.entries(value))` is about the shortest you can get,

@@ -13,8 +13,8 @@ import { $obj, $preact } from '../../index.ts';
 export type State = $preact.State<{
     variant: string;
 }>;
-export type PartialState = $preact.State<Partial<State>>;
-export type Props = Omit<$preact.Props<PartialState>, $preact.ClassPropVariants>;
+export type PartialState = Partial<State>;
+export type Props = $preact.BasicProps<PartialState>;
 
 export type ContextProps = $preact.Context<{
     state: State;

@@ -7,28 +7,23 @@ import '../../resources/init.ts';
 import { createContext } from 'preact';
 import { $dom, $env, $preact, $str, $url, type $type } from '../../index.ts';
 import { LazyErrorBoundary, type LazyErrorBoundaryProps } from '../../resources/preact/apis/iso/lazy.tsx';
+import { type State as LocationState } from './location.tsx';
 
 /**
  * Defines types.
  */
-export type CoreProps = Omit<
-    $preact.Props<{
-        onLoadEnd?: () => void;
-        onLoadStart?: () => void;
-        onRouteChange?: () => void;
-    }>,
-    $preact.ClassPropVariants
->;
-export type Props = Omit<$preact.Props<LazyErrorBoundaryProps & CoreProps>, $preact.ClassPropVariants>;
+export type CoreProps = $preact.BasicProps<{
+    onLoadStart?: (data: { locState: LocationState; routeContext: RouteContextProps }) => void;
+    onLoadEnd?: (data: { locState: LocationState; routeContext: RouteContextProps }) => void;
+    onRouteChange?: (data: { locState: LocationState; routeContext: RouteContextProps }) => void;
+}>;
+export type Props = $preact.BasicProps<LazyErrorBoundaryProps & CoreProps>;
 
-export type RouteProps = Omit<
-    $preact.Props<{
-        path?: string;
-        default?: boolean;
-        component: $preact.AnyComponent<RoutedProps>;
-    }>,
-    $preact.ClassPropVariants
->;
+export type RouteProps = $preact.BasicProps<{
+    path?: string;
+    default?: boolean;
+    component: $preact.AnyComponent<RoutedProps>;
+}>;
 export type RouteContextProps = $preact.Context<{
     // These are relative `./` to base.
     // And, these are relative `./` to parent route.
@@ -47,7 +42,7 @@ export type RouteContextProps = $preact.Context<{
     // Path parameter keys/values.
     params: { [x: string]: string };
 }>;
-export type RoutedProps = RouteProps & Omit<$preact.Props<RouteContextProps>, $preact.ClassPropVariants>;
+export type RoutedProps = $preact.BasicProps<RouteProps & RouteContextProps>;
 
 /**
  * Defines context.
@@ -77,13 +72,13 @@ export default function Router(props: Props = {}): $preact.VNode<Props> {
 /**
  * Renders component.
  *
+ * This requires an explanation. Our core router rewrites the original `<Route>` props. i.e., {@see RouteProps} are
+ * initially read, then this component is cloned, and props are modified prior to rendering. Therefore, a route will
+ * never see {@see RouteProps} alone, it will only receive the expanded set of {@see RoutedProps}.
+ *
  * @param   props Component props.
  *
  * @returns       VNode / JSX element tree.
- *
- * @note This is weird, but it’s right. Our core router rewrites the original `<Route>` props internally.
- *       i.e., `RouteProps` are read, this component is cloned, and props are modified prior to rendering.
- *       A route will never see `RouteProps` alone, it will only receive the expanded set of `RoutedProps`.
  */
 export const Route = (props: RouteProps): $preact.VNode<RouteProps> => {
     const { component: Route } = props;
@@ -115,12 +110,9 @@ const resolvedPromise = Promise.resolve();
  */
 const RenderRefRoute = ({
     r,
-}: Omit<
-    $preact.Props<{
-        r: $preact.Ref<$preact.VNode<RoutedProps>>;
-    }>,
-    $preact.ClassPropVariants
->): $preact.Ref<$preact.VNode<RoutedProps>>['current'] => r.current;
+}: $preact.BasicProps<{
+    r: $preact.Ref<$preact.VNode<RoutedProps>>;
+}>): $preact.Ref<$preact.VNode<RoutedProps>>['current'] => r.current;
 
 /**
  * Router component and child Route components.
@@ -189,10 +181,10 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             let matchingRouteContext: RouteContextProps | undefined;
 
             if ((matchingRouteContext = pathMatchesRoutePattern(routeContext.path, childVNode.props.path || '', routeContext))) {
-                return Boolean((matchingChildVNode = $preact.cloneElement(childVNode, (routeContext = matchingRouteContext))));
+                return Boolean((matchingChildVNode = $preact.clone(childVNode, (routeContext = matchingRouteContext))));
             }
             if (!defaultChildVNode && childVNode.props.default) {
-                defaultChildVNode = $preact.cloneElement(childVNode, routeContext);
+                defaultChildVNode = $preact.clone(childVNode, routeContext);
             }
             return false;
         });
@@ -212,11 +204,11 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         // The new route suspended, so keep the previous route around while it loads.
         previousRoute.current = previousRouteSnapshot;
 
-        // Fire an event saying we're waiting for the route.
-        if (props.onLoadStart) props.onLoadStart();
-
         // Flag as currently loading.
         currentRouteIsLoading.current = true;
+
+        // Fire an event saying we're waiting for the route.
+        if (props.onLoadStart) props.onLoadStart({ locState, routeContext: context });
 
         // Re-render on un-suspension.
         const routeCounterSnapshot = routeCounter.current; // Snapshot.
@@ -258,15 +250,17 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             prevLocationPathQuery.current !== locState.pathQuery //
         ) {
             if (locState.wasPushed && $env.isWeb() /* Handles scroll location. */) {
-                const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
-                const currentHashElement = currentHash ? $dom.query('#' + currentHash) : null;
+                $dom.afterNextFrame(() => {
+                    const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
+                    const currentHashElement = currentHash ? $dom.query('#' + currentHash) : null;
 
-                if (currentHashElement) {
-                    currentHashElement.scrollIntoView({ behavior: 'auto' });
-                } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                    if (currentHashElement) {
+                        currentHashElement.scrollIntoView({ behavior: 'auto' });
+                    } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                });
             }
-            if (props.onLoadEnd && currentRouteIsLoading.current) props.onLoadEnd();
-            if (props.onRouteChange) props.onRouteChange();
+            if (props.onLoadEnd && currentRouteIsLoading.current) props.onLoadEnd({ locState, routeContext: context });
+            if (props.onRouteChange) props.onRouteChange({ locState, routeContext: context });
 
             (prevLocationisInitial.current = locState.isInitial), //
                 (prevLocationWasPushed.current = locState.wasPushed),
@@ -276,7 +270,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
     }, [locState.isInitial, locState.wasPushed, locState.pathQuery, layoutTicks]);
 
     // Note: `currentRoute` MUST render first to trigger a thrown promise.
-    return <>{[$preact.createElement(RenderRefRoute, { r: currentRoute }), $preact.createElement(RenderRefRoute, { r: previousRoute })]}</>;
+    return <>{[$preact.create(RenderRefRoute, { r: currentRoute }), $preact.create(RenderRefRoute, { r: previousRoute })]}</>;
 }
 
 /**
