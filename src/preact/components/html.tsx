@@ -11,7 +11,7 @@ import { $dom, $env, $obj, $preact } from '../../index.ts';
  * Defines types.
  */
 export type State = $preact.State<
-    Partial<$preact.JSX.IntrinsicElements['html']> & {
+    Partial<$preact.Intrinsic['html']> & {
         lang: string; // String value only.
     } & { [x in $preact.ClassPropVariants]?: $preact.Classes }
 >;
@@ -76,7 +76,7 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
     if ($env.isWeb()) {
         $preact.useLayoutEffect(() => {
             $dom.newAtts($dom.require('html'), state);
-        });
+        }, [state]);
     }
     return (
         <Context.Provider value={{ state, updateState }}>

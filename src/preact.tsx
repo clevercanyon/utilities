@@ -107,16 +107,18 @@ export { lazyRoute, lazyComponent } from './resources/preact/apis/iso/lazy.tsx';
  * not valid anywhere else. Please do not use it arbitrarily; i.e., rare to find a need for it outside these utilities.
  */
 export type { Dispatch } from 'preact/hooks';
-export type { JSX, ComponentChildren as Children } from 'preact';
+
+export type Children = preact.ComponentChildren;
+export type Intrinsic = preact.JSX.IntrinsicElements;
+export type VNode<Type extends Props = Props> = preact.VNode<Type>;
 
 export type FnComponent<Type extends Props = Props> = preact.FunctionComponent<Type>;
 export type AsyncFnComponent<Type extends Props = Props> = (...args: Parameters<FnComponent<Type>>) => Promise<ReturnType<FnComponent<Type>>>;
 export type ClassComponent<Type extends Props = Props, Type2 extends State = State> = preact.ComponentClass<Type, Type2>;
 export type AnyComponent<Type extends Props = Props, Type2 extends State = State> = FnComponent<Type> | ClassComponent<Type, Type2>;
-export type VNode<Type extends Props = Props> = preact.VNode<Type>; // Function components return a VNode.
 
-export type BasicProps<Type extends object = $type.Object> = Readonly<preact.RenderableProps<Type>>;
-export type Props<Type extends object = $type.Object> = Readonly<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>>;
+export type BasicProps<Type extends object = { [x: string]: unknown }> = Readonly<preact.RenderableProps<Type>>;
+export type Props<Type extends object = { [x: string]: unknown }> = Readonly<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>>;
 
 export type Context<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type State<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;

@@ -70,25 +70,26 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
     const globalObp = props.globalObp || defaultGlobalObp();
     const fetcher = props.fetcher || replaceNativeFetch();
 
-    let appManifestStyleBundleSubpath: string = ''; // Style bundle.
-    let appManifestScriptBundleSubpath: string = ''; // Script bundle.
+    let styleBundleSubpath: string = ''; // Style bundle.
+    let scriptBundleSubpath: string = ''; // Script bundle.
 
     for (const htmlExt of $path.canonicalExtVariants('html')) {
-        const htmlEntry = appManifest['index.' + htmlExt]; // Possibly undefined.
+        const htmlEntry = appManifest['index.' + htmlExt]; // `undefined`, perhaps.
         if ($is.array(htmlEntry?.css) && $is.string(htmlEntry?.css?.[0]) && $is.string(htmlEntry?.file)) {
-            appManifestStyleBundleSubpath = $str.lTrim((htmlEntry.css as string[])[0], './');
-            appManifestScriptBundleSubpath = $str.lTrim(htmlEntry.file, './');
+            styleBundleSubpath = $str.lTrim((htmlEntry.css as string[])[0], './');
+            scriptBundleSubpath = $str.lTrim(htmlEntry.file, './');
             break; // We can stop here.
         }
     } // Now let’s confirm we found the bundle files.
-    if (!appManifestStyleBundleSubpath) throw new Error('Missing `appManifest[index.html].css[0]`.');
-    if (!appManifestScriptBundleSubpath) throw new Error('Missing `appManifest[index.html].file`.');
+    if (!styleBundleSubpath) throw new Error(); // Missing `appManifest[index.html].css[0]`.
+    if (!scriptBundleSubpath) throw new Error(); // Missing `appManifest[index.html].file`.
 
-    const mainStyleBundle = './' + appManifestStyleBundleSubpath;
-    const mainScriptBundle = './' + appManifestScriptBundleSubpath;
+    const styleBundle = './' + styleBundleSubpath;
+    const scriptBundle = './' + scriptBundleSubpath;
 
     const appProps = {
-        ...props, // Option props.
+        ...props,
+        isHydration: false,
 
         // `<Location>` props.
         url, // Absolute URL extracted from request.
@@ -97,7 +98,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
         // `<Data>` props.
         globalObp, // Global object path.
         fetcher, // Preact ISO fetcher; {@see replaceNativeFetch()}.
-        head: $obj.mergeDeep({ mainStyleBundle, mainScriptBundle }, props.head),
+        head: $obj.mergeDeep({ styleBundle, scriptBundle }, props.head),
     };
     const prerenderedData = await prerender(App, { props: appProps });
     fetcher.restoreNativeFetch(); // Restore to avoid conflicts.
@@ -125,35 +126,36 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
 export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void => {
     if (!$env.isWeb()) throw $env.errWebOnly;
 
+    const appSelectors = 'body > x-preact-app';
     let appToHydrate, appToRender; // Queried below.
     const { App, props = {} } = options; // As local vars.
 
     /**
      * Hydrates when applicable, else renders.
      */
-    if ((appToHydrate = $dom.query('body > x-preact-app[data-hydrate]'))) {
-        $preact.hydrate(<App {...props} />, appToHydrate);
+    if ((appToHydrate = $dom.query(appSelectors + '[data-hydrate]'))) {
+        $preact.hydrate(<App {...{ ...props, isHydration: true }} />, appToHydrate);
         //
-    } else if ((appToRender = $dom.query('body > x-preact-app'))) {
-        $preact.render(<App {...props} />, appToRender);
+    } else if ((appToRender = $dom.query(appSelectors))) {
+        $preact.render(<App {...{ ...props, isHydration: false }} />, appToRender);
     } else {
-        throw new Error('Missing <x-preact-app>.');
+        throw new Error(); // Missing <x-preact-app>.
     }
 
     /**
-     * Regarding `<App>` props from server-side prerender.
+     * Regarding `<App>` props from server-side prerender. The thing to keep in mind is that if SSR props were used to
+     * affect a prerender, then those exact same props should also be given when hydrating on the web. Otherwise, there
+     * will be many problems. So long as that’s the case, though, everything will be just fine.
      *
      * `<Location>` props.
      *
      * - `url`: It’s either already in props, or auto-detected in a web browser, so no need to populate here.
-     * - `baseURL`: It’s either already in props, or auto-detected in a web browser, so no need to populate here. e.g.,
-     *   using `<base href>` already inserted by `<Head>` server-side.
+     * - `baseURL`: It’s either already in props, or falls back to current app’s base, so no need to populate here.
      *
      * `<Data>` props.
      *
      * - `globalObp`: It’s either already in props, or `<Data>` will use default, so no need to populate here.
      * - `fetcher`: It’s either already in props, or `<Data>` will use default, so no need to populate here.
-     * - `head`: What isn’t already in props will already be in global script code; e.g., `mainStyleBundle`,
-     *   `mainScriptBundle`, so no need to populate here.
+     * - `head`: It’s either already in props, or in global script code; e.g., `styleBundle`, `scriptBundle`.
      */
 };

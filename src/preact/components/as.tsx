@@ -10,7 +10,7 @@ import { $preact } from '../../index.ts';
  * Defines types.
  */
 export type Props = $preact.Props<
-    Partial<$preact.JSX.IntrinsicElements['div'] | $preact.JSX.IntrinsicElements['span']> & {
+    Partial<$preact.Intrinsic['div'] | $preact.Intrinsic['span']> & {
         tag?: string; // HTML tag name. Remember to use a dash in any custom tags.
     }
 >;

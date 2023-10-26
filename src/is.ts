@@ -592,9 +592,9 @@ export const node = (value: unknown): value is Node => {
  * @see https://o5p.me/jSIg3C -- JSX runtime.
  * @see https://o5p.me/GqM0aR -- Preact vNode.
  */
-export const vNode = (value: unknown): value is $type.Object<{ type: string; props: $type.Object }> => {
+export const vNode = (value: unknown): value is $type.Object<{ type: unknown; props: $type.Object }> => {
     return $preact.isVNode(value) && plainObject(value)
-        && Object.hasOwn(value, 'type') && Object.hasOwn(value, 'props')
+        && Object.hasOwn(value, 'type') && plainObject(value.props)
         && Object.hasOwn(value, '__e' /* `__e` = `_dom` */); // prettier-ignore
 };
 

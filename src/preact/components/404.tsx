@@ -13,17 +13,20 @@ import { default as HTML } from './html.tsx';
  * Renders component.
  *
  * - This has its own main style bundle.
- * - This is purely static. It does not use a main script bundle.
+ * - This is purely static. It does not use a script bundle.
  * - This must only be used as a route and it does not accept props.
  *
- * Because this uses its own stylesheet, it must swap the main style bundle out and use its own. This is also why apps
- * should prefer to create their own 404 error route. Ideally, one that can leverage an app’s existing styles.
+ * @deprecated Because this uses its own stylesheet, it must swap the style bundle out and use its own. This is also why
+ *   apps should prefer to create their own 404 error route. Ideally, one that can leverage an app’s existing styles.
  *
  * @returns VNode / JSX element tree.
+ *
+ * @review Consider reviving/updating this, such that it leverages Tailwind CSS. Worth it?
+ * @review Consider removing this, or leaving it only as an example of how to create a 404 route.
  */
 export default function Route404(): $preact.VNode {
     if ($is.empty($preact.useRoute())) {
-        throw new Error('Must only be used as a route.');
+        throw new Error(); // Must only be used as a route.
     }
     if ($env.isSSR()) {
         const { updateState: updateHTTPState } = $preact.useHTTP();
@@ -36,9 +39,8 @@ export default function Route404(): $preact.VNode {
                 title='404 Error: Not Found'
                 description='The resource you are looking for could not be found.'
                 //
-                mainStyleBundle='https://cdn.clevercanyon.com/assets/uploads/404.css'
-                mainScriptBundle='' // Purely static. It does not use a main script bundle.
-                useLayoutEffect={true} // Because we want the stylesheet applied asap.
+                styleBundle='https://cdn.clevercanyon.com/assets/uploads/404.css'
+                scriptBundle='' // Purely static. It does not use a script bundle.
             />
             <Body>
                 <Content />
@@ -67,7 +69,7 @@ export const StandAlone = (props: $preact.Props<{ lang?: string }> = {}): $preac
             <head>
                 <meta charSet='utf-8' />
                 <meta name='robots' content='noindex, nofollow' />
-                <meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0' />
+                <meta name='viewport' content='width=device-width, initial-scale=1, minimum-scale=1' />
 
                 <title>404 Error: Not Found</title>
                 <meta name='description' content='The resource you are looking for could not be found.' />

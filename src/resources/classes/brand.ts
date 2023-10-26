@@ -262,7 +262,7 @@ export const getClass = (): Constructor => {
         /**
          * Object constructor.
          *
-         * @param props Props or {@see Interface} instance.
+         * @param props Props or instance.
          */
         public constructor(props: C9rProps | Class) {
             super(); // Parent constructor.

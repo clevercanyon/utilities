@@ -8,8 +8,9 @@ import { $class, $is, $symbol, type $type } from './index.ts';
 import * as $standalone from './resources/standalone/index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
 
-let mc: $type.ObjMC; // Object MC class instance.
-let mcInitialized: boolean = false; // Initialized once only.
+let mc: $type.ObjMC;
+let mcNoOps: $type.ObjMC;
+let mcInitialized: boolean = false;
 
 /**
  * Defines types.
@@ -550,25 +551,32 @@ export const cloneDeep = <Type>(value: Type, options: CloneOptions = {}, circula
 
 /**
  * Initializes {@see mc} instance.
+ *
+ * @returns True, always.
  */
-const mcInitialize = (): void => {
-    if (mcInitialized) return; // Once only.
-    mcInitialized = true; // Initializing now.
+const mcInitialize = (): true => {
+    if (mcInitialized) {
+        return true;
+    } else mcInitialized = true;
 
     const ObjMC = $class.getObjMC();
     mc = new ObjMC(); // Class instance.
+    mcNoOps = new ObjMC({ allowOps: false });
+
+    return true;
 };
 
 /**
  * Creates a custom MC instance.
  *
- * @returns {@see MCInterface} Instance.
+ * @param   args New instance args.
+ *
+ * @returns      Instance; {@see MCInterface}.
  *
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
-export const mcCustom = (): $type.ObjMC => {
-    if (!mcInitialized) mcInitialize();
-    return mc.newInstance();
+export const mcCustom = (...args: Parameters<typeof mc.newInstance>): $type.ObjMC => {
+    return mcInitialize() && mc.newInstance(...args);
 };
 
 /**
@@ -596,8 +604,12 @@ export const mcCustom = (): $type.ObjMC => {
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
 export const mergeDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
-    if (!mcInitialized) mcInitialize();
-    return mc.mergeDeep(...args);
+    return mcInitialize() && mc.mergeDeep(...args);
+}) as $type.ObjMCHandler;
+
+// Variant that does not allow declarative ops.
+export const mergeDeepNoOps = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
+    return mcInitialize() && mcNoOps.mergeDeep(...args);
 }) as $type.ObjMCHandler;
 
 /**
@@ -626,8 +638,12 @@ export const mergeDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
 export const mergeClonesDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
-    if (!mcInitialized) mcInitialize();
-    return mc.mergeClonesDeep(...args);
+    return mcInitialize() && mc.mergeClonesDeep(...args);
+}) as $type.ObjMCHandler;
+
+// Variant that does not allow declarative ops.
+export const mergeClonesDeepNoOps = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
+    return mcInitialize() && mcNoOps.mergeClonesDeep(...args);
 }) as $type.ObjMCHandler;
 
 /**
@@ -657,8 +673,12 @@ export const mergeClonesDeep = ((...args: Parameters<$type.ObjMCHandler>): Retur
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
 export const patchDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
-    if (!mcInitialized) mcInitialize();
-    return mc.patchDeep(...args);
+    return mcInitialize() && mc.patchDeep(...args);
+}) as $type.ObjMCHandler;
+
+// Variant that does not allow declarative ops.
+export const patchDeepNoOps = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
+    return mcInitialize() && mcNoOps.patchDeep(...args);
 }) as $type.ObjMCHandler;
 
 /**
@@ -687,8 +707,12 @@ export const patchDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
 export const patchClonesDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
-    if (!mcInitialized) mcInitialize();
-    return mc.patchClonesDeep(...args);
+    return mcInitialize() && mc.patchClonesDeep(...args);
+}) as $type.ObjMCHandler;
+
+// Variant that does not allow declarative ops.
+export const patchClonesDeepNoOps = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
+    return mcInitialize() && mcNoOps.patchClonesDeep(...args);
 }) as $type.ObjMCHandler;
 
 /**
@@ -731,8 +755,12 @@ export const patchClonesDeep = ((...args: Parameters<$type.ObjMCHandler>): Retur
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
 export const updateDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
-    if (!mcInitialized) mcInitialize();
-    return mc.updateDeep(...args);
+    return mcInitialize() && mc.updateDeep(...args);
+}) as $type.ObjMCHandler;
+
+// Variant that does not allow declarative ops.
+export const updateDeepNoOps = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
+    return mcInitialize() && mcNoOps.updateDeep(...args);
 }) as $type.ObjMCHandler;
 
 /**
@@ -774,8 +802,12 @@ export const updateDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType
  * @note `../docs/resources/classes/obj-mc.md` for further details.
  */
 export const updateClonesDeep = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
-    if (!mcInitialized) mcInitialize();
-    return mc.updateClonesDeep(...args);
+    return mcInitialize() && mc.updateClonesDeep(...args);
+}) as $type.ObjMCHandler;
+
+// Variant that does not allow declarative ops.
+export const updateClonesDeepNoOps = ((...args: Parameters<$type.ObjMCHandler>): ReturnType<$type.ObjMCHandler> => {
+    return mcInitialize() && mcNoOps.updateClonesDeep(...args);
 }) as $type.ObjMCHandler;
 
 /**

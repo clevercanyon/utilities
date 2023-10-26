@@ -12,8 +12,8 @@ import { type default as HeadInstance, type PartialState as PartialHeadState } f
  * Defines data types.
  *
  * `<Data>` state contains some initial, passable `<Head>` state keys. These serve as default props for `<Head>` when
- * they are not defined elsewhere. e.g., `mainStyleBundle`, `mainScriptBundle`. `<Data>` state also contains a
- * high-level reference to the current `<Head>` instance, such that it becomes available across all contexts.
+ * they are not defined elsewhere. e.g., `styleBundle`, `scriptBundle`. `<Data>` state also contains a high-level
+ * reference to the current `<Head>` instance, such that it becomes available across all contexts.
  */
 export type State = $preact.State<{
     globalObp: string;
@@ -39,8 +39,8 @@ export type Props = $preact.BasicProps<
 >;
 export type ContextProps = $preact.Context<{
     state: State;
-    updateState: $preact.Dispatch<PartialStateUpdates>;
-    forceUpdate: Data['forceUpdate']; // Used by `<Head>`.
+    updateState: Data['updateState'];
+    forceUpdate: Data['forceUpdate'];
 }>;
 export type HTTPContextProps = $preact.Context<{
     state: GlobalState['http'];
@@ -79,7 +79,7 @@ export type PartialGlobalStateUpdates = $preact.State<
  * - This variable must remain a `const`, as it keeps types DRY.
  * - Please do not export this variable, it is for internal use only.
  */
-const passableHeadStateKeys = ['mainStyleBundle', 'mainScriptBundle'] as const;
+const passableHeadStateKeys = ['styleBundle', 'scriptBundle'] as const;
 type PassableHeadStateKeys = $type.Writable<typeof passableHeadStateKeys>[number];
 
 /**
@@ -101,7 +101,7 @@ type UpdatableHeadStateKeys = $type.Writable<typeof updatableHeadStateKeys>[numb
  * - Please do not export these variables, they are for internal use only.
  */
 const mergeableGlobalStateKeys = ['head'] as const;
-const mergeableGlobalHeadStateKeys = ['mainStyleBundle', 'mainScriptBundle'] as const;
+const mergeableGlobalHeadStateKeys = ['styleBundle', 'scriptBundle'] as const;
 
 type MergeableGlobalStateKeys = $type.Writable<typeof mergeableGlobalStateKeys>[number];
 type MergeableGlobalHeadStateKeys = $type.Writable<typeof mergeableGlobalHeadStateKeys>[number];
@@ -202,12 +202,13 @@ export default class Data extends Component<Props, State> {
         ) as unknown as State;
     }
 
+    // Note: This does not allow the use of declarative ops.
     updateState<Updates extends PartialStateUpdates>(updates: Updates): void {
         this.setState((currentState: State): Updates | null => {
             const cleanUpdates = $obj.pick(updates, updatableStateKeys as unknown as string[]) as $type.Writable<Updates>;
             cleanUpdates.head = $obj.pick(cleanUpdates.head || {}, updatableHeadStateKeys as unknown as string[]);
 
-            const newState = $obj.updateDeep(currentState, cleanUpdates);
+            const newState = $obj.updateDeepNoOps(currentState, cleanUpdates);
             // Returning `null` tells Preact no; {@see https://o5p.me/9BaxT3}.
             return newState !== currentState ? (newState as Updates) : null;
         });
@@ -240,8 +241,8 @@ export default class Data extends Component<Props, State> {
             <Context.Provider
                 value={{
                     state: this.state,
-                    updateState: (updates) => this.updateState(updates),
-                    forceUpdate: (callback) => this.forceUpdate(callback),
+                    updateState: (...args) => this.updateState(...args),
+                    forceUpdate: (...args) => this.forceUpdate(...args),
                 }}
             >
                 {this.props.children}
@@ -267,15 +268,19 @@ export const useData = (): ContextProps => $preact.useContext(Context);
 export const useHTTP = (): HTTPContextProps => {
     if (!$env.isSSR()) throw $env.errSSROnly;
 
-    const { state } = useData(); // For `globalObp` reference.
-    const httpState = $obp.get(globalThis, state.globalObp + '.http') as GlobalState['http'];
+    const { state } = useData();
 
+    // Intentionally not exporting this. HTTP state should only be accessed via `useHTTP()` hook.
+    // An exception is that our ISO prerenderer does some reads/writes using `globalObp`, after prerendering.
+    const getHTTPState = (): GlobalState['http'] => {
+        return $obp.get(globalThis, state.globalObp + '.http') as GlobalState['http'];
+    };
     return {
-        state: httpState,
-        updateState: (updates): void => {
-            const httpState = $obp.get(globalThis, state.globalObp + '.http');
+        state: getHTTPState(),
+        // Note: This does not allow the use of declarative ops.
+        updateState: (updates) => {
             updates = $obj.pick(updates, updatableGlobalHTTPStateKeys as unknown as string[]);
-            $obp.set(globalThis, state.globalObp + '.http', $obj.updateDeep(httpState, updates));
+            $obp.set(globalThis, state.globalObp + '.http', $obj.updateDeepNoOps(getHTTPState(), updates));
         },
     };
 };
@@ -294,6 +299,9 @@ export const globalToScriptCode = (state: State): string => {
 
     // We use `<Data>` state to acquire `globalObp`.
     const globalScriptCode = $obp.toScriptCode(state.globalObp);
+
+    // We only need mergeable global state keys in script code, because that’s all that script code is used for.
+    // Additionally, we only want mergeable global state keys in script code, because we only want JSON-serializable values.
 
     const cleanGlobalState = $obj.pick(state, mergeableGlobalStateKeys as unknown as string[]) as $type.Writable<PartialGlobalState>;
     cleanGlobalState.head = $obj.pick(cleanGlobalState.head || {}, mergeableGlobalHeadStateKeys as unknown as string[]);

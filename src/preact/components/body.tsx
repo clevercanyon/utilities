@@ -12,7 +12,7 @@ import { default as As } from './as.tsx';
  * Defines types.
  */
 export type State = $preact.State<
-    Partial<$preact.JSX.IntrinsicElements['body']> & {
+    Partial<$preact.Intrinsic['body']> & {
         [x in $preact.ClassPropVariants]?: $preact.Classes;
     }
 >;
@@ -76,7 +76,7 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
     if ($env.isWeb()) {
         $preact.useLayoutEffect(() => {
             $dom.newAtts($dom.require('body'), state);
-        });
+        }, [state]);
     }
     return (
         <Context.Provider value={{ state, updateState }}>

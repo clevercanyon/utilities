@@ -11,17 +11,24 @@ import { $dom, $env, $is, $preact, $str, $url, type $type } from '../../index.ts
  * Defines types.
  */
 export type State = $preact.State<{
+    // A few flags.
     isInitial: boolean;
+    isHydration: boolean;
     wasPushed: boolean;
+
+    // Relative `./` to base.
     pathQuery: string;
+
+    // Base URL.
     baseURL: $type.URL;
 }>;
 export type PartialState = Partial<State>;
 export type PartialStateUpdates = Pick<PartialState, 'pathQuery'>;
 
 export type ComputedState = $preact.State<{
-    // URL push?
+    // A few flags.
     isInitial: boolean;
+    isHydration: boolean;
     wasPushed: boolean;
 
     // Base URL & path.
@@ -44,6 +51,7 @@ export type ComputedState = $preact.State<{
     pathFromBase(parseable: $type.URL | string): string;
 }>;
 export type Props = $preact.BasicProps<{
+    isHydration?: boolean;
     url?: $type.URL | string;
     baseURL?: $type.URL | string;
 }>;
@@ -81,6 +89,7 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
         return {
             ...actualState, // State.
             // `isInitial: boolean`.
+            // `isHydration: boolean`.
             // `wasPushed: boolean`.
 
             // Base URL & path.
@@ -109,7 +118,7 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
                 return $url.toPathQueryHash($url.parse(parseable, actualState.baseURL));
             },
         };
-    }, [actualState.isInitial, actualState.wasPushed, actualState.pathQuery]);
+    }, [actualState]);
 
     $preact.useEffect(() => {
         addEventListener('click', updateState);
@@ -119,7 +128,7 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
             removeEventListener('click', updateState);
             removeEventListener('popstate', updateState);
         };
-    }, [actualState.isInitial, actualState.wasPushed, actualState.pathQuery]);
+    }, []); // i.e., On mount/unmount only.
 
     return <Context.Provider value={{ state, push: updateState, updateState }}>{props.children}</Context.Provider>;
 }
@@ -143,6 +152,7 @@ export const useLocation = (): ContextProps => $preact.useContext(Context);
  * @returns       Initial component state.
  */
 const initialState = (props: Props): State => {
+    const { isHydration = false } = props;
     let { url, baseURL } = props; // Initialize.
 
     if (baseURL && $is.url(baseURL)) {
@@ -162,18 +172,19 @@ const initialState = (props: Props): State => {
     } else if ($env.isWeb()) {
         url = $url.parse($url.current(), baseURL);
     } else {
-        throw new Error('Missing `url`.');
+        throw new Error(); // Missing `url`.
     }
     // Forces a canonical path for consistency.
     url.pathname = $url.parse($url.toCanonical(url)).pathname;
 
     if (url.origin !== baseURL.origin) {
-        throw new Error('URL `origin` mismatch.');
+        throw new Error(); // URL `origin` mismatch.
     }
     return {
         isInitial: true,
+        isHydration,
         wasPushed: false,
-        baseURL, // Does not change.
+        baseURL,
         pathQuery: $url.removeBasePath($url.toPathQuery(url), baseURL),
     };
 };
@@ -266,7 +277,7 @@ const reducer = (state: State, x: Parameters<ContextProps['updateState']>[0]): S
     url.pathname = $url.parse($url.toCanonical(url)).pathname;
 
     // Prepares variables that will be added to the returned state.
-    const isInitial = false; // We’re updating; so this is always `false`.
+    const isInitial = false; // We’re updating; so this is obviously `false`.
     const wasPushed = isPush || false; // `pathQuery` is `./` relative to base.
     const pathQuery = $url.removeBasePath($url.toPathQuery(url), state.baseURL);
 

@@ -23,7 +23,7 @@ export type Props = $preact.BasicProps<LocationProps & DataProps & RouterProps>;
  */
 export default function Root(props: Props): $preact.VNode<Props> {
     return (
-        <Location url={props.url} baseURL={props.baseURL}>
+        <Location isHydration={props.isHydration} url={props.url} baseURL={props.baseURL}>
             <Data globalObp={props.globalObp} fetcher={props.fetcher} head={props.head}>
                 <Router onError={props.onError} onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
                     {props.children}

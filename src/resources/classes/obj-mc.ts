@@ -9,12 +9,17 @@ let Defined: Constructor | undefined; // Cache.
 /**
  * Defines types.
  */
+export type C9rProps = {
+    readonly allowOps?: boolean;
+};
 export type Constructor = {
-    new (): Class; // Takes in nothing.
+    new (props?: C9rProps | Class): Class;
 };
 export type Class = $type.Utility & ClassInterface;
 
 declare class ClassInterface {
+    public allowOps: boolean;
+
     public readonly kinds: {
         MERGE_DEEP: Kind;
         MERGE_CLONES_DEEP: Kind;
@@ -34,7 +39,7 @@ declare class ClassInterface {
     public readonly updateDeep: Handler;
     public readonly updateClonesDeep: Handler;
 
-    public constructor(); // Takes in nothing.
+    public constructor(props?: C9rProps | Class);
     public newInstance(): Class; // Factory.
 
     public addMerge(tagA: string, tagB: string, callback: MergeCallback): MergeCallback | undefined;
@@ -44,6 +49,9 @@ export type Kind = 'mergeDeep' | 'mergeClonesDeep' | 'patchDeep' | 'patchClonesD
 export type CircularMap = Map<unknown, Map<unknown, unknown>> & { [x: symbol]: boolean };
 
 export type Handler = {
+    // @someday Figure out how to get these working properly when there are declarative ops.
+    // As of right now, the return type will include an object with declarative op keys.
+
     <TypeA extends undefined, TypeB extends object>(...args: [TypeA, TypeB]): TypeB;
     <TypeA extends object, TypeB extends undefined>(...args: [TypeA, TypeB]): TypeA;
 
@@ -80,6 +88,8 @@ export const getClass = (): Constructor => {
          * Public API. ---
          */
 
+        public readonly allowOps: boolean;
+
         /**
          * Defines merge kinds.
          */
@@ -108,14 +118,20 @@ export const getClass = (): Constructor => {
 
         /**
          * Object constructor.
+         *
+         * @param props Props or instance.
          */
-        public constructor(/* Takes in nothing. */) {
+        public constructor(props?: C9rProps | Class) {
             super(); // Parent constructor.
 
+            props = props || {}; // Force object value.
+            // const isClone = props instanceof (Defined as Constructor);
+            this.allowOps = $is.boolean(props.allowOps) ? props.allowOps : true;
+
             /**
-             * This class has no enumerable keys and therefore nothing is enumerated by clone handlers. Anything else
-             * added with `addMerge()` or `addOperation()` will be transferred by reference when cloning. Those add
-             * callbacks, which are functions, and not cloneable, and thus transferred always by reference.
+             * None of these are enumerable and therefore not enumerated by clone handlers. Anything else added with
+             * `addMerge()` or `addOperation()` will be transferred by reference when cloning. Those add callbacks,
+             * which are functions, and not cloneable, and thus transferred always by reference.
              */
             this.kinds = {
                 MERGE_DEEP: 'mergeDeep',
@@ -144,10 +160,12 @@ export const getClass = (): Constructor => {
         /**
          * Creates a new instance.
          *
-         * @returns Newly created class instance.
+         * @param   props Props.
+         *
+         * @returns       New class instance.
          */
-        public newInstance(): Class {
-            return new (Defined as Constructor)();
+        public newInstance(props?: C9rProps): Class {
+            return new (Defined as Constructor)(props);
         }
 
         /**
@@ -377,7 +395,7 @@ export const getClass = (): Constructor => {
                     newObj[key] = keyResult; // Key assignment.
                 }
             }
-            if (operations.length) {
+            if (this.allowOps && operations.length) {
                 if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind)) {
                     newObj = $obj.cloneDeep(newObj); // Immutable; so must clone before operations.
                     hasUpdates = true; // Any update with operations `hasUpdates` due to the deep clone.

@@ -108,11 +108,9 @@ const resolvedPromise = Promise.resolve();
  *
  * @returns       VNode / JSX element tree.
  */
-const RenderRefRoute = ({
-    r,
-}: $preact.BasicProps<{
+const RenderRefRoute = ({ r }: $preact.BasicProps<{
     r: $preact.Ref<$preact.VNode<RoutedProps>>;
-}>): $preact.Ref<$preact.VNode<RoutedProps>>['current'] => r.current;
+}>): $preact.Ref<$preact.VNode<RoutedProps>>['current'] => r.current; // prettier-ignore
 
 /**
  * Router component and child Route components.
@@ -189,8 +187,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             return false;
         });
         return <RouteContext.Provider value={routeContext}>{matchingChildVNode || defaultChildVNode}</RouteContext.Provider>;
-        //
-    }, [locState.isInitial, locState.wasPushed, locState.pathQuery]);
+    }, [locState]);
 
     // If rendering succeeds synchronously, we shouldn't render previous children.
     const previousRouteSnapshot = previousRoute.current;
@@ -267,7 +264,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                 (prevLocationPathQuery.current = locState.pathQuery);
             currentRouteIsLoading.current = false; // Loading complete.
         }
-    }, [locState.isInitial, locState.wasPushed, locState.pathQuery, layoutTicks]);
+    }, [locState, layoutTicks]);
 
     // Note: `currentRoute` MUST render first to trigger a thrown promise.
     return <>{[$preact.create(RenderRefRoute, { r: currentRoute }), $preact.create(RenderRefRoute, { r: previousRoute })]}</>;

@@ -115,6 +115,7 @@
         "isolatedModules": true,
         "resolveJsonModule": true,
         "verbatimModuleSyntax": true,
+        "noErrorTruncation": true,
         "allowImportingTsExtensions": true,
         "paths": {
             "react": ["../node_modules/preact/compat"],
