@@ -316,16 +316,16 @@ export default class Head extends Component<Props, State> {
                 // Using `Array.from()` so we’re working on a copy, not the live list.
                 // Nodes get removed here, so a copy avoid issues with in-loop removals.
 
-                for (const node of Array.from(head.childNodes) as HTMLElement[])
-                    if (!$is.htmlElement(node) || !node.dataset.key) {
-                        // We’ll allow `/@vite/client`, locally.
-                        if ( isLocalWebVite && 'SCRIPT' === node.tagName
-                            && '/@vite/client' === node.getAttribute('src')
-                        ) continue; // prettier-ignore
-                        else node.remove(); // Removes unkeyed nodes.
-                    } else if (!Object.hasOwn(childVNodes, node.dataset.key)) {
-                        node.remove(); // Removes keyed nodes that are stale.
+                for (const node of Array.from(head.childNodes)) {
+                    if (!$is.htmlElement(node)) node.remove(); // e.g., Text or comment node.
+                    //
+                    else if (isLocalWebVite && 'SCRIPT' === node.tagName && '/@vite/client' === node.getAttribute('src')) {
+                        continue; // Allow `/@vite/client` to exist locally.
+                        //
+                    } else if (!node.dataset.key || !Object.hasOwn(childVNodes, node.dataset.key)) {
+                        node.remove(); // Removes unkeyed nodes, and keyed nodes that are stale.
                     }
+                }
             }, [locState]);
 
             // Memoizes effect that runs when `childVNodes` changes.
