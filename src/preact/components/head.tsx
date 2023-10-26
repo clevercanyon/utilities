@@ -307,23 +307,32 @@ export default class Head extends Component<Props, State> {
             // Memoizes effect that runs when `locState` changes.
 
             $preact.useEffect((): void => {
-                // No need for an initial cleanup when hydrating.
                 if (locState.isInitialHydration) return;
+                // No need for an initial cleanup when hydrating.
 
-                $dom.require('head').childNodes.forEach((node: ChildNode) => {
+                const head = $dom.require('head');
+                const isLocalWebVite = $env.isLocalWebVite();
+
+                // Using `Array.from()` so we’re working on a copy, not the live list.
+                // Nodes get removed here, so a copy avoid issues with in-loop removals.
+
+                for (const node of Array.from(head.childNodes) as HTMLElement[])
                     if (!$is.htmlElement(node) || !node.dataset.key) {
-                        node.remove(); // Removes unkeyed nodes.
+                        // We’ll allow `/@vite/client`, locally.
+                        if ( isLocalWebVite && 'SCRIPT' === node.tagName
+                            && '/@vite/client' === node.getAttribute('src')
+                        ) continue; // prettier-ignore
+                        else node.remove(); // Removes unkeyed nodes.
                     } else if (!Object.hasOwn(childVNodes, node.dataset.key)) {
                         node.remove(); // Removes keyed nodes that are stale.
                     }
-                });
             }, [locState]);
 
             // Memoizes effect that runs when `childVNodes` changes.
 
             $preact.useEffect((): void => {
-                // No need for an initial diff when hydrating.
                 if (locState.isInitialHydration) return;
+                // No need for an initial diff when hydrating.
 
                 const head = $dom.require('head');
                 let existing; // An existing element node.
