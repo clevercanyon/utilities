@@ -57,7 +57,7 @@ export const onNextFrame = (callback: () => void): void => {
  *
  * Callback is invoked after the browser has a painted a new frame. We accomplish this by combining use of RAF; i.e.,
  * {@see requestAnimationFrame} together with {@see setTimeout()} to invoke a callback after the next frame. A timeout
- * in scheduled in parallel to ensure the callback is always invoked; e.g., if the browser tab is not visible.
+ * is scheduled in parallel to ensure the callback is always invoked; e.g., if the browser tab is not visible.
  *
  * @param callback Callback.
  *
