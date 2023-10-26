@@ -54,46 +54,23 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     // ---
 
     test('basics', async () => {
-        const {
-            httpState: indexHTTPState,
-            docType: indexDocType,
-            html: indexHTML,
-        } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),
-            appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
-            App, // Defined above.
-        });
-        expect(indexHTTPState.status).toBe(200);
-        expect(indexDocType).toBe('<!doctype html>');
-        expect(indexHTML).toContain('<title>index</title>');
-        expect(indexHTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
-        expect(indexHTML).toContain('<script type="module" src="./script.js"></script>');
-        expect(indexHTML).toContain('"path":"./"');
-        expect(indexHTML).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
-        expect(indexHTML).toContain('"restPath":""');
-        expect(indexHTML).toContain('"restPathQuery":""');
-        expect(indexHTML).toContain('"query":"?a=_a&b=_b&c=_c"');
-        expect(indexHTML).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
-        expect(indexHTML).toContain('"params":{}');
-        expect(indexHTML).toContain('</html>');
-
-        // Populate DOM now and continue.
-
+        // Populates DOM using fixture from SSR.
+        const doctypeHTML = (await import('./ex-imports/fixtures/prerender-for-web.html?raw')).default;
         Object.defineProperty(window, 'location', { value: new URL('http://x.tld/?a=_a&b=_b&c=_c') });
-        document.open(), document.write(indexDocType + indexHTML), document.close();
+        document.open(), document.write(doctypeHTML), document.close();
 
         // Neither `document.write` or `(outer|inner)HTML` run embedded script tags, for security reasons.
-        // So that's why we're explicitly extracting and running script code using a `new Function()` below.
-        const dataScriptCode = indexHTML.match(/<script id="preact-iso-data">([^<>]+)<\/script>/iu)?.[1] || '';
+        // That's why we're extracting and running script code using a `new Function()` below, which runs script code.
+        const dataScriptCode = doctypeHTML.match(/<script id="preact-iso-data" data-key="preactISOData">([^<>]+)<\/script>/iu)?.[1] || '';
         // eslint-disable-next-line @typescript-eslint/no-implied-eval -- OK when testing.
         if (dataScriptCode) new Function(dataScriptCode)(); // Execute script code.
 
         const domIndexHeadMarkup = document.querySelector('head')?.outerHTML || '';
         const domIndexBodyMarkup = document.querySelector('body')?.outerHTML || '';
 
-        expect(domIndexHeadMarkup).toContain('<title>index</title>');
-        expect(domIndexHeadMarkup).toContain('<link rel="stylesheet" href="./style.css" media="all">');
-        expect(domIndexHeadMarkup).toContain('<script type="module" src="./script.js"></script>');
+        expect(domIndexHeadMarkup).toContain('<title data-key="title">index</title>');
+        expect(domIndexHeadMarkup).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle">');
+        expect(domIndexHeadMarkup).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');
         expect(domIndexBodyMarkup).toContain('"path":"./"');
         expect(domIndexBodyMarkup).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
         expect(domIndexBodyMarkup).toContain('"restPath":""');
@@ -106,20 +83,27 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
 
         $preact.iso.hydrativelyRenderSPA({ App });
 
-        const domHydratedIndexMarkup = document.documentElement.outerHTML;
-        const domHydratedIndexHeadMarkup = document.querySelector('head')?.outerHTML || '';
-        const domHydratedIndexBodyMarkup = document.querySelector('body')?.outerHTML || '';
+        // Allow time for effects.
+        await new Promise((resolve) => {
+            setTimeout(() => {
+                const domHydratedIndexMarkup = document.documentElement.outerHTML;
+                const domHydratedIndexHeadMarkup = document.querySelector('head')?.outerHTML || '';
+                const domHydratedIndexBodyMarkup = document.querySelector('body')?.outerHTML || '';
 
-        expect(domHydratedIndexMarkup).toContain('<html class="preact" lang="en">');
-        expect(domHydratedIndexHeadMarkup).toContain('<title>index</title>');
-        expect(domHydratedIndexHeadMarkup).toContain('<link rel="stylesheet" href="./style.css" media="all">');
-        expect(domHydratedIndexHeadMarkup).toContain('<script type="module" src="./script.js"></script>');
-        expect(domHydratedIndexBodyMarkup).toContain('"path":"./"');
-        expect(domHydratedIndexBodyMarkup).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
-        expect(domHydratedIndexBodyMarkup).toContain('"restPath":""');
-        expect(domHydratedIndexBodyMarkup).toContain('"restPathQuery":""');
-        expect(domHydratedIndexBodyMarkup).toContain('"query":"?a=_a&b=_b&c=_c"');
-        expect(domHydratedIndexBodyMarkup).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
-        expect(domHydratedIndexBodyMarkup).toContain('"params":{}');
+                expect(domHydratedIndexMarkup).toContain('<html lang="en-US">');
+                expect(domHydratedIndexHeadMarkup).toContain('<title data-key="title">index</title>');
+                expect(domHydratedIndexHeadMarkup).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle">');
+                expect(domHydratedIndexHeadMarkup).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');
+                expect(domHydratedIndexBodyMarkup).toContain('"path":"./"');
+                expect(domHydratedIndexBodyMarkup).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
+                expect(domHydratedIndexBodyMarkup).toContain('"restPath":""');
+                expect(domHydratedIndexBodyMarkup).toContain('"restPathQuery":""');
+                expect(domHydratedIndexBodyMarkup).toContain('"query":"?a=_a&b=_b&c=_c"');
+                expect(domHydratedIndexBodyMarkup).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
+                expect(domHydratedIndexBodyMarkup).toContain('"params":{}');
+
+                resolve(true);
+            }, 1000);
+        });
     });
 });

@@ -13,7 +13,7 @@ import { $dom, $env, $is, $preact, $str, $url, type $type } from '../../index.ts
 export type State = $preact.State<{
     // A few flags.
     isInitial: boolean;
-    isHydration: boolean;
+    isInitialHydration: boolean;
     wasPushed: boolean;
 
     // Relative `./` to base.
@@ -28,7 +28,7 @@ export type PartialStateUpdates = Pick<PartialState, 'pathQuery'>;
 export type ComputedState = $preact.State<{
     // A few flags.
     isInitial: boolean;
-    isHydration: boolean;
+    isInitialHydration: boolean;
     wasPushed: boolean;
 
     // Base URL & path.
@@ -89,7 +89,7 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
         return {
             ...actualState, // State.
             // `isInitial: boolean`.
-            // `isHydration: boolean`.
+            // `isInitialHydration: boolean`.
             // `wasPushed: boolean`.
 
             // Base URL & path.
@@ -182,7 +182,7 @@ const initialState = (props: Props): State => {
     }
     return {
         isInitial: true,
-        isHydration,
+        isInitialHydration: isHydration,
         wasPushed: false,
         baseURL,
         pathQuery: $url.removeBasePath($url.toPathQuery(url), baseURL),
@@ -277,7 +277,6 @@ const reducer = (state: State, x: Parameters<ContextProps['updateState']>[0]): S
     url.pathname = $url.parse($url.toCanonical(url)).pathname;
 
     // Prepares variables that will be added to the returned state.
-    const isInitial = false; // We’re updating; so this is obviously `false`.
     const wasPushed = isPush || false; // `pathQuery` is `./` relative to base.
     const pathQuery = $url.removeBasePath($url.toPathQuery(url), state.baseURL);
 
@@ -305,5 +304,5 @@ const reducer = (state: State, x: Parameters<ContextProps['updateState']>[0]): S
             history.replaceState(null, '', url);
         }
     }
-    return { ...state, isInitial, wasPushed, pathQuery };
+    return { ...state, isInitial: false, isInitialHydration: false, wasPushed, pathQuery };
 };

@@ -73,9 +73,9 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
         });
         expect(indexHTTPState.status).toBe(200);
         expect(indexDocType).toBe('<!doctype html>');
-        expect(indexHTML).toContain('<title>index</title>');
-        expect(indexHTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
-        expect(indexHTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(indexHTML).toContain('<title data-key="title">index</title>');
+        expect(indexHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
+        expect(indexHTML).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');
         expect(indexHTML).toContain('"path":"./"');
         expect(indexHTML).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
         expect(indexHTML).toContain('"restPath":""');
@@ -96,9 +96,9 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
         });
         expect(lazyHTTPState.status).toBe(200);
         expect(lazyDocType).toBe('<!doctype html>');
-        expect(lazyHTML).toContain('<title>lazy</title>');
-        expect(lazyHTML).toContain('<link rel="stylesheet" href="./style.css" media="all"/>');
-        expect(lazyHTML).toContain('<script type="module" src="./script.js"></script>');
+        expect(lazyHTML).toContain('<title data-key="title">lazy</title>');
+        expect(lazyHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
+        expect(lazyHTML).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');
         expect(lazyHTML).toContain('"path":"./lazy"');
         expect(lazyHTML).toContain('"pathQuery":"./lazy?a=_a&b=_b&c=_c"');
         expect(lazyHTML).toContain('"restPath":"./"');

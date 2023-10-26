@@ -35,9 +35,9 @@ describe('<Root>', async () => {
         const Index = (): $preact.VNode => {
             return (
                 <HTML>
-                    <Head class='index' data-index={''}>
-                        <meta name='foo' content='bar' />
-                        <script>let foo = 'bar';</script>
+                    <Head>
+                        <meta name='foo' content='bar' data-key='fooMeta' />
+                        <script data-key='fooScript'>let foo = 'bar';</script>
                     </Head>
                     <Body>
                         <pre dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></pre>
@@ -50,7 +50,6 @@ describe('<Root>', async () => {
                 <Route default component={Index} />
             </Root>,
         );
-        console.log(html);
         expect(html).toContain('</html>');
     });
 });

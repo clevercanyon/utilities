@@ -180,9 +180,9 @@ const initialGlobalState = (globalObp: string, props: Props): GlobalState => {
 /**
  * Defines component.
  *
- * Using a class component for more control over re-renders; e.g., to avoid re-rendering when `<Head>` updates its
- * `instance`. Using `Component`, not `$preact.Component`, because this occurs inline. We can’t use our own cyclic
- * utilities inline, only inside functions. So we use `Component` directly from `preact` in this specific case.
+ * `<Data>` is a class component so we have more control over re-renders; e.g., to avoid re-rendering when `<Head>`
+ * updates its `instance`. We’re using `Component`, not `$preact.Component`, because this occurs inline. We can’t use
+ * our own cyclic utilities inline, only inside functions. So we use `Component` directly from `preact` in this case.
  *
  * The order of precedence in the initial deep state merge, from left to right, is: relevant keys in global state,
  * followed by relevant `<Data>` props; and then `<Data>` state keys satisfied explicitly by our initializer.

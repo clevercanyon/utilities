@@ -12,39 +12,37 @@ import { type State as HTMLState } from './html.tsx';
 /**
  * Defines types.
  */
-export type State = $preact.State<
-    Partial<$preact.Intrinsic['head']> & {
-        charset?: string;
-        viewport?: string;
+export type State = $preact.State<{
+    charset?: string;
+    viewport?: string;
 
-        robots?: string;
-        publishTime?: $type.Time | string;
-        lastModifiedTime?: $type.Time | string;
-        canonical?: $type.URL | string;
-        structuredData?: object;
+    robots?: string;
+    publishTime?: $type.Time | string;
+    lastModifiedTime?: $type.Time | string;
+    canonical?: $type.URL | string;
+    structuredData?: object;
 
-        siteName?: string;
-        title?: string;
-        titleSuffix?: string | boolean;
-        description?: string;
-        author?: string;
+    siteName?: string;
+    title?: string;
+    titleSuffix?: string | boolean;
+    description?: string;
+    author?: string;
 
-        pngIcon?: $type.URL | string;
-        svgIcon?: $type.URL | string;
+    pngIcon?: $type.URL | string;
+    svgIcon?: $type.URL | string;
 
-        ogSiteName?: string;
-        ogType?: string;
-        ogTitle?: string;
-        ogDescription?: string;
-        ogURL?: $type.URL | string;
-        ogImage?: $type.URL | string;
+    ogSiteName?: string;
+    ogType?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogURL?: $type.URL | string;
+    ogImage?: $type.URL | string;
 
-        styleBundle?: $type.URL | string;
-        scriptBundle?: $type.URL | string;
+    styleBundle?: $type.URL | string;
+    scriptBundle?: $type.URL | string;
 
-        append?: $preact.VNode[];
-    } & { [x in $preact.ClassPropVariants]?: $preact.Classes }
->;
+    append?: $preact.VNode[];
+}>;
 export type PartialState = Partial<State>;
 export type PartialStateUpdates = Omit<PartialState, ImmutableStateKeys>;
 
@@ -73,12 +71,17 @@ export type ComputedState = State &
             | 'append'
         >
     >;
-export type Props = Omit<$preact.Props<PartialState>, 'children'> & {
-    children?: ChildVNode | ChildVNode[];
+export type Props = Omit<$preact.BasicProps<PartialState>, 'children'> & {
+    // There’s really not a great way to enforce the child vNode type.
+    // Internal JSX types use things that are too generic for that to work.
+    // For now, we’re just adding them here, but we also allow for any `$preact.Children`.
+    // Anyway, there are conditionals in code that will catch and throw when problems arise.
+    children?: ChildVNode | ChildVNode[] | $preact.Children;
 };
 export type ChildVNode = Omit<$preact.VNode, 'type' | 'props'> & {
     type: string; // i.e., Intrinsic HTML tags.
-    props: Omit<$preact.Props, 'children'> & {
+    props: Partial<Omit<$preact.Props, 'children'>> & {
+        [x: string]: unknown;
         'data-key': string;
         children?: $type.Primitive;
     };
@@ -91,51 +94,6 @@ export type ContextProps = $preact.Context<{
     updateState: Head['updateState'];
     forceFullUpdate: Head['forceFullUpdate'];
 }>;
-
-/**
- * Defines a list of all true prop keys in state.
- *
- * We need this so it’s possible to filter state and distinguish between intrinsic `<head>` attributes and true
- * configurable props to the `<Head>` component, all of which, except `children`, will end up in state.
- *
- * This variable must remain a `const`, as it keeps types DRY. Also, please be advised that because this is a `const`,
- * we cannot include class prop variants here. Please be sure this is only used with {@see $preact.omitProps()}, so that
- * class prop variants can be handled properly, based only on the existence of `class`.
- */
-const truePropKeysInState = [
-    'class',
-
-    'charset',
-    'viewport',
-
-    'robots',
-    'publishTime',
-    'lastModifiedTime',
-    'canonical',
-    'structuredData',
-
-    'siteName',
-    'title',
-    'titleSuffix',
-    'description',
-    'author',
-
-    'pngIcon',
-    'svgIcon',
-
-    'ogSiteName',
-    'ogType',
-    'ogTitle',
-    'ogDescription',
-    'ogURL',
-    'ogImage',
-
-    'styleBundle',
-    'scriptBundle',
-
-    'append',
-] as const; // Expanded into a type.
-type TruePropKeysInState = $type.Writable<typeof truePropKeysInState>[number];
 
 /**
  * Defines a list of immutable state keys.
@@ -155,9 +113,14 @@ type ImmutableStateKeys = $type.Writable<typeof immutableStateKeys>[number];
 /**
  * Defines component.
  *
- * Using a class component so there can be external references to the current `<Head>` component instance. Using
- * `Component`, not `$preact.Component`, because this occurs inline. We can’t use our own cyclic utilities inline, only
- * inside functions. So we use `Component` directly from `preact` in this specific case.
+ * Any children of the `<Head>` component must each have a unique `data-key` prop that identifies their intended
+ * purpose; e.g., `xyzScript`, `xyzStyle`, `xyzMeta`. You may only include children with intrinsic HTML tag names, so no
+ * components are allowed as children of `<Head>`. Additionally, children of `<Head>` are only allowed to contain
+ * primitive children of their own; i.e., text nodes. No further nesting is allowed in `<Head>`.
+ *
+ * `<Head>` is a class component so there can be external references to the current `<Head>` component instance. We’re
+ * using `Component`, not `$preact.Component`, because this occurs inline. We can’t use our own cyclic utilities inline,
+ * only inside functions. So we use `Component` directly from `preact` in this case.
  *
  * `<Data>` state contains some initial, passable `<Head>` state keys. These serve as default props for `<Head>` when
  * they are not defined elsewhere. e.g., `styleBundle`, `scriptBundle`. `<Data>` state also contains a high-level
@@ -268,21 +231,12 @@ export default class Head extends Component<Props, State> {
             };
         }, [brand, locState, dataState, actualState]);
 
-        // Memoizes attributes.
-
-        const atts = $preact.useMemo((): PartialState => {
-            return {
-                ...$preact.omitProps(state, truePropKeysInState as unknown as TruePropKeysInState[]),
-                class: $preact.classes(state),
-            };
-        }, [state]);
-
         // Memoizes vNodes for all keyed & unkeyed children.
 
         const childVNodes = $preact.useMemo((): ChildVNodes => {
             const h = $preact.h; // We prefer more concise code here.
 
-            const vNodes = {
+            const vNodes: { [x: string]: $preact.VNode } = {
                 charset: h('meta', { charset: state.charset }),
                 baseURL: h('base', { href: locState.baseURL.toString() }),
                 viewport: h('meta', { name: 'viewport', content: state.viewport }),
@@ -305,11 +259,13 @@ export default class Head extends Component<Props, State> {
                 ogURL: h('meta', { property: 'og:url', content: state.ogURL.toString() }),
                 ogImage: h('meta', { property: 'og:image', content: state.ogImage.toString() }),
 
-                ...(state.styleBundle ? { styleBundle: h('link', { rel: 'stylesheet', href: state.styleBundle.toString(), media: 'all' }) } : {}), // prettier-ignore
-                ...(state.scriptBundle && $env.isSSR() ? { preactISOData: h('script', { id: 'preact-iso-data', dangerouslySetInnerHTML: { __html: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore
-                ...(state.scriptBundle ? { scriptBundle: h('script', { type: 'module', src: state.scriptBundle.toString() }) } : {}), // prettier-ignore
+                ...(state.styleBundle ? { styleBundle: h('link', { rel: 'stylesheet', href: state.styleBundle.toString(), media: 'all' }) } : {}),
+                ...(state.scriptBundle && $env.isSSR()
+                    ? { preactISOData: h('script', { id: 'preact-iso-data', dangerouslySetInnerHTML: { __html: dataGlobalToScriptCode(dataState) } }) }
+                    : {}),
+                ...(state.scriptBundle ? { scriptBundle: h('script', { type: 'module', src: state.scriptBundle.toString() }) } : {}),
 
-                structuredData: h('script', { type: 'application/ld+json', dangerouslySetInnerHTML: { __html: generateStructuredData({ brand, htmlState, state }) } }), // prettier-ignore
+                structuredData: h('script', { type: 'application/ld+json', dangerouslySetInnerHTML: { __html: generateStructuredData({ brand, htmlState, state }) } }),
 
                 ...Object.fromEntries(
                     $preact
@@ -328,7 +284,7 @@ export default class Head extends Component<Props, State> {
                             // We choose not to support component functions, classes, or any nesting.
 
                             if (!type || !$is.string(type) || !key || !$is.string(key) || $is.numeric(key) || !$is.primitive(children)) {
-                                throw new Error(); // Missing or invalid child vNode.
+                                throw new Error(); // Missing or invalid child vNode. Please review docBlock for `<Head>` component class.
                             }
                             // Ensure all keyed children have `_` prefixed keys so they don’t collide with built-in keys.
                             if (!(key as string).startsWith('_')) child.props['data-key'] = '_' + (key as string);
@@ -348,17 +304,11 @@ export default class Head extends Component<Props, State> {
         // Configures client-side effects.
 
         if ($env.isWeb()) {
-            // Memoizes effect that runs when `atts` changes.
-
-            $preact.useEffect((): void => {
-                $dom.newAtts($dom.require('head'), atts); // `<head {...atts}>`.
-            }, [atts]);
-
             // Memoizes effect that runs when `locState` changes.
 
             $preact.useEffect((): void => {
                 // No need for an initial cleanup when hydrating.
-                if (locState.isInitial && locState.isHydration) return;
+                if (locState.isInitialHydration) return;
 
                 $dom.require('head').childNodes.forEach((node: ChildNode) => {
                     if (!$is.htmlElement(node) || !node.dataset.key) {
@@ -373,7 +323,7 @@ export default class Head extends Component<Props, State> {
 
             $preact.useEffect((): void => {
                 // No need for an initial diff when hydrating.
-                if (locState.isInitial && locState.isHydration) return;
+                if (locState.isInitialHydration) return;
 
                 const head = $dom.require('head');
                 let existing; // An existing element node.
@@ -389,7 +339,7 @@ export default class Head extends Component<Props, State> {
 
             return; // Client-side has effects only.
         }
-        return <head {...atts}>{Object.values(childVNodes)}</head>; // Server-side.
+        return <head>{Object.values(childVNodes)}</head>; // Server-side.
     }
 }
 

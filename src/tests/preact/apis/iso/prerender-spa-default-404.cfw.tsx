@@ -72,7 +72,26 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
 
     // ---
 
-    test('.', async () => {
+    test('404/Route404', async () => {
+        const {
+            httpState: othersOtherFooHTTPState,
+            docType: othersOtherFooDocType,
+            html: othersOtherFooHTML,
+        } = await $preact.iso.prerenderSPA({
+            request: new Request(new URL('http://x.tld/nonexistent?a=_a&b=_b&c=_c')),
+            appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
+            App, // Defined above.
+        });
+        console.log(othersOtherFooHTML);
+        expect(othersOtherFooHTTPState.status).toBe(404);
+        expect(othersOtherFooDocType).toBe('<!doctype html>');
+        expect(othersOtherFooHTML).toContain('<title data-key="title">404 Error: Not Found</title>');
+        expect(othersOtherFooHTML).toContain('</html>');
+    });
+
+    // ---
+
+    test('404/StandAlone', async () => {
         const {
             httpState: othersOtherFooHTTPState,
             docType: othersOtherFooDocType,
@@ -82,6 +101,7 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
+        console.log(othersOtherFooHTML);
         expect(othersOtherFooHTTPState.status).toBe(404);
         expect(othersOtherFooDocType).toBe('<!doctype html>');
         expect(othersOtherFooHTML).toContain('<title>404 Error: Not Found</title>');
