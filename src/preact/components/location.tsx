@@ -122,7 +122,7 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
 
     if ($env.isWeb() && !$env.isMajorCrawler()) {
         // Crawlers can detect SPAs by inspecting history event listeners.
-        // So let’s not attach these to major crawlers, because we ask them to do full page changes, anyway.
+        // So let’s not attach when it’s a major crawler, because we ask them to do full page changes.
         // For further details, please review other instances of `$env.isMajorCrawler()` in this file.
         $preact.useEffect(() => {
             addEventListener('click', updateState);

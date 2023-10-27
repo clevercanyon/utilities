@@ -4,19 +4,23 @@
 
 import '../../resources/init.ts';
 
-import { createContext } from 'preact';
-import { $dom, $env, $preact, $str, $url, type $type } from '../../index.ts';
-import { LazyErrorBoundary, type LazyErrorBoundaryProps } from '../../resources/preact/apis/iso/lazy.tsx';
+import { createContext, options as preactꓺoptions } from 'preact';
+import { $dom, $env, $is, $obj, $preact, $str, $url, type $type } from '../../index.ts';
 import { type State as LocationState } from './location.tsx';
 
 /**
  * Defines types.
  */
+export type ErrorBoundaryCoreProps = $preact.BasicProps<{
+    isForLazyComponent?: boolean;
+    onLoadError?: (error: $type.Error) => void;
+}>;
 export type CoreProps = $preact.BasicProps<{
+    isForLazyComponent?: boolean;
     onLoadStart?: (data: { locState: LocationState; routeContext: RouteContextProps }) => void;
     onLoadEnd?: (data: { locState: LocationState; routeContext: RouteContextProps }) => void;
 }>;
-export type Props = $preact.BasicProps<LazyErrorBoundaryProps & CoreProps>;
+export type Props = $preact.BasicProps<ErrorBoundaryCoreProps & CoreProps>;
 
 export type RouteProps = $preact.BasicProps<{
     path?: string;
@@ -52,6 +56,10 @@ export type RoutedProps = $preact.BasicProps<RouteProps & RouteContextProps>;
 const RouteContext = createContext({} as RouteContextProps);
 
 /**
+ * Defines types.
+ */
+
+/**
  * Renders component.
  *
  * @param   props Component props.
@@ -60,11 +68,9 @@ const RouteContext = createContext({} as RouteContextProps);
  */
 export default function Router(props: Props = {}): $preact.VNode<Props> {
     return (
-        <LazyErrorBoundary onError={props.onError}>
-            <RouterCore onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd}>
-                {props.children}
-            </RouterCore>
-        </LazyErrorBoundary>
+        <ErrorBoundaryCore {...$obj.pick(props, ['isForLazyComponent', 'onLoadError'])}>
+            <RouterCore {...$obj.pick(props, ['isForLazyComponent', 'onLoadStart', 'onLoadEnd'])}>{props.children}</RouterCore>
+        </ErrorBoundaryCore>
     );
 }
 
@@ -117,6 +123,24 @@ const RenderRefRoute = ({ r }: $preact.BasicProps<{
 }>): $preact.Ref<$preact.VNode<RoutedProps>>['current'] => r.current; // prettier-ignore
 
 /**
+ * Router error boundary.
+ *
+ * @param   props Component props.
+ *
+ * @returns       VNode / JSX element tree.
+ *
+ * @note Inspired by `Suspense` from preact/compat. See: <https://o5p.me/TA863r>.
+ * @note `__c` = `._childDidSuspend()`; {@see https://o5p.me/B8yq0g} in `mangle.json`.
+ */
+function ErrorBoundaryCore(this: $preact.Component<ErrorBoundaryCoreProps>, props: ErrorBoundaryCoreProps): $preact.VNode<ErrorBoundaryCoreProps> {
+    (this as unknown as $type.Object).__c = (thrownPromise: Promise<unknown>): void => {
+        void thrownPromise.then(() => this.forceUpdate());
+    };
+    this.componentDidCatch = props.onLoadError;
+    return <>{props.children}</>;
+}
+
+/**
  * Router component and child Route components.
  *
  * @param   props Router component props.
@@ -131,6 +155,9 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
     const context = $preact.useRoute();
     const { state: locState } = $preact.useLocation();
     const [layoutTicks, updateLayoutTicks] = $preact.useReducer((c) => c + 1, 0);
+
+    // Initializes router event properties.
+    const routerEventProps = { locState, routerProps: props, routeContext: context };
 
     // Initializes route references.
     const routeCounter = $preact.useRef(0);
@@ -200,9 +227,9 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             }
             return false;
         });
-        // It is possible for this to render with `matchingChildVNode` & `defaultChildVNode` empty.
+        // It is possible for this to render with `matchingChildVNode` & `defaultChildVNode` both empty.
         // In such a case, there are simply no children to render in the current route. Therefore, it becomes
-        // important for a top-level pre-renderer to look for cases where no route matched, and treat it as a 404.
+        // important for a top-level prerenderer to look for routes that are entirely empty; treating as a 404 error.
         return <RouteContext.Provider value={routeContext}>{matchingChildVNode || defaultChildVNode}</RouteContext.Provider>;
     }, [locState]);
 
@@ -227,7 +254,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         const routeCounterSnapshot = routeCounter.current;
 
         // Fires an event indicating the current route is now loading.
-        if ($env.isWeb() && props.onLoadStart) props.onLoadStart({ locState, routeContext: context });
+        if ($env.isWeb() && props.onLoadStart) props.onLoadStart(routerEventProps);
 
         // Handles resolution of suspended state; i.e., once promise resolves.
         void thrownPromise.then(() => {
@@ -235,7 +262,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             if (routeCounterSnapshot !== routeCounter.current) return;
 
             // Successful route transition: un-suspend after a tick and stop rendering the old route.
-            (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers a new layout effect below.
+            (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers a new layout effect.
         });
     };
     // Configures the router’s effects.
@@ -264,7 +291,9 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             routerHasEverCommitted.current = true;
 
             // Handles scroll position for current route location.
-            if (locState.wasPushed /* Includes initial location. */) {
+            // We don’t handle initial hydration, because the browser should have already
+            // been capable of locating the scroll position using the initial hydration DOM.
+            if (!props.isForLazyComponent && !locState.isInitialHydration && locState.wasPushed) {
                 if (scrollPositionHandler) scrollPositionHandler.cancel();
                 scrollPositionHandler = $dom.afterNextFrame(() => {
                     const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
@@ -282,7 +311,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                 currentRouteDidSuspendAndIsLoading.current = false;
 
                 // Fires an event indicating the current route is loaded now.
-                if (props.onLoadEnd) props.onLoadEnd({ locState, routeContext: context });
+                if (props.onLoadEnd) props.onLoadEnd(routerEventProps);
             }
         }, [locState, layoutTicks]);
     }
@@ -357,4 +386,52 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
         }
     }
     return newRouteContext;
+};
+
+/* ---
+ * Side effects.
+ */
+
+/**
+ * Previous error handler.
+ *
+ * @note Inspired by `Suspense` from preact/compat. See: <https://o5p.me/TA863r>.
+ * @note `__e` = `._catchError`; {@see https://o5p.me/DxqGM3} in `mangle.json`.
+ */
+const prevErrorHandler = (preactꓺoptions as unknown as $type.Object).__e;
+
+/**
+ * Configures error handler in support of lazy loads.
+ *
+ * @param args Variadic args passed in by error hook in preact core.
+ *
+ * @note Inspired by `Suspense` from preact/compat. See: <https://o5p.me/TA863r>.
+ * @note `__e` = `._catchError`; {@see https://o5p.me/DxqGM3} in `mangle.json`.
+ */
+(preactꓺoptions as unknown as $type.Object).__e = (...args: unknown[]): void => {
+    let error = args[0] as $type.Object;
+    let newVNode = args[1] as $type.Object;
+    let oldVNode = args[2] as $type.Object | undefined;
+
+    if ($is.promise(error) && $is.object(newVNode)) {
+        let v = newVNode; // New vnode.
+
+        while ((v = v.__ as $type.Object) /* While `._parent()` exists, recursively. */) {
+            //
+            if (v.__c && (v.__c as $type.Object).__c /* If `._component`.`_childDidSuspend()` exists. */) {
+                if (null == newVNode.__e /* If `._dom()` is missing. */) {
+                    newVNode.__e = oldVNode?.__e; // `._dom`.
+                    newVNode.__k = oldVNode?.__k; // `._children`.
+                }
+                if (!newVNode.__k) newVNode.__k = []; // `._children`.
+
+                // Calls `._component`.`_childDidSuspend()`.
+                ((v.__c as $type.Object).__c as $type.Function)(error, newVNode);
+                return; // Effectively skips `prevErrorHandler` in such a case.
+            }
+        }
+    }
+    if ($is.function(prevErrorHandler)) {
+        prevErrorHandler(...args);
+    }
 };

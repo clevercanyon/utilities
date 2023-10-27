@@ -25,7 +25,7 @@ declare class ClassInterface {
 
     public constructor(props?: C9rProps | Class);
 
-    public replaceNativeFetch(): void;
+    public replaceNativeFetch(): Class;
     public restoreNativeFetch(): void;
     public globalToScriptCode(): string;
 
@@ -95,13 +95,17 @@ export const getClass = (): Constructor => {
 
         /**
          * Replaces native fetch.
+         *
+         * @returns Fetcher instance.
          */
-        public replaceNativeFetch(): void {
+        public replaceNativeFetch(): Class {
             // Stores a reference to current native fetch.
             this.global.nativeFetch = globalThis.fetch as Global['nativeFetch'];
 
             // Replaces native fetch.
             globalThis.fetch = this.global.pseudoFetch as typeof fetch;
+
+            return this;
         }
 
         /**

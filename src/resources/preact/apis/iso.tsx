@@ -5,12 +5,14 @@
 import { $app, $class, $dom, $env, $is, $obj, $obp, $path, $preact, $str, $url, type $type } from '../../../index.ts';
 import { defaultGlobalObp, type GlobalState } from '../../../preact/components/data.tsx';
 import { type Props as RootProps } from '../../../preact/components/root.tsx';
-import { default as prerender } from './iso/prerender.tsx';
+import { Route, default as Router, type RoutedProps, type Props as RouterProps } from '../../../preact/components/router.tsx';
+import { prerender } from './iso/index.tsx';
 
 /**
  * Defines types.
  */
 export type Fetcher = $type.Fetcher;
+export type AppManifest = { [x: $type.ObjectKey]: $type.Object };
 
 export type PrerenderSPAOptions = {
     request: $type.Request;
@@ -27,26 +29,25 @@ export type HydrativelyRenderSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
 };
-export type AppManifest = { [x: $type.ObjectKey]: $type.Object };
+export type LazyRouteLoader = () => Promise<{ default: $preact.AnyComponent<RoutedProps> } | $preact.AnyComponent<RoutedProps>>;
+export type LazyComponentOptions = Pick<RouterProps, 'onLoadError' | 'onLoadStart' | 'onLoadEnd'>;
 
 /**
  * Fetcher instance.
  */
-let fetcher: $type.Fetcher | undefined;
+let fetcher: Fetcher | undefined;
 
 /**
  * Replaces native fetch and returns fetcher.
  *
- * @returns {@see $type.Fetcher} Instance.
+ * @returns {@see Fetcher} Instance.
  */
-export const replaceNativeFetch = (): $type.Fetcher => {
+export const replaceNativeFetch = (): Fetcher => {
     if (!fetcher) {
         const Fetcher = $class.getFetcher();
         fetcher = new Fetcher({ globalObp: $str.obpPartSafe($app.pkgName) + '.preactISOFetcher' });
     }
-    fetcher.replaceNativeFetch();
-
-    return fetcher;
+    return fetcher.replaceNativeFetch();
 };
 
 /**
@@ -158,4 +159,77 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
      * - `fetcher`: It’s either already in props, or `<Data>` will use default, so no need to populate here.
      * - `head`: It’s either already in props, or in global script code; e.g., `styleBundle`, `scriptBundle`.
      */
+};
+
+/**
+ * Produces a lazy loaded route component.
+ *
+ * @param   loader For details {@see LazyRouteLoader}.
+ *
+ * @returns        Higher order route component; {@see $preact.FnComponent}.
+ */
+export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedProps> => {
+    let promise: ReturnType<LazyRouteLoader> | undefined;
+    let component: $preact.AnyComponent<RoutedProps> | undefined;
+
+    const Route = (props: $preact.Props<RoutedProps>): $preact.VNode<RoutedProps> => {
+        const didChainPromiseResolution = $preact.useRef(false);
+        const [, updateResolvedState] = $preact.useState(false);
+
+        if (!promise) {
+            promise = loader().then((exportsOrComponent): Awaited<ReturnType<LazyRouteLoader>> => {
+                return (component = (exportsOrComponent as { default: $preact.AnyComponent<RoutedProps> }).default || exportsOrComponent);
+            });
+        }
+        if (undefined !== component) {
+            return $preact.create(component, props);
+            //
+        } else if (!didChainPromiseResolution.current) {
+            didChainPromiseResolution.current = true;
+
+            void promise.then((component): $preact.AnyComponent<RoutedProps> => {
+                updateResolvedState(true); // Triggers re-render.
+                return component as $preact.AnyComponent<RoutedProps>;
+            });
+        }
+        throw promise;
+    };
+    if (loader.name /* For debugging. */) {
+        Route.displayName = loader.name;
+    }
+    return Route;
+};
+
+/**
+ * Produces a lazy loaded component.
+ *
+ * @param   asyncComponent Async component to be lazy loaded.
+ * @param   options        Options (all optional); {@see LazyComponentOptions}.
+ *
+ * @returns                Higher order component that will be lazy loaded.
+ */
+export const lazyComponent = <Props extends $preact.Props = $preact.Props>(
+    asyncComponent: $preact.AsyncFnComponent<Props>,
+    options?: LazyComponentOptions,
+): $preact.FnComponent<Props> => {
+    const opts = options || {};
+    const higherOrder = { props: {} as Props };
+
+    const ComponentRoute = lazyRoute(async (): ReturnType<LazyRouteLoader> => {
+        const renderedAsyncComponentVNode = await asyncComponent(higherOrder.props);
+        return (unusedꓺprops: RoutedProps) => renderedAsyncComponentVNode;
+    });
+    const ComponentRouter = (props: Parameters<$preact.AsyncFnComponent<Props>>[0]): Awaited<ReturnType<$preact.AsyncFnComponent<Props>>> => {
+        higherOrder.props = props; // Populates async component props.
+        return (
+            <Router {...{ ...opts, isForLazyComponent: true }}>
+                <Route default component={ComponentRoute} />
+            </Router>
+        );
+    };
+    if (asyncComponent.name /* For debugging. */) {
+        ComponentRouter.displayName = asyncComponent.name + 'Router';
+        ComponentRoute.displayName = asyncComponent.name + 'Route';
+    }
+    return ComponentRouter;
 };

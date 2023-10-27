@@ -23,7 +23,7 @@ export type PrerenderResult = { html: string };
  *
  * @note This utility must only be used server-side.
  */
-export default async function prerender(componentOrVNode: $preact.AnyComponent | $preact.VNode, options?: PrerenderOptions): Promise<PrerenderResult> {
+export async function prerender(componentOrVNode: $preact.AnyComponent | $preact.VNode, options?: PrerenderOptions): Promise<PrerenderResult> {
     if (!$env.isSSR()) throw $env.errSSROnly;
 
     let vNode: $preact.VNode; // Initializes vNode.

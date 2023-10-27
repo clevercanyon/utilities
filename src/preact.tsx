@@ -85,6 +85,14 @@ export * as iso from './resources/preact/apis/iso.tsx';
 export * as ssr from './resources/preact/apis/ssr.tsx';
 
 /**
+ * Exports our Preact lazy loaders.
+ *
+ * These two in particular get lifted up into the top level of `$preact` utilities. Alternatively, they can be accessed
+ * via `$preact.iso.*`. We’re exporting them as first-class citizens, though, which is much more convenient.
+ */
+export { lazyRoute, lazyComponent } from './resources/preact/apis/iso.tsx';
+
+/**
  * Exports our Preact hooks.
  */
 export { useHTML } from './preact/components/html.tsx';
@@ -94,11 +102,6 @@ export { useData, useHTTP } from './preact/components/data.tsx';
 export { useLayout } from './preact/components/layout-context.tsx';
 export { useLocation } from './preact/components/location.tsx';
 export { useRoute } from './preact/components/router.tsx';
-
-/**
- * Exports our Preact lazy loaders.
- */
-export { lazyRoute, lazyComponent } from './resources/preact/apis/iso/lazy.tsx';
 
 /**
  * Defines types.
