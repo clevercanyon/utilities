@@ -120,16 +120,17 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
         };
     }, [actualState]);
 
-    $preact.useEffect(() => {
-        addEventListener('click', updateState);
-        addEventListener('popstate', updateState);
+    if ($env.isWeb() && !$env.isMajorCrawler()) {
+        $preact.useEffect(() => {
+            addEventListener('click', updateState);
+            addEventListener('popstate', updateState);
 
-        return () => {
-            removeEventListener('click', updateState);
-            removeEventListener('popstate', updateState);
-        };
-    }, []); // i.e., On mount/unmount only.
-
+            return () => {
+                removeEventListener('click', updateState);
+                removeEventListener('popstate', updateState);
+            };
+        }, []); // i.e., On mount/unmount only.
+    }
     return <Context.Provider value={{ state, push: updateState, updateState }}>{props.children}</Context.Provider>;
 }
 
@@ -196,13 +197,21 @@ const initialState = (props: Props): State => {
  * @param   x     Event or another type of update.
  *
  * @returns       New state; else original state if no changes.
- *
- * @todo SEO: Consider forcing full page changes whenever a bot is navigating the site.
  */
 const reducer = (state: State, x: Parameters<ContextProps['updateState']>[0]): State => {
-    let url, isPush, isClick; // Initialize.
-    const isObject = $is.object(x);
+    // Initialize.
+    let url, isPush, isClick;
+
+    // For reuse below.
     const isWeb = $env.isWeb();
+    const isObject = $is.object(x);
+
+    // ---
+    // Full pages changes for all major crawlers.
+    // i.e., Do not change state, do not prevent default.
+
+    if (isWeb && $env.isMajorCrawler()) return state;
+
     // ---
     // Case handlers for various types of state updates.
 

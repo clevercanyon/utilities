@@ -437,6 +437,28 @@ export const isC10n = (tests: QVTests = {}): boolean => test('APP_IS_C10N', test
 export const isVite = (tests: QVTests = { serve: '*' }): boolean => test('APP_IS_VITE', tests);
 
 /**
+ * Checks if user-agent is a major crawler.
+ *
+ * @returns True if user-agent is a major crawler.
+ *
+ * @see https://blog.hubspot.com/marketing/top-search-engines
+ * @see https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers
+ * @see https://github.com/monperrus/crawler-user-agents/blob/master/crawler-user-agents.json
+ */
+export const isMajorCrawler = $fnꓺmemo(() => {
+    if (isWeb())
+        for (const regExp of [
+            /\b(?:google|bing|msn|adidx|duckduck)bot\b/iu, // `*bot` patterns.
+            /\b(?:(?:ads|store)bot|apis|mediapartners)-google\b/iu, // `*-google` patterns.
+            /\bgoogle(?:-(?:read|site|adwords|extended|inspectiontool|structured)|producer|other)\b/iu, // `google{-*,*}` patterns.
+            /\b(?:slurp|teoma|yeti|heritrix|ia_archiver|archive\.org_bot|baiduspider|yandex\.com\/bots)\b/iu, // Other search engines.
+        ]) {
+            if (regExp.test(navigator.userAgent)) return true;
+        }
+    return false;
+});
+
+/**
  * Tests an environment variable's query vars.
  *
  * @param   leadingObps Optional environment variable object path(s).
