@@ -15,7 +15,6 @@ import { type State as LocationState } from './location.tsx';
 export type CoreProps = $preact.BasicProps<{
     onLoadStart?: (data: { locState: LocationState; routeContext: RouteContextProps }) => void;
     onLoadEnd?: (data: { locState: LocationState; routeContext: RouteContextProps }) => void;
-    onRouteChange?: (data: { locState: LocationState; routeContext: RouteContextProps }) => void;
 }>;
 export type Props = $preact.BasicProps<LazyErrorBoundaryProps & CoreProps>;
 
@@ -62,7 +61,7 @@ const RouteContext = createContext({} as RouteContextProps);
 export default function Router(props: Props = {}): $preact.VNode<Props> {
     return (
         <LazyErrorBoundary onError={props.onError}>
-            <RouterCore onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd} onRouteChange={props.onRouteChange}>
+            <RouterCore onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd}>
                 {props.children}
             </RouterCore>
         </LazyErrorBoundary>
@@ -102,6 +101,11 @@ export const useRoute = (): RouteContextProps => $preact.useContext(RouteContext
 const resolvedPromise = Promise.resolve();
 
 /**
+ * Global scroll position event handler.
+ */
+let scrollPositionHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
+
+/**
  * Renders a ref’s current route.
  *
  * @param   props Component props with `r` (i.e., the ref).
@@ -120,42 +124,51 @@ const RenderRefRoute = ({ r }: $preact.BasicProps<{
  * @returns       Rendered refs (current and previous routes).
  */
 function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $preact.VNode<CoreProps> {
-    const thisObj = this as unknown as $type.Object; // As plain object.
+    // Self-reference, as plain object value.
+    const thisObj = this as unknown as $type.Object;
 
+    // Gathers state.
     const context = $preact.useRoute();
     const { state: locState } = $preact.useLocation();
     const [layoutTicks, updateLayoutTicks] = $preact.useReducer((c) => c + 1, 0);
 
+    // Initializes route references.
     const routeCounter = $preact.useRef(0);
     const routerHasEverCommitted = $preact.useRef(false);
 
+    // Initializes previous route reference.
     const previousRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
-    const prevLocationisInitial = $preact.useRef(locState.isInitial);
-    const prevLocationWasPushed = $preact.useRef(locState.wasPushed);
-    const prevLocationPathQuery = $preact.useRef(locState.pathQuery);
 
+    // Initializes current route references.
     const currentRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
-    const currentRouteDidSuspend = $preact.useRef(false);
-    const currentRouteIsLoading = $preact.useRef(false);
     const currentRoutePendingHydrationDOM = $preact.useRef() as $preact.Ref<HTMLElement>;
 
-    currentRouteDidSuspend.current = false; // Reinitialize.
+    // Initializes other current route references.
+    const currentRouteDidSuspend = $preact.useRef(false);
+    const currentRouteDidSuspendAndIsLoading = $preact.useRef(false);
 
-    // Memoizes current route.
+    // Resets this flag on each and every attempt to re-render.
+    // A thrown promise will change this back to `true`, when applicable.
+    currentRouteDidSuspend.current = false;
+
+    // Memoizes component for current route.
+    // Note: This potentially alters `previousRoute`.
     currentRoute.current = $preact.useMemo(() => {
+        // Initializes default and matching child vNodes.
         let defaultChildVNode: $preact.VNode<RouteProps> | undefined;
         let matchingChildVNode: $preact.VNode<RouteProps> | undefined;
 
-        // Prevents diffing when we swap `cur` to `prev`.
+        // Prevents diffing when we swap current to previous.
         if (thisObj.__v && (thisObj.__v as $type.Object | undefined)?.__k) {
             ((thisObj.__v as $type.Object).__k as unknown[]).reverse();
         }
         routeCounter.current++; // Increments monotonic route counter.
+        // Current route is being defined, so 'current' is actually previous here.
         previousRoute.current = currentRoute.current; // Stores current as previous.
-        // ↑ Current route is being defined, so 'current' is actually previous here.
 
+        // Configures current route context properties.
         // Current route context props must reflect the 'rest*' props.
-        // i,e., In current context of potentially nested routers.
+        // i,e., In the current context of potentially nested routers.
         let routeContext = {
             // These are `./` relative to base.
             // And, these are relative `./` to parent route.
@@ -175,6 +188,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             params: {}, // Potentially populated by `pathMatchesRoutePattern()`.
         } as RouteContextProps;
 
+        // Looks for a matching `<Route>` child component in the current router.
         ($preact.toChildArray(props.children) as $preact.VNode<RouteProps>[]).some((childVNode): boolean => {
             let matchingRouteContext: RouteContextProps | undefined;
 
@@ -186,68 +200,73 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             }
             return false;
         });
+        // It is possible for this to render with `matchingChildVNode` & `defaultChildVNode` empty.
+        // In such a case, there are simply no children to render in the current route. Therefore, it becomes
+        // important for a top-level pre-renderer to look for cases where no route matched, and treat it as a 404.
         return <RouteContext.Provider value={routeContext}>{matchingChildVNode || defaultChildVNode}</RouteContext.Provider>;
     }, [locState]);
 
-    // If rendering succeeds synchronously, we shouldn't render previous children.
-    const previousRouteSnapshot = previousRoute.current;
-    previousRoute.current = null; // Reset previous children.
+    // Snapshots the previous route, and then resets it to `null`, for now.
+    // i.e., If rendering succeeds synchronously, we shouldn't render previous children.
+    const previousRouteSnapshot = previousRoute.current; // Snapshots previous route.
+    previousRoute.current = null; // Resets previous route to `null`.
 
+    // Configures the router’s `_childDidSuspend()` handler.
     // Minified `__c` = `_childDidSuspend()`. See: <https://o5p.me/3gXT4t>.
     thisObj.__c = (thrownPromise: Promise<unknown>) => {
-        // Mark current render as having suspended.
+        // Marks current render as having suspended.
         currentRouteDidSuspend.current = true;
 
-        // The new route suspended, so keep the previous route around while it loads.
+        // Marks current render as having suspended and currently loading.
+        currentRouteDidSuspendAndIsLoading.current = true;
+
+        // Keeps previous route around while current route loads.
         previousRoute.current = previousRouteSnapshot;
 
-        // Flag as currently loading.
-        currentRouteIsLoading.current = true;
+        // Snapshots counter for comparison once promise resolves.
+        const routeCounterSnapshot = routeCounter.current;
 
-        // Fire an event saying we're waiting for the route.
-        if (props.onLoadStart) props.onLoadStart({ locState, routeContext: context });
+        // Fires an event indicating the current route is now loading.
+        if ($env.isWeb() && props.onLoadStart) props.onLoadStart({ locState, routeContext: context });
 
-        // Re-render on un-suspension.
-        const routeCounterSnapshot = routeCounter.current; // Snapshot.
-
-        void thrownPromise.then((/* When no longer in a suspended state. */) => {
-            // Ignore this update if it isn't the most recently suspended update.
+        // Handles resolution of suspended state; i.e., once promise resolves.
+        void thrownPromise.then(() => {
+            // Ignores update if it isn't the most recently suspended update.
             if (routeCounterSnapshot !== routeCounter.current) return;
 
             // Successful route transition: un-suspend after a tick and stop rendering the old route.
             (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers a new layout effect below.
         });
     };
-    $preact.useLayoutEffect(() => {
-        // Current route's hydration DOM.
-        const currentRouteHydrationDOM = ((thisObj.__v as $type.Object | undefined)?.__e || null) as HTMLElement | null;
+    // Configures the router’s effects.
+    // These are only applicable on the web.
+    if ($env.isWeb()) {
+        $preact.useLayoutEffect(() => {
+            // Current route's hydration DOM cast as an `HTMLElement | null`.
+            const currentRouteHydrationDOM = ((thisObj.__v as $type.Object | undefined)?.__e || null) as HTMLElement | null;
 
-        // Ignore suspended renders (failed commits).
-        if (currentRouteDidSuspend.current) {
-            // If we've never committed, mark any hydration DOM for removal on the next commit.
-            if (!routerHasEverCommitted.current && !currentRoutePendingHydrationDOM.current) {
-                currentRoutePendingHydrationDOM.current = currentRouteHydrationDOM;
+            // Ignores suspended renders; i.e., failed commits.
+            if (currentRouteDidSuspend.current) {
+                // If we've never committed, mark hydration DOM for removal.
+                if (!routerHasEverCommitted.current && !currentRoutePendingHydrationDOM.current) {
+                    currentRoutePendingHydrationDOM.current = currentRouteHydrationDOM;
+                }
+                return; // Stop here while in a suspended state.
             }
-            return; // Stop here in this case.
-        }
-        // If this is the first ever successful commit and we didn't use the hydration DOM, remove it.
-        if (!routerHasEverCommitted.current && currentRoutePendingHydrationDOM.current) {
-            if (currentRoutePendingHydrationDOM.current !== currentRouteHydrationDOM) {
-                currentRoutePendingHydrationDOM.current?.remove();
+            // Removes hydration DOM if this is the first ever commit and we didn't use.
+            if (!routerHasEverCommitted.current && currentRoutePendingHydrationDOM.current) {
+                if (currentRoutePendingHydrationDOM.current !== currentRouteHydrationDOM) {
+                    currentRoutePendingHydrationDOM.current.remove();
+                }
+                currentRoutePendingHydrationDOM.current = null; // Nullify now.
             }
-            currentRoutePendingHydrationDOM.current = null; // Nullify after check complete.
-        }
-        // Mark router as having committed; i.e., as we are doing now.
-        routerHasEverCommitted.current = true; // Obviously true at this point.
+            // Marks router as having committed; i.e., we are committing now.
+            routerHasEverCommitted.current = true;
 
-        // The new current route is loaded and rendered?
-        if (
-            prevLocationisInitial.current !== locState.isInitial ||
-            prevLocationWasPushed.current !== locState.wasPushed ||
-            prevLocationPathQuery.current !== locState.pathQuery //
-        ) {
-            if (locState.wasPushed && $env.isWeb() /* Handles scroll location. */) {
-                $dom.afterNextFrame(() => {
+            // Handles scroll position for current route location.
+            if (locState.wasPushed /* Includes initial location. */) {
+                if (scrollPositionHandler) scrollPositionHandler.cancel();
+                scrollPositionHandler = $dom.afterNextFrame(() => {
                     const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
                     const currentHashElement = currentHash ? $dom.query('#' + currentHash) : null;
 
@@ -256,16 +275,18 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                     } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
                 });
             }
-            if (props.onLoadEnd && currentRouteIsLoading.current) props.onLoadEnd({ locState, routeContext: context });
-            if (props.onRouteChange) props.onRouteChange({ locState, routeContext: context });
+            // Ends the loading sequence of the current route.
+            // i.e., It was suspended at one point, and still loading?
+            if (currentRouteDidSuspendAndIsLoading.current) {
+                // Updates loading status; i.e., ends loading.
+                currentRouteDidSuspendAndIsLoading.current = false;
 
-            (prevLocationisInitial.current = locState.isInitial), //
-                (prevLocationWasPushed.current = locState.wasPushed),
-                (prevLocationPathQuery.current = locState.pathQuery);
-            currentRouteIsLoading.current = false; // Loading complete.
-        }
-    }, [locState, layoutTicks]);
-
+                // Fires an event indicating the current route is loaded now.
+                if (props.onLoadEnd) props.onLoadEnd({ locState, routeContext: context });
+            }
+        }, [locState, layoutTicks]);
+    }
+    // Renders `currentRoute` and `previousRoute` components.
     // Note: `currentRoute` MUST render first to trigger a thrown promise.
     return <>{[$preact.create(RenderRefRoute, { r: currentRoute }), $preact.create(RenderRefRoute, { r: previousRoute })]}</>;
 }

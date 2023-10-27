@@ -121,6 +121,9 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
     }, [actualState]);
 
     if ($env.isWeb() && !$env.isMajorCrawler()) {
+        // Crawlers can detect SPAs by inspecting history event listeners.
+        // So let’s not attach these to major crawlers, because we ask them to do full page changes, anyway.
+        // For further details, please review other instances of `$env.isMajorCrawler()` in this file.
         $preact.useEffect(() => {
             addEventListener('click', updateState);
             addEventListener('popstate', updateState);
@@ -144,6 +147,11 @@ export const useLocation = (): ContextProps => $preact.useContext(Context);
 /* ---
  * Misc utilities.
  */
+
+/**
+ * Global scroll position event handler.
+ */
+let scrollPositionHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
 
 /**
  * Initial component state.
@@ -184,8 +192,8 @@ const initialState = (props: Props): State => {
     return {
         isInitial: true,
         isInitialHydration: isHydration,
-        wasPushed: false,
-        baseURL,
+        wasPushed: true, // Initial location is also a push.
+        baseURL, // e.g., `https://x.tld/`, `https://x.tld/base/`.
         pathQuery: $url.removeBasePath($url.toPathQuery(url), baseURL),
     };
 };
@@ -295,7 +303,8 @@ const reducer = (state: State, x: Parameters<ContextProps['updateState']>[0]): S
     if (state.pathQuery === pathQuery) {
         if (isWeb && isClick && !url.hash) {
             (x as MouseEvent).preventDefault();
-            $dom.afterNextFrame(() => scrollTo({ top: 0, left: 0, behavior: 'auto' }));
+            if (scrollPositionHandler) scrollPositionHandler.cancel();
+            scrollPositionHandler = $dom.afterNextFrame(() => scrollTo({ top: 0, left: 0, behavior: 'auto' }));
         }
         return state; // No point; we’re already at this location.
         // This also ignores on-page hash changes. We let browser handle.

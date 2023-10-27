@@ -14,42 +14,55 @@ type AnyAtts = { [x: string]: unknown };
 /**
  * Fires a callback on document ready state.
  *
- * @param callback Callback.
+ * @param   callback Callback.
+ *
+ * @returns          Object with `cancel` function.
  *
  * @requiredEnv web
  */
-export const onReady = (callback: () => void): void => {
+export const onReady = (callback: () => void): { cancel: () => void } => {
+    const eventName = 'DOMContentLoaded';
+
     if ('loading' !== document.readyState) {
         callback(); // Fires callback immediately.
     } else {
-        document.addEventListener('DOMContentLoaded', () => callback());
+        addEventListener(eventName, callback);
     }
+    return { cancel: () => removeEventListener(eventName, callback) };
 };
 
 /**
  * Fires a callback on window loaded state.
  *
- * @param callback Callback.
+ * @param   callback Callback.
+ *
+ * @returns          Object with `cancel` function.
  *
  * @requiredEnv web
  */
-export const onLoad = (callback: () => void): void => {
+export const onLoad = (callback: () => void): { cancel: () => void } => {
+    const eventName = 'load';
+
     if ('complete' === document.readyState) {
         callback(); // Fires callback immediately.
     } else {
-        window.addEventListener('load', () => callback());
+        addEventListener(eventName, callback);
     }
+    return { cancel: () => removeEventListener(eventName, callback) };
 };
 
 /**
  * Fires a callback on the next frame.
  *
- * @param callback Callback.
+ * @param   callback Callback.
+ *
+ * @returns          Object with `cancel` function.
  *
  * @requiredEnv web
  */
-export const onNextFrame = (callback: () => void): void => {
-    requestAnimationFrame(callback);
+export const onNextFrame = (callback: () => void): { cancel: () => void } => {
+    const raf = requestAnimationFrame(callback);
+    return { cancel: () => cancelAnimationFrame(raf) };
 };
 
 /**
@@ -59,11 +72,13 @@ export const onNextFrame = (callback: () => void): void => {
  * {@see requestAnimationFrame} together with {@see setTimeout()} to invoke a callback after the next frame. A timeout
  * is scheduled in parallel to ensure the callback is always invoked; e.g., if the browser tab is not visible.
  *
- * @param callback Callback.
+ * @param   callback Callback.
+ *
+ * @returns          Object with `cancel` function.
  *
  * @requiredEnv web
  */
-export const afterNextFrame = (callback: () => void): void => {
+export const afterNextFrame = (callback: () => void): { cancel: () => void } => {
     const done = () => {
         clearTimeout(timeout);
         cancelAnimationFrame(raf);
@@ -71,24 +86,34 @@ export const afterNextFrame = (callback: () => void): void => {
     };
     const timeout = setTimeout(done, 100);
     const raf = requestAnimationFrame(done);
+    return {
+        cancel: (): void => {
+            cancelAnimationFrame(raf);
+            clearTimeout(timeout);
+        },
+    };
 };
 
 /**
  * Fires a callback on a named event.
  *
- * @param eventName Event name. Required always.
- * @param selectors Selectors for delegated events.
- * @param callback  Callback for event handler.
+ * @param   eventName Event name. Required always.
+ * @param   selectors Selectors for delegated events.
+ * @param   callback  Callback for event handler.
+ *
+ * @returns           Object with `cancel` function.
  *
  * @requiredEnv web
  */
-export function on(eventName: string, callback: (x: Event) => void): void;
-export function on(eventName: string, selectors: string, callback: (x: Event) => void): void;
+export function on(eventName: string, callback: (x: Event) => void): { cancel: () => void };
+export function on(eventName: string, selectors: string, callback: (x: Event) => void): { cancel: () => void };
 
-export function on(...args: unknown[]): void {
+export function on(...args: unknown[]): { cancel: () => void } {
     const eventName = args[0] as string;
     let selectors: string; // Initialize.
+
     let callback: (x: Event) => void;
+    let actualCallback: (x: Event) => void;
 
     if (args.length >= 3) {
         selectors = args[1] as typeof selectors;
@@ -98,7 +123,7 @@ export function on(...args: unknown[]): void {
         callback = args[1] as typeof callback;
     }
     if (selectors && callback) {
-        document.addEventListener(eventName, (event: Event): void => {
+        actualCallback = (event: Event): void => {
             let target = event.target;
 
             if (!$is.element(target)) {
@@ -109,8 +134,11 @@ export function on(...args: unknown[]): void {
                     callback.call(target, event);
                 }
             } while ($is.element((target = target.parentNode)) && target !== event.currentTarget);
-        });
-    } else document.addEventListener(eventName, callback);
+        };
+    } else actualCallback = callback;
+
+    document.addEventListener(eventName, actualCallback);
+    return { cancel: () => document.removeEventListener(eventName, actualCallback) };
 }
 
 /**
