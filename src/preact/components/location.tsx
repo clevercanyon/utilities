@@ -157,9 +157,9 @@ export const useLocation = (): Context => $preact.useContext(ContextObject);
  */
 
 /**
- * Global scroll event handler.
+ * Global scroll handler.
  */
-let scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
+let scrollHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.afterNextFrame> | undefined;
 
 /**
  * Initial component state.
@@ -311,8 +311,8 @@ const reducer = (state: ActualState, x: Parameters<Context['updateState']>[0]): 
     if (state.pathQuery === pathQuery) {
         if (isWeb && isClick && !url.hash) {
             (x as MouseEvent).preventDefault();
-            if (scrollHandler) scrollHandler.cancel();
-            scrollHandler = $dom.afterNextFrame(() => scrollTo({ top: 0, left: 0, behavior: 'auto' }));
+            scrollHandler?.cancel(), // i.e., Don’t stack these up.
+                (scrollHandler = $dom.afterNextFrame(() => scrollTo({ top: 0, left: 0, behavior: 'auto' })));
         }
         return state; // No point; we’re already at this location.
         // This also ignores on-page hash changes. We let browser handle.

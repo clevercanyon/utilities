@@ -117,9 +117,10 @@ export const useRoute = (): RouteContext => $preact.useContext(RouteContextObjec
 const resolvedPromise = Promise.resolve();
 
 /**
- * Global scroll event handler.
+ * Global load/scroll handlers.
  */
-let scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
+let loadingHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.afterNextFrame> | undefined;
+let scrollHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.afterNextFrame> | undefined;
 
 /**
  * Renders a ref’s current route.
@@ -286,7 +287,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         if ($env.isWeb() /* Only possible on the web. */) {
             // Appends `<x-preact-app-loading>` status indicator.
             if (false !== props.handleLoading && !locationState.isInitialHydration) {
-                $dom.onNextFrame(() => $dom.body().appendChild(xPreactAppLoading()));
+                loadingHandler?.cancel(), (loadingHandler = $dom.onNextFrame(() => $dom.body().appendChild(xPreactAppLoading())));
             }
             // Fires an event indicating the current route is now loading.
             if (props.onLoadStart) props.onLoadStart(currentRouteLoadEventData);
@@ -334,7 +335,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 
                 // Handles removal of `<x-preact-app-loading>` status indicator.
                 if (false !== props.handleLoading && !locationState.isInitialHydration) {
-                    $dom.afterNextFrame(() => xPreactAppLoading().remove());
+                    loadingHandler?.cancel(), (loadingHandler = $dom.afterNextFrame(() => xPreactAppLoading().remove()));
                 }
                 // Fires an event indicating the end of loading sequence.
                 if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData);
@@ -343,16 +344,15 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             // Handles scroll position for current route location.
             // Note: This runs even for routes that were loaded synchronously.
             if (false !== props.handleScrolling && locationState.wasPushed && !locationState.isInitialHydration) {
-                if (scrollHandler) scrollHandler.cancel(); // i.e., Don’t stack these up.
+                scrollHandler?.cancel(), // i.e., Don’t stack these up.
+                    (scrollHandler = $dom.afterNextFrame(() => {
+                        const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
+                        const currentHashElement = currentHash ? $dom.query('#' + currentHash) : null;
 
-                scrollHandler = $dom.afterNextFrame(() => {
-                    const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
-                    const currentHashElement = currentHash ? $dom.query('#' + currentHash) : null;
-
-                    if (currentHashElement) {
-                        currentHashElement.scrollIntoView({ behavior: 'auto' });
-                    } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
-                });
+                        if (currentHashElement) {
+                            currentHashElement.scrollIntoView({ behavior: 'auto' });
+                        } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                    }));
             }
             // Fires an event indicating the current route is loaded now.
             // Note: This runs even for routes that were loaded synchronously.

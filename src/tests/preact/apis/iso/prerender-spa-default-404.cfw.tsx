@@ -82,7 +82,6 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        console.log(othersOtherFooHTML);
         expect(othersOtherFooHTTPState.status).toBe(404);
         expect(othersOtherFooDocType).toBe('<!doctype html>');
         expect(othersOtherFooHTML).toContain('<title data-key="title">404 Error: Not Found</title>');
@@ -101,7 +100,6 @@ describe('$preact.iso.prerenderSPA() default-404', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        console.log(othersOtherFooHTML);
         expect(othersOtherFooHTTPState.status).toBe(404);
         expect(othersOtherFooDocType).toBe('<!doctype html>');
         expect(othersOtherFooHTML).toContain('<title>404 Error: Not Found</title>');
