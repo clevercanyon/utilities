@@ -20,6 +20,7 @@ export type CoreProps = $preact.BasicProps<{
     handleScrolling?: boolean;
     onLoadStart?: (data: RouteLoadEventData) => void;
     onLoadEnd?: (data: RouteLoadEventData) => void;
+    onLoaded?: (data: RouteLoadEventData) => void;
 }>;
 export type Props = $preact.BasicProps<ErrorBoundaryCoreProps & CoreProps>;
 
@@ -50,6 +51,13 @@ export type RoutedProps = $preact.BasicProps<RouteProps & RouteContext>;
 export type RouteLoadEventData = { locationState: LocationState; routeContext: RouteContext };
 
 /**
+ * Defines router core props.
+ *
+ * Exporting these to streamline bundle size, as they are reused a couple of times.
+ */
+export const corePropKeys = ['handleLoading', 'handleScrolling', 'onLoadStart', 'onLoadEnd', 'onLoaded'];
+
+/**
  * Defines route context object.
  *
  * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
@@ -70,8 +78,8 @@ const RouteContextObject = createContext({} as RouteContext);
  */
 export default function Router(props: Props = {}): $preact.VNode<Props> {
     return (
-        <ErrorBoundaryCore {...$obj.pick(props, ['onLoadError'])}>
-            <RouterCore {...$obj.pick(props, ['handleLoading', 'handleScrolling', 'onLoadStart', 'onLoadEnd'])}>{props.children}</RouterCore>
+        <ErrorBoundaryCore onLoadError={props.onLoadError}>
+            <RouterCore {...$obj.pick(props, corePropKeys)}>{props.children}</RouterCore>
         </ErrorBoundaryCore>
     );
 }
@@ -138,7 +146,9 @@ function ErrorBoundaryCore(this: $preact.Component<ErrorBoundaryCoreProps>, prop
     (this as unknown as $type.Object).__c = (thrownPromise: Promise<unknown>): void => {
         void thrownPromise.then(() => this.forceUpdate());
     };
+    // Attaches a possible error handler.
     this.componentDidCatch = props.onLoadError;
+
     return <>{props.children}</>;
 }
 
@@ -274,7 +284,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 
         // Handles effects of loading sequence starting.
         if ($env.isWeb() /* Only possible on the web. */) {
-            // Appends the `<x-preact-app-loading>` status indicator.
+            // Appends `<x-preact-app-loading>` status indicator.
             if (false !== props.handleLoading && !locationState.isInitialHydration) {
                 $dom.onNextFrame(() => $dom.body().appendChild(xPreactAppLoading()));
             }
@@ -287,7 +297,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             // Ignores update if it isn't the most recently suspended update.
             if (routeCounterSnapshot !== routeCounter.current) return;
 
-            // Successful route transition: un-suspend after a tick and stop rendering the old route.
+            // Successful route transition. Unsuspend after a tick and stop rendering the old route.
             (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers a new layout effect.
         });
     };
@@ -315,9 +325,23 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                 currentRoutePendingHydrationDOM.current = null; // Nullify now.
             }
             // Marks router as having committed; i.e., we are committing now.
-            routerHasEverCommitted.current = true;
+            routerHasEverCommitted.current = true; // i.e., We did not stop in a suspended state above.
 
+            // Ends current route loading sequence.
+            if (currentRouteDidSuspendAndIsLoading.current) {
+                // Updates loading status.
+                currentRouteDidSuspendAndIsLoading.current = false;
+
+                // Handles removal of `<x-preact-app-loading>` status indicator.
+                if (false !== props.handleLoading && !locationState.isInitialHydration) {
+                    $dom.afterNextFrame(() => xPreactAppLoading().remove());
+                }
+                // Fires an event indicating the end of loading sequence.
+                if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData);
+                $dom.trigger(document, 'x:route:loadEnd', currentRouteLoadEventData);
+            }
             // Handles scroll position for current route location.
+            // Note: This runs even for routes that were loaded synchronously.
             if (false !== props.handleScrolling && locationState.wasPushed && !locationState.isInitialHydration) {
                 if (scrollHandler) scrollHandler.cancel(); // i.e., Don’t stack these up.
 
@@ -330,19 +354,10 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                     } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
                 });
             }
-            // Ends current route loading sequence.
-            if (currentRouteDidSuspendAndIsLoading.current) {
-                // Updates loading status; i.e., ends loading sequence.
-                currentRouteDidSuspendAndIsLoading.current = false;
-
-                // Handles removal of `<x-preact-app-loading>` status indicator.
-                if (false !== props.handleLoading && !locationState.isInitialHydration) {
-                    $dom.afterNextFrame(() => xPreactAppLoading().remove());
-                }
-                // Fires an event indicating the current route is loaded now.
-                if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData);
-                $dom.trigger(document, 'x:route:loadEnd', currentRouteLoadEventData);
-            }
+            // Fires an event indicating the current route is loaded now.
+            // Note: This runs even for routes that were loaded synchronously.
+            if (props.onLoaded) props.onLoaded(currentRouteLoadEventData);
+            $dom.trigger(document, 'x:route:loaded', currentRouteLoadEventData);
         }, [locationState, layoutTicks]);
     }
     // Renders `currentRoute` and `previousRoute` components.
