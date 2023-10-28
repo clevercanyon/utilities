@@ -299,7 +299,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             if (routeCounterSnapshot !== routeCounter.current) return;
 
             // Successful route transition. Unsuspend after a tick and stop rendering the old route.
-            (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers a new layout effect.
+            (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers new effects.
         });
     };
     // Configures the router’s effects.
@@ -310,7 +310,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             // Current route's hydration DOM cast as an `HTMLElement | null`.
             const currentRouteHydrationDOM = ((thisObj.__v as $type.Object | undefined)?.__e || null) as HTMLElement | null;
 
-            // Ignores suspended renders; i.e., failed commits.
+            // Ignores suspended renders.
             if (currentRouteDidSuspend.current) {
                 // If we've never committed, mark hydration DOM for removal.
                 if (!routerHasEverCommitted.current && !currentRoutePendingHydrationDOM.current) {
@@ -325,9 +325,15 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                 }
                 currentRoutePendingHydrationDOM.current = null; // Nullify now.
             }
-            // Marks router as having committed; i.e., we are committing now.
-            routerHasEverCommitted.current = true; // i.e., We did not stop in a suspended state above.
+            // Marks router as having committed now.
+            routerHasEverCommitted.current = true;
+        }, [locationState, layoutTicks]);
 
+        $preact.useEffect(() => {
+            // Ignores suspended renders.
+            if (currentRouteDidSuspend.current) {
+                return; // Stop here.
+            }
             // Ends current route loading sequence.
             if (currentRouteDidSuspendAndIsLoading.current) {
                 // Updates loading status.
