@@ -75,7 +75,7 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
 
     if ($env.isWeb()) {
         $preact.useLayoutEffect(() => {
-            $dom.newAtts($dom.require('html'), state);
+            $dom.newAtts($dom.html(), state);
         }, [state]);
     }
     return (

@@ -315,12 +315,10 @@ export default class Head extends Component<Props, ActualState> {
                 if (locationState.isInitialHydration) return;
                 // No need for an initial cleanup when hydrating.
 
-                const head = $dom.require('head');
-
                 // Using `Array.from()` so we’re working on a copy, not the live list.
                 // Nodes get removed here, so a copy avoid issues with in-loop removals.
 
-                for (const node of Array.from(head.childNodes)) {
+                for (const node of Array.from($dom.head().childNodes)) {
                     if (!$is.htmlElement(node)) node.remove(); // e.g., Text or comment node.
                     //
                     else if (isLocalWebVite && 'SCRIPT' === node.tagName && '/@vite/client' === node.getAttribute('src')) {
@@ -338,8 +336,9 @@ export default class Head extends Component<Props, ActualState> {
                 if (locationState.isInitialHydration) return;
                 // No need for an initial diff when hydrating.
 
-                const head = $dom.require('head');
-                let existing; // An existing element node.
+                const head = $dom.head(); // Memoized `<head>`.
+                let existing; // Potentially an existing element node.
+                // This is reused below as we’re iterating each child vNode.
 
                 for (const [, { type, props }] of Object.entries(childVNodes)) {
                     if ((existing = $dom.query('head > [data-key=' + props['data-key'] + ']'))) {

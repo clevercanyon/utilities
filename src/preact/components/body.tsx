@@ -75,7 +75,7 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
 
     if ($env.isWeb()) {
         $preact.useLayoutEffect(() => {
-            $dom.newAtts($dom.require('body'), state);
+            $dom.newAtts($dom.body(), state);
         }, [state]);
     }
     return (

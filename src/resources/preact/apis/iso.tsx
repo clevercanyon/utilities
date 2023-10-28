@@ -227,7 +227,7 @@ export const lazyComponent = <Props extends $preact.Props = $preact.Props>(
     return (props: Parameters<$preact.AsyncFnComponent<Props>>[0]): Awaited<ReturnType<$preact.AsyncFnComponent<Props>>> => {
         higherOrder.props = props; // Populates async component props.
         return (
-            <Router {...{ handleScroll: false, ...opts }}>
+            <Router {...{ handleScrolling: false, ...opts }}>
                 <Route default component={ComponentRoute} />
             </Router>
         );

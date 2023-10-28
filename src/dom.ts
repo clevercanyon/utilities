@@ -5,6 +5,7 @@
 import './resources/init.ts';
 
 import { $is, $obj, $preact, $to, type $type } from './index.ts';
+import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 /**
  * Defines types.
@@ -165,7 +166,7 @@ export const trigger = (wdes: Window | Document | Element | string, eventName: s
  * @requiredEnv web
  */
 export const headAppend = (element: Element): void => {
-    require('head').appendChild(element);
+    head().appendChild(element);
 };
 
 /**
@@ -176,7 +177,7 @@ export const headAppend = (element: Element): void => {
  * @requiredEnv web
  */
 export const bodyAppend = (element: Element): void => {
-    require('body').appendChild(element);
+    body().appendChild(element);
 };
 
 /**
@@ -294,8 +295,8 @@ export const newAtts = (element: Element, atts: AnyAtts): void => {
  *
  * - Attributes that already exist with the same value will not be set again.
  * - Attributes set to `false`, `null`, or `undefined`, will be removed entirely.
- * - `dangerouslySetInnerHTML` will set `innerHTML`, which is not technically an attribute.
- * - `children` as plain text will set `innerText`, which is not technically an attribute.
+ * - `innerText`, `children`, will set `innerText`, which is not technically an attribute.
+ * - `innerHTML`, `dangerouslySetInnerHTML` will set `innerHTML`, which is not technically an attribute.
  * - This supports attributes with function values; e.g., `onload`, `onclick`, etc.
  *
  * @param element Element.
@@ -319,14 +320,14 @@ export const setAtts = (element: Element, atts: AnyAtts): void => {
     for (let [name, newValue] of Object.entries(atts)) {
         const currentValue = elemObj.getAttribute(name);
 
-        if ('children' === name) {
+        if (['innerText', 'children'].includes(name)) {
             if (!$is.primitive(newValue)) throw new Error();
-            const newStrValue = $to.string(newValue); // Text nodes only.
+            const newStrValue = $to.string(newValue);
             if (elemObj.innerText !== newStrValue) elemObj.innerText = newStrValue;
             //
-        } else if ('dangerouslySetInnerHTML' === name) {
-            if (!$is.object(newValue)) throw new Error();
-            const newStrValue = $to.string(newValue.__html);
+        } else if (['innerHTML', 'dangerouslySetInnerHTML'].includes(name)) {
+            if ($is.object(newValue)) newValue = newValue.__html;
+            const newStrValue = $to.string(newValue);
             if (elemObj.innerHTML !== newStrValue) elemObj.innerHTML = newStrValue;
             //
         } else if (true === newValue) {
@@ -344,6 +345,33 @@ export const setAtts = (element: Element, atts: AnyAtts): void => {
         }
     }
 };
+
+/**
+ * Caches `<html>` element for each reuse.
+ *
+ * @returns HTML element; {@see HTMLHtmlElement}.
+ */
+export const html = $fnꓺmemo((): HTMLHtmlElement => {
+    return require('html');
+});
+
+/**
+ * Caches `<head>` element for each reuse.
+ *
+ * @returns Head element; {@see HTMLHeadElement}.
+ */
+export const head = $fnꓺmemo((): HTMLHeadElement => {
+    return require('head');
+});
+
+/**
+ * Caches `<body>` element for each reuse.
+ *
+ * @returns Body element; {@see HTMLBodyElement}.
+ */
+export const body = $fnꓺmemo((): HTMLBodyElement => {
+    return require('body');
+});
 
 /**
  * Queries DOM element(s).
