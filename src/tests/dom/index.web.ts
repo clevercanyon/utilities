@@ -38,24 +38,154 @@ describe('$dom', async () => {
             }, 100);
         });
     });
-    test('.on(click)', async () => {
+    test('.on(body, click), .trigger()', async () => {
         const fn = vi.fn();
-        $dom.on(document, 'click', fn);
-        $dom.require('body').click();
+        const eventTools = $dom.on(document, 'click', fn);
+
+        $dom.body().click(); // Bubbles.
+        $dom.trigger($dom.body(), 'x:click'); // Does not bubble.
+
+        eventTools.cancel(); // Removes listener.
+
+        $dom.body().click(); // Bubbles.
+        $dom.trigger($dom.body(), 'x:click'); // Does not bubble.
+
         expect(fn).toHaveBeenCalledTimes(1);
     });
-    test('.on(click, selectors)', async () => {
+    test('.on(body, click x:click), .trigger()', async () => {
         const fn1 = vi.fn();
-        $dom.on(document, 'click', 'body > a', fn1);
-        $dom.require('body').appendChild($dom.create('a', { href: '#' }));
-        ($dom.require('body > a') as unknown as HTMLAnchorElement).click();
-        expect(fn1).toHaveBeenCalledTimes(1);
+        const eventTools1 = $dom.on($dom.body(), 'click x:click', fn1);
+
+        $dom.body().click(); // Bubbles.
+        $dom.trigger($dom.body(), 'x:click'); // Does not bubble.
+
+        eventTools1.cancel(); // Removes listener.
+
+        $dom.body().click(); // Bubbles.
+        $dom.trigger($dom.body(), 'x:click'); // Does not bubble.
+
+        expect(fn1).toHaveBeenCalledTimes(2);
+
+        // ---
 
         const fn2 = vi.fn();
-        $dom.on(document, 'click', 'body > x', fn2);
-        $dom.require('body').appendChild($dom.create('a', { href: '#' }));
-        ($dom.require('body > a') as unknown as HTMLAnchorElement).click();
-        expect(fn2).toHaveBeenCalledTimes(0);
+        const eventTools2 = $dom.on($dom.body(), ['click', 'x:click'], fn2);
+
+        $dom.body().click(); // Bubbles.
+        $dom.trigger($dom.body(), 'x:click'); // Does not bubble.
+
+        eventTools2.cancel(); // Removes listener.
+
+        $dom.body().click(); // Bubbles.
+        $dom.trigger($dom.body(), 'x:click'); // Does not bubble.
+
+        expect(fn2).toHaveBeenCalledTimes(2);
+
+        // ---
+
+        const fn3 = vi.fn();
+        const eventTools3 = $dom.on($dom.body(), ['click', 'x:click'], fn2);
+
+        eventTools3.cancel(); // Removes listener.
+
+        $dom.body().click(); // Bubbles.
+        $dom.trigger($dom.body(), 'x:click'); // Does not bubble.
+
+        expect(fn3).toHaveBeenCalledTimes(0);
+    });
+    test('.on(body, click, selectors), .trigger()', async () => {
+        const fn1 = vi.fn();
+        $dom.on(document, 'click', 'body > a', fn1);
+
+        $dom.body().appendChild($dom.create('a', { href: '#one' }));
+        $dom.body().appendChild($dom.create('a', { href: '#two' }));
+
+        ($dom.require('body > a[href="#one"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#one"]'), 'x:click'); // Does not bubble.
+
+        ($dom.require('body > a[href="#two"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#two"]'), 'x:click'); // Does not bubble.
+
+        expect(fn1).toHaveBeenCalledTimes(2);
+
+        // ---
+
+        const fn2 = vi.fn();
+        $dom.on(document, 'click', 'body', fn2);
+
+        $dom.body().appendChild($dom.create('a', { href: '#one' }));
+        $dom.body().appendChild($dom.create('a', { href: '#two' }));
+
+        ($dom.require('body > a[href="#one"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#one"]'), 'x:click'); // Does not bubble.
+
+        ($dom.require('body > a[href="#two"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#two"]'), 'x:click'); // Does not bubble.
+
+        expect(fn2).toHaveBeenCalledTimes(2);
+
+        // ---
+
+        const fn3 = vi.fn();
+        $dom.on(document, 'click', 'body > nonexistent', fn3);
+
+        $dom.body().appendChild($dom.create('a', { href: '#one' }));
+        $dom.body().appendChild($dom.create('a', { href: '#two' }));
+
+        ($dom.require('body > a[href="#one"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#one"]'), 'x:click'); // Does not bubble.
+
+        ($dom.require('body > a[href="#two"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#two"]'), 'x:click'); // Does not bubble.
+
+        expect(fn3).toHaveBeenCalledTimes(0);
+    });
+    test('.on(body, click x:click, selectors), .trigger()', async () => {
+        const fn1 = vi.fn();
+        $dom.on(document, 'click x:click', 'body > a', fn1);
+
+        $dom.body().appendChild($dom.create('a', { href: '#one' }));
+        $dom.body().appendChild($dom.create('a', { href: '#two' }));
+
+        ($dom.require('body > a[href="#one"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#one"]'), 'x:click'); // Does not bubble.
+
+        ($dom.require('body > a[href="#two"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#two"]'), 'x:click'); // Does not bubble.
+
+        expect(fn1).toHaveBeenCalledTimes(2);
+
+        // ---
+
+        const fn2 = vi.fn();
+        $dom.on(document, 'click x:click', 'body > a[href="#one"]', fn2);
+
+        $dom.body().appendChild($dom.create('a', { href: '#one' }));
+        $dom.body().appendChild($dom.create('a', { href: '#two' }));
+
+        ($dom.require('body > a[href="#one"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#one"]'), 'x:click'); // Does not bubble.
+
+        ($dom.require('body > a[href="#two"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#two"]'), 'x:click'); // Does not bubble.
+
+        expect(fn2).toHaveBeenCalledTimes(1);
+
+        // ---
+
+        const fn3 = vi.fn();
+        $dom.on(document, ['click', 'x:click'], 'body > a[href="#one"], body > a[href="#two"]', fn3);
+
+        $dom.body().appendChild($dom.create('a', { href: '#one' }));
+        $dom.body().appendChild($dom.create('a', { href: '#two' }));
+
+        ($dom.require('body > a[href="#one"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#one"]'), 'x:click', {}, { bubbles: true }); // Bubbles.
+
+        ($dom.require('body > a[href="#two"]') as unknown as HTMLAnchorElement).click(); // Bubbles.
+        $dom.trigger($dom.require('body > a[href="#two"]'), 'x:click', {}, { bubbles: true }); // Bubbles.
+
+        expect(fn3).toHaveBeenCalledTimes(4);
     });
     test('.headAppend()', async () => {
         $dom.headAppend($dom.create('meta', { name: 'foo', content: 'bar' }));

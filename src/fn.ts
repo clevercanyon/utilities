@@ -30,7 +30,7 @@ export type CurriedReturn<Fn extends $type.Function, Provided extends unknown[]>
           ReturnType<Fn>;
 
 export type TryOptions = { throwOnError?: boolean };
-export type ThrottleOptions = ThrottleDebounceCommonOptions & { debounceMode?: boolean };
+export type ThrottleOptions = ThrottleDebounceCommonOptions & { _debounceMode?: boolean };
 export type DebounceOptions = ThrottleDebounceCommonOptions; // Nothing more to add at this time.
 type ThrottleDebounceCommonOptions = { leadingEdge?: boolean; waitTime?: number; trailingEdge?: boolean };
 
@@ -135,31 +135,31 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
  * @param   options Options (all optional); {@see ThrottleOptions}.
  *
  *   - Default is: `{ leadingEdge: true, waitTime: 750, trailingEdge: true }`
- *   - The `debounceMode` option is for internal use only. Do not pass. Instead, {@see debounce()}.
+ *   - `_debounceMode` is for internal use only. Do not pass. Instead, {@see debounce()}.
  *
  * @returns         Throttled sync or async function.
  */
 export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOptions): ThrottledFunction<Fn> => {
-    const opts = $obj.defaults({}, options || {}, { leadingEdge: true, waitTime: 750, trailingEdge: true, debounceMode: false }) as Required<ThrottleOptions>;
+    const opts = $obj.defaults({}, options || {}, { leadingEdge: true, waitTime: 750, trailingEdge: true, _debounceMode: false }) as Required<ThrottleOptions>;
 
     let promises: {
         resolve: (fnRtn: ReturnType<Fn>) => void;
         reject: (reason?: unknown) => void;
     }[] = []; // Call stack.
 
-    let latestArgs: Parameters<Fn> | undefined = undefined;
-    let waitTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
+    let latestArgs: Parameters<Fn> | undefined; // Initialize.
+    let waitTimeout: $type.Timeout | undefined; // Initialize.
 
     const rtnFn = function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>): Promise<ReturnType<Fn>> {
         return new Promise<ReturnType<Fn>>((resolve, reject) => {
             (latestArgs = args), promises.push({ resolve, reject });
 
-            if (undefined === waitTimeout) rtnFn.$onLeadingEdge();
+            if (!waitTimeout) rtnFn.$onLeadingEdge();
 
-            if (opts.debounceMode && undefined !== waitTimeout) {
-                clearTimeout(waitTimeout); // Resets debounce timer.
+            if (opts._debounceMode && waitTimeout) {
+                clearTimeout(waitTimeout), (waitTimeout = 0);
             }
-            if (opts.debounceMode || undefined === waitTimeout) {
+            if (opts._debounceMode || !waitTimeout) {
                 waitTimeout = setTimeout(rtnFn.$onTrailingEdge, opts.waitTime);
             }
         });
@@ -176,21 +176,21 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
             promises.forEach(({ resolve }) => resolve(fnRtn)), (promises = []);
 
             if (opts.leadingEdge /* Time between trailing edge and next leading edge. */) {
-                waitTimeout = setTimeout(() => (waitTimeout = undefined), opts.waitTime);
+                waitTimeout = setTimeout(() => (waitTimeout = 0), opts.waitTime);
                 //
-            } else waitTimeout = undefined; // Clears the way for a new leading edge.
-        } else waitTimeout = undefined; // Clears the way for a new leading edge.
+            } else waitTimeout = 0; // Clears the way for a new leading edge.
+        } else waitTimeout = 0; // Clears the way for a new leading edge.
     };
     rtnFn.flush = function (): void {
         if (latestArgs && promises.length) {
             const fnRtn = fn.apply(this, latestArgs) as ReturnType<Fn>;
             promises.forEach(({ resolve }) => resolve(fnRtn)), (promises = []);
         }
-        if (undefined !== waitTimeout) clearTimeout(waitTimeout), (waitTimeout = undefined);
+        if (waitTimeout) clearTimeout(waitTimeout), (waitTimeout = 0);
     };
     rtnFn.cancel = function (reason?: unknown): void {
         promises.forEach(({ reject }) => reject(reason)), (promises = []);
-        if (undefined !== waitTimeout) clearTimeout(waitTimeout), (waitTimeout = undefined);
+        if (waitTimeout) clearTimeout(waitTimeout), (waitTimeout = 0);
     };
     return rtnFn as ThrottledFunction<Fn>;
 };
@@ -206,5 +206,5 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
  * @returns         Debounced sync or async function.
  */
 export const debounce = <Fn extends $type.Function>(fn: Fn, options?: DebounceOptions): ThrottledFunction<Fn> => {
-    return throttle(fn, { ...(options || {}), debounceMode: true });
+    return throttle(fn, { ...(options || {}), _debounceMode: true });
 };

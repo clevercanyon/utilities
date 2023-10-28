@@ -24,6 +24,9 @@ export type Primitive = null | undefined | boolean | number | bigint | string | 
 export type ObjectEntries<Type extends object = $Object> = [keyof Type, Type[keyof Type]][];
 export type ObjectC9r = { new (...args: unknown[]): $Object } | ObjectConstructor;
 
+// In Node, it’s an object. On the web, a positive integer.
+export type Timeout = ReturnType<typeof setTimeout> | number;
+
 export type { $URL as URL };
 export type { $Request as Request };
 export type { $Response as Response };

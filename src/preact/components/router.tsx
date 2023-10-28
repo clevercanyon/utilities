@@ -312,15 +312,16 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 
             // Ignores suspended renders.
             if (currentRouteDidSuspend.current) {
-                // If we've never committed, mark hydration DOM for removal.
                 if (!routerHasEverCommitted.current && !currentRoutePendingHydrationDOM.current) {
+                    // If we've never committed, mark hydration DOM for removal.
                     currentRoutePendingHydrationDOM.current = currentRouteHydrationDOM;
                 }
-                return; // Stop here while in a suspended state.
+                return; // Stop while in a suspended state.
             }
-            // Removes hydration DOM if this is the first ever commit and we didn't use.
+            // Checks if hydration DOM needs to be removed now.
             if (!routerHasEverCommitted.current && currentRoutePendingHydrationDOM.current) {
                 if (currentRoutePendingHydrationDOM.current !== currentRouteHydrationDOM) {
+                    // Removes hydration DOM if first commit and we didn't use.
                     currentRoutePendingHydrationDOM.current.remove();
                 }
                 currentRoutePendingHydrationDOM.current = null; // Nullify now.
@@ -351,7 +352,9 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             // Note: This runs even for routes that were loaded synchronously.
             if (false !== props.handleScrolling && locationState.wasPushed && !locationState.isInitialHydration) {
                 scrollHandler?.cancel(), // i.e., Don’t stack these up.
-                    (scrollHandler = $dom.afterNextFrame(() => {
+                    (scrollHandler = $dom.onScrollEnd(() => {
+                        (document.activeElement as HTMLElement | null)?.blur();
+
                         const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
                         const currentHashElement = currentHash ? $dom.query('#' + currentHash) : null;
 

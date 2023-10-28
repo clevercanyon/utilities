@@ -625,6 +625,19 @@ export const htmlElement = (value: unknown): value is HTMLElement => {
 };
 
 /**
+ * Checks if value is a DOM event.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is DOM event.
+ *
+ * @requiredEnv web
+ */
+export const event = (value: unknown): value is Event => {
+    return $env.isWeb() && value instanceof Event;
+};
+
+/**
  * Checks a value’s object tag.
  *
  * @param   value       Value to consider.

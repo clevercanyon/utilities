@@ -4,32 +4,71 @@
 
 import './resources/init.ts';
 
-import { $is, $obj, $preact, $to, type $type } from './index.ts';
+import { $fn, $is, $obj, $preact, $to, type $type } from './index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
+
+/**
+ * Track scroll status.
+ */
+let initialzedScrollTracking = false;
+let scrollElement: Element | undefined;
+let userIsScrolling = false;
 
 /**
  * Defines types.
  */
 type AnyAtts = { [x: string]: unknown };
+type WDES = Window | Document | Element | string;
+type AnyVoidFn = (() => void) | (() => Promise<void>);
+type AnyEventHandler = ((event?: Event) => void) | ((event?: Event) => Promise<void>);
+type EventTools = { cancel: () => void };
+
+/**
+ * Initializes scroll tracking.
+ *
+ * @returns True, always.
+ *
+ * @requiredEnv web
+ */
+const initializeScrollTracking = (): true => {
+    if (initialzedScrollTracking) return true;
+    initialzedScrollTracking = true;
+
+    // In standards mode, this should be `<html>`.
+    // {@see https://o5p.me/eFFCSJ} for futher details.
+    scrollElement = document.scrollingElement || html();
+
+    const onScrollCallback = $fn.debounce((): void => {
+        onScrollEndCallback.cancel(), (userIsScrolling = true);
+    });
+    const onScrollEndCallback = $fn.debounce((): void => {
+        onScrollCallback.cancel(), (userIsScrolling = false);
+    });
+    on(scrollElement, 'scroll', onScrollCallback);
+    on(scrollElement, 'scrollend', onScrollEndCallback);
+
+    return true; // Always.
+};
 
 /**
  * Fires a callback on document ready state.
  *
  * @param   callback Callback.
  *
- * @returns          Object with `cancel` function.
+ * @returns          Event tools; {@see EventTools}.
  *
  * @requiredEnv web
  */
-export const onReady = (callback: () => void): { cancel: () => void } => {
+export const onReady = (callback: AnyVoidFn): EventTools => {
     const eventName = 'DOMContentLoaded';
+    const actualCallback = (): void => void callback();
 
     if ('loading' !== document.readyState) {
-        callback(); // Fires callback immediately.
+        actualCallback(); // Fires callback immediately.
     } else {
-        addEventListener(eventName, callback);
+        addEventListener(eventName, actualCallback);
     }
-    return { cancel: () => removeEventListener(eventName, callback) };
+    return { cancel: (): void => removeEventListener(eventName, actualCallback) };
 };
 
 /**
@@ -37,19 +76,44 @@ export const onReady = (callback: () => void): { cancel: () => void } => {
  *
  * @param   callback Callback.
  *
- * @returns          Object with `cancel` function.
+ * @returns          Event tools; {@see EventTools}.
  *
  * @requiredEnv web
  */
-export const onLoad = (callback: () => void): { cancel: () => void } => {
+export const onLoad = (callback: AnyVoidFn): EventTools => {
     const eventName = 'load';
+    const actualCallback = (): void => void callback();
 
     if ('complete' === document.readyState) {
-        callback(); // Fires callback immediately.
+        actualCallback(); // Fires callback immediately.
     } else {
-        addEventListener(eventName, callback);
+        addEventListener(eventName, actualCallback);
     }
-    return { cancel: () => removeEventListener(eventName, callback) };
+    return { cancel: (): void => removeEventListener(eventName, actualCallback) };
+};
+
+/**
+ * Fires a callback after user stops scrolling.
+ *
+ * @param   callback Callback.
+ *
+ * @returns          Event tools; {@see EventTools}.
+ *
+ * @requiredEnv web
+ */
+export const onScrollEnd = (callback: AnyVoidFn): EventTools => {
+    initializeScrollTracking();
+
+    const eventName = 'scrollend';
+    const element = scrollElement as Element;
+    const actualCallback = (): void => void callback();
+
+    if (!userIsScrolling) {
+        actualCallback(); // Fires callback immediately.
+    } else {
+        element.addEventListener(eventName, actualCallback);
+    }
+    return { cancel: (): void => element.removeEventListener(eventName, actualCallback) };
 };
 
 /**
@@ -57,13 +121,13 @@ export const onLoad = (callback: () => void): { cancel: () => void } => {
  *
  * @param   callback Callback.
  *
- * @returns          Object with `cancel` function.
+ * @returns          Event tools; {@see EventTools}.
  *
  * @requiredEnv web
  */
-export const onNextFrame = (callback: () => void): { cancel: () => void } => {
-    const raf = requestAnimationFrame(callback);
-    return { cancel: () => cancelAnimationFrame(raf) };
+export const onNextFrame = (callback: AnyVoidFn): EventTools => {
+    const raf = requestAnimationFrame((): void => void callback());
+    return { cancel: (): void => cancelAnimationFrame(raf) };
 };
 
 /**
@@ -75,15 +139,15 @@ export const onNextFrame = (callback: () => void): { cancel: () => void } => {
  *
  * @param   callback Callback.
  *
- * @returns          Object with `cancel` function.
+ * @returns          Event tools; {@see EventTools}.
  *
  * @requiredEnv web
  */
-export const afterNextFrame = (callback: () => void): { cancel: () => void } => {
+export const afterNextFrame = (callback: AnyVoidFn): EventTools => {
     const done = () => {
         clearTimeout(timeout);
         cancelAnimationFrame(raf);
-        setTimeout(callback);
+        setTimeout((): void => void callback());
     };
     const timeout = setTimeout(done, 100);
     const raf = requestAnimationFrame(done);
@@ -98,64 +162,68 @@ export const afterNextFrame = (callback: () => void): { cancel: () => void } => 
 /**
  * Fires a callback on a named event.
  *
- * @param   wdes      Window, document, element, or selectors.
- * @param   eventName Event name. Required always.
- * @param   selectors Selectors for delegated events.
- * @param   callback  Callback for event handler.
+ * @param   wdes       Window, document, element, or selectors.
+ * @param   eventNames Event name(s). Space-separated string or array.
+ * @param   selectors  Optional selectors. If given, `callback` and `options` shift to new arg positions and a delegated
+ *   event handler will be configured instead of a regular event handler. Selectors = deleganted event handler.
+ * @param   callback   Callback for event handler.
+ * @param   options    Options (all optional); {@see AddEventListenerOptions}.
  *
- * @returns           Object with `cancel` function.
+ * @returns            Event tools; {@see EventTools}.
  *
  * @requiredEnv web
  */
-export function on(wdes: Window | Document | Element | string, eventName: string, callback: (x: Event) => void): { cancel: () => void };
-export function on(wdes: Window | Document | Element | string, eventName: string, selectors: string, callback: (x: Event) => void): { cancel: () => void };
+export function on(wdes: WDES, eventNames: string | string[], callback: AnyEventHandler, options?: AddEventListenerOptions): EventTools;
+export function on(wdes: WDES, eventNames: string | string[], selectors: string, callback: AnyEventHandler, options?: AddEventListenerOptions): EventTools;
 
-export function on(...args: unknown[]): { cancel: () => void } {
-    const wdes = args[0] as Window | Document | Element | string;
+export function on(...args: unknown[]): EventTools {
+    const wdes = args[0] as WDES; // Window, document, element, or string.
     const wde = $is.string(wdes) ? require(wdes) : wdes;
 
-    const eventName = args[1] as string;
-    let selectors: string; // Initialize.
+    const cancelers: (() => void)[] = []; // Initialize.
+    const eventNames = $to.array(args[1]).join(' ').split(/\s+/u);
 
-    let callback: (x: Event) => void;
-    let actualCallback: (x: Event) => void;
+    let selectors = '';
+    let callback: AnyEventHandler;
+    let actualCallback: (event: Event) => void;
+    let options: AddEventListenerOptions | undefined;
 
-    if (args.length >= 4) {
-        selectors = args[2] as typeof selectors;
-        callback = args[3] as typeof callback;
-    } else {
-        selectors = '' as typeof selectors;
-        callback = args[2] as typeof callback;
-    }
-    if (selectors && callback) {
+    if ($is.function(args[3]) /* Selectors are given for delegated event handler? */) {
+        [, , selectors, callback, options] = args as [0, 0, typeof selectors, typeof callback, typeof options];
+    } else [, , callback, options] = args as [0, 0, typeof callback, typeof options];
+
+    if (selectors && callback /* Delegated event handler. */) {
         actualCallback = (event: Event): void => {
-            let target = event.target;
-
-            if (!$is.element(target)) {
-                return; // Not applicable.
-            }
+            let { currentTarget, target } = event;
+            if (!$is.element(target)) return;
             do {
-                if (target.matches(selectors)) {
-                    callback.call(target, event);
-                }
-            } while ($is.element((target = target.parentNode)) && target !== event.currentTarget);
+                if (target.matches(selectors)) void callback.call(target, event);
+            } while ($is.element((target = target.parentNode)) && target !== currentTarget);
         };
-    } else actualCallback = callback;
+    } else actualCallback = (event: Event): void => void callback.call(event.target, event);
 
-    wde.addEventListener(eventName, actualCallback);
-    return { cancel: () => wde.removeEventListener(eventName, actualCallback) };
+    for (const eventName of eventNames) {
+        if (!eventName) throw new Error(); // Missing event name.
+        wde.addEventListener(eventName, actualCallback, options);
+        cancelers.push((): void => wde.removeEventListener(eventName, actualCallback, options));
+    }
+    return { cancel: (): void => cancelers.forEach((cancel) => cancel()) };
 }
 
 /**
  * Triggers a custom event.
  *
- * @param wdes      Window, document, element, or selectors.
- * @param eventName Name of custom event; make sure it’s unique.
- * @param data      Any custom data to pass as `detail` to event listeners.
+ * @param wdes    Window, document, element, or selectors.
+ * @param event   Name of a custom event; or an instance of {@see Event}.
+ * @param data    For a custom event, optional data to pass as `detail` to listeners.
+ * @param options For a custom event, optional init options; {@see CustomEventInit}.
+ *
+ * @requiredEnv web
  */
-export const trigger = (wdes: Window | Document | Element | string, eventName: string, data: $type.Object = {}): void => {
+export const trigger = (wdes: WDES, event: string | Event, data?: $type.Object, options?: CustomEventInit): void => {
     const wde = $is.string(wdes) ? require(wdes) : wdes;
-    wde.dispatchEvent(new CustomEvent(eventName, { bubbles: true, detail: data }));
+    if (!$is.event(event)) event = new CustomEvent(event, { detail: data || {}, ...options });
+    wde.dispatchEvent(event);
 };
 
 /**
@@ -350,28 +418,28 @@ export const setAtts = (element: Element, atts: AnyAtts): void => {
  * Caches `<html>` element for each reuse.
  *
  * @returns HTML element; {@see HTMLHtmlElement}.
+ *
+ * @requiredEnv web
  */
-export const html = $fnꓺmemo((): HTMLHtmlElement => {
-    return require('html');
-});
+export const html = $fnꓺmemo((): HTMLHtmlElement => require('html'));
 
 /**
  * Caches `<head>` element for each reuse.
  *
  * @returns Head element; {@see HTMLHeadElement}.
+ *
+ * @requiredEnv web
  */
-export const head = $fnꓺmemo((): HTMLHeadElement => {
-    return require('head');
-});
+export const head = $fnꓺmemo((): HTMLHeadElement => require('head'));
 
 /**
  * Caches `<body>` element for each reuse.
  *
  * @returns Body element; {@see HTMLBodyElement}.
+ *
+ * @requiredEnv web
  */
-export const body = $fnꓺmemo((): HTMLBodyElement => {
-    return require('body');
-});
+export const body = $fnꓺmemo((): HTMLBodyElement => require('body'));
 
 /**
  * Queries DOM element(s).
@@ -463,5 +531,5 @@ export function require<Type extends Element = Element, Selectors extends string
  * @requiredEnv web
  */
 export const stylesOf = (selectors: string | Element): CSSStyleDeclaration => {
-    return getComputedStyle($is.element(selectors) ? selectors : require(selectors));
+    return getComputedStyle($is.string(selectors) ? require(selectors) : selectors);
 };
