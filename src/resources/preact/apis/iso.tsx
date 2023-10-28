@@ -29,8 +29,11 @@ export type HydrativelyRenderSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
 };
+export type LazyComponentOptions = Omit<RouterProps, 'key' | 'ref' | 'children'>;
 export type LazyRouteLoader = () => Promise<{ default: $preact.AnyComponent<RoutedProps> } | $preact.AnyComponent<RoutedProps>>;
-export type LazyComponentOptions = Pick<RouterProps, 'onLoadError' | 'onLoadStart' | 'onLoadEnd'>;
+
+// ---
+// Prerender utilities.
 
 /**
  * Fetcher instance.
@@ -117,6 +120,9 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
     return { httpState, docType: '<!doctype html>', html };
 };
 
+// ---
+// Hydration utilities.
+
 /**
  * Hydratively renders SPA component on client-side.
  *
@@ -161,6 +167,9 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
      */
 };
 
+// ---
+// Lazy utilities.
+
 /**
  * Produces a lazy loaded route component.
  *
@@ -172,7 +181,7 @@ export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedPr
     let promise: ReturnType<LazyRouteLoader> | undefined;
     let component: $preact.AnyComponent<RoutedProps> | undefined;
 
-    const Route = (props: $preact.Props<RoutedProps>): $preact.VNode<RoutedProps> => {
+    return (props: $preact.Props<RoutedProps>): $preact.VNode<RoutedProps> => {
         const didChainPromiseResolution = $preact.useRef(false);
         const [, updateResolvedState] = $preact.useState(false);
 
@@ -194,10 +203,6 @@ export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedPr
         }
         throw promise;
     };
-    if (loader.name /* For debugging. */) {
-        Route.displayName = loader.name;
-    }
-    return Route;
 };
 
 /**
@@ -206,7 +211,7 @@ export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedPr
  * @param   asyncComponent Async component to be lazy loaded.
  * @param   options        Options (all optional); {@see LazyComponentOptions}.
  *
- * @returns                Higher order component that will be lazy loaded.
+ * @returns                Higher order lazy component; {@see $preact.FnComponent}.
  */
 export const lazyComponent = <Props extends $preact.Props = $preact.Props>(
     asyncComponent: $preact.AsyncFnComponent<Props>,
@@ -219,17 +224,12 @@ export const lazyComponent = <Props extends $preact.Props = $preact.Props>(
         const renderedAsyncComponentVNode = await asyncComponent(higherOrder.props);
         return (unusedꓺprops: RoutedProps) => renderedAsyncComponentVNode;
     });
-    const ComponentRouter = (props: Parameters<$preact.AsyncFnComponent<Props>>[0]): Awaited<ReturnType<$preact.AsyncFnComponent<Props>>> => {
+    return (props: Parameters<$preact.AsyncFnComponent<Props>>[0]): Awaited<ReturnType<$preact.AsyncFnComponent<Props>>> => {
         higherOrder.props = props; // Populates async component props.
         return (
-            <Router {...{ ...opts, isForLazyComponent: true }}>
+            <Router {...{ handleScroll: false, ...opts }}>
                 <Route default component={ComponentRoute} />
             </Router>
         );
     };
-    if (asyncComponent.name /* For debugging. */) {
-        ComponentRouter.displayName = asyncComponent.name + 'Router';
-        ComponentRoute.displayName = asyncComponent.name + 'Route';
-    }
-    return ComponentRouter;
 };

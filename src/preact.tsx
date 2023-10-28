@@ -120,8 +120,8 @@ export type AsyncFnComponent<Type extends Props = Props> = (...args: Parameters<
 export type ClassComponent<Type extends Props = Props, Type2 extends State = State> = preact.ComponentClass<Type, Type2>;
 export type AnyComponent<Type extends Props = Props, Type2 extends State = State> = FnComponent<Type> | ClassComponent<Type, Type2>;
 
-export type BasicProps<Type extends object = { [x: string]: unknown }> = Readonly<preact.RenderableProps<Type>>;
-export type Props<Type extends object = { [x: string]: unknown }> = Readonly<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>>;
+export type BasicProps<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx'>>;
+export type Props<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx'>>;
 
 export type Context<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type State<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;

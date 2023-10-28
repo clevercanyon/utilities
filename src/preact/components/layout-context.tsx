@@ -16,7 +16,7 @@ export type State = $preact.State<{
 export type PartialState = Partial<State>;
 export type Props = $preact.BasicProps<PartialState>;
 
-export type ContextProps = $preact.Context<{
+export type Context = $preact.Context<{
     state: State;
     updateState: $preact.Dispatch<PartialState>;
 }>;
@@ -27,7 +27,7 @@ export type ContextProps = $preact.Context<{
  * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
  * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
  */
-const Context = createContext({} as ContextProps);
+const ContextObject = createContext({} as Context);
 
 /**
  * Produces initial state.
@@ -61,12 +61,12 @@ const reduceState = (state: State, updates: PartialState): State => {
  */
 export default function LayoutContext(props: Props): $preact.VNode<Props> {
     const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(props));
-    return <Context.Provider value={{ state, updateState }}>{props.children}</Context.Provider>;
+    return <ContextObject.Provider value={{ state, updateState }}>{props.children}</ContextObject.Provider>;
 }
 
 /**
  * Defines context hook.
  *
- * @returns Context props {@see ContextProps}.
+ * @returns Context {@see Context}.
  */
-export const useLayout = (): ContextProps => $preact.useContext(Context);
+export const useLayout = (): Context => $preact.useContext(ContextObject);

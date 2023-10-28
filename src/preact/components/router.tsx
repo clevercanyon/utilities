@@ -12,13 +12,12 @@ import { type State as LocationState } from './location.tsx';
  * Defines types.
  */
 export type ErrorBoundaryCoreProps = $preact.BasicProps<{
-    isForLazyComponent?: boolean;
     onLoadError?: (error: $type.Error) => void;
 }>;
 export type CoreProps = $preact.BasicProps<{
-    isForLazyComponent?: boolean;
-    onLoadStart?: (data: { locState: LocationState; routeContext: RouteContextProps }) => void;
-    onLoadEnd?: (data: { locState: LocationState; routeContext: RouteContextProps }) => void;
+    onLoadStart?: (data: RouteLoadEventData) => void;
+    onLoadEnd?: (data: RouteLoadEventData) => void;
+    handleScroll?: boolean; // Default is `true`.
 }>;
 export type Props = $preact.BasicProps<ErrorBoundaryCoreProps & CoreProps>;
 
@@ -27,7 +26,7 @@ export type RouteProps = $preact.BasicProps<{
     default?: boolean;
     component: $preact.AnyComponent<RoutedProps>;
 }>;
-export type RouteContextProps = $preact.Context<{
+export type RouteContext = $preact.Context<{
     // These are relative `./` to base.
     // And, these are relative `./` to parent route.
     path: string;
@@ -45,15 +44,16 @@ export type RouteContextProps = $preact.Context<{
     // Path parameter keys/values.
     params: { [x: string]: string };
 }>;
-export type RoutedProps = $preact.BasicProps<RouteProps & RouteContextProps>;
+export type RoutedProps = $preact.BasicProps<RouteProps & RouteContext>;
+export type RouteLoadEventData = { locationState: LocationState; routeContext: RouteContext };
 
 /**
- * Defines context.
+ * Defines route context object.
  *
  * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
  * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
  */
-const RouteContext = createContext({} as RouteContextProps);
+const RouteContextObject = createContext({} as RouteContext);
 
 /**
  * Defines types.
@@ -68,8 +68,8 @@ const RouteContext = createContext({} as RouteContextProps);
  */
 export default function Router(props: Props = {}): $preact.VNode<Props> {
     return (
-        <ErrorBoundaryCore {...$obj.pick(props, ['isForLazyComponent', 'onLoadError'])}>
-            <RouterCore {...$obj.pick(props, ['isForLazyComponent', 'onLoadStart', 'onLoadEnd'])}>{props.children}</RouterCore>
+        <ErrorBoundaryCore {...$obj.pick(props, ['onLoadError'])}>
+            <RouterCore {...$obj.pick(props, ['handleScroll', 'onLoadStart', 'onLoadEnd'])}>{props.children}</RouterCore>
         </ErrorBoundaryCore>
     );
 }
@@ -91,11 +91,11 @@ export const Route = (props: RouteProps): $preact.VNode<RouteProps> => {
 };
 
 /**
- * Defines context hook.
+ * Defines route context hook.
  *
- * @returns Context props {@see RouteContextProps}.
+ * @returns Context {@see RouteContext}.
  */
-export const useRoute = (): RouteContextProps => $preact.useContext(RouteContext);
+export const useRoute = (): RouteContext => $preact.useContext(RouteContextObject);
 
 /* ---
  * Misc utilities.
@@ -107,9 +107,9 @@ export const useRoute = (): RouteContextProps => $preact.useContext(RouteContext
 const resolvedPromise = Promise.resolve();
 
 /**
- * Global scroll position event handler.
+ * Global scroll event handler.
  */
-let scrollPositionHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
+let scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
 
 /**
  * Renders a ref’s current route.
@@ -123,9 +123,9 @@ const RenderRefRoute = ({ r }: $preact.BasicProps<{
 }>): $preact.Ref<$preact.VNode<RoutedProps>>['current'] => r.current; // prettier-ignore
 
 /**
- * Router error boundary.
+ * Renders error boundary core.
  *
- * @param   props Component props.
+ * @param   props Error boundary core component props.
  *
  * @returns       VNode / JSX element tree.
  *
@@ -141,23 +141,23 @@ function ErrorBoundaryCore(this: $preact.Component<ErrorBoundaryCoreProps>, prop
 }
 
 /**
- * Router component and child Route components.
+ * Renders router core.
  *
- * @param   props Router component props.
+ * @param   props Router core component props.
  *
- * @returns       Rendered refs (current and previous routes).
+ * @returns       VNode / JSX element tree.
+ *
+ * @note Inspired by `Suspense` from preact/compat. See: <https://o5p.me/TA863r>.
+ * @note `__c` = `._childDidSuspend()`; {@see https://o5p.me/B8yq0g} in `mangle.json`.
  */
 function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $preact.VNode<CoreProps> {
     // Self-reference, as plain object value.
     const thisObj = this as unknown as $type.Object;
 
     // Gathers state.
-    const context = $preact.useRoute();
-    const { state: locState } = $preact.useLocation();
+    const { state: locationState } = $preact.useLocation();
+    const parentContext = $preact.useRoute(); // i.e., Parent route.
     const [layoutTicks, updateLayoutTicks] = $preact.useReducer((c) => c + 1, 0);
-
-    // Initializes router event properties.
-    const routerEventProps = { locState, routerProps: props, routeContext: context };
 
     // Initializes route references.
     const routeCounter = $preact.useRef(0);
@@ -168,6 +168,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 
     // Initializes current route references.
     const currentRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
+    const currentRouteContext = $preact.useRef() as $preact.Ref<RouteContext>;
     const currentRoutePendingHydrationDOM = $preact.useRef() as $preact.Ref<HTMLElement>;
 
     // Initializes other current route references.
@@ -180,6 +181,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 
     // Memoizes component for current route.
     // Note: This potentially alters `previousRoute`.
+    // Note: This potentially alters `currentRouteContext`.
     currentRoute.current = $preact.useMemo(() => {
         // Initializes default and matching child vNodes.
         let defaultChildVNode: $preact.VNode<RouteProps> | undefined;
@@ -194,13 +196,13 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         previousRoute.current = currentRoute.current; // Stores current as previous.
 
         // Configures current route context properties.
-        // Current route context props must reflect the 'rest*' props.
-        // i,e., In the current context of potentially nested routers.
-        let routeContext = {
+        // Current route context must reflect the `rest*` props.
+        // i,e., In current context of potentially a parent route.
+        currentRouteContext.current = {
             // These are `./` relative to base.
             // And, these are relative `./` to parent route.
-            path: context.restPath || locState.path,
-            pathQuery: context.restPathQuery || locState.pathQuery,
+            path: parentContext.restPath || locationState.path,
+            pathQuery: parentContext.restPathQuery || locationState.pathQuery,
 
             // These are `./` relative to base.
             // And, these are relative `./` to parent route.
@@ -208,35 +210,40 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             restPathQuery: '', // Potentially populated by `pathMatchesRoutePattern()`.
 
             // Query variables.
-            query: locState.query, // Always the same query vars across all nested routes.
-            queryVars: locState.queryVars, // Always the same query vars across all nested routes.
+            query: locationState.query, // Always the same query vars across all nested routes.
+            queryVars: locationState.queryVars, // Always the same query vars across all nested routes.
 
             // Path parameter keys/values.
             params: {}, // Potentially populated by `pathMatchesRoutePattern()`.
-        } as RouteContextProps;
+        } as RouteContext;
 
         // Looks for a matching `<Route>` child component in the current router.
         ($preact.toChildArray(props.children) as $preact.VNode<RouteProps>[]).some((childVNode): boolean => {
-            let matchingRouteContext: RouteContextProps | undefined;
+            let routeContext = currentRouteContext.current as RouteContext;
+            let matchingRouteContext: RouteContext | undefined;
 
             if ((matchingRouteContext = pathMatchesRoutePattern(routeContext.path, childVNode.props.path || '', routeContext))) {
-                return Boolean((matchingChildVNode = $preact.clone(childVNode, (routeContext = matchingRouteContext))));
+                return Boolean((matchingChildVNode = $preact.clone(childVNode, (currentRouteContext.current = matchingRouteContext))));
             }
             if (!defaultChildVNode && childVNode.props.default) {
-                defaultChildVNode = $preact.clone(childVNode, routeContext);
+                defaultChildVNode = $preact.clone(childVNode, currentRouteContext.current);
             }
             return false;
         });
         // It is possible for this to render with `matchingChildVNode` & `defaultChildVNode` both empty.
         // In such a case, there are simply no children to render in the current route. Therefore, it becomes
         // important for a top-level prerenderer to look for routes that are entirely empty; treating as a 404 error.
-        return <RouteContext.Provider value={routeContext}>{matchingChildVNode || defaultChildVNode}</RouteContext.Provider>;
-    }, [locState]);
+        return <RouteContextObject.Provider value={currentRouteContext.current}>{matchingChildVNode || defaultChildVNode}</RouteContextObject.Provider>;
+    }, [locationState]);
 
     // Snapshots the previous route, and then resets it to `null`, for now.
-    // i.e., If rendering succeeds synchronously, we shouldn't render previous children.
+    // Note: This uses `previousRoute`, which was potentially altered by the memo above.
     const previousRouteSnapshot = previousRoute.current; // Snapshots previous route.
-    previousRoute.current = null; // Resets previous route to `null`.
+    previousRoute.current = null; // Resets previous route to `null`, for now.
+
+    // Configures current load event data properties; {@see RouteLoadEventData}.
+    // Note: This uses `currentRouteContext`, which was potentially altered by the memo above.
+    const currentRouteLoadEventData = { locationState, routeContext: currentRouteContext.current as RouteContext };
 
     // Configures the router’s `_childDidSuspend()` handler.
     // Minified `__c` = `_childDidSuspend()`. See: <https://o5p.me/3gXT4t>.
@@ -254,8 +261,10 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         const routeCounterSnapshot = routeCounter.current;
 
         // Fires an event indicating the current route is now loading.
-        if ($env.isWeb() && props.onLoadStart) props.onLoadStart(routerEventProps);
-
+        if ($env.isWeb()) {
+            if (props.onLoadStart) props.onLoadStart(currentRouteLoadEventData);
+            $dom.trigger(document, 'x:route:loadStart', currentRouteLoadEventData);
+        }
         // Handles resolution of suspended state; i.e., once promise resolves.
         void thrownPromise.then(() => {
             // Ignores update if it isn't the most recently suspended update.
@@ -293,9 +302,9 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             // Handles scroll position for current route location.
             // We don’t handle initial hydration, because the browser should have already
             // been capable of locating the scroll position using the initial hydration DOM.
-            if (!props.isForLazyComponent && !locState.isInitialHydration && locState.wasPushed) {
-                if (scrollPositionHandler) scrollPositionHandler.cancel();
-                scrollPositionHandler = $dom.afterNextFrame(() => {
+            if (false !== props.handleScroll && !locationState.isInitialHydration && locationState.wasPushed) {
+                if (scrollHandler) scrollHandler.cancel();
+                scrollHandler = $dom.afterNextFrame(() => {
                     const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
                     const currentHashElement = currentHash ? $dom.query('#' + currentHash) : null;
 
@@ -311,9 +320,10 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                 currentRouteDidSuspendAndIsLoading.current = false;
 
                 // Fires an event indicating the current route is loaded now.
-                if (props.onLoadEnd) props.onLoadEnd(routerEventProps);
+                if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData);
+                $dom.trigger(document, 'x:route:loadEnd', currentRouteLoadEventData);
             }
-        }, [locState, layoutTicks]);
+        }, [locationState, layoutTicks]);
     }
     // Renders `currentRoute` and `previousRoute` components.
     // Note: `currentRoute` MUST render first to trigger a thrown promise.
@@ -325,12 +335,14 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
  *
  * @param   path         Relative location path; e.g., `./path/foo/bar` | `/path/foo/bar` | `path/foo/bar`.
  * @param   routePattern Relative route pattern; e.g., `./path/foo/*` | `/path/foo/*` | `path/foo/*`.
- * @param   routeContext Route context; {@see RouteContextProps}.
+ * @param   routeContext Route context; {@see RouteContext}.
  *
  * @returns              A New `routeContext` clone when path matches route. When path does not match route pattern,
  *   `undefined` is returned. It’s perfectly OK to use `!` when testing if the return value is falsy.
+ *
+ * @note `path`, `routePattern` should be relative to the base URL, and also relative to any parent route.
  */
-const pathMatchesRoutePattern = (path: string, routePattern: string, routeContext: RouteContextProps): RouteContextProps | undefined => {
+const pathMatchesRoutePattern = (path: string, routePattern: string, routeContext: RouteContext): RouteContext | undefined => {
     if (!path || !routePattern || !routeContext) {
         return; // Not possible.
     }
@@ -340,7 +352,7 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
     const routePatternParts = $str.lTrim(routePattern, './').split('/').filter(Boolean);
 
     // Produces a deep clone that we may return.
-    const newRouteContext = structuredClone(routeContext) as $type.Writable<RouteContextProps>;
+    const newRouteContext = $obj.cloneDeep(routeContext) as $type.Writable<RouteContext>;
 
     // Iterates all parts of the longest between path and route pattern.
     // In the case of no parts whatsoever, across both of them, that’s also a match.

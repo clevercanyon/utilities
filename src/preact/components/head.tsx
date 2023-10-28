@@ -6,13 +6,13 @@ import '../../resources/init.ts';
 
 import { Component } from 'preact';
 import { $dom, $env, $is, $json, $obj, $preact, type $type } from '../../index.ts';
-import { globalToScriptCode as dataGlobalToScriptCode, type ContextProps as DataContextProps } from './data.tsx';
+import { globalToScriptCode as dataGlobalToScriptCode, type Context as DataContext } from './data.tsx';
 import { type State as HTMLState } from './html.tsx';
 
 /**
  * Defines types.
  */
-export type State = $preact.State<{
+export type ActualState = $preact.State<{
     charset?: string;
     viewport?: string;
 
@@ -43,13 +43,13 @@ export type State = $preact.State<{
 
     append?: $preact.VNode[];
 }>;
-export type PartialState = Partial<State>;
-export type PartialStateUpdates = Omit<PartialState, ImmutableStateKeys>;
+export type PartialActualState = Partial<ActualState>;
+export type PartialActualStateUpdates = Omit<PartialActualState, ImmutableStateKeys>;
 
-export type ComputedState = State &
+export type State = ActualState &
     Required<
         Pick<
-            State,
+            ActualState,
             | 'charset'
             | 'viewport'
             //
@@ -71,7 +71,7 @@ export type ComputedState = State &
             | 'append'
         >
     >;
-export type Props = Omit<$preact.BasicProps<PartialState>, 'children'> & {
+export type Props = Omit<$preact.BasicProps<PartialActualState>, 'children'> & {
     // There’s really not a great way to enforce the child vNode type.
     // Internal JSX types use things that are too generic for that to work.
     // For now, we’re just adding them here, but we also allow for any `$preact.Children`.
@@ -88,8 +88,8 @@ export type ChildVNode = Omit<$preact.VNode, 'type' | 'props'> & {
 };
 export type ChildVNodes = { [x: string]: ChildVNode };
 
-export type ContextProps = $preact.Context<{
-    state: ComputedState;
+export type Context = $preact.Context<{
+    state: State;
     append: Head['append'];
     updateState: Head['updateState'];
     forceFullUpdate: Head['forceFullUpdate'];
@@ -126,10 +126,10 @@ type ImmutableStateKeys = $type.Writable<typeof immutableStateKeys>[number];
  * they are not defined elsewhere. e.g., `styleBundle`, `scriptBundle`. `<Data>` state also contains a high-level
  * reference to the current `<Head>` `instance`, such that it becomes available across all contexts.
  */
-export default class Head extends Component<Props, State> {
+export default class Head extends Component<Props, ActualState> {
     // These are defined on first render.
-    forceDataUpdate: DataContextProps['forceUpdate'] | undefined;
-    computedState: ComputedState | undefined;
+    forceDataUpdate: DataContext['forceUpdate'] | undefined;
+    computedState: State | undefined; // Computed, not actual, state.
 
     constructor(props: Props = {}) {
         super(props); // Parent constructor.
@@ -141,12 +141,12 @@ export default class Head extends Component<Props, State> {
 
     append(childVNodes: ChildVNode | ChildVNode[]): void {
         // Note: We have to achieve this without the use of declarative ops.
-        this.updateState({ append: $preact.toChildArray([this.state.append || [], childVNodes]) } as PartialStateUpdates);
+        this.updateState({ append: $preact.toChildArray([this.state.append || [], childVNodes]) } as PartialActualStateUpdates);
     }
 
     // Note: This does not allow the use of declarative ops.
-    updateState<Updates extends PartialStateUpdates>(updates: Updates): void {
-        this.setState((currentState: State): Updates | null => {
+    updateState<Updates extends PartialActualStateUpdates>(updates: Updates): void {
+        this.setState((currentState: ActualState): Updates | null => {
             // Some `<Head>` state keys are immutable.
             updates = $obj.omit(updates, immutableStateKeys as unknown as string[]) as Updates;
 
@@ -162,12 +162,17 @@ export default class Head extends Component<Props, State> {
     }
 
     render(): $preact.VNode<Props> | undefined {
-        // Each app must configure its brand at runtime.
+        // Detects local Vite dev server.
+
+        const isLocalWebVite = $env.isLocalWebVite();
+
+        // Acquires app’s brand from environment var.
+
         const brand = $env.get('APP_BRAND') as $type.Brand;
 
-        // Gathers state.
+        // Gathers state from various contexts.
 
-        const { state: locState } = $preact.useLocation();
+        const { state: locationState } = $preact.useLocation();
         const { state: dataState, ...data } = $preact.useData();
         const { state: htmlState } = $preact.useHTML();
 
@@ -175,7 +180,7 @@ export default class Head extends Component<Props, State> {
 
         const { children } = this.props; // Current children.
         const actualState = this.state; // Current actual state.
-        let state: ComputedState; // Populated below w/ computed state.
+        let state: State; // Populated below w/ computed state.
 
         // Updates instance / cross-references.
 
@@ -185,8 +190,8 @@ export default class Head extends Component<Props, State> {
 
         // Memoizes computed state.
 
-        state = this.computedState = $preact.useMemo((): ComputedState => {
-            let title = actualState.title || locState.url.hostname;
+        state = this.computedState = $preact.useMemo((): State => {
+            let title = actualState.title || locationState.url.hostname;
             const defaultDescription = 'Take the tiger by the tail.';
 
             if (actualState.titleSuffix /* String or `true` to enable. */) {
@@ -198,10 +203,10 @@ export default class Head extends Component<Props, State> {
             }
             let defaultStyleBundle, defaultScriptBundle; // When applicable/possible.
 
-            if (!actualState.styleBundle && '' !== actualState.styleBundle && $env.isLocalWebVite()) {
+            if (!actualState.styleBundle && '' !== actualState.styleBundle && isLocalWebVite) {
                 defaultStyleBundle = './index.scss'; // Vite dev server uses original extension.
             }
-            if (!actualState.scriptBundle && '' !== actualState.scriptBundle && $env.isLocalWebVite()) {
+            if (!actualState.scriptBundle && '' !== actualState.scriptBundle && isLocalWebVite) {
                 defaultScriptBundle = './index.tsx'; // Vite dev server uses original extension.
             }
             return {
@@ -212,24 +217,24 @@ export default class Head extends Component<Props, State> {
 
                 title, // See title generation above.
                 description: actualState.description || defaultDescription,
-                canonical: actualState.canonical || locState.canonicalURL,
+                canonical: actualState.canonical || locationState.canonicalURL,
 
-                pngIcon: actualState.pngIcon || locState.fromBase('./assets/icon.png'),
-                svgIcon: actualState.svgIcon || locState.fromBase('./assets/icon.svg'),
+                pngIcon: actualState.pngIcon || locationState.fromBase('./assets/icon.png'),
+                svgIcon: actualState.svgIcon || locationState.fromBase('./assets/icon.svg'),
 
-                ogSiteName: actualState.ogSiteName || actualState.siteName || brand.name || locState.url.hostname,
+                ogSiteName: actualState.ogSiteName || actualState.siteName || brand.name || locationState.url.hostname,
                 ogType: actualState.ogType || 'website',
                 ogTitle: actualState.ogTitle || title,
                 ogDescription: actualState.ogDescription || actualState.description || defaultDescription,
-                ogURL: actualState.ogURL || actualState.canonical || locState.canonicalURL,
-                ogImage: actualState.ogImage || locState.fromBase('./assets/og-image.png'),
+                ogURL: actualState.ogURL || actualState.canonical || locationState.canonicalURL,
+                ogImage: actualState.ogImage || locationState.fromBase('./assets/og-image.png'),
 
                 styleBundle: '' === actualState.styleBundle ? '' : actualState.styleBundle || dataState.head.styleBundle || defaultStyleBundle || '',
                 scriptBundle: '' === actualState.scriptBundle ? '' : actualState.scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '',
 
                 append: actualState.append || [], // Default to an empty array.
             };
-        }, [brand, locState, dataState, actualState]);
+        }, [brand, locationState, dataState, actualState]);
 
         // Memoizes vNodes for all keyed & unkeyed children.
 
@@ -238,7 +243,7 @@ export default class Head extends Component<Props, State> {
 
             const vNodes: { [x: string]: $preact.VNode } = {
                 charset: h('meta', { charset: state.charset }),
-                baseURL: h('base', { href: locState.baseURL.toString() }),
+                baseURL: h('base', { href: locationState.baseURL.toString() }),
                 viewport: h('meta', { name: 'viewport', content: state.viewport }),
 
                 canonical: h('link', { rel: 'canonical', href: state.canonical.toString() }),
@@ -284,7 +289,7 @@ export default class Head extends Component<Props, State> {
                             // We choose not to support component functions, classes, or any nesting.
 
                             if (!type || !$is.string(type) || !key || !$is.string(key) || $is.numeric(key) || !$is.primitive(children)) {
-                                throw new Error(); // Missing or invalid child vNode. Please review docBlock for `<Head>` component class.
+                                throw new Error(); // Missing or invalid child vNode. Please review `<Head>` component docBlock.
                             }
                             // Ensure all keyed children have `_` prefixed keys so they don’t collide with built-in keys.
                             if (!(key as string).startsWith('_')) child.props['data-key'] = '_' + (key as string);
@@ -299,19 +304,18 @@ export default class Head extends Component<Props, State> {
                 (props as $type.Object)['data-key'] = key; // Keys all vNodes.
             }
             return vNodes as ChildVNodes;
-        }, [brand, locState, dataState, htmlState, children, state]);
+        }, [brand, locationState, dataState, htmlState, children, state]);
 
         // Configures client-side effects.
 
         if ($env.isWeb()) {
-            // Memoizes effect that runs when `locState` changes.
+            // Memoizes effect that runs when `locationState` changes.
 
             $preact.useEffect((): void => {
-                if (locState.isInitialHydration) return;
+                if (locationState.isInitialHydration) return;
                 // No need for an initial cleanup when hydrating.
 
                 const head = $dom.require('head');
-                const isLocalWebVite = $env.isLocalWebVite();
 
                 // Using `Array.from()` so we’re working on a copy, not the live list.
                 // Nodes get removed here, so a copy avoid issues with in-loop removals.
@@ -326,12 +330,12 @@ export default class Head extends Component<Props, State> {
                         node.remove(); // Removes unkeyed nodes, and keyed nodes that are stale.
                     }
                 }
-            }, [locState]);
+            }, [locationState]);
 
             // Memoizes effect that runs when `childVNodes` changes.
 
             $preact.useEffect((): void => {
-                if (locState.isInitialHydration) return;
+                if (locationState.isInitialHydration) return;
                 // No need for an initial diff when hydrating.
 
                 const head = $dom.require('head');
@@ -362,7 +366,7 @@ export default class Head extends Component<Props, State> {
  * @see https://schema.org/ -- for details regarding graph entries.
  * @see https://o5p.me/bgYQaB -- for details from Google regarding what they need, and why.
  */
-const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLState; state: ComputedState }): string => {
+const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLState; state: State }): string => {
     const { brand, htmlState, state } = options;
 
     // Organization graph(s).
@@ -530,14 +534,15 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
  * `<Data>` on down, you can use the `forceFullUpdate()` utility provided by this hook. The `forceFullUpdate()` utility
  * indirectly fires `forceUpdate()` on the `<Data>` component instance.
  *
- * @returns Pseudo context props {@see ContextProps}.
+ * @returns Pseudo context {@see Context}.
  */
-export const useHead = (): ContextProps => {
+export const useHead = (): Context => {
     const { state: dataState } = $preact.useData();
     const instance = dataState.head.instance;
 
-    if (!instance) throw new Error(); // Missing `instance`.
-    if (!instance.computedState) throw new Error(); // Missing `computedState`.
+    if (!instance?.computedState) {
+        throw new Error(); // Missing `computedState`.
+    }
     return {
         state: instance.computedState,
         append: (...args) => instance.append(...args),

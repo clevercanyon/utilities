@@ -40,19 +40,19 @@ describe('$dom', async () => {
     });
     test('.on(click)', async () => {
         const fn = vi.fn();
-        $dom.on('click', fn);
+        $dom.on(document, 'click', fn);
         $dom.require('body').click();
         expect(fn).toHaveBeenCalledTimes(1);
     });
     test('.on(click, selectors)', async () => {
         const fn1 = vi.fn();
-        $dom.on('click', 'body > a', fn1);
+        $dom.on(document, 'click', 'body > a', fn1);
         $dom.require('body').appendChild($dom.create('a', { href: '#' }));
         ($dom.require('body > a') as unknown as HTMLAnchorElement).click();
         expect(fn1).toHaveBeenCalledTimes(1);
 
         const fn2 = vi.fn();
-        $dom.on('click', 'body > x', fn2);
+        $dom.on(document, 'click', 'body > x', fn2);
         $dom.require('body').appendChild($dom.create('a', { href: '#' }));
         ($dom.require('body > a') as unknown as HTMLAnchorElement).click();
         expect(fn2).toHaveBeenCalledTimes(0);

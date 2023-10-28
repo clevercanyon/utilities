@@ -10,7 +10,7 @@ import { $dom, $env, $is, $preact, $str, $url, type $type } from '../../index.ts
 /**
  * Defines types.
  */
-export type State = $preact.State<{
+export type ActualState = $preact.State<{
     // A few flags.
     isInitial: boolean;
     isInitialHydration: boolean;
@@ -22,10 +22,10 @@ export type State = $preact.State<{
     // Base URL.
     baseURL: $type.URL;
 }>;
-export type PartialState = Partial<State>;
-export type PartialStateUpdates = Pick<PartialState, 'pathQuery'>;
+export type PartialActualState = Partial<ActualState>;
+export type PartialActualStateUpdates = Pick<PartialActualState, 'pathQuery'>;
 
-export type ComputedState = $preact.State<{
+export type State = $preact.State<{
     // A few flags.
     isInitial: boolean;
     isInitialHydration: boolean;
@@ -54,20 +54,21 @@ export type Props = $preact.BasicProps<{
     isHydration?: boolean;
     url?: $type.URL | string;
     baseURL?: $type.URL | string;
+    onChange?: (state: State) => void;
 }>;
-export type ContextProps = $preact.Context<{
-    state: ComputedState;
-    push: $preact.Dispatch<PartialStateUpdates | string>;
-    updateState: $preact.Dispatch<PartialStateUpdates | MouseEvent | PopStateEvent | string>;
+export type Context = $preact.Context<{
+    state: State;
+    push: $preact.Dispatch<PartialActualStateUpdates | string>;
+    updateState: $preact.Dispatch<PartialActualStateUpdates | MouseEvent | PopStateEvent | string>;
 }>;
 
 /**
- * Defines context.
+ * Defines context object.
  *
  * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
  * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
  */
-const Context = createContext({} as ContextProps);
+const ContextObject = createContext({} as Context);
 
 /**
  * Renders component.
@@ -79,7 +80,7 @@ const Context = createContext({} as ContextProps);
 export default function Location(props: Props = {}): $preact.VNode<Props> {
     const [actualState, updateState] = $preact.useReducer(reducer, undefined, () => initialState(props));
 
-    const state = $preact.useMemo((): ComputedState => {
+    const state = $preact.useMemo((): State => {
         const url = $url.parse(actualState.pathQuery, actualState.baseURL);
         const canonicalURL = $url.parse($url.toCanonical(url));
 
@@ -122,8 +123,9 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
 
     if ($env.isWeb() && !$env.isMajorCrawler()) {
         // Crawlers can detect SPAs by inspecting history event listeners.
-        // So let’s not attach when it’s a major crawler, because we ask them to do full page changes.
+        // So let’s not attach when it’s a major crawler, because we ask they do full page changes.
         // For further details, please review other instances of `$env.isMajorCrawler()` in this file.
+
         $preact.useEffect(() => {
             addEventListener('click', updateState);
             addEventListener('popstate', updateState);
@@ -133,25 +135,31 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
                 removeEventListener('popstate', updateState);
             };
         }, []); // i.e., On mount/unmount only.
+
+        $preact.useEffect(() => {
+            if (state.isInitial) return;
+            if (props.onChange) props.onChange(state);
+            $dom.trigger(document, 'x:location:change', { state });
+        }, [state]);
     }
-    return <Context.Provider value={{ state, push: updateState, updateState }}>{props.children}</Context.Provider>;
+    return <ContextObject.Provider value={{ state, push: updateState, updateState }}>{props.children}</ContextObject.Provider>;
 }
 
 /**
  * Defines context hook.
  *
- * @returns Context props {@see ContextProps}.
+ * @returns Context {@see Context}.
  */
-export const useLocation = (): ContextProps => $preact.useContext(Context);
+export const useLocation = (): Context => $preact.useContext(ContextObject);
 
 /* ---
  * Misc utilities.
  */
 
 /**
- * Global scroll position event handler.
+ * Global scroll event handler.
  */
-let scrollPositionHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
+let scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
 
 /**
  * Initial component state.
@@ -160,7 +168,7 @@ let scrollPositionHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
  *
  * @returns       Initial component state.
  */
-const initialState = (props: Props): State => {
+const initialState = (props: Props): ActualState => {
     const { isHydration = false } = props;
     let { url, baseURL } = props; // Initialize.
 
@@ -206,7 +214,7 @@ const initialState = (props: Props): State => {
  *
  * @returns       New state; else original state if no changes.
  */
-const reducer = (state: State, x: Parameters<ContextProps['updateState']>[0]): State => {
+const reducer = (state: ActualState, x: Parameters<Context['updateState']>[0]): ActualState => {
     // Initialize.
     let url, isPush, isClick;
 
@@ -303,8 +311,8 @@ const reducer = (state: State, x: Parameters<ContextProps['updateState']>[0]): S
     if (state.pathQuery === pathQuery) {
         if (isWeb && isClick && !url.hash) {
             (x as MouseEvent).preventDefault();
-            if (scrollPositionHandler) scrollPositionHandler.cancel();
-            scrollPositionHandler = $dom.afterNextFrame(() => scrollTo({ top: 0, left: 0, behavior: 'auto' }));
+            if (scrollHandler) scrollHandler.cancel();
+            scrollHandler = $dom.afterNextFrame(() => scrollTo({ top: 0, left: 0, behavior: 'auto' }));
         }
         return state; // No point; we’re already at this location.
         // This also ignores on-page hash changes. We let browser handle.

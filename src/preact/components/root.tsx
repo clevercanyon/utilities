@@ -4,7 +4,7 @@
 
 import '../../resources/init.ts';
 
-import { $preact } from '../../index.ts';
+import { $obj, $preact } from '../../index.ts';
 import { default as Data, type Props as DataProps } from '../components/data.tsx';
 import { default as Location, type Props as LocationProps } from '../components/location.tsx';
 import { default as Router, type Props as RouterProps } from '../components/router.tsx';
@@ -23,11 +23,9 @@ export type Props = $preact.BasicProps<LocationProps & DataProps & RouterProps>;
  */
 export default function Root(props: Props): $preact.VNode<Props> {
     return (
-        <Location isHydration={props.isHydration} url={props.url} baseURL={props.baseURL}>
-            <Data globalObp={props.globalObp} fetcher={props.fetcher} head={props.head}>
-                <Router onLoadError={props.onLoadError} onLoadStart={props.onLoadStart} onLoadEnd={props.onLoadEnd}>
-                    {props.children}
-                </Router>
+        <Location {...$obj.pick(props, ['isHydration', 'url', 'baseURL', 'onChange'])}>
+            <Data {...$obj.pick(props, ['globalObp', 'fetcher', 'head'])}>
+                <Router {...$obj.pick(props, ['onLoadError', 'onLoadStart', 'onLoadEnd', 'handleScroll'])}>{props.children}</Router>
             </Data>
         </Location>
     );

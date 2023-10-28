@@ -20,18 +20,18 @@ export type PartialState = Partial<State>;
 export type PartialStateUpdates = PartialState;
 export type Props = $preact.Props<PartialState>;
 
-export type ContextProps = $preact.Context<{
+export type Context = $preact.Context<{
     state: State;
     updateState: $preact.Dispatch<PartialStateUpdates>;
 }>;
 
 /**
- * Defines context.
+ * Defines context object.
  *
  * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
  * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
  */
-const Context = createContext({} as ContextProps);
+const ContextObject = createContext({} as Context);
 
 /**
  * Produces initial state.
@@ -79,7 +79,7 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
         }, [state]);
     }
     return (
-        <Context.Provider value={{ state, updateState }}>
+        <ContextObject.Provider value={{ state, updateState }}>
             {/* Client-side renders context only. <body> server-side. */}
             {$env.isWeb() ? (
                 <>{props.children}</>
@@ -90,13 +90,13 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
                     </As>
                 </body>
             )}
-        </Context.Provider>
+        </ContextObject.Provider>
     );
 }
 
 /**
  * Defines context hook.
  *
- * @returns Context props {@see ContextProps}.
+ * @returns Context {@see Context}.
  */
-export const useBody = (): ContextProps => $preact.useContext(Context);
+export const useBody = (): Context => $preact.useContext(ContextObject);

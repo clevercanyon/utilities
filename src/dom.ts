@@ -97,6 +97,7 @@ export const afterNextFrame = (callback: () => void): { cancel: () => void } => 
 /**
  * Fires a callback on a named event.
  *
+ * @param   wdes      Window, document, element, or selectors.
  * @param   eventName Event name. Required always.
  * @param   selectors Selectors for delegated events.
  * @param   callback  Callback for event handler.
@@ -105,22 +106,25 @@ export const afterNextFrame = (callback: () => void): { cancel: () => void } => 
  *
  * @requiredEnv web
  */
-export function on(eventName: string, callback: (x: Event) => void): { cancel: () => void };
-export function on(eventName: string, selectors: string, callback: (x: Event) => void): { cancel: () => void };
+export function on(wdes: Window | Document | Element | string, eventName: string, callback: (x: Event) => void): { cancel: () => void };
+export function on(wdes: Window | Document | Element | string, eventName: string, selectors: string, callback: (x: Event) => void): { cancel: () => void };
 
 export function on(...args: unknown[]): { cancel: () => void } {
-    const eventName = args[0] as string;
+    const wdes = args[0] as Window | Document | Element | string;
+    const wde = $is.string(wdes) ? require(wdes) : wdes;
+
+    const eventName = args[1] as string;
     let selectors: string; // Initialize.
 
     let callback: (x: Event) => void;
     let actualCallback: (x: Event) => void;
 
-    if (args.length >= 3) {
-        selectors = args[1] as typeof selectors;
-        callback = args[2] as typeof callback;
+    if (args.length >= 4) {
+        selectors = args[2] as typeof selectors;
+        callback = args[3] as typeof callback;
     } else {
         selectors = '' as typeof selectors;
-        callback = args[1] as typeof callback;
+        callback = args[2] as typeof callback;
     }
     if (selectors && callback) {
         actualCallback = (event: Event): void => {
@@ -137,9 +141,21 @@ export function on(...args: unknown[]): { cancel: () => void } {
         };
     } else actualCallback = callback;
 
-    document.addEventListener(eventName, actualCallback);
-    return { cancel: () => document.removeEventListener(eventName, actualCallback) };
+    wde.addEventListener(eventName, actualCallback);
+    return { cancel: () => wde.removeEventListener(eventName, actualCallback) };
 }
+
+/**
+ * Triggers a custom event.
+ *
+ * @param wdes      Window, document, element, or selectors.
+ * @param eventName Name of custom event; make sure it’s unique.
+ * @param data      Any custom data to pass as `detail` to event listeners.
+ */
+export const trigger = (wdes: Window | Document | Element | string, eventName: string, data: $type.Object = {}): void => {
+    const wde = $is.string(wdes) ? require(wdes) : wdes;
+    wde.dispatchEvent(new CustomEvent(eventName, { bubbles: true, detail: data }));
+};
 
 /**
  * Appends an element to `<head>`.
@@ -419,5 +435,5 @@ export function require<Type extends Element = Element, Selectors extends string
  * @requiredEnv web
  */
 export const stylesOf = (selectors: string | Element): CSSStyleDeclaration => {
-    return window.getComputedStyle($is.element(selectors) ? selectors : require(selectors));
+    return getComputedStyle($is.element(selectors) ? selectors : require(selectors));
 };

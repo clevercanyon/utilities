@@ -6,7 +6,7 @@ import '../../resources/init.ts';
 
 import { Component, createContext } from 'preact';
 import { $app, $env, $is, $json, $obj, $obp, $preact, $str, type $type } from '../../index.ts';
-import { type default as HeadInstance, type PartialState as PartialHeadState } from './head.tsx';
+import { type default as HeadInstance, type PartialActualState as PartialActualHeadState } from './head.tsx';
 
 /**
  * Defines data types.
@@ -20,7 +20,7 @@ export type State = $preact.State<{
     fetcher: $preact.iso.Fetcher;
     head: {
         instance?: HeadInstance;
-    } & Pick<PartialHeadState, PassableHeadStateKeys>;
+    } & Pick<PartialActualHeadState, PassableHeadStateKeys>;
 }>;
 export type PartialState = $preact.State<{
     globalObp?: State['globalObp'];
@@ -37,12 +37,12 @@ export type Props = $preact.BasicProps<
         head?: Partial<Pick<State['head'], PassableHeadStateKeys>>;
     }
 >;
-export type ContextProps = $preact.Context<{
+export type Context = $preact.Context<{
     state: State;
     updateState: Data['updateState'];
     forceUpdate: Data['forceUpdate'];
 }>;
-export type HTTPContextProps = $preact.Context<{
+export type HTTPContext = $preact.Context<{
     state: GlobalState['http'];
     updateState: $preact.Dispatch<PartialGlobalStateUpdates['http']>;
 }>;
@@ -56,7 +56,7 @@ export type HTTPContextProps = $preact.Context<{
  */
 export type GlobalState = $preact.State<{
     http: { status: number };
-    head: Pick<PartialHeadState, PassableHeadStateKeys>;
+    head: Pick<PartialActualHeadState, PassableHeadStateKeys>;
 }>;
 export type PartialGlobalState = $preact.State<{
     http?: Partial<GlobalState['http']>;
@@ -128,12 +128,12 @@ export const defaultGlobalObp = (): string => {
 };
 
 /**
- * Defines context.
+ * Defines context object.
  *
  * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
  * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
  */
-const Context = createContext({} as ContextProps);
+const ContextObject = createContext({} as Context);
 
 /**
  * Produces initial global state.
@@ -238,7 +238,7 @@ export default class Data extends Component<Props, State> {
 
     render(): $preact.VNode<Props> {
         return (
-            <Context.Provider
+            <ContextObject.Provider
                 value={{
                     state: this.state,
                     updateState: (...args) => this.updateState(...args),
@@ -246,7 +246,7 @@ export default class Data extends Component<Props, State> {
                 }}
             >
                 {this.props.children}
-            </Context.Provider>
+            </ContextObject.Provider>
         );
     }
 }
@@ -254,18 +254,18 @@ export default class Data extends Component<Props, State> {
 /**
  * Defines context hook.
  *
- * @returns Context props {@see ContextProps}.
+ * @returns Context {@see Context}.
  */
-export const useData = (): ContextProps => $preact.useContext(Context);
+export const useData = (): Context => $preact.useContext(ContextObject);
 
 /**
  * Defines HTTP pseudo context hook.
  *
- * @returns Pseudo context props {@see HTTPContextProps}.
+ * @returns Pseudo context {@see HTTPContext}.
  *
  * @requiredEnv ssr -- This hook must only be used server-side.
  */
-export const useHTTP = (): HTTPContextProps => {
+export const useHTTP = (): HTTPContext => {
     if (!$env.isSSR()) throw $env.errSSROnly;
 
     const { state } = useData();
