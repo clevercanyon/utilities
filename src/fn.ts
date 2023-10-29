@@ -144,7 +144,7 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
 
     let promises: {
         resolve: (fnRtn: ReturnType<Fn>) => void;
-        reject: (reason?: unknown) => void;
+        reject: (rejectionRtnValue?: unknown) => void;
     }[] = []; // Call stack.
 
     let latestArgs = [] as unknown as Parameters<Fn>;
@@ -153,7 +153,6 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
     const rtnFn = function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>): Promise<ReturnType<Fn>> {
         return new Promise<ReturnType<Fn>>((resolve, reject) => {
             (latestArgs = args), promises.push({ resolve, reject });
-
             if (!waitTimeout) rtnFn.$onLeadingEdge();
 
             if (opts._debounceMode && waitTimeout) {
@@ -162,7 +161,10 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
             if (opts._debounceMode || !waitTimeout) {
                 waitTimeout = setTimeout(rtnFn.$onTrailingEdge, opts.waitTime);
             }
-        });
+            // We cannot know here what the return value will be in a reject scenario.
+            // In a case where `.cancel()` is explicitly called by the throttle implementation,
+            // it will be `.cancel()` that sets the rejection return value in the implementation.
+        }).catch((rejectionRtnValue) => rejectionRtnValue as ReturnType<Fn>);
     };
     rtnFn.$onLeadingEdge = function (): void {
         if (opts.leadingEdge && promises.length) {
@@ -188,8 +190,8 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
         }
         if (waitTimeout) clearTimeout(waitTimeout), (waitTimeout = 0);
     };
-    rtnFn.cancel = function (reason?: unknown): void {
-        promises.forEach(({ reject }) => reject(reason)), (promises = []);
+    rtnFn.cancel = function (rejectionRtnValue?: unknown): void {
+        promises.forEach(({ reject }) => reject(rejectionRtnValue)), (promises = []);
         if (waitTimeout) clearTimeout(waitTimeout), (waitTimeout = 0);
     };
     return rtnFn as ThrottledFunction<Fn>;

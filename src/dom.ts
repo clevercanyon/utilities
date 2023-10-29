@@ -48,7 +48,7 @@ const initializeScrollTracking = (): true => {
     const onScrollEndCallback = $fn.debounce((): void => {
         onScrollCallback.cancel(), (userIsScrolling = false);
         trigger(scrollElement as Element, 'x:scrollEnd');
-    }, { leadingEdge: false }); // prettier-ignore
+    }, { trailingEdge: false }); // prettier-ignore
 
     on(scrollElement, 'wheel', onWheelCallback);
     on(scrollElement, 'scroll', onScrollCallback);
