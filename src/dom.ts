@@ -8,11 +8,11 @@ import { $fn, $is, $obj, $preact, $to, type $type } from './index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 /**
- * Track wheel/scroll status.
+ * Tracks scroll status.
  */
-let initialzedScrollTracking = false;
-let scrollElement: Element | undefined;
 let userIsScrolling = false;
+let initializedScrollStatus = false;
+let scrollElement: Element | undefined;
 
 /**
  * Defines types.
@@ -24,37 +24,31 @@ type AnyEventHandler = ((event?: Event) => void) | ((event?: Event) => Promise<v
 type EventTools = { cancel: () => void };
 
 /**
- * Initializes scroll tracking.
- *
- * @returns True, always.
+ * Initializes scroll status.
  *
  * @requiredEnv web
  */
-const initializeScrollTracking = (): true => {
-    if (initialzedScrollTracking) return true;
-    initialzedScrollTracking = true;
+const initializeScrollStatus = (): void => {
+    if (initializedScrollStatus) return;
+    initializedScrollStatus = true;
 
     let wheelTimeout: $type.Timeout | undefined;
     scrollElement = document.scrollingElement || html();
 
-    const onWheelCallback = $fn.debounce((): void => {
-        void onScrollCallback(), clearTimeout(wheelTimeout);
-        wheelTimeout = setTimeout(() => void onScrollEndCallback(), 250);
+    const onWheelCallback = $fn.throttle((): void => {
+        clearTimeout(wheelTimeout), void onScrollCallback();
+        wheelTimeout = setTimeout(() => void onScrollEndCallback(), 550);
     });
-    const onScrollCallback = $fn.debounce((): void => {
+    const onScrollCallback = $fn.throttle((): void => {
         onScrollEndCallback.cancel(), (userIsScrolling = true);
-    }, { trailingEdge: false }); // prettier-ignore
-
-    const onScrollEndCallback = $fn.debounce((): void => {
+    });
+    const onScrollEndCallback = $fn.throttle((): void => {
         onScrollCallback.cancel(), (userIsScrolling = false);
         trigger(scrollElement as Element, 'x:scrollEnd');
-    }, { trailingEdge: false }); // prettier-ignore
-
+    });
     on(scrollElement, 'wheel', onWheelCallback);
     on(scrollElement, 'scroll', onScrollCallback);
     on(scrollElement, 'scrollend', onScrollEndCallback);
-
-    return true; // Always.
 };
 
 /**
@@ -109,7 +103,7 @@ export const onLoad = (callback: AnyVoidFn): EventTools => {
  * @requiredEnv web
  */
 export const onScrollEnd = (callback: AnyVoidFn): EventTools => {
-    initializeScrollTracking();
+    initializeScrollStatus();
 
     const eventName = 'x:scrollEnd';
     const element = scrollElement as Element;
@@ -229,7 +223,7 @@ export function on(...args: unknown[]): EventTools {
  */
 export const trigger = (wdes: WDES, event: string | Event, data?: $type.Object, options?: CustomEventInit): void => {
     const wde = $is.string(wdes) ? require(wdes) : wdes;
-    if (!$is.event(event)) event = new CustomEvent(event, { detail: data || {}, ...options });
+    if ($is.string(event)) event = new CustomEvent(event, { detail: data || {}, ...options });
     wde.dispatchEvent(event);
 };
 
