@@ -134,17 +134,17 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
  * @param   fn      Sync or async function to throttle.
  * @param   options Options (all optional); {@see ThrottleOptions}.
  *
- *   - Default is: `{ leadingEdge: true, waitTime: 500, trailingEdge: true }`
+ *   - Default is: `{ leadingEdge: true, waitTime: 250, trailingEdge: true }`
  *   - `_debounceMode` is for internal use only. Do not pass. Instead, {@see debounce()}.
  *
  * @returns         Throttled sync or async function.
  */
 export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOptions): ThrottledFunction<Fn> => {
-    const opts = $obj.defaults({}, options || {}, { leadingEdge: true, waitTime: 500, trailingEdge: true, _debounceMode: false }) as Required<ThrottleOptions>;
+    const opts = $obj.defaults({}, options || {}, { leadingEdge: true, waitTime: 250, trailingEdge: true, _debounceMode: false }) as Required<ThrottleOptions>;
 
     let promises: {
         resolve: (fnRtn: ReturnType<Fn>) => void;
-        reject: (rejectionRtnValue?: unknown) => void;
+        reject: (fnRejectRtn?: unknown) => void;
     }[] = []; // Call stack.
 
     let latestArgs = [] as unknown as Parameters<Fn>;
@@ -164,7 +164,7 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
             // We cannot know here what the return value will be in a reject scenario.
             // In a case where `.cancel()` is explicitly called by the throttle implementation,
             // it will be `.cancel()` that sets the rejection return value in the implementation.
-        }).catch((rejectionRtnValue) => rejectionRtnValue as ReturnType<Fn>);
+        }).catch((fnRejectRtn) => fnRejectRtn as ReturnType<Fn>);
     };
     rtnFn.$onLeadingEdge = function (): void {
         if (opts.leadingEdge && promises.length) {
@@ -190,8 +190,8 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
         }
         if (waitTimeout) clearTimeout(waitTimeout), (waitTimeout = 0);
     };
-    rtnFn.cancel = function (rejectionRtnValue?: unknown): void {
-        promises.forEach(({ reject }) => reject(rejectionRtnValue)), (promises = []);
+    rtnFn.cancel = function (fnRejectRtn?: unknown): void {
+        promises.forEach(({ reject }) => reject(fnRejectRtn)), (promises = []);
         if (waitTimeout) clearTimeout(waitTimeout), (waitTimeout = 0);
     };
     return rtnFn as ThrottledFunction<Fn>;
@@ -203,7 +203,7 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
  * @param   fn      Sync or async function to debounce.
  * @param   options Options (all optional); {@see DebounceOptions}.
  *
- *   - Default is: `{ leadingEdge: true, waitTime: 500, trailingEdge: true }`
+ *   - Default is: `{ leadingEdge: true, waitTime: 250, trailingEdge: true }`
  *
  * @returns         Debounced sync or async function.
  */

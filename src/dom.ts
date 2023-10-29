@@ -12,7 +12,6 @@ import { $fnꓺmemo } from './resources/standalone/index.ts';
  */
 let userIsScrolling = false;
 let initializedScrollStatus = false;
-let scrollElement: Element | undefined;
 
 /**
  * Defines types.
@@ -32,23 +31,39 @@ const initializeScrollStatus = (): void => {
     if (initializedScrollStatus) return;
     initializedScrollStatus = true;
 
-    let wheelTimeout: $type.Timeout | undefined;
-    scrollElement = document.scrollingElement || html();
-
-    const onWheelCallback = $fn.throttle((): void => {
-        clearTimeout(wheelTimeout), void onScrollCallback();
-        wheelTimeout = setTimeout(() => void onScrollEndCallback(), 550);
-    });
     const onScrollCallback = $fn.throttle((): void => {
         onScrollEndCallback.cancel(), (userIsScrolling = true);
     });
     const onScrollEndCallback = $fn.throttle((): void => {
         onScrollCallback.cancel(), (userIsScrolling = false);
-        trigger(scrollElement as Element, 'x:scrollEnd');
+        trigger(window, 'x:scrollEnd');
     });
-    on(scrollElement, 'wheel', onWheelCallback);
-    on(scrollElement, 'scroll', onScrollCallback);
-    on(scrollElement, 'scrollend', onScrollEndCallback);
+    on(window, 'scroll', onScrollCallback);
+    on(window, 'scrollend', onScrollEndCallback);
+
+    /**
+     * We treat wheeling like a `scroll` event here because when it’s used for scrolling it can reach the bottom of a
+     * page and then continue turning; e.g., MX Revolution mice tend to do this. In such a case, upon reaching the
+     * bottom of a page, wheeling ceases to be a `scroll` event; i.e., `scroll`, `scrollend` events are no longer fired
+     * because there is nothing left to scroll on the page, so browsers just ignore the wheeling altogether.
+     *
+     * However, if the page content changes, or the scroll position changes programmatically, and the wheel happens to
+     * still be turning, then it’s possible it could start firing residual `scroll`, `scrollend` events again, which
+     * yields a very confusing situation for a user when residual scrolling is mixed with programmatic scrolling.
+     *
+     * The mouse wheel is most often used for scrolling. Not always, but we’ll take that risk. Worse case scenario, we
+     * treat some other action that a wheel controls as if it were a scroll event. Either way, it’s still a user
+     * interacting with the window, and anything listening for a `scrollend` event is likely interested in awaiting the
+     * end of that user interaction, whatever it may actually be. e.g., {@see onScrollEnd()} in this file.
+     */
+    let wheelTimeout: $type.Timeout | undefined;
+    const wheelScrollEndCallback = () => void onScrollEndCallback();
+
+    const onWheelCallback = $fn.throttle((): void => {
+        clearTimeout(wheelTimeout), void onScrollCallback();
+        wheelTimeout = setTimeout(wheelScrollEndCallback, 300);
+    });
+    on(window, 'wheel', onWheelCallback);
 };
 
 /**
@@ -106,15 +121,14 @@ export const onScrollEnd = (callback: AnyVoidFn): EventTools => {
     initializeScrollStatus();
 
     const eventName = 'x:scrollEnd';
-    const element = scrollElement as Element;
     const actualCallback = (): void => void callback();
 
     if (!userIsScrolling) {
         actualCallback(); // Fires callback immediately.
     } else {
-        element.addEventListener(eventName, actualCallback, { once: true });
+        addEventListener(eventName, actualCallback, { once: true });
     }
-    return { cancel: (): void => element.removeEventListener(eventName, actualCallback) };
+    return { cancel: (): void => removeEventListener(eventName, actualCallback) };
 };
 
 /**
