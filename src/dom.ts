@@ -8,7 +8,7 @@ import { $fn, $is, $obj, $preact, $to, type $type } from './index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 /**
- * Track scroll status.
+ * Track wheel/scroll status.
  */
 let initialzedScrollTracking = false;
 let scrollElement: Element | undefined;
@@ -34,16 +34,23 @@ const initializeScrollTracking = (): true => {
     if (initialzedScrollTracking) return true;
     initialzedScrollTracking = true;
 
-    // In standards mode, this should be `<html>`.
-    // {@see https://o5p.me/eFFCSJ} for futher details.
+    let wheelTimeout: $type.Timeout | undefined;
     scrollElement = document.scrollingElement || html();
 
+    const onWheelCallback = $fn.debounce((): void => {
+        void onScrollCallback(), clearTimeout(wheelTimeout);
+        wheelTimeout = setTimeout(() => void onScrollEndCallback(), 250);
+    });
     const onScrollCallback = $fn.debounce((): void => {
         onScrollEndCallback.cancel(), (userIsScrolling = true);
-    });
+    }, { trailingEdge: false }); // prettier-ignore
+
     const onScrollEndCallback = $fn.debounce((): void => {
         onScrollCallback.cancel(), (userIsScrolling = false);
-    });
+        trigger(scrollElement as Element, 'x:scrollEnd');
+    }, { leadingEdge: false }); // prettier-ignore
+
+    on(scrollElement, 'wheel', onWheelCallback);
     on(scrollElement, 'scroll', onScrollCallback);
     on(scrollElement, 'scrollend', onScrollEndCallback);
 
@@ -104,7 +111,7 @@ export const onLoad = (callback: AnyVoidFn): EventTools => {
 export const onScrollEnd = (callback: AnyVoidFn): EventTools => {
     initializeScrollTracking();
 
-    const eventName = 'scrollend';
+    const eventName = 'x:scrollEnd';
     const element = scrollElement as Element;
     const actualCallback = (): void => void callback();
 

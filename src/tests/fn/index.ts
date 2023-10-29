@@ -26,18 +26,45 @@ describe('$fn', async () => {
     });
     test('.curry()', async () => {
         const testFn = (a: string, b: string, c: string) => ({ a, b, c });
-
         expect($fn.curry(testFn, 'a', 'b', 'c')()).toStrictEqual({ a: 'a', b: 'b', c: 'c' });
         expect($fn.curry(testFn)('a')('b')('c')).toStrictEqual({ a: 'a', b: 'b', c: 'c' });
         expect($fn.curry(testFn)('a', 'b', 'c')).toStrictEqual({ a: 'a', b: 'b', c: 'c' });
     });
     test('.throttle()', async () => {
-        const testFn = (a: string, b: string, c: string) => ({ a, b, c });
-        await expect($fn.throttle(testFn)('a', 'b', 'c')).resolves.toStrictEqual({ a: 'a', b: 'b', c: 'c' });
+        const fn1 = vi.fn();
+        const testFn1 = $fn.throttle(fn1);
+        for (let i = 0; i < 100; i++) void testFn1();
+        expect(fn1).toHaveBeenCalledTimes(1); // Leading edge.
+        await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
+        expect(fn1).toHaveBeenCalledTimes(2); // + trailing edge also.
+
+        const fn2 = vi.fn();
+        const testFn2 = $fn.throttle(fn2, { leadingEdge: false });
+        for (let i = 0; i < 100; i++) void testFn2();
+        expect(fn2).toHaveBeenCalledTimes(0); // Not on leading edge.
+        await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
+        expect(fn2).toHaveBeenCalledTimes(1); // Only on trailing edge.
+
+        const testFn3 = (a: string, b: string, c: string) => ({ a, b, c });
+        await expect($fn.throttle(testFn3)('a', 'b', 'c')).resolves.toStrictEqual({ a: 'a', b: 'b', c: 'c' });
     });
     test('.debounce()', async () => {
-        const testFn = (a: string, b: string, c: string) => ({ a, b, c });
-        await expect($fn.debounce(testFn)('a', 'b', 'c')).resolves.toStrictEqual({ a: 'a', b: 'b', c: 'c' });
+        const fn1 = vi.fn();
+        const testFn1 = $fn.debounce(fn1);
+        for (let i = 0; i < 100; i++) void testFn1();
+        expect(fn1).toHaveBeenCalledTimes(1); // Leading edge.
+        await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
+        expect(fn1).toHaveBeenCalledTimes(2); // + trailing edge also.
+
+        const fn2 = vi.fn();
+        const testFn2 = $fn.debounce(fn2, { leadingEdge: false });
+        for (let i = 0; i < 100; i++) void testFn2();
+        expect(fn2).toHaveBeenCalledTimes(0); // Not on leading edge.
+        await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
+        expect(fn2).toHaveBeenCalledTimes(1); // Only on trailing edge.
+
+        const testFn3 = (a: string, b: string, c: string) => ({ a, b, c });
+        await expect($fn.debounce(testFn3)('a', 'b', 'c')).resolves.toStrictEqual({ a: 'a', b: 'b', c: 'c' });
     });
     test('.memo()', async () => {
         const fn1Mock = vi.fn((): boolean => true);

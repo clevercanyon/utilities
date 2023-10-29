@@ -147,8 +147,8 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
         reject: (reason?: unknown) => void;
     }[] = []; // Call stack.
 
-    let latestArgs: Parameters<Fn> | undefined; // Initialize.
-    let waitTimeout: $type.Timeout | undefined; // Initialize.
+    let latestArgs = [] as unknown as Parameters<Fn>;
+    let waitTimeout: $type.Timeout | undefined;
 
     const rtnFn = function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>): Promise<ReturnType<Fn>> {
         return new Promise<ReturnType<Fn>>((resolve, reject) => {
@@ -165,13 +165,13 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
         });
     };
     rtnFn.$onLeadingEdge = function (): void {
-        if (opts.leadingEdge && latestArgs && promises.length) {
+        if (opts.leadingEdge && promises.length) {
             const fnRtn = fn.apply(this, latestArgs) as ReturnType<Fn>;
             promises.forEach(({ resolve }) => resolve(fnRtn)), (promises = []);
         }
     };
     rtnFn.$onTrailingEdge = function (): void {
-        if (opts.trailingEdge && latestArgs && promises.length && (!opts.leadingEdge || promises.length >= 2)) {
+        if (opts.trailingEdge && promises.length && (!opts.leadingEdge || promises.length >= 2)) {
             const fnRtn = fn.apply(this, latestArgs) as ReturnType<Fn>;
             promises.forEach(({ resolve }) => resolve(fnRtn)), (promises = []);
 
@@ -182,7 +182,7 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
         } else waitTimeout = 0; // Clears the way for a new leading edge.
     };
     rtnFn.flush = function (): void {
-        if (latestArgs && promises.length) {
+        if (promises.length) {
             const fnRtn = fn.apply(this, latestArgs) as ReturnType<Fn>;
             promises.forEach(({ resolve }) => resolve(fnRtn)), (promises = []);
         }
