@@ -144,9 +144,9 @@ const RenderRefRoute = ({ r }: $preact.BasicProps<{
  * @note `__c` = `._childDidSuspend()`; {@see https://o5p.me/B8yq0g} in `mangle.json`.
  */
 function ErrorBoundaryCore(this: $preact.Component<ErrorBoundaryCoreProps>, props: ErrorBoundaryCoreProps): $preact.VNode<ErrorBoundaryCoreProps> {
-    (this as unknown as $type.Object).__c = (thrownPromise: Promise<unknown>): void => {
+    (this as unknown as $type.Object).__c = $preact.useCallback((thrownPromise: Promise<unknown>): void => {
         void thrownPromise.then(() => this.forceUpdate());
-    };
+    }, []);
     // Attaches a possible error handler.
     this.componentDidCatch = props.onLoadError;
 
@@ -162,6 +162,8 @@ function ErrorBoundaryCore(this: $preact.Component<ErrorBoundaryCoreProps>, prop
  *
  * @note Inspired by `Suspense` from preact/compat. See: <https://o5p.me/TA863r>.
  * @note `__c` = `._childDidSuspend()`; {@see https://o5p.me/B8yq0g} in `mangle.json`.
+ * @note This uses extensive caching and does not listen for any prop-change dynamics.
+ *       Therefore, please set it up right, the first time!
  */
 function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $preact.VNode<CoreProps> {
     // Self-reference, as plain object value.
@@ -181,11 +183,13 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
     // Initializes previous route reference.
 
     const previousRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
+    const previousRouteSnapshot = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
 
     // Initializes current route references.
 
     const currentRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
     const currentRouteContext = $preact.useRef() as $preact.Ref<RouteContext>;
+    const currentRouteLoadEventData = $preact.useRef() as $preact.Ref<RouteLoadEventData>;
     const currentRoutePendingHydrationDOM = $preact.useRef() as $preact.Ref<HTMLElement>;
 
     // Initializes other current route references.
@@ -259,49 +263,52 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
     // Snapshots the previous route, and then resets it to `null`, for now.
     // Note: This uses `previousRoute`, which was potentially altered by the memo above.
 
-    const previousRouteSnapshot = previousRoute.current; // Snapshots previous route.
+    previousRouteSnapshot.current = previousRoute.current; // Snapshots previous route.
     previousRoute.current = null; // Resets previous route to `null`, for now.
 
     // Configures current load event data properties; {@see RouteLoadEventData}.
     // Note: This uses `currentRouteContext`, which was potentially altered by the memo above.
 
-    const currentRouteLoadEventData = { locationState, routeContext: currentRouteContext.current as RouteContext };
+    currentRouteLoadEventData.current = $preact.useMemo(() => ({ locationState, routeContext: currentRouteContext.current as RouteContext }), [locationState]);
 
     // Configures the router’s `_childDidSuspend()` handler.
     // Minified `__c` = `_childDidSuspend()`. See: <https://o5p.me/3gXT4t>.
 
-    thisObj.__c = (thrownPromise: Promise<unknown>) => {
-        // Marks current render as having suspended.
-        currentRouteDidSuspend.current = true;
+    thisObj.__c = $preact.useCallback(
+        (thrownPromise: Promise<unknown>) => {
+            // Marks current render as having suspended.
+            currentRouteDidSuspend.current = true;
 
-        // Marks current render as having suspended and currently loading.
-        currentRouteDidSuspendAndIsLoading.current = true;
+            // Marks current render as having suspended and currently loading.
+            currentRouteDidSuspendAndIsLoading.current = true;
 
-        // Keeps previous route around while current route loads.
-        previousRoute.current = previousRouteSnapshot;
+            // Keeps previous route around while current route loads.
+            previousRoute.current = previousRouteSnapshot.current;
 
-        // Snapshots counter for comparison once promise resolves.
-        const routeCounterSnapshot = routeCounter.current;
+            // Snapshots counter for comparison once promise resolves.
+            const routeCounterSnapshot = routeCounter.current;
 
-        // Handles effects of loading sequence starting.
-        if ($env.isWeb() /* Only possible on the web. */) {
-            // Appends `<x-preact-app-loading>` status indicator.
-            if (false !== props.handleLoading && !locationState.isInitialHydration) {
-                loadingHandler?.cancel(), (loadingHandler = $dom.onNextFrame(() => $dom.body().appendChild(xPreactAppLoading())));
+            // Handles effects of loading sequence starting.
+            if ($env.isWeb() /* Only possible on the web. */) {
+                // Appends `<x-preact-app-loading>` status indicator.
+                if (false !== props.handleLoading && !locationState.isInitialHydration) {
+                    loadingHandler?.cancel(), (loadingHandler = $dom.onNextFrame(() => $dom.body().appendChild(xPreactAppLoading())));
+                }
+                // Fires an event indicating the current route is now loading.
+                if (props.onLoadStart) props.onLoadStart(currentRouteLoadEventData.current as RouteLoadEventData);
+                $dom.trigger(document, 'x:route:loadStart', currentRouteLoadEventData.current as RouteLoadEventData);
             }
-            // Fires an event indicating the current route is now loading.
-            if (props.onLoadStart) props.onLoadStart(currentRouteLoadEventData);
-            $dom.trigger(document, 'x:route:loadStart', currentRouteLoadEventData);
-        }
-        // Handles resolution of suspended state; i.e., once promise resolves.
-        void thrownPromise.then(() => {
-            // Ignores update if it isn't the most recently suspended update.
-            if (routeCounterSnapshot !== routeCounter.current) return;
+            // Handles resolution of suspended state; i.e., once promise resolves.
+            void thrownPromise.then(() => {
+                // Ignores update if it isn't the most recently suspended update.
+                if (routeCounterSnapshot !== routeCounter.current) return;
 
-            // Successful route transition. Unsuspend after a tick and stop rendering the old route.
-            (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers new effects.
-        });
-    };
+                // Successful route transition. Unsuspend after a tick and stop rendering the old route.
+                (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers new effects.
+            });
+        },
+        [locationState],
+    );
     // Configures the router’s effects.
     // These are only applicable on the web.
 
@@ -345,8 +352,8 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                     loadingHandler?.cancel(), (loadingHandler = $dom.afterNextFrame(() => xPreactAppLoading().remove()));
                 }
                 // Fires an event indicating the end of loading sequence.
-                if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData);
-                $dom.trigger(document, 'x:route:loadEnd', currentRouteLoadEventData);
+                if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData.current as RouteLoadEventData);
+                $dom.trigger(document, 'x:route:loadEnd', currentRouteLoadEventData.current as RouteLoadEventData);
             }
             // Handles scroll position for current route location.
             // Note: This runs even for routes that were loaded synchronously.
@@ -365,8 +372,8 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             }
             // Fires an event indicating the current route is loaded now.
             // Note: This runs even for routes that were loaded synchronously.
-            if (props.onLoaded) props.onLoaded(currentRouteLoadEventData);
-            $dom.trigger(document, 'x:route:loaded', currentRouteLoadEventData);
+            if (props.onLoaded) props.onLoaded(currentRouteLoadEventData.current as RouteLoadEventData);
+            $dom.trigger(document, 'x:route:loaded', currentRouteLoadEventData.current as RouteLoadEventData);
         }, [locationState, layoutTicks]);
     }
     // Renders `currentRoute` and `previousRoute` components.
@@ -449,12 +456,14 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
  * Generates `<x-preact-app-loading>` element.
  *
  * @returns `<x-preact-app-loading>` element; {@see Element}.
+ *
+ * @requiredEnv web
  */
 const xPreactAppLoading = $fnꓺmemo((): Element => {
     return $dom.create('x-preact-app-loading', {
         role: 'status',
-        class: 'block bg-color/50 fixed inset-0 w-screen h-screen',
-        innerHTML: `<span class="sr-only">Loading...</span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" viewBox="0 0 100 100" class="absolute inset-2/4 w-8 h-8 fill-color-accent text-color-fg animate-spin"><path fill="currentColor" d="M100 51A50 50 0 1 1 0 51a50 50 0 0 1 100 0ZM9 51a41 41 0 1 0 82 0 41 41 0 0 0-82 0Z"/><path fill="currentFill" d="M94 39c2-1 4-3 3-5A50 50 0 0 0 42 1c-3 1-4 3-4 6 1 2 4 3 6 3a41 41 0 0 1 44 26c1 2 4 4 6 3Z"/></svg>`,
+        class: 'block bg-color/50 fixed inset-0 w-screen h-screen animate-fade-in',
+        innerHTML: `<span class="sr-only">Loading...</span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" viewBox="0 0 100 100" class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 fill-color-accent text-color-fg animate-spin"><path fill="currentColor" d="M100 51A50 50 0 1 1 0 51a50 50 0 0 1 100 0ZM9 51a41 41 0 1 0 82 0 41 41 0 0 0-82 0Z"/><path fill="currentFill" d="M94 39c2-1 4-3 3-5A50 50 0 0 0 42 1c-3 1-4 3-4 6 1 2 4 3 6 3a41 41 0 0 1 44 26c1 2 4 4 6 3Z"/></svg>`,
     });
 });
 

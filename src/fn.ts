@@ -75,10 +75,10 @@ export const memo = $standalone.$fnꓺmemo; // From standalone library.
  *
  * @returns             Invocation return value, else `catchReturn` value (if passed), else {@see Error}.
  */
-function _try<Fn extends $type.Function>(fn: Fn): TryFunction<Fn, $type.Error>;
-function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn: CatchReturn, options?: TryOptions): TryFunction<Fn, CatchReturn>;
+function tryFn<Fn extends $type.Function>(fn: Fn): TryFunction<Fn, $type.Error>;
+function tryFn<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn: CatchReturn, options?: TryOptions): TryFunction<Fn, CatchReturn>;
 
-function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: CatchReturn, options?: TryOptions): TryFunction<Fn, CatchReturn | $type.Error> {
+function tryFn<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: CatchReturn, options?: TryOptions): TryFunction<Fn, CatchReturn | $type.Error> {
     const useCatchReturn = arguments.length >= 2; // Use `catchReturn` value as default?
     const opts = $obj.defaults({}, options || {}, { throwOnError: false }) as Required<TryOptions>;
 
@@ -104,7 +104,7 @@ function _try<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: Catc
         } as TryFunction<Fn, CatchReturn | $type.Error>;
     }
 }
-export { _try as try }; // Must export as alias.
+export { tryFn as try }; // Must export as alias.
 
 /**
  * Curries a sync or async function.

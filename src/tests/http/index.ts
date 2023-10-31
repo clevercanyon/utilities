@@ -8,6 +8,7 @@ import { $http } from '../../index.ts';
 describe('$http', async () => {
     test('.requestConfig()', async () => {
         expect($http.requestConfig()).toStrictEqual({
+            enforceNoTrailingSlash: false,
             enableRewrites: false,
         });
     });
@@ -196,110 +197,89 @@ describe('$http', async () => {
         expect($http.requestPathIsForbidden(new Request('https://example.com/abc.tmp'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/abc.temp/a'))).toBe(true);
 
-        expect($http.requestPathIsForbidden(new Request('https://example.com/cache'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/cache/a'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/private'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/private/a'))).toBe(true);
+
+        expect($http.requestPathIsForbidden(new Request('https://example.com/cache'))).toBe(true);
+        expect($http.requestPathIsForbidden(new Request('https://example.com/cache/a'))).toBe(true);
+
         expect($http.requestPathIsForbidden(new Request('https://example.com/logs'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/logs/a'))).toBe(true);
 
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/cache'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/cache/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/private'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/private/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/mu-plugins'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/mu_plugins'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/mu_plugins/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/upgrade'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/upgrade/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/uploads/wc-logs'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/uploads/wc_logs'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/uploads/wc_logs/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/uploads/woocommerce-uploads'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/uploads/woocommerce_uploads'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/uploads/woocommerce_uploads/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/uploads/lmfwc-files'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/uploads/lmfwc_files'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/wp-content/uploads/lmfwc_files/a'))).toBe(true);
-
         expect($http.requestPathIsForbidden(new Request('https://example.com/yarn'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/yarn/a'))).toBe(true);
+
         expect($http.requestPathIsForbidden(new Request('https://example.com/vendor'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/vendor/a'))).toBe(true);
+
         expect($http.requestPathIsForbidden(new Request('https://example.com/node-modules'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/node_modules'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/node_modules/a'))).toBe(true);
+
         expect($http.requestPathIsForbidden(new Request('https://example.com/jspm-packages'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/jspm_packages'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/jspm_packages/a'))).toBe(true);
+
         expect($http.requestPathIsForbidden(new Request('https://example.com/bower-components'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/bower_components'))).toBe(true);
         expect($http.requestPathIsForbidden(new Request('https://example.com/bower_components/a'))).toBe(true);
-
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.sh'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.sh/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.bash'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.bash/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.zsh'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.zsh/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.php'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.php/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.php7'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.php7/a'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.phtm'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.phtml'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.shtm'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.shtml'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.asp'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.aspx'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.pl'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.plx'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.cgi'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.ppl'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.perl'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.go'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.rs'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.rlib'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.rb'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.py'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.pyi'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.pyc'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.pyd'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.pyo'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.pyw'))).toBe(true);
-        expect($http.requestPathIsForbidden(new Request('https://example.com/x.pyz'))).toBe(true);
     });
     test('.requestPathIsDynamic()', async () => {
         expect($http.requestPathIsDynamic(new Request('https://example.com/'))).toBe(true);
         expect($http.requestPathIsDynamic(new Request('https://example.com/abc'))).toBe(true);
         expect($http.requestPathIsDynamic(new Request('https://example.com/def'))).toBe(true);
+        expect($http.requestPathIsDynamic(new Request('https://example.com/foo.bar'))).toBe(true);
+
+        expect($http.requestPathIsDynamic(new Request('https://example.com/abc.png'))).toBe(false);
+        expect($http.requestPathIsDynamic(new Request('https://example.com/api/abc.png'))).toBe(true);
+
         expect($http.requestPathIsDynamic(new Request('https://example.com/ghi.js'))).toBe(false);
         expect($http.requestPathIsDynamic(new Request('https://example.com/ghi.png'))).toBe(false);
     });
     test('.requestPathIsStatic()', async () => {
+        expect($http.requestPathIsStatic(new Request('https://example.com/ghi.js'))).toBe(true);
+        expect($http.requestPathIsStatic(new Request('https://example.com/ghi.png'))).toBe(true);
+
         expect($http.requestPathIsStatic(new Request('https://example.com/'))).toBe(false);
         expect($http.requestPathIsStatic(new Request('https://example.com/abc'))).toBe(false);
         expect($http.requestPathIsStatic(new Request('https://example.com/def'))).toBe(false);
-        expect($http.requestPathIsStatic(new Request('https://example.com/ghi.js'))).toBe(true);
-        expect($http.requestPathIsStatic(new Request('https://example.com/ghi.png'))).toBe(true);
+
+        expect($http.requestPathIsStatic(new Request('https://example.com/foo.bar'))).toBe(false);
+        expect($http.requestPathIsStatic(new Request('https://example.com/api/abc.png'))).toBe(false);
     });
     test('.requestPathHasDynamicBase()', async () => {
-        // @review Testing this requires `$env.isC10n()` to be true.
+        expect($http.requestPathHasDynamicBase(new Request('https://example.com/api'))).toBe(true);
+        expect($http.requestPathHasDynamicBase(new Request('https://example.com/api/'))).toBe(true);
+        expect($http.requestPathHasDynamicBase(new Request('https://example.com/api/abc'))).toBe(true);
+
         expect($http.requestPathHasDynamicBase(new Request('https://example.com/'))).toBe(false);
+        expect($http.requestPathHasDynamicBase(new Request('https://example.com/foo.bar'))).toBe(false);
     });
     test('.requestPathIsPotentiallyDynamic()', async () => {
-        // @review Testing this requires `$env.isC10n()` to be true.
+        expect($http.requestPathIsPotentiallyDynamic(new Request('https://example.com/robots.txt'))).toBe(true);
+        expect($http.requestPathIsPotentiallyDynamic(new Request('https://example.com/sitemap.xml'))).toBe(true);
+        expect($http.requestPathIsPotentiallyDynamic(new Request('https://example.com/main-sitemap.xml'))).toBe(true);
+        expect($http.requestPathIsPotentiallyDynamic(new Request('https://example.com/sitemaps/main.xml'))).toBe(true);
+        expect($http.requestPathIsPotentiallyDynamic(new Request('https://example.com/sitemap_index.xml'))).toBe(true);
+
+        expect($http.requestPathIsPotentiallyDynamic(new Request('https://example.com'))).toBe(false);
         expect($http.requestPathIsPotentiallyDynamic(new Request('https://example.com/'))).toBe(false);
+        expect($http.requestPathIsPotentiallyDynamic(new Request('https://example.com/favicon.ico'))).toBe(false);
     });
     test('.requestPathIsSEORelatedFile()', async () => {
         expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/'))).toBe(false);
         expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/robots.txt'))).toBe(true);
         expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/favicon.ico'))).toBe(true);
+
         expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemap.xml'))).toBe(true);
         expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemap_index.xml'))).toBe(true);
         expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemap-index.xml'))).toBe(true);
-        expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemap2.xml'))).toBe(true);
-        expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemapAbc.xml'))).toBe(true);
+        expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/main-sitemap.xml'))).toBe(true);
+        expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/main_sitemap.xml'))).toBe(true);
+        expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemaps/main.xml'))).toBe(true);
+
+        expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemapAbc.xml'))).toBe(false);
+        expect($http.requestPathIsSEORelatedFile(new Request('https://example.com/sitemap2.xml'))).toBe(false);
     });
     test('.requestPathIsInAdmin()', async () => {
         expect($http.requestPathIsInAdmin(new Request('https://example.com/'))).toBe(false);
@@ -310,13 +290,13 @@ describe('$http', async () => {
         expect($http.requestPathIsInAdmin(new Request('https://example.com/wp_admin'))).toBe(true);
         expect($http.requestPathIsInAdmin(new Request('https://example.com/wp_admin/a'))).toBe(true);
         expect($http.requestPathIsInAdmin(new Request('https://example.com/a/wp_admin/a'))).toBe(true);
-        expect($http.requestPathIsInAdmin(new Request('https://example.com/wp-admin/admin-ajax.php'))).toBe(false);
-        expect($http.requestPathIsInAdmin(new Request('https://example.com/wp_admin/admin_ajax.php'))).toBe(false);
+        expect($http.requestPathIsInAdmin(new Request('https://example.com/wp-admin/admin-ajax.php'))).toBe(true);
+        expect($http.requestPathIsInAdmin(new Request('https://example.com/wp_admin/admin_ajax.php'))).toBe(true);
     });
     test('.requestPathHasStaticExtension()', async () => {
+        expect($http.requestPathHasStaticExtension(new Request('https://example.com/robots.txt'))).toBe(true);
         expect($http.requestPathHasStaticExtension(new Request('https://example.com/'))).toBe(false);
         expect($http.requestPathHasStaticExtension(new Request('https://example.com/robots.php'))).toBe(false);
-        expect($http.requestPathHasStaticExtension(new Request('https://example.com/robots.txt'))).toBe(true);
     });
     test('.extractHeaders()', async () => {
         expect($http.extractHeaders(new Headers({ A: 'A', B: 'B', c: 'c' }))).toStrictEqual({ a: 'A', b: 'B', c: 'c' });

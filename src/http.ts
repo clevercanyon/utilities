@@ -4,13 +4,14 @@
 
 import './resources/init.ts';
 
-import { $env, $is, $obj, $path, $str, $time, $url, type $type } from './index.ts';
+import { $env, $fn, $is, $obj, $path, $str, $time, $url, type $type } from './index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 /**
  * Defines types.
  */
 export type RequestConfig = {
+    enforceNoTrailingSlash?: boolean;
     enableRewrites?: boolean;
 };
 export type ResponseConfig = {
@@ -35,6 +36,7 @@ export type ExtractHeaderOptions = { lowercase?: boolean };
  */
 export const requestConfig = (config?: RequestConfig): RequestConfig => {
     return $obj.defaults({}, config || {}, {
+        enforceNoTrailingSlash: $env.isC10n(),
         enableRewrites: $env.isCFW(),
     }) as Required<RequestConfig>;
 };
@@ -45,6 +47,8 @@ export const requestConfig = (config?: RequestConfig): RequestConfig => {
  * @param   config Optional config options.
  *
  * @returns        HTTP response config.
+ *
+ * @note Default status `405` = method now allowed.
  */
 export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig> => {
     return $obj.defaults({}, config || {}, {
@@ -71,8 +75,8 @@ export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig
  * @throws          Error {@see Response} on failure.
  */
 export const prepareRequest = (request: $type.Request, config?: RequestConfig): $type.Request => {
-    const cfg = requestConfig(config); // Prepares config object values.
-    let url = $url.tryParse(request.url); // Tries to parse. Errors caught below.
+    const cfg = requestConfig(config);
+    let url = $url.tryParse(request.url);
 
     if (!url /* Catches unparseable URLs. */) {
         throw prepareResponse(request, { status: 400 });
@@ -86,20 +90,15 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
     if (!requestHasSupportedMethod(request)) {
         throw prepareResponse(request, { status: 405 });
     }
-    if (requestPathHasInvalidTrailingSlash(request, url)) {
+    if (cfg.enforceNoTrailingSlash && requestPathHasInvalidTrailingSlash(request, url)) {
         url.pathname = $str.rTrim(url.pathname, '/'); // Remove.
         throw prepareResponse(request, { status: 301, headers: { location: url.toString() } });
     }
-    if (cfg.enableRewrites && !request.headers.has('x-rewrite-url') /* e.g., Cloudflare workers using cache API. */) {
-        const originalURL = url; // For comparison w/ headers added below.
+    if (cfg.enableRewrites && !request.headers.has('x-rewrite-url')) {
+        const originalURL = url; // Before rewrites.
+        url = $url.removeCSOQueryVars(originalURL);
 
-        url = $url.removeCSOQueryVars(originalURL); // Removes (client|cache)-side-only query vars.
-        url = $url.tryParse(url); // Tries to parse. Errors caught below.
-
-        if (!url /* Catches unparseable URLs. */) {
-            throw prepareResponse(request, { status: 400 });
-        }
-        let _ck = ''; // Initializes cache key; implemented using `_ck` query var.
+        let _ck = ''; // Initializes `_ck`, cache key.
 
         if (request.headers.has('origin')) {
             const origin = request.headers.get('origin') || '';
@@ -107,7 +106,7 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
         }
         if (_ck) url.searchParams.set('_ck', _ck);
 
-        url.searchParams.sort(); // Sorting query vars optimizes cache.
+        url.searchParams.sort(); // Optimizes cache.
 
         if (url.toString() !== originalURL.toString()) {
             request.headers.set('x-rewrite-url', url.toString());
@@ -127,8 +126,8 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
  * @returns         HTTP response.
  */
 export const prepareResponse = (request: $type.Request, config?: ResponseConfig): $type.Response => {
-    const cfg = responseConfig(config); // Prepares config object values.
-    const url = $url.tryParse(request.url); // Tries to parse. Errors caught below.
+    const cfg = responseConfig(config);
+    const url = $url.tryParse(request.url);
 
     if (!url /* Catches unparseable URLs. */) {
         cfg.status = 400; // Bad request status.
@@ -141,8 +140,8 @@ export const prepareResponse = (request: $type.Request, config?: ResponseConfig)
             headers: prepareResponseHeaders(request, new URL('https://0.0.0.0/'), cfg),
         });
     }
-    // The case of `405` (default status) is in conflict with CORs being enabled; i.e., `OPTIONS` method is ok.
     // This approach makes implementation simpler since we consolidate the handling of `OPTIONS` into the `enableCORs` flag.
+    // The case of `405` (method now allowed; default status) is in conflict with CORs being enabled; i.e., `OPTIONS` method is ok.
 
     if (cfg.enableCORs && 'OPTIONS' === request.method && (!cfg.status || 405 === cfg.status)) {
         cfg.status = 204; // No content for CORs preflight requests.
@@ -190,7 +189,7 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
     }
     // Populates content-related headers.
 
-    if (!cfg.headers.has('content-length') /* Saves time. */) {
+    if (!cfg.headers.has('content-length') /* Simply saves time. */) {
         if (requestNeedsContentHeaders(request, cfg.status) && !$is.nul(cfg.body)) {
             if ($is.string(cfg.body)) {
                 contentHeaders['content-length'] = String($str.byteLength(cfg.body));
@@ -221,7 +220,7 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
 
     cacheHeaders['vary'] = 'origin'; // Only varying based on `origin` at this time.
 
-    if (!cfg.headers.has('cache-control') /* Saves time. */) {
+    if (!cfg.headers.has('cache-control') /* Simply saves time. */) {
         const cacheControl = (
             maxAge?: ResponseConfig['maxAge'], // Browser max age (cache TTL).
             sMaxAge?: ResponseConfig['sMaxAge'], // Server max age; e.g., Cloudflare.
@@ -258,7 +257,10 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
         } else if (requestPathIsStatic(request, url)) {
             cacheControl($time.yearInSeconds);
             //
-        } else if (requestPathIsInAdmin(request, url) || requestIsFromUser(request)) {
+        } else if (requestPathIsInAdmin(request, url)) {
+            cacheControl(0); // Do not cache.
+            //
+        } else if (requestIsFromUser(request)) {
             cacheControl(0); // Do not cache.
             //
         } else cacheControl($time.dayInSeconds);
@@ -363,10 +365,7 @@ export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean
         return false; // No cookies.
     }
     const cookie = request.headers.get('cookie') || ''; // Encoded cookies.
-    return (
-        /(?:^\s*|;\s*)(?:logged[_-]in|user|author)(?:[_-][^=;]+)?=\s*"?[^";]/iu.test(cookie) ||
-        /(?:^\s*|;\s*)(?:(?:wp|wordpress)[_-](?:logged[_-]in|sec|rec|activate|postpass|woocommerce)|woocommerce|comment[_-]author)(?:[_-][^=;]+)=\s*"?[^";]/iu.test(cookie)
-    );
+    return /(?:^\s*|;\s*)(?:ut[mx]_)?(?:logged[_-]in|user|author)(?:[_-][^=;]+)?=\s*"?[^";]/iu.test(cookie);
 });
 
 /**
@@ -377,12 +376,10 @@ export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean
  *
  * @returns         True if request path is invalid.
  */
-export const requestPathIsInvalid = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
-    url = url || $url.parse(request.url);
+export const requestPathIsInvalid = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
 
-    if (!url.pathname || '/' === url.pathname) {
-        return false; // Not possible, or early return on `/`.
-    }
     return /\\|\/{2,}|\.{2,}/iu.test(url.pathname);
 });
 
@@ -394,15 +391,10 @@ export const requestPathIsInvalid = $fnꓺmemo(2, (request: $type.Request, url?:
  *
  * @returns         True if request path has an invalid trailing slash.
  */
-export const requestPathHasInvalidTrailingSlash = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
-    if (!$env.isC10n()) {
-        return false; // Not applicable.
-    }
-    url = url || $url.parse(request.url);
+export const requestPathHasInvalidTrailingSlash = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
 
-    if (!url.pathname || '/' === url.pathname) {
-        return false; // Not possible, or early return on `/`.
-    }
     return url.pathname.endsWith('/');
 });
 
@@ -414,29 +406,21 @@ export const requestPathHasInvalidTrailingSlash = $fnꓺmemo(2, (request: $type.
  *
  * @returns         True if request path is forbidden.
  */
-export const requestPathIsForbidden = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
-    url = url || $url.parse(request.url);
+export const requestPathIsForbidden = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
 
-    if (!url.pathname || '/' === url.pathname) {
-        return false; // Not possible, or early return on `/`.
-    }
-    if (/(?:^|\/)\./iu.test(url.pathname) && !/^\/\.well-known(?:$|\/)/iu.test(url.pathname)) {
-        return true; // No dotfile paths.
+    if (/\/\./iu.test(url.pathname) && !/^\/\.well-known(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No dotfile paths, except `/.well-known` at root of a domain.
     }
     if (/(?:~|[^/.]\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(url.pathname)) {
         return true; // No backups, copies, logs, or temp paths.
     }
-    if (/(?:^|\/)(?:[^/]*[._-])?(?:cache|private|logs?|te?mp)(?:$|\/)/iu.test(url.pathname)) {
-        return true; // No cache, private, log, or temp paths.
+    if (/\/(?:[^/]*[._-])?(?:private|cache|logs?|te?mp)(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No private, cache, log, or temp paths.
     }
-    if (/(?:^|\/)wp[_-]content\/(?:cache|private|mu[_-]plugins|upgrade|uploads\/(?:wc[_-]logs|woocommerce[_-]uploads|lmfwc[_-]files))(?:$|\/)/iu.test(url.pathname)) {
-        return true; // No WP content paths that are private.
-    }
-    if (/(?:^|\/)(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(url.pathname)) {
+    if (/\/(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(url.pathname)) {
         return true; // No package management dependencies paths.
-    }
-    if (/[^/.]\.(?:sh|bash|zsh|php[0-9]?|[ps]html?|aspx?|plx?|cgi|ppl|perl|go|rs|rlib|rb|py|py[icdowz])(?:$|\/)/iu.test(url.pathname)) {
-        return true; // No server-side script extension paths, including `.[ext]/pathinfo` data.
     }
     return false;
 });
@@ -450,11 +434,68 @@ export const requestPathIsForbidden = $fnꓺmemo(2, (request: $type.Request, url
  * @returns         True if request is dynamic.
  */
 export const requestPathIsDynamic = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
-    return (
-        requestPathHasDynamicBase(request, url) || //
-        requestPathIsPotentiallyDynamic(request, url) ||
-        !requestPathHasStaticExtension(request, url)
-    );
+    return requestPathHasDynamicBase(request, url) || requestPathIsPotentiallyDynamic(request, url) || !requestPathHasStaticExtension(request, url);
+});
+
+/**
+ * Request path has a dynamic base?
+ *
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path has a dynamic base.
+ */
+export const requestPathHasDynamicBase = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    let url = _url || $url.parse(request.url);
+    url = $fn.try(() => $url.removeAppBasePath(url), url)();
+    if ('/' === url.pathname) return false;
+
+    return /^\/(?:api)(?:$|\/)/iu.test(url.pathname);
+});
+
+/**
+ * Request path is potentially dynamic?
+ *
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path is potentially dynamic.
+ */
+export const requestPathIsPotentiallyDynamic = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return /\/(?:robots\.txt|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|sitemaps\/.*\.xml)$/iu.test(url.pathname);
+});
+
+/**
+ * Request path is an SEO file?
+ *
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path is an SEO file.
+ */
+export const requestPathIsSEORelatedFile = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return /\/(?:robots\.txt|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|sitemaps\/.*\.xml|favicon\.ico)$/iu.test(url.pathname);
+});
+
+/**
+ * Request path is in an admin area?
+ *
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path is in an admin area.
+ */
+export const requestPathIsInAdmin = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return /\/(?:[^/]+[-_])?admin(?:[-_][^/]+)?(?:$|\/)/iu.test(url.pathname);
 });
 
 /**
@@ -470,102 +511,17 @@ export const requestPathIsStatic = $fnꓺmemo(2, (request: $type.Request, url?: 
 });
 
 /**
- * Request path has a dynamic base?
- *
- * @param   request HTTP request object.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path has a dynamic base.
- */
-export const requestPathHasDynamicBase = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
-    if (!$env.isC10n()) {
-        return false; // Not applicable.
-    }
-    url = url || $url.parse(request.url);
-
-    if (!url.pathname || '/' === url.pathname) {
-        return false; // Not possible, or early return on `/`.
-    }
-    return /^\/?(api|wp-json)(?:$|\/)/iu.test(url.pathname);
-});
-
-/**
- * Request path is potentially dynamic?
- *
- * @param   request HTTP request object.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path is potentially dynamic.
- */
-export const requestPathIsPotentiallyDynamic = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
-    if (!$env.isC10n()) {
-        return false; // Not applicable.
-    }
-    url = url || $url.parse(request.url);
-
-    if (!url.pathname || '/' === url.pathname) {
-        return false; // Not possible, or early return on `/`.
-    }
-    return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml|sitemaps\/.*\.xml)$/iu.test(url.pathname);
-});
-
-/**
- * Request path is an SEO file?
- *
- * @param   request HTTP request object.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path is an SEO file.
- */
-export const requestPathIsSEORelatedFile = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
-    url = url || $url.parse(request.url);
-
-    if (!url.pathname || '/' === url.pathname) {
-        return false; // Not possible, or early return on `/`.
-    }
-    return /(?:^|\/)(?:robots\.txt|[^/]*sitemap[^/]*\.xml|sitemaps\/.*\.xml|favicon\.ico)$/iu.test(url.pathname);
-});
-
-/**
- * Request path is in `/(?:wp-)?admin`?
- *
- * @param   request HTTP request object.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path is in `/(?:wp-)?admin`.
- */
-export const requestPathIsInAdmin = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
-    url = url || $url.parse(request.url);
-
-    if (!url.pathname || '/' === url.pathname) {
-        return false; // Not possible, or early return on `/`.
-    }
-    return /(?:^|\/)(?:wp[_-])?admin(?:$|\/)/iu.test(url.pathname) && !/(?:^|\/)wp[_-]admin\/admin[_-]ajax\.php$/iu.test(url.pathname);
-});
-
-/**
  * Request path has a static file extension?
  *
  * @param   request HTTP request object.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- * @param   exts    Optional, if there are specific static file extension(s) to look for.
  *
  * @returns         True if request path has a static file extension.
  */
-export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL, exts?: string[] | RegExp): boolean => {
-    url = url || $url.parse(request.url);
+export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
 
-    if (!url.pathname || '/' === url.pathname) {
-        return false; // Not possible, or early return on `/`.
-    }
-    if (exts) {
-        if ($is.regExp(exts)) {
-            return exts.test(url.pathname);
-            //
-        } else if ($is.array(exts) && exts.length) {
-            return new RegExp('(?:^|[^.])\\.(?:' + exts.map((e) => $str.escRegExp(e)).join('|') + ')$', 'ui').test(url.pathname);
-        }
-    }
     return $path.hasStaticExt(url.pathname);
 });
 
@@ -581,19 +537,19 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
  * @returns         Extracted headers, as a plain object.
  */
 export const extractHeaders = (headers: $type.Headers | { [x: string]: string }, options?: ExtractHeaderOptions): { [x: string]: string } => {
-    const plainObjHeaders: { [x: string]: string } = {};
+    const plain: { [x: string]: string } = {}; // Initialize.
     const opts = $obj.defaults({}, options || {}, { lowercase: true }) as Required<ExtractHeaderOptions>;
 
     if (headers instanceof Headers) {
         headers.forEach((value, name) => {
-            plainObjHeaders[opts.lowercase ? name.toLowerCase() : name] = value;
+            plain[opts.lowercase ? name.toLowerCase() : name] = value;
         });
     } else {
         for (const [name, value] of Object.entries(headers as { [x: string]: string })) {
-            plainObjHeaders[opts.lowercase ? name.toLowerCase() : name] = value;
+            plain[opts.lowercase ? name.toLowerCase() : name] = value;
         }
     }
-    return plainObjHeaders;
+    return plain;
 };
 
 /**
