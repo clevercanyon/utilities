@@ -463,8 +463,8 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
 const xPreactAppLoading = $fnꓺmemo((): Element => {
     return $dom.create('x-preact-app-loading', {
         role: 'status',
-        class: 'block bg-color/50 fixed inset-0 w-screen h-screen animate-fade-in',
-        innerHTML: `<span class="sr-only">Loading...</span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" viewBox="0 0 100 100" class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 fill-color-accent text-color-fg animate-spin"><path fill="currentColor" d="M100 51A50 50 0 1 1 0 51a50 50 0 0 1 100 0ZM9 51a41 41 0 1 0 82 0 41 41 0 0 0-82 0Z"/><path fill="currentFill" d="M94 39c2-1 4-3 3-5A50 50 0 0 0 42 1c-3 1-4 3-4 6 1 2 4 3 6 3a41 41 0 0 1 44 26c1 2 4 4 6 3Z"/></svg>`,
+        class: 'block bg-color-basic/50 fixed inset-0 w-screen h-screen animate-fade-in',
+        innerHTML: `<span class="sr-only">Loading...</span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" viewBox="0 0 100 100" class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 inline-block h-auto w-8 fill-color-accent text-color-basic-fg animate-spin"><path fill="currentColor" d="M100 51A50 50 0 1 1 0 51a50 50 0 0 1 100 0ZM9 51a41 41 0 1 0 82 0 41 41 0 0 0-82 0Z"/><path fill="currentFill" d="M94 39c2-1 4-3 3-5A50 50 0 0 0 42 1c-3 1-4 3-4 6 1 2 4 3 6 3a41 41 0 0 1 44 26c1 2 4 4 6 3Z"/></svg>`,
     });
 });
 
