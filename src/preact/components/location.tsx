@@ -262,7 +262,7 @@ const reducer = (state: ActualState, x: Parameters<Context['updateState']>[0]): 
     } else if (isObject && 'popstate' === (x as PopStateEvent).type) {
         if (!isWeb) return state; // Not applicable.
 
-        const unusedꓺevent = x as PopStateEvent;
+        // const unusedꓺevent = x as PopStateEvent;
         // Popstate history event is a change, not a push.
 
         url = $url.parse(location.href, state.baseURL);

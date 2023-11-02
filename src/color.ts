@@ -349,11 +349,13 @@ export const isDark = (color: string): boolean => {
     const rgb = toRGB(color, { as: 'object' });
 
     // If there’s an alpha channel, use luminance.
-    // This is the default algo used by color2k package.
+    // This is the default algo used by color2k dependency package.
+    // Less accurate than YIQ, but better when there’s an alpha channel.
     if (rgb.a < 1) return getLuminance(color) <= 0.179;
 
     // {@see https://24ways.org/2010/calculating-color-contrast}.
     // YIQ equation used by NPM 'color' package and '//coolors.co'.
+    // This is a much better algo and matches up with '//coolors.co'.
     return (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000 < 128;
 };
 

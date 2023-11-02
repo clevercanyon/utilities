@@ -74,12 +74,12 @@ export type State = ActualState &
 export type Props = Omit<$preact.BasicProps<PartialActualState>, 'children'> & {
     // There’s really not a great way to enforce the child vNode type.
     // Internal JSX types use things that are too generic for that to work.
-    // For now, we’re just adding them here, but we also allow for any `$preact.Children`.
-    // Anyway, there are conditionals in code that will catch and throw when problems arise.
+    // For now, we go ahead and add them here, but we also allow for any `$preact.Children`.
+    // Not to worry, as there are conditionals in code that will throw if invalid children are given.
     children?: ChildVNode | ChildVNode[] | $preact.Children;
 };
 export type ChildVNode = Omit<$preact.VNode, 'type' | 'props'> & {
-    type: string; // i.e., Intrinsic HTML tags.
+    type: string; // i.e., Intrinsic HTML tags only.
     props: Partial<Omit<$preact.Props, 'children'>> & {
         [x: string]: unknown;
         'data-key': string;
@@ -129,7 +129,7 @@ type ImmutableStateKeys = $type.Writable<typeof immutableStateKeys>[number];
 export default class Head extends Component<Props, ActualState> {
     // These are defined on first render.
     forceDataUpdate: DataContext['forceUpdate'] | undefined;
-    computedState: State | undefined; // Computed, not actual, state.
+    computedState: State | undefined; // Computed; i.e., not actual state.
 
     constructor(props: Props = {}) {
         super(props); // Parent constructor.
@@ -168,7 +168,7 @@ export default class Head extends Component<Props, ActualState> {
 
         // Acquires app’s brand from environment var.
 
-        const brand = $env.get('APP_BRAND') as $type.Brand;
+        const brand = $preact.useMemo(() => $env.get('APP_BRAND') as $type.Brand, []);
 
         // Gathers state from various contexts.
 
@@ -184,10 +184,11 @@ export default class Head extends Component<Props, ActualState> {
 
         // Updates instance / cross-references.
 
-        dataState.head.instance = this; // Updates `<Head>` instance reference in real-time.
-        data.updateState({ head: { instance: this } }); // Async update to ensure data integrity.
-        this.forceDataUpdate = data.forceUpdate; // Allow us to force a `<Data>` update from `<Head>`.
-
+        if (dataState.head.instance !== this) {
+            dataState.head.instance = this; // Updates `<Head>` instance reference in real-time.
+            data.updateState({ head: { instance: this } }); // Async update to ensure data integrity.
+            this.forceDataUpdate = data.forceUpdate; // Allow us to force a `<Data>` update from `<Head>`.
+        }
         // Memoizes computed state.
 
         state = this.computedState = $preact.useMemo((): State => {

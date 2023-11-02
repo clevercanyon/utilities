@@ -51,19 +51,21 @@ export type RoutedProps = $preact.BasicProps<RouteProps & RouteContext>;
 export type RouteLoadEventData = { locationState: LocationState; routeContext: RouteContext };
 
 /**
- * Defines router core props.
- *
- * Exporting these to streamline bundle size, as they are reused a couple of times.
- */
-export const corePropKeys = ['handleLoading', 'handleScrolling', 'onLoadStart', 'onLoadEnd', 'onLoaded'];
-
-/**
  * Defines route context object.
  *
  * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
  * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
  */
 const RouteContextObject = createContext({} as RouteContext);
+
+/**
+ * Defines router core props.
+ *
+ * Exporting these to streamline bundle size, as they are reused a couple of times.
+ *
+ * @returns Array of {@see RouterCore} prop keys.
+ */
+export const corePropKeys = () => ['handleLoading', 'handleScrolling', 'onLoadStart', 'onLoadEnd', 'onLoaded'];
 
 /**
  * Defines types.
@@ -79,7 +81,7 @@ const RouteContextObject = createContext({} as RouteContext);
 export default function Router(props: Props = {}): $preact.VNode<Props> {
     return (
         <ErrorBoundaryCore onLoadError={props.onLoadError}>
-            <RouterCore {...$obj.pick(props, corePropKeys)}>{props.children}</RouterCore>
+            <RouterCore {...$obj.pick(props, corePropKeys())}>{props.children}</RouterCore>
         </ErrorBoundaryCore>
     );
 }

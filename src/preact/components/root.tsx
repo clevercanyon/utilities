@@ -25,7 +25,7 @@ export default function Root(props: Props): $preact.VNode<Props> {
     return (
         <Location {...$obj.pick(props, ['isHydration', 'url', 'baseURL', 'onChange'])}>
             <Data {...$obj.pick(props, ['globalObp', 'fetcher', 'head'])}>
-                <Router {...$obj.pick(props, routerCorePropKeys)}>{props.children}</Router>
+                <Router {...$obj.pick(props, routerCorePropKeys())}>{props.children}</Router>
             </Data>
         </Location>
     );

@@ -119,7 +119,7 @@ export const capture = (rootObp: string, env: object): void => {
     rootObp = $str.obpPartSafe(rootObp);
 
     if ('@top' === rootObp && !topLevelObpSet) {
-        throw new Error('`@top` used in capture before calling `$env.setTopLevelObp()`.');
+        throw new Error(); // `@top` used in capture before calling `$env.setTopLevelObp()`.
     }
     for (const [subObp, value] of Object.entries(env)) {
         if (!subObp) continue; // Empty subpath not allowable.
@@ -313,18 +313,18 @@ export const isLocalWeb = $fnꓺmemo((): boolean => {
  *
  * @returns True or false.
  */
-export const isLocalWebVite = (): boolean => {
+export const isLocalWebVite = $fnꓺmemo((): boolean => {
     return isLocalWeb() && isVite();
-};
+});
 
 /**
  * Checks if environment is a web browser under a local hostname and Vite dev server is running with HMR/prefresh?
  *
  * @returns True or false.
  */
-export const isLocalWebVitePrefresh = (): boolean => {
+export const isLocalWebVitePrefresh = $fnꓺmemo((): boolean => {
     return isLocalWebVite() && '__PREFRESH__' in globalThis;
-};
+});
 
 /**
  * Checks if environment is the server-side for an {@see isWeb()} app.
@@ -411,32 +411,6 @@ export const isServiceWorker = $fnꓺmemo((): boolean => {
 });
 
 /**
- * Checks if environment is operated by Clever Canyon.
- *
- * @param   tests Optional tests. {@see test()} for details.
- *
- * @returns       True if environment is operated by Clever Canyon.
- *
- *   - If different tests are passed, meaning of return value potentially changes.
- */
-export const isC10n = (tests: QVTests = {}): boolean => test('APP_IS_C10N', tests);
-
-/**
- * Checks if environment is a Vite dev server running an app.
- *
- * @param   tests Optional tests. {@see test()} for details.
- *
- * @returns       True if environment is a Vite dev server running an app.
- *
- *   - If different tests are passed, meaning of return value potentially changes.
- *
- * @note By default, this also returns `true` when running tests; because that’s how Vitest works.
- *       The test files are served by Vite’s dev server; i.e., `serve` is the Vite command internally.
- *       If you’d like to avoid that condition you can simply check `if (!$env.isTest())`.
- */
-export const isVite = (tests: QVTests = { serve: '*' }): boolean => test('APP_IS_VITE', tests);
-
-/**
  * Checks if user-agent is a major crawler.
  *
  * @returns True if user-agent is a major crawler.
@@ -457,6 +431,36 @@ export const isMajorCrawler = $fnꓺmemo(() => {
         }
     return false;
 });
+
+/**
+ * Checks if environment is operated by Clever Canyon.
+ *
+ * @param   tests Optional tests. {@see test()} for details.
+ *
+ * @returns       True if environment is operated by Clever Canyon.
+ *
+ *   - If different tests are passed, meaning of return value potentially changes.
+ *
+ * @note Not memoizing because env variables can change at runtime.
+ */
+export const isC10n = (tests: QVTests = {}): boolean => test('APP_IS_C10N', tests);
+
+/**
+ * Checks if environment is a Vite dev server running an app.
+ *
+ * @param   tests Optional tests. {@see test()} for details.
+ *
+ * @returns       True if environment is a Vite dev server running an app.
+ *
+ *   - If different tests are passed, meaning of return value potentially changes.
+ *
+ * @note By default, this also returns `true` when running tests; because that’s how Vitest works.
+ *       The test files are served by Vite’s dev server; i.e., `serve` is the Vite command internally.
+ *       If you’d like to avoid that condition you can simply check `if (!$env.isTest())`.
+ * ---
+ * @note Not memoizing because env variables can change at runtime.
+ */
+export const isVite = (tests: QVTests = { serve: '*' }): boolean => test('APP_IS_VITE', tests);
 
 /**
  * Tests an environment variable's query vars.
