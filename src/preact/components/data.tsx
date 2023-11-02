@@ -44,7 +44,7 @@ export type Context = $preact.Context<{
 }>;
 export type HTTPContext = $preact.Context<{
     state: GlobalState['http'];
-    updateState: $preact.Dispatch<PartialGlobalStateUpdates['http']>;
+    updateState: $preact.Dispatcher<PartialGlobalStateUpdates['http']>;
 }>;
 
 /**

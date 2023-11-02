@@ -18,7 +18,7 @@ export type Props = $preact.BasicProps<PartialState>;
 
 export type Context = $preact.Context<{
     state: State;
-    updateState: $preact.Dispatch<PartialState>;
+    updateState: $preact.Dispatcher<PartialState>;
 }>;
 
 /**

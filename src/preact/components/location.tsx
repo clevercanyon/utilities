@@ -58,8 +58,8 @@ export type Props = $preact.BasicProps<{
 }>;
 export type Context = $preact.Context<{
     state: State;
-    push: $preact.Dispatch<PartialActualStateUpdates | string>;
-    updateState: $preact.Dispatch<PartialActualStateUpdates | MouseEvent | PopStateEvent | string>;
+    push: $preact.Dispatcher<PartialActualStateUpdates | string>;
+    updateState: $preact.Dispatcher<PartialActualStateUpdates | MouseEvent | PopStateEvent | string>;
 }>;
 
 /**

@@ -109,7 +109,10 @@ export { useRoute } from './preact/components/router.tsx';
  * `AsyncFnComponent` is a special type passed to `lazyComponent()`, which returns an acceptible `FnComponent`. It is
  * not valid anywhere else. Please do not use it arbitrarily; i.e., rare to find a need for it outside these utilities.
  */
-export type { Dispatch } from 'preact/hooks';
+export type {
+    StateUpdater, //
+    Dispatch as Dispatcher,
+} from 'preact/hooks';
 
 export type Children = preact.ComponentChildren;
 export type Intrinsic = preact.JSX.IntrinsicElements;
