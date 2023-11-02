@@ -32,7 +32,7 @@ export type PartialStateUpdates = $preact.State<
         head?: Partial<Pick<State['head'], UpdatableHeadStateKeys>>;
     }
 >;
-export type Props = $preact.BasicProps<
+export type Props = $preact.BasicPropsNoKeyRef<
     Omit<PartialState, 'head'> & {
         head?: Partial<Pick<State['head'], PassableHeadStateKeys>>;
     }
@@ -119,6 +119,14 @@ type UpdatableGlobalStateKeys = $type.Writable<typeof updatableGlobalStateKeys>[
 type UpdatableGlobalHTTPStateKeys = $type.Writable<typeof updatableGlobalHTTPStateKeys>[number];
 
 /**
+ * Defines context object.
+ *
+ * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
+ * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
+ */
+const ContextObject = createContext({} as Context);
+
+/**
  * Defines default global object path.
  *
  * This is also called upon by our ISO prerenderer.
@@ -128,12 +136,11 @@ export const defaultGlobalObp = (): string => {
 };
 
 /**
- * Defines context object.
+ * Defines named prop keys for easy reuse.
  *
- * Using `createContext()`, not `$preact.createContext()`, because this occurs inline. We can’t use our own cyclic
- * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
+ * @returns Array of named {@see Data} prop keys; i.e., excludes `children`.
  */
-const ContextObject = createContext({} as Context);
+export const namedPropKeys = () => ['globalObp', 'fetcher', 'head'];
 
 /**
  * Produces initial global state.

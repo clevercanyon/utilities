@@ -68,10 +68,13 @@ export type State = ActualState &
             | 'ogURL'
             | 'ogImage'
             //
+            | 'styleBundle'
+            | 'scriptBundle'
+            //
             | 'append'
         >
     >;
-export type Props = Omit<$preact.BasicProps<PartialActualState>, 'children'> & {
+export type Props = $preact.BasicPropsNoKeyRefChildren<PartialActualState> & {
     // There’s really not a great way to enforce the child vNode type.
     // Internal JSX types use things that are too generic for that to work.
     // For now, we go ahead and add them here, but we also allow for any `$preact.Children`.
@@ -80,7 +83,7 @@ export type Props = Omit<$preact.BasicProps<PartialActualState>, 'children'> & {
 };
 export type ChildVNode = Omit<$preact.VNode, 'type' | 'props'> & {
     type: string; // i.e., Intrinsic HTML tags only.
-    props: Partial<Omit<$preact.Props, 'children'>> & {
+    props: Partial<$preact.BasicPropsNoKeyRefChildren> & {
         [x: string]: unknown;
         'data-key': string;
         children?: $type.Primitive;

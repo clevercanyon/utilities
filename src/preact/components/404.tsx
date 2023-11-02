@@ -20,9 +20,6 @@ import { default as HTML } from './html.tsx';
  *   apps should prefer to create their own 404 error route. Ideally, one that can leverage an app’s existing styles.
  *
  * @returns VNode / JSX element tree.
- *
- * @review Consider reviving/updating this, such that it leverages Tailwind CSS. Worth it?
- * @review Consider removing this, or leaving it only as an example of how to create a 404 route.
  */
 export default function Route404(): $preact.VNode {
     if ($is.empty($preact.useRoute())) {
@@ -50,6 +47,13 @@ export default function Route404(): $preact.VNode {
 }
 
 /**
+ * Defines types.
+ */
+type StandAloneProps = $preact.BasicPropsNoKeyRefChildren<{ lang?: string }> & {
+    [x in $preact.ClassPropVariants]?: $preact.Classes;
+};
+
+/**
  * Renders component.
  *
  * This component should be easy to render as a string and then for it be easily dropped into any system, serving as a
@@ -62,7 +66,7 @@ export default function Route404(): $preact.VNode {
  *
  * @requiredEnv ssr -- This component must only be used server-side.
  */
-export const StandAlone = (props: $preact.Props<{ lang?: string }> = {}): $preact.VNode<$preact.Props<{ lang?: string }>> => {
+export const StandAlone = (props: StandAloneProps = {}): $preact.VNode<StandAloneProps> => {
     if (!$env.isSSR()) throw $env.errSSROnly;
     return (
         <html class={$preact.classes(props)} lang={props.lang || 'en-US'}>

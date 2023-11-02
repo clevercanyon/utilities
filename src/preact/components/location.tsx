@@ -50,7 +50,7 @@ export type State = $preact.State<{
     fromBase(parseable: $type.URL | string): string;
     pathFromBase(parseable: $type.URL | string): string;
 }>;
-export type Props = $preact.BasicProps<{
+export type Props = $preact.BasicPropsNoKeyRef<{
     isHydration?: boolean;
     url?: $type.URL | string;
     baseURL?: $type.URL | string;
@@ -69,6 +69,13 @@ export type Context = $preact.Context<{
  * utilities inline, only inside functions. So we use `createContext()` directly from `preact` in this specific case.
  */
 const ContextObject = createContext({} as Context);
+
+/**
+ * Defines named prop keys for easy reuse.
+ *
+ * @returns Array of named {@see Location} prop keys; i.e., excludes `children`.
+ */
+export const namedPropKeys = (): string[] => ['isHydration', 'url', 'baseURL', 'onChange'];
 
 /**
  * Renders component.

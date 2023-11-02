@@ -18,7 +18,7 @@ export type State = $preact.State<
 >;
 export type PartialState = Partial<State>;
 export type PartialStateUpdates = PartialState;
-export type Props = $preact.Props<PartialState>;
+export type Props = $preact.BasicPropsNoKeyRef<PartialState>;
 
 export type Context = $preact.Context<{
     state: State;

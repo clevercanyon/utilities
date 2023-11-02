@@ -124,10 +124,12 @@ export type ClassComponent<Type extends Props = Props, Type2 extends State = Sta
 export type AnyComponent<Type extends Props = Props, Type2 extends State = State> = FnComponent<Type> | ClassComponent<Type, Type2>;
 
 export type BasicProps<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx'>>;
+export type BasicPropsNoKeyRef<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref'>>;
+export type BasicPropsNoKeyRefChildren<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref' | 'children'>>;
 export type Props<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx'>>;
 
-export type Context<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type State<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
+export type Context<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type Ref<Type = unknown> = preact.RefObject<Type>;
 
 export type ClassPropVariants = $type.Writable<typeof internalClassPropVariants>[number];
@@ -136,7 +138,7 @@ export type Classes = TypesOfClasses | (TypesOfClasses | Classes)[] | Set<TypesO
 export type OmitPropOptions = { undefinedValues?: boolean };
 
 type TypesOfClasses = // Internal class prop variants.
-    //Types can be nested into arrays|sets infinitely deep.
+    // Types can be nested into arrays|sets infinitely deep.
     | string
     | undefined
     | Map<string, boolean>

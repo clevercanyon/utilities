@@ -12,19 +12,19 @@ import { type State as LocationState } from './location.tsx';
 /**
  * Defines types.
  */
-export type ErrorBoundaryCoreProps = $preact.BasicProps<{
+export type ErrorBoundaryCoreProps = $preact.BasicPropsNoKeyRef<{
     onLoadError?: (error: $type.Error) => void;
 }>;
-export type CoreProps = $preact.BasicProps<{
+export type CoreProps = $preact.BasicPropsNoKeyRef<{
     handleLoading?: boolean;
     handleScrolling?: boolean;
     onLoadStart?: (data: RouteLoadEventData) => void;
     onLoadEnd?: (data: RouteLoadEventData) => void;
     onLoaded?: (data: RouteLoadEventData) => void;
 }>;
-export type Props = $preact.BasicProps<ErrorBoundaryCoreProps & CoreProps>;
+export type Props = $preact.BasicPropsNoKeyRef<ErrorBoundaryCoreProps & CoreProps>;
 
-export type RouteProps = $preact.BasicProps<{
+export type RouteProps = $preact.BasicPropsNoKeyRefChildren<{
     path?: string;
     default?: boolean;
     component: $preact.AnyComponent<RoutedProps>;
@@ -47,7 +47,7 @@ export type RouteContext = $preact.Context<{
     // Path parameter keys/values.
     params: { [x: string]: string };
 }>;
-export type RoutedProps = $preact.BasicProps<RouteProps & RouteContext>;
+export type RoutedProps = $preact.BasicPropsNoKeyRefChildren<RouteProps & RouteContext>;
 export type RouteLoadEventData = { locationState: LocationState; routeContext: RouteContext };
 
 /**
@@ -59,13 +59,11 @@ export type RouteLoadEventData = { locationState: LocationState; routeContext: R
 const RouteContextObject = createContext({} as RouteContext);
 
 /**
- * Defines router core props.
+ * Defines named prop keys for easy reuse.
  *
- * Exporting these to streamline bundle size, as they are reused a couple of times.
- *
- * @returns Array of {@see RouterCore} prop keys.
+ * @returns Array of named {@see Router} prop keys; i.e., excludes `children`.
  */
-export const corePropKeys = () => ['handleLoading', 'handleScrolling', 'onLoadStart', 'onLoadEnd', 'onLoaded'];
+export const namedPropKeys = (): string[] => ['handleLoading', 'handleScrolling', 'onLoadError', 'onLoadStart', 'onLoadEnd', 'onLoaded'];
 
 /**
  * Defines types.
@@ -79,9 +77,10 @@ export const corePropKeys = () => ['handleLoading', 'handleScrolling', 'onLoadSt
  * @returns       VNode / JSX element tree.
  */
 export default function Router(props: Props = {}): $preact.VNode<Props> {
+    const { onLoadError, children, ...restProps } = props;
     return (
-        <ErrorBoundaryCore onLoadError={props.onLoadError}>
-            <RouterCore {...$obj.pick(props, corePropKeys())}>{props.children}</RouterCore>
+        <ErrorBoundaryCore onLoadError={onLoadError}>
+            <RouterCore {...$obj.pick(restProps, namedPropKeys())}>{children}</RouterCore>
         </ErrorBoundaryCore>
     );
 }
@@ -131,7 +130,7 @@ let scrollHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.
  *
  * @returns       VNode / JSX element tree.
  */
-const RenderRefRoute = ({ r }: $preact.BasicProps<{
+const RenderRefRoute = ({ r }: $preact.BasicPropsNoKeyRefChildren<{
     r: $preact.Ref<$preact.VNode<RoutedProps>>;
 }>): $preact.Ref<$preact.VNode<RoutedProps>>['current'] => r.current; // prettier-ignore
 
