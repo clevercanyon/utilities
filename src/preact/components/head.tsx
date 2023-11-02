@@ -171,7 +171,7 @@ export default class Head extends Component<Props, ActualState> {
 
         // Acquires app’s brand from environment var.
 
-        const brand = $preact.useMemo(() => $env.get('APP_BRAND') as $type.Brand, []);
+        const brand = $env.get('APP_BRAND') as $type.Brand;
 
         // Gathers state from various contexts.
 
