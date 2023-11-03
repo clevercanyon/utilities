@@ -438,25 +438,15 @@ export const isMajorCrawler = $fnꓺmemo(() => {
 });
 
 /**
- * Checks DNT (Do Not Track) header.
+ * Checks GPC/DNT headers.
  *
- * @returns True when DNT header exists.
- *
- * @see https://o5p.me/jAUC6x
- */
-export const hasDNTHeader = $fnꓺmemo((): boolean => {
-    return isWeb() && '1' === navigator.doNotTrack;
-});
-
-/**
- * Checks GPC (Global Privacy Control) header.
- *
- * @returns True when GPC header exists.
+ * @returns True when GPC and/or DNT header exists.
  *
  * @see https://o5p.me/nXslpm
+ * @see https://o5p.me/jAUC6x
  */
-export const hasGPCHeader = $fnꓺmemo((): boolean => {
-    return isWeb() && '1' === navigator.globalPrivacyControl;
+export const hasGlobalPrivacy = $fnꓺmemo((): boolean => {
+    return isWeb() && ('1' === navigator.globalPrivacyControl || '1' === navigator.doNotTrack);
 });
 
 /**
@@ -467,10 +457,8 @@ export const hasGPCHeader = $fnꓺmemo((): boolean => {
  * @returns       True if environment is operated by Clever Canyon.
  *
  *   - If different tests are passed, meaning of return value potentially changes.
- *
- * @note Not memoizing because env variables can change at runtime.
  */
-export const isC10n = (tests: QVTests = {}): boolean => test('APP_IS_C10N', tests);
+export const isC10n = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {}): boolean => test('APP_IS_C10N', tests));
 
 /**
  * Checks if environment is a Vite dev server running an app.
@@ -484,10 +472,8 @@ export const isC10n = (tests: QVTests = {}): boolean => test('APP_IS_C10N', test
  * @note By default, this also returns `true` when running tests; because that’s how Vitest works.
  *       The test files are served by Vite’s dev server; i.e., `serve` is the Vite command internally.
  *       If you’d like to avoid that condition you can simply check `if (!$env.isTest())`.
- * ---
- * @note Not memoizing because env variables can change at runtime.
  */
-export const isVite = (tests: QVTests = { serve: '*' }): boolean => test('APP_IS_VITE', tests);
+export const isVite = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = { serve: '*' }): boolean => test('APP_IS_VITE', tests));
 
 /**
  * Tests an environment variable's query vars.

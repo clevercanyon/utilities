@@ -110,7 +110,7 @@ export const get = $fnꓺmemo(24, <Default extends $type.Primitive = undefined>(
  *
  * @param name    Cookie name.
  * @param value   Cookie value.
- * @param options Options (all optional).
+ * @param options Options (all optional); {@see Options}.
  *
  * @requiredEnv web
  */
@@ -132,7 +132,7 @@ export const set = (name: string, value: string, options: Options = {}): void =>
     const samesite = opts.samesite ? '; samesite=' + opts.samesite : '';
     const secure = 'none' === opts.samesite.toLowerCase() || opts.secure ? '; secure' : '';
 
-    // The `httponly` attribute is implied when using JavaScript.
+    // The `httpOnly` attribute is explicitly `false` when using JavaScript.
     // See: <https://stackoverflow.com/a/14691716>.
 
     document.cookie = $url.encode(name) + '=' + $url.encode(value) + domain + path + expires + samesite + secure;

@@ -92,75 +92,75 @@ describe('$env', async () => {
         expect($env.isC10n()).toBe(false);
 
         expect($env.set('@top', 'APP_IS_C10N', '0')).toBe(undefined);
-        expect($env.isC10n()).toBe(false);
-        expect($env.isC10n({ foo: '*' })).toBe(false);
+        expect($env.isC10n.fresh()).toBe(false);
+        expect($env.isC10n.fresh({ foo: '*' })).toBe(false);
 
         expect($env.set('@top', 'APP_IS_C10N', '1')).toBe(undefined);
-        expect($env.isC10n()).toBe(true);
-        expect($env.isC10n({ foo: '*' })).toBe(false);
-        expect($env.isC10n({ foo: '**' })).toBe(false);
+        expect($env.isC10n.fresh()).toBe(true);
+        expect($env.isC10n.fresh({ foo: '*' })).toBe(false);
+        expect($env.isC10n.fresh({ foo: '**' })).toBe(false);
 
         expect($env.set('@top', 'APP_IS_C10N', 'foo')).toBe(undefined);
-        expect($env.isC10n()).toBe(true);
-        expect($env.isC10n({ foo: '' })).toBe(true);
-        expect($env.isC10n({ foo: '*' })).toBe(true);
-        expect($env.isC10n({ foo: '**' })).toBe(true);
+        expect($env.isC10n.fresh()).toBe(true);
+        expect($env.isC10n.fresh({ foo: '' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '*' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '**' })).toBe(true);
 
         expect($env.set('@top', 'APP_IS_C10N', 'foo=0')).toBe(undefined);
-        expect($env.isC10n()).toBe(true);
-        expect($env.isC10n({ foo: '' })).toBe(true);
-        expect($env.isC10n({ foo: '*' })).toBe(true);
-        expect($env.isC10n({ foo: '**' })).toBe(true);
-        expect($env.isC10n({ foo: '?*' })).toBe(false);
-        expect($env.isC10n({ foo: '?**' })).toBe(false);
-        expect($env.isC10n({ foo: '{,0}' })).toBe(true);
-        expect($env.isC10n({ foo: '0' })).toBe(true);
+        expect($env.isC10n.fresh()).toBe(true);
+        expect($env.isC10n.fresh({ foo: '' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '*' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '**' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '?*' })).toBe(false);
+        expect($env.isC10n.fresh({ foo: '?**' })).toBe(false);
+        expect($env.isC10n.fresh({ foo: '{,0}' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '0' })).toBe(true);
 
         expect($env.set('@top', 'APP_IS_C10N', 'foo=1')).toBe(undefined);
-        expect($env.isC10n()).toBe(true);
-        expect($env.isC10n({ foo: '' })).toBe(true);
-        expect($env.isC10n({ foo: '*' })).toBe(true);
-        expect($env.isC10n({ foo: '**' })).toBe(true);
-        expect($env.isC10n({ foo: '?*' })).toBe(true);
-        expect($env.isC10n({ foo: '?**' })).toBe(true);
-        expect($env.isC10n({ foo: '{,1}' })).toBe(true);
-        expect($env.isC10n({ foo: '1' })).toBe(true);
+        expect($env.isC10n.fresh()).toBe(true);
+        expect($env.isC10n.fresh({ foo: '' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '*' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '**' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '?*' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '?**' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '{,1}' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '1' })).toBe(true);
 
         // Alternate call signature.
 
         expect($env.set('APP_IS_C10N', '0')).toBe(undefined);
-        expect($env.isC10n()).toBe(false);
-        expect($env.isC10n({ foo: '*' })).toBe(false);
+        expect($env.isC10n.fresh()).toBe(false);
+        expect($env.isC10n.fresh({ foo: '*' })).toBe(false);
 
         expect($env.set('APP_IS_C10N', '1')).toBe(undefined);
-        expect($env.isC10n()).toBe(true);
-        expect($env.isC10n({ foo: '*' })).toBe(false);
-        expect($env.isC10n({ foo: '**' })).toBe(false);
+        expect($env.isC10n.fresh()).toBe(true);
+        expect($env.isC10n.fresh({ foo: '*' })).toBe(false);
+        expect($env.isC10n.fresh({ foo: '**' })).toBe(false);
 
         expect($env.set('APP_IS_C10N', 'foo')).toBe(undefined);
-        expect($env.isC10n()).toBe(true);
-        expect($env.isC10n({ foo: '' })).toBe(true);
-        expect($env.isC10n({ foo: '*' })).toBe(true);
-        expect($env.isC10n({ foo: '**' })).toBe(true);
+        expect($env.isC10n.fresh()).toBe(true);
+        expect($env.isC10n.fresh({ foo: '' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '*' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '**' })).toBe(true);
 
         expect($env.set('APP_IS_C10N', 'foo=0')).toBe(undefined);
-        expect($env.isC10n()).toBe(true);
-        expect($env.isC10n({ foo: '' })).toBe(true);
-        expect($env.isC10n({ foo: '*' })).toBe(true);
-        expect($env.isC10n({ foo: '**' })).toBe(true);
-        expect($env.isC10n({ foo: '?*' })).toBe(false);
-        expect($env.isC10n({ foo: '?**' })).toBe(false);
-        expect($env.isC10n({ foo: '{,0}' })).toBe(true);
-        expect($env.isC10n({ foo: '0' })).toBe(true);
+        expect($env.isC10n.fresh()).toBe(true);
+        expect($env.isC10n.fresh({ foo: '' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '*' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '**' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '?*' })).toBe(false);
+        expect($env.isC10n.fresh({ foo: '?**' })).toBe(false);
+        expect($env.isC10n.fresh({ foo: '{,0}' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '0' })).toBe(true);
 
         expect($env.set('APP_IS_C10N', 'foo=1')).toBe(undefined);
-        expect($env.isC10n()).toBe(true);
-        expect($env.isC10n({ foo: '' })).toBe(true);
-        expect($env.isC10n({ foo: '*' })).toBe(true);
-        expect($env.isC10n({ foo: '**' })).toBe(true);
-        expect($env.isC10n({ foo: '?*' })).toBe(true);
-        expect($env.isC10n({ foo: '?**' })).toBe(true);
-        expect($env.isC10n({ foo: '{,1}' })).toBe(true);
-        expect($env.isC10n({ foo: '1' })).toBe(true);
+        expect($env.isC10n.fresh()).toBe(true);
+        expect($env.isC10n.fresh({ foo: '' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '*' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '**' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '?*' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '?**' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '{,1}' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '1' })).toBe(true);
     });
 });

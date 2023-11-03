@@ -165,8 +165,10 @@ export default class Head extends Component<Props, ActualState> {
     }
 
     render(): $preact.VNode<Props> | undefined {
-        // Detects local Vite dev server.
+        // Checks environment.
 
+        const isSSR = $env.isSSR();
+        const isC10n = $env.isC10n();
         const isLocalWebVite = $env.isLocalWebVite();
 
         // Acquires app’s brand from environment var.
@@ -268,11 +270,13 @@ export default class Head extends Component<Props, ActualState> {
                 ogURL: h('meta', { property: 'og:url', content: state.ogURL.toString() }),
                 ogImage: h('meta', { property: 'og:image', content: state.ogImage.toString() }),
 
-                ...(state.styleBundle ? { styleBundle: h('link', { rel: 'stylesheet', href: state.styleBundle.toString(), media: 'all' }) } : {}),
-                ...(state.scriptBundle && $env.isSSR()
-                    ? { preactISOData: h('script', { id: 'preact-iso-data', dangerouslySetInnerHTML: { __html: dataGlobalToScriptCode(dataState) } }) }
-                    : {}),
-                ...(state.scriptBundle ? { scriptBundle: h('script', { type: 'module', src: state.scriptBundle.toString() }) } : {}),
+                ...(state.scriptBundle && isC10n ? { prefetchWorkers: h('link', { rel: 'dns-prefetch', href: 'https://workers.hop.gdn/' }) } : {}), // prettier-ignore
+                ...(state.styleBundle && isC10n ? { prefetchGoogleFonts: h('link', { rel: 'dns-prefetch', href: 'https://fonts.googleapis.com/' }) } : {}), // prettier-ignore
+                ...(state.scriptBundle && isC10n ? { preloadGeoData: h('link', { rel: 'preload', href: 'https://workers.hop.gdn/utilities/ip-geo/v1', as: 'fetch', type: 'application/json' }) } : {}), // prettier-ignore
+
+                ...(state.styleBundle ? { styleBundle: h('link', { rel: 'stylesheet', href: state.styleBundle.toString(), media: 'all' }) } : {}), // prettier-ignore
+                ...(state.scriptBundle && isSSR ? { preactISOData: h('script', { id: 'preact-iso-data', dangerouslySetInnerHTML: { __html: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore
+                ...(state.scriptBundle ? { scriptBundle: h('script', { type: 'module', src: state.scriptBundle.toString() }) } : {}), // prettier-ignore
 
                 structuredData: h('script', { type: 'application/ld+json', dangerouslySetInnerHTML: { __html: generateStructuredData({ brand, htmlState, state }) } }),
 
