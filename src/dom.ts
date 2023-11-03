@@ -16,10 +16,16 @@ let initializedScrollStatus = false;
 /**
  * Defines types.
  */
-type AnyAtts = { [x: string]: unknown };
 type WDES = Window | Document | Element | string;
+type AnyAtts = { [x: string]: unknown };
+
 type AnyVoidFn = (() => void) | (() => Promise<void>);
-type AnyEventHandler = ((event: Event | CustomEvent) => void) | ((event: Event | CustomEvent) => Promise<void>);
+type AnyEventHandler =
+    | ((event: Event) => void) //
+    | ((event: CustomEvent) => void)
+    | ((event: Event) => Promise<void>)
+    | ((event: CustomEvent) => Promise<void>);
+
 type EventTools = { cancel: () => void };
 
 /**
@@ -199,15 +205,15 @@ export function on(...args: unknown[]): EventTools {
     const eventNames = $to.array(args[1]).join(' ').split(/\s+/u);
 
     let selectors = '';
-    let callback: AnyEventHandler;
     let actualCallback: (event: Event) => void;
-    let options: AddEventListenerOptions | undefined;
+    let callback: ((event: Event) => void) | ((event: Event) => Promise<void>);
+    let options: AddEventListenerOptions | undefined; // Optional listener options.
 
     if ($is.function(args[3]) /* Selectors are given for delegated event handler? */) {
         [, , selectors, callback, options] = args as [0, 0, typeof selectors, typeof callback, typeof options];
     } else [, , callback, options] = args as [0, 0, typeof callback, typeof options];
 
-    if (selectors && callback /* Delegated event handler. */) {
+    if (selectors && callback /* Selectors are given for delegated event handler? */) {
         actualCallback = (event: Event): void => {
             let { currentTarget, target } = event;
             if (!$is.element(target)) return;
@@ -229,13 +235,13 @@ export function on(...args: unknown[]): EventTools {
  * Triggers a custom event.
  *
  * @param wdes    Window, document, element, or selectors.
- * @param event   Name of a custom event; or an instance of {@see Event}.
+ * @param event   Name of a custom event, {@see CustomEvent}, or {@see Event}.
  * @param data    For a custom event, optional data to pass as `detail` to listeners.
- * @param options For a custom event, optional init options; {@see CustomEventInit}.
+ * @param options For a custom event, optional initialization options; {@see CustomEventInit}.
  *
  * @requiredEnv web
  */
-export const trigger = (wdes: WDES, event: string | Event, data?: $type.Object, options?: CustomEventInit): void => {
+export const trigger = (wdes: WDES, event: string | CustomEvent | Event, data?: $type.Object, options?: CustomEventInit): void => {
     const wde = $is.string(wdes) ? require(wdes) : wdes;
     if ($is.string(event)) event = new CustomEvent(event, { detail: data || {}, ...options });
     wde.dispatchEvent(event);
