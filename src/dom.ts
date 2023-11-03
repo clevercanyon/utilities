@@ -19,7 +19,7 @@ let initializedScrollStatus = false;
 type AnyAtts = { [x: string]: unknown };
 type WDES = Window | Document | Element | string;
 type AnyVoidFn = (() => void) | (() => Promise<void>);
-type AnyEventHandler = ((event?: Event) => void) | ((event?: Event) => Promise<void>);
+type AnyEventHandler = ((event: Event) => void) | ((event: Event) => Promise<void>);
 type EventTools = { cancel: () => void };
 
 /**
