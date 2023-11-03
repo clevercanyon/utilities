@@ -16,7 +16,12 @@ const vars: { [x: string]: unknown } = {};
 /**
  * Defines types.
  */
-declare const MINIFLARE: boolean; // For env detection.
+declare global {
+    interface Navigator {
+        globalPrivacyControl: string;
+    }
+}
+declare const MINIFLARE: boolean;
 
 export type GetOptions = { default?: unknown; type?: $type.EnsurableType };
 export type GetOptionsWithoutType = GetOptions & { type?: undefined };
@@ -430,6 +435,28 @@ export const isMajorCrawler = $fnꓺmemo(() => {
             if (regExp.test(navigator.userAgent)) return true;
         }
     return false;
+});
+
+/**
+ * Checks DNT (Do Not Track) header.
+ *
+ * @returns True when DNT header exists.
+ *
+ * @see https://o5p.me/jAUC6x
+ */
+export const hasDNTHeader = $fnꓺmemo((): boolean => {
+    return isWeb() && '1' === navigator.doNotTrack;
+});
+
+/**
+ * Checks GPC (Global Privacy Control) header.
+ *
+ * @returns True when GPC header exists.
+ *
+ * @see https://o5p.me/nXslpm
+ */
+export const hasGPCHeader = $fnꓺmemo((): boolean => {
+    return isWeb() && '1' === navigator.globalPrivacyControl;
 });
 
 /**
