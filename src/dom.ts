@@ -4,6 +4,7 @@
 
 import './resources/init.ts';
 
+import { finder as buildCSSSelector } from '@medv/finder';
 import { $fn, $is, $obj, $preact, $to, type $type } from './index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
 
@@ -463,6 +464,15 @@ export const head = $fnꓺmemo((): HTMLHeadElement => require('head'));
 export const body = $fnꓺmemo((): HTMLBodyElement => require('body'));
 
 /**
+ * Caches `<x-preact-app>` element for each reuse.
+ *
+ * @returns Element; {@see HTMLElement}, else `null` if not present in DOM.
+ *
+ * @requiredEnv web
+ */
+export const xPreactApp = $fnꓺmemo((): HTMLElement | null => query('x-preact-app'));
+
+/**
  * Queries DOM element(s).
  *
  * @param   selectors Selectors. Comma-delimited string or array.
@@ -553,4 +563,21 @@ export function require<Type extends Element = Element, Selectors extends string
  */
 export const stylesOf = (selectors: string | Element): CSSStyleDeclaration => {
     return getComputedStyle($is.string(selectors) ? require(selectors) : selectors);
+};
+
+/**
+ * Gets selector path leading to a given element in the DOM.
+ *
+ * @param   element An {@see Element} in the DOM.
+ *
+ * @returns         Selector path leading to a given element in the DOM.
+ */
+export const pathTo = (element: Element): string => {
+    return $fn.try(
+        (): string =>
+            buildCSSSelector(element, {
+                root: xPreactApp() || body(),
+            }),
+        '',
+    )();
 };

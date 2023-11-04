@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.408",
+    "version": "1.0.409",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -220,6 +220,7 @@
     },
     "dependencies": {},
     "peerDependencies": {
+        "@medv/finder": "^3.1.0",
         "@preact/signals": "^1.2.1",
         "@radix-ui/react-accordion": "^1.1.2",
         "@radix-ui/react-alert-dialog": "^1.0.5",
