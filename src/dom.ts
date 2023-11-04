@@ -470,7 +470,7 @@ export const body = $fnꓺmemo((): HTMLBodyElement => require('body'));
  *
  * @requiredEnv web
  */
-export const xPreactApp = $fnꓺmemo((): HTMLElement | null => query('x-preact-app'));
+export const xPreactApp = $fnꓺmemo((): HTMLElement | null => query('body > x-preact-app'));
 
 /**
  * Queries DOM element(s).
