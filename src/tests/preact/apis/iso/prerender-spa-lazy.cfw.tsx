@@ -109,7 +109,7 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
         expect(lazyHTML).toContain('<script type="lazy-component-props">{"a":"_a","b":"_b","c":"_c"}</script>');
         expect(lazyHTML).toContain(
             // ISO fetcher cache should be dumped into script tag for client-side use.
-            '.cache = {"d7b70ada5bdf8fd5be68ba2c359958a3768e044e":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"d77a93a8edb0b9a6e7655df474aaed757e4ae449":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"ddd3a839cabaa8bd47010410e0d588596e4e539e":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"c34287a716fbae3b50f5fe7070c998e997368560":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}}}',
+            '{"cache":{"d7b70ada5bdf8fd5be68ba2c359958a3768e044e":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"d77a93a8edb0b9a6e7655df474aaed757e4ae449":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"ddd3a839cabaa8bd47010410e0d588596e4e539e":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"c34287a716fbae3b50f5fe7070c998e997368560":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}}}};',
         );
         expect(lazyHTML).toContain('</html>');
     });

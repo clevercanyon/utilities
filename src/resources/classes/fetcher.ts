@@ -34,6 +34,7 @@ declare class ClassInterface {
 export type Global = $type.Object<{
     cache: { [x: string]: GlobalCacheEntry };
     nativeFetch: (...args: Parameters<$type.fetch>) => ReturnType<$type.fetch>;
+    boundNativeFetch: (...args: Parameters<$type.fetch>) => ReturnType<$type.fetch>;
     pseudoFetch: (...args: Parameters<$type.fetch>) => Promise<$type.Response>;
 }>;
 export type GlobalCacheEntry = {
@@ -82,15 +83,13 @@ export const getClass = (): Constructor => {
             this.globalObp = props.globalObp || $str.obpPartSafe($app.pkgName) + '.fetcher';
             this.global = $obp.get(globalThis, this.globalObp, {}) as Global; // Default is `{}`.
 
-            this.global.cache = this.global.cache || {}; // Initializes cache when unavailable.
-            this.global.nativeFetch = globalThis.fetch as Global['nativeFetch']; // Stores a reference to current native fetch.
+            this.global.cache = this.global.cache || {};
+            this.global.nativeFetch = globalThis.fetch as Global['nativeFetch'];
+            this.global.boundNativeFetch = globalThis.fetch.bind(globalThis) as Global['nativeFetch'];
             this.global.pseudoFetch = async (...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> => this.fetch(...args);
 
             this.autoReplaceNativeFetch = isClone ? false : props.autoReplaceNativeFetch || false;
-
-            if (this.autoReplaceNativeFetch) {
-                this.replaceNativeFetch();
-            }
+            if (this.autoReplaceNativeFetch) this.replaceNativeFetch();
         }
 
         /**
@@ -99,24 +98,16 @@ export const getClass = (): Constructor => {
          * @returns Fetcher instance.
          */
         public replaceNativeFetch(): Class {
-            // Stores a reference to current native fetch.
-            this.global.nativeFetch = globalThis.fetch as Global['nativeFetch'];
-
-            // Replaces native fetch.
             globalThis.fetch = this.global.pseudoFetch as typeof fetch;
-
-            return this;
+            return this; // Self-referential return.
         }
 
         /**
          * Restores native fetch.
          */
         public restoreNativeFetch(): void {
-            // Restores native fetch.
             globalThis.fetch = this.global.nativeFetch as typeof fetch;
-
-            // Resets cache.
-            this.global.cache = {};
+            this.global.cache = {}; // Resets cache.
         }
 
         /**
@@ -128,7 +119,7 @@ export const getClass = (): Constructor => {
             const globalObpScriptCode = $obp.toScriptCode(this.globalObp);
 
             let scriptCode = globalObpScriptCode.init; // Initialize.
-            scriptCode += ' ' + globalObpScriptCode.set + '.cache = ' + $json.stringify(this.global.cache) + ';';
+            scriptCode += ' ' + globalObpScriptCode.set + ' = ' + $json.stringify({ cache: this.global.cache }) + ';';
 
             return scriptCode;
         }
@@ -148,10 +139,9 @@ export const getClass = (): Constructor => {
                 return new Response(globalCacheEntry.body, globalCacheEntry.options);
             }
             if ($env.isWeb() /* No cache writes client-side, so no await either. */) {
-                return this.global.nativeFetch(...args);
+                return this.global.boundNativeFetch(...args);
             }
-            const response = await this.global.nativeFetch(...args);
-
+            const response = await this.global.boundNativeFetch(...args);
             const contentType = (response.headers.get('content-type') || '').toLowerCase();
             const contentMIMEType = contentType.split(';')[0]; // Removes a possible `; charset=utf-8`, for example.
             const allowedMIMETypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];

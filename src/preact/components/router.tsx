@@ -460,15 +460,17 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
  *
  * @requiredEnv web
  *
+ * @note This uses some inline styles to avoid adding arbitrary values to a CSS bundle.
+ * ---
  * @note There is a slight wobble in this animation due to it being an imperfect circle.
- *       We accept the caveat as a trade-off in favor of a very well-optimizaed SVG image.
+ *       We accept the caveat as a trade-off in favor of a well-optimizaed SVG image.
  */
 const xPreactAppLoading = $fnꓺmemo((): Element => {
     return $dom.create('x-preact-app-loading', {
         role: 'status',
         style: 'z-index: 2147483647', // Maximum allowed value on 32-bit systems.
-        class: 'block fixed inset-0 w-screen h-screen pointer-events-none bg-color-basic/50 animate-fade-in',
-        innerHTML: `<span class="sr-only">Loading</span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" viewBox="0 0 100 100" class="absolute block fill-color-accent text-color-basic-fg animate-spin" style="height:auto; width:32px; inset:calc(50% - (32px / 2));"><path fill="currentColor" d="M100 51A50 50 0 1 1 0 51a50 50 0 0 1 100 0ZM9 51a41 41 0 1 0 82 0 41 41 0 0 0-82 0Z"/><path fill="currentFill" d="M94 39c2-1 4-3 3-5A50 50 0 0 0 42 1c-3 1-4 3-4 6 1 2 4 3 6 3a41 41 0 0 1 44 26c1 2 4 4 6 3Z"/></svg>`,
+        class: 'flex place-content-center fixed inset-0 w-screen h-screen bg-color-basic/50 pointer-events-none animate-fade-in',
+        innerHTML: `<span class="sr-only">Loading</span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" viewBox="0 0 100 100" class="inline-block h-auto w-8 fill-color-accent text-color-basic-fg animate-spin"><path fill="currentColor" d="M100 51A50 50 0 1 1 0 51a50 50 0 0 1 100 0ZM9 51a41 41 0 1 0 82 0 41 41 0 0 0-82 0Z"/><path fill="currentFill" d="M94 39c2-1 4-3 3-5A50 50 0 0 0 42 1c-3 1-4 3-4 6 1 2 4 3 6 3a41 41 0 0 1 44 26c1 2 4 4 6 3Z"/></svg>`,
     });
 });
 
