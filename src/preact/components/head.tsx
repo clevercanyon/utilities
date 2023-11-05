@@ -114,6 +114,45 @@ const immutableStateKeys = ['charset', 'viewport', 'baseURL', 'scriptBundle'] as
 type ImmutableStateKeys = $type.Writable<typeof immutableStateKeys>[number];
 
 /**
+ * Defines pseudo context hook.
+ *
+ * `<Data>` state contains a high-level reference to the current `<Head>` instance, such that it becomes available
+ * across all contexts vs. standalone, as `<Head>` actually is. We update the `<Head>` reference on render, so this
+ * works anytime after `<Head>` has rendered for the first time; i.e., pretty much anywhere within an app.
+ *
+ * If you simply need to append something to `<Head>`, this hook provides an `append()` utility. Otherwise, use the
+ * `updateState()` utility. Please remember that some `<Head>` state keys are immutable; {@see ImmutableStateKeys}.
+ *
+ * In reality, `<Head>` stands alone. Updating its state will not re-render anything except `<Head>` itself. This is
+ * intentionally the case, as it allows for things to get dropped into the `<Head>`, like styles/scripts, without it
+ * causing a full re-render. However, there are a few things that do cause `<Head>` to re-render.
+ *
+ * - If `<Location>` changes state, everything re-renders, including `<Head>`, which is the most common scenario. When you
+ *   want `<Head>` to change, alter `<Location>` state. This is fundamentally how `<Head>` is intended to work.
+ * - If anything else above `<Head>` re-renders; e.g., `<Data>` or `<HTML>`, then most everything re-renders.
+ *
+ * Otherwise, if you update `<Head>` state in a way that should result in a full re-rendering of everything from
+ * `<Data>` on down, you can use the `forceFullUpdate()` utility provided by this hook. The `forceFullUpdate()` utility
+ * indirectly fires `forceUpdate()` on the `<Data>` component instance.
+ *
+ * @returns Pseudo context {@see Context}.
+ */
+export const useHead = (): Context => {
+    const { state: dataState } = $preact.useData();
+    const instance = dataState.head.instance;
+
+    if (!instance?.computedState) {
+        throw new Error(); // Missing `computedState`.
+    }
+    return {
+        state: instance.computedState,
+        append: (...args) => instance.append(...args),
+        updateState: (...args) => instance.updateState(...args),
+        forceFullUpdate: (...args) => instance.forceFullUpdate(...args),
+    };
+};
+
+/**
  * Defines component.
  *
  * Any children of the `<Head>` component must each have a unique `data-key` prop that identifies their intended
@@ -130,25 +169,54 @@ type ImmutableStateKeys = $type.Writable<typeof immutableStateKeys>[number];
  * reference to the current `<Head>` `instance`, such that it becomes available across all contexts.
  */
 export default class Head extends Component<Props, ActualState> {
-    // These are defined on first render.
-    forceDataUpdate: DataContext['forceUpdate'] | undefined;
-    computedState: State | undefined; // Not actual state.
-
-    constructor(props: Props = {}) {
+    /**
+     * Constructor.
+     *
+     * @param props Props.
+     */
+    public constructor(props: Props = {}) {
         super(props); // Parent constructor.
-
         this.state = $preact.omitProps(props, ['children']);
-        // this.forceDataUpdate ...defined on first render.
-        // this.computedState ...defined on first render.
     }
 
-    append(childVNodes: ChildVNode | ChildVNode[]): void {
+    /**
+     * Computed state. Defined at first render time.
+     */
+    public computedState: State | undefined;
+
+    /**
+     * Forces a `<Data>` update. Defined at first render time.
+     */
+    protected forceDataUpdate: DataContext['forceUpdate'] | undefined;
+
+    /**
+     * Forces a full update.
+     *
+     * @param callback Optional callback.
+     */
+    public forceFullUpdate(callback?: () => void): void {
+        if (!this.forceDataUpdate) throw new Error();
+        this.forceDataUpdate(callback);
+    }
+
+    /**
+     * Appends child vNode(s) to `<Head>`.
+     *
+     * @param childVNodes One or more child vNodes.
+     */
+    public append(childVNodes: ChildVNode | ChildVNode[]): void {
         // Note: We have to achieve this without the use of declarative ops.
         this.updateState({ append: $preact.toChildArray([this.state.append || [], childVNodes]) } as PartialActualStateUpdates);
     }
 
-    // Note: This does not allow the use of declarative ops.
-    updateState<Updates extends PartialActualStateUpdates>(updates: Updates): void {
+    /**
+     * Updates component state.
+     *
+     * This does not allow the use of declarative ops.
+     *
+     * @param updates Partial state updates; {@see ImmutableStateKeys}.
+     */
+    public updateState<Updates extends PartialActualStateUpdates>(updates: Updates): void {
         this.setState((currentState: ActualState): Updates | null => {
             // Some `<Head>` state keys are immutable.
             updates = $obj.omit(updates, immutableStateKeys as unknown as string[]) as Updates;
@@ -159,12 +227,14 @@ export default class Head extends Component<Props, ActualState> {
         });
     }
 
-    forceFullUpdate(callback?: () => void): void {
-        if (!this.forceDataUpdate) throw new Error();
-        this.forceDataUpdate(callback);
-    }
-
-    render(): $preact.VNode<Props> | undefined {
+    /**
+     * Renders component.
+     *
+     * @returns VNode / JSX element tree, or `undefined`.
+     *
+     *   - On the web this returns `undefined`; i.e., effects only.
+     */
+    public render(): $preact.VNode<Props> | undefined {
         // Checks environment.
 
         const isSSR = $env.isSSR();
@@ -372,6 +442,9 @@ export default class Head extends Component<Props, ActualState> {
     }
 }
 
+// ---
+// Misc utilities.
+
 /**
  * Generates structured data.
  *
@@ -526,43 +599,4 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
         '@graph': [...orgGraphs, siteGraph, pageGraph],
     };
     return $json.stringify(data, { pretty: true });
-};
-
-/**
- * Defines pseudo context hook.
- *
- * `<Data>` state contains a high-level reference to the current `<Head>` instance, such that it becomes available
- * across all contexts vs. standalone, as `<Head>` actually is. We update the `<Head>` reference on render, so this
- * works anytime after `<Head>` has rendered for the first time; i.e., pretty much anywhere within an app.
- *
- * If you simply need to append something to `<Head>`, this hook provides an `append()` utility. Otherwise, use the
- * `updateState()` utility. Please remember that some `<Head>` state keys are immutable; {@see ImmutableStateKeys}.
- *
- * In reality, `<Head>` stands alone. Updating its state will not re-render anything except `<Head>` itself. This is
- * intentionally the case, as it allows for things to get dropped into the `<Head>`, like styles/scripts, without it
- * causing a full re-render. However, there are a few things that do cause `<Head>` to re-render.
- *
- * - If `<Location>` changes state, everything re-renders, including `<Head>`, which is the most common scenario. When you
- *   want `<Head>` to change, alter `<Location>` state. This is fundamentally how `<Head>` is intended to work.
- * - If anything else above `<Head>` re-renders; e.g., `<Data>` or `<HTML>`, then most everything re-renders.
- *
- * Otherwise, if you update `<Head>` state in a way that should result in a full re-rendering of everything from
- * `<Data>` on down, you can use the `forceFullUpdate()` utility provided by this hook. The `forceFullUpdate()` utility
- * indirectly fires `forceUpdate()` on the `<Data>` component instance.
- *
- * @returns Pseudo context {@see Context}.
- */
-export const useHead = (): Context => {
-    const { state: dataState } = $preact.useData();
-    const instance = dataState.head.instance;
-
-    if (!instance?.computedState) {
-        throw new Error(); // Missing `computedState`.
-    }
-    return {
-        state: instance.computedState,
-        append: (...args) => instance.append(...args),
-        updateState: (...args) => instance.updateState(...args),
-        forceFullUpdate: (...args) => instance.forceFullUpdate(...args),
-    };
 };

@@ -58,8 +58,8 @@ export type Props = $preact.BasicPropsNoKeyRef<{
 }>;
 export type Context = $preact.Context<{
     state: State;
-    push: $preact.Dispatcher<PartialActualStateUpdates | string>;
-    updateState: $preact.Dispatcher<PartialActualStateUpdates | MouseEvent | PopStateEvent | string>;
+    push: $preact.StateDispatcher<PartialActualStateUpdates | string>;
+    updateState: $preact.StateDispatcher<PartialActualStateUpdates | MouseEvent | PopStateEvent | string>;
 }>;
 
 /**
@@ -71,11 +71,11 @@ export type Context = $preact.Context<{
 const ContextObject = createContext({} as Context);
 
 /**
- * Defines named prop keys for easy reuse.
+ * Defines context hook.
  *
- * @returns Array of named {@see Location} prop keys; i.e., excludes `children`.
+ * @returns Context {@see Context}.
  */
-export const namedPropKeys = (): string[] => ['isHydration', 'url', 'baseURL', 'onChange'];
+export const useLocation = (): Context => $preact.useContext(ContextObject);
 
 /**
  * Renders component.
@@ -85,7 +85,7 @@ export const namedPropKeys = (): string[] => ['isHydration', 'url', 'baseURL', '
  * @returns       VNode / JSX element tree.
  */
 export default function Location(props: Props = {}): $preact.VNode<Props> {
-    const [actualState, updateState] = $preact.useReducer(reducer, undefined, () => initialState(props));
+    const [actualState, updateState] = $preact.useReducer(reduceState, 0, () => initialState(props));
 
     const state = $preact.useMemo((): State => {
         const url = $url.parse(actualState.pathQuery, actualState.baseURL);
@@ -152,21 +152,18 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
     return <ContextObject.Provider value={{ state, push: updateState, updateState }}>{props.children}</ContextObject.Provider>;
 }
 
+// ---
+// Misc exports.
+
 /**
- * Defines context hook.
+ * Defines named prop keys for easy reuse.
  *
- * @returns Context {@see Context}.
+ * @returns Array of named {@see Location} prop keys; i.e., excludes `children`.
  */
-export const useLocation = (): Context => $preact.useContext(ContextObject);
+export const namedPropKeys = (): string[] => ['isHydration', 'url', 'baseURL', 'onChange'];
 
-/* ---
- * Misc utilities.
- */
-
-/**
- * Global scroll handler.
- */
-let scrollHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.afterNextFrame> | undefined;
+// ---
+// Misc utilities.
 
 /**
  * Initial component state.
@@ -221,7 +218,7 @@ const initialState = (props: Props): ActualState => {
  *
  * @returns       New state; else original state if no changes.
  */
-const reducer = (state: ActualState, x: Parameters<Context['updateState']>[0]): ActualState => {
+const reduceState = (state: ActualState, x: Parameters<Context['updateState']>[0]): ActualState => {
     // Initialize.
     let url, isPush, isClick;
 
@@ -339,3 +336,8 @@ const reducer = (state: ActualState, x: Parameters<Context['updateState']>[0]): 
     }
     return { ...state, isInitial: false, isInitialHydration: false, wasPushed, pathQuery };
 };
+
+/**
+ * Global scroll handler.
+ */
+let scrollHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.afterNextFrame> | undefined;

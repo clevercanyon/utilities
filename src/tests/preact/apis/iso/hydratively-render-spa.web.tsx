@@ -90,7 +90,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
                 const domHydratedIndexHeadMarkup = document.querySelector('head')?.outerHTML || '';
                 const domHydratedIndexBodyMarkup = document.querySelector('body')?.outerHTML || '';
 
-                expect(domHydratedIndexMarkup).toContain('<html lang="en-US">');
+                expect(domHydratedIndexMarkup).toContain('<html lang="en-US" dir="ltr">');
                 expect(domHydratedIndexHeadMarkup).toContain('<title data-key="title">index</title>');
                 expect(domHydratedIndexHeadMarkup).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle">');
                 expect(domHydratedIndexHeadMarkup).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');

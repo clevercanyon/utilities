@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $obj, $preact } from '../../index.ts';
+import { $preact } from '../../index.ts';
 
 /**
  * Defines types.
@@ -15,10 +15,9 @@ export type State = $preact.State<{
 }>;
 export type PartialState = Partial<State>;
 export type Props = $preact.BasicPropsNoKeyRef<PartialState>;
-
 export type Context = $preact.Context<{
     state: State;
-    updateState: $preact.Dispatcher<PartialState>;
+    updateState: $preact.StateDispatcher<PartialState>;
 }>;
 
 /**
@@ -30,27 +29,11 @@ export type Context = $preact.Context<{
 const ContextObject = createContext({} as Context);
 
 /**
- * Produces initial state.
+ * Defines context hook.
  *
- * @param   props Component props.
- *
- * @returns       Initialized state.
+ * @returns Context {@see Context}.
  */
-const initialState = (props: Props = {}): State => {
-    return $obj.mergeDeep({ variant: 'default' }, $preact.omitProps(props, ['children'])) as unknown as State;
-};
-
-/**
- * Reduces state updates.
- *
- * @param   state   Current state.
- * @param   updates State updates.
- *
- * @returns         New state, if changed; else old state.
- */
-const reduceState = (state: State, updates: PartialState): State => {
-    return $obj.updateDeep(state, updates) as unknown as State;
-};
+export const useLayout = (): Context => $preact.useContext(ContextObject);
 
 /**
  * Renders component.
@@ -60,13 +43,8 @@ const reduceState = (state: State, updates: PartialState): State => {
  * @returns       VNode / JSX element tree.
  */
 export default function LayoutContext(props: Props): $preact.VNode<Props> {
-    const [state, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(props));
+    const [state, updateState] = $preact.useReducedState((): State => {
+        return $preact.initialState({ variant: 'default' }, $preact.omitProps(props, ['children']));
+    });
     return <ContextObject.Provider value={{ state, updateState }}>{props.children}</ContextObject.Provider>;
 }
-
-/**
- * Defines context hook.
- *
- * @returns Context {@see Context}.
- */
-export const useLayout = (): Context => $preact.useContext(ContextObject);

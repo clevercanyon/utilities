@@ -59,15 +59,11 @@ export type RouteLoadEventData = { locationState: LocationState; routeContext: R
 const RouteContextObject = createContext({} as RouteContext);
 
 /**
- * Defines named prop keys for easy reuse.
+ * Defines route context hook.
  *
- * @returns Array of named {@see Router} prop keys; i.e., excludes `children`.
+ * @returns Context {@see RouteContext}.
  */
-export const namedPropKeys = (): string[] => ['handleLoading', 'handleScrolling', 'onLoadError', 'onLoadStart', 'onLoadEnd', 'onLoaded'];
-
-/**
- * Defines types.
- */
+export const useRoute = (): RouteContext => $preact.useContext(RouteContextObject);
 
 /**
  * Renders component.
@@ -96,43 +92,23 @@ export default function Router(props: Props = {}): $preact.VNode<Props> {
  *
  * @returns       VNode / JSX element tree.
  */
-export const Route = (props: RouteProps): $preact.VNode<RouteProps> => {
+export function Route(props: RouteProps): $preact.VNode<RouteProps> {
     const { component: Route } = props;
     return <Route {...(props as RoutedProps)} />;
-};
+}
+
+// ---
+// Misc exports.
 
 /**
- * Defines route context hook.
+ * Defines named prop keys for easy reuse.
  *
- * @returns Context {@see RouteContext}.
+ * @returns Array of named {@see Router} prop keys; i.e., excludes `children`.
  */
-export const useRoute = (): RouteContext => $preact.useContext(RouteContextObject);
+export const namedPropKeys = (): string[] => ['handleLoading', 'handleScrolling', 'onLoadError', 'onLoadStart', 'onLoadEnd', 'onLoaded'];
 
-/* ---
- * Misc utilities.
- */
-
-/**
- * A resolved promise.
- */
-const resolvedPromise = Promise.resolve();
-
-/**
- * Global load/scroll handlers.
- */
-let loadingHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.afterNextFrame> | undefined;
-let scrollHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.afterNextFrame> | undefined;
-
-/**
- * Renders a ref’s current route.
- *
- * @param   props Component props with `r` (i.e., the ref).
- *
- * @returns       VNode / JSX element tree.
- */
-const RenderRefRoute = ({ r }: $preact.BasicPropsNoKeyRefChildren<{
-    r: $preact.Ref<$preact.VNode<RoutedProps>>;
-}>): $preact.Ref<$preact.VNode<RoutedProps>>['current'] => r.current; // prettier-ignore
+// ---
+// Misc utilities.
 
 /**
  * Renders error boundary core.
@@ -384,6 +360,21 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 }
 
 /**
+ * Renders a ref’s current route.
+ *
+ * @param   props Component props.
+ *
+ * @returns       VNode / JSX element tree.
+ */
+function RenderRefRoute({
+    r, // Route reference.
+}: $preact.BasicPropsNoKeyRefChildren<{
+    r: $preact.Ref<$preact.VNode<RoutedProps>>;
+}>): $preact.Ref<$preact.VNode<RoutedProps>>['current'] {
+    return r.current;
+}
+
+/**
  * Checks if a path matches a route pattern.
  *
  * @param   path         Relative location path; e.g., `./path/foo/bar` | `/path/foo/bar` | `path/foo/bar`.
@@ -454,16 +445,24 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
 };
 
 /**
+ * A resolved promise.
+ */
+const resolvedPromise = Promise.resolve();
+
+/**
+ * Global loading and scroll handlers.
+ */
+let loadingHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.afterNextFrame> | undefined;
+let scrollHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.afterNextFrame> | undefined;
+
+/**
  * Generates `<x-preact-app-loading>` element.
+ *
+ * This uses some inline styles to avoid adding arbitrary values to a CSS bundle.
  *
  * @returns `<x-preact-app-loading>` element; {@see Element}.
  *
  * @requiredEnv web
- *
- * @note This uses some inline styles to avoid adding arbitrary values to a CSS bundle.
- * ---
- * @note There is a slight wobble in this animation due to it being an imperfect circle.
- *       We accept the caveat as a trade-off in favor of a well-optimizaed SVG image.
  */
 const xPreactAppLoading = $fnꓺmemo((): Element => {
     return $dom.create('x-preact-app-loading', {
@@ -474,9 +473,9 @@ const xPreactAppLoading = $fnꓺmemo((): Element => {
     });
 });
 
-/* ---
- * Side effects.
- */
+// ---
+// Error handling.
+// i.e., side effects.
 
 /**
  * Previous error handler.

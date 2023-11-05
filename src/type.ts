@@ -1,5 +1,7 @@
 /**
  * Types.
+ *
+ * Inspired by {@see https://www.npmjs.com/package/type-fest}.
  */
 // organize-imports-ignore
 
@@ -10,7 +12,7 @@ import { type DateTime as luxonꓺDateTime } from 'luxon';
 import type * as cf from '@cloudflare/workers-types/experimental';
 
 /**
- * Common types.
+ * Basic types.
  */
 export type { $Object as Object };
 export type ObjectKey = PropertyKey;
@@ -19,15 +21,21 @@ export type ObjectPath = number | string;
 export type ObjectC9r = { new (...args: unknown[]): $Object } | ObjectConstructor;
 export type ObjectEntries<Type extends object = $Object> = [keyof Type, Type[keyof Type]][];
 
+export type Primitive = null | undefined | boolean | number | bigint | string | symbol;
+export type TypedArray<Type extends $TypedArray = $TypedArray> = Type;
+
 export type { $Function as Function };
 export type { $AsyncFunction as AsyncFunction };
 
-export type TypedArray<Type extends $TypedArray = $TypedArray> = Type;
-export type Primitive = null | undefined | boolean | number | bigint | string | symbol;
+/**
+ * Class types.
+ */
+export type { luxonꓺDateTime as Time };
+export type * from './class.ts';
 
-// In Node, it’s an object. On the web, a positive integer.
-export type Timeout = ReturnType<typeof setTimeout> | number;
-
+/**
+ * Cross env types.
+ */
 export type { $URL as URL };
 export type { $Request as Request };
 export type { $Response as Response };
@@ -35,12 +43,16 @@ export type { $BodyInit as BodyInit };
 export type { $Headers as Headers };
 export type { $fetch as fetch };
 export type { $Error as Error };
+export type { $Timeout as Timeout };
 
-export type { luxonꓺDateTime as Time };
-export type * from './class.ts';
+/**
+ * Cloudflare worker types.
+ */
+export type { cf }; // `cf` namespace.
 
-export type { cf }; // Cloudflare worker type exports.
-
+/**
+ * Ensurable types.
+ */
 export type EnsurableType =
     | 'boolean' | 'boolean[]'
     | 'number' | 'number[]'
@@ -76,19 +88,17 @@ export type EnsuredType<Type> =
     : unknown; // prettier-ignore
 
 /**
- * Utility types.
+ * Misc. utility types.
  */
+export type PartialDeep<Type> = Type extends object ? { [Prop in keyof Type]?: Type[Prop] extends object ? PartialDeep<Type[Prop]> : Type[Prop] } : Type;
 
-// `Partial` is already baked into TypeScript.
-export type DeepPartial<Type> = Partial<{ [Prop in keyof Type]: DeepPartial<Type[Prop]> }>;
-
-export type Writable<Type> = { -readonly [Prop in keyof Type]: Type[Prop] };
-export type DeepWritable<Type> = { -readonly [Prop in keyof Type]: DeepWritable<Type[Prop]> };
+export type Writable<Type> = Type extends object ? { -readonly [Prop in keyof Type]: Type[Prop] } : Type;
+export type WritableDeep<Type> = Type extends object ? { -readonly [Prop in keyof Type]: Type[Prop] extends object ? WritableDeep<Type[Prop]> : Type[Prop] } : Type;
 
 export type PartialTuple<Tuple extends unknown[], Extracted extends unknown[] = []> = //
     // If the tuple provided contains at least one required value.
     Tuple extends [infer Next, ...infer Remaining]
-        ? // Recurse with remaining + first being partial (i.e., optional) now.
+        ? // Recurse with remaining + first being partial now.
           PartialTuple<Remaining, [...Extracted, Next?]>
         : // Else, return with an empty tuple.
           [...Extracted, /* empty */ ...Tuple];
@@ -108,7 +118,6 @@ export type RemainingParameters<Provided extends unknown[], Expected extends unk
 /**
  * Private types used by this file.
  */
-
 type $TypedArray =
     | Int8Array //
     | Uint8Array
@@ -129,6 +138,7 @@ type $BodyInit = BodyInit | cf.BodyInit;
 type $Headers = Headers | cf.Headers;
 type $fetch = typeof fetch | typeof cf.fetch;
 type $Error<Type extends Error = Error> = Type;
+type $Timeout = ReturnType<typeof setTimeout> | number;
 
 type $Keyable = { [x: ObjectKey]: unknown };
 type $Object<Type extends object = $Keyable> = $Keyable & Type;
@@ -140,6 +150,9 @@ type $AsyncFn = (...args: any[]) => Promise<unknown>; // See: <https://o5p.me/Cw
 
 type $Function<Type extends $AnyFn = $AnyFn> = (...args: Parameters<Type>) => ReturnType<Type>;
 type $AsyncFunction<Type extends $AsyncFn = $AsyncFn> = (...args: Parameters<Type>) => ReturnType<Type>;
+
+// ---
+// Type utilities.
 
 /**
  * Ensures a specific value type.

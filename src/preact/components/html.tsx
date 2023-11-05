@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $dom, $env, $obj, $preact } from '../../index.ts';
+import { $dom, $env, $preact } from '../../index.ts';
 
 /**
  * Defines types.
@@ -21,7 +21,7 @@ export type Props = $preact.BasicPropsNoKeyRef<PartialState>;
 
 export type Context = $preact.Context<{
     state: State;
-    updateState: $preact.Dispatcher<PartialStateUpdates>;
+    updateState: $preact.StateDispatcher<PartialStateUpdates>;
 }>;
 
 /**
@@ -33,27 +33,11 @@ export type Context = $preact.Context<{
 const ContextObject = createContext({} as Context);
 
 /**
- * Produces initial state.
+ * Defines context hook.
  *
- * @param   props Component props.
- *
- * @returns       Initialized state.
+ * @returns Context {@see Context}.
  */
-const initialState = (props: Props): State => {
-    return $obj.mergeDeep({ lang: 'en-US', dir: 'ltr' }, $preact.omitProps(props, ['children'])) as unknown as State;
-};
-
-/**
- * Reduces state updates.
- *
- * @param   state   Current state.
- * @param   updates State updates.
- *
- * @returns         New state, if changed; else old state.
- */
-const reduceState = (state: State, updates: PartialStateUpdates): State => {
-    return $obj.updateDeep(state, updates) as unknown as State;
-};
+export const useHTML = (): Context => $preact.useContext(ContextObject);
 
 /**
  * Renders component.
@@ -63,8 +47,9 @@ const reduceState = (state: State, updates: PartialStateUpdates): State => {
  * @returns       VNode / JSX element tree.
  */
 export default function HTML(props: Props = {}): $preact.VNode<Props> {
-    const [actualState, updateState] = $preact.useReducer(reduceState, undefined, () => initialState(props));
-
+    const [actualState, updateState] = $preact.useReducedState((): State => {
+        return $preact.initialState({ lang: 'en-US', dir: 'ltr' }, $preact.omitProps(props, ['children']));
+    });
     const state = $preact.useMemo((): State => {
         return {
             ...$preact.omitProps(actualState, ['class']),
@@ -85,10 +70,3 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
         </ContextObject.Provider>
     );
 }
-
-/**
- * Defines context hook.
- *
- * @returns Context {@see Context}.
- */
-export const useHTML = (): Context => $preact.useContext(ContextObject);
