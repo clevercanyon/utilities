@@ -128,8 +128,8 @@ export type BasicPropsNoKeyRef<Type extends object = { [x: string]: unknown }> =
 export type BasicPropsNoKeyRefChildren<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref' | 'children'>>;
 export type Props<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx'>>;
 
-export type State<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
-export type Context<Type extends object = $type.Object> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
+export type State<Type extends object = { [x: string]: unknown }> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
+export type Context<Type extends object = { [x: string]: unknown }> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type Ref<Type = unknown> = preact.RefObject<Type>;
 
 export type ClassPropVariants = $type.Writable<typeof internalClassPropVariants>[number];

@@ -4,8 +4,6 @@
 
 import './resources/init.ts';
 
-import { type $type } from './index.ts';
-
 /**
  * Defines types/exports.
  *
@@ -14,9 +12,9 @@ import { type $type } from './index.ts';
 export type ObjTagSymbolFn = () => string;
 export type ObjStringTagSymbolFn = () => string;
 
-export type ObjToPlainSymbolFn = () => $type.Object;
-export type ObjToEqualsSymbolFn = () => $type.Object;
-export type ObjToJSONSymbolFn = () => $type.Primitive | $type.Object;
+export type ObjToPlainSymbolFn = () => object;
+export type ObjToEqualsSymbolFn = () => object;
+export type ObjToJSONSymbolFn = () => unknown;
 export { type ToCloneSymbolFn as ObjToCloneSymbolFn } from './obj.ts';
 
 export { getClass as getBase, type Class as Base } from './resources/classes/base.ts';

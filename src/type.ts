@@ -12,17 +12,18 @@ import type * as cf from '@cloudflare/workers-types/experimental';
 /**
  * Common types.
  */
+export type { $Object as Object };
 export type ObjectKey = PropertyKey;
 export type ObjectPath = number | string;
 
-export type { $Object as Object };
+export type ObjectC9r = { new (...args: unknown[]): $Object } | ObjectConstructor;
+export type ObjectEntries<Type extends object = $Object> = [keyof Type, Type[keyof Type]][];
+
 export type { $Function as Function };
 export type { $AsyncFunction as AsyncFunction };
 
 export type TypedArray<Type extends $TypedArray = $TypedArray> = Type;
 export type Primitive = null | undefined | boolean | number | bigint | string | symbol;
-export type ObjectEntries<Type extends object = $Object> = [keyof Type, Type[keyof Type]][];
-export type ObjectC9r = { new (...args: unknown[]): $Object } | ObjectConstructor;
 
 // In Node, it’s an object. On the web, a positive integer.
 export type Timeout = ReturnType<typeof setTimeout> | number;
@@ -77,6 +78,9 @@ export type EnsuredType<Type> =
 /**
  * Utility types.
  */
+
+// `Partial` is already baked into TypeScript.
+export type DeepPartial<Type> = Partial<{ [Prop in keyof Type]: DeepPartial<Type[Prop]> }>;
 
 export type Writable<Type> = { -readonly [Prop in keyof Type]: Type[Prop] };
 export type DeepWritable<Type> = { -readonly [Prop in keyof Type]: DeepWritable<Type[Prop]> };

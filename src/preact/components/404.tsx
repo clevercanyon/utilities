@@ -49,7 +49,7 @@ export default function Route404(): $preact.VNode {
 /**
  * Defines types.
  */
-type StandAloneProps = $preact.BasicPropsNoKeyRefChildren<{ lang?: string }> & {
+type StandAloneProps = $preact.BasicPropsNoKeyRefChildren & {
     [x in $preact.ClassPropVariants]?: $preact.Classes;
 };
 
@@ -69,7 +69,7 @@ type StandAloneProps = $preact.BasicPropsNoKeyRefChildren<{ lang?: string }> & {
 export const StandAlone = (props: StandAloneProps = {}): $preact.VNode<StandAloneProps> => {
     if (!$env.isSSR()) throw $env.errSSROnly;
     return (
-        <html class={$preact.classes(props)} lang={props.lang || 'en-US'}>
+        <html class={$preact.classes(props)} lang='en-US' dir='ltr'>
             <head>
                 <meta charSet='utf-8' />
                 <meta name='robots' content='noindex, nofollow' />

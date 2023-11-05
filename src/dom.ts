@@ -17,17 +17,17 @@ let initializedScrollStatus = false;
 /**
  * Defines types.
  */
-type WDES = Window | Document | Element | string;
-type AnyAtts = { [x: string]: unknown };
+export type WDES = Window | Document | Element | string;
+export type AnyAtts = { [x: string]: unknown };
 
-type AnyVoidFn = (() => void) | (() => Promise<void>);
-type AnyEventHandler =
+export type AnyVoidFn = (() => void) | (() => Promise<void>);
+export type AnyEventHandler =
     | ((event: Event) => void) //
     | ((event: CustomEvent) => void)
     | ((event: Event) => Promise<void>)
     | ((event: CustomEvent) => Promise<void>);
 
-type EventTools = { cancel: () => void };
+export type EventTools = { cancel: () => void };
 
 /**
  * Initializes scroll status.
@@ -242,7 +242,7 @@ export function on(...args: unknown[]): EventTools {
  *
  * @requiredEnv web
  */
-export const trigger = (wdes: WDES, event: string | CustomEvent | Event, data?: $type.Object, options?: CustomEventInit): void => {
+export const trigger = (wdes: WDES, event: string | CustomEvent | Event, data?: object, options?: CustomEventInit): void => {
     const wde = $is.string(wdes) ? require(wdes) : wdes;
     if ($is.string(event)) event = new CustomEvent(event, { detail: data || {}, ...options });
     wde.dispatchEvent(event);

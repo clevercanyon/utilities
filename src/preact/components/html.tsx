@@ -12,8 +12,8 @@ import { $dom, $env, $obj, $preact } from '../../index.ts';
  */
 export type State = $preact.State<
     Partial<$preact.Intrinsic['html']> & {
-        lang: string; // String value only.
-    } & { [x in $preact.ClassPropVariants]?: $preact.Classes }
+        [x in $preact.ClassPropVariants]?: $preact.Classes;
+    }
 >;
 export type PartialState = Partial<State>;
 export type PartialStateUpdates = PartialState;
@@ -40,7 +40,7 @@ const ContextObject = createContext({} as Context);
  * @returns       Initialized state.
  */
 const initialState = (props: Props): State => {
-    return $obj.mergeDeep({ lang: 'en-US' }, $preact.omitProps(props, ['children'])) as unknown as State;
+    return $obj.mergeDeep({ lang: 'en-US', dir: 'ltr' }, $preact.omitProps(props, ['children'])) as unknown as State;
 };
 
 /**
@@ -67,9 +67,8 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
 
     const state = $preact.useMemo((): State => {
         return {
-            ...$preact.omitProps(actualState, ['class', 'lang']),
+            ...$preact.omitProps(actualState, ['class']),
             class: $preact.classes(actualState),
-            lang: actualState.lang,
         };
     }, [actualState]);
 

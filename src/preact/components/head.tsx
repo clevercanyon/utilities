@@ -132,7 +132,7 @@ type ImmutableStateKeys = $type.Writable<typeof immutableStateKeys>[number];
 export default class Head extends Component<Props, ActualState> {
     // These are defined on first render.
     forceDataUpdate: DataContext['forceUpdate'] | undefined;
-    computedState: State | undefined; // Computed; i.e., not actual state.
+    computedState: State | undefined; // Not actual state.
 
     constructor(props: Props = {}) {
         super(props); // Parent constructor.
@@ -263,6 +263,9 @@ export default class Head extends Component<Props, ActualState> {
                 pngIcon: h('link', { rel: 'icon', type: 'image/png', sizes: 'any', href: state.pngIcon.toString() }),
                 appleTouchIcon: h('link', { rel: 'apple-touch-icon', type: 'image/png', sizes: 'any', href: state.pngIcon.toString() }),
 
+                // Note: `og:` prefixed meta tags do not require a `prefix="og: ..."` attribute on `<head>`,
+                // because they are baked into RDFa already; {@see https://www.w3.org/2011/rdfa-context/rdfa-1.1}.
+
                 ogSiteName: h('meta', { property: 'og:site_name', content: state.ogSiteName }),
                 ogType: h('meta', { property: 'og:type', content: state.ogType }),
                 ogTitle: h('meta', { property: 'og:title', content: state.ogTitle }),
@@ -294,7 +297,7 @@ export default class Head extends Component<Props, ActualState> {
                             // Also, because numeric keys imply 'order'. We need an identifier.
 
                             // We only support string vNode types; i.e., intrinsic HTML tag names.
-                            // We choose not to support component functions, classes, or any nesting.
+                            // We choose not to support component functions, classes, or any further nesting.
 
                             if (!type || !$is.string(type) || !key || !$is.string(key) || $is.numeric(key) || !$is.primitive(children)) {
                                 throw new Error(); // Missing or invalid child vNode. Please review `<Head>` component docBlock.
@@ -317,14 +320,17 @@ export default class Head extends Component<Props, ActualState> {
         // Configures client-side effects.
 
         if ($env.isWeb()) {
-            // Memoizes effect that runs when `locationState` changes.
+            // Memoizes effect that runs whenever `locationState` changes.
+            // We only remove nodes when location state changes. This allows appended nodes,
+            // whether they come from children, state, or are added by script code at runtime;
+            // to survive until location state changes; i.e., just as they would in a non-preact app.
 
             $preact.useEffect((): void => {
                 if (locationState.isInitialHydration) return;
                 // No need for an initial cleanup when hydrating.
 
                 // Using `Array.from()` so we’re working on a copy, not the live list.
-                // Nodes get removed here, so a copy avoid issues with in-loop removals.
+                // Nodes get removed here, so a copy avoids issues with in-loop removals.
 
                 for (const node of Array.from($dom.head().childNodes)) {
                     if (!$is.htmlElement(node)) node.remove(); // e.g., Text or comment node.
@@ -338,7 +344,10 @@ export default class Head extends Component<Props, ActualState> {
                 }
             }, [locationState]);
 
-            // Memoizes effect that runs when `childVNodes` changes.
+            // Memoizes effect that runs whenever `childVNodes` changes.
+            // This runs anytime `childVNodes` is altered, such that we are capable of modifying
+            // `<head>` at runtime whenever something is added or removed from the `<Head>` component.
+            // e.g., If a component elsewhere does a `useHead()` to `append()` or `updateState()`.
 
             $preact.useEffect((): void => {
                 if (locationState.isInitialHydration) return;
