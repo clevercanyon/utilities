@@ -217,8 +217,12 @@ export const initialState = <Type extends State>(...args: object[]): Type => {
  * @param   updates State updates.
  *
  * @returns         New state, else old state.
+ *
+ * @note There is a special `isInitial` state key that, if present, will be updated to `false` automatically.
+ *       i.e., If we are reducing state, then we are no longer dealing with initial state.
  */
 export const reduceState = <Type extends State, Updates extends $type.PartialDeep<Type> = $type.PartialDeep<Type>>(state: Type, updates: Updates): Type & Updates => {
+    if (Object.hasOwn(state, 'isInitial')) (updates as $type.Object).isInitial = false;
     return $obj.updateDeep(state, updates) as Type & Updates;
 };
 
