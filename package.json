@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.414",
+    "version": "1.0.415",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -247,13 +247,6 @@
     "peerDependencies": {
         "@medv/finder": "^3.1.0",
         "@preact/signals": "^1.2.1",
-        "@radix-ui/react-accordion": "^1.1.2",
-        "@radix-ui/react-alert-dialog": "^1.0.5",
-        "@radix-ui/react-collapsible": "^1.0.3",
-        "@radix-ui/react-dialog": "^1.0.5",
-        "@radix-ui/react-hover-card": "^1.0.7",
-        "@radix-ui/react-tabs": "^1.0.4",
-        "@radix-ui/react-tooltip": "^1.0.7",
         "color2k": "^2.0.2",
         "ignore": "^5.2.4",
         "ip-regex": "^5.0.0",

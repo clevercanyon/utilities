@@ -1,6 +1,7 @@
 /**
  * Consent API.
  *
+ * @review We need to add a `.well-known/gpc.json` file to indicate our respect for that header.
  * @review We need to ensure there is proof of consent, so screenshots periodically, snapshots of source code, etc.
  *
  * @requiredEnv web

@@ -278,7 +278,7 @@ export const classPropVariantsRegExp = $fnꓺmemo((): RegExp => new RegExp(class
  * The rule is the same as above, never access a class prop variant literally, and that goes also when using this
  * utility. Pass it all of the props, or your entire state. Or feed it any other acceptible values.
  *
- * @param   args Variadic; {@see Classes[]}.
+ * @param   args Variadic; {@see Classes[]} {@see classesꓺhelper()}.
  *
  *   - Strings, however deep, are split on whitespace.
  *   - Arrays and sets are traversed recursively. We look for classes within.
@@ -296,14 +296,20 @@ export const classPropVariantsRegExp = $fnꓺmemo((): RegExp => new RegExp(class
  * @see https://www.npmjs.com/package/clsx
  * @see https://www.npmjs.com/package/classnames
  */
-export const classes = (...args: Classes[]): undefined | string => {
-    let flat: unknown[] = []; // Initialize.
-    const map = classesꓺhelper(args);
+export const classes = (...args: Classes[]): string | undefined => {
+    const classes = [...classesꓺhelper(args).keys()];
+    return classes.length ? classes.join(' ') : undefined;
+};
 
-    for (const [className] of map) flat.push(className);
-    flat = [...new Set(flat.filter((c) => $is.notEmpty(c)))];
-
-    return flat.length ? flat.join(' ') : undefined;
+/**
+ * Gets component classes, as a map.
+ *
+ * @param   args Variadic; {@see Classes[]} {@see classesꓺhelper()}.
+ *
+ * @returns      `Map<string, true>` of all enabled classes.
+ */
+export const classMap = (...args: Classes[]): Map<string, true> => {
+    return classesꓺhelper(args);
 };
 
 /**
@@ -324,12 +330,12 @@ const classesꓺhelper = (allArgs: Classes[], map: Map<string, true> = new Map()
                 classesꓺhelper([...arg], map);
                 //
             } else if ($is.string(arg)) {
-                arg.split(/\s+/u).map((c) => map.set(c, true));
+                arg.split(/\s+/u).map((c) => c && map.set(c, true));
                 //
             } else if ($is.map(arg)) {
                 for (const [classNames, enable] of arg)
                     ($is.string(classNames) ? classNames : '').split(/\s+/u).map((c) => {
-                        true === enable ? map.set(c, true) : map.delete(c);
+                        c && true === enable ? map.set(c, true) : map.delete(c);
                     });
             } else if ($is.plainObject(arg)) {
                 for (const prop of internalClassPropVariants) {

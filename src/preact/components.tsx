@@ -4,14 +4,6 @@
 
 import '../resources/init.ts';
 
-export * as RadixAccordion from '@radix-ui/react-accordion';
-export * as RadixAlertDialog from '@radix-ui/react-alert-dialog';
-export * as RadixCollapsible from '@radix-ui/react-collapsible';
-export * as RadixDialog from '@radix-ui/react-dialog';
-export * as RadixHoverCard from '@radix-ui/react-hover-card';
-export * as RadixTabs from '@radix-ui/react-tabs';
-export * as RadixTooltip from '@radix-ui/react-tooltip';
-
 export { default as Route404 } from './components/404.tsx';
 export { default as Analytics, type Props as AnalyticsProps } from './components/analytics.tsx';
 export { default as As, type Props as AsProps } from './components/as.tsx';

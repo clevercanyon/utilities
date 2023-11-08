@@ -42,7 +42,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         return (
             <HTML>
                 <Head title={'index'} />
-                <Body>
+                <Body class='h-full'>
                     <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
                 </Body>
             </HTML>
@@ -94,7 +94,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         // Hydrate DOM now and continue.
         $preact.iso.hydrativelyRenderSPA({ App });
 
-        // Allow time for effects.
+        // Allow plenty of time for effects, such that any errors can be detected while testing.
         await new Promise((resolve) => {
             setTimeout(() => {
                 const domHydratedIndexMarkup = document.documentElement.outerHTML;
@@ -114,7 +114,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
                 expect(domHydratedIndexBodyMarkup).toContain('"params":{}');
 
                 resolve(true);
-            }, 1000);
+            }, 2500);
         });
     });
 });

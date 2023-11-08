@@ -2,7 +2,7 @@
  * Preact component.
  *
  * This depends on our consent API, which is web-only. For that reason, this component must be loaded and introduced
- * only by effects, and not inserted into DOM via SSR, or initial hydration, which could case diffing issues.
+ * only by effects, and not inserted into DOM via SSR, or initial hydration, which would case diffing issues.
  *
  * @requiredEnv web
  */
@@ -10,7 +10,6 @@
 import '../../resources/init.ts';
 
 import { $dom, $env, $is, $obj, $preact, $time, type $type } from '../../index.ts';
-import { RadixDialog } from '../components.tsx';
 import { default as As } from './as.tsx';
 
 // Various icons needed for consent dialog interface.
@@ -28,9 +27,9 @@ import { cookieData, updateCookieData, type Data, type OpenDialogEvent } from '.
  * Defines types.
  */
 export type State = $preact.State<{
-    debug: boolean;
     isInitial: boolean;
     open: boolean;
+    closing: boolean;
     data: Data;
 }>;
 export type Props = $preact.BasicPropsNoKeyRefChildren<object>;
@@ -52,9 +51,9 @@ export default function ConsentDialog(unusedꓺprops: Props = {}): $preact.VNode
     const brand = $env.get('APP_BRAND') as $type.Brand;
     const [state, updateState] = $preact.useReducedState((): State => {
         return $preact.initialState({
-            debug: $env.inDebugMode({ consent: '!!' }),
             isInitial: true,
             open: false,
+            closing: false,
             data: cookieData(),
         });
     });
@@ -93,25 +92,29 @@ export default function ConsentDialog(unusedꓺprops: Props = {}): $preact.VNode
             if (!state.open) updateState({ open: true, data: preconfiguredData as $type.PartialDeep<Data> });
         });
     }
+    // Holds a reference to our closing timeout.
+
+    const closingTimeout = $preact.useRef() as $preact.Ref<$type.Timeout>;
+
     // Defines prefixes for HTML IDs.
 
     const htmlIdPrefix = 'consent-dialog-';
     const htmlIdPrefixForOptInPrefs = htmlIdPrefix + 'prefs-opt-in-';
     const htmlIdPrefixForOptOutPrefs = htmlIdPrefix + 'prefs-opt-out-';
 
-    // Queries current preferences.
+    // Opens dialog w/ optional preconfigured data.
 
-    const queryPrefs = $preact.useCallback((): Data['prefs'] => {
-        return {
-            optIn: {
-                acceptFunctionalityCookies: $dom.query('#' + htmlIdPrefixForOptInPrefs + 'acceptFunctionalityCookies:checked') ? true : false,
-                acceptAnalyticsCookies: $dom.query('#' + htmlIdPrefixForOptInPrefs + 'acceptAnalyticsCookies:checked') ? true : false,
-                acceptAdvertisingCookies: $dom.query('#' + htmlIdPrefixForOptInPrefs + 'acceptAdvertisingCookies:checked') ? true : false,
-            },
-            optOut: {
-                doNotSellOrSharePII: $dom.query('#' + htmlIdPrefixForOptOutPrefs + 'doNotSellOrSharePII:checked') ? true : false,
-            },
-        };
+    const openDialog = $preact.useCallback((data?: $type.PartialDeep<Data>): void => {
+        clearTimeout(closingTimeout.current as $type.Timeout);
+        updateState({ open: true, closing: false, data: data || {} });
+    }, []);
+
+    // Closes dialog w/ delay for fade-out animation.
+
+    const closeDialog = $preact.useCallback((): void => {
+        clearTimeout(closingTimeout.current as $type.Timeout);
+        updateState({ closing: true }); // Allowing time for fade-out animation.
+        closingTimeout.current = setTimeout((): void => updateState({ open: false, closing: false }), 150);
     }, []);
 
     // Gets all prefs as a boolean value.
@@ -129,13 +132,27 @@ export default function ConsentDialog(unusedꓺprops: Props = {}): $preact.VNode
         }),
         [],
     );
+    // Queries current preferences.
+
+    const queryPrefs = $preact.useCallback((): Data['prefs'] => {
+        return {
+            optIn: {
+                acceptFunctionalityCookies: $dom.query('#' + htmlIdPrefixForOptInPrefs + 'accept-functionality-cookies:checked') ? true : false,
+                acceptAnalyticsCookies: $dom.query('#' + htmlIdPrefixForOptInPrefs + 'accept-analytics-cookies:checked') ? true : false,
+                acceptAdvertisingCookies: $dom.query('#' + htmlIdPrefixForOptInPrefs + 'accept-advertising-cookies:checked') ? true : false,
+            },
+            optOut: {
+                doNotSellOrSharePII: $dom.query('#' + htmlIdPrefixForOptOutPrefs + 'do-not-sell-or-share-pii:checked') ? true : false,
+            },
+        };
+    }, []);
+
     // Updates preferences.
 
     const updatePrefs = $preact.useCallback((prefs: Data['prefs']): void => {
         void $preact.useConsent().then(({ state: consentState }) => {
-            // Formulates state updates.
+            // State updates.
             const updates = {
-                open: false,
                 data: {
                     prefs,
                     version: consentState.dataVersion,
@@ -146,23 +163,23 @@ export default function ConsentDialog(unusedꓺprops: Props = {}): $preact.VNode
                     },
                 },
             };
-            // Computes next state, updates cookie data, and state.
-            const nextState = $preact.reduceState(stateRef.current, updates);
-            updateCookieData(nextState.data), updateState(updates);
+            // Computes next data, updates cookie data, state, and closes.
+            const nextData = $preact.reduceState(stateRef.current, updates).data;
+            updateCookieData(nextData), updateState(updates), closeDialog();
 
             // This fires an update event and then potentially reloads immediately.
-            // Event listeners should assume no reload will occur, but it may, at times.
-            $dom.trigger(document, 'x:consentDialog:update', { data: nextState.data } as UpdateEvent['detail']);
+            // Event listeners should assume no reload will occur, but its entirely possible.
+            $dom.trigger(document, 'x:consentDialog:update', { data: nextData } as UpdateEvent['detail']);
 
             // This reloads the page, such that we honor critical preference updates immediately.
             // e.g., Something was true before, and now falsey. Or falsey before, and now true.
             if (
                 Object.entries(prefsPriorToOpen.current.optIn).some(([key, oldValue]) => {
-                    const newValue = (nextState.data.prefs.optIn as $type.Object)[key];
+                    const newValue = (nextData.prefs.optIn as $type.Object)[key];
                     return oldValue && !newValue ? true : false;
                 }) ||
                 Object.entries(prefsPriorToOpen.current.optOut).some(([key, oldValue]) => {
-                    const newValue = (nextState.data.prefs.optOut as $type.Object)[key];
+                    const newValue = (nextData.prefs.optOut as $type.Object)[key];
                     return !oldValue && newValue ? true : false;
                 })
             ) {
@@ -180,177 +197,173 @@ export default function ConsentDialog(unusedꓺprops: Props = {}): $preact.VNode
 
     const onCheckboxChange = $preact.useCallback((): void => updateState({ data: { prefs: queryPrefs() } }), []);
     const onInadvertentSubmit = $preact.useCallback((event: Event): void => event.preventDefault(), []);
-    const onInteractOutside = $preact.useCallback((event: Event): void => event.preventDefault(), []);
-    const onOpenChange = $preact.useCallback((open: boolean): void => updateState({ open }), []);
 
-    const onOpenDialog = $preact.useCallback((event: OpenDialogEvent): void => {
-        updateState({ open: true, data: event.detail.data });
-    }, []); // The `cancel` function is returned as the effect on teardown.
+    const onOpenDialog = $preact.useCallback((event: OpenDialogEvent): void => openDialog(event.detail.data), []);
     $preact.useEffect((): (() => void) => $dom.on(document, 'x:consent:openDialog', onOpenDialog).cancel, []);
+    // ↑ The `cancel` function is returned as the effect on teardown.
 
     // ---
     // VNode / JSX element tree.
 
     return (
         <As tag='x-preact-app-consent-dialog'>
-            <RadixDialog.Root open={state.open} onOpenChange={onOpenChange}>
-                <RadixDialog.Portal>
-                    <RadixDialog.Overlay
-                        style={{ zIndex: 103 }}
-                        class='fixed inset-0 h-screen w-screen bg-color-basic/90 backdrop-blur-sm data-[state=closed]:animate-fade-out data-[state=open]:animate-fade-in'
-                    />
-                    <RadixDialog.Content
-                        style={{ zIndex: 104 }}
-                        class='fixed inset-1/2 h-min max-h-[calc(100vh_-_3rem)] w-[calc(100%_-_3rem)] max-w-[720px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-none rounded border border-color-basic-fg/30 bg-color-basic p-6 lte-tablet:p-4 lte-phone:max-h-[calc(100vh_-_1.5rem)] lte-phone:w-[calc(100%_-_1.5rem)] lte-phone:p-3'
-                        onInteractOutside={onInteractOutside}
-                    >
-                        <section aria-label='Cookie Preferences Dialog'>
-                            <button
-                                type='button'
-                                onClick={onClose}
-                                title='Close Consent Dialog'
-                                class='float-right -mr-2 -mt-2 ml-4 text-color-basic-fg/70 hover:text-color-basic-fg lte-tablet:-mr-1 lte-tablet:-mt-1'
-                            >
-                                <span class='sr-only'>Close Consent Dialog</span>
-                                <HeroiconsXMark class='inline-block h-auto w-4' aria-hidden='true' />
-                            </button>
-                            <div class='text-sm'>
-                                <h2 class='-mt-2 text-lg text-color-basic-heading lte-tablet:-mt-1'>
-                                    <FluentEmojiFlatCookie class='-ml-1 mr-1 inline-block h-auto w-6' aria-hidden='true' />
-                                    Cookie Preferences
-                                </h2>
-                                <p class='mt-2 text-color-basic-fg/50'>
-                                    Your privacy is critically important to us. By using our website you consent to essential cookies in accordance with our{' '}
-                                    <a class='not-basic text-color-basic-fg/70 hover:text-color-basic-link' href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
-                                        privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline-block h-auto w-2' aria-hidden='true' />
-                                    </a>{' '}
-                                    . By clicking "Accept All", you are choosing to accept all cookies, including non-essential cookies. Or, by clicking "Decline All", you are
-                                    choosing to decline all non-essential cookies.
-                                </p>
-                                <form class='mt-2' novalidate onSubmit={onInadvertentSubmit}>
-                                    <div class='flex flex-wrap'>
-                                        <div class='w-1/2 lte-tablet:w-full'>
-                                            <div>
-                                                <Checkbox
-                                                    label='Essential Cookies (always on)'
-                                                    labelProps={{}}
-                                                    //
-                                                    id={htmlIdPrefixForOptInPrefs + 'essentialCookies'}
-                                                    class='bg-color-basic text-color-primary'
-                                                    //
-                                                    disabled={true}
-                                                    checked={true}
-                                                    onChange={onCheckboxChange}
-                                                />{' '}
-                                                <HelpIconToggle title='Learn More About Essential Cookies'>
-                                                    <p class='my-1 ml-2 text-color-basic-fg/50'>
-                                                        Essential cookies are always enabled. They’re necessary for our site to function; e.g., account access, consent settings,
-                                                        preferences. To learn more, please review our{' '}
-                                                        <a href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
-                                                            privacy policy <Fa6SolidArrowUpRightFromSquare class='inline-block h-auto w-2' aria-hidden='true' />
-                                                        </a>
-                                                    </p>
-                                                </HelpIconToggle>
-                                            </div>
-                                            <div>
-                                                <Checkbox
-                                                    label='Accept Functionality Cookies'
-                                                    labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'text-color-basic-fg/50 line-through' : '' }}
-                                                    //
-                                                    id={htmlIdPrefixForOptInPrefs + 'acceptFunctionalityCookies'}
-                                                    class='bg-color-basic text-color-success'
-                                                    //
-                                                    disabled={prefs.optOut.doNotSellOrSharePII ? true : false}
-                                                    checked={!prefs.optOut.doNotSellOrSharePII && prefs.optIn.acceptFunctionalityCookies ? true : false}
-                                                    onChange={onCheckboxChange}
-                                                />{' '}
-                                                <HelpIconToggle title='Learn More About Functionality Cookies'>
-                                                    <p class='my-1 ml-2 text-color-basic-fg/50'>
-                                                        Functionality cookies are similar to essential cookies. They remember preferences and improve user experience. However,
-                                                        unlike essential cookies, they are not strictly necessary.
-                                                    </p>
-                                                </HelpIconToggle>
-                                            </div>
-                                            <div>
-                                                <Checkbox
-                                                    label='Accept Analytics Cookies'
-                                                    labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'text-color-basic-fg/50 line-through' : '' }}
-                                                    //
-                                                    id={htmlIdPrefixForOptInPrefs + 'acceptAnalyticsCookies'}
-                                                    class='bg-color-basic text-color-success'
-                                                    //
-                                                    disabled={prefs.optOut.doNotSellOrSharePII ? true : false}
-                                                    checked={!prefs.optOut.doNotSellOrSharePII && prefs.optIn.acceptAnalyticsCookies ? true : false}
-                                                    onChange={onCheckboxChange}
-                                                />{' '}
-                                                <HelpIconToggle title='Learn More About Analytics Cookies'>
-                                                    <p class='my-1 ml-2 text-color-basic-fg/50'>
-                                                        Analytics cookies measure user experience, traffic volume, traffic source, clicks, etc. We use these to optimize performance
-                                                        by collecting information about how users interact with our site.
-                                                    </p>
-                                                </HelpIconToggle>
-                                            </div>
-                                            <div>
-                                                <Checkbox
-                                                    label='Accept Advertising Cookies'
-                                                    labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'text-color-basic-fg/50 line-through' : '' }}
-                                                    //
-                                                    id={htmlIdPrefixForOptInPrefs + 'acceptAdvertisingCookies'}
-                                                    class='bg-color-basic text-color-success'
-                                                    //
-                                                    disabled={prefs.optOut.doNotSellOrSharePII ? true : false}
-                                                    checked={!prefs.optOut.doNotSellOrSharePII && prefs.optIn.acceptAdvertisingCookies ? true : false}
-                                                    onChange={onCheckboxChange}
-                                                />{' '}
-                                                <HelpIconToggle title='Learn More About Advertising Cookies'>
-                                                    <p class='ml-2 mt-1 text-color-basic-fg/50'>
-                                                        Advertising cookies are used to identify visitors across sites; e.g., content partners, ad networks. We and our partners use
-                                                        these to provide relevant ad content and to understand its effectiveness.
-                                                    </p>
-                                                </HelpIconToggle>
-                                            </div>
-                                            <h3 class='mt-3 border-t border-color-basic-fg/10 pt-2 text-base text-color-basic-heading'>Opt-Out Preferences</h3>
-                                            <div>
-                                                <Checkbox
-                                                    label='Do Not Sell or Share My Personal Information'
-                                                    labelProps={{}}
-                                                    //
-                                                    id={htmlIdPrefixForOptOutPrefs + 'doNotSellOrSharePII'}
-                                                    class='bg-color-basic text-color-danger'
-                                                    //
-                                                    disabled={false}
-                                                    checked={prefs.optOut.doNotSellOrSharePII ? true : false}
-                                                    onChange={onCheckboxChange}
-                                                />{' '}
-                                                <HelpIconToggle title='Learn More About Opting Out'>
-                                                    <p class='ml-2 mt-1 text-color-basic-fg/50'>
-                                                        Opting out declines all non-essential cookies &amp; disables selling or sharing of your personal data.
-                                                    </p>
-                                                </HelpIconToggle>
-                                            </div>
+            <dialog open={state.open} aria-label='Consent Dialog'>
+                <div
+                    style={{ zIndex: 103 }}
+                    class='pointer-events-none fixed inset-0 h-screen w-screen bg-color-basic/90 backdrop-blur-sm data-[open=false]:animate-fade-out data-[open=true]:animate-fade-in'
+                    data-open={!state.closing && state.open}
+                />
+                <div
+                    style={{ zIndex: 104 }}
+                    class='fixed inset-1/2 h-min max-h-[calc(100vh_-_3rem)] w-[calc(100%_-_3rem)] max-w-[720px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-none rounded border border-color-basic-fg/30 bg-color-basic p-6 data-[open=false]:animate-fade-out data-[open=true]:animate-fade-in lte-tablet:p-4 lte-phone:max-h-[calc(100vh_-_1.5rem)] lte-phone:w-[calc(100%_-_1.5rem)] lte-phone:p-3'
+                    data-open={!state.closing && state.open}
+                >
+                    <section aria-label='Consent Preferences'>
+                        <button
+                            type='button'
+                            onClick={onClose}
+                            title='Close Consent Dialog'
+                            class='float-right -mr-2 -mt-2 ml-4 text-color-basic-fg/70 hover:text-color-basic-fg lte-tablet:-mr-1 lte-tablet:-mt-1'
+                        >
+                            <span class='sr-only'>Close Consent Dialog</span>
+                            <HeroiconsXMark class='inline-block h-auto w-4' aria-hidden='true' />
+                        </button>
+                        <div class='text-sm'>
+                            <h2 class='-mt-2 text-lg text-color-basic-heading lte-tablet:-mt-1'>
+                                <FluentEmojiFlatCookie class='-ml-1 mr-1 inline-block h-auto w-6' aria-hidden='true' />
+                                Cookie Preferences
+                            </h2>
+                            <p class='mt-2 text-color-basic-fg/50'>
+                                Your privacy is critically important to us. By using our website you consent to essential cookies in accordance with our{' '}
+                                <a class='not-basic text-color-basic-fg/70 hover:text-color-basic-link' href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
+                                    privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline-block h-auto w-2' aria-hidden='true' />
+                                </a>{' '}
+                                . By clicking "Accept All", you are choosing to accept all cookies, including non-essential cookies. Or, by clicking "Decline All", you are choosing
+                                to decline all non-essential cookies.
+                            </p>
+                            <form onSubmit={onInadvertentSubmit} class='mt-2' novalidate>
+                                <div class='flex flex-wrap'>
+                                    <div class='w-1/2 lte-tablet:w-full'>
+                                        <div>
+                                            <Checkbox
+                                                label='Essential Cookies (always on)'
+                                                labelProps={{}}
+                                                //
+                                                id={htmlIdPrefixForOptInPrefs + 'always-on-essential-cookies'}
+                                                class='bg-color-basic text-color-primary'
+                                                //
+                                                disabled={true}
+                                                checked={true}
+                                                onChange={onCheckboxChange}
+                                            />{' '}
+                                            <HelpIconToggle title='Learn More About Essential Cookies'>
+                                                <p class='my-1 ml-2 text-color-basic-fg/50'>
+                                                    Essential cookies are always enabled. They’re necessary for our site to function; e.g., account access, consent settings,
+                                                    preferences. To learn more, please review our{' '}
+                                                    <a href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
+                                                        privacy policy <Fa6SolidArrowUpRightFromSquare class='inline-block h-auto w-2' aria-hidden='true' />
+                                                    </a>
+                                                </p>
+                                            </HelpIconToggle>
                                         </div>
-                                        <div class='flex w-1/2 items-end justify-end gap-2.5 lte-tablet:mt-4 lte-tablet:w-full'>
-                                            {isAnyPrefTrue ? (
-                                                <Button onClick={onSave} class='bg-color-primary text-color-primary-fg' title='Save &amp; Close'>
-                                                    Save &amp; Close
-                                                </Button>
-                                            ) : (
-                                                <Button withIcon={true} onClick={onAcceptAll} class='bg-color-primary text-color-primary-fg' title='Accept All Cookies'>
-                                                    <Fa6SolidCircleCheck class='-ml-0.5 inline-block h-auto w-5' aria-hidden='true' />
-                                                    Accept All
-                                                </Button>
-                                            )}
-                                            <Button onClick={onDeclineAll} class='bg-color-dark text-color-dark-fg/70' title='Decline All Non-Essential Cookies'>
-                                                Decline All
-                                            </Button>
+                                        <div>
+                                            <Checkbox
+                                                label='Accept Functionality Cookies'
+                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'text-color-basic-fg/50 line-through' : '' }}
+                                                //
+                                                id={htmlIdPrefixForOptInPrefs + 'accept-functionality-cookies'}
+                                                class='bg-color-basic text-color-success'
+                                                //
+                                                disabled={prefs.optOut.doNotSellOrSharePII ? true : false}
+                                                checked={!prefs.optOut.doNotSellOrSharePII && prefs.optIn.acceptFunctionalityCookies ? true : false}
+                                                onChange={onCheckboxChange}
+                                            />{' '}
+                                            <HelpIconToggle title='Learn More About Functionality Cookies'>
+                                                <p class='my-1 ml-2 text-color-basic-fg/50'>
+                                                    Functionality cookies are similar to essential cookies. They remember preferences and improve user experience. However, unlike
+                                                    essential cookies, they are not strictly necessary.
+                                                </p>
+                                            </HelpIconToggle>
+                                        </div>
+                                        <div>
+                                            <Checkbox
+                                                label='Accept Analytics Cookies'
+                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'text-color-basic-fg/50 line-through' : '' }}
+                                                //
+                                                id={htmlIdPrefixForOptInPrefs + 'accept-analytics-cookies'}
+                                                class='bg-color-basic text-color-success'
+                                                //
+                                                disabled={prefs.optOut.doNotSellOrSharePII ? true : false}
+                                                checked={!prefs.optOut.doNotSellOrSharePII && prefs.optIn.acceptAnalyticsCookies ? true : false}
+                                                onChange={onCheckboxChange}
+                                            />{' '}
+                                            <HelpIconToggle title='Learn More About Analytics Cookies'>
+                                                <p class='my-1 ml-2 text-color-basic-fg/50'>
+                                                    Analytics cookies measure user experience, traffic volume, traffic source, clicks, etc. We use these to optimize performance by
+                                                    collecting information about how users interact with our site.
+                                                </p>
+                                            </HelpIconToggle>
+                                        </div>
+                                        <div>
+                                            <Checkbox
+                                                label='Accept Advertising Cookies'
+                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'text-color-basic-fg/50 line-through' : '' }}
+                                                //
+                                                id={htmlIdPrefixForOptInPrefs + 'accept-advertising-cookies'}
+                                                class='bg-color-basic text-color-success'
+                                                //
+                                                disabled={prefs.optOut.doNotSellOrSharePII ? true : false}
+                                                checked={!prefs.optOut.doNotSellOrSharePII && prefs.optIn.acceptAdvertisingCookies ? true : false}
+                                                onChange={onCheckboxChange}
+                                            />{' '}
+                                            <HelpIconToggle title='Learn More About Advertising Cookies'>
+                                                <p class='ml-2 mt-1 text-color-basic-fg/50'>
+                                                    Advertising cookies are used to identify visitors across sites; e.g., content partners, ad networks. We and our partners use
+                                                    these to provide relevant ad content and to understand its effectiveness.
+                                                </p>
+                                            </HelpIconToggle>
+                                        </div>
+                                        <h3 class='mt-3 border-t border-color-basic-fg/10 pt-2 text-base text-color-basic-heading'>Opt-Out Preferences</h3>
+                                        <div>
+                                            <Checkbox
+                                                label='Do Not Sell or Share My Personal Information'
+                                                labelProps={{}}
+                                                //
+                                                id={htmlIdPrefixForOptOutPrefs + 'do-not-sell-or-share-pii'}
+                                                class='bg-color-basic text-color-danger'
+                                                //
+                                                disabled={false}
+                                                checked={prefs.optOut.doNotSellOrSharePII ? true : false}
+                                                onChange={onCheckboxChange}
+                                            />{' '}
+                                            <HelpIconToggle title='Learn More About Opting Out'>
+                                                <p class='ml-2 mt-1 text-color-basic-fg/50'>
+                                                    Opting out declines all non-essential cookies &amp; disables selling or sharing of your personal data.
+                                                </p>
+                                            </HelpIconToggle>
                                         </div>
                                     </div>
-                                </form>
-                            </div>
-                        </section>
-                    </RadixDialog.Content>
-                </RadixDialog.Portal>
-            </RadixDialog.Root>
+                                    <div class='flex w-1/2 items-end justify-end gap-2.5 lte-tablet:mt-4 lte-tablet:w-full'>
+                                        {isAnyPrefTrue ? (
+                                            <Button onClick={onSave} class='bg-color-primary text-color-primary-fg' title='Save &amp; Close'>
+                                                Save &amp; Close
+                                            </Button>
+                                        ) : (
+                                            <Button withIcon={true} onClick={onAcceptAll} class='bg-color-primary text-color-primary-fg' title='Accept All Cookies'>
+                                                <Fa6SolidCircleCheck class='-ml-0.5 inline-block h-auto w-5' aria-hidden='true' />
+                                                Accept All
+                                            </Button>
+                                        )}
+                                        <Button onClick={onDeclineAll} class='bg-color-dark text-color-dark-fg/70' title='Decline All Non-Essential Cookies'>
+                                            Decline All
+                                        </Button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            </dialog>
         </As>
     );
 }

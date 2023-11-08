@@ -46,7 +46,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         return (
             <HTML>
                 <Head title={'index'} />
-                <Body>
+                <Body class='h-full'>
                     <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
                 </Body>
             </HTML>

@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $dom, $env, $preact } from '../../index.ts';
+import { $dom, $env, $preact, $to } from '../../index.ts';
 import { default as As } from './as.tsx';
 import { default as ConsentAsync } from './consent-async.tsx';
 
@@ -52,15 +52,19 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
         return $preact.initialState($preact.omitProps(props, ['children']));
     });
     const state = $preact.useMemo((): State => {
-        return {
-            ...$preact.omitProps(actualState, ['class']),
-            class: $preact.classes(actualState),
-        };
+        return { ...$preact.omitProps(actualState, ['class']), class: $preact.classes(actualState) };
+    }, [actualState]);
+
+    const xPreactAppClasses = $preact.useMemo((): string => {
+        const hFullClass = 'h-full'; // Special case of needing this to match w/ <body>.
+        return 'block' + ($preact.classMap(actualState).has(hFullClass) ? ' ' + hFullClass : '');
     }, [actualState]);
 
     if ($env.isWeb()) {
         $preact.useLayoutEffect(() => {
             $dom.newAtts($dom.body(), state);
+            const xPreactApp = $dom.xPreactApp();
+            if (xPreactApp) $dom.setAtts(xPreactApp, { class: xPreactAppClasses });
         }, [state]);
     }
     return (
@@ -72,7 +76,7 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
                 </>
             ) : (
                 <body {...state}>
-                    <As tag='x-preact-app' data-hydrate={''}>
+                    <As tag='x-preact-app' class={xPreactAppClasses} data-hydrate={''}>
                         {props.children}
                     </As>
                 </body>
