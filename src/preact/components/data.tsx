@@ -42,10 +42,6 @@ export type Context = $preact.Context<{
     updateState: Data['updateState'];
     forceUpdate: Data['forceUpdate'];
 }>;
-export type HTTPContext = $preact.Context<{
-    state: GlobalState['http'];
-    updateState: $preact.StateDispatcher<PartialGlobalStateUpdates['http']>;
-}>;
 
 /**
  * Defines global types.
@@ -72,6 +68,17 @@ export type PartialGlobalStateUpdates = $preact.State<
         http?: Partial<Pick<GlobalState['http'], UpdatableGlobalHTTPStateKeys>>;
     }
 >;
+
+/**
+ * Defines global HTTP types.
+ *
+ * HTTP state lives within global state. We export an SSR-only hook so it’s easy to access its psuedo-context within
+ * global state, which is what is being defined here. For further details, {@see useHTTP()}.
+ */
+export type HTTPContext = $preact.Context<{
+    state: GlobalState['http'];
+    updateState: $preact.StateDispatcher<PartialGlobalStateUpdates['http']>;
+}>;
 
 /**
  * Defines passable `<Head>` state keys.
@@ -262,6 +269,13 @@ export default class Data extends Component<Props, State> {
 // Misc exports.
 
 /**
+ * Defines named prop keys for easy reuse.
+ *
+ * @returns Array of named {@see Data} prop keys; i.e., excludes `children`.
+ */
+export const namedPropKeys = () => ['globalObp', 'fetcher', 'head'];
+
+/**
  * Defines default global object path.
  *
  * This is also called upon by our ISO prerenderer.
@@ -269,13 +283,6 @@ export default class Data extends Component<Props, State> {
 export const defaultGlobalObp = (): string => {
     return $str.obpPartSafe($app.pkgName) + '.preactISOData';
 };
-
-/**
- * Defines named prop keys for easy reuse.
- *
- * @returns Array of named {@see Data} prop keys; i.e., excludes `children`.
- */
-export const namedPropKeys = () => ['globalObp', 'fetcher', 'head'];
 
 /**
  * Converts global state into embeddable script code.

@@ -2,9 +2,9 @@
  * Test suite.
  */
 
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { $brand, $env, $json, $preact, $url } from '../../../../index.ts';
-import { Body, HTML, Head, Root, Route, type RootProps, type RoutedProps } from '../../../../preact/components.tsx';
+import { Body, HTML, Head, Root, Route, type RootProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
@@ -35,11 +35,10 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         return (
             <Root {...props}>
                 <Route path='./' component={Index} />
-                <Route default component={Route404} />
             </Root>
         );
     };
-    const Index = (unusedꓺprops: RoutedProps): $preact.VNode<RoutedProps> => {
+    const Index = (): $preact.VNode => {
         return (
             <HTML>
                 <Head title={'index'} />
@@ -49,13 +48,26 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
             </HTML>
         );
     };
-    const Route404 = $preact.lazyRoute(() => import('../../../../preact/components/404.tsx'));
-
     // ---
 
-    test('basics', async () => {
+    test('$preact.iso.hydrativelyRenderSPA()', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async (...args): Promise<Response> => {
+                if ('https://workers.hop.gdn/utilities/ip-geo/v1' === args[0]) {
+                    return new Response('{ "mockFetchResponse": "' + String(args[0]) + '" }', {
+                        status: 200,
+                        headers: { 'content-type': 'application/json; charset=utf-8' },
+                    });
+                }
+                return new Response('Plain text, mock fetch response.', {
+                    status: 200,
+                    headers: { 'content-type': 'text/plain; charset=utf-8' },
+                });
+            }),
+        );
         // Populates DOM using fixture from SSR.
-        const doctypeHTML = (await import('./ex-imports/fixtures/prerender-for-web.html?raw')).default;
+        const doctypeHTML = (await import('./ex-imports/fixtures/prerender-spa-for-web.html?raw')).default;
         Object.defineProperty(window, 'location', { value: new URL('http://x.tld/?a=_a&b=_b&c=_c') });
         document.open(), document.write(doctypeHTML), document.close();
 
@@ -80,7 +92,6 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         expect(domIndexBodyMarkup).toContain('"params":{}');
 
         // Hydrate DOM now and continue.
-
         $preact.iso.hydrativelyRenderSPA({ App });
 
         // Allow time for effects.

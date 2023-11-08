@@ -252,7 +252,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
     // Minified `__c` = `_childDidSuspend()`. See: <https://o5p.me/3gXT4t>.
 
     thisObj.__c = $preact.useCallback(
-        (thrownPromise: Promise<unknown>) => {
+        (thrownPromise: Promise<unknown>): void => {
             // Marks current render as having suspended.
             currentRouteDidSuspend.current = true;
 
@@ -314,7 +314,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             routerHasEverCommitted.current = true;
         }, [locationState, layoutTicks]);
 
-        $preact.useEffect(() => {
+        $preact.useEffect((): void => {
             // Ignores suspended renders.
             if (currentRouteDidSuspend.current) {
                 return; // Stop here.
@@ -457,8 +457,6 @@ let scrollHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.
 
 /**
  * Generates `<x-preact-app-loading>` element.
- *
- * This uses some inline styles to avoid adding arbitrary values to a CSS bundle.
  *
  * @returns `<x-preact-app-loading>` element; {@see Element}.
  *

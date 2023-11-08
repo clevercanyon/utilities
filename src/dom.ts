@@ -1,5 +1,7 @@
 /**
  * DOM utilities.
+ *
+ * @requiredEnv web
  */
 
 import './resources/init.ts';
@@ -31,8 +33,6 @@ export type EventTools = { cancel: () => void };
 
 /**
  * Initializes scroll status.
- *
- * @requiredEnv web
  */
 const initializeScrollStatus = (): void => {
     if (initializedScrollStatus) return;
@@ -66,10 +66,13 @@ const initializeScrollStatus = (): void => {
     let wheelTimeout: $type.Timeout | undefined;
     const wheelScrollEndCallback = () => void onScrollEndCallback();
 
-    const onWheelCallback = $fn.throttle((): void => {
-        clearTimeout(wheelTimeout), void onScrollCallback();
-        wheelTimeout = setTimeout(wheelScrollEndCallback, 300);
-    });
+    const onWheelCallback = $fn.throttle(
+        (): void => {
+            clearTimeout(wheelTimeout), void onScrollCallback();
+            wheelTimeout = setTimeout(wheelScrollEndCallback, 300);
+        },
+        { waitTime: 250 }, // Absolutely *must* be less than `wheelTimeout`.
+    );
     on(window, 'wheel', onWheelCallback);
 };
 
@@ -79,8 +82,6 @@ const initializeScrollStatus = (): void => {
  * @param   callback Callback.
  *
  * @returns          Event tools; {@see EventTools}.
- *
- * @requiredEnv web
  */
 export const onReady = (callback: AnyVoidFn): EventTools => {
     const eventName = 'DOMContentLoaded';
@@ -100,8 +101,6 @@ export const onReady = (callback: AnyVoidFn): EventTools => {
  * @param   callback Callback.
  *
  * @returns          Event tools; {@see EventTools}.
- *
- * @requiredEnv web
  */
 export const onLoad = (callback: AnyVoidFn): EventTools => {
     const eventName = 'load';
@@ -121,11 +120,9 @@ export const onLoad = (callback: AnyVoidFn): EventTools => {
  * @param   callback Callback.
  *
  * @returns          Event tools; {@see EventTools}.
- *
- * @requiredEnv web
  */
 export const onScrollEnd = (callback: AnyVoidFn): EventTools => {
-    initializeScrollStatus();
+    initializeScrollStatus(); // If not already.
 
     const eventName = 'x:scrollEnd';
     const actualCallback = (): void => void callback();
@@ -144,8 +141,6 @@ export const onScrollEnd = (callback: AnyVoidFn): EventTools => {
  * @param   callback Callback.
  *
  * @returns          Event tools; {@see EventTools}.
- *
- * @requiredEnv web
  */
 export const onNextFrame = (callback: AnyVoidFn): EventTools => {
     const raf = requestAnimationFrame((): void => void callback());
@@ -162,8 +157,6 @@ export const onNextFrame = (callback: AnyVoidFn): EventTools => {
  * @param   callback Callback.
  *
  * @returns          Event tools; {@see EventTools}.
- *
- * @requiredEnv web
  */
 export const afterNextFrame = (callback: AnyVoidFn): EventTools => {
     const done = () => {
@@ -192,8 +185,6 @@ export const afterNextFrame = (callback: AnyVoidFn): EventTools => {
  * @param   options    Options (all optional); {@see AddEventListenerOptions}.
  *
  * @returns            Event tools; {@see EventTools}.
- *
- * @requiredEnv web
  */
 export function on(wdes: WDES, eventNames: string | string[], callback: AnyEventHandler, options?: AddEventListenerOptions): EventTools;
 export function on(wdes: WDES, eventNames: string | string[], selectors: string, callback: AnyEventHandler, options?: AddEventListenerOptions): EventTools;
@@ -239,8 +230,6 @@ export function on(...args: unknown[]): EventTools {
  * @param event   Name of a custom event, {@see CustomEvent}, or {@see Event}.
  * @param data    For a custom event, optional data to pass as `detail` to listeners.
  * @param options For a custom event, optional initialization options; {@see CustomEventInit}.
- *
- * @requiredEnv web
  */
 export const trigger = (wdes: WDES, event: string | CustomEvent | Event, data?: object, options?: CustomEventInit): void => {
     const wde = $is.string(wdes) ? require(wdes) : wdes;
@@ -252,8 +241,6 @@ export const trigger = (wdes: WDES, event: string | CustomEvent | Event, data?: 
  * Appends an element to `<head>`.
  *
  * @param element Element to attach.
- *
- * @requiredEnv web
  */
 export const headAppend = (element: Element): void => {
     head().appendChild(element);
@@ -263,8 +250,6 @@ export const headAppend = (element: Element): void => {
  * Appends an element to `<body>`.
  *
  * @param element Element to attach.
- *
- * @requiredEnv web
  */
 export const bodyAppend = (element: Element): void => {
     body().appendChild(element);
@@ -277,8 +262,6 @@ export const bodyAppend = (element: Element): void => {
  * @param atts Optional attributes.
  *
  *   - Attributes may override default `rel`, `media` if necessary.
- *
- * @requiredEnv web
  */
 export const appendStyle = (href: string, atts: Partial<HTMLLinkElement> = {}): void => {
     headAppend(create('link', { rel: 'stylesheet', media: 'all', ...atts, href }));
@@ -291,8 +274,6 @@ export const appendStyle = (href: string, atts: Partial<HTMLLinkElement> = {}): 
  * @param atts Optional attributes.
  *
  *   - Attributes may override default `async` if necessary.
- *
- * @requiredEnv web
  */
 export const appendScript = (src: string, atts: Partial<HTMLScriptElement> = {}): void => {
     headAppend(create('script', { async: true, ...atts, src }));
@@ -305,8 +286,6 @@ export const appendScript = (src: string, atts: Partial<HTMLScriptElement> = {})
  * @param atts Optional attributes.
  *
  *   - Attributes may override default `type` if necessary.
- *
- * @requiredEnv web
  */
 export const appendModule = (src: string, atts: Partial<HTMLScriptElement> = {}): void => {
     headAppend(create('script', { type: 'module', ...atts, src }));
@@ -319,8 +298,6 @@ export const appendModule = (src: string, atts: Partial<HTMLScriptElement> = {})
  * @param   atts Optional attributes. Or, plain text when `tag=textNode`.
  *
  * @returns      Text node, SVG, HTML, or other element.
- *
- * @requiredEnv web
  */
 export function create(tag: 'textNode', value?: $type.Primitive): Text;
 export function create<Tag extends keyof HTMLElementTagNameMap>(tag: Tag, atts?: Partial<HTMLElementTagNameMap[Tag]>): HTMLElementTagNameMap[Tag];
@@ -365,8 +342,6 @@ export { create as h }; // `h` is short for hyperscript. Meaning, "JavaScript th
  *
  * @param element Element.
  * @param atts    Attributes.
- *
- * @requiredEnv web
  */
 export const newAtts = (element: Element, atts: AnyAtts): void => {
     for (let i = 0; i < element.attributes.length; i++) {
@@ -391,8 +366,6 @@ export const newAtts = (element: Element, atts: AnyAtts): void => {
  *
  * @param element Element.
  * @param atts    Attributes.
- *
- * @requiredEnv web
  */
 export const setAtts = (element: Element, atts: AnyAtts): void => {
     // Cast as keyable so we can access properties.
@@ -440,8 +413,6 @@ export const setAtts = (element: Element, atts: AnyAtts): void => {
  * Caches `<html>` element for each reuse.
  *
  * @returns HTML element; {@see HTMLHtmlElement}.
- *
- * @requiredEnv web
  */
 export const html = $fnꓺmemo((): HTMLHtmlElement => require('html'));
 
@@ -449,8 +420,6 @@ export const html = $fnꓺmemo((): HTMLHtmlElement => require('html'));
  * Caches `<head>` element for each reuse.
  *
  * @returns Head element; {@see HTMLHeadElement}.
- *
- * @requiredEnv web
  */
 export const head = $fnꓺmemo((): HTMLHeadElement => require('head'));
 
@@ -458,8 +427,6 @@ export const head = $fnꓺmemo((): HTMLHeadElement => require('head'));
  * Caches `<body>` element for each reuse.
  *
  * @returns Body element; {@see HTMLBodyElement}.
- *
- * @requiredEnv web
  */
 export const body = $fnꓺmemo((): HTMLBodyElement => require('body'));
 
@@ -467,8 +434,6 @@ export const body = $fnꓺmemo((): HTMLBodyElement => require('body'));
  * Caches `<x-preact-app>` element for each reuse.
  *
  * @returns Element; {@see HTMLElement}, else `null` if not present in DOM.
- *
- * @requiredEnv web
  */
 export const xPreactApp = $fnꓺmemo((): HTMLElement | null => query('body > x-preact-app'));
 
@@ -481,8 +446,6 @@ export const xPreactApp = $fnꓺmemo((): HTMLElement | null => query('body > x-p
  *
  *   - Passing `selectors` as a string implies {@see document.querySelector()}, and returns an element.
  *   - Passing `selectors` as an array implies {@see document.querySelectorAll()}, and returns a {@see NodeList}.
- *
- * @requiredEnv web
  */
 export function query<Type extends keyof HTMLElementTagNameMap>(selectors: Type): HTMLElementTagNameMap[Type] | null;
 export function query<Type extends keyof HTMLElementTagNameMap>(selectors: Type[]): NodeListOf<HTMLElementTagNameMap[Type]>;
@@ -519,8 +482,6 @@ export function query<Type extends Element = Element, Selectors extends string[]
  *
  *   - Passing `selectors` as a string implies {@see document.querySelector()}, and returns an element.
  *   - Passing `selectors` as an array implies {@see document.querySelectorAll()}, and returns a {@see NodeList}.
- *
- * @requiredEnv web
  */
 export function require<Type extends keyof HTMLElementTagNameMap>(selectors: Type): HTMLElementTagNameMap[Type];
 export function require<Type extends keyof HTMLElementTagNameMap>(selectors: Type[]): NodeListOf<HTMLElementTagNameMap[Type]>;
@@ -558,8 +519,6 @@ export function require<Type extends Element = Element, Selectors extends string
  * @param   selectors Selectors. Comma-delimited string, or an existing {@see Element}.
  *
  * @returns           A computed {@see CSSStyleDeclaration}.
- *
- * @requiredEnv web
  */
 export const stylesOf = (selectors: string | Element): CSSStyleDeclaration => {
     return getComputedStyle($is.string(selectors) ? require(selectors) : selectors);

@@ -61,6 +61,7 @@ export type Context = $preact.Context<{
     push: $preact.StateDispatcher<PartialActualStateUpdates | string>;
     updateState: $preact.StateDispatcher<PartialActualStateUpdates | MouseEvent | PopStateEvent | string>;
 }>;
+export type LocationChangeEvent = CustomEvent<{ state: State }>;
 
 /**
  * Defines context object.
@@ -133,20 +134,20 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
         // So let’s not attach when it’s a major crawler, because we ask they do full page changes.
         // For further details, please review other instances of `$env.isMajorCrawler()` in this file.
 
-        $preact.useEffect(() => {
+        $preact.useEffect((): (() => void) => {
             addEventListener('click', updateState);
             addEventListener('popstate', updateState);
 
-            return () => {
+            return (): void => {
                 removeEventListener('click', updateState);
                 removeEventListener('popstate', updateState);
             };
         }, []); // i.e., On mount/unmount only.
 
-        $preact.useEffect(() => {
+        $preact.useEffect((): void => {
             if (state.isInitial) return;
             if (props.onChange) props.onChange(state);
-            $dom.trigger(document, 'x:location:change', { state });
+            $dom.trigger(document, 'x:location:change', { state } as LocationChangeEvent['detail']);
         }, [state]);
     }
     return <ContextObject.Provider value={{ state, push: updateState, updateState }}>{props.children}</ContextObject.Provider>;

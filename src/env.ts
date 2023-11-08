@@ -4,7 +4,7 @@
 
 import './resources/init.ts';
 
-import { $app, $is, $obj, $obp, $str, $to, $type, $url } from './index.ts';
+import { $app, $cookie, $fn, $is, $obj, $obp, $str, $to, $type, $url } from './index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 let topLevelObp: string = '';
@@ -23,10 +23,25 @@ declare global {
 }
 declare const MINIFLARE: boolean;
 
+export type IPGeoData = {
+    city: string;
+    colo: string;
+    continent: string;
+    country: string;
+    latitude: string;
+    longitude: string;
+    metroCode: string;
+    postalCode: string;
+    region: string;
+    regionCode: string;
+    timezone: string;
+};
 export type GetOptions = { default?: unknown; type?: $type.EnsurableType };
 export type GetOptionsWithoutType = GetOptions & { type?: undefined };
 export type GetOptionsWithType = GetOptions & { type: $type.EnsurableType };
+
 export type QVTests = { [x: string]: null | undefined | string | string[] };
+export type TestOptions = { alsoTryCookie?: boolean };
 
 /**
  * Exports frequently-used errors.
@@ -418,35 +433,65 @@ export const isServiceWorker = $fnꓺmemo((): boolean => {
 /**
  * Checks if user-agent is a major crawler.
  *
- * @returns True if user-agent is a major crawler.
+ * @param   request Optional HTTP request to check.
+ *
+ *   - If not passed, only web environments can be tested properly.
+ *
+ * @returns         True if user-agent is a major crawler.
  *
  * @see https://blog.hubspot.com/marketing/top-search-engines
  * @see https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers
  * @see https://github.com/monperrus/crawler-user-agents/blob/master/crawler-user-agents.json
  */
-export const isMajorCrawler = $fnꓺmemo(() => {
-    if (isWeb())
-        for (const regExp of [
-            /\b(?:google|bing|msn|adidx|duckduck)bot\b/iu, // `*bot` patterns.
-            /\b(?:(?:ads|store)bot|apis|mediapartners)-google\b/iu, // `*-google` patterns.
-            /\bgoogle(?:-(?:read|site|adwords|extended|inspectiontool|structured)|producer|other)\b/iu, // `google{-*,*}` patterns.
-            /\b(?:slurp|teoma|yeti|heritrix|ia_archiver|archive\.org_bot|baiduspider|yandex\.com\/bots)\b/iu, // Other search engines.
-        ]) {
-            if (regExp.test(navigator.userAgent)) return true;
-        }
-    return false;
+export const isMajorCrawler = $fnꓺmemo(2, (request?: $type.Request) => {
+    const regExps = [
+        /\b(?:google|bing|msn|adidx|duckduck)bot\b/iu, // `*bot` patterns.
+        /\b(?:(?:ads|store)bot|apis|mediapartners)-google\b/iu, // `*-google` patterns.
+        /\bgoogle(?:-(?:read|site|adwords|extended|inspectiontool|structured)|producer|other)\b/iu, // `google{-*,*}` patterns.
+        /\b(?:slurp|teoma|yeti|heritrix|ia_archiver|archive\.org_bot|baiduspider|yandex\.com\/bots)\b/iu, // Other search engines.
+    ];
+    if (request) {
+        const { headers } = request;
+        const userAgent = headers.get('user-agent') || '';
+        if (regExps.some((regExp) => regExp.test(userAgent))) return true;
+    }
+    return isWeb() && regExps.some((regExp) => regExp.test(navigator.userAgent));
 });
 
 /**
  * Checks GPC/DNT headers.
  *
- * @returns True when GPC and/or DNT header exists.
+ * @param   request Optional HTTP request to check.
+ *
+ *   - If not passed, only web environments can be tested properly.
+ *
+ * @returns         True when GPC and/or DNT header exists.
  *
  * @see https://o5p.me/nXslpm
  * @see https://o5p.me/jAUC6x
  */
-export const hasGlobalPrivacy = $fnꓺmemo((): boolean => {
+export const hasGlobalPrivacy = $fnꓺmemo(2, (request?: $type.Request): boolean => {
+    if (request) {
+        const { headers } = request;
+        if ('1' === headers.get('sec-gpc') || '1' === headers.get('dnt')) return true;
+    }
     return isWeb() && ('1' === navigator.globalPrivacyControl || '1' === navigator.doNotTrack);
+});
+
+/**
+ * Gets IP geolocation data.
+ *
+ * @returns IP geolocation data promise.
+ *
+ * @note Recommened for web, but potentially useful in other environments.
+ * ---
+ * @note This does a remote first-party HTTP request to determine geolocation.
+ *       i.e., This is our own API, so we are not sharing with any third-party.
+ */
+export const ipGeoData = $fnꓺmemo(async (): Promise<IPGeoData> => {
+    return fetch('https://workers.hop.gdn/utilities/ip-geo/v1') //
+        .then((response) => response.json())
+        .then((data) => data as IPGeoData);
 });
 
 /**
@@ -476,11 +521,23 @@ export const isC10n = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {
 export const isVite = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = { serve: '*' }): boolean => test('APP_IS_VITE', tests));
 
 /**
- * Tests an environment variable's query vars.
+ * Checks if environment is in debug mode.
+ *
+ * @param   tests Optional tests. {@see test()} for details.
+ *
+ * @returns       True if environment is in debug mode.
+ *
+ *   - If different tests are passed, meaning of return value potentially changes.
+ */
+export const inDebugMode = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {}): boolean => test('DEBUG', tests, { alsoTryCookie: true }));
+
+/**
+ * Tests an environment variable's value, and query vars.
  *
  * @param   leadingObps Optional environment variable object path(s).
  * @param   subObpOrObp Subpath, or full object path if `leadingObps` is not passed, or empty.
  * @param   tests       Optional query var tests; e.g., `{ [var]: '*', [var]: '*', [var]: '*' }`.
+ * @param   options     Options (all optional); {@see TestOptions}.
  *
  *   Regarding environment variables:
  *
@@ -492,49 +549,58 @@ export const isVite = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {
  *   which must match the targeted query var. All query var tests must pass i.e., this uses AND logic. The use of OR
  *   logic can be achieved by calling this function multiple times in different ways; e.g., `if ( test() || test() )`.
  *
- *   - To test that a query var simply exists, use `{ [var]: '*' }`.
- *   - To test that a query var exists and is not empty, and not `'0'`, use `{ [var]: '?*' }`.
+ *   - To test that a query var simply exists, use `{ [var]: '*' }`. `null`, `undefined`, `''`, `*`, `**`, are all
+ *       equivalent, producing an 'exists' check. The recommend value is `*`, but take your pick.
+ *   - To test that a query var exists and is not empty, and not `'0'`, use `{ [var]: '!!' }`. `!!`, `?*`, `?**`, are all
+ *       equivalent, producing a not empty, not `'0'` check. The recommend value is `!!`, but take your pick.
  *
  * @returns             True if environment variable is not empty, not `'0'`, and all tests pass.
  *
- * @note Not memoizing because env variables can change at runtime.
+ * @note Not memoizing because env variables and cookies can change at runtime.
  */
-export function test(leadingObps: string | string[], subObpOrObp: string, tests?: QVTests): boolean;
-export function test(subObpOrObp: string, tests?: QVTests): boolean; // Shorter variant as a convenience.
+export function test(leadingObps: string | string[], subObpOrObp: string, tests?: QVTests, options?: TestOptions): boolean;
+export function test(subObpOrObp: string, tests?: QVTests, options?: TestOptions): boolean; // Shorter variant as a convenience.
 
 export function test(...args: unknown[]): boolean {
     // See notes above. Multiple signatures covered here.
-    let leadingObps: string | string[], subObpOrObp: string, tests: QVTests | undefined;
+    let leadingObps: string | string[], subObpOrObp: string;
+    let tests: QVTests | undefined, options: TestOptions | undefined;
 
-    if (1 === args.length || (2 === args.length && $is.object(args[1]))) {
-        (leadingObps = ['']), (subObpOrObp = args[0] as string), (tests = args[1] as QVTests | undefined);
-    } else (leadingObps = args[0] as string | string[]), (subObpOrObp = args[1] as string), (tests = args[2] as QVTests | undefined);
-
-    const value = get(leadingObps, subObpOrObp); // Env var value.
-
-    if ($is.emptyOrZero(value)) {
-        return false; // Env var empty = false.
+    if (1 === args.length || (args.length >= 2 && $is.object(args[1]))) {
+        (leadingObps = ['']), (subObpOrObp = args[0] as string);
+        (tests = args[1] as QVTests | undefined), (options = args[2] as TestOptions | undefined);
+    } else {
+        (leadingObps = args[0] as string | string[]), (subObpOrObp = args[1] as string);
+        (tests = args[2] as QVTests | undefined), (options = args[3] as TestOptions | undefined);
     }
-    if ($is.empty(tests)) {
-        return true; // Not empty, no tests = true.
+    const opts = $obj.defaults({}, options || {}, { alsoTryCookie: false }) as Required<TestOptions>;
+
+    let value = get(leadingObps, subObpOrObp); // Environment variable value.
+    // We can also try a cookie by the same name, but only under a set of specific conditions.
+    if (undefined === value && opts.alsoTryCookie && isWeb() && '' === $to.array(leadingObps).join('')) {
+        value = $cookie.get(subObpOrObp, undefined); // Cookie value.
     }
-    const strValue = String(value); // Force string.
-    const qvs = $url.getQueryVars('http://x.tld/?' + strValue);
+    if ($is.emptyOrZero(value)) return false; // Empty or `'0'` = false.
+    if ($is.empty(tests)) return true; // Not empty, not `'0'`, no tests = true.
+
+    const strValue = String(value); // Force string value.
+    // Depending on string value contents, this may or may not throw, so we 'try'.
+    const qvs = $fn.try(() => $url.getQueryVars('http://x.tld/?' + strValue), {} as $url.QueryVars)();
 
     for (const [qv, glob] of Object.entries(tests as QVTests)) {
         if (!Object.hasOwn(qvs, qv)) {
-            return false; // Missing qv.
+            return false; // Missing query variable.
         }
         if (!glob || '*' === glob || '**' === glob) {
-            continue; // The qv exists.
+            continue; // The query variable exists.
         }
-        if ('?*' === glob || '?**' === glob) {
-            if ($is.emptyOrZero(qvs[qv])) {
+        if ('!!' === glob || '?*' === glob || '?**' === glob) {
+            if ($is.emptyOrZero($str.parseValue(qvs[qv]))) {
                 return false; // Empty or `'0'`.
             } else continue; // Not empty, not `'0'`.
         }
         if (!$str.matches(qvs[qv], glob, { ignoreCase: true })) {
-            return false; // The qv doesn’t pass a test given.
+            return false; // The query variable doesn’t pass a given test.
         }
     }
     return true; // Passed all tests.

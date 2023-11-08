@@ -356,6 +356,9 @@ export const requestNeedsContentBody = $fnꓺmemo(2, (request: $type.Request, re
  * @param   request HTTP request object.
  *
  * @returns         True if request is coming from an identified user.
+ *
+ * @someday Consider parsing the cookie header to make this less prone to error in regexp.
+ *          i.e., We already have `$cookie.parse()` available for use here.
  */
 export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean => {
     if (request.headers.has('authorization')) {
@@ -364,8 +367,8 @@ export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean
     if (!request.headers.has('cookie')) {
         return false; // No cookies.
     }
-    const cookie = request.headers.get('cookie') || ''; // Encoded cookies.
-    return /(?:^\s*|;\s*)(?:ut[mx]_)?(?:logged[_-]in|user|author)(?:[_-][^=;]+)?=\s*"?[^";]/iu.test(cookie);
+    const cookie = request.headers.get('cookie') || ''; // Contains encoded cookies.
+    return /(?:^\s*|;\s*)(?:ut[mx]_)?(?:logged[_-]in|user|customer|author)(?:[_-][^=;]+)?=\s*"?[^";]/iu.test(cookie);
 });
 
 /**

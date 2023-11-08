@@ -121,6 +121,11 @@
             "import": "./dist/preact/components/404.js",
             "default": "./dist/preact/components/404.js"
         },
+        "./preact/components/analytics": {
+            "types": "./dist/types/preact/components/analytics.d.ts",
+            "import": "./dist/preact/components/analytics.js",
+            "default": "./dist/preact/components/analytics.js"
+        },
         "./preact/components/as": {
             "types": "./dist/types/preact/components/as.d.ts",
             "import": "./dist/preact/components/as.js",
@@ -130,6 +135,26 @@
             "types": "./dist/types/preact/components/body.d.ts",
             "import": "./dist/preact/components/body.js",
             "default": "./dist/preact/components/body.js"
+        },
+        "./preact/components/consent": {
+            "types": "./dist/types/preact/components/consent.d.ts",
+            "import": "./dist/preact/components/consent.js",
+            "default": "./dist/preact/components/consent.js"
+        },
+        "./preact/components/consent-async": {
+            "types": "./dist/types/preact/components/consent-async.d.ts",
+            "import": "./dist/preact/components/consent-async.js",
+            "default": "./dist/preact/components/consent-async.js"
+        },
+        "./preact/components/consent-dialog": {
+            "types": "./dist/types/preact/components/consent-dialog.d.ts",
+            "import": "./dist/preact/components/consent-dialog.js",
+            "default": "./dist/preact/components/consent-dialog.js"
+        },
+        "./preact/components/consent-icon": {
+            "types": "./dist/types/preact/components/consent-icon.d.ts",
+            "import": "./dist/preact/components/consent-icon.js",
+            "default": "./dist/preact/components/consent-icon.js"
         },
         "./preact/components/data": {
             "types": "./dist/types/preact/components/data.d.ts",

@@ -111,6 +111,7 @@ describe('$env', async () => {
         expect($env.isC10n.fresh({ foo: '' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '*' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '**' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '!!' })).toBe(false);
         expect($env.isC10n.fresh({ foo: '?*' })).toBe(false);
         expect($env.isC10n.fresh({ foo: '?**' })).toBe(false);
         expect($env.isC10n.fresh({ foo: '{,0}' })).toBe(true);
@@ -121,6 +122,7 @@ describe('$env', async () => {
         expect($env.isC10n.fresh({ foo: '' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '*' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '**' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '!!' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '?*' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '?**' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '{,1}' })).toBe(true);
@@ -148,6 +150,7 @@ describe('$env', async () => {
         expect($env.isC10n.fresh({ foo: '' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '*' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '**' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '!!' })).toBe(false);
         expect($env.isC10n.fresh({ foo: '?*' })).toBe(false);
         expect($env.isC10n.fresh({ foo: '?**' })).toBe(false);
         expect($env.isC10n.fresh({ foo: '{,0}' })).toBe(true);
@@ -158,6 +161,7 @@ describe('$env', async () => {
         expect($env.isC10n.fresh({ foo: '' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '*' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '**' })).toBe(true);
+        expect($env.isC10n.fresh({ foo: '!!' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '?*' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '?**' })).toBe(true);
         expect($env.isC10n.fresh({ foo: '{,1}' })).toBe(true);

@@ -34,7 +34,7 @@ export default async ({ projDir, srcDir, distDir, a16sDir, appType, appEntries, 
             },
         },
         external: [
-            ...(['lib'].includes(appType) ? [/^(?![./]|file:|data:).*$/iu] : []),
+            ...(['lib'].includes(appType) ? [/^(?![./~]|file:|data:|virtual:).*$/iu] : []),
             ...peerDepKeys.map((k) => new RegExp('^' + $str.escRegExp(k) + '(?:$|[/?])')),
             '__STATIC_CONTENT_MANIFEST', // Cloudflare worker sites use this for static assets.
         ],

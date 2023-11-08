@@ -18,7 +18,6 @@ export type State = $preact.State<
 export type PartialState = Partial<State>;
 export type PartialStateUpdates = PartialState;
 export type Props = $preact.BasicPropsNoKeyRef<PartialState>;
-
 export type Context = $preact.Context<{
     state: State;
     updateState: $preact.StateDispatcher<PartialStateUpdates>;
@@ -64,7 +63,6 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
     }
     return (
         <ContextObject.Provider value={{ state, updateState }}>
-            {/* Client-side renders context only. <html> server-side. */}
             {/* eslint-disable-next-line jsx-a11y/html-has-lang -- lang is ok. */}
             {$env.isWeb() ? <>{props.children}</> : <html {...state}>{props.children}</html>}
         </ContextObject.Provider>

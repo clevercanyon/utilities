@@ -101,13 +101,15 @@ export { lazyRoute, lazyComponent } from './resources/preact/apis/iso.tsx';
 /**
  * Exports our Preact hooks.
  */
+export { useConsent } from './preact/components/consent.tsx';
+export { useAnalytics } from './preact/components/analytics.tsx';
+export { useLocation } from './preact/components/location.tsx';
+export { useData, useHTTP } from './preact/components/data.tsx';
+export { useRoute } from './preact/components/router.tsx';
+export { useLayout } from './preact/components/layout-context.tsx';
 export { useHTML } from './preact/components/html.tsx';
 export { useHead } from './preact/components/head.tsx';
 export { useBody } from './preact/components/body.tsx';
-export { useData, useHTTP } from './preact/components/data.tsx';
-export { useLayout } from './preact/components/layout-context.tsx';
-export { useLocation } from './preact/components/location.tsx';
-export { useRoute } from './preact/components/router.tsx';
 
 /**
  * Defines types.

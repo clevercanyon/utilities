@@ -345,7 +345,6 @@ export default class Head extends Component<Props, ActualState> {
 
                 ...(state.scriptBundle && isC10n ? { prefetchWorkers: h('link', { rel: 'dns-prefetch', href: 'https://workers.hop.gdn/' }) } : {}), // prettier-ignore
                 ...(state.styleBundle && isC10n ? { prefetchGoogleFonts: h('link', { rel: 'dns-prefetch', href: 'https://fonts.googleapis.com/' }) } : {}), // prettier-ignore
-                ...(state.scriptBundle && isC10n ? { preloadGeoData: h('link', { rel: 'preload', href: 'https://workers.hop.gdn/utilities/ip-geo/v1', as: 'fetch', type: 'application/json' }) } : {}), // prettier-ignore
 
                 ...(state.styleBundle ? { styleBundle: h('link', { rel: 'stylesheet', href: state.styleBundle.toString(), media: 'all' }) } : {}), // prettier-ignore
                 ...(state.scriptBundle && isSSR ? { preactISOData: h('script', { id: 'preact-iso-data', dangerouslySetInnerHTML: { __html: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore

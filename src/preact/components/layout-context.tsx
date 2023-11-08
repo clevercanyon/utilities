@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $preact } from '../../index.ts';
+import { $preact, type $type } from '../../index.ts';
 
 /**
  * Defines types.
@@ -13,7 +13,7 @@ import { $preact } from '../../index.ts';
 export type State = $preact.State<{
     variant: string;
 }>;
-export type PartialState = Partial<State>;
+export type PartialState = $type.PartialDeep<State>;
 export type Props = $preact.BasicPropsNoKeyRef<PartialState>;
 export type Context = $preact.Context<{
     state: State;

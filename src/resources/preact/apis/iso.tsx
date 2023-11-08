@@ -29,7 +29,7 @@ export type HydrativelyRenderSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
 };
-export type LazyComponentOptions = Omit<RouterProps, 'key' | 'ref' | 'children'>;
+export type LazyComponentOptions = Omit<RouterProps, 'children'>;
 export type LazyRouteLoader = () => Promise<{ default: $preact.AnyComponent<RoutedProps> } | $preact.AnyComponent<RoutedProps>>;
 
 // ---
@@ -227,7 +227,7 @@ export const lazyComponent = <Props extends $preact.Props = $preact.Props>(
     return (props: Parameters<$preact.AsyncFnComponent<Props>>[0]): Awaited<ReturnType<$preact.AsyncFnComponent<Props>>> => {
         higherOrder.props = props; // Populates async component props.
         return (
-            <Router {...{ handleScrolling: false, ...opts }}>
+            <Router {...{ handleLoading: false, handleScrolling: false, ...opts }}>
                 <Route default component={ComponentRoute} />
             </Router>
         );

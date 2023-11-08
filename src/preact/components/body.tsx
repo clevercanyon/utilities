@@ -7,6 +7,7 @@ import '../../resources/init.ts';
 import { createContext } from 'preact';
 import { $dom, $env, $preact } from '../../index.ts';
 import { default as As } from './as.tsx';
+import { default as ConsentAsync } from './consent-async.tsx';
 
 /**
  * Defines types.
@@ -64,9 +65,11 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
     }
     return (
         <ContextObject.Provider value={{ state, updateState }}>
-            {/* Client-side renders context only. <body> server-side. */}
             {$env.isWeb() ? (
-                <>{props.children}</>
+                <>
+                    {props.children}
+                    <ConsentAsync />
+                </>
             ) : (
                 <body {...state}>
                     <As tag='x-preact-app' data-hydrate={''}>
