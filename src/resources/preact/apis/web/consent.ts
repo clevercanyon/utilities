@@ -164,6 +164,7 @@ export const openDialog = (data?: $type.PartialDeep<Data>): void => {
  * @returns Consent data; {@see Data}.
  */
 export const cookieData = (): Data => {
+    const hasGlobalPrivacy = $env.hasGlobalPrivacy();
     let data = $fn.try(() => $json.parse($cookie.get('consent') || '{}'), {})();
 
     const typeCastedPrefs = <Type extends object>(prefs: Type): Type => {
@@ -175,13 +176,13 @@ export const cookieData = (): Data => {
     return {
         prefs: {
             optIn: typeCastedPrefs({
-                acceptFunctionalityCookies: $obp.get(data, 'prefs.optIn.acceptFunctionalityCookies', null),
-                acceptAnalyticsCookies: $obp.get(data, 'prefs.optIn.acceptAnalyticsCookies', null),
-                acceptAdvertisingCookies: $obp.get(data, 'prefs.optIn.acceptAdvertisingCookies', null),
+                acceptFunctionalityCookies: $obp.get(data, 'prefs.optIn.acceptFunctionalityCookies', hasGlobalPrivacy ? false : null),
+                acceptAnalyticsCookies: $obp.get(data, 'prefs.optIn.acceptAnalyticsCookies', hasGlobalPrivacy ? false : null),
+                acceptAdvertisingCookies: $obp.get(data, 'prefs.optIn.acceptAdvertisingCookies', hasGlobalPrivacy ? false : null),
             } as Data['prefs']['optIn']),
 
             optOut: typeCastedPrefs({
-                doNotSellOrSharePII: $obp.get(data, 'prefs.optOut.doNotSellOrSharePII', null),
+                doNotSellOrSharePII: $obp.get(data, 'prefs.optOut.doNotSellOrSharePII', hasGlobalPrivacy ? true : null),
             } as Data['prefs']['optOut']),
         },
         version: String($obp.get(data, 'version', '')),

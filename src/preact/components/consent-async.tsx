@@ -25,7 +25,7 @@ export type Props = $preact.BasicPropsNoKeyRefChildren<object>;
  *
  * @returns       VNode / JSX element tree.
  */
-export default function ConsentAsync(unusedꓺprops: Props = {}): $preact.VNode<Props> {
+export default function ConsentAsync(/* props: Props = {} */): $preact.VNode<Props> {
     const [state, updateState] = $preact.useReducedState((): State => ({}));
     const { Dialog, Icon } = state; // Initially undefined.
 

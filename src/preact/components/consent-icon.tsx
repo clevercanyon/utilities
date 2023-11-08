@@ -28,9 +28,10 @@ export type Props = $preact.BasicPropsNoKeyRefChildren<object>;
  * @note `z-index` for our consent icon uses `102`, which is right under our consent dialog at `103`, `104`.
  *        Also, it sits on top of a site’s header and navigation dialog, which should be at `100`, `101`.
  */
-export default function ConsentIcon(unusedꓺprops: Props = {}): $preact.VNode<Props> {
+export default function ConsentIcon(/* props: Props = {} */): $preact.VNode<Props> {
+    const consent = $preact.useConsent();
     const onClick = $preact.useCallback((): void => {
-        void $preact.useConsent().then(({ openDialog }) => openDialog());
+        void consent.then(({ openDialog }) => openDialog());
     }, []);
     return (
         <As tag='x-preact-app-consent-icon'>

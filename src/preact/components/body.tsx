@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $dom, $env, $preact, $to } from '../../index.ts';
+import { $dom, $env, $preact } from '../../index.ts';
 import { default as As } from './as.tsx';
 import { default as ConsentAsync } from './consent-async.tsx';
 

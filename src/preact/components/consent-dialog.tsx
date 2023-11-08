@@ -45,9 +45,10 @@ export type UpdateEvent = CustomEvent<{ data: Data }>;
  * @note `z-index` for consent dialog uses `103`, `104`, which sits right on top of our consent icon at `102`.
  *       Also, it sits on top of a site’s header and navigation dialog, which should be at `100`, `101`.
  */
-export default function ConsentDialog(unusedꓺprops: Props = {}): $preact.VNode<Props> {
-    // Acquires brand and state.
+export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Props> {
+    // Acquires consent, brand, state.
 
+    const consent = $preact.useConsent();
     const brand = $env.get('APP_BRAND') as $type.Brand;
     const [state, updateState] = $preact.useReducedState((): State => {
         return $preact.initialState({
@@ -69,6 +70,10 @@ export default function ConsentDialog(unusedꓺprops: Props = {}): $preact.VNode
     const renderCounter = $preact.useRef(0);
     renderCounter.current++; // Increments counter.
 
+    // Holds a reference to our closing timeout.
+
+    const closingTimeout = $preact.useRef() as $preact.Ref<$type.Timeout>;
+
     // Configures a few working variables.
 
     const isAnyPrefTrue = $preact.useMemo((): boolean => {
@@ -79,22 +84,6 @@ export default function ConsentDialog(unusedꓺprops: Props = {}): $preact.VNode
 
     const prefsPriorToOpen = $preact.useRef($obj.cloneDeep(prefs) as Data['prefs']);
     if (!state.isInitial && !state.open) prefsPriorToOpen.current = $obj.cloneDeep(prefs) as Data['prefs'];
-
-    // Checks if consent state needs the consent dialog open at first render.
-    // This handles the case in which the consent dialog was not yet listening to DOM events.
-    // Only relevent with initial state/render, because otherwise we *are* listening to DOM events.
-
-    if (state.isInitial && 1 === renderCounter.current) {
-        void $preact.useConsent().then(({ state: consentState }): void => {
-            if (!consentState.needsOpenDialog) return;
-            const needsPrefconfiguredData = $is.object(consentState.needsOpenDialog);
-            const preconfiguredData = needsPrefconfiguredData ? consentState.needsOpenDialog : {};
-            if (!state.open) updateState({ open: true, data: preconfiguredData as $type.PartialDeep<Data> });
-        });
-    }
-    // Holds a reference to our closing timeout.
-
-    const closingTimeout = $preact.useRef() as $preact.Ref<$type.Timeout>;
 
     // Defines prefixes for HTML IDs.
 
@@ -150,7 +139,7 @@ export default function ConsentDialog(unusedꓺprops: Props = {}): $preact.VNode
     // Updates preferences.
 
     const updatePrefs = $preact.useCallback((prefs: Data['prefs']): void => {
-        void $preact.useConsent().then(({ state: consentState }) => {
+        void consent.then(({ state: consentState }) => {
             // State updates.
             const updates = {
                 data: {
@@ -202,6 +191,18 @@ export default function ConsentDialog(unusedꓺprops: Props = {}): $preact.VNode
     $preact.useEffect((): (() => void) => $dom.on(document, 'x:consent:openDialog', onOpenDialog).cancel, []);
     // ↑ The `cancel` function is returned as the effect on teardown.
 
+    // Checks if consent state needs the consent dialog open at first render.
+    // This handles the case in which the consent dialog was not yet listening to DOM events.
+    // Only relevent with initial state/render, because now we *are* listening to DOM events.
+
+    if (state.isInitial && 1 === renderCounter.current) {
+        void consent.then(({ state: consentState }): void => {
+            if (!consentState.needsOpenDialog) return;
+            const needsPrefconfiguredData = $is.object(consentState.needsOpenDialog);
+            const preconfiguredData = needsPrefconfiguredData ? consentState.needsOpenDialog : {};
+            if (!state.open) openDialog(preconfiguredData as $type.PartialDeep<Data>);
+        });
+    }
     // ---
     // VNode / JSX element tree.
 

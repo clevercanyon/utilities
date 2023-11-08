@@ -4,6 +4,7 @@
  * @requiredEnv web
  */
 
+import { finder as buildCSSSelector } from '@medv/finder';
 import { $cookie, $dom, $env, $fn, $is, $json, $obj, $str, $url, type $type } from '../../../../index.ts';
 import { initialize as consentInitialize, state as consentState } from './consent.ts';
 
@@ -232,13 +233,13 @@ export const trackElement = async (element: HTMLElement, eventName: string, prop
     const elementTagName = element.tagName.toLowerCase();
 
     return trackEvent(eventName, {
-        x_parent_flex_id: $str.clip($dom.pathTo(parent) || '<' + parentTagName + '>', { maxChars: 100 }),
+        x_parent_flex_id: $str.clip(domPathTo(parent) || '<' + parentTagName + '>', { maxChars: 100 }),
         x_parent_flex_sub_id: $str.clip('<' + parentTagName + '>', { maxChars: 100 }),
 
         x_class_id: $str.clip(element.dataset.classId || '', { maxChars: 100 }),
         x_class_sub_id: $str.clip(element.dataset.classSubId || '', { maxChars: 100 }),
 
-        x_flex_id: $str.clip($dom.pathTo(element) || '<' + elementTagName + '>', { maxChars: 100 }),
+        x_flex_id: $str.clip(domPathTo(element) || '<' + elementTagName + '>', { maxChars: 100 }),
         x_flex_sub_id: $str.clip('<' + elementTagName + '>', { maxChars: 100 }),
 
         ...('x_click' === eventName
@@ -451,6 +452,28 @@ const updateProvidersConsentData = (): void => {
     });
     // Flags consent data as having now been initialized.
     state.consentInitialized = true; // First update initializes consent data.
+};
+
+/**
+ * Gets selector path leading to a given element in the DOM.
+ *
+ * This utility also exists as {@see $dom.pathTo()}; i.e., for other use cases. At this time, however, only our
+ * analytics API is using the underlying `buildCSSSelector` dependency. Therefore, we have copied the utility into this
+ * specific file to avoid the scenario where `buildCSSSelector` is added to an app’s bundle, given that our analytics
+ * API is imported dynamically and does not intend to substanitally contribute to an app’s main bundle size.
+ *
+ * @param   element An {@see Element} in the DOM.
+ *
+ * @returns         Selector path leading to a given element in the DOM.
+ */
+const domPathTo = (element: Element): string => {
+    return $fn.try(
+        (): string =>
+            buildCSSSelector(element, {
+                root: $dom.xPreactApp() || $dom.body(),
+            }),
+        '',
+    )();
 };
 
 /**

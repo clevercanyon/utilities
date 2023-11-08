@@ -30,6 +30,7 @@ export type AnyEventHandler =
     | ((event: CustomEvent) => Promise<void>);
 
 export type EventTools = { cancel: () => void };
+export type PathToOptions = { from?: Element };
 
 /**
  * Initializes scroll status.
@@ -528,14 +529,16 @@ export const stylesOf = (selectors: string | Element): CSSStyleDeclaration => {
  * Gets selector path leading to a given element in the DOM.
  *
  * @param   element An {@see Element} in the DOM.
+ * @param   options Options (all optional); {@see PathToOptions}.
  *
  * @returns         Selector path leading to a given element in the DOM.
  */
-export const pathTo = (element: Element): string => {
+export const pathTo = (element: Element, options?: PathToOptions): string => {
+    const opts = $obj.defaults({}, options || {}) as Required<PathToOptions>;
     return $fn.try(
         (): string =>
             buildCSSSelector(element, {
-                root: xPreactApp() || body(),
+                root: opts.from || xPreactApp() || body(),
             }),
         '',
     )();

@@ -12,7 +12,7 @@ import { $env, $preact } from '../../index.ts';
  */
 declare type API = typeof import('../../resources/preact/apis/web/analytics.ts');
 export type Props = $preact.BasicPropsNoKeyRef<object>;
-export type Context = $preact.Context<Promise<API>>;
+export type Context = Promise<API>;
 
 /**
  * Defines context object.
