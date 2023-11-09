@@ -49,6 +49,7 @@ export type ThrottledFunction<Fn extends $type.Function> = {
  */
 export const noOp = $standalone.$fnꓺnoOp; // From standalone library.
 
+/*@__NO_SIDE_EFFECTS__*/
 /**
  * Memoizes a function’s response.
  *

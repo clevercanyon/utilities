@@ -517,7 +517,7 @@ export type $fnꓺMemoizedFunction<Fn extends MicroMemoize.AnyFn> = MicroMemoize
 export function $fnꓺmemo<Fn extends $fnꓺMemoizable>(fn: Fn | $fnꓺMemoizedFunction<Fn>, options?: $fnꓺMemoOptions<Fn>): $fnꓺMemoizedFunction<Fn>;
 export function $fnꓺmemo<Fn extends $fnꓺMemoizable>(options: $fnꓺMemoOptions<Fn>, fn: Fn | $fnꓺMemoizedFunction<Fn>): $fnꓺMemoizedFunction<Fn>;
 export function $fnꓺmemo<Fn extends $fnꓺMemoizable>(maxSize: number, fn: Fn | $fnꓺMemoizedFunction<Fn>): $fnꓺMemoizedFunction<Fn>;
-
+/*@__NO_SIDE_EFFECTS__*/
 export function $fnꓺmemo<Fn extends $fnꓺMemoizable>(...args: unknown[] /* see function signatures above. */): $fnꓺMemoizedFunction<Fn> {
     let fn: Fn | $fnꓺMemoizedFunction<Fn>, options: $fnꓺMemoOptions<Fn> | undefined, memoizedFn: $fnꓺMemoizedFunction<Fn>, deep: boolean;
 
