@@ -126,11 +126,14 @@ export type AsyncFnComponent<Type extends Props = Props> = (...args: Parameters<
 export type ClassComponent<Type extends Props = Props, Type2 extends State = State> = preact.ComponentClass<Type, Type2>;
 export type AnyComponent<Type extends Props = Props, Type2 extends State = State> = FnComponent<Type> | ClassComponent<Type, Type2>;
 
-export type BasicProps<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx'>>;
-export type BasicPropsNoKeyRef<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref'>>;
-export type BasicPropsNoKeyRefChildren<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref' | 'children'>>;
+export type BasicProps<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx'>>; // prettier-ignore
+export type BasicPropsNoKeyRef<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref'>>; // prettier-ignore
+export type BasicPropsNoKeyRefChildren<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref' | 'children'>>; // prettier-ignore
 
-export type Props<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx'>>;
+export type Props<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx'>>; // prettier-ignore
+export type PropsNoKeyRef<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx' | 'key' | 'ref'>>; // prettier-ignore
+export type PropsNoKeyRefChildren<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx' | 'key' | 'ref' | 'children'>>; // prettier-ignore
+
 export type State<Type extends object = { [x: string]: unknown }> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type Context<Type extends object = { [x: string]: unknown }> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type Ref<Type = unknown> = preact.RefObject<Type>;

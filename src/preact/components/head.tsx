@@ -261,54 +261,74 @@ export default class Head extends Component<Props, ActualState> {
 
         if (dataState.head.instance !== this) {
             dataState.head.instance = this; // Updates `<Head>` instance reference in real-time.
-            data.updateState({ head: { instance: this } }); // Async update to ensure data integrity.
             this.forceDataUpdate = data.forceUpdate; // Allow us to force a `<Data>` update from `<Head>`.
         }
         // Memoizes computed state.
 
         state = this.computedState = $preact.useMemo((): State => {
-            let title = actualState.title || locationState.url.hostname;
+            const {
+                charset,
+                viewport,
+                titleSuffix,
+                description,
+                canonical,
+                pngIcon,
+                svgIcon,
+                siteName,
+                ogSiteName,
+                ogType,
+                ogTitle,
+                ogDescription,
+                ogURL,
+                ogImage,
+                styleBundle,
+                scriptBundle,
+                append,
+            } = actualState;
+            const { url, canonicalURL, fromBase } = locationState;
+
+            let title = actualState.title || url.hostname;
             const defaultDescription = 'Take the tiger by the tail.';
 
-            if (actualState.titleSuffix /* String or `true` to enable. */) {
-                if ($is.string(actualState.titleSuffix)) {
-                    title += actualState.titleSuffix;
-                } else if (actualState.siteName || brand.name) {
-                    title += ' • ' + (actualState.siteName || brand.name);
+            if (titleSuffix /* String or `true` to enable. */) {
+                if ($is.string(titleSuffix)) {
+                    title += titleSuffix;
+                } else if (siteName || brand.name) {
+                    title += ' • ' + (siteName || brand.name);
                 }
             }
             let defaultStyleBundle, defaultScriptBundle; // When applicable/possible.
 
-            if (!actualState.styleBundle && '' !== actualState.styleBundle && isLocalWebVite) {
+            if (!styleBundle && '' !== styleBundle && isLocalWebVite) {
                 defaultStyleBundle = './index.scss'; // Vite dev server uses original extension.
             }
-            if (!actualState.scriptBundle && '' !== actualState.scriptBundle && isLocalWebVite) {
+            if (!scriptBundle && '' !== scriptBundle && isLocalWebVite) {
                 defaultScriptBundle = './index.tsx'; // Vite dev server uses original extension.
             }
             return {
                 ...actualState,
 
-                charset: actualState.charset || 'utf-8',
-                viewport: actualState.viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
+                charset: charset || 'utf-8',
+                viewport: viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
 
                 title, // See title generation above.
-                description: actualState.description || defaultDescription,
-                canonical: actualState.canonical || locationState.canonicalURL,
+                description: description || defaultDescription,
+                canonical: canonical || canonicalURL,
 
-                pngIcon: actualState.pngIcon || locationState.fromBase('./assets/icon.png'),
-                svgIcon: actualState.svgIcon || locationState.fromBase('./assets/icon.svg'),
+                pngIcon: pngIcon || fromBase('./assets/icon.png'),
+                svgIcon: svgIcon || fromBase('./assets/icon.svg'),
 
-                ogSiteName: actualState.ogSiteName || actualState.siteName || brand.name || locationState.url.hostname,
-                ogType: actualState.ogType || 'website',
-                ogTitle: actualState.ogTitle || title,
-                ogDescription: actualState.ogDescription || actualState.description || defaultDescription,
-                ogURL: actualState.ogURL || actualState.canonical || locationState.canonicalURL,
-                ogImage: actualState.ogImage || locationState.fromBase('./assets/og-image.png'),
+                ogSiteName: ogSiteName || siteName || brand.name || url.hostname,
+                ogType: ogType || 'website',
+                ogTitle: ogTitle || title,
+                ogDescription: ogDescription || description || defaultDescription,
+                ogURL: ogURL || canonical || canonicalURL,
+                ogImage: ogImage || fromBase('./assets/og-image.png'),
 
-                styleBundle: '' === actualState.styleBundle ? '' : actualState.styleBundle || dataState.head.styleBundle || defaultStyleBundle || '',
-                scriptBundle: '' === actualState.scriptBundle ? '' : actualState.scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '',
+                styleBundle: '' === styleBundle ? '' : styleBundle || dataState.head.styleBundle || defaultStyleBundle || '',
+                scriptBundle: '' === scriptBundle ? '' : scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '',
 
-                append: actualState.append || [], // Default to an empty array.
+                append: append || [], // Default to an empty array.
             };
         }, [brand, locationState, dataState, actualState]);
 
@@ -316,51 +336,117 @@ export default class Head extends Component<Props, ActualState> {
 
         const childVNodes = $preact.useMemo((): ChildVNodes => {
             const h = $preact.h; // We prefer more concise code here.
+            /**
+             * Why are there so many crazy variables here? The intention is to optimize for minification. i.e., By using
+             * as many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired
+             * outcome. Remember, variable names can be minified, so variable name length is not an issue.
+             */
+            const {
+                charset,
+                viewport,
+                canonical,
+                robots,
+                title,
+                description,
+                author,
+                svgIcon,
+                pngIcon,
+                ogSiteName,
+                ogType,
+                ogTitle,
+                ogDescription,
+                ogURL,
+                ogImage,
+                scriptBundle,
+                styleBundle,
+                append,
+            } = state;
+            const { baseURL } = locationState;
+
+            // Plain text tokens.
+            const tꓺall = 'all',
+                tꓺany = 'any',
+                tꓺauthor = 'author',
+                tꓺbase = 'base',
+                tꓺbaseURL = tꓺbase + 'URL',
+                tꓺcanonical = 'canonical',
+                tꓺcontent = 'content',
+                tꓺcharset = 'charset',
+                tꓺdangerouslySetInnerHTML = 'dangerouslySetInnerHTML',
+                tꓺ__html = '__html',
+                tꓺdataKey = 'data-key',
+                tꓺdescription = 'description',
+                tꓺdnsPrefetch = 'dns-prefetch',
+                tꓺhref = 'href',
+                tꓺhttpsꓽⳇⳇ = 'https://',
+                tꓺicon = 'icon',
+                tꓺid = 'id',
+                tꓺimage = 'image',
+                tꓺimageⳇpng = tꓺimage + '/png',
+                tꓺimageⳇsvg = tꓺimage + '/svg+xml',
+                tꓺlink = 'link',
+                tꓺmeta = 'meta',
+                tꓺmedia = 'media',
+                tꓺmodule = 'module',
+                tꓺname = 'name',
+                tꓺogꓽ = 'og:',
+                tꓺproperty = 'property',
+                tꓺrel = 'rel',
+                tꓺrobots = 'robots',
+                tꓺscript = 'script',
+                tꓺsite = 'site',
+                tꓺsizes = 'sizes',
+                tꓺsrc = 'src',
+                tꓺstylesheet = 'stylesheet',
+                tꓺtitle = 'title',
+                tꓺtype = 'type',
+                tꓺurl = 'url',
+                tꓺviewport = 'viewport';
 
             const vNodes: { [x: string]: $preact.VNode } = {
-                charset: h('meta', { charset: state.charset }),
-                baseURL: h('base', { href: locationState.baseURL.toString() }),
-                viewport: h('meta', { name: 'viewport', content: state.viewport }),
+                [tꓺcharset]: h(tꓺmeta, { charset }),
+                [tꓺbaseURL]: h(tꓺbase, { [tꓺhref]: baseURL.toString() }),
+                [tꓺviewport]: h(tꓺmeta, { [tꓺname]: tꓺviewport, [tꓺcontent]: viewport }),
 
-                canonical: h('link', { rel: 'canonical', href: state.canonical.toString() }),
-                ...(state.robots ? { robots: h('meta', { name: 'robots', content: state.robots }) } : {}),
+                [tꓺcanonical]: h(tꓺlink, { [tꓺrel]: tꓺcanonical, [tꓺhref]: canonical.toString() }),
+                ...(robots ? { [tꓺrobots]: h(tꓺmeta, { [tꓺname]: tꓺrobots, [tꓺcontent]: robots }) } : {}),
 
-                title: h('title', {}, state.title),
-                description: h('meta', { name: 'description', content: state.description }),
-                ...(state.author ? { author: h('meta', { name: 'author', content: state.author }) } : {}),
+                [tꓺtitle]: h(tꓺtitle, {}, title),
+                [tꓺdescription]: h(tꓺmeta, { [tꓺname]: tꓺdescription, [tꓺcontent]: description }),
+                ...(author ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: author }) } : {}),
 
-                svgIcon: h('link', { rel: 'icon', type: 'image/svg+xml', sizes: 'any', href: state.svgIcon.toString() }),
-                pngIcon: h('link', { rel: 'icon', type: 'image/png', sizes: 'any', href: state.pngIcon.toString() }),
-                appleTouchIcon: h('link', { rel: 'apple-touch-icon', type: 'image/png', sizes: 'any', href: state.pngIcon.toString() }),
+                svgIcon: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇsvg, [tꓺsizes]: tꓺany, [tꓺhref]: svgIcon.toString() }),
+                pngIcon: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon.toString() }),
+                appleTouchIcon: h(tꓺlink, { [tꓺrel]: 'apple-touch-' + tꓺicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon.toString() }),
 
                 // Note: `og:` prefixed meta tags do not require a `prefix="og: ..."` attribute on `<head>`,
                 // because they are baked into RDFa already; {@see https://www.w3.org/2011/rdfa-context/rdfa-1.1}.
 
-                ogSiteName: h('meta', { property: 'og:site_name', content: state.ogSiteName }),
-                ogType: h('meta', { property: 'og:type', content: state.ogType }),
-                ogTitle: h('meta', { property: 'og:title', content: state.ogTitle }),
-                ogDescription: h('meta', { property: 'og:description', content: state.ogDescription }),
-                ogURL: h('meta', { property: 'og:url', content: state.ogURL.toString() }),
-                ogImage: h('meta', { property: 'og:image', content: state.ogImage.toString() }),
+                ogSiteName: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺsite + '_' + tꓺname, [tꓺcontent]: ogSiteName }),
+                ogType: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺtype, [tꓺcontent]: ogType }),
+                ogTitle: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺtitle, [tꓺcontent]: ogTitle }),
+                ogDescription: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺdescription, [tꓺcontent]: ogDescription }),
+                ogURL: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺurl, [tꓺcontent]: ogURL.toString() }),
+                ogImage: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺimage, [tꓺcontent]: ogImage.toString() }),
 
-                ...(state.scriptBundle && isC10n ? { prefetchWorkers: h('link', { rel: 'dns-prefetch', href: 'https://workers.hop.gdn/' }) } : {}), // prettier-ignore
-                ...(state.styleBundle && isC10n ? { prefetchGoogleFonts: h('link', { rel: 'dns-prefetch', href: 'https://fonts.googleapis.com/' }) } : {}), // prettier-ignore
+                ...(scriptBundle && isC10n ? { prefetchWorkers: h(tꓺlink, { [tꓺrel]: tꓺdnsPrefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + 'workers.hop.gdn/' }) } : {}), // prettier-ignore
+                ...(styleBundle && isC10n ? { prefetchGoogleFonts: h(tꓺlink, { [tꓺrel]: tꓺdnsPrefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + 'fonts.googleapis.com/' }) } : {}), // prettier-ignore
 
-                ...(state.styleBundle ? { styleBundle: h('link', { rel: 'stylesheet', href: state.styleBundle.toString(), media: 'all' }) } : {}), // prettier-ignore
-                ...(state.scriptBundle && isSSR ? { preactISOData: h('script', { id: 'preact-iso-data', dangerouslySetInnerHTML: { __html: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore
-                ...(state.scriptBundle ? { scriptBundle: h('script', { type: 'module', src: state.scriptBundle.toString() }) } : {}), // prettier-ignore
+                ...(styleBundle ? { styleBundle: h(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: styleBundle.toString(), [tꓺmedia]: tꓺall }) } : {}), // prettier-ignore
+                ...(scriptBundle && isSSR ? { preactISOData: h(tꓺscript, { [tꓺid]: 'preact-iso-data', [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore
+                ...(scriptBundle ? { scriptBundle: h(tꓺscript, { [tꓺtype]: tꓺmodule, [tꓺsrc]: scriptBundle.toString() }) } : {}), // prettier-ignore
 
-                structuredData: h('script', { type: 'application/ld+json', dangerouslySetInnerHTML: { __html: generateStructuredData({ brand, htmlState, state }) } }),
+                structuredData: h(tꓺscript, { [tꓺtype]: 'application/ld+json', [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: generateStructuredData({ brand, htmlState, state }) } }),
 
                 ...Object.fromEntries(
                     $preact
-                        .toChildArray([children, state.append])
+                        .toChildArray([children, append])
                         .filter((child: unknown) => {
                             // Children must be vNodes; i.e., not primitives.
                             if (!$is.vNode(child)) throw new Error(); // Invalid vNode.
 
-                            const { type } = child; // Extracts locals.
-                            const { children, 'data-key': key } = child.props;
+                            const { type, props } = child; // Extracts locals.
+                            const { children, [tꓺdataKey]: key } = props;
 
                             // Numeric keys throw because they alter object insertion order.
                             // Also, because numeric keys imply 'order'. We need an identifier.
@@ -372,16 +458,16 @@ export default class Head extends Component<Props, ActualState> {
                                 throw new Error(); // Missing or invalid child vNode. Please review `<Head>` component docBlock.
                             }
                             // Ensure all keyed children have `_` prefixed keys so they don’t collide with built-in keys.
-                            if (!(key as string).startsWith('_')) child.props['data-key'] = '_' + (key as string);
+                            if (!(key as string).startsWith('_')) props[tꓺdataKey] = '_' + (key as string);
 
                             return true;
                         })
-                        .map((c) => [(c as $preact.VNode).props['data-key'] as string, c]),
+                        .map((c) => [(c as $preact.VNode).props[tꓺdataKey] as string, c]),
                 ),
             } as unknown as { [x: string]: $preact.VNode };
 
             for (const [key, { props }] of Object.entries(vNodes)) {
-                (props as $type.Object)['data-key'] = key; // Keys all vNodes.
+                (props as $type.Object)[tꓺdataKey] = key; // Keys all vNodes.
             }
             return vNodes as ChildVNodes;
         }, [brand, locationState, dataState, htmlState, children, state]);

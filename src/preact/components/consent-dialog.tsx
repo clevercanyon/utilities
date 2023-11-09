@@ -116,7 +116,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                 acceptAdvertisingCookies: value,
             },
             optOut: {
-                doNotSellOrSharePII: !value,
+                doNotSellOrSharePII: !value, // Inverse.
             },
         }),
         [],
