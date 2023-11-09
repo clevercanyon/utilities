@@ -98,16 +98,71 @@ export const get = (pkgName: string): $type.Brand => {
 
 /**
  * Initializes raw props.
+ *
+ * Why are there so many fragmented variables used here? The intention is to optimize for minification. i.e., By using
+ * as many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome.
+ * Also using `let` instead of `const` to shave off another few bytes. Remember, variable names can be minified, so the
+ * length of variable names is not an issue. They can be verbose to improve readability.
  */
 const initializeRawProps = (): void => {
     if (rawPropsInitialized) return;
     rawPropsInitialized = true;
 
     /**
+     * Defines names.
+     */
+    let clevercanyon = 'clevercanyon';
+    let hop = 'hop';
+
+    /**
+     * Defines pkg names.
+     */
+    let pkgNameOrg = '@' + clevercanyon;
+    let pkgNameCleverCanyon = pkgNameOrg + '/' + clevercanyon + '.com';
+    let pkgNameHop = pkgNameOrg + '/' + hop + '.gdn';
+
+    /**
+     * Defines URLs.
+     */
+    let urlHTTPS = 'https://';
+    let urlCleverCanyon = urlHTTPS + clevercanyon + '.com';
+    let urlHop = urlHTTPS + hop + '.gdn';
+
+    /**
+     * Defines CDN URLs.
+     */
+    let cdnURL = urlHTTPS + 'cdn.' + clevercanyon + '.com/assets/brands';
+    let cdnURLCleverCanyon = cdnURL + '/' + clevercanyon;
+    let cdnURLHop = cdnURL + '/' + hop;
+
+    /**
+     * Defines image names.
+     */
+    let imgNameIcon = 'icon';
+    let imgNameLogoOnLightBgs = 'logo-on-light-bgs';
+    let imgNameOGImage = 'og-image';
+
+    /**
+     * Defines image extensions.
+     */
+    let imageExtPNG = '.png';
+    let imageExtSVG = '.svg';
+
+    /**
+     * Defines image dimensions.
+     */
+    type imageDimensions = { width: number; height: number };
+    let imageDimensionsWidth = 'width', imageDimensionsHeight = 'height'; // prettier-ignore
+    let imageDimensions1060x1200 = { [imageDimensionsWidth]: 1060, [imageDimensionsHeight]: 120 } as imageDimensions;
+    let imageDimensions1200x1200 = { [imageDimensionsWidth]: 1200, [imageDimensionsHeight]: 1200 } as imageDimensions;
+    let imageDimensions1024x1024 = { [imageDimensionsWidth]: 1024, [imageDimensionsHeight]: 1024 } as imageDimensions;
+    let imageDimensions2400x1260 = { [imageDimensionsWidth]: 2400, [imageDimensionsHeight]: 1260 } as imageDimensions;
+
+    /**
      * Clever Canyon, LLC.
      */
-    rawProps['@clevercanyon/clevercanyon.com'] = {
-        org: '@clevercanyon/clevercanyon.com',
+    rawProps[pkgNameCleverCanyon] = {
+        org: pkgNameCleverCanyon,
         type: 'corp', // Corporation.
 
         legalName: 'Clever Canyon, LLC',
@@ -120,12 +175,11 @@ const initializeRawProps = (): void => {
         },
         founder: {
             name: 'Jason Caldwell',
-            website: 'https://jaswrks.com/',
+            website: urlHTTPS + 'jaswrks.com/',
             description: 'Engineering Manager, Consultant, Staff Engineer',
             image: {
-                url: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/founder.png',
-                width: 1200,
-                height: 1200,
+                url: cdnURLCleverCanyon + '/founder' + imageExtPNG,
+                ...imageDimensions1200x1200,
             },
         },
         foundingDate: '2023-10-03',
@@ -134,95 +188,89 @@ const initializeRawProps = (): void => {
         n7m: 'c10n',
         name: 'Clever Canyon',
 
-        pkgName: '@clevercanyon/clevercanyon.com',
+        pkgName: pkgNameCleverCanyon,
         namespace: 'CleverCanyon',
 
-        hostname: 'clevercanyon.com',
-        url: 'https://clevercanyon.com/',
+        hostname: clevercanyon + '.com',
+        url: urlCleverCanyon + '/',
 
-        slug: 'clevercanyon',
-        var: 'clevercanyon',
+        slug: clevercanyon,
+        var: clevercanyon,
 
-        slugPrefix: 'clevercanyon-',
-        varPrefix: 'clevercanyon_',
+        slugPrefix: clevercanyon + '-',
+        varPrefix: clevercanyon + '_',
 
         slogan: 'Cleverly crafted digital brands.',
         description: 'We’re transforming ideas into digital realities.',
 
         icon: {
-            png: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/icon.png',
-            svg: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/icon.svg',
-            width: 1024,
-            height: 1024,
+            png: cdnURLCleverCanyon + '/' + imgNameIcon + imageExtPNG,
+            svg: cdnURLCleverCanyon + '/' + imgNameIcon + imageExtSVG,
+            ...imageDimensions1024x1024,
         },
         logo: {
-            png: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/logo-on-light-bgs.png',
-            svg: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/logo-on-light-bgs.svg',
-            width: 1060,
-            height: 120,
+            png: cdnURLCleverCanyon + '/' + imgNameLogoOnLightBgs + imageExtPNG,
+            svg: cdnURLCleverCanyon + '/' + imgNameLogoOnLightBgs + imageExtSVG,
+            ...imageDimensions1060x1200,
         },
         ogImage: {
-            png: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/og-image.png',
-            svg: 'https://cdn.clevercanyon.com/assets/brands/clevercanyon/og-image.svg',
-            width: 2400,
-            height: 1260,
+            png: cdnURLCleverCanyon + '/' + imgNameOGImage + imageExtPNG,
+            svg: cdnURLCleverCanyon + '/' + imgNameOGImage + imageExtSVG,
+            ...imageDimensions2400x1260,
         },
         policies: {
-            terms: 'https://clevercanyon.com/terms',
-            privacy: 'https://clevercanyon.com/privacy',
+            terms: urlCleverCanyon + '/terms',
+            privacy: urlCleverCanyon + '/privacy',
         },
         socialProfiles: {
-            twitter: 'https://twitter.com/clevercanyon',
-            linkedin: 'https://www.linkedin.com/company/clevercanyon',
-            facebook: 'https://www.facebook.com/clevercanyon',
-            github: 'https://github.com/clevercanyon',
-            npm: 'https://www.npmjs.com/org/clevercanyon',
+            twitter: urlHTTPS + 'twitter.com/' + clevercanyon,
+            linkedin: urlHTTPS + 'www.linkedin.com/company/' + clevercanyon,
+            facebook: urlHTTPS + 'www.facebook.com/' + clevercanyon,
+            github: urlHTTPS + 'github.com/' + clevercanyon,
+            npm: urlHTTPS + 'www.npmjs.com/org/' + clevercanyon,
         },
     };
 
     /**
      * Clever Canyon, LLC (dba: Hop.gdn).
      */
-    rawProps['@clevercanyon/hop.gdn'] = $obj.mergeDeep(rawProps['@clevercanyon/clevercanyon.com'], {
+    rawProps[pkgNameHop] = $obj.mergeDeep(rawProps[pkgNameCleverCanyon], {
         $set: {
-            org: '@clevercanyon/clevercanyon.com',
+            org: pkgNameCleverCanyon,
             type: 'org', // Organization.
 
             n7m: 'h1p',
             name: 'Hop.gdn',
 
-            pkgName: '@clevercanyon/hop.gdn',
+            pkgName: pkgNameHop,
             namespace: 'Hop',
 
-            hostname: 'hop.gdn',
-            url: 'https://hop.gdn/',
+            hostname: hop + '.gdn',
+            url: urlHop + '/',
 
-            slug: 'hop',
-            var: 'hop',
+            slug: hop,
+            var: hop,
 
-            slugPrefix: 'hop-',
-            varPrefix: 'hop_',
+            slugPrefix: hop + '-',
+            varPrefix: hop + '_',
 
             slogan: 'Masters of the digital divide.',
             description: 'Great things, built on great technology.',
 
             icon: {
-                png: 'https://cdn.clevercanyon.com/assets/brands/hop/icon.png',
-                svg: 'https://cdn.clevercanyon.com/assets/brands/hop/icon.svg',
-                width: 1024,
-                height: 1024,
+                png: cdnURLHop + '/' + imgNameIcon + imageExtPNG,
+                svg: cdnURLHop + '/' + imgNameIcon + imageExtSVG,
+                ...imageDimensions1024x1024,
             },
             logo: {
-                png: 'https://cdn.clevercanyon.com/assets/brands/hop/logo-on-light-bgs.png',
-                svg: 'https://cdn.clevercanyon.com/assets/brands/hop/logo-on-light-bgs.svg',
-                width: 1060,
-                height: 120,
+                png: cdnURLHop + '/' + imgNameLogoOnLightBgs + imageExtPNG,
+                svg: cdnURLHop + '/' + imgNameLogoOnLightBgs + imageExtSVG,
+                ...imageDimensions1060x1200,
             },
             ogImage: {
-                png: 'https://cdn.clevercanyon.com/assets/brands/hop/og-image.png',
-                svg: 'https://cdn.clevercanyon.com/assets/brands/hop/og-image.svg',
-                width: 2400,
-                height: 1260,
+                png: cdnURLHop + '/' + imgNameOGImage + imageExtPNG,
+                svg: cdnURLHop + '/' + imgNameOGImage + imageExtSVG,
+                ...imageDimensions2400x1260,
             },
         },
     }) as unknown as $type.BrandRawProps;
@@ -231,22 +279,64 @@ const initializeRawProps = (): void => {
 /**
  * Adds app as a brand, at runtime.
  *
+ * Why are there so many fragmented variables used here? The intention is to optimize for minification. i.e., By using
+ * as many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome.
+ * Also using `let` instead of `const` to shave off another few bytes. Remember, variable names can be minified, so the
+ * length of variable names is not an issue. They can be verbose to improve readability.
+ *
  * @param   options Required; {@see AddAppOptions}.
  *
  * @returns         Brand instance {@see $type.Brand}.
  */
 export const addApp = (options: AddAppOptions): $type.Brand => {
-    const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<AddAppOptions>;
-    const org = get(opts.org); // Expands org slug into org brand instance.
+    /**
+     * Acquires options, org.
+     */
+    let opts = $obj.defaults({}, options || {}, { props: {} }) as Required<AddAppOptions>;
+    let { pkgName, baseURL } = opts; // Extracted from options and reused below.
+    let org = get(opts.org); // Expands org slug into org brand instance.
 
-    const pkgSlug = $app.pkgSlug(opts.pkgName);
-    const pkgSlugAsN7m = $str.numeronym(pkgSlug);
-    const pkgSlugAsName = $str.titleCase(pkgSlug);
-    const pkgSlugAsNamespace = $str.studlyCase(pkgSlug, { asciiOnly: true, letterFirst: 'X' });
-    const pkgSlugAsVar = $str.snakeCase(pkgSlug, { asciiOnly: true, letterFirst: 'x' });
+    /**
+     * Defines option names.
+     */
+    let optNameASCIIOnly = 'asciiOnly';
+    let optNameLetterFirst = 'letterFirst';
 
+    /**
+     * Defines package data.
+     */
+    let pkgSlug = $app.pkgSlug(pkgName);
+    let pkgSlugAsN7m = $str.numeronym(pkgSlug);
+    let pkgSlugAsName = $str.titleCase(pkgSlug);
+    let pkgSlugAsNamespace = $str.studlyCase(pkgSlug, { [optNameASCIIOnly]: true, [optNameLetterFirst]: 'X' });
+    let pkgSlugAsVar = $str.snakeCase(pkgSlug, { [optNameASCIIOnly]: true, [optNameLetterFirst]: 'x' });
+
+    /**
+     * Defines asset paths.
+     */
+    let assetsRelPath = './assets';
+    let assetsRelPathIcon = assetsRelPath + '/icon';
+    let assetsRelPathLogo = assetsRelPath + '/logo';
+    let assetsRelPathOGImage = assetsRelPath + '/og-image';
+
+    /**
+     * Defines asset extensions.
+     */
+    let assetExtPNG = '.png';
+    let assetExtSVG = '.svg';
+
+    /**
+     * Defines relative path to URL to string.
+     */
+    let relPathToURLString = (relPath: string): string => {
+        return new URL(relPath, baseURL).toString();
+    };
+
+    /**
+     * Adds runtime brand data.
+     */
     return add(
-        opts.pkgName,
+        pkgName,
         $obj.mergeDeep(
             org.rawProps(),
             {
@@ -256,11 +346,11 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
                 n7m: pkgSlugAsN7m,
                 name: pkgSlugAsName,
 
-                pkgName: opts.pkgName,
+                pkgName,
                 namespace: pkgSlugAsNamespace,
 
-                hostname: $url.parse(opts.baseURL).hostname,
-                url: opts.baseURL, // We simply use base URL.
+                hostname: $url.parse(baseURL).hostname,
+                url: baseURL, // We simply use base URL.
 
                 slug: pkgSlug,
                 var: pkgSlugAsVar,
@@ -269,16 +359,16 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
                 varPrefix: pkgSlugAsVar + '_',
 
                 icon: {
-                    png: new URL('./assets/icon.png', opts.baseURL).toString(),
-                    svg: new URL('./assets/icon.svg', opts.baseURL).toString(),
+                    png: relPathToURLString(assetsRelPathIcon + assetExtPNG),
+                    svg: relPathToURLString(assetsRelPathIcon + assetExtSVG),
                 },
                 logo: {
-                    png: new URL('./assets/logo.png', opts.baseURL).toString(),
-                    svg: new URL('./assets/logo.svg', opts.baseURL).toString(),
+                    png: relPathToURLString(assetsRelPathLogo + assetExtPNG),
+                    svg: relPathToURLString(assetsRelPathLogo + assetExtSVG),
                 },
                 ogImage: {
-                    png: new URL('./assets/og-image.png', opts.baseURL).toString(),
-                    svg: new URL('./assets/og-image.svg', opts.baseURL).toString(),
+                    png: relPathToURLString(assetsRelPathOGImage + assetExtPNG),
+                    svg: relPathToURLString(assetsRelPathOGImage + assetExtSVG),
                 },
             },
             opts.props,
