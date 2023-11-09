@@ -49,9 +49,11 @@ export type ThrottledFunction<Fn extends $type.Function> = {
  */
 export const noOp = $standalone.$fnꓺnoOp; // From standalone library.
 
-/*@__NO_SIDE_EFFECTS__*/
 /**
  * Memoizes a function’s response.
+ *
+ * This has to be clearly marked as not having side-effects, because we often use it to produce exports. If those
+ * exports are not used, we don’t want memoization of those exports to cause them not to be tree-shaken.
  *
  * If you’re calling this from outside of `clevercanyon/utilities`, please ignore the following warning.
  *
@@ -62,6 +64,7 @@ export const noOp = $standalone.$fnꓺnoOp; // From standalone library.
  *
  * @returns      Memoized function. {@see MemoizedFunction}.
  */
+/*@__NO_SIDE_EFFECTS__*/
 export const memo = $standalone.$fnꓺmemo; // From standalone library.
 
 /**

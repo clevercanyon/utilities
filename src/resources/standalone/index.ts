@@ -506,6 +506,9 @@ export type $fnꓺMemoizedFunction<Fn extends MicroMemoize.AnyFn> = MicroMemoize
 /**
  * Exports memoize utility function.
  *
+ * This has to be clearly marked as not having side-effects, because we often use it to produce exports. If those
+ * exports are not used, we don’t want memoization of those exports to cause them not to be tree-shaken.
+ *
  * @param   ...args {@see $fnꓺmemo()} signatures.
  *
  * @returns         Memoized function; {@see $fnꓺMemoizedFn}.
