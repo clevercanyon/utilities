@@ -314,7 +314,7 @@ export const appBase = $fnꓺmemo((): string => {
     let appBaseURL: string; // Initialize.
 
     if (!(appBaseURL = $env.get('APP_BASE_URL', { type: 'string', default: '' }))) {
-        throw new Error('Missing `APP_BASE_URL`.');
+        throw new Error(); // Missing `APP_BASE_URL`.
     }
     return appBaseURL;
 });
@@ -544,7 +544,7 @@ export const rootHost = $fnꓺmemo({ deep: true, maxSize: 12 }, (host?: $type.UR
 
     if (undefined === host) {
         if ($env.isWeb()) host = currentHost();
-        else throw new Error('Missing `host`.');
+        else throw new Error(); // Missing `host`.
     }
     // `host` becomes a string value; see below.
     let hostname: string; // Defined below.
@@ -611,7 +611,7 @@ export const parse = <Options extends ParseOptions>(
         if ($env.isWeb()) parseable = current();
         // If not on the web, and a URL was not passed in, then it’s simply not parseable.
         // So we flag that as a dev-related error, and not as a parse error in our try/catch block below.
-        else throw new Error('Missing `url`.');
+        else throw new Error(); // Missing `url`.
     }
     let strURL = parseable.toString();
     if (strURL && isProtoRelative(strURL)) {

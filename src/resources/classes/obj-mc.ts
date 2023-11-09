@@ -179,13 +179,13 @@ export const getClass = (): Constructor => {
          */
         public addMerge(tagA: string, tagB: string, callback: MergeCallback): MergeCallback | undefined {
             if (!tagA || !$is.string(tagA)) {
-                throw new Error('Invalid merge tagA.');
+                throw new Error(); // Invalid merge tagA.
             }
             if (!tagB || !$is.string(tagB)) {
-                throw new Error('Invalid merge tagB.');
+                throw new Error(); // Invalid merge tagB.
             }
             if (!$is.function(callback)) {
-                throw new Error('Invalid merge callback.');
+                throw new Error(); // Invalid merge callback.
             }
             const previousCallback = this[`merge${tagA}${tagB}`];
             this[`merge${tagA}${tagB}`] = callback; // New callback.
@@ -203,10 +203,10 @@ export const getClass = (): Constructor => {
          */
         public addOperation(name: string, callback: OperationCallback): OperationCallback | undefined {
             if (!name || !$is.string(name)) {
-                throw new Error('Invalid operation name.');
+                throw new Error(); // Invalid operation name.
             }
             if (!$is.function(callback)) {
-                throw new Error('Invalid operation callback.');
+                throw new Error(); // Invalid operation callback.
             }
             if (!name.startsWith('$')) {
                 name = '$' + name; // Must begin with `$`.
@@ -262,7 +262,7 @@ export const getClass = (): Constructor => {
                             return (this[mergeCallback] as MergeCallback)(a, b, kind, circular);
                         }
                     }
-                    throw new Error('Unsupported merge.');
+                    throw new Error(); // Unsupported merge.
                 });
             } as Handler;
         }
@@ -528,12 +528,12 @@ export const getClass = (): Constructor => {
          * @note Object paths do not support symbol keys whatsoever.
          * @note This can set own or inherited, enumerable or not, object paths.
          */
-        protected operation$set(target: unknown, params: unknown, separator: string = '.', calledAs: string = '$set') {
+        protected operation$set(target: unknown, params: unknown, separator: string = '.', unusedꓺcalledAs: string = '$set') {
             if (!$is.object(target)) {
-                throw new Error('Invalid ' + calledAs + '. Requires object target.');
+                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.object(params) || $is.array(params)) {
-                throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
+                throw new Error(); // Invalid ' + calledAs + ' params. Expecting non-array object.
             }
             for (const [path, value] of Object.entries(params)) {
                 $obp.set(target, path, value, separator);
@@ -560,16 +560,16 @@ export const getClass = (): Constructor => {
          * @note This can unset own or inherited, enumerable or not, object paths.
          * @note However, the use of `*` only unsets array keys and/or end-own enumerable string keys.
          */
-        protected operation$unset(target: unknown, params: unknown, separator: string = '.', calledAs: string = '$unset') {
+        protected operation$unset(target: unknown, params: unknown, separator: string = '.', unusedꓺcalledAs: string = '$unset') {
             if (!$is.object(target)) {
-                throw new Error('Invalid ' + calledAs + '. Requires object target.');
+                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.array(params)) {
-                throw new Error('Invalid ' + calledAs + ' params. Expecting array.');
+                throw new Error(); // Invalid ' + calledAs + ' params. Expecting array.
             }
             for (const path of params) {
                 if (!$is.safeObjectPath(path)) {
-                    throw new Error('Invalid ' + calledAs + ' param. Expecting object path.');
+                    throw new Error(); // Invalid ' + calledAs + ' param. Expecting object path.
                 }
                 $obp.unset(target, path, separator);
             }
@@ -602,12 +602,12 @@ export const getClass = (): Constructor => {
          *       However, when unsetting all others, this only unsets array keys and/or end-own enumerable string keys.
          *       i.e., It doesn’t unset (get rid of) end-inherited keys, non-enumerable keys, or symbol keys.
          */
-        protected operation$leave(target: unknown, params: unknown, separator = '.', calledAs: string = '$leave') {
+        protected operation$leave(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$leave') {
             if (!$is.object(target)) {
-                throw new Error('Invalid ' + calledAs + '. Requires object target.');
+                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.array(params)) {
-                throw new Error('Invalid ' + calledAs + ' params. Expecting array.');
+                throw new Error(); // Invalid ' + calledAs + ' params. Expecting array.
             }
             $obp.leave(target, params as $type.ObjectPath[], separator);
 
@@ -636,18 +636,18 @@ export const getClass = (): Constructor => {
          * @note Object paths do not support symbol keys whatsoever.
          * @note This can push onto own or inherited, enumerable or not, object paths.
          */
-        protected operation$push(target: unknown, params: unknown, separator = '.', calledAs: string = '$push') {
+        protected operation$push(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$push') {
             if (!$is.object(target)) {
-                throw new Error('Invalid ' + calledAs + '. Requires object target.');
+                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.object(params) || $is.array(params)) {
-                throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
+                throw new Error(); // Invalid ' + calledAs + ' params. Expecting non-array object.
             }
             for (const [path, value] of Object.entries(params)) {
                 const array = $obp.get(target, path, [], separator);
 
                 if (!$is.array(array)) {
-                    throw new Error('Invalid ' + calledAs + '. Cannot push onto non-array value.');
+                    throw new Error(); // Invalid ' + calledAs + '. Cannot push onto non-array value.
                 }
                 array.push(value); // Onto end of stack.
                 $obp.set(target, path, array, separator);
@@ -671,19 +671,19 @@ export const getClass = (): Constructor => {
          * @note Object paths do not support symbol keys whatsoever.
          * @note This can pull from own or inherited, enumerable or not, object paths.
          */
-        protected operation$pull(target: unknown, params: unknown, separator = '.', calledAs: string = '$pull') {
+        protected operation$pull(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$pull') {
             if (!$is.object(target)) {
-                throw new Error('Invalid ' + calledAs + '. Requires object target.');
+                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.object(params) || $is.array(params)) {
-                throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
+                throw new Error(); // Invalid ' + calledAs + ' params. Expecting non-array object.
             }
             for (const [path, value] of Object.entries(params)) {
                 const array = $obp.get(target, path, [], separator);
                 const pullValues = $is.array(value) ? value : [value];
 
                 if (!$is.array(array)) {
-                    throw new Error('Invalid ' + calledAs + '. Cannot pull from non-array value.');
+                    throw new Error(); // Invalid ' + calledAs + '. Cannot pull from non-array value.
                 }
                 for (let key = array.length - 1; key >= 0; key--) {
                     if (pullValues.includes(array[key])) {
@@ -710,18 +710,18 @@ export const getClass = (): Constructor => {
          * @note Object paths do not support symbol keys whatsoever.
          * @note This can concat onto own or inherited, enumerable or not, object paths.
          */
-        protected operation$concat(target: unknown, params: unknown, separator = '.', calledAs: string = '$concat') {
+        protected operation$concat(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$concat') {
             if (!$is.object(target)) {
-                throw new Error('Invalid ' + calledAs + '. Requires object target.');
+                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.object(params) || $is.array(params)) {
-                throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
+                throw new Error(); // Invalid ' + calledAs + ' params. Expecting non-array object.
             }
             for (const [path, value] of Object.entries(params)) {
                 const array = $obp.get(target, path, [], separator);
 
                 if (!$is.array(array)) {
-                    throw new Error('Invalid ' + calledAs + '. Cannot concat onto non-array value.');
+                    throw new Error(); // Invalid ' + calledAs + '. Cannot concat onto non-array value.
                 }
                 $obp.set(target, path, array.concat(value), separator);
             }
@@ -746,12 +746,12 @@ export const getClass = (): Constructor => {
          * @note Object paths do not support symbol keys whatsoever.
          * @note This can set own or inherited, enumerable or not, object paths.
          */
-        protected operation$default(target: unknown, params: unknown, separator = '.', calledAs: string = '$default') {
+        protected operation$default(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$default') {
             if (!$is.object(target)) {
-                throw new Error('Invalid ' + calledAs + '. Requires object target.');
+                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.object(params) || $is.array(params)) {
-                throw new Error('Invalid ' + calledAs + ' params. Expecting non-array object.');
+                throw new Error(); // Invalid ' + calledAs + ' params. Expecting non-array object.
             }
             for (const [path, value] of Object.entries(params)) {
                 $obp.defaultTo(target, path, value, separator);
@@ -805,12 +805,12 @@ export const getClass = (): Constructor => {
          * @note Object paths do not support symbol keys whatsoever.
          * @note Sorted key order matches that of `{ ...spread }` and {@see Object.keys()}.
          */
-        protected operation$keySortOrder(target: unknown, params: unknown, separator = '.', calledAs: string = '$keySortOrder') {
+        protected operation$keySortOrder(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$keySortOrder') {
             if (!$is.object(target)) {
-                throw new Error('Invalid ' + calledAs + '. Requires object target.');
+                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.array(params)) {
-                throw new Error('Invalid ' + calledAs + ' params. Expecting array.');
+                throw new Error(); // Invalid ' + calledAs + ' params. Expecting array.
             }
             /*
              * These are flat; i.e., the deepest/longest paths possible.
@@ -829,7 +829,7 @@ export const getClass = (): Constructor => {
              */
             for (const path of params) {
                 if (!$is.safeObjectPath(path)) {
-                    throw new Error('Invalid ' + calledAs + ' param. Expecting object path.');
+                    throw new Error(); // Invalid ' + calledAs + ' param. Expecting object path.
                 }
                 if ($obp.has(targetClone, path, separator)) {
                     $obp.set(target, path, $obp.get(targetClone, path, undefined, separator), separator);

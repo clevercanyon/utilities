@@ -185,7 +185,7 @@ export const i18n = (from: From = 'now', options?: I18nOptions): string => {
         if ($is.object(TimeStatics[format])) {
             return time.toLocaleString(TimeStatics[format] as object).replace(/\s+/gu, ' ');
         }
-        throw new Error('Invalid format: `' + format + '`.');
+        throw new Error(); // Invalid format: `' + format + '`.
     }
     return time.toLocaleString(opts.format).replace(/\s+/gu, ' ');
 };
@@ -255,7 +255,7 @@ export const parse = (from: From = 'now', options?: ParseOptions): $type.Time =>
         time = Time.fromFormat(String(from[0]), String(from[1]), { zone: 'utc' });
     }
     if (!time || !time.isValid) {
-        throw new Error('Unable to parse time from: `' + String(from) + '`.');
+        throw new Error(); // Unable to parse time from: `' + String(from) + '`.
     }
     return time.setZone(opts.zone).setLocale(opts.locale);
 };

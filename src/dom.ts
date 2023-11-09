@@ -509,7 +509,7 @@ export function require<Type extends Element = Element, Selectors extends string
     } else rtnValue = document.querySelector(selectors);
 
     if (!rtnValue /* Cannot be an empty node list, either. */) {
-        throw new Error('DOM query failed on: `' + $to.array(selectors).join(', ') + '`.');
+        throw new Error(); // DOM query failed on: `' + $to.array(selectors).join(', ') + '`.
     }
     return rtnValue as RtnType;
 }
