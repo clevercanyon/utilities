@@ -35,24 +35,24 @@ export type QueryVars = { [x: string]: string };
 export const stdLocalHostnames = (): string[] => ['local', 'localhost'];
 
 /**
- * Defines local host patterns.
+ * Defines local host regular expression patterns.
  *
  * These match up with the IP/DNS addresses in our SSL certificates for local development.
  * `@clevercanyon/skeleton/dev/.files/bin/ssl-certs/generate.bash` has the complete list for review.
  */
-export const localHostPatterns = $fnꓺmemo((): string[] => [
+export const localHostPatterns = $fnꓺmemo((): RegExp[] => [
     ...new Set([
-        '\\[::\\]', // IPv6 null address.
-        '0.0.0.0', // IPv4 null address.
+        /^\[::\]$/u, // IPv6 null address.
+        /^0\.0\.0\.0$/u, // IPv4 null address.
 
-        '\\[::1\\]', // IPv6 loopback address.
-        '127.0.0.1', // IPv4 loopback address.
+        /^\[::1\]$/u, // IPv6 loopback address.
+        /^127\.0\.0\.1$/u, // IPv4 loopback address.
 
         // These can be used as hostnames, or as TLDs; e.g., `local`, `x.local`.
-        ...stdLocalHostnames().map((name) => '{,*.}' + name),
+        ...stdLocalHostnames().map((name) => new RegExp('^(?:.+\\.)?' + $str.escRegExp(name) + '$', 'ui')),
 
         // These can only be used as TLDs; e.g., `x.mac`, `x.loc`, etc.
-        ...['mac', 'loc', 'dkr', 'vm'].map((name) => '*.' + name),
+        ...['mac', 'loc', 'dkr', 'vm'].map((name) => new RegExp('^(?:.+\\.)' + $str.escRegExp(name) + '$', 'ui')),
     ]),
 ]);
 

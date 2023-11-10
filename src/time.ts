@@ -1,5 +1,7 @@
 /**
  * Time utilities.
+ *
+ * @review Luxon is about 70k. Can we switch to dayJS at 7k?
  */
 
 import './resources/init.ts';

@@ -40,7 +40,7 @@ export type GetOptions = { default?: unknown; type?: $type.EnsurableType };
 export type GetOptionsWithoutType = GetOptions & { type?: undefined };
 export type GetOptionsWithType = GetOptions & { type: $type.EnsurableType };
 
-export type QVTests = { [x: string]: null | undefined | string | string[] };
+export type QVTests = { [x: string]: null | undefined | boolean | RegExp | RegExp[] };
 export type TestOptions = { alsoTryCookie?: boolean };
 
 /**
@@ -325,7 +325,7 @@ export const isWebViaJSDOM = $fnꓺmemo((): boolean => {
  * @returns True or false.
  */
 export const isLocalWeb = $fnꓺmemo((): boolean => {
-    return isWeb() && $str.matches($url.currentRootHost({ withPort: false }), $url.localHostPatterns());
+    return isWeb() && $str.test($url.currentRootHost({ withPort: false }), $url.localHostPatterns());
 });
 
 /**
@@ -518,7 +518,7 @@ export const isC10n = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {
  *       The test files are served by Vite’s dev server; i.e., `serve` is the Vite command internally.
  *       If you’d like to avoid that condition you can simply check `if (!$env.isTest())`.
  */
-export const isVite = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = { serve: '*' }): boolean => test('APP_IS_VITE', tests));
+export const isVite = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = { serve: true }): boolean => test('APP_IS_VITE', tests));
 
 /**
  * Checks if environment is in debug mode.
@@ -529,30 +529,33 @@ export const isVite = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {
  *
  *   - If different tests are passed, meaning of return value potentially changes.
  */
-export const inDebugMode = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {}): boolean => test('DEBUG', tests, { alsoTryCookie: true }));
+export const inDebugMode = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {}): boolean => test('APP_DEBUG', tests, { alsoTryCookie: true }));
 
 /**
- * Tests an environment variable's value, and query vars.
+ * Tests an environment variable and optionally its query variables.
+ *
+ * An environment variable that is defined as a query string can optionally have each of its query string variables
+ * tested by this utility; e.g., `APP_DEBUG=consent=1&analytics=1`, `APP_IS_VITE=command=mode`.
  *
  * @param   leadingObps Optional environment variable object path(s).
- * @param   subObpOrObp Subpath, or full object path if `leadingObps` is not passed, or empty.
- * @param   tests       Optional query var tests; e.g., `{ [var]: '*', [var]: '*', [var]: '*' }`.
+ * @param   subObpOrObp Subpath, or full object path if `leadingObps` is not passed, or is empty.
+ * @param   tests       Optional tests; e.g., `{ [var]: null, [var]: true, [var]: false, [var]: [/regexp/] }`.
  * @param   options     Options (all optional); {@see TestOptions}.
  *
  *   Regarding environment variables:
  *
  *   - To simply test that an environment variable is not empty and not `'0'`, just do not pass any `tests`.
  *
- *   Regarding query vars within the environment variable’s value:
+ *   Regarding query variables within the environment variable value. All query variable tests must pass i.e., this uses
+ *   AND logic. The use of OR logic can be achieved by passing an array of regular expression patterns — at least one
+ *   pattern must match in each of the tests, or by calling this multiple times; e.g., `if (test() || test())`.
  *
- *   Each query `{ [var]: '*' }` test is treated as a caSe-insensitive glob pattern (or an array of patterns) — one of
- *   which must match the targeted query var. All query var tests must pass i.e., this uses AND logic. The use of OR
- *   logic can be achieved by calling this function multiple times in different ways; e.g., `if ( test() || test() )`.
- *
- *   - To test that a query var simply exists, use `{ [var]: '*' }`. `null`, `undefined`, `''`, `*`, `**`, are all
- *       equivalent, producing an 'exists' check. The recommend value is `*`, but take your pick.
- *   - To test that a query var exists and is not empty, and not `'0'`, use `{ [var]: '!!' }`. `!!`, `?*`, `?**`, are all
- *       equivalent, producing a not empty, not `'0'` check. The recommend value is `!!`, but take your pick.
+ *   - To test that a query variable simply exists, use `{ [var]: null | undefined }`.
+ *   - To test that a query variable exists and is not empty, and not `'0'`, use `{ [var]: true }`.
+ *   - To test that a query variable either does not exist, _is_ empty, or `'0'`, use `{ [var]: false }`.
+ *   - Any other test is a regular expression, or array of regular expressions; e.g., `{ [var]: /regexp/ }`.
+ *   - When passing an array of regular expressions; e.g., `{ [var]: [/regexp/, /regexp/] }`, at least one of the patterns
+ *       must match in each query variable test, else this returns false.
  *
  * @returns             True if environment variable is not empty, not `'0'`, and all tests pass.
  *
@@ -587,21 +590,20 @@ export function test(...args: unknown[]): boolean {
     // Depending on string value contents, this may or may not throw, so we 'try'.
     const qvs = $fn.try(() => $url.getQueryVars('http://x.tld/?' + strValue), {} as $url.QueryVars)();
 
-    for (const [qv, glob] of Object.entries(tests as QVTests)) {
-        if (!Object.hasOwn(qvs, qv)) {
-            return false; // Missing query variable.
-        }
-        if (!glob || '*' === glob || '**' === glob) {
-            continue; // The query variable exists.
-        }
-        if ('!!' === glob || '?*' === glob || '?**' === glob) {
-            if ($is.emptyOrZero($str.parseValue(qvs[qv]))) {
-                return false; // Empty or `'0'`.
-            } else continue; // Not empty, not `'0'`.
-        }
-        if (!$str.matches(qvs[qv], glob, { ignoreCase: true })) {
-            return false; // The query variable doesn’t pass a given test.
-        }
+    for (const [qv, test] of Object.entries(tests as QVTests)) {
+        const exists = Object.hasOwn(qvs, qv);
+        const parsedValue = exists ? $str.parseValue(qvs[qv]) : undefined;
+
+        if (null === test || undefined === test) {
+            if (!exists) return false;
+            //
+        } else if (true === test) {
+            if ($is.emptyOrZero(parsedValue)) return false;
+            //
+        } else if (false === test) {
+            if (!$is.emptyOrZero(parsedValue)) return false;
+            //
+        } else if (!$str.test(qvs[qv] || '', test)) return false;
     }
     return true; // Passed all tests.
 }

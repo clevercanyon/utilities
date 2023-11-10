@@ -59,14 +59,14 @@ export const state: State = {} as State;
  *
  * To debug consent and analytics APIs set the following cookie and/or environment variable:
  *
- *     document.cookie = 'DEBUG=consent=1&analytics=1'; // `1`, or any truthy value will do.
+ *     document.cookie = 'APP_DEBUG=consent=1&analytics=1'; // `1`, or any truthy value will do.
  */
 export const initialize = async (): Promise<void> => {
     // Initializes promise one time only.
     if (state.promise as unknown) return state.promise;
 
     // Sets potential debug mode for this API.
-    state.debug = $env.inDebugMode({ analytics: '!!' });
+    state.debug = $env.inDebugMode({ analytics: true });
 
     // Initializes and returns an analytics promise.
     return (state.promise = new Promise((resolve): void => {
@@ -165,18 +165,18 @@ export const sessionId = async (): Promise<string> => {
  *
  * @returns User ID promise; 36 chars max.
  */
-export const userId = $fn.memo(async (): Promise<string> => {
+export const userId = async (): Promise<string> => {
     return state.userId; // Async uniformity.
-});
+};
 
 /**
  * Gets customer ID (e.g., a hash).
  *
  * @returns Customer ID promise; 36 chars max.
  */
-export const customerId = $fn.memo(async (): Promise<string> => {
+export const customerId = async (): Promise<string> => {
     return state.customerId; // Async uniformity.
-});
+};
 
 /**
  * Tracks a page view event.

@@ -87,14 +87,14 @@ export const state: State = {} as State;
  *
  * To debug consent and analytics APIs set the following cookie and/or environment variable:
  *
- *     document.cookie = 'DEBUG=consent=1&analytics=1'; // `1`, or any truthy value will do.
+ *     document.cookie = 'APP_DEBUG=consent=1&analytics=1'; // `1`, or any truthy value will do.
  */
 export const initialize = async (): Promise<void> => {
     // Initializes promise one time only.
     if (state.promise as unknown) return state.promise;
 
     // Sets potential debug mode for this API.
-    state.debug = $env.inDebugMode({ consent: '!!' });
+    state.debug = $env.inDebugMode({ consent: true });
 
     // Initializes and returns a consent promise.
     return (state.promise = new Promise((resolve): void => {
