@@ -5,7 +5,6 @@
 import './resources/init.ts';
 
 import ipRegex from 'ip-regex';
-import { default as mm, type Options as MMOptions } from 'micromatch';
 import { $dom, $env, $is, $obj, $to } from './index.ts';
 
 const textEncoder: TextEncoder = new TextEncoder();
@@ -40,9 +39,6 @@ export type SnakeCaseOptions = KebabCaseOptions; // Same options as kebabCase.
 export type QuoteOptions = { type?: 'single' | 'double' };
 export type UnquoteOptions = { type?: string };
 export type EscHTMLOptions = { doubleEncode: boolean };
-
-export type { MMOptions as MMOptions };
-export type MatchesOptions = MMOptions & { ignoreCase?: boolean };
 
 /* ---
  * Size utilities.
@@ -806,15 +802,6 @@ export const isIPv6Host = (str: string): boolean => {
  */
 
 /**
- * Exports micromatch library.
- *
- * Adds approximately 35kbs to bundle size.
- *
- * @deprecated {@see $mm} utilities instead please.
- */
-export { mm }; // Micromatch library.
-
-/**
  * String matches the given regular expression test(s)?
  *
  * @param   str    String to consider.
@@ -824,33 +811,4 @@ export { mm }; // Micromatch library.
  */
 export const test = (str: string, regExp: RegExp | RegExp[]): boolean => {
     return $to.array(regExp).some((regExp) => regExp.test(str));
-};
-
-/**
- * String matches the given pattern?
- *
- * @deprecated {@see $mm} utilities instead please.
- *
- * @param   str     String to consider.
- * @param   glob    Glob pattern(s) to look for.
- * @param   options Micromatch options (all optional).
- *
- *   - Default options are: `{ ignoreCase: false, dot: true }`.
- *   - For caSe-insensitive matching, pass `{ ignoreCase: true }`.
- *   - For all other available options, please {@see MatchesOptions}.
- *
- * @returns         True if `str` matches any `glob` pattern.
- *
- * @option-deprecated 2023-09-16 `nocase` option deprecated in favor of `ignoreCase`. The `nocase` option will continue to
- *   work, however, as it’s part of the micromatch library that powers this utility. We just prefer to use `ignoreCase`,
- *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
- */
-export const matches = (str: string, glob: string | string[], options?: MatchesOptions): boolean => {
-    const opts = $obj.defaults({}, options || {}, { nocase: false, dot: true }) as MatchesOptions;
-
-    if (Object.hasOwn(opts, 'ignoreCase')) {
-        opts.nocase = opts.ignoreCase;
-        delete opts.ignoreCase;
-    }
-    return mm.isMatch(str, glob, opts);
 };
