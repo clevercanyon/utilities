@@ -205,9 +205,10 @@ export const matcher = (glob: string, options?: Options): ReturnType<typeof mm.m
 
 /**
  * Remaining exports from micromatch library, which do not require further adjustment. Each of these takes in a
- * different kind of options object. Therefore, there is simply no reason to encapsulate these any further.
+ * different kind of options object. Therefore, there is simply no reason to modify these any further.
  */
-export { braces, scan } from 'micromatch'; // Also, these are used rarely.
+export const braces = (...args: Parameters<typeof mm.braces>): ReturnType<typeof mm.braces> => mm.braces(...args);
+export const scan = (...args: Parameters<typeof mm.scan>): ReturnType<typeof mm.scan> => mm.scan(...args);
 
 // ---
 // Misc utilities.
