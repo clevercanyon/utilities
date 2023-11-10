@@ -809,6 +809,8 @@ export const isIPv6Host = (str: string): boolean => {
  * Exports micromatch library.
  *
  * Adds approximately 35kbs to bundle size.
+ *
+ * @deprecated {@see $mm} utilities instead please.
  */
 export { mm }; // Micromatch library.
 
@@ -827,7 +829,7 @@ export const test = (str: string, regExp: RegExp | RegExp[]): boolean => {
 /**
  * String matches the given pattern?
  *
- * Adds approximately 35kbs to bundle size.
+ * @deprecated {@see $mm} utilities instead please.
  *
  * @param   str     String to consider.
  * @param   glob    Glob pattern(s) to look for.

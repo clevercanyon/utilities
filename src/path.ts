@@ -5,8 +5,7 @@
 import './resources/init.ts';
 
 import { default as untypedGitIgnoreFactory, type Ignore as GitIgnore } from 'ignore';
-import { type Options as MMOptions } from 'micromatch';
-import { $mime, $obj, $str, $to } from './index.ts';
+import { $mime, $mm, $obj, $str, $to } from './index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
@@ -21,9 +20,9 @@ export type GitIgnoreOptions = {
     useDefaultGitIgnores?: boolean;
     useDefaultNPMIgnores?: boolean;
 };
+export type GlobToRegExpOptions = $mm.Options;
+export type GlobToRegExpStringOptions = $mm.Options;
 export type GitIgnoreToGlobOptions = { useDotGlobstars?: boolean };
-export type GlobToRegExpOptions = MMOptions & { ignoreCase?: boolean };
-export type globToRegExpStringOptions = MMOptions & { ignoreCase?: boolean };
 export type ExtsByVSCodeLangOptions = { camelCase?: boolean; enableCodeTextual?: boolean };
 
 export type DefaultGitIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
@@ -218,45 +217,25 @@ export const gitIgnoreToGlob = (ignoreGlob: string, options?: GitIgnoreToGlobOpt
  * @param   options Options (all optional); {@see GlobToRegExpOptions}.
  *
  * @returns         Glob as a regular expression.
- *
- * @option-deprecated 2023-09-16 `nocase` option deprecated in favor of `ignoreCase`. The `nocase` option will continue to
- *   work, however, as it’s part of the micromatch library that powers this utility. We just prefer to use `ignoreCase`,
- *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
 export const globToRegExp = (glob: string, options?: GlobToRegExpOptions): RegExp => {
-    const opts = $obj.defaults({}, options || {}, { nocase: false }) as GlobToRegExpOptions;
-
-    if (Object.hasOwn(opts, 'ignoreCase')) {
-        opts.nocase = opts.ignoreCase;
-        delete opts.ignoreCase;
-    }
-    return $str.mm.makeRe(glob, opts);
+    return $mm.makeRe(glob, options);
 };
 
 /**
  * Converts a glob into a regular expression string.
  *
  * @param   glob    Glob to convert into a regular expression string.
- * @param   options Options (all optional); {@see globToRegExpStringOptions}.
+ * @param   options Options (all optional); {@see GlobToRegExpStringOptions}.
  *
  * @returns         Glob as a regular expression string.
- *
- * @option-deprecated 2023-09-16 `nocase` option deprecated in favor of `ignoreCase`. The `nocase` option will continue to
- *   work, however, as it’s part of the micromatch library that powers this utility. We just prefer to use `ignoreCase`,
- *   in order to be consistent with other utilities we offer that have the option to ignore caSe.
  */
-export const globToRegExpString = (glob: string, options?: globToRegExpStringOptions): string => {
-    const opts = $obj.defaults({}, options || {}, { nocase: false }) as globToRegExpStringOptions;
-
-    if (Object.hasOwn(opts, 'ignoreCase')) {
-        opts.nocase = opts.ignoreCase;
-        delete opts.ignoreCase;
-    }
+export const globToRegExpString = (glob: string, options?: GlobToRegExpStringOptions): string => {
     // Note: Micromatch doesn’t use any unicode-specific regexp, so a `/u` flag is not absolutely necessary.
     // However, minimatch does — simply as an observation. We don’t use minimatch, though. So no reason to consider.
     return (
-        $str.mm
-            .makeRe(glob, opts)
+        $mm
+            .makeRe(glob, options)
             .toString()
             // Strips away regExp delimiters & flags.
             // Such that we can use this in a `new RegExp()` later.

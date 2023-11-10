@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.422",
+    "version": "1.0.423",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -90,6 +90,11 @@
             "types": "./dist/types/mime.d.ts",
             "import": "./dist/mime.js",
             "default": "./dist/mime.js"
+        },
+        "./mm": {
+            "types": "./dist/types/mm.d.ts",
+            "import": "./dist/mm.js",
+            "default": "./dist/mm.js"
         },
         "./obj": {
             "types": "./dist/types/obj.d.ts",

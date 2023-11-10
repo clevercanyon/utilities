@@ -17,6 +17,7 @@ export * as $http from './http.ts';
 export * as $is from './is.ts';
 export * as $json from './json.ts';
 export * as $mime from './mime.ts';
+export * as $mm from './mm.ts';
 export * as $obj from './obj.ts';
 export * as $obp from './obp.ts';
 export * as $path from './path.ts';
