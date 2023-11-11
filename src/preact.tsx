@@ -64,31 +64,11 @@ export {
 } from 'preact/hooks';
 
 /**
- * Exports Preact signals.
- */
-export {
-    Signal,
-    signal,
-    computed,
-    effect,
-    batch,
-    untracked, //
-} from '@preact/signals';
-
-/**
- * Exports Preact signal hooks.
- */
-export {
-    useSignal,
-    useComputed,
-    useSignalEffect, //
-} from '@preact/signals';
-
-/**
  * Exports our Preact APIs.
  */
 export * as iso from './resources/preact/apis/iso.tsx';
 export * as ssr from './resources/preact/apis/ssr.tsx';
+export * as x from './resources/preact/apis/signals.tsx';
 
 /**
  * Exports our Preact lazy loaders.
