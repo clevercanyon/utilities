@@ -1,31 +1,38 @@
 /**
  * Time utilities.
  *
- * @review Luxon is about 70k. Can we switch to dayJS at 7k?
+ * Dayjs is approximately 18kbs.
  */
 
 import './resources/init.ts';
 
-import { DateTime as Time } from 'luxon';
-import { $app, $is, $obj, $symbol, type $type } from './index.ts';
-import { $fnꓺmemo } from './resources/standalone/index.ts';
+import dayjs from 'dayjs'; // 7kbs.
+import dayjsAdvancedFormat from 'dayjs/plugin/advancedFormat.js'; // 1.07kbs.
+import dayjsCustomParseFormat from 'dayjs/plugin/customParseFormat.js'; // 3.66kbs.
+import dayjsLocalizedFormat from 'dayjs/plugin/localizedFormat.js'; // 807 bytes.
+import dayjsTimezone from 'dayjs/plugin/timezone.js'; // 2.09kbs.
+import dayjsToObject from 'dayjs/plugin/toObject.js'; // 422 bytes.
+import dayjsUTC from 'dayjs/plugin/utc.js'; // 2.2kbs.
 
-let prototypeInitialized: boolean = false; // Initialized once only.
+import { $app, $is, $obj, $symbol, type $type } from './index.ts';
+
+let initialized: boolean = false;
+let i18n: Intl.ResolvedDateTimeFormatOptions;
 
 /**
  * Defines types.
  */
-export type ParseOptions = { zone?: string; locale?: string };
-export type I18nFormats = { date: object; time: object; dateTime: object };
-export type I18nOptions = { zone?: string; locale?: string; format?: string | object };
-export type From = number | string | Date | $type.Time | object | [string, string];
+export type ParseOptions = { locale?: string; zone?: string };
+export type I18nOptions = { locale?: string; zone?: string; format?: string };
+export type Parseable = null | undefined | number | string | Date | $type.Time;
+type LocaleTZOptions = { locale?: string; zone?: string };
 
 /**
  * Provides access to full library.
  *
- * @see https://o5p.me/piUx4o
+ * @see https://day.js.org/en/
  */
-export * as $ from 'luxon'; // i.e., Luxon.
+export { dayjs as $ }; // i.e., Dayjs.
 
 /**
  * Seconds.
@@ -77,211 +84,228 @@ export const yearInMilliseconds = yearInSeconds * secondInMilliseconds;
 export const yearInMicroseconds = yearInSeconds * secondInMicroseconds;
 
 /**
- * Current user i18n options.
- */
-export const currentUser: Intl.ResolvedDateTimeFormatOptions = new Intl.DateTimeFormat().resolvedOptions();
-
-/**
  * Gets a unix timestamp.
  *
- * @param   from Parseable `from` value.
+ * @param   parseable Parseable time.
  *
- *   - Default `from` value is `now`.
+ *   - Default `parseable` value is `now`.
  *   - {@see parse()} for further details.
  *
- * @returns      Timestamp in whole seconds, as an integer.
+ * @returns           Timestamp in whole seconds, as an integer.
  */
-export const stamp = (from: From = 'now'): number => {
-    return parse(from).toUnixInteger();
+export const stamp = (parseable?: Parseable): number => {
+    return parse(parseable).unix();
 };
 
 /**
  * Gets a floating point timestamp.
  *
- * @param   from Parseable `from` value.
+ * @param   parseable Parseable time.
  *
- *   - Default `from` value is `now`.
+ *   - Default `parseable` value is `now`.
  *   - {@see parse()} for further details.
  *
- * @returns      Timestamp in seconds, as a float, supporting fractional seconds.
+ * @returns           Timestamp in seconds, as a float, supporting fractional seconds.
  */
-export const floatStamp = (from: From = 'now'): number => {
-    return parse(from).toSeconds();
+export const floatStamp = (parseable?: Parseable): number => {
+    return parse(parseable).valueOf() / 1000;
 };
 
 /**
  * Gets a millisecond timestamp.
  *
- * @param   from Parseable `from` value.
+ * @param   parseable Parseable time.
  *
- *   - Default `from` value is `now`.
+ *   - Default `parseable` value is `now`.
  *   - {@see parse()} for further details.
  *
- * @returns      Timestamp in whole milliseconds, as an integer.
+ * @returns           Timestamp in whole milliseconds, as an integer.
  */
-export const milliStamp = (from: From = 'now'): number => {
-    return parse(from).toMillis();
+export const milliStamp = (parseable?: Parseable): number => {
+    return parse(parseable).valueOf();
 };
 
 /**
- * Defines i18n date & time formats.
+ * Gets the current time.
  *
- * @returns Several named date/time formats.
+ * @param   options                 Options (all optional); {@see parse()}.
  *
- * @note {@see i18n()} `format` option.
+ * @returns {@see $type.Time}         Current time instance.
  */
-export const i18nFormats = $fnꓺmemo((): Readonly<I18nFormats> => {
-    const formats = {} as I18nFormats;
-
-    formats.date = {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    };
-    formats.time = {
-        hour: 'numeric',
-        hourCycle: 'h12',
-        minute: '2-digit',
-        second: '2-digit',
-        timeZoneName: 'short',
-    };
-    formats.dateTime = { ...formats.date, ...formats.time };
-
-    return formats; // Several named date/time formats.
-});
-
-/**
- * Produces an internationalized time using configurable options.
- *
- * @param   from    Parseable `from` value.
- *
- *   - Default `from` value is `now`.
- *   - {@see parse()} for further details.
- *   - //
- * @param   options Options (all optional). Defaults are geared to current user.
- *
- *   - Default timezone is the current user’s timezone. For others, see: https://o5p.me/mVQqsS.
- *   - Default i18n locale is the current user’s locale. For others, see: https://o5p.me/qLAeRe.
- *   - Default format is {@see i18nFormats().dateTime}. For others, see: https://o5p.me/fZPB9R.
- *
- *       - Format can be given in kebab-case, pointing to an Intl config object key. See: https://o5p.me/fZPB9R.
- *       - Format can also be given as one of these config object constants. See: https://o5p.me/fZPB9R.
- *       - Format can also be given as a custom config object. See: https://o5p.me/lHJPfq.
- *
- * @returns         By default, datetime in full w/ seconds, using current user’s zone/locale.
- */
-export const i18n = (from: From = 'now', options?: I18nOptions): string => {
-    const defaultOpts = {
-        zone: currentUser.timeZone,
-        locale: currentUser.locale,
-        format: i18nFormats().dateTime,
-    };
-    const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<I18nOptions>;
-    const time = parse(from, $obj.pick(opts, ['zone', 'locale']) as ParseOptions);
-
-    if ($is.string(opts.format)) {
-        const TimeStatics = Time as unknown as $type.Object;
-        const format = opts.format.replace(/-/gu, '_').toUpperCase();
-
-        if ($is.object(TimeStatics[format])) {
-            return time.toLocaleString(TimeStatics[format] as object).replace(/\s+/gu, ' ');
-        }
-        throw new Error(); // Invalid format: `' + format + '`.
-    }
-    return time.toLocaleString(opts.format).replace(/\s+/gu, ' ');
-};
+export const now = (options?: ParseOptions): $type.Time => parse('', options);
 
 /**
  * Parses a time using configurable options.
  *
- * @param   from                    Parseable `from` value.
+ * @param   parseable                 Parseable time.
  *
- *   - Please refer to source code for parseable `from` values.
+ *   - Default `parseable` value is `now`.
+ *   - Refer to source code for parseable times.
  *   - //
- * @param   options                 Options (all optional).
+ * @param   options                   Options (all optional); {@see ParseOptions}.
  *
+ *   - Default locale is `en-US`. For others, see: https://o5p.me/0whu4P.
  *   - Default timezone is `utc`. For others, see: https://o5p.me/mVQqsS.
- *   - Default i18n locale is `en-US`. For others, see: https://o5p.me/qLAeRe.
  *
- * @returns {@see $type.Time}         Time instance in requested timezone.
+ * @returns {@see $type.Time}           Time instance in requested timezone.
  *
- * @note See <https://o5p.me/P6D5so> for API docs.
- * @note See <https://o5p.me/FMfPko> for parseable format tokens.
- * @note See <https://o5p.me/mVQqsS> for the full list of all TZ database codes.
+ * @note See <https://o5p.me/19WnLy> for API docs.
  */
-export const parse = (from: From = 'now', options?: ParseOptions): $type.Time => {
-    if (!prototypeInitialized) initializePrototype();
-
-    const defaultOpts = { zone: 'utc', locale: 'en-US' };
-    const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<ParseOptions>;
-
-    opts.zone = 'local' === opts.zone ? currentUser.timeZone : opts.zone;
-    opts.locale = 'local' === opts.locale ? currentUser.locale : opts.locale;
-
+export const parse = (parseable?: Parseable, options?: ParseOptions): $type.Time => {
+    if (!initialized) initialize(); // If not already.
     let time: $type.Time | undefined; // Initialize.
 
-    if ('now' === from) {
-        time = Time.now();
+    if (!parseable || 'now' === parseable) time = dayjs();
+    //
+    else if ($is.date(parseable) || $is.time(parseable)) {
+        time = dayjs(parseable); // Object simply cloned as-is.
         //
-    } else if ($is.number(from) || ($is.numeric(from) && /^[0-9]{10,}/u.test(from))) {
-        from = Number(from); // Force number value.
+    } else if ($is.number(parseable) || ($is.numeric(parseable) && /^\d{10,}/u.test(parseable))) {
+        parseable = Number(parseable); // Force number value.
 
-        if ($is.float(from) || (from as number).toString().length <= 10) {
-            time = Time.fromSeconds(from);
+        if ($is.float(parseable) || (parseable as number).toString().length <= 10) {
+            time = dayjs.unix(parseable); // Seconds.
         } else {
-            time = Time.fromMillis(from);
+            time = dayjs(parseable); // Milliseconds.
         }
-    } else if ($is.string(from)) {
-        // HTTP: RFC-2616; e.g., `Tue, 21 Feb 2023 13:16:32 GMT` (always GMT).
-        if (/^[a-z]{3}, [0-9]{2} [a-z]{3} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} GMT$/iu.test(from)) {
-            time = Time.fromHTTP(from);
+    } else if ($is.string(parseable)) {
+        // RFC-7231: `Tue, 21 Feb 2023 13:16:32 GMT`; {@see https://o5p.me/xGuzSc}.
+        if (/^[a-z]{3}, \d{2} [a-z]{3} \d{4} \d{2}:\d{2}:\d{2} GMT$/iu.test(parseable)) {
+            time = dayjs.utc(parseable.replace(/(?:^[a-z]{3}, | GMT$)/giu, ''), 'DD MMM YYYY HH:mm:ss', true);
             //
-            // SQL: e.g., `2023-02-21[ 13:16:32[.000][Z|+00:00| Z| +00:00| America/New_York]]`.
-        } else if (/^[0-9]{4}-[0-9]{2}-[0-9]{2}(?: [0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{3})?(?:\s?Z|\s?[+-][0-9]{2}:[0-9]{2}|\s[A-Za-z0-9+\-_/]+)?)?$/u.test(from)) {
-            time = Time.fromSQL(from, { zone: 'utc' });
+            // SQL-like: `2023[-02[-21[ 13[:16[:32][.000]]]]]`, `2023[02[21[ 13[16[32][000]]]]]`.
+            // Dayjs can parse SQL-like dates without separators. However, without any separators,
+            // we consider it a timestamp if >= 10 digits. So please, use hyphens, or at least a space.
+        } else if (!/Z$/iu.test(parseable) /* {@see https://o5p.me/wv9Jfv} {@see https://o5p.me/uru3CY} */) {
+            time = dayjs.utc(parseable); // UTC implied, as this format does not support a timezone specifier.
             //
-        } /* ISO-8601: e.g., `2023-W08-2`, `20230221`, `0000[00[.000]]Z`, `00:00[:00[.000]]Z`, `20230221[T1316[32[.000]][Z|+0000]]`, `2023-02-21[T13:16[:32[.000]][Z|+00:00]]`. */ else {
-            time = Time.fromISO(from, { zone: 'utc' });
-        }
-    } else if ($is.date(from)) {
-        time = Time.fromJSDate(from);
-        //
-    } else if ($is.time(from)) {
-        time = Time.fromISO(from.toISO() || '');
-        //
-    } else if ($is.plainObject(from)) {
-        time = Time.fromObject(from, { zone: 'utc' });
-        //
-    } else if ($is.array(from) && 2 === from.length) {
-        time = Time.fromFormat(String(from[0]), String(from[1]), { zone: 'utc' });
+        } /* Simplified ISO-8601: `2023-02-21[T13:16[:32[.000]][Z|+00:00|+0000]]`; {@see https://o5p.me/qgRkeM}. */
+        // When the timezone is absent, date-only forms are interpreted as UTC and date-time forms as local time.
+        // For that reason, it is strongly suggested not to use date-time forms without a timezone specifier.
+        else time = dayjs(parseable); // Dayjs simply passes this on to `Date()` in native JS.
     }
-    if (!time || !time.isValid) {
+    if (!time || !time.isValid()) {
         throw new Error(); // Unable to parse time from: `' + String(from) + '`.
     }
-    return time.setZone(opts.zone).setLocale(opts.locale);
+    return applyLocaleTZOptions(time, options);
+};
+
+// ---
+// Misc utilities.
+
+/**
+ * Initializes.
+ */
+const initialize = (): void => {
+    if (initialized) return;
+    initialized = true;
+
+    // Optimized for minification.
+    const { extend: dayjsExtend } = dayjs;
+
+    dayjsExtend(dayjsUTC);
+    dayjsExtend(dayjsTimezone);
+
+    dayjsExtend(dayjsCustomParseFormat);
+    dayjsExtend(dayjsLocalizedFormat);
+    dayjsExtend(dayjsAdvancedFormat);
+    dayjsExtend(dayjsToObject);
+
+    dayjs.locale('en-US');
+    dayjs.tz.setDefault('utc');
+    i18n = new Intl.DateTimeFormat().resolvedOptions();
+
+    dayjsExtend((unusedꓺ, Dayjs) => {
+        const { prototype } = Dayjs;
+
+        // System object helpers.
+
+        Object.defineProperty(prototype, $symbol.objTag, {
+            get: function (this: dayjs.Dayjs): ReturnType<$type.ObjTagSymbolFn> {
+                return $app.pkgName + '/Time';
+            },
+        });
+        (prototype as unknown as $type.Object)[$symbol.objToPlain] = //
+            function (this: dayjs.Dayjs): ReturnType<$type.ObjToPlainSymbolFn> {
+                return this.utc().toObject();
+            };
+        (prototype as unknown as $type.Object)[$symbol.objToEquals] = //
+            function (this: dayjs.Dayjs): ReturnType<$type.ObjToEqualsSymbolFn> {
+                return ((this as unknown as $type.Object)[$symbol.objToPlain] as $type.ObjToPlainSymbolFn)();
+            };
+        (prototype as unknown as $type.Object)[$symbol.objToClone] = //
+            function (this: dayjs.Dayjs): ReturnType<$type.ObjToCloneSymbolFn> {
+                return this.clone();
+            };
+        // Fixes broken `.clone()`; {@see https://o5p.me/hC9cE3}.
+        // When this gets fixed, all unit tests should pass without this.
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method -- ok.
+        const brokenClone = prototype.clone; // Unbound; hence `.call()` below.
+
+        prototype.clone = function (this: dayjs.Dayjs): dayjs.Dayjs {
+            const clone = brokenClone.call(this) as unknown as $type.Object;
+            clone.$H = (this as unknown as $type.Object).$H;
+            return clone as unknown as dayjs.Dayjs;
+        };
+        // Object equals helper.
+
+        prototype.equals = function (this: dayjs.Dayjs, other: dayjs.Dayjs): boolean {
+            return other.toISOString() === this.toISOString();
+        };
+        // Standard format helpers.
+
+        prototype.toYMD = function (this: dayjs.Dayjs): string {
+            return this.format('YYYY-MM-DD');
+        };
+        prototype.toSQL = function (this: dayjs.Dayjs): string {
+            return this.format('YYYY-MM-DD HH:mm:ss');
+        };
+        prototype.toISO = function (this: dayjs.Dayjs): string {
+            return this.toISOString();
+        };
+        prototype.toHTTP = function (this: dayjs.Dayjs): string {
+            return this.toDate().toUTCString();
+        };
+        // Prose format helpers.
+
+        prototype.toProse = function (this: dayjs.Dayjs): string {
+            return this.format('lll z'); // e.g., `Jan 1, 2023 12:00 AM UTC`.
+        };
+        prototype.toProseDate = function (this: dayjs.Dayjs): string {
+            return this.format('ll'); // e.g., `Jan 1, 2023`.
+        };
+        // I18n format helpers.
+
+        prototype.toI18n = function (this: dayjs.Dayjs, options?: I18nOptions): string {
+            const defaultOpts = { locale: 'i18n', zone: 'i18n', format: 'lll z' };
+            const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<I18nOptions>;
+            return applyLocaleTZOptions(this, opts).format(opts.format);
+        };
+        prototype.toI18nDate = function (this: dayjs.Dayjs, options?: I18nOptions): string {
+            return this.toI18n({ format: 'll', ...options }); // e.g., `Jan 1, 2023`.
+        };
+    });
 };
 
 /**
- * Initializes Time prototype.
+ * Applies locale/TZ options.
+ *
+ * @param   time    An existing time instance.
+ * @param   options Options (all optional); {@see LocaleTZOptions}.
+ *
+ *   - Default locale is `en-US`. For others, see: https://o5p.me/0whu4P.
+ *   - Default timezone is `utc`. For others, see: https://o5p.me/mVQqsS.
+ *
+ * @returns         Modified clone of time instance.
  */
-const initializePrototype = (): void => {
-    if (prototypeInitialized) return;
-    prototypeInitialized = true;
+const applyLocaleTZOptions = (time: $type.Time, options?: LocaleTZOptions): $type.Time => {
+    const defaultOpts = { locale: 'en-US', zone: 'utc' };
+    const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<LocaleTZOptions>;
 
-    Object.defineProperty(Time.prototype, $symbol.objTag, {
-        get: function (this: $type.Time): ReturnType<$type.ObjTagSymbolFn> {
-            return $app.pkgName + '/Time'; // {@see $obj.tag()}.
-        },
-    });
-    Object.defineProperty(Time.prototype, $symbol.objToPlain, {
-        value: function (this: $type.Time): ReturnType<$type.ObjToPlainSymbolFn> {
-            return this.setZone('utc').toObject(); // See: <https://o5p.me/4iEe01>.
-        },
-    });
-    Object.defineProperty(Time.prototype, $symbol.objToClone, {
-        value: function (this: $type.Time): ReturnType<$type.ObjToCloneSymbolFn> {
-            return this.reconfigure({}); // See: <https://o5p.me/dXNmVy>.
-        },
-    });
+    if ('i18n' === opts.locale) opts.locale = i18n.locale;
+    if ('en-US' === opts.locale) opts.locale = 'en';
+    if ('i18n' === opts.zone) opts.zone = i18n.timeZone;
+
+    return time.locale(opts.locale).tz(opts.zone);
 };

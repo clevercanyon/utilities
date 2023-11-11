@@ -446,15 +446,6 @@ const $isꓺdeepEqualꓺhelper = (a: unknown, b: unknown, circular: Map<object, 
             rtn = aObj.toString() === bObj.toString();
             break switchCase;
         }
-        case $appꓺpkgName + '/Time' === objTag: {
-            // ↑ Just like {@see $isꓺtime()}.
-
-            const aObj = a as $type.Time;
-            const bObj = b as $type.Time;
-
-            rtn = aObj.equals(bObj);
-            break switchCase;
-        }
         case a instanceof Date: {
             // ↑ Just like {@see $isꓺdate()}.
 

@@ -32,7 +32,6 @@ export default await (async () => {
                 lib: ['dom', 'webworker'],
                 types: [
                     '@types/node', //
-                    '@types/luxon',
                     '@types/semver',
                     '@types/micromatch',
                     '@types/libsodium-wrappers',

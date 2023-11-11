@@ -1,7 +1,7 @@
 /**
  * Micromatch utilities.
  *
- * Adds approximately 35kbs to bundle size.
+ * Micromatch is approximately 35kbs.
  */
 
 import './resources/init.ts';
@@ -37,7 +37,7 @@ export { any as isMatch }; // `any` === `isMatch` alias.
  *
  * Almost the same as {@see any()}, but with `{ dot: true }` on by default. Also, this is an exact replica of our other
  * utility {@see $str.test()}, but in this case for globs. Please lean in the direction of using regular expressions
- * instead of depending on globs, when possible, as the underlying Micromatch library adds about 35kbs to a bundle.
+ * instead of depending on globs, when possible, as the underlying Micromatch library adds a few kbs to a bundle.
  *
  * @param   string  A single test string.
  * @param   globs   String or array of globs.

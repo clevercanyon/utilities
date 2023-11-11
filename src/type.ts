@@ -8,7 +8,7 @@
 import './resources/init.ts';
 
 import { $to } from './index.ts';
-import { type DateTime as luxonꓺDateTime } from 'luxon';
+import { type Dayjs } from 'dayjs';
 import type * as cf from '@cloudflare/workers-types/experimental';
 
 /**
@@ -30,7 +30,7 @@ export type { $AsyncFunction as AsyncFunction };
 /**
  * Class types.
  */
-export type { luxonꓺDateTime as Time };
+export type { Dayjs as Time };
 export type * from './class.ts';
 
 /**
