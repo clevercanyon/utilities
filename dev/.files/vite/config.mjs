@@ -268,7 +268,8 @@ export default async ({ mode, command, ssrBuild: isSSRBuild }) => {
             sourcemap: 'dev' === mode, // Enables creation of sourcemaps (for debugging).
 
             minify: minifyEnable ? 'esbuild' : false, // {@see https://o5p.me/pkJ5Xz}.
-            cssMinify: minifyEnable ? 'esbuild' : false, // {@see https://o5p.me/pkJ5Xz}.
+            cssMinify: minifyEnable ? 'lightningcss' : false, // {@see https://o5p.me/h0Hgj3}.
+            // We ran several tests between `esbuild`, `cssnano`, and `lightningcss` wins.
 
             modulePreload: false, // Disable. DOM injections conflict with our SPAs.
 
