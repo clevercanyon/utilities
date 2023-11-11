@@ -66,9 +66,9 @@ export {
 /**
  * Exports our Preact APIs.
  */
+export * from './resources/preact/apis/signals.tsx';
 export * as iso from './resources/preact/apis/iso.tsx';
 export * as ssr from './resources/preact/apis/ssr.tsx';
-export * as x from './resources/preact/apis/signals.tsx';
 
 /**
  * Exports our Preact lazy loaders.
