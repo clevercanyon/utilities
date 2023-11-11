@@ -5,7 +5,7 @@ import { type I18nOptions } from '../../time.ts';
  * Defines types for `dayjs` module.
  */
 declare module 'dayjs' {
-    interface Dayjs {
+    export interface Dayjs {
         clone(): Dayjs;
         equals(x: Dayjs): boolean;
 

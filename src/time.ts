@@ -216,6 +216,7 @@ const initialize = (): void => {
     i18n = new Intl.DateTimeFormat().resolvedOptions();
 
     dayjsExtend((unusedꓺ, Dayjs) => {
+        // Optimized for minification.
         const { prototype } = Dayjs;
 
         // System object helpers.

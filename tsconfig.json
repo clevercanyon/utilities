@@ -7,7 +7,7 @@
  * @note This entire file will be updated automatically.
  * @note Instead of editing here, please review `./tsconfig.mjs`.
  *
- * Last generated using `./tsconfig.mjs` Fri, Nov 10, 2023, 8:46:29 AM EST.
+ * Last generated using `./tsconfig.mjs` Nov 11, 2023 12:40 PM UTC.
  */
 {
     "include": ["./src/**/*", "./dev-types.d.ts"],
@@ -106,7 +106,7 @@
         "skipLibCheck": true,
         "target": "es2022",
         "lib": ["es2022", "dom", "webworker"],
-        "types": ["vite/client", "@types/mdx", "unplugin-icons/types/preact", "@types/node", "@types/luxon", "@types/semver", "@types/micromatch", "@types/libsodium-wrappers"],
+        "types": ["vite/client", "@types/mdx", "unplugin-icons/types/preact", "@types/node", "@types/semver", "@types/micromatch", "@types/libsodium-wrappers"],
         "jsx": "react-jsx",
         "jsxImportSource": "preact",
         "module": "node16",
