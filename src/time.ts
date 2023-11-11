@@ -22,6 +22,23 @@ let i18n: Intl.ResolvedDateTimeFormatOptions;
 /**
  * Defines types.
  */
+declare module 'dayjs' {
+    export interface Dayjs {
+        clone(): dayjs.Dayjs;
+        equals(x: dayjs.Dayjs): boolean;
+
+        toYMD(): string;
+        toSQL(): string;
+        toISO(): string;
+        toHTTP(): string;
+
+        toProse(): string;
+        toProseDate(): string;
+
+        toI18n(options?: I18nOptions): string;
+        toI18nDate(options?: I18nOptions): string;
+    }
+}
 export type ParseOptions = { locale?: string; zone?: string };
 export type I18nOptions = { locale?: string; zone?: string; format?: string };
 export type Parseable = null | undefined | number | string | Date | $type.Time;
