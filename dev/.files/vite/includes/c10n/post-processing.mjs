@@ -1,5 +1,5 @@
 /**
- * C10n config file.
+ * C10n post-processing plugin.
  *
  * Vite is not aware of this config file's location.
  *
@@ -20,16 +20,16 @@ import extensions from '../../../bin/includes/extensions.mjs';
 import u from '../../../bin/includes/utilities.mjs';
 
 /**
- * Configures c10n for Vite.
+ * Configures Vite/Rollup post-processing.
  *
  * @param   props Props from vite config file driver.
  *
- * @returns       C10n configuration.
+ * @returns       Plugin configuration.
  */
 export default async ({ mode, command, isSSRBuild, projDir, distDir, pkg, env, appType, targetEnv, staticDefs, pkgUpdates }) => {
     let postProcessed = false; // Initialize.
     return {
-        name: 'vite-plugin-c10n-post-process',
+        name: 'vite-plugin-c10n-post-processing',
         enforce: 'post', // After others on this hook.
 
         async closeBundle(/* Rollup hook. */) {
