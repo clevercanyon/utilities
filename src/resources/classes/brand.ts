@@ -225,7 +225,7 @@ export const getClass = (): Constructor => {
         };
 
         /**
-         * Logog, with dimensions.
+         * Logo, with dimensions.
          */
         public readonly logo!: {
             readonly png: string;

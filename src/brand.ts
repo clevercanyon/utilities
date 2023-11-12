@@ -103,6 +103,10 @@ export const get = (pkgName: string): $type.Brand => {
  * many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome. Also
  * using `let` instead of `const` to shave off another few bytes. Remember, variable names can be minified, so the
  * length of variable names is not an issue. They are verbose to improve readability.
+ *
+ * - Brand icons must be designed to look good on any background color; e.g., in a browser tab, as a favicon.
+ * - Brand logos used in structured data must be designed for an all-white background, according to Google.
+ * - OpenGraph images must be rendered with the actual background color it needs.
  */
 const initializeRawProps = (): void => {
     if (rawPropsInitialized) return;
@@ -148,7 +152,8 @@ const initializeRawProps = (): void => {
      */
     type typeꓺoꓺwidthꓺheight = { width: number; height: number };
     let tꓺwidth = 'width', tꓺheight = 'height'; // prettier-ignore
-    let oꓺwidthꓺheightꓺ1060x1200 = { [tꓺwidth]: 1060, [tꓺheight]: 120 } as typeꓺoꓺwidthꓺheight;
+    let oꓺwidthꓺheightꓺ608x120 = { [tꓺwidth]: 608, [tꓺheight]: 120 } as typeꓺoꓺwidthꓺheight;
+    let oꓺwidthꓺheightꓺ866x120 = { [tꓺwidth]: 866, [tꓺheight]: 120 } as typeꓺoꓺwidthꓺheight;
     let oꓺwidthꓺheightꓺ1200x1200 = { [tꓺwidth]: 1200, [tꓺheight]: 1200 } as typeꓺoꓺwidthꓺheight;
     let oꓺwidthꓺheightꓺ1024x1024 = { [tꓺwidth]: 1024, [tꓺheight]: 1024 } as typeꓺoꓺwidthꓺheight;
     let oꓺwidthꓺheightꓺ2400x1260 = { [tꓺwidth]: 2400, [tꓺheight]: 1260 } as typeꓺoꓺwidthꓺheight;
@@ -206,7 +211,7 @@ const initializeRawProps = (): void => {
         logo: {
             png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺpng,
             svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺsvg,
-            ...oꓺwidthꓺheightꓺ1060x1200,
+            ...oꓺwidthꓺheightꓺ866x120,
         },
         ogImage: {
             png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺpng,
@@ -260,7 +265,7 @@ const initializeRawProps = (): void => {
             logo: {
                 png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺpng,
                 svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺsvg,
-                ...oꓺwidthꓺheightꓺ1060x1200,
+                ...oꓺwidthꓺheightꓺ608x120,
             },
             ogImage: {
                 png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺpng,

@@ -444,12 +444,7 @@ export default class Head extends Component<Props, ActualState> {
         // Memoizes vNodes for all keyed & unkeyed children.
 
         const childVNodes = $preact.useMemo((): ChildVNodes => {
-            const h = $preact.h; // We prefer more concise code here.
-            /**
-             * Why are there so many crazy variables here? The intention is to optimize for minification. i.e., By using
-             * as many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired
-             * outcome. Remember, variable names can be minified, so variable name length is not an issue.
-             */
+            const h = $preact.h;
             const {
                 charset,
                 viewport,
@@ -549,7 +544,7 @@ export default class Head extends Component<Props, ActualState> {
             // Memoizes effect that runs whenever `locationState` changes.
             // We only remove nodes when location state changes. This allows appended nodes,
             // whether they come from children, state, or are added by script code at runtime;
-            // to survive until location state changes; i.e., just as they would in a non-preact app.
+            // to survive until location state changes; i.e., just as they normally would.
 
             $preact.useEffect((): void => {
                 if (locationState.isInitialHydration) return;
@@ -607,6 +602,10 @@ export default class Head extends Component<Props, ActualState> {
  * Why are there so many crazy variables here? The intention is to optimize for minification. i.e., By using as many
  * variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome. Remember,
  * variable names can be minified, so variable name length is not an issue.
+ *
+ * - Brand icons must be designed to look good on any background color; e.g., in a browser tab, as a favicon.
+ * - Brand logos used in structured data must be designed for an all-white background, according to Google.
+ * - OpenGraph images must be rendered with the actual background color it needs.
  *
  * @param   options See types in signature.
  *
