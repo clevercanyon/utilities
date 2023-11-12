@@ -115,29 +115,31 @@ const initializeRawProps = (): void => {
     /**
      * Defines names.
      */
+    let tꓺClever𑂱Canyon = 'Clever Canyon';
     let tꓺclevercanyon = 'clevercanyon';
+    let tꓺHopംgdn = 'Hop.gdn';
     let tꓺhop = 'hop';
 
     /**
      * Defines pkg names.
      */
     let tꓺමclevercanyon = '@' + tꓺclevercanyon;
-    let tꓺමclevercanyonⳇclevercanyonꓺcom = tꓺමclevercanyon + '/' + tꓺclevercanyon + '.com';
-    let tꓺමclevercanyonⳇhopꓺgdn = tꓺමclevercanyon + '/' + tꓺhop + '.gdn';
+    let tꓺමclevercanyonⳇclevercanyonംcom = tꓺමclevercanyon + '/' + tꓺclevercanyon + '.com';
+    let tꓺමclevercanyonⳇhopംgdn = tꓺමclevercanyon + '/' + tꓺhop + '.gdn';
 
     /**
      * Defines URLs.
      */
     let tꓺhttpsꓽⳇⳇ = 'https://';
-    let tꓺhttpsꓽⳇⳇclevercanyonꓺcom = tꓺhttpsꓽⳇⳇ + tꓺclevercanyon + '.com';
-    let tꓺhttpsꓽⳇⳇhopꓺgdn = tꓺhttpsꓽⳇⳇ + tꓺhop + '.gdn';
+    let tꓺhttpsꓽⳇⳇclevercanyonംcom = tꓺhttpsꓽⳇⳇ + tꓺclevercanyon + '.com';
+    let tꓺhttpsꓽⳇⳇhopംgdn = tꓺhttpsꓽⳇⳇ + tꓺhop + '.gdn';
 
     /**
      * Defines CDN URLs.
      */
-    let tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrands = tꓺhttpsꓽⳇⳇ + 'cdn.' + tꓺclevercanyon + '.com/assets/brands';
-    let tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon = tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrands + '/' + tꓺclevercanyon;
-    let tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇhop = tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrands + '/' + tꓺhop;
+    let tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrands = tꓺhttpsꓽⳇⳇ + 'cdn.' + tꓺclevercanyon + '.com/assets/brands';
+    let tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon = tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrands + '/' + tꓺclevercanyon;
+    let tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop = tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrands + '/' + tꓺhop;
 
     /**
      * Defines image names.
@@ -145,27 +147,27 @@ const initializeRawProps = (): void => {
     let tꓺicon = 'icon';
     let tꓺlogoᱼonᱼlightᱼbgs = 'logo-on-light-bgs';
     let tꓺogᱼimage = 'og-image';
-    let tꓺpng = '.png', tꓺsvg = '.svg'; // prettier-ignore
+    let tꓺംpng = '.png', tꓺംsvg = '.svg'; // prettier-ignore
 
     /**
      * Defines image dimensions.
      */
     type typeꓺoꓺwidthꓺheight = { width: number; height: number };
     let tꓺwidth = 'width', tꓺheight = 'height'; // prettier-ignore
-    let oꓺwidthꓺheightꓺ608x120 = { [tꓺwidth]: 608, [tꓺheight]: 120 } as typeꓺoꓺwidthꓺheight;
-    let oꓺwidthꓺheightꓺ866x120 = { [tꓺwidth]: 866, [tꓺheight]: 120 } as typeꓺoꓺwidthꓺheight;
-    let oꓺwidthꓺheightꓺ1200x1200 = { [tꓺwidth]: 1200, [tꓺheight]: 1200 } as typeꓺoꓺwidthꓺheight;
-    let oꓺwidthꓺheightꓺ1024x1024 = { [tꓺwidth]: 1024, [tꓺheight]: 1024 } as typeꓺoꓺwidthꓺheight;
-    let oꓺwidthꓺheightꓺ2400x1260 = { [tꓺwidth]: 2400, [tꓺheight]: 1260 } as typeꓺoꓺwidthꓺheight;
+    let oꓺwidthHeight608x120 = { [tꓺwidth]: 608, [tꓺheight]: 120 } as typeꓺoꓺwidthꓺheight;
+    let oꓺwidthHeight866x120 = { [tꓺwidth]: 866, [tꓺheight]: 120 } as typeꓺoꓺwidthꓺheight;
+    let oꓺwidthHeight1200x1200 = { [tꓺwidth]: 1200, [tꓺheight]: 1200 } as typeꓺoꓺwidthꓺheight;
+    let oꓺwidthHeight1024x1024 = { [tꓺwidth]: 1024, [tꓺheight]: 1024 } as typeꓺoꓺwidthꓺheight;
+    let oꓺwidthHeight2400x1260 = { [tꓺwidth]: 2400, [tꓺheight]: 1260 } as typeꓺoꓺwidthꓺheight;
 
     /**
      * Clever Canyon, LLC.
      */
-    rawProps[tꓺමclevercanyonⳇclevercanyonꓺcom] = {
-        org: tꓺමclevercanyonⳇclevercanyonꓺcom,
+    rawProps[tꓺමclevercanyonⳇclevercanyonംcom] = {
+        org: tꓺමclevercanyonⳇclevercanyonംcom,
         type: 'corp', // Corporation.
 
-        legalName: 'Clever Canyon, LLC',
+        legalName: tꓺClever𑂱Canyon + ', LLC',
         address: {
             street: '9 N River Rd #660',
             city: 'Auburn',
@@ -178,21 +180,21 @@ const initializeRawProps = (): void => {
             website: tꓺhttpsꓽⳇⳇ + 'jaswrks.com/',
             description: 'Engineering Manager, Consultant, Staff Engineer',
             image: {
-                url: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon + '/founder' + tꓺpng,
-                ...oꓺwidthꓺheightꓺ1200x1200,
+                url: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/founder' + tꓺംpng,
+                ...oꓺwidthHeight1200x1200,
             },
         },
         foundingDate: '2023-10-03',
         numberOfEmployees: 10,
 
         n7m: 'c10n',
-        name: 'Clever Canyon',
+        name: tꓺClever𑂱Canyon,
 
-        pkgName: tꓺමclevercanyonⳇclevercanyonꓺcom,
+        pkgName: tꓺමclevercanyonⳇclevercanyonംcom,
         namespace: 'CleverCanyon',
 
         hostname: tꓺclevercanyon + '.com',
-        url: tꓺhttpsꓽⳇⳇclevercanyonꓺcom + '/',
+        url: tꓺhttpsꓽⳇⳇclevercanyonംcom + '/',
 
         slug: tꓺclevercanyon,
         var: tꓺclevercanyon,
@@ -204,23 +206,23 @@ const initializeRawProps = (): void => {
         description: 'We’re transforming ideas into digital realities.',
 
         icon: {
-            png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺpng,
-            svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺsvg,
-            ...oꓺwidthꓺheightꓺ1024x1024,
+            png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംpng,
+            svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംsvg,
+            ...oꓺwidthHeight1024x1024,
         },
         logo: {
-            png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺpng,
-            svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺsvg,
-            ...oꓺwidthꓺheightꓺ866x120,
+            png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺംpng,
+            svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺംsvg,
+            ...oꓺwidthHeight866x120,
         },
         ogImage: {
-            png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺpng,
-            svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺsvg,
-            ...oꓺwidthꓺheightꓺ2400x1260,
+            png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംpng,
+            svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംsvg,
+            ...oꓺwidthHeight2400x1260,
         },
         policies: {
-            terms: tꓺhttpsꓽⳇⳇclevercanyonꓺcom + '/terms',
-            privacy: tꓺhttpsꓽⳇⳇclevercanyonꓺcom + '/privacy',
+            terms: tꓺhttpsꓽⳇⳇclevercanyonംcom + '/terms',
+            privacy: tꓺhttpsꓽⳇⳇclevercanyonംcom + '/privacy',
         },
         socialProfiles: {
             twitter: tꓺhttpsꓽⳇⳇ + 'twitter.com/' + tꓺclevercanyon,
@@ -234,19 +236,21 @@ const initializeRawProps = (): void => {
     /**
      * Clever Canyon, LLC (dba: Hop.gdn).
      */
-    rawProps[tꓺමclevercanyonⳇhopꓺgdn] = $obj.mergeDeep(rawProps[tꓺමclevercanyonⳇclevercanyonꓺcom], {
+    rawProps[tꓺමclevercanyonⳇhopംgdn] = $obj.mergeDeep(rawProps[tꓺමclevercanyonⳇclevercanyonംcom], {
         $set: {
-            org: tꓺමclevercanyonⳇclevercanyonꓺcom,
+            org: tꓺමclevercanyonⳇclevercanyonംcom,
             type: 'org', // Organization.
 
-            n7m: 'h1p',
-            name: 'Hop.gdn',
+            legalName: tꓺHopംgdn,
 
-            pkgName: tꓺමclevercanyonⳇhopꓺgdn,
+            n7m: 'h1p',
+            name: tꓺHopംgdn,
+
+            pkgName: tꓺමclevercanyonⳇhopംgdn,
             namespace: 'Hop',
 
             hostname: tꓺhop + '.gdn',
-            url: tꓺhttpsꓽⳇⳇhopꓺgdn + '/',
+            url: tꓺhttpsꓽⳇⳇhopംgdn + '/',
 
             slug: tꓺhop,
             var: tꓺhop,
@@ -258,19 +262,19 @@ const initializeRawProps = (): void => {
             description: 'Great things, built on great technology.',
 
             icon: {
-                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺpng,
-                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺsvg,
-                ...oꓺwidthꓺheightꓺ1024x1024,
+                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംpng,
+                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
+                ...oꓺwidthHeight1024x1024,
             },
             logo: {
-                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺpng,
-                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺsvg,
-                ...oꓺwidthꓺheightꓺ608x120,
+                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺംpng,
+                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺംsvg,
+                ...oꓺwidthHeight608x120,
             },
             ogImage: {
-                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺpng,
-                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonꓺcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺsvg,
-                ...oꓺwidthꓺheightꓺ2400x1260,
+                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംpng,
+                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംsvg,
+                ...oꓺwidthHeight2400x1260,
             },
         },
     }) as unknown as $type.BrandRawProps;
