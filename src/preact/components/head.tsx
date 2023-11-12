@@ -603,10 +603,6 @@ export default class Head extends Component<Props, ActualState> {
  * variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome. Remember,
  * variable names can be minified, so variable name length is not an issue.
  *
- * - Brand icons must be designed to look good on any background color; e.g., in a browser tab, as a favicon.
- * - Brand logos used in structured data must be designed for an all-white background, according to Google.
- * - OpenGraph images must be rendered with the actual background color it needs.
- *
  * @param   options See types in signature.
  *
  * @returns         JSON-encoded structured data.
@@ -616,8 +612,9 @@ export default class Head extends Component<Props, ActualState> {
  */
 const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLState; state: State }): string => {
     const { brand, htmlState, state } = options;
-    const brandOGImage = brand.ogImage;
     const brandLogo = brand.logo;
+    const brandLogoOnLightBg = brandLogo.onLightBg;
+    const brandOGImage = brand.ogImage;
 
     // Organization graph(s).
 
@@ -634,6 +631,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
             const currentOrgFounderImage = currentOrgFounder.image;
             const currentOrgAddress = currentOrg.address;
             const currentOrgLogo = currentOrg.logo;
+            const currentOrgLogoOnLightBg = currentOrgLogo.onLightBg;
 
             orgGraphs.unshift({
                 [tꓺමtype]: 'corp' === currentOrg.type ? tꓺCorporation : tꓺOrganization,
@@ -673,7 +671,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                 [tꓺlogo]: {
                     [tꓺමtype]: tꓺImageObject,
                     [tꓺමid]: currentOrg.url + '#' + tꓺlogo,
-                    [tꓺurl]: currentOrgLogo.png,
+                    [tꓺurl]: currentOrgLogoOnLightBg.png,
                     [tꓺwidth]: currentOrgLogo.width,
                     [tꓺheight]: currentOrgLogo.height,
                     [tꓺcaption]: currentOrg.name,
@@ -701,7 +699,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
         [tꓺimage]: {
             [tꓺමtype]: tꓺImageObject,
             [tꓺමid]: brand.url + '#' + tꓺlogo,
-            [tꓺurl]: brandLogo.png,
+            [tꓺurl]: brandLogoOnLightBg.png,
             [tꓺwidth]: brandLogo.width,
             [tꓺheight]: brandLogo.height,
             [tꓺcaption]: brand.name,

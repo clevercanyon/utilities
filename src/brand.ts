@@ -103,10 +103,6 @@ export const get = (pkgName: string): $type.Brand => {
  * many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome. Also
  * using `let` instead of `const` to shave off another few bytes. Remember, variable names can be minified, so the
  * length of variable names is not an issue. They are verbose to improve readability.
- *
- * - Brand icons must be designed to look good on any background color; e.g., in a browser tab, as a favicon.
- * - Brand logos used in structured data must be designed for an all-white background, according to Google.
- * - OpenGraph images must be rendered with the actual background color it needs.
  */
 const initializeRawProps = (): void => {
     if (rawPropsInitialized) return;
@@ -145,7 +141,8 @@ const initializeRawProps = (): void => {
      * Defines image names.
      */
     let tꓺicon = 'icon';
-    let tꓺlogoᱼonᱼlightᱼbgs = 'logo-on-light-bgs';
+    let tꓺlogoᱼonᱼdarkᱼbg = 'logo-on-dark-bg';
+    let tꓺlogoᱼonᱼlightᱼbg = 'logo-on-light-bg';
     let tꓺogᱼimage = 'og-image';
     let tꓺംpng = '.png', tꓺംsvg = '.svg'; // prettier-ignore
 
@@ -211,8 +208,14 @@ const initializeRawProps = (): void => {
             ...oꓺwidthHeight1024x1024,
         },
         logo: {
-            png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺംpng,
-            svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺംsvg,
+            onDarkBg: {
+                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
+                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
+            },
+            onLightBg: {
+                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
+                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
+            },
             ...oꓺwidthHeight866x120,
         },
         ogImage: {
@@ -267,8 +270,14 @@ const initializeRawProps = (): void => {
                 ...oꓺwidthHeight1024x1024,
             },
             logo: {
-                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺംpng,
-                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbgs + tꓺംsvg,
+                onDarkBg: {
+                    png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
+                    svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
+                },
+                onLightBg: {
+                    png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
+                    svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
+                },
                 ...oꓺwidthHeight608x120,
             },
             ogImage: {
@@ -311,9 +320,10 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
      */
     let tꓺⳇassets = './assets';
     let tꓺⳇassetsⳇicon = tꓺⳇassets + '/icon';
-    let tꓺⳇassetsⳇlogo = tꓺⳇassets + '/logo';
+    let tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg = tꓺⳇassets + '/logo-on-dark-bg';
+    let tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg = tꓺⳇassets + '/logo-on-light-bg';
     let tꓺⳇassetsⳇogᱼimage = tꓺⳇassets + '/og-image';
-    let tꓺpng = '.png', tꓺsvg = '.svg'; // prettier-ignore
+    let tꓺംpng = '.png', tꓺംsvg = '.svg'; // prettier-ignore
 
     /**
      * Defines package data.
@@ -358,16 +368,22 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
                 varPrefix: pkgSlugAsVar + '_',
 
                 icon: {
-                    png: relPathToURL(tꓺⳇassetsⳇicon + tꓺpng),
-                    svg: relPathToURL(tꓺⳇassetsⳇicon + tꓺsvg),
+                    png: relPathToURL(tꓺⳇassetsⳇicon + tꓺംpng),
+                    svg: relPathToURL(tꓺⳇassetsⳇicon + tꓺംsvg),
                 },
                 logo: {
-                    png: relPathToURL(tꓺⳇassetsⳇlogo + tꓺpng),
-                    svg: relPathToURL(tꓺⳇassetsⳇlogo + tꓺsvg),
+                    onDarkBg: {
+                        png: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംpng),
+                        svg: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംsvg),
+                    },
+                    onLightBg: {
+                        png: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംpng),
+                        svg: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംsvg),
+                    },
                 },
                 ogImage: {
-                    png: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺpng),
-                    svg: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺsvg),
+                    png: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺംpng),
+                    svg: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺംsvg),
                 },
             },
             opts.props,

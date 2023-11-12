@@ -72,8 +72,14 @@ declare class ClassInterface {
         readonly height: number;
     };
     public readonly logo: {
-        readonly png: string;
-        readonly svg: string;
+        onDarkBg: {
+            readonly png: string;
+            readonly svg: string;
+        };
+        onLightBg: {
+            readonly png: string;
+            readonly svg: string;
+        };
         readonly width: number;
         readonly height: number;
     };
@@ -228,8 +234,14 @@ export const getClass = (): Constructor => {
          * Logo, with dimensions.
          */
         public readonly logo!: {
-            readonly png: string;
-            readonly svg: string;
+            onDarkBg: {
+                readonly png: string;
+                readonly svg: string;
+            };
+            onLightBg: {
+                readonly png: string;
+                readonly svg: string;
+            };
             readonly width: number;
             readonly height: number;
         };
