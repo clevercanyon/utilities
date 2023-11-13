@@ -230,8 +230,10 @@ describe('$to', async () => {
             'icon.width',
             'icon.height',
 
-            'logo.png',
-            'logo.svg',
+            'logo.onDarkBg.png',
+            'logo.onDarkBg.svg',
+            'logo.onLightBg.png',
+            'logo.onLightBg.svg',
             'logo.width',
             'logo.height',
 
