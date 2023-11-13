@@ -46,13 +46,14 @@ export const useHTML = (): Context => $preact.useContext(ContextObject);
  * @returns       VNode / JSX element tree.
  */
 export default function HTML(props: Props = {}): $preact.VNode<Props> {
+    const { state: layoutState } = $preact.useLayout();
     const [actualState, updateState] = $preact.useReducedState((): State => {
         return $preact.initialState({ lang: 'en-US', dir: 'ltr' }, $preact.omitProps(props, ['children']));
     });
     const state = $preact.useMemo((): State => {
         return {
             ...$preact.omitProps(actualState, ['class']),
-            class: $preact.classes(actualState),
+            class: $preact.classes(actualState, layoutState && layoutState.theme + '-theme'),
         };
     }, [actualState]);
 

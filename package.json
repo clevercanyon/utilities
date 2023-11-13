@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.438",
+    "version": "1.0.439",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -180,6 +180,11 @@
             "types": "./dist/types/preact/components/layout-context.d.ts",
             "import": "./dist/preact/components/layout-context.js",
             "default": "./dist/preact/components/layout-context.js"
+        },
+        "./preact/components/legalese": {
+            "types": "./dist/types/preact/components/legalese.d.ts",
+            "import": "./dist/preact/components/legalese.js",
+            "default": "./dist/preact/components/legalese.js"
         },
         "./preact/components/location": {
             "types": "./dist/types/preact/components/location.d.ts",

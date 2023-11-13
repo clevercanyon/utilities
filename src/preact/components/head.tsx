@@ -358,6 +358,7 @@ export default class Head extends Component<Props, ActualState> {
 
         const { state: locationState } = $preact.useLocation();
         const { state: dataState, ...data } = $preact.useData();
+        const { state: layoutState } = $preact.useLayout();
         const { state: htmlState } = $preact.useHTML();
 
         // Initializes local variables.
@@ -392,8 +393,7 @@ export default class Head extends Component<Props, ActualState> {
                 ogImage,
                 styleBundle,
                 scriptBundle,
-                append,
-            } = actualState;
+            } = { ...layoutState?.head, ...actualState };
             const { url, canonicalURL, fromBase } = locationState;
 
             let title = actualState.title || url.hostname;
@@ -415,6 +415,7 @@ export default class Head extends Component<Props, ActualState> {
                 defaultScriptBundle = './index.tsx'; // Vite dev server uses original extension.
             }
             return {
+                ...layoutState?.head,
                 ...actualState,
 
                 [tꓺcharset]: charset || 'utf-8',
@@ -437,7 +438,8 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺstyleBundle]: '' === styleBundle ? '' : styleBundle || dataState.head.styleBundle || defaultStyleBundle || '',
                 [tꓺscriptBundle]: '' === scriptBundle ? '' : scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '',
 
-                [tꓺappend]: append || [], // Default to an empty array.
+                // Concatenated, not merged, as they are potentially arrays.
+                [tꓺappend]: (layoutState?.head.append || []).concat(actualState.append || []),
             };
         }, [brand, locationState, dataState, actualState]);
 

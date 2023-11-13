@@ -6,12 +6,16 @@ import '../../resources/init.ts';
 
 import { createContext } from 'preact';
 import { $preact, type $type } from '../../index.ts';
+import { type PartialActualState as PartialActualHeadState } from './head.tsx';
 
 /**
  * Defines types.
  */
 export type State = $preact.State<{
+    theme: string;
+    themeIsDark: boolean;
     variant: string;
+    head: PartialActualHeadState;
 }>;
 export type PartialState = $type.PartialDeep<State>;
 export type Props = $preact.BasicPropsNoKeyRef<PartialState>;
@@ -44,7 +48,15 @@ export const useLayout = (): Context => $preact.useContext(ContextObject);
  */
 export default function LayoutContext(props: Props): $preact.VNode<Props> {
     const [state, updateState] = $preact.useReducedState((): State => {
-        return $preact.initialState({ variant: 'default' }, $preact.omitProps(props, ['children']));
+        return $preact.initialState(
+            {
+                theme: 'default',
+                themeIsDark: true,
+                variant: 'default',
+                head: {},
+            },
+            $preact.omitProps(props, ['children']),
+        );
     });
     return <ContextObject.Provider value={{ state, updateState }}>{props.children}</ContextObject.Provider>;
 }
