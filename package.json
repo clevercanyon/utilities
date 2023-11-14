@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.441",
+    "version": "1.0.442",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -264,7 +264,7 @@
         "micro-memoize": "^4.1.2",
         "micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.74",
         "parse-css-color": "^0.2.1",
-        "preact": "^10.19.1",
+        "preact": "^10.19.2",
         "preact-render-to-string": "^6.3.1",
         "react": "npm:@preact/compat@^17.1.2",
         "react-dom": "npm:@preact/compat@^17.1.2",

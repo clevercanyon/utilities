@@ -143,6 +143,7 @@ export type StateDispatcher<Type> = preactꓺhooksꓺStateDispatcher<Type>; // e
 
 export type ClassPropVariants = $type.Writable<typeof internalClassPropVariants>[number];
 export type Classes = TypesOfClasses | (TypesOfClasses | Classes)[] | Set<TypesOfClasses | Classes>;
+export type Styles = preact.JSX.CSSProperties;
 
 type TypesOfClasses = // Internal class prop variants.
     // Types can be nested into arrays|sets infinitely deep.
