@@ -26,7 +26,7 @@ export default function Prose(props: Props = {}): $preact.VNode<Props> {
         <As
             {...{
                 ...$preact.omitProps(props, ['class']),
-                class: $preact.classes('prose max-w-none gte-desktop:text-lg', props),
+                class: $preact.classes('prose gte-desktop:text-lg', props),
             }}
         />
     );
