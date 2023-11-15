@@ -153,7 +153,7 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
             rtnFn.$promises.push({ resolve, reject });
 
             if (!rtnFn.$waitTimeout) rtnFn.$onLeadingEdge();
-            if (opts._debounceMode || !rtnFn.$waitTimeout) {
+            if (!rtnFn.$waitTimeout || opts._debounceMode) {
                 rtnFn.$clearTimeout();
                 rtnFn.$waitTimeout = setTimeout(rtnFn.$onTrailingEdge, opts.waitTime);
             }

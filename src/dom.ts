@@ -39,13 +39,12 @@ const initializeScrollStatus = (): void => {
     if (initializedScrollStatus) return;
     initializedScrollStatus = true;
 
-    const onScrollCallback = $fn.throttle((): void => {
-        onScrollEndCallback.cancel(), (userIsScrolling = true);
-    });
-    const onScrollEndCallback = $fn.throttle((): void => {
-        onScrollCallback.cancel(), (userIsScrolling = false);
-        trigger(window, 'x:scrollEnd');
-    });
+    const onScrollCallback = (): void => {
+        userIsScrolling = true;
+    };
+    const onScrollEndCallback = (): void => {
+        (userIsScrolling = false), trigger(window, 'x:scrollEnd');
+    };
     on(window, 'scroll', onScrollCallback);
     on(window, 'scrollend', onScrollEndCallback);
 
@@ -65,12 +64,11 @@ const initializeScrollStatus = (): void => {
      * end of that user interaction, whatever it may actually be. e.g., {@see onScrollEnd()} in this file.
      */
     let wheelTimeout: $type.Timeout | undefined;
-    const wheelScrollEndCallback = () => void onScrollEndCallback();
-
     const onWheelCallback = $fn.throttle(
         (): void => {
-            clearTimeout(wheelTimeout), void onScrollCallback();
-            wheelTimeout = setTimeout(wheelScrollEndCallback, 300);
+            onScrollCallback();
+            clearTimeout(wheelTimeout);
+            wheelTimeout = setTimeout(onScrollEndCallback, 300);
         },
         { waitTime: 250 }, // Absolutely *must* be less than `wheelTimeout`.
     );
