@@ -45,8 +45,8 @@ const initializeScrollStatus = (): void => {
     const onScrollEndCallback = (): void => {
         (userIsScrolling = false), trigger(window, 'x:scrollEnd');
     };
-    on(window, 'scroll', onScrollCallback);
-    on(window, 'scrollend', onScrollEndCallback);
+    on(window, 'scroll', onScrollCallback, { passive: true });
+    on(window, 'scrollend', onScrollEndCallback, { passive: true });
 
     /**
      * We treat wheeling like a `scroll` event here because when it’s used for scrolling it can reach the bottom of a
@@ -72,7 +72,7 @@ const initializeScrollStatus = (): void => {
         },
         { waitTime: 250 }, // Absolutely *must* be less than `wheelTimeout`.
     );
-    on(window, 'wheel', onWheelCallback);
+    on(window, 'wheel', onWheelCallback, { passive: true });
 };
 
 /**
