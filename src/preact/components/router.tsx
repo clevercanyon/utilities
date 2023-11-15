@@ -319,21 +319,26 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             if (currentRouteDidSuspend.current) {
                 return; // Stop here.
             }
-            // Ends current route loading sequence.
-            if (currentRouteDidSuspendAndIsLoading.current) {
-                // Updates loading status.
-                currentRouteDidSuspendAndIsLoading.current = false;
-
-                // Handles removal of `<x-preact-app-loading>` status indicator.
-                if (false !== props.handleLoading && !locationState.isInitialHydration) {
-                    loadingHandler?.cancel(), (loadingHandler = $dom.afterNextFrame(() => xPreactAppLoading().remove()));
-                }
-                // Fires an event indicating the end of loading sequence.
-                if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData.current as RouteLoadEventData);
-                $dom.trigger(document, 'x:route:loadEnd', currentRouteLoadEventData.current as RouteLoadEventData);
+            // Loading sequence ended already?
+            if (!currentRouteDidSuspendAndIsLoading.current) {
+                return; // Stop here.
             }
+            // Ends current route loading sequence.
+            currentRouteDidSuspendAndIsLoading.current = false;
+
+            // Handles removal of `<x-preact-app-loading>` status indicator.
+            if (false !== props.handleLoading && !locationState.isInitialHydration) {
+                loadingHandler?.cancel(), (loadingHandler = $dom.afterNextFrame(() => xPreactAppLoading().remove()));
+            }
+            // Fires an event indicating the end of loading sequence.
+            if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData.current as RouteLoadEventData);
+            $dom.trigger(document, 'x:route:loadEnd', currentRouteLoadEventData.current as RouteLoadEventData);
+
+            // Fires an event indicating the current route is loaded now.
+            if (props.onLoaded) props.onLoaded(currentRouteLoadEventData.current as RouteLoadEventData);
+            $dom.trigger(document, 'x:route:loaded', currentRouteLoadEventData.current as RouteLoadEventData);
+
             // Handles scroll position for current route location.
-            // Note: This runs even for routes that were loaded synchronously.
             if (false !== props.handleScrolling && locationState.wasPushed && !locationState.isInitialHydration) {
                 scrollHandler?.cancel(), // i.e., Don’t stack these up.
                     (scrollHandler = $dom.onScrollEnd(() => {
@@ -347,10 +352,6 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                         } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
                     }));
             }
-            // Fires an event indicating the current route is loaded now.
-            // Note: This runs even for routes that were loaded synchronously.
-            if (props.onLoaded) props.onLoaded(currentRouteLoadEventData.current as RouteLoadEventData);
-            $dom.trigger(document, 'x:route:loaded', currentRouteLoadEventData.current as RouteLoadEventData);
         }, [locationState, layoutTicks]);
     }
     // Renders `currentRoute` and `previousRoute` components.
