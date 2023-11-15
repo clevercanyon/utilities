@@ -144,59 +144,69 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
  * @returns         Throttled sync or async function.
  */
 export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOptions): ThrottledFunction<Fn> => {
-    const opts = $obj.defaults({}, options || {}, { leadingEdge: true, waitTime: 250, trailingEdge: true, _debounceMode: false }) as Required<ThrottleOptions>;
+    const defaultOpts = { leadingEdge: true, waitTime: 250, trailingEdge: true, _debounceMode: false };
+    const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<ThrottleOptions>;
 
-    let promises: {
-        resolve: (fnRtn: ReturnType<Fn>) => void;
-        reject: (fnRejectRtn?: unknown) => void;
-    }[] = []; // Call stack.
-
-    let latestArgs = [] as unknown as Parameters<Fn>;
-    let waitTimeout: $type.Timeout | undefined;
-
-    const rtnFn = function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>): Promise<ReturnType<Fn>> {
+    const rtnFn = async function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>): Promise<ReturnType<Fn>> {
         return new Promise<ReturnType<Fn>>((resolve, reject) => {
-            (latestArgs = args), promises.push({ resolve, reject });
-            if (!waitTimeout) rtnFn.$onLeadingEdge();
+            rtnFn.$latestArgs = args;
+            rtnFn.$promises.push({ resolve, reject });
 
-            if (opts._debounceMode && waitTimeout) {
-                clearTimeout(waitTimeout), (waitTimeout = 0);
-            }
-            if (opts._debounceMode || !waitTimeout) {
-                waitTimeout = setTimeout(rtnFn.$onTrailingEdge, opts.waitTime);
+            if (!rtnFn.$waitTimeout) rtnFn.$onLeadingEdge();
+            if (opts._debounceMode || !rtnFn.$waitTimeout) {
+                rtnFn.$clearTimeout();
+                rtnFn.$waitTimeout = setTimeout(rtnFn.$onTrailingEdge, opts.waitTime);
             }
             // We cannot know here what the return value will be in a reject scenario.
             // In a case where `.cancel()` is explicitly called by the throttle implementation,
             // it will be `.cancel()` that sets the rejection return value in the implementation.
         }).catch((fnRejectRtn) => fnRejectRtn as ReturnType<Fn>);
     };
+    rtnFn.$promises = [] as {
+        resolve: (fnRtn: ReturnType<Fn>) => void;
+        reject: (fnRejectRtn?: unknown) => void;
+    }[]; // Call stack.
+
+    rtnFn.$waitTimeout = 0 as $type.Timeout | undefined;
+    rtnFn.$latestArgs = [] as unknown as Parameters<Fn>;
+
+    rtnFn.$clearTimeout = function (): void {
+        clearTimeout(rtnFn.$waitTimeout), (rtnFn.$waitTimeout = 0);
+    };
     rtnFn.$onLeadingEdge = function (): void {
-        if (opts.leadingEdge && promises.length) {
-            const fnRtn = fn.apply(this, latestArgs) as ReturnType<Fn>;
-            promises.forEach(({ resolve }) => resolve(fnRtn)), (promises = []);
-        }
+        if (opts.leadingEdge) rtnFn.$resolvePromises();
     };
     rtnFn.$onTrailingEdge = function (): void {
-        if (opts.trailingEdge && promises.length && (!opts.leadingEdge || promises.length >= 2)) {
-            const fnRtn = fn.apply(this, latestArgs) as ReturnType<Fn>;
-            promises.forEach(({ resolve }) => resolve(fnRtn)), (promises = []);
+        if (opts.trailingEdge && rtnFn.$resolvePromises() && opts.leadingEdge) {
+            rtnFn.$clearTimeout(); // Delays next potential leading edge.
+            rtnFn.$waitTimeout = setTimeout(() => rtnFn.$clearTimeout(), opts.waitTime);
+        }
+    };
+    rtnFn.$resolvePromises = function (): number {
+        if (!rtnFn.$promises.length) return 0;
 
-            if (opts.leadingEdge /* Time between trailing edge and next leading edge. */) {
-                waitTimeout = setTimeout(() => (waitTimeout = 0), opts.waitTime);
-                //
-            } else waitTimeout = 0; // Clears the way for a new leading edge.
-        } else waitTimeout = 0; // Clears the way for a new leading edge.
+        const copyOfPromises = [...rtnFn.$promises];
+        rtnFn.$promises = []; // Resets promises.
+
+        const fnRtn = fn.apply(this, rtnFn.$latestArgs) as ReturnType<Fn>;
+        copyOfPromises.forEach(({ resolve }) => resolve(fnRtn));
+
+        return copyOfPromises.length;
+    };
+    rtnFn.$rejectPromises = function (fnRejectRtn?: unknown): void {
+        if (!rtnFn.$promises.length) return;
+
+        const copyOfPromises = [...rtnFn.$promises];
+        rtnFn.$promises = []; // Resets promises.
+
+        // Rejections caught via `.catch()` above.
+        copyOfPromises.forEach(({ reject }) => reject(fnRejectRtn));
     };
     rtnFn.flush = function (): void {
-        if (promises.length) {
-            const fnRtn = fn.apply(this, latestArgs) as ReturnType<Fn>;
-            promises.forEach(({ resolve }) => resolve(fnRtn)), (promises = []);
-        }
-        if (waitTimeout) clearTimeout(waitTimeout), (waitTimeout = 0);
+        rtnFn.$resolvePromises(), rtnFn.$clearTimeout();
     };
     rtnFn.cancel = function (fnRejectRtn?: unknown): void {
-        promises.forEach(({ reject }) => reject(fnRejectRtn)), (promises = []);
-        if (waitTimeout) clearTimeout(waitTimeout), (waitTimeout = 0);
+        rtnFn.$rejectPromises(fnRejectRtn), rtnFn.$clearTimeout();
     };
     return rtnFn as ThrottledFunction<Fn>;
 };
