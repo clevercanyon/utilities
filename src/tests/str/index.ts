@@ -26,9 +26,10 @@ describe('$str', async () => {
     });
     test('.numeronym()', async () => {
         expect($str.numeronym('x')).toBe('x1x');
-        expect($str.numeronym('hop')).toBe('h1p');
-        expect($str.numeronym('clevercanyon')).toBe('c10n');
-        expect($str.numeronym('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('h6l');
+        expect($str.numeronym('Hop.gdn')).toBe('h5n');
+        expect($str.numeronym('My Brand')).toBe('m5d');
+        expect($str.numeronym('Clever Canyon')).toBe('c10n');
+        expect($str.numeronym('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('h7l');
         expect($str.numeronym('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('a52a');
     });
     test('.deburr()', async () => {

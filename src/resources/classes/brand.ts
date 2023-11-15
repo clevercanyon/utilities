@@ -161,7 +161,7 @@ export const getClass = (): Constructor => {
         public readonly numberOfEmployees!: number;
 
         /**
-         * Numeronym; e.g., `m5d`.
+         * Numeronym; e.g., `My Brand` = `m5d`.
          */
         public readonly n7m!: string;
 

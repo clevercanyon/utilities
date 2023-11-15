@@ -248,9 +248,13 @@ export const rTrim = (str: string, additionalChars?: string, options?: TrimOptio
  * @returns     Numeronym of input string.
  */
 export const numeronym = (str: string): string => {
-    str = asciiOnly(str).toLowerCase();
-    str = str.replace(/[^a-z0-9]+/gu, '');
-
+    str = trim(
+        asciiOnly(str)
+            .toLowerCase()
+            .replace(/[^a-z0-9.]+/gu, '')
+            .replace(/\.+/u, '.'),
+        '.',
+    );
     if (str.length < 3) str += 'x'.repeat(3 - str.length);
     return str[0] + String(str.length - 2) + str[str.length - 1];
 };

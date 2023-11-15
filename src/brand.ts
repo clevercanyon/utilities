@@ -246,7 +246,7 @@ const initializeRawProps = (): void => {
 
             legalName: tꓺHopംgdn,
 
-            n7m: 'h1p',
+            n7m: 'h5n',
             name: tꓺHopംgdn,
 
             pkgName: tꓺමclevercanyonⳇhopംgdn,
@@ -329,8 +329,8 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
      * Defines package data.
      */
     let pkgSlug = $app.pkgSlug(pkgName);
-    let pkgSlugAsN7m = $str.numeronym(pkgSlug);
     let pkgSlugAsName = $str.titleCase(pkgSlug);
+    let pkgSlugAsN7m = $str.numeronym(pkgSlugAsName);
     let pkgSlugAsNamespace = $str.studlyCase(pkgSlug, { [tꓺasciiOnly]: true, [tꓺletterFirst]: 'X' });
     let pkgSlugAsVar = $str.snakeCase(pkgSlug, { [tꓺasciiOnly]: true, [tꓺletterFirst]: 'x' });
 
