@@ -262,8 +262,12 @@ const initialize = (): void => {
         const brokenClone = prototype.clone; // Unbound; hence `.call()` below.
 
         prototype.clone = function (this: dayjs.Dayjs): dayjs.Dayjs {
-            const clone = brokenClone.call(this) as unknown as $type.Object;
-            clone.$H = (this as unknown as $type.Object).$H;
+            const clone = brokenClone.call(this); // Broken clone.
+
+            for (const prop of ['$y', '$M', '$D', '$W', '$H', '$m', '$s', '$ms']) {
+                (clone as unknown as $type.Object)[prop] = (this as unknown as $type.Object)[prop];
+            } // This copies properties over verbatim in order to fix.
+
             return clone as unknown as dayjs.Dayjs;
         };
         // Object equals helper.

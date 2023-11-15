@@ -89,7 +89,7 @@ export const onReady = (callback: AnyVoidFn): EventTools => {
     if ('loading' !== document.readyState) {
         actualCallback(); // Fires callback immediately.
     } else {
-        addEventListener(eventName, actualCallback, { once: true });
+        addEventListener(eventName, actualCallback, { passive: true, once: true });
     }
     return { cancel: (): void => removeEventListener(eventName, actualCallback) };
 };
@@ -108,7 +108,7 @@ export const onLoad = (callback: AnyVoidFn): EventTools => {
     if ('complete' === document.readyState) {
         actualCallback(); // Fires callback immediately.
     } else {
-        addEventListener(eventName, actualCallback, { once: true });
+        addEventListener(eventName, actualCallback, { passive: true, once: true });
     }
     return { cancel: (): void => removeEventListener(eventName, actualCallback) };
 };
@@ -129,7 +129,7 @@ export const onScrollEnd = (callback: AnyVoidFn): EventTools => {
     if (!userIsScrolling) {
         actualCallback(); // Fires callback immediately.
     } else {
-        addEventListener(eventName, actualCallback, { once: true });
+        addEventListener(eventName, actualCallback, { passive: true, once: true });
     }
     return { cancel: (): void => removeEventListener(eventName, actualCallback) };
 };
