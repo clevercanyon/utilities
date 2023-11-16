@@ -177,10 +177,9 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
         if (opts.leadingEdge) rtnFn.$resolvePromises();
     };
     rtnFn.$onTrailingEdge = function (): void {
-        if (opts.trailingEdge && rtnFn.$resolvePromises() && opts.leadingEdge) {
-            rtnFn.$clearTimeout(); // Delays next potential leading edge.
-            rtnFn.$waitTimeout = setTimeout(() => rtnFn.$clearTimeout(), opts.waitTime);
-        }
+        if (opts.trailingEdge) rtnFn.$resolvePromises();
+        rtnFn.$clearTimeout(); // Delays next potential leading edge.
+        rtnFn.$waitTimeout = setTimeout(() => rtnFn.$clearTimeout(), opts.waitTime);
     };
     rtnFn.$resolvePromises = function (): number {
         if (!rtnFn.$promises.length) return 0;

@@ -39,14 +39,24 @@ const initializeScrollStatus = (): void => {
     if (initializedScrollStatus) return;
     initializedScrollStatus = true;
 
-    const onScrollCallback = (): void => {
-        userIsScrolling = true;
+    let timeout: $type.Timeout | undefined;
+
+    const onScroll = $fn.throttle(
+        (): void => {
+            userIsScrolling = true;
+            clearTimeout(timeout); // Recreate.
+            timeout = setTimeout(onScrollEnd, 300);
+        },
+        { waitTime: 250 }, // Must be less than `timeout`.
+    );
+    const onScrollEnd = (): void => {
+        onScroll.cancel();
+        userIsScrolling = false;
+        trigger(window, 'x:scrollEnd');
     };
-    const onScrollEndCallback = (): void => {
-        (userIsScrolling = false), trigger(window, 'x:scrollEnd');
-    };
-    on(window, 'scroll', onScrollCallback, { passive: true });
-    on(window, 'scrollend', onScrollEndCallback, { passive: true });
+    on(window, 'wheel', onScroll, { passive: true });
+    on(window, 'scroll', onScroll, { passive: true });
+    on(window, 'scrollend', onScrollEnd, { passive: true });
 
     /**
      * We treat wheeling like a `scroll` event here because when it’s used for scrolling it can reach the bottom of a
@@ -61,18 +71,8 @@ const initializeScrollStatus = (): void => {
      * The mouse wheel is most often used for scrolling. Not always, but we’ll take that risk. Worse case scenario, we
      * treat some other action that a wheel controls as if it were a scroll event. Either way, it’s still a user
      * interacting with the window, and anything listening for a `scrollend` event is likely interested in awaiting the
-     * end of that user interaction, whatever it may actually be. e.g., {@see onScrollEnd()} in this file.
+     * end of that user interaction, whatever it may actually be. e.g., {@see $dom.onScrollEnd()}.
      */
-    let wheelTimeout: $type.Timeout | undefined;
-    const onWheelCallback = $fn.throttle(
-        (): void => {
-            onScrollCallback();
-            clearTimeout(wheelTimeout);
-            wheelTimeout = setTimeout(onScrollEndCallback, 300);
-        },
-        { waitTime: 250 }, // Absolutely *must* be less than `wheelTimeout`.
-    );
-    on(window, 'wheel', onWheelCallback, { passive: true });
 };
 
 /**
