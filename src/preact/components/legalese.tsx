@@ -91,7 +91,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                 <div class='mb-2'>
                     <span class='lte-phone:block'>
                         <span class={cꓺopacity50}>Brought to you by</span>{' '}
-                        <a class={cꓺopacity90Hover100} href={brandOrg.url}>
+                        <a class={cꓺopacity90Hover100} href={brandOrg.url} target='_blank'>
                             <img class='-mt-0.5 inline h-3.5 w-auto' src={brandOrgLogoSVG} alt={brandOrgLegalName} title={brandOrgLegalName} />
                         </a>
                         {brandOrgOrg === brandOrg ? <span class={cꓺopacity50}>.</span> : ''}
@@ -99,7 +99,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                     {brandOrgOrg !== brandOrg && (
                         <span class='ml-2 inline-block lte-phone:ml-0 lte-phone:mt-1 lte-phone:block'>
                             <span class={cꓺopacity50}>… a</span>{' '}
-                            <a class={cꓺopacity90Hover100} href={brandOrgOrg.url}>
+                            <a class={cꓺopacity90Hover100} href={brandOrgOrg.url} target='_blank'>
                                 <img class='-mt-0.5 inline h-4 w-auto' src={brandOrgOrgLogoSVG} alt={brandOrgOrgLegalName} title={brandOrgOrgLegalName} />
                             </a>{' '}
                             <span class={cꓺopacity50}>production.</span>
