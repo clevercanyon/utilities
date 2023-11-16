@@ -14,7 +14,7 @@ import { type PartialActualState as PartialActualHeadState } from './head.tsx';
 export type State = $preact.State<{
     theme: string;
     themeIsDark: boolean;
-    variant: string;
+    type: string;
     head: PartialActualHeadState;
 }>;
 export type PartialState = $type.PartialDeep<State>;
@@ -52,7 +52,7 @@ export default function LayoutContext(props: Props): $preact.VNode<Props> {
             {
                 theme: 'default',
                 themeIsDark: true,
-                variant: 'default',
+                type: 'default',
                 head: {},
             },
             $preact.omitProps(props, ['children']),
