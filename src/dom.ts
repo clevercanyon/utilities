@@ -11,10 +11,10 @@ import { $fn, $is, $obj, $preact, $to, type $type } from './index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 /**
- * Tracks scroll status.
+ * Tracks wheel status.
  */
-let userIsScrolling = false;
-let initializedScrollStatus = false;
+let userIsWheeling = false;
+let initializedWheelStatus = false;
 
 /**
  * Defines types.
@@ -33,46 +33,37 @@ export type EventTools = { cancel: () => void };
 export type PathToOptions = { from?: Element };
 
 /**
- * Initializes scroll status.
+ * Initializes wheel status.
+ *
+ * Why do we have this and why is {@see $dom.onWheelEnd()} helpful? When a mouse wheel is used for scrolling it can
+ * reach the bottom of a page and then continue turning; e.g., MX Revolution mice tend to do this. In such a case, upon
+ * reaching the bottom of a page, wheeling ceases to be a `scroll` event; i.e., `scroll`, `scrollend` events are no
+ * longer fired because there is nothing left to scroll on the page, so browsers just ignore the wheeling altogether.
+ *
+ * However, if the page content changes, or the scroll position changes programmatically, and the wheel happens to still
+ * be turning, then it’s possible it could start firing residual `scroll`, `scrollend` events again, which yields a very
+ * confusing situation for a user when residual scrolling is mixed with programmatic scrolling.
  */
-const initializeScrollStatus = (): void => {
-    if (initializedScrollStatus) return;
-    initializedScrollStatus = true;
+const initializeWheelStatus = (): void => {
+    if (initializedWheelStatus) return;
+    initializedWheelStatus = true;
 
-    let timeout: $type.Timeout | undefined;
+    let wheelTimeout: $type.Timeout;
 
-    const onScroll = $fn.throttle(
+    const onWheel = $fn.throttle(
         (): void => {
-            userIsScrolling = true;
-            clearTimeout(timeout); // Recreate.
-            timeout = setTimeout(onScrollEnd, 300);
+            clearTimeout(wheelTimeout);
+            userIsWheeling = true; // Wheeling.
+            wheelTimeout = setTimeout(onWheelEnd, 300);
         },
-        { waitTime: 250 }, // Must be less than `timeout`.
+        { waitTime: 250 }, // Must be less than `300`.
     );
-    const onScrollEnd = (): void => {
-        onScroll.cancel();
-        userIsScrolling = false;
-        trigger(window, 'x:scrollEnd');
+    const onWheelEnd = (): void => {
+        onWheel.cancel();
+        userIsWheeling = false;
+        trigger(window, 'x:wheelEnd');
     };
-    on(window, 'wheel', onScroll, { passive: true });
-    on(window, 'scroll', onScroll, { passive: true });
-    on(window, 'scrollend', onScrollEnd, { passive: true });
-
-    /**
-     * We treat wheeling like a `scroll` event here because when it’s used for scrolling it can reach the bottom of a
-     * page and then continue turning; e.g., MX Revolution mice tend to do this. In such a case, upon reaching the
-     * bottom of a page, wheeling ceases to be a `scroll` event; i.e., `scroll`, `scrollend` events are no longer fired
-     * because there is nothing left to scroll on the page, so browsers just ignore the wheeling altogether.
-     *
-     * However, if the page content changes, or the scroll position changes programmatically, and the wheel happens to
-     * still be turning, then it’s possible it could start firing residual `scroll`, `scrollend` events again, which
-     * yields a very confusing situation for a user when residual scrolling is mixed with programmatic scrolling.
-     *
-     * The mouse wheel is most often used for scrolling. Not always, but we’ll take that risk. Worse case scenario, we
-     * treat some other action that a wheel controls as if it were a scroll event. Either way, it’s still a user
-     * interacting with the window, and anything listening for a `scrollend` event is likely interested in awaiting the
-     * end of that user interaction, whatever it may actually be. e.g., {@see $dom.onScrollEnd()}.
-     */
+    on(window, 'wheel', onWheel, { passive: true });
 };
 
 /**
@@ -114,19 +105,28 @@ export const onLoad = (callback: AnyVoidFn): EventTools => {
 };
 
 /**
- * Fires a callback after user stops scrolling.
+ * Fires a callback after user stops wheeling.
+ *
+ * Why do we have this and why is {@see $dom.onWheelEnd()} helpful? When a mouse wheel is used for scrolling it can
+ * reach the bottom of a page and then continue turning; e.g., MX Revolution mice tend to do this. In such a case, upon
+ * reaching the bottom of a page, wheeling ceases to be a `scroll` event; i.e., `scroll`, `scrollend` events are no
+ * longer fired because there is nothing left to scroll on the page, so browsers just ignore the wheeling altogether.
+ *
+ * However, if the page content changes, or the scroll position changes programmatically, and the wheel happens to still
+ * be turning, then it’s possible it could start firing residual `scroll`, `scrollend` events again, which yields a very
+ * confusing situation for a user when residual scrolling is mixed with programmatic scrolling.
  *
  * @param   callback Callback.
  *
  * @returns          Event tools; {@see EventTools}.
  */
-export const onScrollEnd = (callback: AnyVoidFn): EventTools => {
-    initializeScrollStatus(); // If not already.
+export const onWheelEnd = (callback: AnyVoidFn): EventTools => {
+    initializeWheelStatus(); // If not already.
 
-    const eventName = 'x:scrollEnd';
+    const eventName = 'x:wheelEnd';
     const actualCallback = (): void => void callback();
 
-    if (!userIsScrolling) {
+    if (!userIsWheeling) {
         actualCallback(); // Fires callback immediately.
     } else {
         addEventListener(eventName, actualCallback, { passive: true, once: true });
@@ -150,7 +150,7 @@ export const onNextFrame = (callback: AnyVoidFn): EventTools => {
  * Fires a callback after the next frame.
  *
  * Callback is invoked after the browser has a painted a new frame. We accomplish this by combining use of RAF; i.e.,
- * {@see requestAnimationFrame} together with {@see setTimeout()} to invoke a callback after the next frame. A timeout
+ * {@see requestAnimationFrame()} together with {@see setTimeout()} to invoke a callback after the next frame. A timeout
  * is scheduled in parallel to ensure the callback is always invoked; e.g., if the browser tab is not visible.
  *
  * @param   callback Callback.
@@ -158,7 +158,7 @@ export const onNextFrame = (callback: AnyVoidFn): EventTools => {
  * @returns          Event tools; {@see EventTools}.
  */
 export const afterNextFrame = (callback: AnyVoidFn): EventTools => {
-    const done = () => {
+    const done = (): void => {
         clearTimeout(timeout);
         cancelAnimationFrame(raf);
         setTimeout((): void => void callback());

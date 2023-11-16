@@ -316,8 +316,15 @@ const reduceState = (state: ActualState, x: Parameters<Context['updateState']>[0
     if (state.pathQuery === pathQuery) {
         if (isWeb && isClick && !url.hash) {
             (x as MouseEvent).preventDefault();
-            scrollHandler?.cancel(), // i.e., Don’t stack these up.
-                (scrollHandler = $dom.afterNextFrame(() => scrollTo({ top: 0, left: 0, behavior: 'auto' })));
+
+            scrollWheelHandler?.cancel(), // i.e., Don’t stack these up.
+                scrollHandler?.cancel(); // i.e., Don’t stack these up.
+
+            scrollWheelHandler = $dom.onWheelEnd((): void => {
+                scrollHandler = $dom.afterNextFrame((): void => {
+                    scrollTo({ top: 0, left: 0, behavior: 'auto' });
+                });
+            });
         }
         return state; // No point; we’re already at this location.
         // This also ignores on-page hash changes. We let browser handle.
@@ -339,6 +346,7 @@ const reduceState = (state: ActualState, x: Parameters<Context['updateState']>[0
 };
 
 /**
- * Global scroll handler.
+ * Scroll handlers.
  */
-let scrollHandler: ReturnType<typeof $dom.onNextFrame> | ReturnType<typeof $dom.afterNextFrame> | undefined;
+let scrollWheelHandler: ReturnType<typeof $dom.onWheelEnd> | undefined;
+let scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
