@@ -1,238 +1,199 @@
 <!doctype html>
-<html lang="en-US" dir="ltr">
-    <head>
-        <meta charset="utf-8" data-key="charset" />
-        <base href="http://x.tld/" data-key="baseURL" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" data-key="viewport" />
-        <link rel="canonical" href="http://x.tld/" data-key="canonical" />
-        <title data-key="title">index</title>
-        <meta name="description" content="Take the tiger by the tail." data-key="description" />
-        <meta name="author" content="Jason Caldwell" data-key="author" />
-        <link rel="icon" type="image/svg+xml" sizes="any" href="http://x.tld/assets/icon.svg" data-key="svgIcon" />
-        <link rel="icon" type="image/png" sizes="any" href="http://x.tld/assets/icon.png" data-key="pngIcon" />
-        <link rel="apple-touch-icon" type="image/png" sizes="any" href="http://x.tld/assets/icon.png" data-key="appleTouchIcon" />
-        <meta property="og:site_name" content="X Tld" data-key="ogSiteName" />
-        <meta property="og:type" content="website" data-key="ogType" />
-        <meta property="og:title" content="index" data-key="ogTitle" />
-        <meta property="og:description" content="Take the tiger by the tail." data-key="ogDescription" />
-        <meta property="og:url" content="http://x.tld/" data-key="ogURL" />
-        <meta property="og:image" content="http://x.tld/assets/og-image.png" data-key="ogImage" />
-        <link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle" />
-        <script id="preact-iso-data" data-key="preactISOData">
-            globalThis['@clevercanyon/utilities'] = globalThis['@clevercanyon/utilities'] || {};
-            globalThis['@clevercanyon/utilities']['preactISOData'] = globalThis['@clevercanyon/utilities']['preactISOData'] || {};
-            globalThis['@clevercanyon/utilities']['preactISOData'] = { 'head': { 'styleBundle': './style.css', 'scriptBundle': './script.js' } };
-            globalThis['@clevercanyon/utilities'] = globalThis['@clevercanyon/utilities'] || {};
-            globalThis['@clevercanyon/utilities']['preactISOFetcher'] = globalThis['@clevercanyon/utilities']['preactISOFetcher'] || {};
-            globalThis['@clevercanyon/utilities']['preactISOFetcher'] = { 'cache': {} };
-        </script>
-        <script type="module" src="./script.js" data-key="scriptBundle"></script>
-        <script type="application/ld+json" data-key="structuredData">
-            {
-                "@context": "https://schema.org/",
-                "@graph": [
-                    {
-                        "@type": "Corporation",
-                        "@id": "https://clevercanyon.com/#corp",
-                        "url": "https://clevercanyon.com/",
-                        "name": "Clever Canyon",
-                        "legalName": "Clever Canyon, LLC",
-                        "address": {
-                            "@type": "PostalAddress",
-                            "@id": "https://clevercanyon.com/#addr",
-                            "streetAddress": "9 N River Rd #660",
-                            "addressLocality": "Auburn",
-                            "addressRegion": "ME",
-                            "postalCode": "04210",
-                            "addressCountry": "US"
-                        },
-                        "founder": {
-                            "@type": "Person",
-                            "@id": "https://jaswrks.com/#founder",
-                            "name": "Jason Caldwell",
-                            "jobTitle": "Engineering Manager, Consultant, Staff Engineer",
-                            "description": "Entrepreneur and full-stack engineer with 20+ years experience.",
-                            "url": "https://jaswrks.com/",
-                            "image": {
-                                "@type": "ImageObject",
-                                "@id": "https://jaswrks.com/#founderImg",
-                                "url": "https://gravatar.com/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512",
-                                "width": 512,
-                                "height": 512,
-                                "caption": "Jason Caldwell"
-                            }
-                        },
-                        "foundingDate": "2023-10-03",
-                        "numberOfEmployees": 10,
-                        "slogan": "Cleverly crafted digital brands.",
-                        "description": "We’re transforming ideas into digital realities.",
-                        "logo": {
-                            "@type": "ImageObject",
-                            "@id": "https://clevercanyon.com/#logo",
-                            "url": "https://cdn.clevercanyon.com/assets/brands/clevercanyon/logo-on-light-bg.png",
-                            "width": 866,
-                            "height": 120,
-                            "caption": "Clever Canyon"
-                        },
-                        "image": {
-                            "@id": "https://clevercanyon.com/#logo"
-                        },
-                        "sameAs": [
-                            "https://twitter.com/clevercanyon",
-                            "https://www.linkedin.com/company/clevercanyon",
-                            "https://www.facebook.com/clevercanyon",
-                            "https://github.com/clevercanyon",
-                            "https://www.npmjs.com/org/clevercanyon"
-                        ],
-                        "subOrganization": {
-                            "@id": "https://hop.gdn/#org"
-                        }
-                    },
-                    {
-                        "@type": "Organization",
-                        "@id": "https://hop.gdn/#org",
-                        "url": "https://hop.gdn/",
-                        "name": "Hop.gdn",
-                        "legalName": "Hop.gdn",
-                        "address": {
-                            "@type": "PostalAddress",
-                            "@id": "https://hop.gdn/#addr",
-                            "streetAddress": "9 N River Rd #660",
-                            "addressLocality": "Auburn",
-                            "addressRegion": "ME",
-                            "postalCode": "04210",
-                            "addressCountry": "US"
-                        },
-                        "founder": {
-                            "@type": "Person",
-                            "@id": "https://jaswrks.com/#founder",
-                            "name": "Jason Caldwell",
-                            "jobTitle": "Engineering Manager, Consultant, Staff Engineer",
-                            "description": "Entrepreneur and full-stack engineer with 20+ years experience.",
-                            "url": "https://jaswrks.com/",
-                            "image": {
-                                "@type": "ImageObject",
-                                "@id": "https://jaswrks.com/#founderImg",
-                                "url": "https://gravatar.com/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512",
-                                "width": 512,
-                                "height": 512,
-                                "caption": "Jason Caldwell"
-                            }
-                        },
-                        "foundingDate": "2023-10-03",
-                        "numberOfEmployees": 10,
-                        "slogan": "Masters of the digital divide.",
-                        "description": "Great things, built on great technology.",
-                        "logo": {
-                            "@type": "ImageObject",
-                            "@id": "https://hop.gdn/#logo",
-                            "url": "https://cdn.clevercanyon.com/assets/brands/hop/logo-on-light-bg.png",
-                            "width": 608,
-                            "height": 120,
-                            "caption": "Hop.gdn"
-                        },
-                        "image": {
-                            "@id": "https://hop.gdn/#logo"
-                        },
-                        "sameAs": [
-                            "https://twitter.com/clevercanyon",
-                            "https://www.linkedin.com/company/clevercanyon",
-                            "https://www.facebook.com/clevercanyon",
-                            "https://github.com/clevercanyon",
-                            "https://www.npmjs.com/org/clevercanyon"
-                        ],
-                        "parentOrganization": {
-                            "@id": "https://clevercanyon.com/#corp"
-                        }
-                    },
-                    {
-                        "@type": "WebSite",
-                        "@id": "http://x.tld/#site",
-                        "url": "http://x.tld/",
-                        "name": "X Tld",
-                        "description": "Great things, built on great technology.",
-                        "image": {
-                            "@type": "ImageObject",
-                            "@id": "http://x.tld/#logo",
-                            "url": "http://x.tld/assets/logo-on-light-bg.png",
-                            "width": 608,
-                            "height": 120,
-                            "caption": "X Tld"
-                        },
-                        "sameAs": [
-                            "https://twitter.com/clevercanyon",
-                            "https://www.linkedin.com/company/clevercanyon",
-                            "https://www.facebook.com/clevercanyon",
-                            "https://github.com/clevercanyon",
-                            "https://www.npmjs.com/org/clevercanyon"
-                        ],
-                        "publisher": {
-                            "@id": "https://hop.gdn/#org"
-                        }
-                    },
-                    {
-                        "@type": "WebPage",
-                        "@id": "http://x.tld/#page",
-                        "url": "http://x.tld/",
-                        "name": "index",
-                        "headline": "index",
-                        "description": "Take the tiger by the tail.",
-                        "inLanguage": "en-US",
-                        "author": [
-                            {
-                                "@id": "http://x.tld/#site"
-                            },
-                            {
-                                "@type": "Person",
-                                "@id": "https://jaswrks.com/#pageAuthor",
-                                "name": "Jason Caldwell",
-                                "jobTitle": "Engineering Manager, Consultant, Staff Engineer",
-                                "description": "Entrepreneur and full-stack engineer with 20+ years experience.",
-                                "url": "https://jaswrks.com/",
-                                "image": {
-                                    "@type": "ImageObject",
-                                    "@id": "https://jaswrks.com/#pageAuthorImg",
-                                    "url": "https://gravatar.com/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512",
-                                    "width": 512,
-                                    "height": 512,
-                                    "caption": "Jason Caldwell"
-                                }
-                            }
-                        ],
-                        "datePublished": "",
-                        "dateModified": "",
-                        "primaryImageOfPage": {
-                            "@type": "ImageObject",
-                            "@id": "http://x.tld/#pagePrimaryImg",
-                            "width": 2400,
-                            "height": 1260,
-                            "url": "http://x.tld/assets/og-image.png",
-                            "caption": "Take the tiger by the tail."
-                        },
-                        "image": [
-                            {
-                                "@id": "http://x.tld/#pagePrimaryImg"
-                            }
-                        ],
-                        "about": {
-                            "@id": "http://x.tld/#site"
-                        },
-                        "isPartOf": {
-                            "@id": "http://x.tld/#site"
-                        },
-                        "publisher": {
-                            "@id": "https://hop.gdn/#org"
-                        }
-                    }
-                ]
+<html lang="en-US" dir="ltr"><head><meta charset="utf-8" data-key="charset"/><base href="http://x.tld/" data-key="baseURL"/><meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" data-key="viewport"/><link rel="canonical" href="http://x.tld/" data-key="canonical"/><title data-key="title">index</title><meta name="description" content="Take the tiger by the tail." data-key="description"/><meta name="author" content="Jason Caldwell" data-key="author"/><link rel="icon" type="image/svg+xml" sizes="any" href="http://x.tld/assets/icon.svg" data-key="svgIcon"/><link rel="icon" type="image/png" sizes="any" href="http://x.tld/assets/icon.png" data-key="pngIcon"/><link rel="apple-touch-icon" type="image/png" sizes="any" href="http://x.tld/assets/icon.png" data-key="appleTouchIcon"/><meta property="og:site_name" content="X Tld" data-key="ogSiteName"/><meta property="og:type" content="website" data-key="ogType"/><meta property="og:title" content="index" data-key="ogTitle"/><meta property="og:description" content="Take the tiger by the tail." data-key="ogDescription"/><meta property="og:url" content="http://x.tld/" data-key="ogURL"/><meta property="og:image" content="http://x.tld/assets/og-image.png" data-key="ogImage"/><link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/><script id="preact-iso-data" data-key="preactISOData">globalThis['@clevercanyon/utilities'] = globalThis['@clevercanyon/utilities'] || {}; globalThis['@clevercanyon/utilities']['preactISOData'] = globalThis['@clevercanyon/utilities']['preactISOData'] || {}; globalThis['@clevercanyon/utilities']['preactISOData'] = {"head":{"styleBundle":"./style.css","scriptBundle":"./script.js"}}; globalThis['@clevercanyon/utilities'] = globalThis['@clevercanyon/utilities'] || {}; globalThis['@clevercanyon/utilities']['preactISOFetcher'] = globalThis['@clevercanyon/utilities']['preactISOFetcher'] || {}; globalThis['@clevercanyon/utilities']['preactISOFetcher'] = {"cache":{}};</script><script type="module" src="./script.js" data-key="scriptBundle"></script><script type="application/ld+json" data-key="structuredData">{
+    "@context": "https://schema.org/",
+    "@graph": [
+        {
+            "@type": "Corporation",
+            "@id": "https://clevercanyon.com/#corp",
+            "url": "https://clevercanyon.com/",
+            "name": "Clever Canyon",
+            "legalName": "Clever Canyon, LLC",
+            "address": {
+                "@type": "PostalAddress",
+                "@id": "https://clevercanyon.com/#addr",
+                "streetAddress": "9 N River Rd #660",
+                "addressLocality": "Auburn",
+                "addressRegion": "ME",
+                "postalCode": "04210",
+                "addressCountry": "US"
+            },
+            "founder": {
+                "@type": "Person",
+                "@id": "https://jaswrks.com/#founder",
+                "name": "Jason Caldwell",
+                "jobTitle": "Engineering Manager, Consultant, Staff Engineer",
+                "description": "Entrepreneur and full-stack engineer with 20+ years experience.",
+                "url": "https://jaswrks.com/",
+                "image": {
+                    "@type": "ImageObject",
+                    "@id": "https://jaswrks.com/#founderImg",
+                    "url": "https://gravatar.com/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512",
+                    "width": 512,
+                    "height": 512,
+                    "caption": "Jason Caldwell"
+                }
+            },
+            "foundingDate": "2023-10-03",
+            "numberOfEmployees": 10,
+            "slogan": "Cleverly crafted digital brands.",
+            "description": "We’re transforming ideas into digital realities.",
+            "logo": {
+                "@type": "ImageObject",
+                "@id": "https://clevercanyon.com/#logo",
+                "url": "https://cdn.clevercanyon.com/assets/brands/clevercanyon/logo-on-light-bg.png",
+                "width": 866,
+                "height": 120,
+                "caption": "Clever Canyon"
+            },
+            "image": {
+                "@id": "https://clevercanyon.com/#logo"
+            },
+            "sameAs": [
+                "https://twitter.com/clevercanyon",
+                "https://www.linkedin.com/company/clevercanyon",
+                "https://www.facebook.com/clevercanyon",
+                "https://github.com/clevercanyon",
+                "https://www.npmjs.com/org/clevercanyon"
+            ],
+            "subOrganization": {
+                "@id": "https://hop.gdn/#org"
             }
-        </script>
-    </head>
-    <body class="h-full">
-        <x-preact-app data-hydrate class="block h-full"
-            ><script type="route-context-props">
-                {"path":"./","pathQuery":"./?a=_a&b=_b&c=_c","restPath":"","restPathQuery":"","query":"?a=_a&b=_b&c=_c","queryVars":{"a":"_a","b":"_b","c":"_c"},"params":{}}
-            </script></x-preact-app
-        >
-    </body>
-</html>
+        },
+        {
+            "@type": "Organization",
+            "@id": "https://hop.gdn/#org",
+            "url": "https://hop.gdn/",
+            "name": "Hop.gdn",
+            "legalName": "Hop.gdn",
+            "address": {
+                "@type": "PostalAddress",
+                "@id": "https://hop.gdn/#addr",
+                "streetAddress": "9 N River Rd #660",
+                "addressLocality": "Auburn",
+                "addressRegion": "ME",
+                "postalCode": "04210",
+                "addressCountry": "US"
+            },
+            "founder": {
+                "@type": "Person",
+                "@id": "https://jaswrks.com/#founder",
+                "name": "Jason Caldwell",
+                "jobTitle": "Engineering Manager, Consultant, Staff Engineer",
+                "description": "Entrepreneur and full-stack engineer with 20+ years experience.",
+                "url": "https://jaswrks.com/",
+                "image": {
+                    "@type": "ImageObject",
+                    "@id": "https://jaswrks.com/#founderImg",
+                    "url": "https://gravatar.com/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512",
+                    "width": 512,
+                    "height": 512,
+                    "caption": "Jason Caldwell"
+                }
+            },
+            "foundingDate": "2023-10-03",
+            "numberOfEmployees": 10,
+            "slogan": "Masters of the digital divide.",
+            "description": "Great things, built on great technology.",
+            "logo": {
+                "@type": "ImageObject",
+                "@id": "https://hop.gdn/#logo",
+                "url": "https://cdn.clevercanyon.com/assets/brands/hop/logo-on-light-bg.png",
+                "width": 608,
+                "height": 120,
+                "caption": "Hop.gdn"
+            },
+            "image": {
+                "@id": "https://hop.gdn/#logo"
+            },
+            "sameAs": [
+                "https://twitter.com/clevercanyon",
+                "https://www.linkedin.com/company/clevercanyon",
+                "https://www.facebook.com/clevercanyon",
+                "https://github.com/clevercanyon",
+                "https://www.npmjs.com/org/clevercanyon"
+            ],
+            "parentOrganization": {
+                "@id": "https://clevercanyon.com/#corp"
+            }
+        },
+        {
+            "@type": "WebSite",
+            "@id": "http://x.tld/#site",
+            "url": "http://x.tld/",
+            "name": "X Tld",
+            "description": "Great things, built on great technology.",
+            "image": {
+                "@type": "ImageObject",
+                "@id": "http://x.tld/#logo",
+                "url": "http://x.tld/assets/logo-on-light-bg.png",
+                "width": 608,
+                "height": 120,
+                "caption": "X Tld"
+            },
+            "sameAs": [
+                "https://twitter.com/clevercanyon",
+                "https://www.linkedin.com/company/clevercanyon",
+                "https://www.facebook.com/clevercanyon",
+                "https://github.com/clevercanyon",
+                "https://www.npmjs.com/org/clevercanyon"
+            ],
+            "publisher": {
+                "@id": "https://hop.gdn/#org"
+            }
+        },
+        {
+            "@type": "WebPage",
+            "@id": "http://x.tld/#page",
+            "url": "http://x.tld/",
+            "name": "index",
+            "headline": "index",
+            "description": "Take the tiger by the tail.",
+            "inLanguage": "en-US",
+            "author": [
+                {
+                    "@id": "http://x.tld/#site"
+                },
+                {
+                    "@type": "Person",
+                    "@id": "https://jaswrks.com/#pageAuthor",
+                    "name": "Jason Caldwell",
+                    "jobTitle": "Engineering Manager, Consultant, Staff Engineer",
+                    "description": "Entrepreneur and full-stack engineer with 20+ years experience.",
+                    "url": "https://jaswrks.com/",
+                    "image": {
+                        "@type": "ImageObject",
+                        "@id": "https://jaswrks.com/#pageAuthorImg",
+                        "url": "https://gravatar.com/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512",
+                        "width": 512,
+                        "height": 512,
+                        "caption": "Jason Caldwell"
+                    }
+                }
+            ],
+            "datePublished": "",
+            "dateModified": "",
+            "primaryImageOfPage": {
+                "@type": "ImageObject",
+                "@id": "http://x.tld/#pagePrimaryImg",
+                "url": "http://x.tld/assets/og-image.png",
+                "width": 2400,
+                "height": 1260,
+                "caption": "Take the tiger by the tail."
+            },
+            "image": [
+                {
+                    "@id": "http://x.tld/#pagePrimaryImg"
+                }
+            ],
+            "about": {
+                "@id": "http://x.tld/#site"
+            },
+            "isPartOf": {
+                "@id": "http://x.tld/#site"
+            },
+            "publisher": {
+                "@id": "https://hop.gdn/#org"
+            }
+        }
+    ]
+}</script></head><body class="h-full"><x-preact-app data-hydrate class="block h-full"><script type="route-context-props">{"path":"./","pathQuery":"./?a=_a&b=_b&c=_c","restPath":"","restPathQuery":"","query":"?a=_a&b=_b&c=_c","queryVars":{"a":"_a","b":"_b","c":"_c"},"params":{}}</script></x-preact-app></body></html>

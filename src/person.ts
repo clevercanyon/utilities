@@ -4,7 +4,7 @@
 
 import './resources/init.ts';
 
-import { $class, type $type } from './index.ts';
+import { $class, $str, type $type } from './index.ts';
 
 /**
  * Tracks initialization.
@@ -101,6 +101,7 @@ export const remove = (username: string): void => {
 export const get = (username: string): $type.Person => {
     if (!rawPropsInitialized) initializeRawProps();
 
+    username = $str.lTrim(username, '@');
     username = '&' === username ? tꓺjaswrks : username;
     // `&` is a self-referential founder alias.
 

@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { Component } from 'preact';
-import { $dom, $env, $is, $json, $obj, $preact, type $type } from '../../index.ts';
+import { $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, type $type } from '../../index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode, type Context as DataContext } from './data.tsx';
 import { type State as HTMLState } from './html.tsx';
 
@@ -181,6 +181,8 @@ const tꓺabout = 'about',
     tꓺprimaryImageOfPage = 'primaryImageOfPage',
     tꓺproperty = 'property',
     tꓺpublisher = 'publisher',
+    tꓺpublishTime = 'publishTime',
+    tꓺlastModifiedTime = 'lastModifiedTime',
     tꓺrel = 'rel',
     tꓺrobots = 'robots',
     tꓺsameAs = 'sameAs',
@@ -382,9 +384,12 @@ export default class Head extends Component<Props, ActualState> {
             const {
                 charset,
                 viewport,
+                publishTime,
+                lastModifiedTime,
+                canonical,
                 titleSuffix,
                 description,
-                canonical,
+                author,
                 pngIcon,
                 svgIcon,
                 siteName,
@@ -424,9 +429,13 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺcharset]: charset || 'utf-8',
                 [tꓺviewport]: viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
 
+                [tꓺpublishTime]: $is.string(publishTime) ? $time.parse(publishTime) : publishTime,
+                [tꓺlastModifiedTime]: $is.string(lastModifiedTime) ? $time.parse(lastModifiedTime) : lastModifiedTime,
+                [tꓺcanonical]: canonical || canonicalURL,
+
                 [tꓺtitle]: title, // Title generated above.
                 [tꓺdescription]: description || defaultDescription,
-                [tꓺcanonical]: canonical || canonicalURL,
+                [tꓺauthor]: $is.string(author) ? $fn.try(() => $person.get(author), author)() : author,
 
                 [tꓺpngIcon]: pngIcon || fromBase('./assets/icon.png'),
                 [tꓺsvgIcon]: svgIcon || fromBase('./assets/icon.svg'),
@@ -762,8 +771,8 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                     : pageAuthor ? [{ [tꓺමtype]: tꓺPerson, [tꓺname]: pageAuthor }]
                     : []), // prettier-ignore
             ],
-            [tꓺdatePublished]: state.publishTime?.toString() || '',
-            [tꓺdateModified]: state.lastModifiedTime?.toString() || '',
+            [tꓺdatePublished]: $is.time(state.publishTime) ? state.publishTime.toISO() : '',
+            [tꓺdateModified]: $is.time(state.lastModifiedTime) ? state.lastModifiedTime.toISO() : '',
 
             ...(state.ogImage
                 ? {
@@ -771,9 +780,9 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                           [tꓺමtype]: tꓺImageObject,
                           [tꓺමid]: pageURL + '#' + tꓺpagePrimaryImg,
 
+                          [tꓺurl]: state.ogImage.toString(),
                           [tꓺwidth]: brandOGImage.width,
                           [tꓺheight]: brandOGImage.height,
-                          [tꓺurl]: state.ogImage.toString(),
                           [tꓺcaption]: state.ogDescription || '',
                       },
                       [tꓺimage]: [{ [tꓺමid]: pageURL + '#' + tꓺpagePrimaryImg }],
