@@ -46,34 +46,37 @@ export type ActualState = $preact.State<{
 export type PartialActualState = Partial<ActualState>;
 export type PartialActualStateUpdates = Omit<PartialActualState, ImmutableStateKeys>;
 
-export type State = ActualState &
-    Required<
-        Pick<
-            ActualState,
-            | 'charset'
-            | 'viewport'
-            //
-            | 'canonical'
-            //
-            | 'title'
-            | 'description'
-            //
-            | 'pngIcon'
-            | 'svgIcon'
-            //
-            | 'ogSiteName'
-            | 'ogType'
-            | 'ogTitle'
-            | 'ogDescription'
-            | 'ogURL'
-            | 'ogImage'
-            //
-            | 'styleBundle'
-            | 'scriptBundle'
-            //
-            | 'append'
-        >
-    >;
+export type State = $preact.State<{
+    charset: string;
+    viewport: string;
+
+    robots: string;
+    publishTime?: $type.Time;
+    lastModifiedTime?: $type.Time;
+    canonical: string;
+    structuredData?: object;
+
+    siteName: string;
+    title: string;
+    titleSuffix: string | boolean;
+    description: string;
+    author?: $type.Person;
+
+    pngIcon: string;
+    svgIcon: string;
+
+    ogSiteName: string;
+    ogType: string;
+    ogTitle: string;
+    ogDescription: string;
+    ogURL: string;
+    ogImage: string;
+
+    styleBundle: string;
+    scriptBundle: string;
+
+    append: $preact.VNode[];
+}>;
 export type Props = $preact.BasicPropsNoKeyRefChildren<PartialActualState> & {
     // There’s really not a great way to enforce the child vNode type.
     // Internal JSX types use things that are too generic for that to work.
@@ -116,7 +119,7 @@ const tꓺabout = 'about',
     tꓺappend = 'append',
     tꓺauthor = 'author',
     tꓺbase = 'base',
-    tꓺbaseURL = tꓺbase + 'URL',
+    tꓺbaseURL = 'baseURL',
     tꓺcanonical = 'canonical',
     tꓺcaption = 'caption',
     tꓺcontent = 'content',
@@ -188,6 +191,7 @@ const tꓺabout = 'about',
     tꓺsameAs = 'sameAs',
     tꓺscript = 'script',
     tꓺsite = 'site',
+    tꓺsiteName = 'siteName',
     tꓺslogan = 'slogan',
     tꓺsizes = 'sizes',
     tꓺsrc = 'src',
@@ -199,9 +203,11 @@ const tꓺabout = 'about',
     tꓺpngIcon = 'pngIcon',
     tꓺsvgIcon = 'svgIcon',
     tꓺtitle = 'title',
+    tꓺtitleSuffix = 'titleSuffix',
     tꓺtype = 'type',
     tꓺමtype = '@' + tꓺtype,
     tꓺurl = 'url',
+    tꓺundefined = undefined,
     tꓺviewport = 'viewport',
     tꓺWeb = 'Web',
     tꓺWebPage = tꓺWeb + 'Page',
@@ -220,7 +226,7 @@ const tꓺabout = 'about',
  * - `baseURL`: Cannot change whatsoever. Safari and Firefox only parse this once on first load.
  * - `scriptBundle`: Cannot load/unload, then load again. That leads to a variety of problems.
  */
-const immutableStateKeys = ['charset', 'viewport', 'baseURL', 'scriptBundle'] as const;
+const immutableStateKeys = [tꓺcharset, tꓺviewport, tꓺbaseURL, tꓺscriptBundle] as const;
 type ImmutableStateKeys = $type.Writable<typeof immutableStateKeys>[number];
 
 /**
@@ -384,6 +390,7 @@ export default class Head extends Component<Props, ActualState> {
             const {
                 charset,
                 viewport,
+                robots,
                 publishTime,
                 lastModifiedTime,
                 canonical,
@@ -429,26 +436,29 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺcharset]: charset || 'utf-8',
                 [tꓺviewport]: viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
 
-                [tꓺpublishTime]: $is.string(publishTime) ? $time.parse(publishTime) : publishTime,
-                [tꓺlastModifiedTime]: $is.string(lastModifiedTime) ? $time.parse(lastModifiedTime) : lastModifiedTime,
-                [tꓺcanonical]: canonical || canonicalURL,
+                [tꓺrobots]: robots || '', // Default is empty string.
+                [tꓺpublishTime]: publishTime ? $time.parse(publishTime) : tꓺundefined,
+                [tꓺlastModifiedTime]: lastModifiedTime ? $time.parse(lastModifiedTime) : tꓺundefined,
+                [tꓺcanonical]: (canonical || canonicalURL).toString(),
 
-                [tꓺtitle]: title, // Title generated above.
+                [tꓺsiteName]: siteName || brand.name || url.hostname,
+                [tꓺtitle]: title,
+                [tꓺtitleSuffix]: titleSuffix || '',
                 [tꓺdescription]: description || defaultDescription,
-                [tꓺauthor]: $is.string(author) ? $fn.try(() => $person.get(author), author)() : author,
+                [tꓺauthor]: $is.string(author) ? $fn.try(() => $person.get(author), tꓺundefined)() : author,
 
-                [tꓺpngIcon]: pngIcon || fromBase('./assets/icon.png'),
-                [tꓺsvgIcon]: svgIcon || fromBase('./assets/icon.svg'),
+                [tꓺpngIcon]: (pngIcon || fromBase('./assets/icon.png')).toString(),
+                [tꓺsvgIcon]: (svgIcon || fromBase('./assets/icon.svg')).toString(),
 
                 [tꓺogSiteName]: ogSiteName || siteName || brand.name || url.hostname,
                 [tꓺogType]: ogType || 'website',
                 [tꓺogTitle]: ogTitle || title,
                 [tꓺogDescription]: ogDescription || description || defaultDescription,
-                [tꓺogURL]: ogURL || canonical || canonicalURL,
-                [tꓺogImage]: ogImage || fromBase('./assets/og-image.png'),
+                [tꓺogURL]: (ogURL || canonical || canonicalURL).toString(),
+                [tꓺogImage]: (ogImage || fromBase('./assets/og-image.png')).toString(),
 
-                [tꓺstyleBundle]: '' === styleBundle ? '' : styleBundle || dataState.head.styleBundle || defaultStyleBundle || '',
-                [tꓺscriptBundle]: '' === scriptBundle ? '' : scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '',
+                [tꓺstyleBundle]: ('' === styleBundle ? '' : styleBundle || dataState.head.styleBundle || defaultStyleBundle || '').toString(),
+                [tꓺscriptBundle]: ('' === scriptBundle ? '' : scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '').toString(),
 
                 // Concatenated, not merged, as they are potentially arrays.
                 [tꓺappend]: (layoutState?.head.append || []).concat(actualState.append || []),
@@ -486,16 +496,16 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺbaseURL]: h(tꓺbase, { [tꓺhref]: baseURL.toString() }),
                 [tꓺviewport]: h(tꓺmeta, { [tꓺname]: tꓺviewport, [tꓺcontent]: viewport }),
 
-                [tꓺcanonical]: h(tꓺlink, { [tꓺrel]: tꓺcanonical, [tꓺhref]: canonical.toString() }),
+                [tꓺcanonical]: h(tꓺlink, { [tꓺrel]: tꓺcanonical, [tꓺhref]: canonical }),
                 ...(robots ? { [tꓺrobots]: h(tꓺmeta, { [tꓺname]: tꓺrobots, [tꓺcontent]: robots }) } : {}),
 
                 [tꓺtitle]: h(tꓺtitle, {}, title),
                 [tꓺdescription]: h(tꓺmeta, { [tꓺname]: tꓺdescription, [tꓺcontent]: description }),
                 ...(author ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: $is.person(author) ? author.name : author }) } : {}),
 
-                [tꓺsvgIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇsvg, [tꓺsizes]: tꓺany, [tꓺhref]: svgIcon.toString() }),
-                [tꓺpngIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon.toString() }),
-                [tꓺappleTouchIcon]: h(tꓺlink, { [tꓺrel]: tꓺappleᱼtouchᱼicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon.toString() }),
+                [tꓺsvgIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇsvg, [tꓺsizes]: tꓺany, [tꓺhref]: svgIcon }),
+                [tꓺpngIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon }),
+                [tꓺappleTouchIcon]: h(tꓺlink, { [tꓺrel]: tꓺappleᱼtouchᱼicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon }),
 
                 // Note: `og:` prefixed meta tags do not require a `prefix="og: ..."` attribute on `<head>`,
                 // because they are baked into RDFa already; {@see https://www.w3.org/2011/rdfa-context/rdfa-1.1}.
@@ -504,15 +514,15 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺogType]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺtype, [tꓺcontent]: ogType }),
                 [tꓺogTitle]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺtitle, [tꓺcontent]: ogTitle }),
                 [tꓺogDescription]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺdescription, [tꓺcontent]: ogDescription }),
-                [tꓺogURL]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺurl, [tꓺcontent]: ogURL.toString() }),
-                [tꓺogImage]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺimage, [tꓺcontent]: ogImage.toString() }),
+                [tꓺogURL]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺurl, [tꓺcontent]: ogURL }),
+                [tꓺogImage]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺimage, [tꓺcontent]: ogImage }),
 
                 ...(scriptBundle && isC10n ? { [tꓺprefetchWorkers]: h(tꓺlink, { [tꓺrel]: tꓺdnsPrefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + 'workers.hop.gdn/' }) } : {}), // prettier-ignore
                 ...(styleBundle && isC10n ? { [tꓺprefetchGoogleFonts]: h(tꓺlink, { [tꓺrel]: tꓺdnsPrefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + 'fonts.googleapis.com/' }) } : {}), // prettier-ignore
 
-                ...(styleBundle ? { [tꓺstyleBundle]: h(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: styleBundle.toString(), [tꓺmedia]: tꓺall }) } : {}), // prettier-ignore
+                ...(styleBundle ? { [tꓺstyleBundle]: h(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: styleBundle, [tꓺmedia]: tꓺall }) } : {}), // prettier-ignore
                 ...(scriptBundle && isSSR ? { [tꓺpreactISOData]: h(tꓺscript, { [tꓺid]: 'preact-iso-data', [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore
-                ...(scriptBundle ? { [tꓺscriptBundle]: h(tꓺscript, { [tꓺtype]: tꓺmodule, [tꓺsrc]: scriptBundle.toString() }) } : {}), // prettier-ignore
+                ...(scriptBundle ? { [tꓺscriptBundle]: h(tꓺscript, { [tꓺtype]: tꓺmodule, [tꓺsrc]: scriptBundle }) } : {}), // prettier-ignore
 
                 [tꓺstructuredData]: h(tꓺscript, {
                     [tꓺtype]: 'application/ld+json',
@@ -732,10 +742,10 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
     // WebPage graph.
     // {@see https://schema.org/WebPage}.
 
-    const pageURL = state.ogURL.toString(),
-        pageTitle = (state.ogTitle || '').split(' • ')[0],
-        pageDescription = state.ogDescription || '',
-        pageAuthor = state.author || '';
+    const pageURL = state.ogURL,
+        pageTitle = state.ogTitle.split(' • ')[0],
+        pageDescription = state.ogDescription,
+        pageAuthor = state.author;
 
     const pageGraph = $obj.mergeDeep(
         {
@@ -750,29 +760,26 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
             [tꓺinLanguage]: htmlState.lang || 'en-US',
             [tꓺauthor]: [
                 { [tꓺමid]: (siteGraph as $type.Object)[tꓺමid] },
-                ...(pageAuthor && $is.person(pageAuthor)
-                    ? [{
-                            [tꓺමtype]: tꓺPerson,
-                            [tꓺමid]: pageAuthor.url + '#' + tꓺpageAuthor,
+                ...(pageAuthor ? [{
+                        [tꓺමtype]: tꓺPerson,
+                        [tꓺමid]: pageAuthor.url + '#' + tꓺpageAuthor,
 
-                            [tꓺname]: pageAuthor.name,
-                            [tꓺjobTitle]: pageAuthor.headline,
-                            [tꓺdescription]: pageAuthor.description,
-                            [tꓺurl]: pageAuthor.url,
-                            [tꓺimage]: {
-                                [tꓺමtype]: tꓺImageObject,
-                                [tꓺමid]: pageAuthor.url + '#' + tꓺpageAuthorImg,
-                                [tꓺurl]: pageAuthor.avatar.png,
-                                [tꓺwidth]: pageAuthor.avatar.width,
-                                [tꓺheight]: pageAuthor.avatar.height,
-                                [tꓺcaption]: pageAuthor.name,
-                            },
-                    }]
-                    : pageAuthor ? [{ [tꓺමtype]: tꓺPerson, [tꓺname]: pageAuthor }]
-                    : []), // prettier-ignore
+                        [tꓺname]: pageAuthor.name,
+                        [tꓺjobTitle]: pageAuthor.headline,
+                        [tꓺdescription]: pageAuthor.description,
+                        [tꓺurl]: pageAuthor.url,
+                        [tꓺimage]: {
+                            [tꓺමtype]: tꓺImageObject,
+                            [tꓺමid]: pageAuthor.url + '#' + tꓺpageAuthorImg,
+                            [tꓺurl]: pageAuthor.avatar.png,
+                            [tꓺwidth]: pageAuthor.avatar.width,
+                            [tꓺheight]: pageAuthor.avatar.height,
+                            [tꓺcaption]: pageAuthor.name,
+                        },
+                }] : []), // prettier-ignore
             ],
-            [tꓺdatePublished]: $is.time(state.publishTime) ? state.publishTime.toISO() : '',
-            [tꓺdateModified]: $is.time(state.lastModifiedTime) ? state.lastModifiedTime.toISO() : '',
+            [tꓺdatePublished]: state.publishTime?.toISO() || '',
+            [tꓺdateModified]: state.lastModifiedTime?.toISO() || '',
 
             ...(state.ogImage
                 ? {
@@ -780,7 +787,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                           [tꓺමtype]: tꓺImageObject,
                           [tꓺමid]: pageURL + '#' + tꓺpagePrimaryImg,
 
-                          [tꓺurl]: state.ogImage.toString(),
+                          [tꓺurl]: state.ogImage,
                           [tꓺwidth]: brandOGImage.width,
                           [tꓺheight]: brandOGImage.height,
                           [tꓺcaption]: state.ogDescription || '',
