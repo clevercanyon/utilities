@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.452",
+    "version": "1.0.453",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -110,6 +110,11 @@
             "types": "./dist/types/path.d.ts",
             "import": "./dist/path.js",
             "default": "./dist/path.js"
+        },
+        "./person": {
+            "types": "./dist/types/person.d.ts",
+            "import": "./dist/person.js",
+            "default": "./dist/person.js"
         },
         "./preact": {
             "types": "./dist/types/preact.d.ts",
@@ -259,7 +264,7 @@
         "@preact/signals": "^1.2.1",
         "color2k": "^2.0.2",
         "dayjs": "^1.11.10",
-        "ignore": "^5.2.4",
+        "ignore": "^5.3.0",
         "ip-regex": "^5.0.0",
         "micro-memoize": "^4.1.2",
         "micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.74",

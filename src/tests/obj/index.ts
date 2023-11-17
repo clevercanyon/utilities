@@ -402,7 +402,7 @@ describe('$obj', async () => {
     });
     test('.mcCustom()', async () => {
         expect($obj.tags($obj.mcCustom())).toStrictEqual([
-            $app.pkgName + '/ObjectMC', //
+            $app.pkgName + '/ObjMC', //
             $app.pkgName + '/Utility',
             $app.pkgName + '/Base',
             'Object',

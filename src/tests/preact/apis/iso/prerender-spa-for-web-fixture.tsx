@@ -7,7 +7,7 @@ import path from 'node:path';
 import url from 'node:url';
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { $brand, $env, $json, $preact, $url } from '../../../../index.ts';
+import { $brand, $env, $json, $person, $preact, $url } from '../../../../index.ts';
 import { Body, HTML, Head, Root, Route, type RootProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
@@ -45,7 +45,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     const Index = (): $preact.VNode => {
         return (
             <HTML>
-                <Head title={'index'} />
+                <Head title={'index'} author={$person.get('&')} />
                 <Body class='h-full'>
                     <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
                 </Body>

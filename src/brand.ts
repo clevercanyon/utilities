@@ -4,7 +4,7 @@
 
 import './resources/init.ts';
 
-import { $app, $class, $obj, $str, $url, type $type } from './index.ts';
+import { $app, $class, $obj, $person, $str, $url, type $type } from './index.ts';
 
 /**
  * Tracks initialization.
@@ -12,7 +12,7 @@ import { $app, $class, $obj, $str, $url, type $type } from './index.ts';
 let rawPropsInitialized = false;
 
 /**
- * Contains a cache of instances.
+ * Cache of instances keyed by package name.
  */
 const instances: { [x: string]: $type.Brand } = {};
 
@@ -31,6 +31,99 @@ export type AddAppOptions = {
     baseURL: string;
     props?: Partial<$type.BrandRawProps>;
 };
+
+/**
+ * Defines tokens.
+ *
+ * Why are there so many crazy variables used here? The intention is to optimize for minification. i.e., By using as
+ * many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome.
+ * Remember, variable names can be minified, so the length of variable names is not an issue.
+ */
+const tꓺaddress = 'address',
+    tꓺasciiOnly = 'asciiOnly',
+    tꓺassets = 'assets',
+    tꓺbrands = 'brands',
+    tꓺcity = 'city',
+    tꓺclevercanyon = 'clevercanyon',
+    tꓺCleverCanyon = 'CleverCanyon',
+    tꓺClever𑂱Canyon = 'Clever Canyon',
+    tꓺംcom = '.com',
+    tꓺcompany = 'company',
+    tꓺcorp = 'corp',
+    tꓺcountry = 'country',
+    tꓺdescription = 'description',
+    tꓺfacebook = 'facebook',
+    tꓺfounder = 'founder',
+    tꓺfoundingDate = 'foundingDate',
+    tꓺംgdn = '.gdn',
+    tꓺgithub = 'github',
+    tꓺheight = 'height',
+    tꓺhop = 'hop',
+    tꓺHop = 'Hop',
+    tꓺHopംgdn = tꓺHop + tꓺംgdn,
+    tꓺhostname = 'hostname',
+    tꓺicon = 'icon',
+    tꓺlegalName = 'legalName',
+    tꓺletterFirst = 'letterFirst',
+    tꓺlinkedin = 'linkedin',
+    tꓺlogo = 'logo',
+    tꓺlogoᱼonᱼdarkᱼbg = tꓺlogo + '-on-dark-bg',
+    tꓺlogoᱼonᱼlightᱼbg = tꓺlogo + '-on-light-bg',
+    tꓺn7m = 'n7m',
+    tꓺname = 'name',
+    tꓺnamespace = 'namespace',
+    tꓺnpm = 'npm',
+    tꓺnumberOfEmployees = 'numberOfEmployees',
+    tꓺogImage = 'ogImage',
+    tꓺogᱼimage = 'og-image',
+    tꓺonDarkBg = 'onDarkBg',
+    tꓺonLightBg = 'onLightBg',
+    tꓺorg = 'org',
+    tꓺpkgName = 'pkgName',
+    tꓺpng = 'png',
+    tꓺംpng = '.' + tꓺpng,
+    tꓺpolicies = 'policies',
+    tꓺprivacy = 'privacy',
+    tꓺslogan = 'slogan',
+    tꓺslug = 'slug',
+    tꓺslugPrefix = 'slugPrefix',
+    tꓺsocialProfiles = 'socialProfiles',
+    tꓺstate = 'state',
+    tꓺstreet = 'street',
+    tꓺsvg = 'svg',
+    tꓺംsvg = '.' + tꓺsvg,
+    tꓺterms = 'terms',
+    tꓺtwitter = 'twitter',
+    tꓺtype = 'type',
+    tꓺurl = 'url',
+    tꓺvar = 'var',
+    tꓺvarPrefix = 'varPrefix',
+    tꓺwidth = 'width',
+    tꓺwwwം = 'www.',
+    tꓺzip = 'zip',
+    //
+    tꓺමclevercanyon = '@' + tꓺclevercanyon,
+    tꓺමclevercanyonⳇclevercanyonംcom = tꓺමclevercanyon + '/' + tꓺclevercanyon + tꓺംcom,
+    tꓺමclevercanyonⳇhopംgdn = tꓺමclevercanyon + '/' + tꓺhop + tꓺംgdn,
+    //
+    tꓺhttpsꓽⳇⳇ = 'https://',
+    tꓺhttpsꓽⳇⳇclevercanyonംcom = tꓺhttpsꓽⳇⳇ + tꓺclevercanyon + tꓺംcom,
+    tꓺhttpsꓽⳇⳇhopംgdn = tꓺhttpsꓽⳇⳇ + tꓺhop + tꓺംgdn,
+    //
+    tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrands = tꓺhttpsꓽⳇⳇ + 'cdn.' + tꓺclevercanyon + tꓺംcom + '/' + tꓺassets + '/' + tꓺbrands,
+    tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon = tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrands + '/' + tꓺclevercanyon,
+    tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop = tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrands + '/' + tꓺhop,
+    //
+    tꓺⳇassets = './' + tꓺassets,
+    tꓺⳇassetsⳇicon = tꓺⳇassets + '/' + tꓺicon,
+    tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg = tꓺⳇassets + '/' + tꓺlogoᱼonᱼdarkᱼbg,
+    tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg = tꓺⳇassets + '/' + tꓺlogoᱼonᱼlightᱼbg,
+    tꓺⳇassetsⳇogᱼimage = tꓺⳇassets + '/' + tꓺogᱼimage,
+    //
+    tꓺobjꓺwidthHeight608x120 = { [tꓺwidth]: 608, [tꓺheight]: 120 } as { width: number; height: number },
+    tꓺobjꓺwidthHeight866x120 = { [tꓺwidth]: 866, [tꓺheight]: 120 } as { width: number; height: number },
+    tꓺobjꓺwidthHeight1024x1024 = { [tꓺwidth]: 1024, [tꓺheight]: 1024 } as { width: number; height: number },
+    tꓺobjꓺwidthHeight2400x1260 = { [tꓺwidth]: 2400, [tꓺheight]: 1260 } as { width: number; height: number };
 
 /**
  * Adds a new brand at runtime.
@@ -74,7 +167,7 @@ export const remove = (pkgName: string): void => {
 export const get = (pkgName: string): $type.Brand => {
     if (!rawPropsInitialized) initializeRawProps();
 
-    pkgName = '&' === pkgName ? '@clevercanyon/clevercanyon.com' : pkgName;
+    pkgName = '&' === pkgName ? tꓺමclevercanyonⳇclevercanyonംcom : pkgName;
     // `&` is a self-referential Clever Canyon brand alias.
 
     if (!pkgName || !rawProps[pkgName]) {
@@ -88,151 +181,89 @@ export const get = (pkgName: string): $type.Brand => {
     if (rawProps[pkgName].org === pkgName) {
         // In this case we have to first instantiate the `org` itself, because the `org` reference is cyclic.
         // It is therefore handled by the class constructor, which interprets `undefined` as a self-referential `org`.
-        instances[pkgName] = new Brand({ ...rawProps[pkgName], org: undefined });
+        instances[pkgName] = new Brand({ ...rawProps[pkgName], [tꓺorg]: undefined });
     } else {
         // Otherwise, we simply acquire the `org` brand before instantiating.
-        instances[pkgName] = new Brand({ ...rawProps[pkgName], org: get(rawProps[pkgName].org) });
+        instances[pkgName] = new Brand({ ...rawProps[pkgName], [tꓺorg]: get(rawProps[pkgName].org) });
     }
     return instances[pkgName];
 };
 
 /**
  * Initializes raw props.
- *
- * Why are there so many crazy variables used here? The intention is to optimize for minification. i.e., By using as
- * many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome. Also
- * using `let` instead of `const` to shave off another few bytes. Remember, variable names can be minified, so the
- * length of variable names is not an issue. They are verbose to improve readability.
  */
 const initializeRawProps = (): void => {
     if (rawPropsInitialized) return;
     rawPropsInitialized = true;
 
     /**
-     * Defines names.
-     */
-    let tꓺClever𑂱Canyon = 'Clever Canyon';
-    let tꓺclevercanyon = 'clevercanyon';
-    let tꓺHopംgdn = 'Hop.gdn';
-    let tꓺhop = 'hop';
-
-    /**
-     * Defines pkg names.
-     */
-    let tꓺමclevercanyon = '@' + tꓺclevercanyon;
-    let tꓺමclevercanyonⳇclevercanyonംcom = tꓺමclevercanyon + '/' + tꓺclevercanyon + '.com';
-    let tꓺමclevercanyonⳇhopംgdn = tꓺමclevercanyon + '/' + tꓺhop + '.gdn';
-
-    /**
-     * Defines URLs.
-     */
-    let tꓺhttpsꓽⳇⳇ = 'https://';
-    let tꓺhttpsꓽⳇⳇclevercanyonംcom = tꓺhttpsꓽⳇⳇ + tꓺclevercanyon + '.com';
-    let tꓺhttpsꓽⳇⳇhopംgdn = tꓺhttpsꓽⳇⳇ + tꓺhop + '.gdn';
-
-    /**
-     * Defines CDN URLs.
-     */
-    let tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrands = tꓺhttpsꓽⳇⳇ + 'cdn.' + tꓺclevercanyon + '.com/assets/brands';
-    let tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon = tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrands + '/' + tꓺclevercanyon;
-    let tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop = tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrands + '/' + tꓺhop;
-
-    /**
-     * Defines image names.
-     */
-    let tꓺicon = 'icon';
-    let tꓺlogoᱼonᱼdarkᱼbg = 'logo-on-dark-bg';
-    let tꓺlogoᱼonᱼlightᱼbg = 'logo-on-light-bg';
-    let tꓺogᱼimage = 'og-image';
-    let tꓺംpng = '.png', tꓺംsvg = '.svg'; // prettier-ignore
-
-    /**
-     * Defines image dimensions.
-     */
-    type typeꓺoꓺwidthꓺheight = { width: number; height: number };
-    let tꓺwidth = 'width', tꓺheight = 'height'; // prettier-ignore
-    let oꓺwidthHeight608x120 = { [tꓺwidth]: 608, [tꓺheight]: 120 } as typeꓺoꓺwidthꓺheight;
-    let oꓺwidthHeight866x120 = { [tꓺwidth]: 866, [tꓺheight]: 120 } as typeꓺoꓺwidthꓺheight;
-    let oꓺwidthHeight1200x1200 = { [tꓺwidth]: 1200, [tꓺheight]: 1200 } as typeꓺoꓺwidthꓺheight;
-    let oꓺwidthHeight1024x1024 = { [tꓺwidth]: 1024, [tꓺheight]: 1024 } as typeꓺoꓺwidthꓺheight;
-    let oꓺwidthHeight2400x1260 = { [tꓺwidth]: 2400, [tꓺheight]: 1260 } as typeꓺoꓺwidthꓺheight;
-
-    /**
      * Clever Canyon, LLC.
      */
     rawProps[tꓺමclevercanyonⳇclevercanyonംcom] = {
-        org: tꓺමclevercanyonⳇclevercanyonംcom,
-        type: 'corp', // Corporation.
+        [tꓺorg]: tꓺමclevercanyonⳇclevercanyonംcom,
+        [tꓺtype]: tꓺcorp, // Corporation.
 
-        legalName: tꓺClever𑂱Canyon + ', LLC',
-        address: {
-            street: '9 N River Rd #660',
-            city: 'Auburn',
-            state: 'ME',
-            zip: '04210',
-            country: 'US',
+        [tꓺlegalName]: tꓺClever𑂱Canyon + ', LLC',
+        [tꓺaddress]: {
+            [tꓺstreet]: '9 N River Rd #660',
+            [tꓺcity]: 'Auburn',
+            [tꓺstate]: 'ME',
+            [tꓺzip]: '04210',
+            [tꓺcountry]: 'US',
         },
-        founder: {
-            name: 'Jason Caldwell',
-            website: tꓺhttpsꓽⳇⳇ + 'jaswrks.com/',
-            description: 'Engineering Manager, Consultant, Staff Engineer',
-            image: {
-                url: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/founder' + tꓺംpng,
-                ...oꓺwidthHeight1200x1200,
+        [tꓺfounder]: $person.get('&'),
+        [tꓺfoundingDate]: '2023-10-03',
+        [tꓺnumberOfEmployees]: 10,
+
+        [tꓺn7m]: 'c10n',
+        [tꓺname]: tꓺClever𑂱Canyon,
+
+        [tꓺpkgName]: tꓺමclevercanyonⳇclevercanyonംcom,
+        [tꓺnamespace]: tꓺCleverCanyon,
+
+        [tꓺhostname]: tꓺclevercanyon + tꓺംcom,
+        [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcom + '/',
+
+        [tꓺslug]: tꓺclevercanyon,
+        [tꓺvar]: tꓺclevercanyon,
+
+        [tꓺslugPrefix]: tꓺclevercanyon + '-',
+        [tꓺvarPrefix]: tꓺclevercanyon + '_',
+
+        [tꓺslogan]: 'Cleverly crafted digital brands.',
+        [tꓺdescription]: 'We’re transforming ideas into digital realities.',
+
+        [tꓺicon]: {
+            [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംsvg,
+            [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംpng,
+            ...tꓺobjꓺwidthHeight1024x1024,
+        },
+        [tꓺlogo]: {
+            [tꓺonDarkBg]: {
+                [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
+                [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
             },
-        },
-        foundingDate: '2023-10-03',
-        numberOfEmployees: 10,
-
-        n7m: 'c10n',
-        name: tꓺClever𑂱Canyon,
-
-        pkgName: tꓺමclevercanyonⳇclevercanyonംcom,
-        namespace: 'CleverCanyon',
-
-        hostname: tꓺclevercanyon + '.com',
-        url: tꓺhttpsꓽⳇⳇclevercanyonംcom + '/',
-
-        slug: tꓺclevercanyon,
-        var: tꓺclevercanyon,
-
-        slugPrefix: tꓺclevercanyon + '-',
-        varPrefix: tꓺclevercanyon + '_',
-
-        slogan: 'Cleverly crafted digital brands.',
-        description: 'We’re transforming ideas into digital realities.',
-
-        icon: {
-            png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംpng,
-            svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംsvg,
-            ...oꓺwidthHeight1024x1024,
-        },
-        logo: {
-            onDarkBg: {
-                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
-                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
+            [tꓺonLightBg]: {
+                [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
+                [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
             },
-            onLightBg: {
-                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
-                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
-            },
-            ...oꓺwidthHeight866x120,
+            ...tꓺobjꓺwidthHeight866x120,
         },
-        ogImage: {
-            png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംpng,
-            svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംsvg,
-            ...oꓺwidthHeight2400x1260,
+        [tꓺogImage]: {
+            [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംsvg,
+            [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംpng,
+            ...tꓺobjꓺwidthHeight2400x1260,
         },
-        policies: {
-            terms: tꓺhttpsꓽⳇⳇclevercanyonംcom + '/terms',
-            privacy: tꓺhttpsꓽⳇⳇclevercanyonംcom + '/privacy',
+        [tꓺpolicies]: {
+            [tꓺterms]: tꓺhttpsꓽⳇⳇclevercanyonംcom + '/' + tꓺterms,
+            [tꓺprivacy]: tꓺhttpsꓽⳇⳇclevercanyonംcom + '/' + tꓺprivacy,
         },
-        socialProfiles: {
-            twitter: tꓺhttpsꓽⳇⳇ + 'twitter.com/' + tꓺclevercanyon,
-            linkedin: tꓺhttpsꓽⳇⳇ + 'www.linkedin.com/company/' + tꓺclevercanyon,
-            facebook: tꓺhttpsꓽⳇⳇ + 'www.facebook.com/' + tꓺclevercanyon,
-            github: tꓺhttpsꓽⳇⳇ + 'github.com/' + tꓺclevercanyon,
-            npm: tꓺhttpsꓽⳇⳇ + 'www.npmjs.com/org/' + tꓺclevercanyon,
+        [tꓺsocialProfiles]: {
+            [tꓺtwitter]: tꓺhttpsꓽⳇⳇ + tꓺtwitter + tꓺംcom + '/' + tꓺclevercanyon,
+            [tꓺlinkedin]: tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺlinkedin + tꓺംcom + '/' + tꓺcompany + '/' + tꓺclevercanyon,
+            [tꓺfacebook]: tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺfacebook + tꓺംcom + '/' + tꓺclevercanyon,
+            [tꓺgithub]: tꓺhttpsꓽⳇⳇ + tꓺgithub + tꓺംcom + '/' + tꓺclevercanyon,
+            [tꓺnpm]: tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺnpm + 'js' + tꓺംcom + '/' + tꓺorg + '/' + tꓺclevercanyon,
         },
     };
 
@@ -241,49 +272,49 @@ const initializeRawProps = (): void => {
      */
     rawProps[tꓺමclevercanyonⳇhopംgdn] = $obj.mergeDeep(rawProps[tꓺමclevercanyonⳇclevercanyonംcom], {
         $set: {
-            org: tꓺමclevercanyonⳇclevercanyonംcom,
-            type: 'org', // Organization.
+            [tꓺorg]: tꓺමclevercanyonⳇclevercanyonംcom,
+            [tꓺtype]: tꓺorg, // Organization.
 
-            legalName: tꓺHopംgdn,
+            [tꓺlegalName]: tꓺHopംgdn,
 
-            n7m: 'h5n',
-            name: tꓺHopംgdn,
+            [tꓺn7m]: 'h5n',
+            [tꓺname]: tꓺHopംgdn,
 
-            pkgName: tꓺමclevercanyonⳇhopംgdn,
-            namespace: 'Hop',
+            [tꓺpkgName]: tꓺමclevercanyonⳇhopംgdn,
+            [tꓺnamespace]: tꓺHop,
 
-            hostname: tꓺhop + '.gdn',
-            url: tꓺhttpsꓽⳇⳇhopംgdn + '/',
+            [tꓺhostname]: tꓺhop + tꓺംgdn,
+            [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdn + '/',
 
-            slug: tꓺhop,
-            var: tꓺhop,
+            [tꓺslug]: tꓺhop,
+            [tꓺvar]: tꓺhop,
 
-            slugPrefix: tꓺhop + '-',
-            varPrefix: tꓺhop + '_',
+            [tꓺslugPrefix]: tꓺhop + '-',
+            [tꓺvarPrefix]: tꓺhop + '_',
 
-            slogan: 'Masters of the digital divide.',
-            description: 'Great things, built on great technology.',
+            [tꓺslogan]: 'Masters of the digital divide.',
+            [tꓺdescription]: 'Great things, built on great technology.',
 
-            icon: {
-                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംpng,
-                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
-                ...oꓺwidthHeight1024x1024,
+            [tꓺicon]: {
+                [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
+                [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംpng,
+                ...tꓺobjꓺwidthHeight1024x1024,
             },
-            logo: {
-                onDarkBg: {
-                    png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
-                    svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
+            [tꓺlogo]: {
+                [tꓺonDarkBg]: {
+                    [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
+                    [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
                 },
-                onLightBg: {
-                    png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
-                    svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
+                [tꓺonLightBg]: {
+                    [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
+                    [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
                 },
-                ...oꓺwidthHeight608x120,
+                ...tꓺobjꓺwidthHeight608x120,
             },
-            ogImage: {
-                png: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംpng,
-                svg: tꓺhttpsꓽⳇⳇcdnꓺclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംsvg,
-                ...oꓺwidthHeight2400x1260,
+            [tꓺogImage]: {
+                [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംsvg,
+                [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംpng,
+                ...tꓺobjꓺwidthHeight2400x1260,
             },
         },
     }) as unknown as $type.BrandRawProps;
@@ -305,39 +336,23 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
     /**
      * Acquires options, org.
      */
-    let opts = $obj.defaults({}, options || {}, { props: {} }) as Required<AddAppOptions>;
-    let { pkgName, baseURL } = opts; // Extracted from options and reused below.
-    let org = get(opts.org); // Expands org slug into org brand instance.
-
-    /**
-     * Defines option names.
-     */
-    let tꓺasciiOnly = 'asciiOnly';
-    let tꓺletterFirst = 'letterFirst';
-
-    /**
-     * Defines asset paths.
-     */
-    let tꓺⳇassets = './assets';
-    let tꓺⳇassetsⳇicon = tꓺⳇassets + '/icon';
-    let tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg = tꓺⳇassets + '/logo-on-dark-bg';
-    let tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg = tꓺⳇassets + '/logo-on-light-bg';
-    let tꓺⳇassetsⳇogᱼimage = tꓺⳇassets + '/og-image';
-    let tꓺംpng = '.png', tꓺംsvg = '.svg'; // prettier-ignore
+    const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<AddAppOptions>,
+        { pkgName, baseURL } = opts, // Extracted from options and reused below.
+        org = get(opts.org); // Expands org slug into org brand instance.
 
     /**
      * Defines package data.
      */
-    let pkgSlug = $app.pkgSlug(pkgName);
-    let pkgSlugAsName = $str.titleCase(pkgSlug);
-    let pkgSlugAsN7m = $str.numeronym(pkgSlugAsName);
-    let pkgSlugAsNamespace = $str.studlyCase(pkgSlug, { [tꓺasciiOnly]: true, [tꓺletterFirst]: 'X' });
-    let pkgSlugAsVar = $str.snakeCase(pkgSlug, { [tꓺasciiOnly]: true, [tꓺletterFirst]: 'x' });
+    const pkgSlug = $app.pkgSlug(pkgName),
+        pkgSlugAsName = $str.titleCase(pkgSlug),
+        pkgSlugAsN7m = $str.numeronym(pkgSlugAsName),
+        pkgSlugAsNamespace = $str.studlyCase(pkgSlug, { [tꓺasciiOnly]: true, [tꓺletterFirst]: 'X' }),
+        pkgSlugAsVar = $str.snakeCase(pkgSlug, { [tꓺasciiOnly]: true, [tꓺletterFirst]: 'x' });
 
     /**
      * Defines relative path to URL string.
      */
-    let relPathToURL = (relPath: string): string => {
+    const relPathToURL = (relPath: string): string => {
         return new URL(relPath, baseURL).toString();
     };
 
@@ -349,41 +364,41 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
         $obj.mergeDeep(
             org.rawProps(),
             {
-                org: opts.org,
-                type: opts.type,
+                [tꓺorg]: opts.org,
+                [tꓺtype]: opts.type,
 
-                n7m: pkgSlugAsN7m,
-                name: pkgSlugAsName,
+                [tꓺn7m]: pkgSlugAsN7m,
+                [tꓺname]: pkgSlugAsName,
 
-                pkgName,
-                namespace: pkgSlugAsNamespace,
+                [tꓺpkgName]: pkgName,
+                [tꓺnamespace]: pkgSlugAsNamespace,
 
-                hostname: $url.parse(baseURL).hostname,
-                url: baseURL, // We simply use base URL.
+                [tꓺhostname]: $url.parse(baseURL).hostname,
+                [tꓺurl]: baseURL, // We simply use base URL.
 
-                slug: pkgSlug,
-                var: pkgSlugAsVar,
+                [tꓺslug]: pkgSlug,
+                [tꓺvar]: pkgSlugAsVar,
 
-                slugPrefix: pkgSlug + '-',
-                varPrefix: pkgSlugAsVar + '_',
+                [tꓺslugPrefix]: pkgSlug + '-',
+                [tꓺvarPrefix]: pkgSlugAsVar + '_',
 
-                icon: {
-                    png: relPathToURL(tꓺⳇassetsⳇicon + tꓺംpng),
-                    svg: relPathToURL(tꓺⳇassetsⳇicon + tꓺംsvg),
+                [tꓺicon]: {
+                    [tꓺsvg]: relPathToURL(tꓺⳇassetsⳇicon + tꓺംsvg),
+                    [tꓺpng]: relPathToURL(tꓺⳇassetsⳇicon + tꓺംpng),
                 },
-                logo: {
-                    onDarkBg: {
-                        png: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംpng),
-                        svg: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംsvg),
+                [tꓺlogo]: {
+                    [tꓺonDarkBg]: {
+                        [tꓺsvg]: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംsvg),
+                        [tꓺpng]: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംpng),
                     },
-                    onLightBg: {
-                        png: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംpng),
-                        svg: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംsvg),
+                    [tꓺonLightBg]: {
+                        [tꓺsvg]: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംsvg),
+                        [tꓺpng]: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംpng),
                     },
                 },
-                ogImage: {
-                    png: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺംpng),
-                    svg: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺംsvg),
+                [tꓺogImage]: {
+                    [tꓺsvg]: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺംsvg),
+                    [tꓺpng]: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺംpng),
                 },
             },
             opts.props,

@@ -4,7 +4,10 @@
 
 import { $app, $class, $crypto, $env, $json, $obp, $str, type $type } from '../../index.ts';
 
-let Defined: Constructor | undefined; // Cache.
+/**
+ * Class object cache.
+ */
+let Fetcher: Constructor;
 
 /**
  * Defines types.
@@ -51,9 +54,9 @@ export type GlobalCacheEntry = {
  * @returns {@see Constructor} Definition.
  */
 export const getClass = (): Constructor => {
-    if (Defined) return Defined;
+    if (Fetcher) return Fetcher;
 
-    Defined = class extends $class.getUtility() implements Class {
+    Fetcher = class extends $class.getUtility() implements Class {
         /**
          * Global object.
          */
@@ -78,7 +81,7 @@ export const getClass = (): Constructor => {
             super(); // Parent constructor.
 
             props = props || {}; // Force object value.
-            const isClone = props instanceof (Defined as Constructor);
+            const isClone = props instanceof Fetcher;
 
             this.globalObp = props.globalObp || $str.obpPartSafe($app.pkgName) + '.fetcher';
             this.global = $obp.get(globalThis, this.globalObp, {}) as Global; // Default is `{}`.
@@ -157,8 +160,8 @@ export const getClass = (): Constructor => {
             return new Response(globalCacheEntry.body, globalCacheEntry.options);
         }
     };
-    return Object.defineProperty(Defined, 'name', {
-        ...Object.getOwnPropertyDescriptor(Defined, 'name'),
+    return Object.defineProperty(Fetcher, 'name', {
+        ...Object.getOwnPropertyDescriptor(Fetcher, 'name'),
         value: 'Fetcher',
     });
 };

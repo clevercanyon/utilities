@@ -26,7 +26,7 @@ export type ActualState = $preact.State<{
     title?: string;
     titleSuffix?: string | boolean;
     description?: string;
-    author?: string;
+    author?: $type.Person | string;
 
     pngIcon?: $type.URL | string;
     svgIcon?: $type.URL | string;
@@ -149,6 +149,7 @@ const tꓺabout = 'about',
     tꓺimageⳇsvg = tꓺimage + '/svg+xml',
     tꓺinLanguage = 'inLanguage',
     tꓺisPartOf = 'isPartOf',
+    tꓺjobTitle = 'jobTitle',
     tꓺlegalName = 'legalName',
     tꓺlink = 'link',
     tꓺlogo = 'logo',
@@ -168,6 +169,9 @@ const tꓺabout = 'about',
     tꓺparentOrganization = 'parent' + tꓺOrganization,
     tꓺsubOrganization = 'sub' + tꓺOrganization,
     tꓺpage = 'page',
+    tꓺpageAuthor = 'pageAuthor',
+    tꓺpageAuthorImg = tꓺpageAuthor + 'Img',
+    tꓺpagePrimaryImg = 'pagePrimaryImg',
     tꓺPerson = 'Person',
     tꓺpostalCode = 'postalCode',
     tꓺPostalAddress = 'PostalAddress',
@@ -175,7 +179,6 @@ const tꓺabout = 'about',
     tꓺprefetchWorkers = 'prefetchWorkers',
     tꓺprefetchGoogleFonts = 'prefetchGoogleFonts',
     tꓺprimaryImageOfPage = 'primaryImageOfPage',
-    tꓺprimaryImg = 'primaryImg',
     tꓺproperty = 'property',
     tꓺpublisher = 'publisher',
     tꓺrel = 'rel',
@@ -479,7 +482,7 @@ export default class Head extends Component<Props, ActualState> {
 
                 [tꓺtitle]: h(tꓺtitle, {}, title),
                 [tꓺdescription]: h(tꓺmeta, { [tꓺname]: tꓺdescription, [tꓺcontent]: description }),
-                ...(author ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: author }) } : {}),
+                ...(author ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: $is.person(author) ? author.name : author }) } : {}),
 
                 [tꓺsvgIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇsvg, [tꓺsizes]: tꓺany, [tꓺhref]: svgIcon.toString() }),
                 [tꓺpngIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon.toString() }),
@@ -621,19 +624,20 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
     // Organization graph(s).
 
     const orgGraphs = []; // Initialize.
+
     (() => {
-        let currentOrg = brand.org; // Initialize.
-        let previousOrg = undefined; // Initialize.
+        let currentOrg = brand.org,
+            previousOrg = undefined;
 
         // {@see https://schema.org/Corporation}.
         // {@see https://schema.org/Organization}.
 
         while (currentOrg && currentOrg !== previousOrg) {
-            const currentOrgFounder = currentOrg.founder;
-            const currentOrgFounderImage = currentOrgFounder.image;
-            const currentOrgAddress = currentOrg.address;
-            const currentOrgLogo = currentOrg.logo;
-            const currentOrgLogoOnLightBg = currentOrgLogo.onLightBg;
+            const currentOrgFounder = currentOrg.founder,
+                currentOrgFounderAvatar = currentOrgFounder.avatar,
+                currentOrgAddress = currentOrg.address,
+                currentOrgLogo = currentOrg.logo,
+                currentOrgLogoOnLightBg = currentOrgLogo.onLightBg;
 
             orgGraphs.unshift({
                 [tꓺමtype]: 'corp' === currentOrg.type ? tꓺCorporation : tꓺOrganization,
@@ -645,6 +649,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                 [tꓺaddress]: {
                     [tꓺමtype]: tꓺPostalAddress,
                     [tꓺමid]: currentOrg.url + '#' + tꓺaddr,
+
                     [tꓺstreetAddress]: currentOrgAddress.street,
                     [tꓺaddressLocality]: currentOrgAddress.city,
                     [tꓺaddressRegion]: currentOrgAddress.state,
@@ -653,15 +658,19 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                 },
                 [tꓺfounder]: {
                     [tꓺමtype]: tꓺPerson,
-                    [tꓺමid]: currentOrgFounder.website + '#' + tꓺfounder,
+                    [tꓺමid]: currentOrgFounder.url + '#' + tꓺfounder,
+
                     [tꓺname]: currentOrgFounder.name,
+                    [tꓺjobTitle]: currentOrgFounder.headline,
                     [tꓺdescription]: currentOrgFounder.description,
+                    [tꓺurl]: currentOrgFounder.url,
                     [tꓺimage]: {
                         [tꓺමtype]: tꓺImageObject,
-                        [tꓺමid]: currentOrgFounder.website + '#' + tꓺfounderImg,
-                        [tꓺurl]: currentOrgFounderImage.url,
-                        [tꓺwidth]: currentOrgFounderImage.width,
-                        [tꓺheight]: currentOrgFounderImage.height,
+                        [tꓺමid]: currentOrgFounder.url + '#' + tꓺfounderImg,
+
+                        [tꓺurl]: currentOrgFounderAvatar.png,
+                        [tꓺwidth]: currentOrgFounderAvatar.width,
+                        [tꓺheight]: currentOrgFounderAvatar.height,
                         [tꓺcaption]: currentOrgFounder.name,
                     },
                 },
@@ -673,6 +682,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                 [tꓺlogo]: {
                     [tꓺමtype]: tꓺImageObject,
                     [tꓺමid]: currentOrg.url + '#' + tꓺlogo,
+
                     [tꓺurl]: currentOrgLogoOnLightBg.png,
                     [tꓺwidth]: currentOrgLogo.width,
                     [tꓺheight]: currentOrgLogo.height,
@@ -701,6 +711,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
         [tꓺimage]: {
             [tꓺමtype]: tꓺImageObject,
             [tꓺමid]: brand.url + '#' + tꓺlogo,
+
             [tꓺurl]: brandLogoOnLightBg.png,
             [tꓺwidth]: brandLogo.width,
             [tꓺheight]: brandLogo.height,
@@ -712,9 +723,10 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
     // WebPage graph.
     // {@see https://schema.org/WebPage}.
 
-    const pageURL = state.ogURL.toString();
-    const pageTitle = (state.ogTitle || '').split(' • ')[0];
-    const pageDescription = state.ogDescription || '';
+    const pageURL = state.ogURL.toString(),
+        pageTitle = (state.ogTitle || '').split(' • ')[0],
+        pageDescription = state.ogDescription || '',
+        pageAuthor = state.author || '';
 
     const pageGraph = $obj.mergeDeep(
         {
@@ -728,8 +740,27 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
 
             [tꓺinLanguage]: htmlState.lang || 'en-US',
             [tꓺauthor]: [
-                { [tꓺමid]: (siteGraph as $type.Object)[tꓺමid] }, // And maybe a person.
-                ...(state.author ? [{ [tꓺමtype]: tꓺPerson, [tꓺname]: state.author }] : []),
+                { [tꓺමid]: (siteGraph as $type.Object)[tꓺමid] },
+                ...(pageAuthor && $is.person(pageAuthor)
+                    ? [{
+                            [tꓺමtype]: tꓺPerson,
+                            [tꓺමid]: pageAuthor.url + '#' + tꓺpageAuthor,
+
+                            [tꓺname]: pageAuthor.name,
+                            [tꓺjobTitle]: pageAuthor.headline,
+                            [tꓺdescription]: pageAuthor.description,
+                            [tꓺurl]: pageAuthor.url,
+                            [tꓺimage]: {
+                                [tꓺමtype]: tꓺImageObject,
+                                [tꓺමid]: pageAuthor.url + '#' + tꓺpageAuthorImg,
+                                [tꓺurl]: pageAuthor.avatar.png,
+                                [tꓺwidth]: pageAuthor.avatar.width,
+                                [tꓺheight]: pageAuthor.avatar.height,
+                                [tꓺcaption]: pageAuthor.name,
+                            },
+                    }]
+                    : pageAuthor ? [{ [tꓺමtype]: tꓺPerson, [tꓺname]: pageAuthor }]
+                    : []), // prettier-ignore
             ],
             [tꓺdatePublished]: state.publishTime?.toString() || '',
             [tꓺdateModified]: state.lastModifiedTime?.toString() || '',
@@ -738,14 +769,14 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                 ? {
                       [tꓺprimaryImageOfPage]: {
                           [tꓺමtype]: tꓺImageObject,
-                          [tꓺමid]: pageURL + '#' + tꓺprimaryImg,
+                          [tꓺමid]: pageURL + '#' + tꓺpagePrimaryImg,
 
                           [tꓺwidth]: brandOGImage.width,
                           [tꓺheight]: brandOGImage.height,
                           [tꓺurl]: state.ogImage.toString(),
                           [tꓺcaption]: state.ogDescription || '',
                       },
-                      [tꓺimage]: [{ [tꓺමid]: pageURL + '#' + tꓺprimaryImg }],
+                      [tꓺimage]: [{ [tꓺමid]: pageURL + '#' + tꓺpagePrimaryImg }],
                   }
                 : {}),
             [tꓺabout]: { [tꓺමid]: (siteGraph as $type.Object)[tꓺමid] },

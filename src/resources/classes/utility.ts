@@ -4,7 +4,10 @@
 
 import { $app, $class, type $type } from '../../index.ts';
 
-let Defined: Constructor | undefined; // Cache.
+/**
+ * Class object cache.
+ */
+let Utility: Constructor;
 
 /**
  * Defines types.
@@ -26,9 +29,9 @@ declare class ClassInterface {
  * @returns {@see Constructor} Definition.
  */
 export const getClass = (): Constructor => {
-    if (Defined) return Defined;
+    if (Utility) return Utility;
 
-    Defined = class extends $class.getBase() implements Class {
+    Utility = class extends $class.getBase() implements Class {
         /**
          * App package name.
          */
@@ -45,8 +48,8 @@ export const getClass = (): Constructor => {
             // an instance of itself; i.e., to facilitate shallow|deep cloning.
         }
     };
-    return Object.defineProperty(Defined, 'name', {
-        ...Object.getOwnPropertyDescriptor(Defined, 'name'),
+    return Object.defineProperty(Utility, 'name', {
+        ...Object.getOwnPropertyDescriptor(Utility, 'name'),
         value: 'Utility',
     });
 };

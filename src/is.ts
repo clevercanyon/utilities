@@ -526,6 +526,17 @@ export const brand = (value: unknown): value is $type.Brand => {
 };
 
 /**
+ * Checks if value is a person.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is a person.
+ */
+export const person = (value: unknown): value is $type.Person => {
+    return object(value) && objectOfTag(value, $app.pkgName + '/Person');
+};
+
+/**
  * Checks if value is a time.
  *
  * @param   value Value to consider.

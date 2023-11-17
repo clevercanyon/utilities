@@ -198,12 +198,7 @@ describe('$to', async () => {
             'address.zip',
             'address.country',
 
-            'founder.name',
-            'founder.website',
-            'founder.description',
-            'founder.image.url',
-            'founder.image.width',
-            'founder.image.height',
+            'founder',
             'foundingDate',
             'numberOfEmployees',
 
@@ -225,20 +220,20 @@ describe('$to', async () => {
             'slogan',
             'description',
 
-            'icon.png',
             'icon.svg',
+            'icon.png',
             'icon.width',
             'icon.height',
 
-            'logo.onDarkBg.png',
             'logo.onDarkBg.svg',
-            'logo.onLightBg.png',
+            'logo.onDarkBg.png',
             'logo.onLightBg.svg',
+            'logo.onLightBg.png',
             'logo.width',
             'logo.height',
 
-            'ogImage.png',
             'ogImage.svg',
+            'ogImage.png',
             'ogImage.width',
             'ogImage.height',
 
@@ -320,5 +315,82 @@ describe('$to', async () => {
         expect($to.plainFlatObject('abc')).toStrictEqual({ '0': 'a', '1': 'b', '2': 'c' });
         expect($to.plainFlatObject(new Set([0, 1, new Set([0, 1, 2])]))).toStrictEqual({ '0': 0, '1': 1, '2[0]': 0, '2[1]': 1, '2[2]': 2 });
         expect($to.plainFlatObject(['a', 'b', 'c', ['a', 'b', 'c']])).toStrictEqual({ '0': 'a', '1': 'b', '2': 'c', '3[0]': 'a', '3[1]': 'b', '3[2]': 'c' });
+
+        const brand = $brand.get('&');
+        const flatBrand = $to.plainFlatObject(brand);
+        expect(Object.keys(flatBrand)).toStrictEqual([
+            'org', // Circular.
+            'type',
+            'legalName',
+
+            'address.street',
+            'address.city',
+            'address.state',
+            'address.zip',
+            'address.country',
+
+            'founder.firstName',
+            'founder.lastName',
+            'founder.name',
+            'founder.username',
+            'founder.headline',
+            'founder.description',
+            'founder.url',
+            'founder.avatar.png',
+            'founder.avatar.width',
+            'founder.avatar.height',
+            'founder.socialProfiles.twitter',
+            'founder.socialProfiles.linkedin',
+            'founder.socialProfiles.facebook',
+            'founder.socialProfiles.github',
+            'founder.socialProfiles.npm',
+
+            'foundingDate',
+            'numberOfEmployees',
+
+            'n7m',
+            'name',
+
+            'pkgName',
+            'namespace',
+
+            'hostname',
+            'url',
+
+            'slug',
+            'var',
+
+            'slugPrefix',
+            'varPrefix',
+
+            'slogan',
+            'description',
+
+            'icon.svg',
+            'icon.png',
+            'icon.width',
+            'icon.height',
+
+            'logo.onDarkBg.svg',
+            'logo.onDarkBg.png',
+            'logo.onLightBg.svg',
+            'logo.onLightBg.png',
+            'logo.width',
+            'logo.height',
+
+            'ogImage.svg',
+            'ogImage.png',
+            'ogImage.width',
+            'ogImage.height',
+
+            'policies.terms',
+            'policies.privacy',
+
+            'socialProfiles.twitter',
+            'socialProfiles.linkedin',
+            'socialProfiles.facebook',
+            'socialProfiles.github',
+            'socialProfiles.npm',
+        ]);
     });
 });

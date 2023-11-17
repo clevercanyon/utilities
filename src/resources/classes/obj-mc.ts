@@ -4,7 +4,10 @@
 
 import { $class, $is, $obj, $obp, $to, type $type } from '../../index.ts';
 
-let Defined: Constructor | undefined; // Cache.
+/**
+ * Class object cache.
+ */
+let ObjMC: Constructor;
 
 /**
  * Defines types.
@@ -81,9 +84,9 @@ export type OperationCallback = {
  * @returns {@see Constructor} Definition.
  */
 export const getClass = (): Constructor => {
-    if (Defined) return Defined;
+    if (ObjMC) return ObjMC;
 
-    Defined = class extends $class.getUtility() implements Class {
+    ObjMC = class extends $class.getUtility() implements Class {
         /**
          * Public API. ---
          */
@@ -165,7 +168,7 @@ export const getClass = (): Constructor => {
          * @returns       New class instance.
          */
         public newInstance(props?: C9rProps): Class {
-            return new (Defined as Constructor)(props);
+            return new ObjMC(props);
         }
 
         /**
@@ -859,8 +862,8 @@ export const getClass = (): Constructor => {
             return this.operation$keySortOrder(target, params, separator, '$ꓺpropSortOrder');
         }
     };
-    return Object.defineProperty(Defined, 'name', {
-        ...Object.getOwnPropertyDescriptor(Defined, 'name'),
-        value: 'ObjectMC',
+    return Object.defineProperty(ObjMC, 'name', {
+        ...Object.getOwnPropertyDescriptor(ObjMC, 'name'),
+        value: 'ObjMC',
     });
 };

@@ -4,7 +4,10 @@
 
 import { $app, $obj, $symbol, type $type } from '../../index.ts';
 
-let Defined: Constructor | undefined; // Cache.
+/**
+ * Class object cache.
+ */
+let Base: Constructor;
 
 /**
  * Defines types.
@@ -36,9 +39,9 @@ declare class ClassInterface {
  * @returns {@see Constructor} Definition.
  */
 export const getClass = (): Constructor => {
-    if (Defined) return Defined;
+    if (Base) return Base;
 
-    Defined = class implements Class {
+    Base = class implements Class {
         /**
          * Arbitrary object keys.
          */
@@ -126,8 +129,8 @@ export const getClass = (): Constructor => {
                 circular.set(this, deepClone); // Before going deep.
 
                 for (const key of $obj.keysAndSymbols(deepClone)) {
-                    // Enumerable readonly keys (a rarity) are skipped to avoid triggering errors.
-                    // Instead, any enumerable readonly keys (a rarity) must be handled by constructor.
+                    // Enumerable readonly keys are skipped to avoid triggering errors.
+                    // Instead, any enumerable readonly keys must be handled by constructor.
 
                     if (Object.getOwnPropertyDescriptor(deepClone, key)?.writable) {
                         deepClone[key] = $obj.cloneDeep(deepClone[key], opts, circular, true);
@@ -139,8 +142,8 @@ export const getClass = (): Constructor => {
             return new c9r(this); // In this case, a shallow clone.
         }
     };
-    return Object.defineProperty(Defined, 'name', {
-        ...Object.getOwnPropertyDescriptor(Defined, 'name'),
+    return Object.defineProperty(Base, 'name', {
+        ...Object.getOwnPropertyDescriptor(Base, 'name'),
         value: 'Base',
     });
 };

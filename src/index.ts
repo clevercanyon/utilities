@@ -21,6 +21,7 @@ export * as $mm from './mm.ts';
 export * as $obj from './obj.ts';
 export * as $obp from './obp.ts';
 export * as $path from './path.ts';
+export * as $person from './person.ts';
 export * as $preact from './preact.tsx';
 export * as $str from './str.ts';
 export * as $symbol from './symbol.ts';

@@ -4,7 +4,10 @@
 
 import { $class, $obj, $symbol, type $type } from '../../index.ts';
 
-let Defined: Constructor | undefined; // Cache.
+/**
+ * Class object cache.
+ */
+let Brand: Constructor;
 
 /**
  * Defines types.
@@ -34,16 +37,7 @@ declare class ClassInterface {
         readonly zip: string;
         readonly country: string;
     };
-    public readonly founder: {
-        name: string;
-        website: string;
-        description: string;
-        image: {
-            url: string;
-            width: number;
-            height: number;
-        };
-    };
+    public readonly founder: $type.Person;
     public readonly foundingDate: string;
     public readonly numberOfEmployees: number;
 
@@ -66,26 +60,26 @@ declare class ClassInterface {
     public readonly description: string;
 
     public readonly icon: {
-        readonly png: string;
         readonly svg: string;
+        readonly png: string;
         readonly width: number;
         readonly height: number;
     };
     public readonly logo: {
         onDarkBg: {
-            readonly png: string;
             readonly svg: string;
+            readonly png: string;
         };
         onLightBg: {
-            readonly png: string;
             readonly svg: string;
+            readonly png: string;
         };
         readonly width: number;
         readonly height: number;
     };
     public readonly ogImage: {
-        readonly png: string;
         readonly svg: string;
+        readonly png: string;
         readonly width: number;
         readonly height: number;
     };
@@ -107,9 +101,9 @@ type ClassInterfaceProps = Omit<ClassInterface, 'constructor' | 'rawProps'>;
  * @returns {@see Constructor} Definition.
  */
 export const getClass = (): Constructor => {
-    if (Defined) return Defined;
+    if (Brand) return Brand;
 
-    Defined = class extends $class.getUtility() implements Class {
+    Brand = class extends $class.getUtility() implements Class {
         /**
          * Org brand object.
          */
@@ -137,18 +131,9 @@ export const getClass = (): Constructor => {
         };
 
         /**
-         * Brand founder; broken out into parts.
+         * Brand founder; i.e., a Person.
          */
-        public readonly founder!: {
-            name: string;
-            website: string;
-            description: string;
-            image: {
-                url: string;
-                width: number;
-                height: number;
-            };
-        };
+        public readonly founder!: $type.Person;
 
         /**
          * Founding date; e.g., `2023-10-03`.
@@ -224,8 +209,8 @@ export const getClass = (): Constructor => {
          * Icon, with dimensions.
          */
         public readonly icon!: {
-            readonly png: string;
             readonly svg: string;
+            readonly png: string;
             readonly width: number;
             readonly height: number;
         };
@@ -235,12 +220,12 @@ export const getClass = (): Constructor => {
          */
         public readonly logo!: {
             onDarkBg: {
-                readonly png: string;
                 readonly svg: string;
+                readonly png: string;
             };
             onLightBg: {
-                readonly png: string;
                 readonly svg: string;
+                readonly png: string;
             };
             readonly width: number;
             readonly height: number;
@@ -250,8 +235,8 @@ export const getClass = (): Constructor => {
          * OG image, with dimensions.
          */
         public readonly ogImage!: {
-            readonly png: string;
             readonly svg: string;
+            readonly png: string;
             readonly width: number;
             readonly height: number;
         };
@@ -282,7 +267,7 @@ export const getClass = (): Constructor => {
             for (const [key, value] of $obj.keyAndSymbolEntries(props)) {
                 this[key] = value; // Property assignments.
             }
-            if (!(this.org instanceof (Defined as Constructor))) {
+            if (!(this.org instanceof Brand)) {
                 this.org = this; // Circular.
             }
         }
@@ -306,8 +291,8 @@ export const getClass = (): Constructor => {
             return { ...this, org: this.org.slug };
         }
     };
-    return Object.defineProperty(Defined, 'name', {
-        ...Object.getOwnPropertyDescriptor(Defined, 'name'),
+    return Object.defineProperty(Brand, 'name', {
+        ...Object.getOwnPropertyDescriptor(Brand, 'name'),
         value: 'Brand',
     });
 };
