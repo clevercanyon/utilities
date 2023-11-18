@@ -42,6 +42,7 @@ declare class ClassInterface {
         readonly [x: string]: string;
     };
     public constructor(props: C9rProps | Class);
+    public gravatarSize(size: number): string;
     public rawProps(): RawProps;
 }
 type ClassInterfaceProps = Omit<ClassInterface, 'constructor' | 'gravatarSize' | 'rawProps'>;
