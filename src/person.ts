@@ -38,25 +38,24 @@ const tꓺavatar = 'avatar',
     tꓺgithub = 'github',
     tꓺgravatar = 'gravatar',
     tꓺheadline = 'headline',
+    tꓺhttpsꓽⳇⳇ = 'https://',
     tꓺjaswrks = 'jaswrks',
     tꓺlastName = 'lastName',
     tꓺlinkedin = 'linkedin',
     tꓺnpm = 'npm',
-    tꓺpng = 'png',
     tꓺsocialProfiles = 'socialProfiles',
     tꓺtwitter = 'twitter',
     tꓺurl = 'url',
     tꓺusername = 'username',
     tꓺwwwം = 'www.',
     //
-    tꓺhttpsꓽⳇⳇ = 'https://',
     tꓺhttpsꓽⳇⳇtwitterംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺtwitter + tꓺംcom + '/',
     tꓺhttpsꓽⳇⳇwwwംlinkedinംcomⳇinⳇ = tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺlinkedin + tꓺംcom + '/in/',
     tꓺhttpsꓽⳇⳇwwwംfacebookംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺfacebook + tꓺംcom + '/',
     tꓺhttpsꓽⳇⳇgithubംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺgithub + tꓺംcom + '/',
     tꓺhttpsꓽⳇⳇwwwംnpmjsംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺnpm + 'js' + tꓺംcom + '/~',
-    tꓺhttpsꓽⳇⳇgravatarംcomⳇavatarⳇ = tꓺhttpsꓽⳇⳇ + tꓺgravatar + tꓺംcom + '/' + tꓺavatar + '/',
     //
+    tꓺhttpsꓽⳇⳇgravatarംcomⳇavatarⳇ = tꓺhttpsꓽⳇⳇ + tꓺgravatar + tꓺംcom + '/' + tꓺavatar + '/',
     tꓺobjꓺwidthHeight512x512 = { width: 512, height: 512 } as { width: number; height: number };
 
 /**
@@ -136,8 +135,8 @@ const initializeRawProps = (): void => {
         [tꓺdescription]: 'Entrepreneur and full-stack engineer with 20+ years experience.',
         [tꓺurl]: tꓺhttpsꓽⳇⳇ + tꓺjaswrks + tꓺംcom + '/',
 
-        [tꓺavatar]: {
-            [tꓺpng]: tꓺhttpsꓽⳇⳇgravatarംcomⳇavatarⳇ + '17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512',
+        [tꓺgravatar]: {
+            [tꓺurl]: tꓺhttpsꓽⳇⳇgravatarംcomⳇavatarⳇ + '17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512',
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {
@@ -161,8 +160,8 @@ const initializeRawProps = (): void => {
         [tꓺdescription]: 'Entrepreneur and full-stack engineer with 10+ years experience.',
         [tꓺurl]: tꓺhttpsꓽⳇⳇgithubംcomⳇ + tꓺbrucewrks,
 
-        [tꓺavatar]: {
-            [tꓺpng]: tꓺhttpsꓽⳇⳇgravatarംcomⳇavatarⳇ + 'bcdabcc96b6c049e1de6e6e32b0d4b772a4e9cb92e14e50591ee021ec4dd8317?s=512',
+        [tꓺgravatar]: {
+            [tꓺurl]: tꓺhttpsꓽⳇⳇgravatarംcomⳇavatarⳇ + 'bcdabcc96b6c049e1de6e6e32b0d4b772a4e9cb92e14e50591ee021ec4dd8317?s=512',
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {

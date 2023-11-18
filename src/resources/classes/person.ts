@@ -2,7 +2,7 @@
  * Person utility class.
  */
 
-import { $class, $obj, $str, type $type } from '../../index.ts';
+import { $class, $obj, $str, $url, type $type } from '../../index.ts';
 
 /**
  * Class object cache.
@@ -33,8 +33,8 @@ declare class ClassInterface {
     public readonly description: string;
     public readonly url: string;
 
-    public readonly avatar: {
-        readonly png: string;
+    public readonly gravatar: {
+        readonly url: string;
         readonly width: number;
         readonly height: number;
     };
@@ -44,7 +44,7 @@ declare class ClassInterface {
     public constructor(props: C9rProps | Class);
     public rawProps(): RawProps;
 }
-type ClassInterfaceProps = Omit<ClassInterface, 'constructor' | 'rawProps'>;
+type ClassInterfaceProps = Omit<ClassInterface, 'constructor' | 'gravatarSize' | 'rawProps'>;
 
 /**
  * Person class factory.
@@ -91,10 +91,10 @@ export const getClass = (): Constructor => {
         public readonly url!: string;
 
         /**
-         * Avatar, with dimensions.
+         * Gravatar, with dimensions.
          */
-        public readonly avatar!: {
-            readonly png: string;
+        public readonly gravatar!: {
+            readonly url: string;
             readonly width: number;
             readonly height: number;
         };
@@ -118,6 +118,17 @@ export const getClass = (): Constructor => {
                 this[key] = value; // Property assignments.
             }
             this.name = $str.trim(this.firstName + ' ' + this.lastName);
+        }
+
+        /**
+         * Gravatar at a specific size.
+         *
+         * @param   size Size; e.g., `96`.
+         *
+         * @returns      Gravatar URL.
+         */
+        public gravatarSize(size: number): string {
+            return $url.addQueryVar('s', String(size), this.gravatar.url);
         }
 
         /**

@@ -653,7 +653,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
 
         while (currentOrg && currentOrg !== previousOrg) {
             const currentOrgFounder = currentOrg.founder,
-                currentOrgFounderAvatar = currentOrgFounder.avatar,
+                currentOrgFounderGravatar = currentOrgFounder.gravatar,
                 currentOrgAddress = currentOrg.address,
                 currentOrgLogo = currentOrg.logo,
                 currentOrgLogoOnLightBg = currentOrgLogo.onLightBg;
@@ -687,9 +687,9 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                         [tꓺමtype]: tꓺImageObject,
                         [tꓺමid]: currentOrgFounder.url + '#' + tꓺfounderImg,
 
-                        [tꓺurl]: currentOrgFounderAvatar.png,
-                        [tꓺwidth]: currentOrgFounderAvatar.width,
-                        [tꓺheight]: currentOrgFounderAvatar.height,
+                        [tꓺurl]: currentOrgFounderGravatar.url,
+                        [tꓺwidth]: currentOrgFounderGravatar.width,
+                        [tꓺheight]: currentOrgFounderGravatar.height,
                         [tꓺcaption]: currentOrgFounder.name,
                     },
                 },
@@ -745,7 +745,8 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
     const pageURL = state.ogURL,
         pageTitle = state.ogTitle.split(' • ')[0],
         pageDescription = state.ogDescription,
-        pageAuthor = state.author;
+        pageAuthor = state.author, // If exists.
+        pageAuthorGravatar = pageAuthor?.gravatar;
 
     const pageGraph = $obj.mergeDeep(
         {
@@ -760,7 +761,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
             [tꓺinLanguage]: htmlState.lang || 'en-US',
             [tꓺauthor]: [
                 { [tꓺමid]: (siteGraph as $type.Object)[tꓺමid] },
-                ...(pageAuthor ? [{
+                ...(pageAuthor && pageAuthorGravatar ? [{
                         [tꓺමtype]: tꓺPerson,
                         [tꓺමid]: pageAuthor.url + '#' + tꓺpageAuthor,
 
@@ -771,9 +772,9 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                         [tꓺimage]: {
                             [tꓺමtype]: tꓺImageObject,
                             [tꓺමid]: pageAuthor.url + '#' + tꓺpageAuthorImg,
-                            [tꓺurl]: pageAuthor.avatar.png,
-                            [tꓺwidth]: pageAuthor.avatar.width,
-                            [tꓺheight]: pageAuthor.avatar.height,
+                            [tꓺurl]: pageAuthorGravatar.url,
+                            [tꓺwidth]: pageAuthorGravatar.width,
+                            [tꓺheight]: pageAuthorGravatar.height,
                             [tꓺcaption]: pageAuthor.name,
                         },
                 }] : []), // prettier-ignore
