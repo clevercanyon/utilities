@@ -16,7 +16,6 @@ import { type UpdateEvent as DialogUpdateEvent } from '../../../../preact/compon
 export type State = {
     debug: boolean;
     promise: Promise<void>;
-    initialized: boolean;
 
     dataVersion: string;
     ipGeoData: $env.IPGeoData;
@@ -76,7 +75,7 @@ export const state: State = {} as State;
  *     type Consent = typeof import('./consent.ts');
  *     const useConsent = new Promise<Consent>((resolve): void => {
  *         void import('./consent.ts').then((consent): void => {
- *             void consent.initialize().then(() => resolve(consent));
+ *             void consent.initialize().then((): void => resolve(consent));
  *         });
  *     });
  *     useConsent.then(({ openDialog }) => openDialog());
@@ -88,6 +87,8 @@ export const state: State = {} as State;
  * To debug consent and analytics APIs set the following cookie and/or environment variable:
  *
  *     document.cookie = 'APP_DEBUG=consent=1&analytics=1'; // `1`, or any truthy value will do.
+ *
+ * @returns Void promise.
  */
 export const initialize = async (): Promise<void> => {
     // Initializes promise one time only.
@@ -106,7 +107,6 @@ export const initialize = async (): Promise<void> => {
                 $obj.patchDeep(state, {
                     debug: state.debug,
                     promise: state.promise,
-                    initialized: false,
 
                     dataVersion: '1.0.0',
                     ipGeoData, // From above.
@@ -132,9 +132,6 @@ export const initialize = async (): Promise<void> => {
                 $dom.on(document, 'x:consentDialog:update', (event: DialogUpdateEvent) => {
                     updateStateUsingData(event.detail.data);
                 });
-                // Flags state as fully initialized now.
-                state.initialized = true;
-
                 // Resolves promise.
                 resolve(); // Good to go.
             });

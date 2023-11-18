@@ -52,7 +52,7 @@ export const state: State = {} as State;
  *     type Analytics = typeof import('./analytics.ts');
  *     const useAnalytics = new Promise<Analytics>((resolve): void => {
  *         void import('./analytics.ts').then((analytics): void => {
- *             void analytics.initialize().then(() => resolve(analytics));
+ *             void analytics.initialize().then((): void => resolve(analytics));
  *         });
  *     });
  *     useAnalytics.then(({ trackPageView }) => trackPageView());
@@ -60,6 +60,8 @@ export const state: State = {} as State;
  * To debug consent and analytics APIs set the following cookie and/or environment variable:
  *
  *     document.cookie = 'APP_DEBUG=consent=1&analytics=1'; // `1`, or any truthy value will do.
+ *
+ * @returns Void promise.
  */
 export const initialize = async (): Promise<void> => {
     // Initializes promise one time only.
@@ -248,11 +250,11 @@ export const trackElement = async (element: HTMLElement, eventName: string, prop
                   x_flex_sub_value: $str.clip(element.title || element.innerText.replace(/\s+/gu, ' ').trim() || '', { maxChars: 100 }),
               }
             : 'x_submit' === eventName
-            ? {
-                  x_flex_value: $str.clip((element as HTMLFormElement).action || $url.current(), { maxChars: 100 }),
-                  x_flex_sub_value: $str.clip(((element as HTMLFormElement).method || 'GET').toUpperCase(), { maxChars: 100 }),
-              }
-            : {}),
+              ? {
+                    x_flex_value: $str.clip((element as HTMLFormElement).action || $url.current(), { maxChars: 100 }),
+                    x_flex_sub_value: $str.clip(((element as HTMLFormElement).method || 'GET').toUpperCase(), { maxChars: 100 }),
+                }
+              : {}),
         ...props, // Any additional props passed in.
     });
 };
@@ -405,6 +407,8 @@ const deployProviders = (): void => {
 
     // Parent element receiving analytics tags.
     let parentElement: Element; // Parent container.
+
+    // Parent element receiving analytics tags.
     if ($dom.xPreactApp() /* Preact apps use `<x-preact-app-analytics>`. */) {
         $dom.bodyAppend((parentElement = $dom.create('x-preact-app-analytics', { class: 'block' })));
     } else parentElement = $dom.head(); // `<head>` in all other cases.

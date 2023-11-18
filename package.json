@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.459",
+    "version": "1.0.460",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -211,6 +211,11 @@
             "import": "./dist/preact/components/router.js",
             "default": "./dist/preact/components/router.js"
         },
+        "./preact/components/turnstile": {
+            "types": "./dist/types/preact/components/turnstile.d.ts",
+            "import": "./dist/preact/components/turnstile.js",
+            "default": "./dist/preact/components/turnstile.js"
+        },
         "./str": {
             "types": "./dist/types/str.d.ts",
             "import": "./dist/str.js",
@@ -280,7 +285,7 @@
     "optionalDependencies": {},
     "bundleDependencies": [],
     "devDependencies": {
-        "@clevercanyon/dev-deps": "^1.0.264"
+        "@clevercanyon/dev-deps": "^1.0.267"
     },
     "overrides": {},
     "cpu": ["x64", "arm64"],

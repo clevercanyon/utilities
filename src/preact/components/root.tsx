@@ -10,6 +10,7 @@ import { default as Consent } from '../components/consent.tsx';
 import { default as Data, namedPropKeys as namedDataPropKeys, type Props as DataProps } from '../components/data.tsx';
 import { default as Location, namedPropKeys as namedLocationPropKeys, type Props as LocationProps } from '../components/location.tsx';
 import { default as Router, namedPropKeys as namedRouterPropKeys, type Props as RouterProps } from '../components/router.tsx';
+import { default as Turnstile } from '../components/turnstile.tsx';
 
 /**
  * Defines types.
@@ -28,11 +29,13 @@ export default function Root(props: Props): $preact.VNode<Props> {
     return (
         <Consent>
             <Analytics>
-                <Location {...$obj.pick(restProps, namedLocationPropKeys())}>
-                    <Data {...$obj.pick(restProps, namedDataPropKeys())}>
-                        <Router {...$obj.pick(restProps, namedRouterPropKeys())}>{children}</Router>
-                    </Data>
-                </Location>
+                <Turnstile>
+                    <Location {...$obj.pick(restProps, namedLocationPropKeys())}>
+                        <Data {...$obj.pick(restProps, namedDataPropKeys())}>
+                            <Router {...$obj.pick(restProps, namedRouterPropKeys())}>{children}</Router>
+                        </Data>
+                    </Location>
+                </Turnstile>
             </Analytics>
         </Consent>
     );

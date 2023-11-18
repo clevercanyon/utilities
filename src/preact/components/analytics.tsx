@@ -40,8 +40,8 @@ export default function Analytics(props: Props = {}): $preact.VNode<Props> {
     const promise = $preact.useRef(
         new Promise<API>((resolve): void => {
             if (!$env.isWeb()) return; // It will simply never resolve.
-            void import('../../resources/preact/apis/web/analytics.ts').then((api) => {
-                void api.initialize().then(() => resolve(api));
+            void import('../../resources/preact/apis/web/analytics.ts').then((api): void => {
+                void api.initialize().then((): void => resolve(api));
             });
         }),
     );

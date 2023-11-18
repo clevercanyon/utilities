@@ -895,10 +895,20 @@ export const defaultSecurityHeaders = (): { [x: string]: string } => {
         'cross-origin-resource-policy': 'same-origin',
         'referrer-policy': 'strict-origin-when-cross-origin',
         'content-security-policy':
-            "base-uri 'self'; frame-ancestors 'self'; default-src * data: blob: mediastream: 'report-sample'; style-src * data: blob: 'unsafe-inline' 'report-sample';" +
-            " object-src 'none'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample' :: 0.0.0.0 ::1 127.0.0.1 *.local *.localhost *.mac *.loc *.dkr *.vm" +
-            ' *.clevercanyon.com *.hop.gdn *.cloudflare.com *.stripe.com *.cloudflareinsights.com *.google.com *.googletagmanager.com *.google-analytics.com' +
-            ' *.googleadservices.com googleads.g.doubleclick.net *.cookie-script.com;',
+            "base-uri 'self';" +
+            " frame-ancestors 'self';" +
+            //
+            " default-src * data: blob: mediastream: 'report-sample';" +
+            " style-src * data: blob: 'unsafe-inline' 'report-sample';" +
+            " object-src 'none';" + // No objects whatsoever.
+            //
+            " script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample'" + // Standard allowances.
+                ' :: 0.0.0.0 ::1 127.0.0.1 *.local *.localhost *.mac *.loc *.dkr *.vm' + // Local hostnames.
+                ' *.clevercanyon.com *.hop.gdn' + // Our own hostnames.
+                ' *.cloudflare.com *.cloudflareinsights.com' + // Cloudflare services.
+                ' *.google.com *.googletagmanager.com *.google-analytics.com *.googleadservices.com googleads.g.doubleclick.net' + // Google services.
+                ' *.stripe.com' + // Stripe services.
+                ';', // prettier-ignore
         'permissions-policy':
             'accelerometer=(self), autoplay=(self), camera=(self), clipboard-read=(self), clipboard-write=(self), cross-origin-isolated=(self), display-capture=(self),' +
             ' encrypted-media=(self), fullscreen=(self), gamepad=(self), geolocation=(self), gyroscope=(self), hid=(self), idle-detection=(self), interest-cohort=(self),' +

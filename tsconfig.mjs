@@ -35,6 +35,7 @@ export default await (async () => {
                     '@types/semver',
                     '@types/micromatch',
                     '@types/libsodium-wrappers',
+                    '@types/cloudflare-turnstile',
                 ],
             },
         },
