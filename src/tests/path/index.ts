@@ -29,6 +29,37 @@ describe('$path', async () => {
         expect($path.hasStaticExt('path/file.abc')).toBe(false);
         expect($path.hasStaticExt('path/file')).toBe(false);
     });
+    test('.removeExt()', async () => {
+        expect($path.removeExt('path/file.js')).toBe('path/file');
+        expect($path.removeExt('path/file.js?query#hash')).toBe('path/file');
+        expect($path.removeExt('path/file.png')).toBe('path/file');
+        expect($path.removeExt('path/file.a')).toBe('path/file');
+        expect($path.removeExt('path/file.abc')).toBe('path/file');
+        expect($path.removeExt('path/file')).toBe('path/file');
+    });
+    test('.basename()', async () => {
+        expect($path.basename('path/file.js')).toBe('file.js');
+        expect($path.basename('path/file.js?query#hash')).toBe('file.js');
+        expect($path.basename('path/file.png')).toBe('file.png');
+        expect($path.basename('path/file.a')).toBe('file.a');
+        expect($path.basename('path/file.abc')).toBe('file.abc');
+        expect($path.basename('path/file')).toBe('file');
+    });
+    test('.rawBasename()', async () => {
+        expect($path.rawBasename('path/file.js')).toBe('file');
+        expect($path.rawBasename('path/file.js?query#hash')).toBe('file');
+        expect($path.rawBasename('path/file.png')).toBe('file');
+        expect($path.rawBasename('path/file.a')).toBe('file');
+        expect($path.rawBasename('path/file.abc')).toBe('file');
+        expect($path.rawBasename('path/file')).toBe('file');
+
+        expect($path.rawBasename('path/file.x.js')).toBe('file.x');
+        expect($path.rawBasename('path/file.x.js?query#hash')).toBe('file.x');
+        expect($path.rawBasename('path/file.x.png')).toBe('file.x');
+        expect($path.rawBasename('path/file.x.a')).toBe('file.x');
+        expect($path.rawBasename('path/file.x.abc')).toBe('file.x');
+        expect($path.rawBasename('path/file.x')).toBe('file');
+    });
     test('.globToRegExpString()', async () => {
         expect($path.globToRegExpString('**/abc/**')).toBe('^(?:(?:^|\\/|(?:(?:(?!(?:^|\\/)\\.).)*?)\\/)abc(?:\\/(?!\\.)(?:(?:(?!(?:^|\\/)\\.).)*?)|$))$');
         expect($path.globToRegExpString('**/abc/**/*')).toBe(

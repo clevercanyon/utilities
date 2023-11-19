@@ -93,6 +93,28 @@ export const clean = (path: string): string => {
 };
 
 /**
+ * Gets a filesystem basename.
+ *
+ * @param   path Path to consider.
+ *
+ * @returns      Filesystem basename.
+ */
+export const basename = (path: string): string => {
+    return clean(path).replace(/^.*?([^\\/]+)$/iu, '$1');
+};
+
+/**
+ * Gets a raw filesystem basename.
+ *
+ * @param   path Path to consider.
+ *
+ * @returns      Raw filesystem basename.
+ */
+export const rawBasename = (path: string): string => {
+    return removeExt(basename(path));
+};
+
+/**
  * Gets a path’s extension.
  *
  * @param   path Path to consider.
@@ -126,6 +148,23 @@ export const hasExt = (path: string): boolean => {
 export const hasStaticExt = (path: string): boolean => {
     path = clean(path); // No query and/or hash.
     return '' !== path && staticExtRegExp().test(path);
+};
+
+/**
+ * Removes a path’s extension.
+ *
+ * @param   path Path to consider.
+ *
+ * @returns      Path without extension.
+ */
+export const removeExt = (path: string): string => {
+    let pathExt: string; // Initialize.
+    path = clean(path); // No query and/or hash.
+
+    if ((pathExt = ext(path))) {
+        path = path.slice(0, -(pathExt.length + 1));
+    }
+    return path;
 };
 
 /**
