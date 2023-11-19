@@ -359,7 +359,7 @@ export default class Head extends Component<Props, ActualState> {
 
         const isSSR = $env.isSSR();
         const isC10n = $env.isC10n();
-        const isLocalWebVite = $env.isLocalWebVite();
+        const isLocalVite = $env.isLocalVite();
 
         // Acquires app’s brand from environment var.
 
@@ -421,13 +421,13 @@ export default class Head extends Component<Props, ActualState> {
                     title += ' • ' + (siteName || brand.name);
                 }
             }
-            let defaultStyleBundle, defaultScriptBundle; // When applicable/possible.
+            let defaultStyleBundle, defaultScriptBundle; // When possible.
 
-            if (!styleBundle && '' !== styleBundle && isLocalWebVite) {
-                defaultStyleBundle = './index.scss'; // Vite dev server uses original extension.
+            if (!styleBundle && '' !== styleBundle && isLocalVite) {
+                defaultStyleBundle = './index.scss'; // For vite dev server.
             }
-            if (!scriptBundle && '' !== scriptBundle && isLocalWebVite) {
-                defaultScriptBundle = './index.tsx'; // Vite dev server uses original extension.
+            if (!scriptBundle && '' !== scriptBundle && isLocalVite) {
+                defaultScriptBundle = './index.tsx'; // For vite dev server.
             }
             return {
                 ...layoutState?.head,
@@ -580,7 +580,7 @@ export default class Head extends Component<Props, ActualState> {
                 for (const node of Array.from($dom.head().childNodes)) {
                     if (!$is.htmlElement(node)) node.remove(); // e.g., Text or comment node.
                     //
-                    else if (isLocalWebVite && 'SCRIPT' === node.tagName && '/@vite/client' === node.getAttribute('src')) {
+                    else if (isLocalVite && 'SCRIPT' === node.tagName && '/@vite/client' === node.getAttribute('src')) {
                         continue; // Allow `/@vite/client` to exist locally.
                         //
                     } else if (!node.dataset.key || !Object.hasOwn(childVNodes, node.dataset.key)) {

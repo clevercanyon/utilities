@@ -44,6 +44,7 @@ export type { $Headers as Headers };
 export type { $fetch as fetch };
 export type { $Error as Error };
 export type { $Timeout as Timeout };
+export type Turnstile = Turnstile.Turnstile;
 
 /**
  * Cloudflare worker types.

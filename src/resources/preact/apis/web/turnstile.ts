@@ -4,7 +4,7 @@
  * @requiredEnv web
  */
 
-import { $dom, $env, $obj } from '../../../../index.ts';
+import { $dom, $env, $obj, type $type } from '../../../../index.ts';
 
 /**
  * Defines types.
@@ -12,9 +12,8 @@ import { $dom, $env, $obj } from '../../../../index.ts';
 export type State = {
     debug: boolean;
     promise: Promise<void>;
-    deployPromise?: Promise<Turnstile>;
+    deployPromise?: Promise<$type.Turnstile>;
 };
-export type Turnstile = Turnstile.Turnstile;
 
 // ---
 // API exports.
@@ -39,7 +38,7 @@ export const state: State = {} as State;
  *             void turnstile.initialize().then((): void => resolve(turnstile));
  *         });
  *     });
- *     useTurnstile.then(({ deploy }) => deploy().then({ render }) => render(...));
+ *     useTurnstile.then(({ deploy }): Promise<Turnstile> => deploy()).then(({ render }): void => void render(...));
  *
  * To debug the turnstile API set the following cookie and/or environment variable:
  *
@@ -73,7 +72,7 @@ export const initialize = async (): Promise<void> => {
  *
  * @returns Turnstile promise.
  */
-export const deploy = async (): Promise<Turnstile> => {
+export const deploy = async (): Promise<$type.Turnstile> => {
     // Deploys promise one time only.
     if (state.deployPromise) return state.deployPromise;
 
@@ -94,7 +93,21 @@ export const deploy = async (): Promise<Turnstile> => {
 
             // Deploys turnstile using parent element container.
             // Note: Turnstile does not use cookies whatsoever, so no need for a consent check.
+            // For further details, please review Turnstile documentation at Cloudflare; {@see https://o5p.me/L5kwnD}.
             parentElement.appendChild($dom.create('script', { async: true, src: 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstile' }));
         });
     }));
+};
+
+/**
+ * Gets turnstile site key.
+ *
+ * @returns Turnstile site key.
+ */
+export const siteKey = (): string => {
+    if ($env.isLocal()) {
+        return '1x00000000000000000000BB'; // Site test key; invisible captcha.
+    }
+    // Default site key is our own; i.e., for Clever Canyon. It produces an invisible captcha.
+    return $env.get('APP_TURNSTILE_SITE_KEY', { type: 'string', default: '0x4AAAAAAANUNOXO3QO69yGk' });
 };

@@ -55,7 +55,7 @@ export const state: State = {} as State;
  *             void analytics.initialize().then((): void => resolve(analytics));
  *         });
  *     });
- *     useAnalytics.then(({ trackPageView }) => trackPageView());
+ *     useAnalytics.then(({ trackPageView }): void => void trackPageView());
  *
  * To debug consent and analytics APIs set the following cookie and/or environment variable:
  *
@@ -96,8 +96,8 @@ export const initialize = async (): Promise<void> => {
                     userId: $cookie.get('utx_user_id', ''),
                     customerId: $cookie.get('utx_customer_id', ''),
 
-                    gtagId: String($env.get('APP_GTAG_ID') || 'G-Y5BS7MMHMD'),
-                    // Others may come in future updates.
+                    // Default gtag ID is our own; i.e., for Clever Canyon.
+                    gtagId: $env.get('APP_GTAG_ID', { type: 'string', default: 'G-Y5BS7MMHMD' }),
                 } as State);
 
                 // Initializes analytics providers.

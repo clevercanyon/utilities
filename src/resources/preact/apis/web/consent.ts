@@ -78,7 +78,7 @@ export const state: State = {} as State;
  *             void consent.initialize().then((): void => resolve(consent));
  *         });
  *     });
- *     useConsent.then(({ openDialog }) => openDialog());
+ *     useConsent.then(({ openDialog }): void => openDialog());
  *
  * Consider carefully when changing the format or contents of cookie data. Remember, we store consent data in a
  * client-side cookie, which includes a version. It’s important to know what version of data a cookie has, and equally

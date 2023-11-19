@@ -27,84 +27,84 @@ describe('$env', async () => {
     test('.isServiceWorker()', async () => {
         expect($env.isServiceWorker()).toBe(false);
     });
-    test('.isLocalWeb()', async () => {
+    test('.isLocal()', async () => {
         const flushCaches = () => {
             $url.currentHost.flush();
             $url.currentRootHost.flush();
-            $env.isLocalWeb.flush();
+            $env.isLocal.flush();
         };
-        const origLoc = window.location.href; // Restored below.
-        const setLoc = (loc: string) => Object.defineProperty(window, 'location', { value: new URL(loc) });
+        const origLocation = window.location.href; // Restored below.
+        const setLocation = (loc: string) => Object.defineProperty(window, 'location', { value: new URL(loc) });
 
         flushCaches();
-        setLoc('http://mac/');
-        expect($env.isLocalWeb()).toBe(false);
+        setLocation('http://mac/');
+        expect($env.isLocal()).toBe(false);
 
         flushCaches();
-        setLoc('http://loc/');
-        expect($env.isLocalWeb()).toBe(false);
+        setLocation('http://loc/');
+        expect($env.isLocal()).toBe(false);
 
         flushCaches();
-        setLoc('http://localhost/');
-        expect($env.isLocalWeb()).toBe(true);
+        setLocation('http://localhost/');
+        expect($env.isLocal()).toBe(true);
 
         flushCaches();
-        setLoc('http://localhost:3000/');
-        expect($env.isLocalWeb()).toBe(true);
+        setLocation('http://localhost:3000/');
+        expect($env.isLocal()).toBe(true);
 
         flushCaches();
-        setLoc('http://x.tld/path');
-        expect($env.isLocalWeb()).toBe(false);
+        setLocation('http://x.tld/path');
+        expect($env.isLocal()).toBe(false);
 
         flushCaches();
-        setLoc('http://mac/path');
-        expect($env.isLocalWeb()).toBe(false);
+        setLocation('http://mac/path');
+        expect($env.isLocal()).toBe(false);
 
         flushCaches();
-        setLoc('http://loc/path');
-        expect($env.isLocalWeb()).toBe(false);
+        setLocation('http://loc/path');
+        expect($env.isLocal()).toBe(false);
 
         flushCaches();
-        setLoc('http://loc.x/path');
-        expect($env.isLocalWeb()).toBe(false);
+        setLocation('http://loc.x/path');
+        expect($env.isLocal()).toBe(false);
 
         flushCaches();
-        setLoc('http://x.mac/path');
-        expect($env.isLocalWeb()).toBe(true);
+        setLocation('http://x.mac/path');
+        expect($env.isLocal()).toBe(true);
 
         flushCaches();
-        setLoc('http://x.x.x.x.x.mac/path');
-        expect($env.isLocalWeb()).toBe(true);
+        setLocation('http://x.x.x.x.x.mac/path');
+        expect($env.isLocal()).toBe(true);
 
         flushCaches();
-        setLoc('http://x.loc/path');
-        expect($env.isLocalWeb()).toBe(true);
+        setLocation('http://x.loc/path');
+        expect($env.isLocal()).toBe(true);
 
         flushCaches();
-        setLoc('http://local/path');
-        expect($env.isLocalWeb()).toBe(true);
+        setLocation('http://local/path');
+        expect($env.isLocal()).toBe(true);
 
         flushCaches();
-        setLoc('http://x.local/path');
-        expect($env.isLocalWeb()).toBe(true);
+        setLocation('http://x.local/path');
+        expect($env.isLocal()).toBe(true);
 
         flushCaches();
-        setLoc('http://localhost/path');
-        expect($env.isLocalWeb()).toBe(true);
+        setLocation('http://localhost/path');
+        expect($env.isLocal()).toBe(true);
 
         flushCaches();
-        setLoc('http://x.localhost/path');
-        expect($env.isLocalWeb()).toBe(true);
+        setLocation('http://x.localhost/path');
+        expect($env.isLocal()).toBe(true);
 
         flushCaches();
-        setLoc('http://[::1]/path');
-        expect($env.isLocalWeb()).toBe(true);
+        setLocation('http://[::1]/path');
+        expect($env.isLocal()).toBe(true);
 
         flushCaches();
-        setLoc('http://[::11]/path');
-        expect($env.isLocalWeb()).toBe(false);
+        setLocation('http://[::11]/path');
+        expect($env.isLocal()).toBe(false);
 
         flushCaches();
-        setLoc(origLoc); // Restores the original `window.location`.
+        setLocation(origLocation);
     });
 });

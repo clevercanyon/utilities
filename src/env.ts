@@ -286,7 +286,7 @@ export function unset(...args: unknown[]): void {
  *
  * @returns True or false.
  *
- *   Vitest sets:
+ *   Vitest sets the following environment variables:
  *
  *   - `TEST=true` (boolean).
  *   - `VITEST=true` (boolean).
@@ -317,33 +317,6 @@ export const isWebViaJSDOM = $fnꓺmemo((): boolean => {
         'navigator' in globalThis && navigator instanceof Navigator &&
         navigator.userAgent.includes('jsdom/')
     ); // prettier-ignore
-});
-
-/**
- * Checks if environment is a web browser under a local hostname.
- *
- * @returns True or false.
- */
-export const isLocalWeb = $fnꓺmemo((): boolean => {
-    return isWeb() && $str.test($url.currentRootHost({ withPort: false }), $url.localHostPatterns());
-});
-
-/**
- * Checks if environment is a web browser under a local hostname and Vite dev server is running.
- *
- * @returns True or false.
- */
-export const isLocalWebVite = $fnꓺmemo((): boolean => {
-    return isLocalWeb() && isVite();
-});
-
-/**
- * Checks if environment is a web browser under a local hostname and Vite dev server is running with HMR/prefresh?
- *
- * @returns True or false.
- */
-export const isLocalWebVitePrefresh = $fnꓺmemo((): boolean => {
-    return isLocalWebVite() && '__PREFRESH__' in globalThis;
 });
 
 /**
@@ -428,6 +401,49 @@ export const isSharedWorker = $fnꓺmemo((): boolean => {
  */
 export const isServiceWorker = $fnꓺmemo((): boolean => {
     return 'ServiceWorkerGlobalScope' in globalThis && $is.function(ServiceWorkerGlobalScope) && globalThis instanceof ServiceWorkerGlobalScope;
+});
+
+/**
+ * Checks if environment is under a local hostname.
+ *
+ * @param   request Optional HTTP request to check.
+ *
+ *   - If not passed, only web environments can be tested properly.
+ *
+ * @returns         True or false.
+ */
+export const isLocal = $fnꓺmemo(2, (request?: $type.Request): boolean => {
+    if (request) {
+        const { url } = request; // Request URL.
+        return $str.test($url.rootHost(url, { withPort: false }), $url.localHostPatterns());
+    }
+    return isWeb() && $str.test($url.currentRootHost({ withPort: false }), $url.localHostPatterns());
+});
+
+/**
+ * Checks if environment is under a local hostname and Vite dev server is running.
+ *
+ * @param   request Optional HTTP request to check.
+ *
+ *   - If not passed, only web environments can be tested properly.
+ *
+ * @returns         True or false.
+ */
+export const isLocalVite = $fnꓺmemo(2, (request?: $type.Request): boolean => {
+    return isLocal(request) && isVite();
+});
+
+/**
+ * Checks if environment is under a local hostname and Vite dev server is running with HMR/prefresh?
+ *
+ * @param   request Optional HTTP request to check.
+ *
+ *   - If not passed, only web environments can be tested properly.
+ *
+ * @returns         True or false.
+ */
+export const isLocalVitePrefresh = $fnꓺmemo(2, (request?: $type.Request): boolean => {
+    return isLocalVite(request) && '__PREFRESH__' in globalThis;
 });
 
 /**
