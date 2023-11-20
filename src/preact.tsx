@@ -93,10 +93,10 @@ export * as ssr from './resources/preact/apis/ssr.tsx';
 /**
  * Exports our Preact lazy loaders.
  *
- * These two in particular get lifted up into the top level of our `$preact` utilities. Alternatively, they can be
- * accessed via `$preact.iso.*`. We’re exporting as first-class citizens, though, for convenience.
+ * These get lifted up into the top level of our `$preact` utilities. Alternatively, they can be accessed via
+ * `$preact.iso.*`. However, we’re exporting here as first-class citizens, for convenience.
  */
-export { lazyRoute, lazyComponent } from './resources/preact/apis/iso.tsx';
+export { lazyLoad, lazyComponent, lazyRoute } from './resources/preact/apis/iso.tsx';
 
 /**
  * Exports our Preact hooks.

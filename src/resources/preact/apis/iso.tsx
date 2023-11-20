@@ -29,6 +29,7 @@ export type HydrativelyRenderSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
 };
+export type LazyLoadOptions = Omit<RouterProps, 'children'>;
 export type LazyComponentOptions = Omit<RouterProps, 'children'>;
 export type LazyRouteLoader = () => Promise<{ default: $preact.AnyComponent<RoutedProps> } | $preact.AnyComponent<RoutedProps>>;
 
@@ -171,6 +172,51 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
 // Lazy utilities.
 
 /**
+ * Produces a component that lazy loads a route.
+ *
+ * @param   loader  For details {@see LazyRouteLoader}.
+ * @param   options Options (all optional); {@see LazyLoadOptions}.
+ *
+ * @returns         Higher order lazy component; {@see $preact.FnComponent}.
+ */
+export const lazyLoad = (loader: LazyRouteLoader, options?: LazyLoadOptions): $preact.FnComponent => {
+    return (): $preact.VNode => {
+        return (
+            <Router {...(options || {})}>
+                <Route default component={lazyRoute(loader)} />
+            </Router>
+        );
+    };
+};
+
+/**
+ * Produces a lazy loaded component.
+ *
+ * @param   asyncComponent Async component to be lazy loaded.
+ * @param   options        Options (all optional); {@see LazyComponentOptions}.
+ *
+ * @returns                Higher order lazy component; {@see $preact.FnComponent}.
+ */
+export const lazyComponent = <Props extends $preact.Props = $preact.Props>(
+    asyncComponent: $preact.AsyncFnComponent<Props>,
+    options?: LazyComponentOptions,
+): $preact.FnComponent<Props> => {
+    const higherOrder = { props: {} as Props };
+    const ComponentRoute = lazyRoute(async (): ReturnType<LazyRouteLoader> => {
+        const renderedAsyncComponentVNode = await asyncComponent(higherOrder.props);
+        return (unusedꓺprops: RoutedProps) => renderedAsyncComponentVNode;
+    });
+    return (props: Parameters<$preact.AsyncFnComponent<Props>>[0]): Awaited<ReturnType<$preact.AsyncFnComponent<Props>>> => {
+        higherOrder.props = props; // Populates async component props.
+        return (
+            <Router {...(options || {})}>
+                <Route default component={ComponentRoute} />
+            </Router>
+        );
+    };
+};
+
+/**
  * Produces a lazy loaded route component.
  *
  * @param   loader For details {@see LazyRouteLoader}.
@@ -202,34 +248,5 @@ export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedPr
             });
         }
         throw promise;
-    };
-};
-
-/**
- * Produces a lazy loaded component.
- *
- * @param   asyncComponent Async component to be lazy loaded.
- * @param   options        Options (all optional); {@see LazyComponentOptions}.
- *
- * @returns                Higher order lazy component; {@see $preact.FnComponent}.
- */
-export const lazyComponent = <Props extends $preact.Props = $preact.Props>(
-    asyncComponent: $preact.AsyncFnComponent<Props>,
-    options?: LazyComponentOptions,
-): $preact.FnComponent<Props> => {
-    const opts = options || {};
-    const higherOrder = { props: {} as Props };
-
-    const ComponentRoute = lazyRoute(async (): ReturnType<LazyRouteLoader> => {
-        const renderedAsyncComponentVNode = await asyncComponent(higherOrder.props);
-        return (unusedꓺprops: RoutedProps) => renderedAsyncComponentVNode;
-    });
-    return (props: Parameters<$preact.AsyncFnComponent<Props>>[0]): Awaited<ReturnType<$preact.AsyncFnComponent<Props>>> => {
-        higherOrder.props = props; // Populates async component props.
-        return (
-            <Router {...{ handleLoading: false, handleScrolling: false, ...opts }}>
-                <Route default component={ComponentRoute} />
-            </Router>
-        );
     };
 };
