@@ -12,17 +12,18 @@ import { default as ConsentAsync } from './consent-async.tsx';
 /**
  * Defines types.
  */
-export type State = $preact.State<
+export type ActualState = $preact.State<
     Partial<$preact.Intrinsic['body']> & {
         [x in $preact.ClassPropVariants]?: $preact.Classes;
     }
 >;
-export type PartialState = Partial<State>;
-export type PartialStateUpdates = PartialState;
-export type Props = $preact.BasicPropsNoKeyRef<PartialState>;
+export type State = $preact.State<Partial<$preact.Intrinsic['body']>>;
+export type PartialActualState = Partial<ActualState>;
+export type PartialActualStateUpdates = PartialActualState;
+export type Props = $preact.BasicPropsNoKeyRef<PartialActualState>;
 export type Context = $preact.Context<{
     state: State;
-    updateState: $preact.StateDispatcher<PartialStateUpdates>;
+    updateState: $preact.StateDispatcher<PartialActualStateUpdates>;
 }>;
 
 /**
@@ -48,7 +49,7 @@ export const useBody = (): Context => $preact.useContext(ContextObject);
  * @returns       VNode / JSX element tree.
  */
 export default function Body(props: Props = {}): $preact.VNode<Props> {
-    const [actualState, updateState] = $preact.useReducedState((): State => {
+    const [actualState, updateState] = $preact.useReducedState((): ActualState => {
         return $preact.initialState($preact.omitProps(props, ['children']));
     });
     const state = $preact.useMemo((): State => {

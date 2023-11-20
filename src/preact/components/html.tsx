@@ -10,17 +10,26 @@ import { $dom, $env, $preact } from '../../index.ts';
 /**
  * Defines types.
  */
-export type State = $preact.State<
+export type ActualState = $preact.State<
     Partial<$preact.Intrinsic['html']> & {
         [x in $preact.ClassPropVariants]?: $preact.Classes;
+    } & {
+        lang?: string; // String value only.
+        dir?: string; // String value only.
     }
 >;
-export type PartialState = Partial<State>;
-export type PartialStateUpdates = PartialState;
-export type Props = $preact.BasicPropsNoKeyRef<PartialState>;
+export type State = $preact.State<
+    Partial<$preact.Intrinsic['html']> & {
+        lang: string; // Populated by computed state.
+        dir: string; // Populated by computed state.
+    }
+>;
+export type PartialActualState = Partial<ActualState>;
+export type PartialActualStateUpdates = PartialActualState;
+export type Props = $preact.BasicPropsNoKeyRef<PartialActualState>;
 export type Context = $preact.Context<{
     state: State;
-    updateState: $preact.StateDispatcher<PartialStateUpdates>;
+    updateState: $preact.StateDispatcher<PartialActualStateUpdates>;
 }>;
 
 /**
@@ -47,12 +56,14 @@ export const useHTML = (): Context => $preact.useContext(ContextObject);
  */
 export default function HTML(props: Props = {}): $preact.VNode<Props> {
     const { state: layoutState } = $preact.useLayout();
-    const [actualState, updateState] = $preact.useReducedState((): State => {
-        return $preact.initialState({ lang: 'en-US', dir: 'ltr' }, $preact.omitProps(props, ['children']));
+    const [actualState, updateState] = $preact.useReducedState((): ActualState => {
+        return $preact.initialState($preact.omitProps(props, ['children']));
     });
     const state = $preact.useMemo((): State => {
         return {
-            ...$preact.omitProps(actualState, ['class']),
+            ...$preact.omitProps(actualState, ['lang', 'dir', 'class']),
+            lang: actualState.lang || 'en-US',
+            dir: actualState.dir || 'ltr',
             class: $preact.classes(actualState, layoutState && layoutState.theme + '-theme'),
         };
     }, [actualState]);

@@ -17,8 +17,6 @@ export type ActualState = $preact.State<{
     viewport?: string;
 
     robots?: string;
-    publishTime?: $type.Time | string;
-    lastModifiedTime?: $type.Time | string;
     canonical?: $type.URL | string;
     structuredData?: object;
 
@@ -26,7 +24,12 @@ export type ActualState = $preact.State<{
     title?: string;
     titleSuffix?: string | boolean;
     description?: string;
+    category?: string;
+    tags?: string[];
+
     author?: $type.Person | string;
+    publishTime?: $type.Time | string;
+    lastModifiedTime?: $type.Time | string;
 
     pngIcon?: $type.URL | string;
     svgIcon?: $type.URL | string;
@@ -35,6 +38,8 @@ export type ActualState = $preact.State<{
     ogType?: string;
     ogTitle?: string;
     ogDescription?: string;
+    ogCategory?: string;
+    ogTags?: string[];
     ogURL?: $type.URL | string;
     ogImage?: $type.URL | string;
 
@@ -51,8 +56,6 @@ export type State = $preact.State<{
     viewport: string;
 
     robots: string;
-    publishTime?: $type.Time;
-    lastModifiedTime?: $type.Time;
     canonical: string;
     structuredData?: object;
 
@@ -60,7 +63,12 @@ export type State = $preact.State<{
     title: string;
     titleSuffix: string | boolean;
     description: string;
+    category: string;
+    tags: string[];
+
     author?: $type.Person;
+    publishTime?: $type.Time;
+    lastModifiedTime?: $type.Time;
 
     pngIcon: string;
     svgIcon: string;
@@ -69,6 +77,8 @@ export type State = $preact.State<{
     ogType: string;
     ogTitle: string;
     ogDescription: string;
+    ogCategory: string;
+    ogTags: string[];
     ogURL: string;
     ogImage: string;
 
@@ -117,17 +127,20 @@ const tꓺabout = 'about',
     tꓺall = 'all',
     tꓺany = 'any',
     tꓺappend = 'append',
+    tꓺarticle = 'article',
     tꓺauthor = 'author',
     tꓺbase = 'base',
     tꓺbaseURL = 'baseURL',
     tꓺcanonical = 'canonical',
     tꓺcaption = 'caption',
+    tꓺcategory = 'category',
     tꓺcontent = 'content',
     tꓺමcontext = '@context',
     tꓺCorporation = 'Corporation',
     tꓺfounder = 'founder',
     tꓺfounderImg = tꓺfounder + 'Img',
     tꓺfoundingDate = 'foundingDate',
+    tꓺgenre = 'genre',
     tꓺමgraph = '@graph',
     tꓺcharset = 'charset',
     tꓺdangerouslySetInnerHTML = 'dangerouslySetInnerHTML',
@@ -153,8 +166,10 @@ const tꓺabout = 'about',
     tꓺinLanguage = 'inLanguage',
     tꓺisPartOf = 'isPartOf',
     tꓺjobTitle = 'jobTitle',
+    tꓺkeywords = 'keywords',
     tꓺlegalName = 'legalName',
     tꓺlink = 'link',
+    tꓺlocale = 'locale',
     tꓺlogo = 'logo',
     tꓺmeta = 'meta',
     tꓺmedia = 'media',
@@ -162,19 +177,31 @@ const tꓺabout = 'about',
     tꓺname = 'name',
     tꓺnumberOfEmployees = 'numberOfEmployees',
     tꓺogꓽ = 'og:',
+    tꓺogArticle = 'ogArticle',
+    tꓺogꓽarticleꓽ = tꓺogꓽ + tꓺarticle + ':',
+    tꓺogArticleAuthor = tꓺogArticle + 'Author',
+    tꓺogArticlePublishedTime = tꓺogArticle + 'PublishedTime',
+    tꓺogArticleModifiedTime = tꓺogArticle + 'ModifiedTime',
+    tꓺogArticleSection = tꓺogArticle + 'Section',
+    tꓺogArticleTag = tꓺogArticle + 'Tag',
+    tꓺogLocale = 'ogLocale',
     tꓺogSiteName = 'ogSiteName',
     tꓺogType = 'ogType',
     tꓺogTitle = 'ogTitle',
     tꓺogDescription = 'ogDescription',
+    tꓺogCategory = 'ogCategory',
+    tꓺogTags = 'ogTags',
     tꓺogURL = 'ogURL',
     tꓺogImage = 'ogImage',
+    tꓺogImageWidth = tꓺogImage + 'Width',
+    tꓺogImageHeight = tꓺogImage + 'Height',
     tꓺOrganization = 'Organization',
     tꓺparentOrganization = 'parent' + tꓺOrganization,
     tꓺsubOrganization = 'sub' + tꓺOrganization,
     tꓺpage = 'page',
-    tꓺpageAuthor = 'pageAuthor',
+    tꓺpageAuthor = tꓺpage + 'Author',
     tꓺpageAuthorImg = tꓺpageAuthor + 'Img',
-    tꓺpagePrimaryImg = 'pagePrimaryImg',
+    tꓺpagePrimaryImg = tꓺpage + 'PrimaryImg',
     tꓺPerson = 'Person',
     tꓺpostalCode = 'postalCode',
     tꓺPostalAddress = 'PostalAddress',
@@ -186,9 +213,13 @@ const tꓺabout = 'about',
     tꓺpublisher = 'publisher',
     tꓺpublishTime = 'publishTime',
     tꓺlastModifiedTime = 'lastModifiedTime',
+    tꓺtime = 'time',
+    tꓺpublished_time = 'published_' + tꓺtime,
+    tꓺmodified_time = 'modified_' + tꓺtime,
     tꓺrel = 'rel',
     tꓺrobots = 'robots',
     tꓺsameAs = 'sameAs',
+    tꓺsection = 'section',
     tꓺscript = 'script',
     tꓺsite = 'site',
     tꓺsiteName = 'siteName',
@@ -202,12 +233,14 @@ const tꓺabout = 'about',
     tꓺstylesheet = 'stylesheet',
     tꓺpngIcon = 'pngIcon',
     tꓺsvgIcon = 'svgIcon',
+    tꓺtag = 'tag',
+    tꓺtags = 'tags',
     tꓺtitle = 'title',
     tꓺtitleSuffix = 'titleSuffix',
     tꓺtype = 'type',
     tꓺමtype = '@' + tꓺtype,
     tꓺurl = 'url',
-    tꓺundefined = undefined,
+    tꓺvꓺundefined = undefined,
     tꓺviewport = 'viewport',
     tꓺWeb = 'Web',
     tꓺWebPage = tꓺWeb + 'Page',
@@ -364,6 +397,8 @@ export default class Head extends Component<Props, ActualState> {
         // Acquires app’s brand from environment var.
 
         const brand = $env.get('APP_BRAND') as $type.Brand;
+        const brandIcon = brand.icon;
+        const brandOGImage = brand.ogImage;
 
         // Gathers state from various contexts.
 
@@ -390,26 +425,36 @@ export default class Head extends Component<Props, ActualState> {
             const {
                 charset,
                 viewport,
+                //
                 robots,
-                publishTime,
-                lastModifiedTime,
                 canonical,
+                //
+                siteName,
                 titleSuffix,
                 description,
+                category,
+                tags,
+                //
                 author,
+                publishTime,
+                lastModifiedTime,
+                //
                 pngIcon,
                 svgIcon,
-                siteName,
+                //
                 ogSiteName,
                 ogType,
                 ogTitle,
                 ogDescription,
+                ogCategory,
+                ogTags,
                 ogURL,
                 ogImage,
+                //
                 styleBundle,
                 scriptBundle,
             } = { ...layoutState?.head, ...actualState };
-            const { url, canonicalURL, fromBase } = locationState;
+            const { url, canonicalURL } = locationState;
 
             let title = actualState.title || url.hostname;
             const defaultDescription = 'Take the tiger by the tail.';
@@ -437,25 +482,30 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺviewport]: viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
 
                 [tꓺrobots]: robots || '', // Default is empty string.
-                [tꓺpublishTime]: publishTime ? $time.parse(publishTime) : tꓺundefined,
-                [tꓺlastModifiedTime]: lastModifiedTime ? $time.parse(lastModifiedTime) : tꓺundefined,
                 [tꓺcanonical]: (canonical || canonicalURL).toString(),
 
                 [tꓺsiteName]: siteName || brand.name || url.hostname,
                 [tꓺtitle]: title,
                 [tꓺtitleSuffix]: titleSuffix || '',
                 [tꓺdescription]: description || defaultDescription,
-                [tꓺauthor]: $is.string(author) ? $fn.try(() => $person.get(author), tꓺundefined)() : author,
+                [tꓺcategory]: category || ogCategory || '',
+                [tꓺtags]: tags || ogTags || [],
 
-                [tꓺpngIcon]: (pngIcon || fromBase('./assets/icon.png')).toString(),
-                [tꓺsvgIcon]: (svgIcon || fromBase('./assets/icon.svg')).toString(),
+                [tꓺauthor]: $is.string(author) ? $fn.try(() => $person.get(author), tꓺvꓺundefined)() : author,
+                [tꓺpublishTime]: publishTime ? $time.parse(publishTime) : tꓺvꓺundefined,
+                [tꓺlastModifiedTime]: lastModifiedTime ? $time.parse(lastModifiedTime) : tꓺvꓺundefined,
+
+                [tꓺsvgIcon]: (svgIcon || brandIcon.svg).toString(),
+                [tꓺpngIcon]: (pngIcon || brandIcon.png).toString(),
 
                 [tꓺogSiteName]: ogSiteName || siteName || brand.name || url.hostname,
-                [tꓺogType]: ogType || 'website',
+                [tꓺogType]: ogType || tꓺarticle,
                 [tꓺogTitle]: ogTitle || title,
                 [tꓺogDescription]: ogDescription || description || defaultDescription,
+                [tꓺogCategory]: ogCategory || category || '',
+                [tꓺogTags]: ogTags || tags || [],
                 [tꓺogURL]: (ogURL || canonical || canonicalURL).toString(),
-                [tꓺogImage]: (ogImage || fromBase('./assets/og-image.png')).toString(),
+                [tꓺogImage]: (ogImage || brandOGImage.png).toString(),
 
                 [tꓺstyleBundle]: ('' === styleBundle ? '' : styleBundle || dataState.head.styleBundle || defaultStyleBundle || '').toString(),
                 [tꓺscriptBundle]: ('' === scriptBundle ? '' : scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '').toString(),
@@ -472,36 +522,50 @@ export default class Head extends Component<Props, ActualState> {
             const {
                 charset,
                 viewport,
-                canonical,
+                //
                 robots,
+                canonical,
+                //
                 title,
                 description,
+                tags,
+                //
                 author,
+                publishTime,
+                lastModifiedTime,
+                //
                 svgIcon,
                 pngIcon,
+                //
                 ogSiteName,
                 ogType,
                 ogTitle,
                 ogDescription,
+                ogCategory,
+                ogTags,
                 ogURL,
                 ogImage,
+                //
                 scriptBundle,
                 styleBundle,
+                //
                 append,
             } = state;
             const { baseURL } = locationState;
+            const authorName = $is.person(author) ? author.name : author;
 
             const vNodes: { [x: string]: $preact.VNode } = {
                 [tꓺcharset]: h(tꓺmeta, { [tꓺcharset]: charset }),
                 [tꓺbaseURL]: h(tꓺbase, { [tꓺhref]: baseURL.toString() }),
                 [tꓺviewport]: h(tꓺmeta, { [tꓺname]: tꓺviewport, [tꓺcontent]: viewport }),
 
-                [tꓺcanonical]: h(tꓺlink, { [tꓺrel]: tꓺcanonical, [tꓺhref]: canonical }),
                 ...(robots ? { [tꓺrobots]: h(tꓺmeta, { [tꓺname]: tꓺrobots, [tꓺcontent]: robots }) } : {}),
+                [tꓺcanonical]: h(tꓺlink, { [tꓺrel]: tꓺcanonical, [tꓺhref]: canonical }),
 
                 [tꓺtitle]: h(tꓺtitle, {}, title),
                 [tꓺdescription]: h(tꓺmeta, { [tꓺname]: tꓺdescription, [tꓺcontent]: description }),
-                ...(author ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: $is.person(author) ? author.name : author }) } : {}),
+                ...(tags.length ? { [tꓺkeywords]: h(tꓺmeta, { [tꓺname]: tꓺkeywords, [tꓺcontent]: tags.join(', ') }) } : {}),
+                ...(authorName ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: authorName }) } : {}),
 
                 [tꓺsvgIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇsvg, [tꓺsizes]: tꓺany, [tꓺhref]: svgIcon }),
                 [tꓺpngIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon }),
@@ -510,13 +574,27 @@ export default class Head extends Component<Props, ActualState> {
                 // Note: `og:` prefixed meta tags do not require a `prefix="og: ..."` attribute on `<head>`,
                 // because they are baked into RDFa already; {@see https://www.w3.org/2011/rdfa-context/rdfa-1.1}.
 
+                [tꓺogLocale]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺlocale, [tꓺcontent]: htmlState.lang.replaceAll('-', '_') }),
                 [tꓺogSiteName]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺsite + '_' + tꓺname, [tꓺcontent]: ogSiteName }),
+
                 [tꓺogType]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺtype, [tꓺcontent]: ogType }),
                 [tꓺogTitle]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺtitle, [tꓺcontent]: ogTitle }),
                 [tꓺogDescription]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺdescription, [tꓺcontent]: ogDescription }),
                 [tꓺogURL]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺurl, [tꓺcontent]: ogURL }),
-                [tꓺogImage]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺimage, [tꓺcontent]: ogImage }),
 
+                [tꓺogImage]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺimage, [tꓺcontent]: ogImage }),
+                [tꓺogImageWidth]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺimage + ':' + tꓺwidth, [tꓺcontent]: String(brandOGImage.width) }),
+                [tꓺogImageHeight]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺimage + ':' + tꓺheight, [tꓺcontent]: String(brandOGImage.height) }),
+
+                ...(tꓺarticle === ogType // {@see https://ogp.me/#type_article}.
+                    ? {
+                          ...(authorName ? { [tꓺogArticleAuthor]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺauthor, [tꓺcontent]: authorName }) } : {}), // prettier-ignore
+                          ...(publishTime ? { [tꓺogArticlePublishedTime]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺpublished_time, [tꓺcontent]: publishTime?.toISO() || '' }) } : {}), // prettier-ignore
+                          ...(lastModifiedTime ? { [tꓺogArticleModifiedTime]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺmodified_time, [tꓺcontent]: lastModifiedTime?.toISO() || '' }) } : {}), // prettier-ignore
+                          ...(ogCategory ? { [tꓺogArticleSection]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺsection, [tꓺcontent]: ogCategory }) } : {}), // prettier-ignore
+                          ...Object.fromEntries(ogTags.map((tag, i) => [tꓺogArticleTag + String(i), h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺtag, [tꓺcontent]: tag })])), // prettier-ignore
+                      }
+                    : {}),
                 ...(scriptBundle && isC10n ? { [tꓺprefetchWorkers]: h(tꓺlink, { [tꓺrel]: tꓺdnsPrefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + 'workers.hop.gdn/' }) } : {}), // prettier-ignore
                 ...(styleBundle && isC10n ? { [tꓺprefetchGoogleFonts]: h(tꓺlink, { [tꓺrel]: tꓺdnsPrefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + 'fonts.googleapis.com/' }) } : {}), // prettier-ignore
 
@@ -745,7 +823,9 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
     const pageURL = state.ogURL,
         pageTitle = state.ogTitle.split(' • ')[0],
         pageDescription = state.ogDescription,
-        pageAuthor = state.author, // If exists.
+        pageCategory = state.ogCategory,
+        pageTags = state.ogTags,
+        pageAuthor = state.author,
         pageAuthorGravatar = pageAuthor?.gravatar;
 
     const pageGraph = $obj.mergeDeep(
@@ -757,8 +837,10 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
             [tꓺname]: pageTitle,
             [tꓺheadline]: pageTitle,
             [tꓺdescription]: pageDescription,
+            [tꓺgenre]: pageCategory,
+            [tꓺkeywords]: pageTags.join(', '),
 
-            [tꓺinLanguage]: htmlState.lang || 'en-US',
+            [tꓺinLanguage]: htmlState.lang,
             [tꓺauthor]: [
                 { [tꓺමid]: (siteGraph as $type.Object)[tꓺමid] },
                 ...(pageAuthor && pageAuthorGravatar ? [{
@@ -791,7 +873,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
                           [tꓺurl]: state.ogImage,
                           [tꓺwidth]: brandOGImage.width,
                           [tꓺheight]: brandOGImage.height,
-                          [tꓺcaption]: state.ogDescription || '',
+                          [tꓺcaption]: pageDescription,
                       },
                       [tꓺimage]: [{ [tꓺමid]: pageURL + '#' + tꓺpagePrimaryImg }],
                   }

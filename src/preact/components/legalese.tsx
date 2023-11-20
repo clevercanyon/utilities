@@ -11,7 +11,7 @@ import { $env, $preact, type $type } from '../../index.ts';
 export type Props = $preact.BasicPropsNoKeyRefChildren<object>;
 
 /**
- * Defines (t)ext, (v)alue, (c)lass, and (s)tyle tokens.
+ * Defines tokens.
  *
  * Why are there so many crazy variables here? The intention is to optimize for minification. i.e., By using as many
  * variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome. Remember,
@@ -22,12 +22,12 @@ const tꓺ_href = 'href',
     tꓺ_blank = '_blank',
     tꓺ_target = 'target',
     tꓺ_onClick = 'onClick',
-    vꓺundefined = undefined,
-    cꓺopacity50 = 'opacity-50',
-    cꓺwhitespaceNoWrap = 'whitespace-nowrap',
-    cꓺopacity90Hover100 = 'opacity-90 hover:opacity-100',
-    cꓺallSmallCaps = cꓺwhitespaceNoWrap + ' text-base leading-3',
-    sꓺallSmallCaps = { fontVariantCaps: 'all-small-caps' };
+    tꓺvꓺundefined = undefined,
+    tꓺcꓺopacity50 = 'opacity-50',
+    tꓺcꓺwhitespaceNoWrap = 'whitespace-nowrap',
+    tꓺcꓺopacity90Hover100 = 'opacity-90 hover:opacity-100',
+    tꓺcꓺallSmallCaps = tꓺcꓺwhitespaceNoWrap + ' text-base leading-3',
+    tꓺsꓺallSmallCaps = { fontVariantCaps: 'all-small-caps' };
 
 /**
  * Renders component.
@@ -73,12 +73,12 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
             {
                 [tꓺ_title]: 'Terms',
                 [tꓺ_href]: terms,
-                [tꓺ_target]: brandOrgOrg === brand ? vꓺundefined : tꓺ_blank,
+                [tꓺ_target]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
             },
             {
                 [tꓺ_title]: 'Privacy',
                 [tꓺ_href]: privacy,
-                [tꓺ_target]: brandOrgOrg === brand ? vꓺundefined : tꓺ_blank,
+                [tꓺ_target]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
             },
         ],
         [],
@@ -90,26 +90,26 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
             {brandOrg !== brand && (
                 <div class='mb-2'>
                     <span class='lte-phone:block'>
-                        <span class={cꓺopacity50}>Brought to you by</span>{' '}
-                        <a class={cꓺopacity90Hover100} href={brandOrg.url} target='_blank'>
+                        <span class={tꓺcꓺopacity50}>Brought to you by</span>{' '}
+                        <a class={tꓺcꓺopacity90Hover100} href={brandOrg.url} target='_blank'>
                             <img class='-mt-0.5 inline h-3.5 w-auto' src={brandOrgLogoSVG} alt={brandOrgLegalName} title={brandOrgLegalName} />
                         </a>
-                        {brandOrgOrg === brandOrg ? <span class={cꓺopacity50}>.</span> : ''}
+                        {brandOrgOrg === brandOrg ? <span class={tꓺcꓺopacity50}>.</span> : ''}
                     </span>
                     {brandOrgOrg !== brandOrg && (
                         <span class='ml-2 inline-block lte-phone:ml-0 lte-phone:mt-1 lte-phone:block'>
-                            <span class={cꓺopacity50}>… a</span>{' '}
-                            <a class={cꓺopacity90Hover100} href={brandOrgOrg.url} target='_blank'>
+                            <span class={tꓺcꓺopacity50}>… a</span>{' '}
+                            <a class={tꓺcꓺopacity90Hover100} href={brandOrgOrg.url} target='_blank'>
                                 <img class='-mt-0.5 inline h-4 w-auto' src={brandOrgOrgLogoSVG} alt={brandOrgOrgLegalName} title={brandOrgOrgLegalName} />
                             </a>{' '}
-                            <span class={cꓺopacity50}>production.</span>
+                            <span class={tꓺcꓺopacity50}>production.</span>
                         </span>
                     )}
                 </div>
             )}
             <div>
-                <span class={cꓺopacity50}>
-                    <span class={cꓺallSmallCaps} style={sꓺallSmallCaps}>
+                <span class={tꓺcꓺopacity50}>
+                    <span class={tꓺcꓺallSmallCaps} style={tꓺsꓺallSmallCaps}>
                         © {currentYear}
                     </span>{' '}
                     All Rights Reserved.{' '}
@@ -123,7 +123,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                                 <>{brandOrg.name}™ is a &nbsp;trademark&nbsp;of&nbsp;</>
                             )}
                             {/* Circular reference allows this to work for both cases. */}
-                            <span class={cꓺallSmallCaps} style={sꓺallSmallCaps}>
+                            <span class={tꓺcꓺallSmallCaps} style={tꓺsꓺallSmallCaps}>
                                 {brandOrgOrg.legalName}
                             </span>
                             .
@@ -142,7 +142,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                         class={$preact.classes(
                             'text-color-footer-fg opacity-75',
                             onClick ? 'decoration-dotted' : '',
-                            tꓺ_blank === target ? cꓺwhitespaceNoWrap : '',
+                            tꓺ_blank === target ? tꓺcꓺwhitespaceNoWrap : '',
                             0 === key ? '' : 'ml-2 border-l border-color-footer-fg/30 pl-2',
                         )}
                     >
