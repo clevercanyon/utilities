@@ -456,7 +456,7 @@ export default class Head extends Component<Props, ActualState> {
             } = { ...layoutState?.head, ...actualState };
             const { url, canonicalURL } = locationState;
 
-            let title = actualState.title || url.hostname;
+            let title = actualState.title || layoutState?.head.title || url.hostname;
             const defaultDescription = 'Take the tiger by the tail.';
 
             if (titleSuffix /* String or `true` to enable. */) {
