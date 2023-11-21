@@ -404,7 +404,7 @@ export const clone = <Type>(value: Type, options: CloneOptions = {}, circular: M
         }
         // eslint-disable-next-line no-fallthrough -- Fall through ok.
         default: {
-            return { ...value } as $type.Object;
+            return { ...(value as $type.Object) };
         }
     }
 };

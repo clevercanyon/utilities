@@ -24,7 +24,7 @@ export type LazyProps = $preact.Props<{
  *
  * @note {@see globalThis.fetch()} is stubbed out in the main test file.
  */
-export const Lazy = $preact.lazyComponent(async (props: LazyProps): Promise<$preact.VNode<LazyProps>> => {
+export const Lazy = $preact.lazyAsyncLoader(async (props: LazyProps): Promise<$preact.VNode<LazyProps>> => {
     await fetch('http://x.tld/a');
     await fetch('http://x.tld/b');
     await fetch('http://x.tld/c');
@@ -46,7 +46,7 @@ export const Lazy = $preact.lazyComponent(async (props: LazyProps): Promise<$pre
  *
  * @returns       VNode / JSX element tree.
  */
-export default (unusedꓺprops: Props): $preact.VNode<Props> => {
+export default (unusedꓺ: Props): $preact.VNode<Props> => {
     return (
         <HTML>
             <Head title={'lazy'} />

@@ -29,9 +29,17 @@ export type HydrativelyRenderSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
 };
-export type LazyLoadOptions = Omit<RouterProps, 'children'>;
-export type LazyComponentOptions = Omit<RouterProps, 'children'>;
-export type LazyRouteLoader = () => Promise<{ default: $preact.AnyComponent<RoutedProps> } | $preact.AnyComponent<RoutedProps>>;
+export type LazyComponentLoader = () => Promise<{ default: $preact.AnyComponent }>;
+export type LazyComponentProps<Type extends LazyComponentLoader> = // Conditional type.
+    Awaited<ReturnType<Type>>['default'] extends $preact.ClassComponent
+        ? ConstructorParameters<Awaited<ReturnType<Type>>['default']>[0]
+        : Awaited<ReturnType<Type>>['default'] extends $preact.FnComponent
+          ? Parameters<Awaited<ReturnType<Type>>['default']>[0]
+          : $preact.Props;
+
+export type LazyRouteLoader = () => Promise<{ default: $preact.AnyComponent<RoutedProps> }>;
+export type LazyRouterProps = Omit<RouterProps, 'children'>; // Except, no `children`.
+export type LazyRouterVNode = $preact.VNode<LazyRouterProps>;
 
 // ---
 // Prerender utilities.
@@ -172,80 +180,93 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
 // Lazy utilities.
 
 /**
- * Produces a component that lazy loads a route.
+ * Lazy loads a routed, dynamically imported component.
  *
- * @param   loader  For details {@see LazyRouteLoader}.
- * @param   options Options (all optional); {@see LazyLoadOptions}.
+ * @param   loader      Dynamic import loader. For details {@see LazyComponentLoader}.
+ * @param   props       Potentially required component props; {@see LazyComponentProps}.
+ * @param   routerProps Optional router props; {@see LazyRouterProps}.
  *
- * @returns         Higher order lazy component; {@see $preact.FnComponent}.
+ * @returns             VNode created by a routed, lazy loaded, dynamically imported component.
  */
-export const lazyLoad = (loader: LazyRouteLoader, options?: LazyLoadOptions): $preact.FnComponent => {
-    return (): $preact.VNode => {
-        return (
-            <Router {...(options || {})}>
-                <Route default component={lazyRoute(loader)} />
-            </Router>
-        );
-    };
+export const lazyLoad = <Loader extends LazyComponentLoader>(loader: LazyComponentLoader, props?: LazyComponentProps<Loader>, routerProps?: LazyRouterProps): LazyRouterVNode => {
+    return $preact.create(lazyLoader(loader, routerProps), props || ({} as LazyComponentProps<Loader>)) as LazyRouterVNode;
 };
 
 /**
- * Produces a lazy loaded component.
+ * Produces a routed component that lazy loads a dynamically imported component.
  *
- * @param   asyncComponent Async component to be lazy loaded.
- * @param   options        Options (all optional); {@see LazyComponentOptions}.
+ * @param   loader      Dynamic import loader. For details {@see LazyComponentLoader}.
+ * @param   routerProps Optional router props; {@see LazyRouterProps}.
  *
- * @returns                Higher order lazy component; {@see $preact.FnComponent}.
+ * @returns             A routed component that lazy loads a dynamically imported component.
  */
-export const lazyComponent = <Props extends $preact.Props = $preact.Props>(
-    asyncComponent: $preact.AsyncFnComponent<Props>,
-    options?: LazyComponentOptions,
-): $preact.FnComponent<Props> => {
-    const higherOrder = { props: {} as Props };
-    const ComponentRoute = lazyRoute(async (): ReturnType<LazyRouteLoader> => {
-        const renderedAsyncComponentVNode = await asyncComponent(higherOrder.props);
-        return (unusedꓺprops: RoutedProps) => renderedAsyncComponentVNode;
+export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, routerProps?: LazyRouterProps): ((props?: LazyComponentProps<Loader>) => LazyRouterVNode) => {
+    return lazyAsyncLoader(async (props?: LazyComponentProps<Loader>): Promise<$preact.VNode<LazyComponentProps<Loader>>> => {
+        return $preact.create((await loader()).default, props || ({} as LazyComponentProps<Loader>));
+    }, routerProps);
+};
+
+/**
+ * Lazy loads a routed async function component.
+ *
+ * @param   fn          Async function component to be lazy loaded; {@see $preact.AsyncFnComponent}.
+ * @param   props       Potentially required component props; {@see $preact.AsyncFnComponent<Props>}.
+ * @param   routerProps Optional router props; {@see LazyRouterProps}.
+ *
+ * @returns             VNode created by a routed, lazy loaded, async function component.
+ */
+export const lazyLoadAsync = <Props extends $preact.Props>(fn: $preact.AsyncFnComponent<Props>, props?: Props, routerProps?: LazyRouterProps): LazyRouterVNode => {
+    return $preact.create(lazyAsyncLoader(fn, routerProps), props || ({} as Props)) as LazyRouterVNode;
+};
+
+/**
+ * Produces a routed component that lazy loads an async function component.
+ *
+ * @param   fn          Async function component; {@see $preact.AsyncFnComponent}.
+ * @param   routerProps Optional router props; {@see LazyRouterProps}.
+ *
+ * @returns             A routed component that lazy loads an async function component.
+ */
+export const lazyAsyncLoader = <Props extends $preact.Props>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode) => {
+    const lazyAsyncFnComponentProps = { current: {} as Props };
+    const LazyPseudoRoute = lazyRoute(async (): ReturnType<LazyRouteLoader> => {
+        const renderedAsyncFnComponentVNode = await fn(lazyAsyncFnComponentProps.current);
+        return { default: (unusedꓺ: RoutedProps): $preact.VNode<RoutedProps> | null => renderedAsyncFnComponentVNode };
     });
-    return (props: Parameters<$preact.AsyncFnComponent<Props>>[0]): Awaited<ReturnType<$preact.AsyncFnComponent<Props>>> => {
-        higherOrder.props = props; // Populates async component props.
+    return (props?: Props): LazyRouterVNode => {
+        if (props) lazyAsyncFnComponentProps.current = props;
         return (
-            <Router {...(options || {})}>
-                <Route default component={ComponentRoute} />
+            <Router {...routerProps}>
+                <Route default component={LazyPseudoRoute} />
             </Router>
         );
     };
 };
 
 /**
- * Produces a lazy loaded route component.
+ * Produces an unrouted component that lazy loads a route component.
  *
- * @param   loader For details {@see LazyRouteLoader}.
+ * @param   loader Dynamic import loader. For details {@see LazyRouteLoader}.
  *
- * @returns        Higher order route component; {@see $preact.FnComponent}.
+ * @returns        An unrouted component that lazy loads a route component. Suitable for use as the `component` prop
+ *   passed to a routed {@see Route}; e.g., `<Router><Route component={lazyRoute(...)} /></Router>`.
+ *
+ * @note This utility is at the heart of all our other lazy loading utilities.
  */
 export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedProps> => {
-    let promise: ReturnType<LazyRouteLoader> | undefined;
-    let component: $preact.AnyComponent<RoutedProps> | undefined;
+    let promise: Promise<Awaited<ReturnType<LazyRouteLoader>>['default']> | undefined;
+    let component: Awaited<typeof promise> | undefined;
 
     return (props: $preact.Props<RoutedProps>): $preact.VNode<RoutedProps> => {
         const didChainPromiseResolution = $preact.useRef(false);
         const [, updateResolvedState] = $preact.useState(false);
 
-        if (!promise) {
-            promise = loader().then((exportsOrComponent): Awaited<ReturnType<LazyRouteLoader>> => {
-                return (component = (exportsOrComponent as { default: $preact.AnyComponent<RoutedProps> }).default || exportsOrComponent);
-            });
-        }
-        if (undefined !== component) {
-            return $preact.create(component, props);
-            //
-        } else if (!didChainPromiseResolution.current) {
-            didChainPromiseResolution.current = true;
+        promise ??= loader().then((module) => (component = module.default));
+        if (component) return $preact.create(component, props);
 
-            void promise.then((component): $preact.AnyComponent<RoutedProps> => {
-                updateResolvedState(true); // Triggers re-render.
-                return component as $preact.AnyComponent<RoutedProps>;
-            });
+        if (!didChainPromiseResolution.current) {
+            didChainPromiseResolution.current = true;
+            void promise.then((): void => updateResolvedState(true));
         }
         throw promise;
     };

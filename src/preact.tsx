@@ -96,7 +96,7 @@ export * as ssr from './resources/preact/apis/ssr.tsx';
  * These get lifted up into the top level of our `$preact` utilities. Alternatively, they can be accessed via
  * `$preact.iso.*`. However, we’re exporting here as first-class citizens, for convenience.
  */
-export { lazyLoad, lazyComponent, lazyRoute } from './resources/preact/apis/iso.tsx';
+export { lazyLoad, lazyLoader, lazyLoadAsync, lazyAsyncLoader, lazyRoute } from './resources/preact/apis/iso.tsx';
 
 /**
  * Exports our Preact hooks.
@@ -114,9 +114,6 @@ export { useBody } from './preact/components/body.tsx';
 
 /**
  * Defines types.
- *
- * `AsyncFnComponent` is a special type passed to `lazyComponent()`, which returns an acceptible `FnComponent`. It is
- * not valid anywhere else. Please do not use it arbitrarily. Rare to find a need for it outside these utilities.
  */
 export type Children = preact.ComponentChildren;
 export type Intrinsic = preact.JSX.IntrinsicElements;
