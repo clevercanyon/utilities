@@ -481,7 +481,7 @@ export function removeBasePath(parseable: $type.URL | string, base: $type.URL | 
  * @note Passing a full URL is allowed, but obviously it is absolute.
  */
 export const isAbsolute = $fnꓺmemo(12, (parseable: $type.URL | string): boolean => {
-    return /^(?:[^:/?#\s]+:)?\/\//u.test(parseable.toString());
+    return $is.url(parseable) || /^(?:[^:/?#\s]+:)?\/\//u.test(parseable);
 });
 
 /**
@@ -495,7 +495,7 @@ export const isAbsolute = $fnꓺmemo(12, (parseable: $type.URL | string): boolea
  * @note Passing a full URL is allowed, but obviously it’s not protocol-relative.
  */
 export const isProtoRelative = $fnꓺmemo(12, (parseable: $type.URL | string): boolean => {
-    return /^\/\//u.test(parseable.toString());
+    return !$is.url(parseable) && /^\/\//u.test(parseable);
 });
 
 /**
@@ -505,10 +505,11 @@ export const isProtoRelative = $fnꓺmemo(12, (parseable: $type.URL | string): b
  *
  * @returns           True if URL or string is root-relative.
  *
+ * @note Distinction: a root-relative path is not a relative path.
  * @note Passing a full URL is allowed, but obviously it’s not root-relative.
  */
 export const isRootRelative = $fnꓺmemo(12, (parseable: $type.URL | string): boolean => {
-    return /^\//u.test(parseable.toString()) && !isAbsolute(parseable);
+    return !isAbsolute(parseable) && /^\//u.test(parseable as string);
 });
 
 /**
@@ -518,11 +519,12 @@ export const isRootRelative = $fnꓺmemo(12, (parseable: $type.URL | string): bo
  *
  * @returns           True if URL or string is relative.
  *
+ * @note Distinction: a root-relative path is not a relative path.
  * @note Passing a full URL is allowed, but obviously it’s not relative.
  * @note An empty string is also considered to be relative; same as {@see URL}.
  */
 export const isRelative = $fnꓺmemo(12, (parseable: $type.URL | string): boolean => {
-    return '.' === parseable.toString()[0] || (!isAbsolute(parseable) && !isRootRelative(parseable));
+    return !isAbsolute(parseable) && !/^\//u.test(parseable as string);
 });
 
 /* ---

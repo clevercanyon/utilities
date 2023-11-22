@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { Component } from 'preact';
-import { $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, type $type } from '../../index.ts';
+import { $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, $url, type $type } from '../../index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode, type Context as DataContext } from './data.tsx';
 import { type State as HTMLState } from './html.tsx';
 
@@ -57,7 +57,7 @@ export type State = $preact.State<{
     viewport: string;
 
     robots: string;
-    canonical: string;
+    canonical: string; // Absolute URL.
     structuredData?: object;
 
     siteName: string;
@@ -67,14 +67,14 @@ export type State = $preact.State<{
     description: string;
     category: string;
     tags: string[];
-    image: string;
+    image: string; // Absolute URL.
 
     author?: $type.Person;
     publishTime?: $type.Time;
     lastModifiedTime?: $type.Time;
 
-    pngIcon: string;
-    svgIcon: string;
+    pngIcon: string; // Absolute URL.
+    svgIcon: string; // Absolute URL.
 
     ogSiteName: string;
     ogType: string;
@@ -83,11 +83,11 @@ export type State = $preact.State<{
     ogDescription: string;
     ogCategory: string;
     ogTags: string[];
-    ogURL: string;
-    ogImage: string;
+    ogURL: string; // Absolute URL.
+    ogImage: string; // Absolute URL.
 
-    styleBundle: string;
-    scriptBundle: string;
+    styleBundle: string; // Potentially a relative URL.
+    scriptBundle: string; // Potentially a relative URL.
 
     append: $preact.VNode[];
 }>;
@@ -465,10 +465,10 @@ export default class Head extends Component<Props, ActualState> {
                 scriptBundle,
             } = { ...layoutState?.head, ...actualState };
 
-            // Extracts from location state.
-            const { url, canonicalURL } = locationState;
+            // Extracts data/utilities from location state.
+            const { url, canonicalURL, fromBase } = locationState;
 
-            // Resolves titles for suffixed variants.
+            // Resolves titles for suffixed variants below.
             title = title || ogTitle || url.hostname; // No port.
             ogTitle = ogTitle || title; // Variant for open graph tag.
 
@@ -488,6 +488,9 @@ export default class Head extends Component<Props, ActualState> {
             if (!scriptBundle && '' !== scriptBundle && isLocalVite) {
                 defaultScriptBundle = './index.tsx'; // For vite dev server.
             }
+            const asAbsoluteURLString = (parseable: $type.URL | string): string => {
+                return $url.isAbsolute((parseable = parseable.toString())) ? parseable : fromBase(parseable);
+            };
             return {
                 ...layoutState?.head,
                 ...actualState,
@@ -496,7 +499,7 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺviewport]: viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
 
                 [tꓺrobots]: robots || '', // Default is empty string.
-                [tꓺcanonical]: (canonical || canonicalURL).toString(),
+                [tꓺcanonical]: asAbsoluteURLString(canonical || canonicalURL),
 
                 [tꓺsiteName]: siteName || brand.name || url.hostname,
                 [tꓺtitle]: title, // Computed above.
@@ -505,14 +508,14 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺdescription]: description || defaultDescription,
                 [tꓺcategory]: category || ogCategory || '',
                 [tꓺtags]: tags || ogTags || [],
-                [tꓺimage]: (image || ogImage || brandꓺogImage.png).toString(),
+                [tꓺimage]: asAbsoluteURLString(image || ogImage || brandꓺogImage.png),
 
                 [tꓺauthor]: $is.string(author) ? $fn.try(() => $person.get(author as string), tꓺvꓺundefined)() : author,
                 [tꓺpublishTime]: publishTime ? $time.parse(publishTime) : tꓺvꓺundefined,
                 [tꓺlastModifiedTime]: lastModifiedTime ? $time.parse(lastModifiedTime) : tꓺvꓺundefined,
 
-                [tꓺsvgIcon]: (svgIcon || brandꓺicon.svg).toString(),
-                [tꓺpngIcon]: (pngIcon || brandꓺicon.png).toString(),
+                [tꓺsvgIcon]: asAbsoluteURLString(svgIcon || brandꓺicon.svg),
+                [tꓺpngIcon]: asAbsoluteURLString(pngIcon || brandꓺicon.png),
 
                 [tꓺogSiteName]: ogSiteName || siteName || brand.name || url.hostname,
                 [tꓺogType]: ogType || tꓺarticle,
@@ -521,9 +524,10 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺogDescription]: ogDescription || description || defaultDescription,
                 [tꓺogCategory]: ogCategory || category || '',
                 [tꓺogTags]: ogTags || tags || [],
-                [tꓺogURL]: (ogURL || canonical || canonicalURL).toString(),
-                [tꓺogImage]: (ogImage || image || brandꓺogImage.png).toString(),
+                [tꓺogURL]: asAbsoluteURLString(ogURL || canonical || canonicalURL),
+                [tꓺogImage]: asAbsoluteURLString(ogImage || image || brandꓺogImage.png),
 
+                // These URLs are potentially relative, and that’s as it should be. They don’t have to be absolute.
                 [tꓺstyleBundle]: ('' === styleBundle ? '' : styleBundle || dataState.head.styleBundle || defaultStyleBundle || '').toString(),
                 [tꓺscriptBundle]: ('' === scriptBundle ? '' : scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '').toString(),
 
@@ -569,7 +573,7 @@ export default class Head extends Component<Props, ActualState> {
                 append,
             } = state;
             const { baseURL } = locationState;
-            const authorName = $is.person(author) ? author.name : author;
+            const authorꓺname = $is.person(author) ? author.name : author;
 
             const vNodes: { [x: string]: $preact.VNode } = {
                 [tꓺcharset]: h(tꓺmeta, { [tꓺcharset]: charset }),
@@ -582,14 +586,14 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺtitle]: h(tꓺtitle, {}, suffixedTitle),
                 [tꓺdescription]: h(tꓺmeta, { [tꓺname]: tꓺdescription, [tꓺcontent]: description }),
                 ...(tags.length ? { [tꓺkeywords]: h(tꓺmeta, { [tꓺname]: tꓺkeywords, [tꓺcontent]: tags.join(', ') }) } : {}),
-                ...(authorName ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: authorName }) } : {}),
+                ...(authorꓺname ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: authorꓺname }) } : {}),
 
                 [tꓺsvgIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇsvg, [tꓺsizes]: tꓺany, [tꓺhref]: svgIcon }),
                 [tꓺpngIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon }),
                 [tꓺappleTouchIcon]: h(tꓺlink, { [tꓺrel]: tꓺappleᱼtouchᱼicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon }),
 
                 // Note: `og:` prefixed meta tags do not require a `prefix="og: ..."` attribute on `<head>`,
-                // because they are baked into RDFa already; {@see https://www.w3.org/2011/rdfa-context/rdfa-1.1}.
+                // because `og:` is baked into RDFa already; {@see https://www.w3.org/2011/rdfa-context/rdfa-1.1}.
 
                 [tꓺogLocale]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺlocale, [tꓺcontent]: htmlState.lang.replaceAll('-', '_') }),
                 [tꓺogSiteName]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽ + tꓺsite + '_' + tꓺname, [tꓺcontent]: ogSiteName }),
@@ -605,7 +609,7 @@ export default class Head extends Component<Props, ActualState> {
 
                 ...(tꓺarticle === ogType // {@see https://ogp.me/#type_article}.
                     ? {
-                          ...(authorName ? { [tꓺogArticleAuthor]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺauthor, [tꓺcontent]: authorName }) } : {}), // prettier-ignore
+                          ...(authorꓺname ? { [tꓺogArticleAuthor]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺauthor, [tꓺcontent]: authorꓺname }) } : {}), // prettier-ignore
                           ...(publishTime ? { [tꓺogArticlePublishedTime]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺpublished_time, [tꓺcontent]: publishTime?.toISO() || '' }) } : {}), // prettier-ignore
                           ...(lastModifiedTime ? { [tꓺogArticleModifiedTime]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺmodified_time, [tꓺcontent]: lastModifiedTime?.toISO() || '' }) } : {}), // prettier-ignore
                           ...(ogCategory ? { [tꓺogArticleSection]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺsection, [tꓺcontent]: ogCategory }) } : {}), // prettier-ignore
