@@ -165,6 +165,8 @@ type TypesOfClasses = // Internal class prop variants.
  * @param   options Options (all optional); {@see $obj.OmitOptions}.
  *
  * @returns         A clone of `props` with all `keys` omitted; {@see $obj.omit()}.
+ *
+ * @todo Should this automatically omit other prop variants? Such as `tabindex` vs `tabIndex`, etc?
  */
 export const omitProps = <Type extends Props, Key extends keyof Type>(props: Type, keys: Key[], options?: $obj.OmitOptions): Omit<Type, Key> => {
     if (keys.some((v) => internalClassPropVariants.includes(v as ClassPropVariants))) {

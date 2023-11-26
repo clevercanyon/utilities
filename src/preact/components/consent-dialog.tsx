@@ -409,9 +409,9 @@ function Checkbox(props: CheckboxProps): $preact.VNode<CheckboxProps> {
         >
             <input
                 type='checkbox'
-                tabindex={props.tabindex || 0}
+                tabIndex={props.tabIndex || 0}
                 class={$preact.classes('select-none rounded', cursorClass, props)}
-                {...$preact.omitProps(props, ['tabindex', 'label', 'labelProps', 'class', 'children'])}
+                {...$preact.omitProps(props, ['tabIndex', 'label', 'labelProps', 'class', 'children'])}
             />{' '}
             {props.label}
             {props.children}
@@ -444,9 +444,9 @@ function HelpIconToggle(props: HelpIconToggleProps): $preact.VNode<HelpIconToggl
                 type='button'
                 onClick={onClick}
                 aria-pressed={state.open}
-                tabindex={props.tabindex || 0}
+                tabIndex={props.tabIndex || 0}
                 class={$preact.classes('opacity-70 hover:opacity-100', props)}
-                {...$preact.omitProps(props, ['onClick', 'tabindex', 'class', 'children'])}
+                {...$preact.omitProps(props, ['onClick', 'tabIndex', 'class', 'children'])}
             >
                 <span class='sr-only'>{props.title}</span>
                 {state.open ? (
@@ -471,20 +471,18 @@ function Button(props: ButtonProps): $preact.VNode<ButtonProps> {
     return (
         <button
             type={props.type || 'button'}
-            tabindex={props.tabindex || 0}
+            tabIndex={props.tabIndex || 0}
             style={{
                 padding: '.375em .625em',
                 ...(props.withIcon ? { columnGap: '.375em' } : {}),
             }}
             class={$preact.classes(
-                'select-none font-semibold',
-                'rounded shadow active:shadow-sm',
-                'opacity-90 hover:opacity-100 focus:opacity-100 active:opacity-100',
-                props.withIcon ? 'inline-flex items-center' : '', // Plus `columnGap` above.
-                props.disabled ? 'cursor-not-allowed !opacity-50 !shadow' : '',
+                'select-none rounded font-semibold',
+                props.withIcon ? 'inline-flex items-center' : '', // + `columnGap` above.
+                props.disabled ? 'cursor-not-allowed opacity-50' : 'opacity-90 hover:opacity-100',
                 props, // Any classes in props.
             )}
-            {...$preact.omitProps(props, ['type', 'tabindex', 'withIcon', 'class', 'children'])}
+            {...$preact.omitProps(props, ['type', 'tabIndex', 'withIcon', 'class', 'children'])}
         >
             {props.children}
         </button>
