@@ -128,7 +128,9 @@ export const define = (): Constructor => {
         public connectedCallback(): void {
             this.#onClick = $dom.on(this, 'click', (event: Event): void => {
                 if (this.#props.href && $is.leftClickMouseEvent(event)) {
-                    location.hash = this.#props.href; // Hash change.
+                    const l = location; // For minified reuse below.
+                    // Empty, then change, to force a scroll change.
+                    (l.hash = ''), (l.hash = this.#props.href);
                 }
             });
         }
