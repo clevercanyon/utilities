@@ -236,7 +236,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                             </h2>
                             <p class='mt-2 text-color-basic-fg/50'>
                                 Your privacy is critically important to us. By using our website you consent to essential cookies in accordance with our{' '}
-                                <a class='not-basic text-color-basic-fg/70 hover:text-color-basic-link' href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
+                                <a class='_ text-color-basic-fg/70 hover:text-color-basic-link' href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
                                     privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline-block h-auto w-2' aria-hidden='true' />
                                 </a>{' '}
                                 . By clicking "Accept All", you are choosing to accept all cookies, including non-essential cookies. Or, by clicking "Decline All", you are choosing
