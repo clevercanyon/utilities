@@ -26,7 +26,8 @@ export default function Prose(props: Props = {}): $preact.VNode<Props> {
         <As
             {...{
                 ...$preact.omitProps(props, ['class']),
-                class: $preact.classes('prose gte-desktop:text-lg', props),
+                // In our Tailwind implementation, `.p` = `.prose`.
+                class: $preact.classes('p gte-desktop:text-lg', props),
             }}
         />
     );
