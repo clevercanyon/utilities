@@ -440,7 +440,7 @@ const $isꓺdeepEqualꓺhelper = (a: unknown, b: unknown, circular: Map<object, 
         case a instanceof URL: {
             // ↑ Just like {@see $isꓺurl()}.
 
-            const aObj = a as URL;
+            const aObj = a as unknown as URL;
             const bObj = b as URL;
 
             rtn = aObj.toString() === bObj.toString();
@@ -449,7 +449,7 @@ const $isꓺdeepEqualꓺhelper = (a: unknown, b: unknown, circular: Map<object, 
         case a instanceof Date: {
             // ↑ Just like {@see $isꓺdate()}.
 
-            const aObj = a as Date;
+            const aObj = a as unknown as Date;
             const bObj = b as Date;
 
             rtn = aObj.getTime() === bObj.getTime();
@@ -458,7 +458,7 @@ const $isꓺdeepEqualꓺhelper = (a: unknown, b: unknown, circular: Map<object, 
         case a instanceof RegExp: {
             // ↑ Just like {@see $isꓺregExp()}.
 
-            const aObj = a as RegExp;
+            const aObj = a as unknown as RegExp;
             const bObj = b as RegExp;
 
             rtn = aObj.source === bObj.source && aObj.flags === bObj.flags;

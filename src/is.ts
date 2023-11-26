@@ -649,6 +649,28 @@ export const event = (value: unknown): value is Event => {
 };
 
 /**
+ * Checks if value is a left-click DOM event.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is left-click DOM event.
+ *
+ * @requiredEnv web
+ */
+export const leftClickMouseEvent = (value: unknown): value is MouseEvent => {
+    return (
+        $env.isWeb() && //
+        value instanceof MouseEvent &&
+        'click' === value.type &&
+        !value.ctrlKey &&
+        !value.metaKey &&
+        !value.altKey &&
+        !value.shiftKey &&
+        0 === (value.button || 0)
+    );
+};
+
+/**
  * Checks a value’s object tag.
  *
  * @param   value       Value to consider.

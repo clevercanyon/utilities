@@ -269,7 +269,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             if ($env.isWeb() /* Only possible on the web. */) {
                 // Appends `<x-preact-app-loading>` status indicator.
                 if (false !== props.handleLoading && !locationState.isInitialHydration) {
-                    loadingHandler?.cancel(); // i.e., Don’t stack these up.
+                    loadingHandler?.cancel(); // Don’t stack these up.
                     loadingHandler = $dom.afterNextFrame((): void => {
                         $dom.body().appendChild(xPreactAppLoading());
                     });
@@ -331,7 +331,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 
             // Handles removal of `<x-preact-app-loading>` status indicator.
             if (false !== props.handleLoading && !locationState.isInitialHydration) {
-                loadingHandler?.cancel(); // i.e., Don’t stack these up.
+                loadingHandler?.cancel(); // Don’t stack these up.
                 loadingHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
             }
             // Fires an event indicating the end of loading sequence.
@@ -344,8 +344,8 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 
             // Handles scroll position for current route location.
             if (false !== props.handleScrolling && locationState.wasPushed && !locationState.isInitialHydration) {
-                scrollWheelHandler?.cancel(), // i.e., Don’t stack these up.
-                    scrollHandler?.cancel(); // i.e., Don’t stack these up.
+                scrollWheelHandler?.cancel(), // Don’t stack these up.
+                    scrollHandler?.cancel(); // Same for inner handler.
 
                 scrollWheelHandler = $dom.onWheelEnd((): void => {
                     scrollHandler = $dom.afterNextFrame((): void => {

@@ -5,7 +5,7 @@
 import { $class, $is, $obj, $obp, $to, type $type } from '../../index.ts';
 
 /**
- * Class object cache.
+ * Constructor cache.
  */
 let ObjMC: Constructor;
 
@@ -81,7 +81,7 @@ export type OperationCallback = {
 /**
  * Object MC class factory.
  *
- * @returns {@see Constructor} Definition.
+ * @returns Class constructor.
  */
 export const getClass = (): Constructor => {
     if (ObjMC) return ObjMC;

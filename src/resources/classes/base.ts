@@ -5,7 +5,7 @@
 import { $app, $obj, $symbol, type $type } from '../../index.ts';
 
 /**
- * Class object cache.
+ * Constructor cache.
  */
 let Base: Constructor;
 
@@ -36,7 +36,7 @@ declare class ClassInterface {
 /**
  * Base class factory.
  *
- * @returns {@see Constructor} Definition.
+ * @returns Class constructor.
  */
 export const getClass = (): Constructor => {
     if (Base) return Base;

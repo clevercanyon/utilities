@@ -62,7 +62,7 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
     }, [actualState]);
 
     if ($env.isWeb()) {
-        $preact.useLayoutEffect(() => {
+        $preact.useLayoutEffect((): void => {
             $dom.newAtts($dom.body(), state);
             const xPreactApp = $dom.xPreactApp();
             if (xPreactApp) $dom.setAtts(xPreactApp, { class: xPreactAppClasses });

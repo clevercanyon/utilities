@@ -651,6 +651,20 @@ export const tryParse = (parseable?: $type.URL | string, base?: $type.URL | stri
 };
 
 /**
+ * Extracts hashless from a URL.
+ *
+ * @param   parseable Parseable URL or string. Optional in browser; i.e., default is {@see current()}.
+ * @param   base      Base URL. Required when parsing a URL that’s not absolute.
+ *
+ * @returns           Hashless URL; i.e., without `#hash`.
+ */
+export const toHashless = (parseable?: $type.URL | string, base?: $type.URL | string): string => {
+    const url = parse(parseable, base);
+    url.hash = ''; // Removes hash.
+    return url.toString();
+};
+
+/**
  * Extracts canonical from a URL.
  *
  * @param   parseable Parseable URL or string. Optional in browser; i.e., default is {@see current()}.

@@ -5,7 +5,7 @@
 import { $class, $obj, $str, $url, type $type } from '../../index.ts';
 
 /**
- * Class object cache.
+ * Constructor cache.
  */
 let Person: Constructor;
 
@@ -50,7 +50,7 @@ type ClassInterfaceProps = Omit<ClassInterface, 'constructor' | 'gravatarSize' |
 /**
  * Person class factory.
  *
- * @returns {@see Constructor} Definition.
+ * @returns Class constructor.
  */
 export const getClass = (): Constructor => {
     if (Person) return Person;

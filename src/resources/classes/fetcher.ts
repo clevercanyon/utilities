@@ -5,7 +5,7 @@
 import { $app, $class, $crypto, $env, $json, $obp, $str, type $type } from '../../index.ts';
 
 /**
- * Class object cache.
+ * Constructor cache.
  */
 let Fetcher: Constructor;
 
@@ -51,7 +51,7 @@ export type GlobalCacheEntry = {
 /**
  * Fetcher class factory.
  *
- * @returns {@see Constructor} Definition.
+ * @returns Class constructor.
  */
 export const getClass = (): Constructor => {
     if (Fetcher) return Fetcher;

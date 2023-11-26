@@ -69,9 +69,15 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
     }, [actualState]);
 
     if ($env.isWeb()) {
-        $preact.useLayoutEffect(() => {
+        $preact.useLayoutEffect((): void => {
             $dom.newAtts($dom.html(), state);
         }, [state]);
+
+        $preact.useEffect((): void => {
+            void import('../../resources/preact/apis/web/elements/x-hash.ts').then((module): void => {
+                module.define(); // Defines `<x-hash`>: `CustomHTMLHashElement`.
+            });
+        }, []);
     }
     return (
         <ContextObject.Provider value={{ state, updateState }}>

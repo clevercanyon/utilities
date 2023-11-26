@@ -9,6 +9,7 @@ import './resources/init.ts';
 
 import { $to } from './index.ts';
 import { type Dayjs } from 'dayjs';
+import { type EventTools as DOMEventTools } from './dom.ts';
 import type * as cf from '@cloudflare/workers-types/experimental';
 
 /**
@@ -45,6 +46,11 @@ export type { $fetch as fetch };
 export type { $Error as Error };
 export type { $Timeout as Timeout };
 export type Turnstile = Turnstile.Turnstile;
+
+/**
+ * DOM-related types.
+ */
+export type { DOMEventTools };
 
 /**
  * Cloudflare worker types.

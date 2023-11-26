@@ -17,17 +17,21 @@ export type Props = $preact.BasicPropsNoKeyRefChildren<object>;
  * variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome. Remember,
  * variable names can be minified, so variable name length is not an issue.
  */
-const tꓺ_href = 'href',
-    tꓺ_title = 'title',
+const tꓺrel = 'rel',
+    tꓺhref = 'href',
+    tꓺtitle = 'title',
     tꓺ_blank = '_blank',
-    tꓺ_target = 'target',
-    tꓺ_onClick = 'onClick',
+    tꓺtarget = 'target',
+    tꓺonClick = 'onClick',
+    tꓺexternal = 'external',
     tꓺvꓺundefined = undefined,
-    tꓺcꓺopacity50 = 'opacity-50',
-    tꓺcꓺwhitespaceNoWrap = 'whitespace-nowrap',
-    tꓺcꓺopacity90Hover100 = 'opacity-90 hover:opacity-100',
-    tꓺcꓺallSmallCaps = tꓺcꓺwhitespaceNoWrap + ' text-base leading-3',
-    tꓺsꓺallSmallCaps = { fontVariantCaps: 'all-small-caps' };
+    tꓺcꓺopacityᱼ50 = 'opacity-50',
+    tꓺprivacyᱼpolicy = 'privacy-policy',
+    tꓺtermsᱼofᱼservice = 'terms-of-service',
+    tꓺcꓺwhitespaceᱼnowrap = 'whitespace-nowrap',
+    tꓺcꓺopacityᱼ90𑂱hoverꓽopacityᱼ100 = 'opacity-90 hover:opacity-100',
+    tꓺcꓺwhitespaceᱼnowrap𑂱textᱼbase𑂱leadingᱼ3 = tꓺcꓺwhitespaceᱼnowrap + ' text-base leading-3',
+    tꓺsꓺfontVariantCaps𑂱allᱼsmallᱼcaps = { fontVariantCaps: 'all-small-caps' };
 
 /**
  * Renders component.
@@ -61,24 +65,26 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
     const legalLinks = $preact.useMemo(
         () => [
             {
-                [tꓺ_title]: 'My Privacy Choices',
-                [tꓺ_onClick]: onClickOpenConsentDialog,
-                [tꓺ_href]: privacy,
+                [tꓺtitle]: 'My Privacy Choices',
+                [tꓺonClick]: onClickOpenConsentDialog,
+                [tꓺhref]: privacy,
             },
             {
-                [tꓺ_title]: 'Do Not Sell or Share My Personal Information',
-                [tꓺ_onClick]: onClickOpenConsentDialog,
-                [tꓺ_href]: privacy,
+                [tꓺtitle]: 'Do Not Sell or Share My Personal Information',
+                [tꓺonClick]: onClickOpenConsentDialog,
+                [tꓺhref]: privacy,
             },
             {
-                [tꓺ_title]: 'Terms',
-                [tꓺ_href]: terms,
-                [tꓺ_target]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
+                [tꓺtitle]: 'Terms',
+                [tꓺhref]: terms,
+                [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
+                [tꓺrel]: tꓺtermsᱼofᱼservice + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
             },
             {
-                [tꓺ_title]: 'Privacy',
-                [tꓺ_href]: privacy,
-                [tꓺ_target]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
+                [tꓺtitle]: 'Privacy',
+                [tꓺhref]: privacy,
+                [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
+                [tꓺrel]: tꓺprivacyᱼpolicy + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
             },
         ],
         [],
@@ -90,26 +96,26 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
             {brandOrg !== brand && (
                 <div class='mb-2'>
                     <span class='lte-phone:block'>
-                        <span class={tꓺcꓺopacity50}>Brought to you by</span>{' '}
-                        <a class={tꓺcꓺopacity90Hover100} href={brandOrg.url} target='_blank'>
+                        <span class={tꓺcꓺopacityᱼ50}>Brought to you by</span>{' '}
+                        <a class={tꓺcꓺopacityᱼ90𑂱hoverꓽopacityᱼ100} href={brandOrg.url} target='_blank'>
                             <img class='-mt-0.5 inline h-3.5 w-auto' src={brandOrgLogoSVG} alt={brandOrgLegalName} title={brandOrgLegalName} />
                         </a>
-                        {brandOrgOrg === brandOrg ? <span class={tꓺcꓺopacity50}>.</span> : ''}
+                        {brandOrgOrg === brandOrg ? <span class={tꓺcꓺopacityᱼ50}>.</span> : ''}
                     </span>
                     {brandOrgOrg !== brandOrg && (
                         <span class='ml-2 inline-block lte-phone:ml-0 lte-phone:mt-1 lte-phone:block'>
-                            <span class={tꓺcꓺopacity50}>… a</span>{' '}
-                            <a class={tꓺcꓺopacity90Hover100} href={brandOrgOrg.url} target='_blank'>
+                            <span class={tꓺcꓺopacityᱼ50}>… a</span>{' '}
+                            <a class={tꓺcꓺopacityᱼ90𑂱hoverꓽopacityᱼ100} href={brandOrgOrg.url} target='_blank'>
                                 <img class='-mt-0.5 inline h-4 w-auto' src={brandOrgOrgLogoSVG} alt={brandOrgOrgLegalName} title={brandOrgOrgLegalName} />
                             </a>{' '}
-                            <span class={tꓺcꓺopacity50}>production.</span>
+                            <span class={tꓺcꓺopacityᱼ50}>production.</span>
                         </span>
                     )}
                 </div>
             )}
             <div>
-                <span class={tꓺcꓺopacity50}>
-                    <span class={tꓺcꓺallSmallCaps} style={tꓺsꓺallSmallCaps}>
+                <span class={tꓺcꓺopacityᱼ50}>
+                    <span class={tꓺcꓺwhitespaceᱼnowrap𑂱textᱼbase𑂱leadingᱼ3} style={tꓺsꓺfontVariantCaps𑂱allᱼsmallᱼcaps}>
                         © {currentYear}
                     </span>{' '}
                     All Rights Reserved.{' '}
@@ -123,7 +129,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                                 <>{brandOrg.name}™ is a &nbsp;trademark&nbsp;of&nbsp;</>
                             )}
                             {/* Circular reference allows this to work for both cases. */}
-                            <span class={tꓺcꓺallSmallCaps} style={tꓺsꓺallSmallCaps}>
+                            <span class={tꓺcꓺwhitespaceᱼnowrap𑂱textᱼbase𑂱leadingᱼ3} style={tꓺsꓺfontVariantCaps𑂱allᱼsmallᱼcaps}>
                                 {brandOrgOrg.legalName}
                             </span>
                             .
@@ -132,17 +138,18 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                 </span>
             </div>
             <div class='mx-auto mt-2 leading-tight lte-tablet:max-w-sm'>
-                {legalLinks.map(({ title, target, href, onClick }, key) => (
+                {legalLinks.map(({ title, target, href, rel, onClick }, key) => (
                     <a
                         key={key}
                         title={title}
                         target={target}
                         href={href}
+                        rel={rel}
                         onClick={onClick}
                         class={$preact.classes(
                             'text-color-footer-fg opacity-75',
                             onClick ? 'decoration-dotted' : '',
-                            tꓺ_blank === target ? tꓺcꓺwhitespaceNoWrap : '',
+                            tꓺ_blank === target ? tꓺcꓺwhitespaceᱼnowrap : '',
                             0 === key ? '' : 'ml-2 border-l border-color-footer-fg/30 pl-2',
                         )}
                     >

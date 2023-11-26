@@ -5,7 +5,7 @@
 import '../../resources/init.ts';
 
 import { createContext } from 'preact';
-import { $dom, $env, $is, $preact, $str, $url, type $type } from '../../index.ts';
+import { $dom, $env, $is, $preact, $url, type $type } from '../../index.ts';
 
 /**
  * Defines types.
@@ -226,6 +226,7 @@ const reduceState = (state: ActualState, x: Parameters<Context['updateState']>[0
     // For reuse below.
     const isWeb = $env.isWeb();
     const isObject = $is.object(x);
+    const isString = !isObject && $is.string(x);
 
     // ---
     // Full pages changes for all major crawlers.
@@ -242,22 +243,15 @@ const reduceState = (state: ActualState, x: Parameters<Context['updateState']>[0
         const event = x as MouseEvent;
         isClick = isPush = true; // Click = push.
 
-        if ($is.number(event.button) && 0 !== event.button) {
-            // {@see https://o5p.me/OJrHBs} for details.
-            return state; // Not a left-click; let browser handle.
-        }
-        if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
-            // {@see https://o5p.me/sxlcYO} for details.
-            return state; // Not a plain left-click; let browser handle.
-        }
-        const a = (event.target as HTMLElement)?.closest('a[href]') as HTMLAnchorElement | undefined;
-        const aHref = a ? a.getAttribute('href') : null; // String or `null`.
+        // This checks things like mouse button, modifier keys, etc.
+        if (!$is.leftClickMouseEvent(event)) return state; // Not a left-click.
 
-        if (!a || !a.href || !aHref) {
-            return state; // Not applicable; no href value.
-        }
-        if ('#' === aHref[0] /* Ignores hashes on current path. */) {
-            return state; // Not applicable; i.e., simply an on-page hash change.
+        // Our custom `<x-hash>` tags are intentionally not considered here.
+        // i.e., We don’t care about simple hash changes. Only actual location changes.
+        const a = (event.target as HTMLElement)?.closest('a') as HTMLAnchorElement | undefined;
+
+        if (!a || !a.href /* `a.href` is a fully computed hyperlink reference. */) {
+            return state; // Not applicable; no `href` value.
         }
         if (!/^(_?self)?$/iu.test(a.target || '') /* Ignores target !== `_self`. */) {
             return state; // Not applicable; i.e., targets a different tab/window.
@@ -266,27 +260,26 @@ const reduceState = (state: ActualState, x: Parameters<Context['updateState']>[0
         //
     } else if (isObject && 'popstate' === (x as PopStateEvent).type) {
         if (!isWeb) return state; // Not applicable.
+        // Popstate event is a change, not a push.
 
         // const unusedꓺevent = x as PopStateEvent;
-        // Popstate history event is a change, not a push.
-
         url = $url.parse(location.href, state.baseURL);
         //
     } else if (isObject) {
-        isPush = true; // Object passed in is a push.
+        isPush = true; // Object = push.
 
         if (!x.pathQuery || 'string' !== typeof x.pathQuery) {
             return state; // Not applicable.
         }
-        url = $url.parse($str.lTrim(x.pathQuery, '/'), state.baseURL);
+        url = $url.parse(x.pathQuery, state.baseURL);
         //
-    } else if (!isObject && $is.string(x)) {
-        isPush = true; // String passed in is a push.
+    } else if (isString) {
+        isPush = true; // String = push.
 
         const pathQuery = x; // As `pathQuery`.
         if (!pathQuery) return state; // Not applicable.
 
-        url = $url.parse($str.lTrim(pathQuery, '/'), state.baseURL);
+        url = $url.parse(pathQuery, state.baseURL);
     }
     // ---
     // Validates a potential state update.
@@ -311,14 +304,15 @@ const reduceState = (state: ActualState, x: Parameters<Context['updateState']>[0
     const pathQuery = $url.removeBasePath($url.toPathQuery(url), state.baseURL);
 
     // ---
-    // Further validates a potential state update.
+    // Cancels state update when `pathQuery` is not changing.
+    // e.g., Ignores on-page hash changes. We let browser handle.
 
     if (state.pathQuery === pathQuery) {
         if (isWeb && isClick && !url.hash) {
             (x as MouseEvent).preventDefault();
 
-            scrollWheelHandler?.cancel(), // i.e., Don’t stack these up.
-                scrollHandler?.cancel(); // i.e., Don’t stack these up.
+            scrollWheelHandler?.cancel(), // Don’t stack these up.
+                scrollHandler?.cancel(); // Same for inner handler.
 
             scrollWheelHandler = $dom.onWheelEnd((): void => {
                 scrollHandler = $dom.afterNextFrame((): void => {
@@ -327,7 +321,6 @@ const reduceState = (state: ActualState, x: Parameters<Context['updateState']>[0
             });
         }
         return state; // No point; we’re already at this location.
-        // This also ignores on-page hash changes. We let browser handle.
     }
 
     // ---
