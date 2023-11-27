@@ -352,7 +352,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                         (document.activeElement as HTMLElement | null)?.blur();
 
                         const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
-                        const currentHashElement = currentHash ? $dom.query('#' + currentHash) : null;
+                        const currentHashElement = currentHash ? $dom.query('[id="' + $str.escSelector(currentHash) + '"]') : null;
 
                         if (currentHashElement) {
                             currentHashElement.scrollIntoView({ behavior: 'auto' });
