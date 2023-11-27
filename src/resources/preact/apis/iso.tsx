@@ -29,12 +29,16 @@ export type HydrativelyRenderSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
 };
-export type LazyComponentLoader = () => Promise<{ default: $preact.AnyComponent }>;
+export type LazyComponentLoader<Props extends $preact.Props = $preact.Props> = () => Promise<{ default: $preact.AnyComponent<Props> }>;
 export type LazyComponentProps<Type extends LazyComponentLoader> = // Conditional type.
     Awaited<ReturnType<Type>>['default'] extends $preact.ClassComponent
-        ? ConstructorParameters<Awaited<ReturnType<Type>>['default']>[0]
+        ? ConstructorParameters<Awaited<ReturnType<Type>>['default']>[0] extends undefined
+            ? $preact.Props
+            : ConstructorParameters<Awaited<ReturnType<Type>>['default']>[0]
         : Awaited<ReturnType<Type>>['default'] extends $preact.FnComponent
-          ? Parameters<Awaited<ReturnType<Type>>['default']>[0]
+          ? Parameters<Awaited<ReturnType<Type>>['default']>[0] extends undefined
+              ? $preact.Props
+              : Parameters<Awaited<ReturnType<Type>>['default']>[0]
           : $preact.Props;
 
 export type LazyRouteLoader = () => Promise<{ default: $preact.AnyComponent<RoutedProps> }>;
@@ -188,7 +192,7 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
  *
  * @returns             VNode created by a routed, lazy loaded, dynamically imported component.
  */
-export const lazyLoad = <Loader extends LazyComponentLoader>(loader: LazyComponentLoader, props?: LazyComponentProps<Loader>, routerProps?: LazyRouterProps): LazyRouterVNode => {
+export const lazyLoad = <Loader extends LazyComponentLoader>(loader: Loader, props?: LazyComponentProps<Loader>, routerProps?: LazyRouterProps): LazyRouterVNode => {
     return $preact.create(lazyLoader(loader, routerProps), props || ({} as LazyComponentProps<Loader>)) as LazyRouterVNode;
 };
 
