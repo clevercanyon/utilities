@@ -7,6 +7,7 @@ import './resources/init.ts';
 
 import { $is, $obj, $to, type $type } from './index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
+import { getClass as getClassMap, type Class as ClassMap } from './resources/preact/classes/class-map.ts';
 
 import type * as preact from 'preact';
 import {
@@ -96,7 +97,13 @@ export * as ssr from './resources/preact/apis/ssr.tsx';
  * These get lifted up into the top level of our `$preact` utilities. Alternatively, they can be accessed via
  * `$preact.iso.*`. However, we’re exporting here as first-class citizens, for convenience.
  */
-export { lazyLoad, lazyLoader, lazyLoadAsync, lazyAsyncLoader, lazyRoute } from './resources/preact/apis/iso.tsx';
+export {
+    lazyLoad,
+    lazyLoader,
+    lazyLoadAsync,
+    lazyAsyncLoader,
+    lazyRoute, //
+} from './resources/preact/apis/iso.tsx';
 
 /**
  * Exports our Preact hooks.
@@ -139,6 +146,7 @@ export type Ref<Type = unknown> = preact.RefObject<Type>;
 export type StateUpdater<Type> = preactꓺhooksꓺStateUpdater<Type>; // e.g., {@see useState()}.
 export type StateDispatcher<Type> = preactꓺhooksꓺStateDispatcher<Type>; // e.g., {@see useReducedState()}.
 
+export type { ClassMap }; // Re-exports class map type.
 export type ClassPropVariants = $type.Writable<typeof internalClassPropVariants>[number];
 export type Classes = TypesOfClasses | (TypesOfClasses | Classes)[] | Set<TypesOfClasses | Classes>;
 export type Styles = preact.JSX.CSSProperties;
@@ -147,6 +155,7 @@ type TypesOfClasses = // Internal class prop variants.
     // Types can be nested into arrays|sets infinitely deep.
     | string
     | undefined
+    | ClassMap
     | Map<string, boolean>
     | $type.Object<{ [x in ClassPropVariants]?: Classes }>
     // Signal-like is supported because JSX supports it on the `class` attribute.
@@ -312,19 +321,21 @@ export const classes = (...args: Classes[]): string | undefined => {
  *
  * @returns      `Map<string, true>` of all enabled classes.
  */
-export const classMap = (...args: Classes[]): Map<string, true> => {
+export const classMap = (...args: Classes[]): ClassMap => {
     return classesꓺhelper(args);
 };
 
 /**
  * Helps get component classes.
  *
- * @param   allArgs All arguments passed to {@see classes()}.
- * @param   map     Internal recursive use only. Please do not pass.
+ * @param   allArgs  All arguments passed to {@see classes()}.
+ * @param   classMap Internal recursive use only. Please do not pass.
  *
- * @returns         `Map<string, true>` of all enabled classes.
+ * @returns          `Map<string, true>` of all enabled classes; {@see ClassMap}.
  */
-const classesꓺhelper = (allArgs: Classes[], map: Map<string, true> = new Map()): Map<string, true> => {
+const classesꓺhelper = (allArgs: Classes[], classMap?: ClassMap): ClassMap => {
+    const map = classMap || new (getClassMap())();
+
     for (const args of allArgs) {
         for (const arg of $to.array(args)) {
             if ($is.array(arg)) {
