@@ -29,8 +29,8 @@ const tꓺrel = 'rel',
     tꓺprivacyᱼpolicy = 'privacy-policy',
     tꓺtermsᱼofᱼservice = 'terms-of-service',
     tꓺcꓺwhitespaceᱼnowrap = 'whitespace-nowrap',
-    tꓺcꓺwhitespaceᱼnowrap𑂱textᱼbase𑂱leadingᱼ3 = tꓺcꓺwhitespaceᱼnowrap + ' text-base leading-3',
-    tꓺsꓺfontVariantCaps𑂱allᱼsmallᱼcaps = { fontVariantCaps: 'all-small-caps' };
+    tꓺcꓺfontAllSmallCapsClasses = tꓺcꓺwhitespaceᱼnowrap + ' leading-3',
+    tꓺsꓺfontAllSmallCapsStyles = { fontVariantCaps: 'all-small-caps', fontSize: '1.3em' };
 
 /**
  * Renders component.
@@ -114,7 +114,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
             )}
             <div>
                 <span class={tꓺcꓺopacityᱼ50}>
-                    <span class={tꓺcꓺwhitespaceᱼnowrap𑂱textᱼbase𑂱leadingᱼ3} style={tꓺsꓺfontVariantCaps𑂱allᱼsmallᱼcaps}>
+                    <span class={tꓺcꓺfontAllSmallCapsClasses} style={tꓺsꓺfontAllSmallCapsStyles}>
                         © {currentYear}
                     </span>{' '}
                     All Rights Reserved.{' '}
@@ -128,7 +128,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                                 <>{brandOrg.name}™ is a &nbsp;trademark&nbsp;of&nbsp;</>
                             )}
                             {/* Circular reference allows this to work for both cases. */}
-                            <span class={tꓺcꓺwhitespaceᱼnowrap𑂱textᱼbase𑂱leadingᱼ3} style={tꓺsꓺfontVariantCaps𑂱allᱼsmallᱼcaps}>
+                            <span class={tꓺcꓺfontAllSmallCapsClasses} style={tꓺsꓺfontAllSmallCapsStyles}>
                                 {brandOrgOrg.legalName}
                             </span>
                             .
