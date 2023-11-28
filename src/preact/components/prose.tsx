@@ -22,12 +22,15 @@ export type Props = AsProps;
  * @note A class map can be used to disable default classes; {@see $preact.classes()}.
  */
 export default function Prose(props: Props = {}): $preact.VNode<Props> {
+    const classMap = $preact.classMap(props);
     return (
         <As
             {...{
                 ...$preact.omitProps(props, ['class']),
                 // In our Tailwind implementation, `p` = `prose`.
-                class: $preact.classes('p', props),
+                // The `text-base` class handles auto-scaling of prose copy.
+                // Prose styles use em units while `text-base` uses autoscaling clamps.
+                class: $preact.classes('p', classMap.hasTextSize() ? '' : 'text-base', props),
             }}
         />
     );

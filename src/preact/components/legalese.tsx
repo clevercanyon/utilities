@@ -29,7 +29,6 @@ const tꓺrel = 'rel',
     tꓺprivacyᱼpolicy = 'privacy-policy',
     tꓺtermsᱼofᱼservice = 'terms-of-service',
     tꓺcꓺwhitespaceᱼnowrap = 'whitespace-nowrap',
-    tꓺcꓺopacityᱼ90𑂱hoverꓽopacityᱼ100 = 'opacity-90 hover:opacity-100',
     tꓺcꓺwhitespaceᱼnowrap𑂱textᱼbase𑂱leadingᱼ3 = tꓺcꓺwhitespaceᱼnowrap + ' text-base leading-3',
     tꓺsꓺfontVariantCaps𑂱allᱼsmallᱼcaps = { fontVariantCaps: 'all-small-caps' };
 
@@ -97,7 +96,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                 <div class='mb-2'>
                     <span class='lte-phone:block'>
                         <span class={tꓺcꓺopacityᱼ50}>Brought to you by</span>{' '}
-                        <a class={tꓺcꓺopacityᱼ90𑂱hoverꓽopacityᱼ100} href={brandOrg.url} target='_blank'>
+                        <a href={brandOrg.url} target='_blank'>
                             <img class='-mt-0.5 inline h-3.5 w-auto' src={brandOrgLogoSVG} alt={brandOrgLegalName} title={brandOrgLegalName} />
                         </a>
                         {brandOrgOrg === brandOrg ? <span class={tꓺcꓺopacityᱼ50}>.</span> : ''}
@@ -105,7 +104,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                     {brandOrgOrg !== brandOrg && (
                         <span class='ml-2 inline-block lte-phone:ml-0 lte-phone:mt-1 lte-phone:block'>
                             <span class={tꓺcꓺopacityᱼ50}>… a</span>{' '}
-                            <a class={tꓺcꓺopacityᱼ90𑂱hoverꓽopacityᱼ100} href={brandOrgOrg.url} target='_blank'>
+                            <a href={brandOrgOrg.url} target='_blank'>
                                 <img class='-mt-0.5 inline h-4 w-auto' src={brandOrgOrgLogoSVG} alt={brandOrgOrgLegalName} title={brandOrgOrgLegalName} />
                             </a>{' '}
                             <span class={tꓺcꓺopacityᱼ50}>production.</span>
@@ -147,7 +146,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                         rel={rel}
                         onClick={onClick}
                         class={$preact.classes(
-                            'text-color-footer-fg opacity-75',
+                            'text-color-footer-fg',
                             onClick ? 'decoration-dotted' : '',
                             tꓺ_blank === target ? tꓺcꓺwhitespaceᱼnowrap : '',
                             0 === key ? '' : 'ml-2 border-l border-color-footer-fg/30 pl-2',
