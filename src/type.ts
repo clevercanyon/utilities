@@ -45,7 +45,6 @@ export type { $Headers as Headers };
 export type { $fetch as fetch };
 export type { $Error as Error };
 export type { $Timeout as Timeout };
-export type Turnstile = Turnstile.Turnstile;
 
 /**
  * DOM-related types.
@@ -56,6 +55,14 @@ export type { DOMEventTools };
  * Cloudflare worker types.
  */
 export type { cf }; // `cf` namespace.
+
+/**
+ * Cloudflare turnstile types.
+ */
+type CFTurnstile = typeof turnstile & {
+    remove(widgetId: string): void; // Adds missing `remove()` fn.
+};
+export type { CFTurnstile as Turnstile };
 
 /**
  * Ensurable types.

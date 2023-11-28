@@ -22,13 +22,12 @@ export type Props = AsProps;
  * @note A class map can be used to disable default classes; {@see $preact.classes()}.
  */
 export default function Prose(props: Props = {}): $preact.VNode<Props> {
-    const classMap = $preact.classMap(props);
     return (
         <As
             {...{
                 ...$preact.omitProps(props, ['class']),
                 // In our Tailwind implementation, `p` = `prose`.
-                class: $preact.classes('p', classMap.hasTextSize() ? '' : 'gte-desktop:text-lg', classMap),
+                class: $preact.classes('p', props),
             }}
         />
     );

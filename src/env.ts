@@ -16,13 +16,6 @@ const vars: { [x: string]: unknown } = {};
 /**
  * Defines types.
  */
-declare global {
-    interface Navigator {
-        globalPrivacyControl: string;
-    }
-}
-declare const MINIFLARE: boolean;
-
 export type IPGeoData = {
     city: string;
     colo: string;

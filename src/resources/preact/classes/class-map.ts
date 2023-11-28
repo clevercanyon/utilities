@@ -29,7 +29,7 @@ export const getClass = (): Constructor => {
 
     ClassMap = class extends Map<string, boolean> implements Class {
         public hasTextSize(): boolean {
-            const regExp = /^text-(?:xs|sm|base|lg|xl[0-9]*)$/iu;
+            const regExp = /^text-(?:xs|sm|base|lg|[0-9]*xl)$/iu;
             return [...this.keys()].some((c) => regExp.test(c));
         }
     };
