@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.485",
+    "version": "1.0.486",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -145,6 +145,11 @@
             "types": "./dist/types/preact/components/body.d.ts",
             "import": "./dist/preact/components/body.js",
             "default": "./dist/preact/components/body.js"
+        },
+        "./preact/components/clipboard": {
+            "types": "./dist/types/preact/components/clipboard.d.ts",
+            "import": "./dist/preact/components/clipboard.js",
+            "default": "./dist/preact/components/clipboard.js"
         },
         "./preact/components/consent": {
             "types": "./dist/types/preact/components/consent.d.ts",

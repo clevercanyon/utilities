@@ -69,11 +69,14 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
     }, [actualState]);
 
     if ($env.isWeb()) {
+        const clipboard = $preact.useClipboard();
+
         $preact.useLayoutEffect((): void => {
             $dom.newAtts($dom.html(), state);
         }, [state]);
 
         $preact.useEffect((): void => {
+            void clipboard.then(({ addListeners }) => void addListeners());
             void import('../../resources/preact/apis/web/elements/x-hash.ts').then((module): void => {
                 module.define(); // Defines `<x-hash`>: `CustomHTMLHashElement`.
             });

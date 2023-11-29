@@ -19,17 +19,6 @@ let initializedWheelStatus = false;
 /**
  * Defines types.
  */
-export type WDES = Window | Document | Element | string;
-export type AnyAtts = { [x: string]: unknown };
-
-export type AnyVoidFn = (() => void) | (() => Promise<void>);
-export type AnyEventHandler =
-    | ((event: Event) => void) //
-    | ((event: CustomEvent) => void)
-    | ((event: Event) => Promise<void>)
-    | ((event: CustomEvent) => Promise<void>);
-
-export type EventTools = { cancel: () => void };
 export type PathToOptions = { from?: Element };
 
 /**
@@ -71,9 +60,9 @@ const initializeWheelStatus = (): void => {
  *
  * @param   callback Callback.
  *
- * @returns          Event tools; {@see EventTools}.
+ * @returns          Event tools; {@see $type.DOMEventTools}.
  */
-export const onReady = (callback: AnyVoidFn): EventTools => {
+export const onReady = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
     const eventName = 'DOMContentLoaded';
     const actualCallback = (): void => void callback();
 
@@ -90,9 +79,9 @@ export const onReady = (callback: AnyVoidFn): EventTools => {
  *
  * @param   callback Callback.
  *
- * @returns          Event tools; {@see EventTools}.
+ * @returns          Event tools; {@see $type.DOMEventTools}.
  */
-export const onLoad = (callback: AnyVoidFn): EventTools => {
+export const onLoad = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
     const eventName = 'load';
     const actualCallback = (): void => void callback();
 
@@ -118,9 +107,9 @@ export const onLoad = (callback: AnyVoidFn): EventTools => {
  *
  * @param   callback Callback.
  *
- * @returns          Event tools; {@see EventTools}.
+ * @returns          Event tools; {@see $type.DOMEventTools}.
  */
-export const onWheelEnd = (callback: AnyVoidFn): EventTools => {
+export const onWheelEnd = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
     initializeWheelStatus(); // If not already.
 
     const eventName = 'x:wheelEnd';
@@ -139,9 +128,9 @@ export const onWheelEnd = (callback: AnyVoidFn): EventTools => {
  *
  * @param   callback Callback.
  *
- * @returns          Event tools; {@see EventTools}.
+ * @returns          Event tools; {@see $type.DOMEventTools}.
  */
-export const onNextFrame = (callback: AnyVoidFn): EventTools => {
+export const onNextFrame = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
     const raf = requestAnimationFrame((): void => void callback());
     return { cancel: (): void => cancelAnimationFrame(raf) };
 };
@@ -155,9 +144,9 @@ export const onNextFrame = (callback: AnyVoidFn): EventTools => {
  *
  * @param   callback Callback.
  *
- * @returns          Event tools; {@see EventTools}.
+ * @returns          Event tools; {@see $type.DOMEventTools}.
  */
-export const afterNextFrame = (callback: AnyVoidFn): EventTools => {
+export const afterNextFrame = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
     const done = (): void => {
         clearTimeout(timeout);
         cancelAnimationFrame(raf);
@@ -176,21 +165,33 @@ export const afterNextFrame = (callback: AnyVoidFn): EventTools => {
 /**
  * Fires a callback on a named event.
  *
- * @param   wdes       Window, document, element, or selectors.
- * @param   eventNames Event name(s). Space-separated string or array.
- * @param   selectors  Optional selectors. If given, `callback` and `options` shift to new arg positions and a delegated
- *   event handler will be configured instead of a regular event handler. Selectors = deleganted event handler.
- * @param   callback   Callback for event handler.
- * @param   options    Options (all optional); {@see AddEventListenerOptions}.
+ * @param   targetSelectors Window, document, element, or selectors.
+ * @param   eventNames      Event name(s). Space-separated string or array.
+ * @param   selectors       Optional selectors. If given, `callback` and `options` shift to new positions and a
+ *   delegated event handler is configured instead of a regular event handler. Selectors = delegated event handler.
+ * @param   callback        Callback for event handler.
+ * @param   options         Options (all optional); {@see AddEventListenerOptions}.
  *
- * @returns            Event tools; {@see EventTools}.
+ * @returns                 Event tools; {@see $type.DOMEventTools}.
  */
-export function on(wdes: WDES, eventNames: string | string[], callback: AnyEventHandler, options?: AddEventListenerOptions): EventTools;
-export function on(wdes: WDES, eventNames: string | string[], selectors: string, callback: AnyEventHandler, options?: AddEventListenerOptions): EventTools;
+export function on(
+    targetSelectors: $type.DOMEventTargetSelectors,
+    eventNames: string | string[],
+    callback: $type.DOMEventHandler,
+    options?: AddEventListenerOptions,
+): $type.DOMEventTools;
 
-export function on(...args: unknown[]): EventTools {
-    const wdes = args[0] as WDES; // Window, document, element, or string.
-    const wde = $is.string(wdes) ? require(wdes) : wdes;
+export function on(
+    targetSelectors: $type.DOMEventTargetSelectors,
+    eventNames: string | string[],
+    selectors: string,
+    callback: $type.DOMEventHandler,
+    options?: AddEventListenerOptions,
+): $type.DOMEventTools;
+
+export function on(...args: unknown[]): $type.DOMEventTools {
+    const targetSelectors = args[0] as $type.DOMEventTargetSelectors;
+    const target = $is.string(targetSelectors) ? require(targetSelectors) : targetSelectors;
 
     const cancelers: (() => void)[] = []; // Initialize.
     const eventNames = $to.array(args[1]).join(' ').split(/\s+/u);
@@ -209,15 +210,15 @@ export function on(...args: unknown[]): EventTools {
             let { currentTarget, target } = event;
             if (!$is.element(target)) return;
             do {
-                if (target.matches(selectors)) void callback.call(target, event);
+                if (target.matches(selectors)) void callback.call(target, new CustomEvent(event.type, { detail: { target, event } }));
             } while ($is.element((target = target.parentNode)) && target !== currentTarget);
         };
     } else actualCallback = (event: Event): void => void callback.call(event.target, event);
 
     for (const eventName of eventNames) {
         if (!eventName) throw new Error(); // Missing event name.
-        wde.addEventListener(eventName, actualCallback, options);
-        cancelers.push((): void => wde.removeEventListener(eventName, actualCallback, options));
+        target.addEventListener(eventName, actualCallback, options);
+        cancelers.push((): void => target.removeEventListener(eventName, actualCallback, options));
     }
     return { cancel: (): void => cancelers.forEach((cancel) => cancel()) };
 }
@@ -225,15 +226,15 @@ export function on(...args: unknown[]): EventTools {
 /**
  * Triggers a custom event.
  *
- * @param wdes    Window, document, element, or selectors.
- * @param event   Name of a custom event, {@see CustomEvent}, or {@see Event}.
- * @param data    For a custom event, optional data to pass as `detail` to listeners.
- * @param options For a custom event, optional initialization options; {@see CustomEventInit}.
+ * @param targetSelectors Window, document, element, or selectors.
+ * @param event           Name of a custom event, {@see CustomEvent}, or {@see Event}.
+ * @param data            For a custom event, optional data to pass as `detail` to listeners.
+ * @param options         For a custom event, optional initialization options; {@see CustomEventInit}.
  */
-export const trigger = (wdes: WDES, event: string | CustomEvent | Event, data?: object, options?: CustomEventInit): void => {
-    const wde = $is.string(wdes) ? require(wdes) : wdes;
+export const trigger = (targetSelectors: $type.DOMEventTargetSelectors, event: string | CustomEvent | Event, data?: object, options?: CustomEventInit): void => {
+    const target = $is.string(targetSelectors) ? require(targetSelectors) : targetSelectors;
     if ($is.string(event)) event = new CustomEvent(event, { detail: data || {}, ...options });
-    wde.dispatchEvent(event);
+    target.dispatchEvent(event);
 };
 
 /**
@@ -303,11 +304,11 @@ export function create<Tag extends keyof HTMLElementTagNameMap>(tag: Tag, atts?:
 export function create<Tag extends keyof SVGElementTagNameMap>(tag: Tag, atts?: Partial<SVGElementTagNameMap[Tag]>): SVGElementTagNameMap[Tag];
 export function create<Tag extends keyof MathMLElementTagNameMap>(tag: Tag, atts?: Partial<MathMLElementTagNameMap[Tag]>): MathMLElementTagNameMap[Tag];
 export function create<Tag extends keyof HTMLElementDeprecatedTagNameMap>(tag: Tag, atts?: Partial<HTMLElementDeprecatedTagNameMap[Tag]>): HTMLElementDeprecatedTagNameMap[Tag];
-export function create(tag: string, atts?: AnyAtts): Element;
+export function create(tag: string, atts?: $type.DOMAtts): Element;
 
 export function create(...args: unknown[]): Text | Element {
     const tag = (args[0] as string).toLowerCase();
-    let value: $type.Primitive | undefined, atts: AnyAtts | undefined;
+    let value: $type.Primitive | undefined, atts: $type.DOMAtts | undefined;
 
     if ('textNode' === tag) {
         value = args[1] as typeof value;
@@ -342,7 +343,7 @@ export { create as h }; // `h` is short for hyperscript. Meaning, "JavaScript th
  * @param element Element.
  * @param atts    Attributes.
  */
-export const newAtts = (element: Element, atts: AnyAtts): void => {
+export const newAtts = (element: Element, atts: $type.DOMAtts): void => {
     for (let i = 0; i < element.attributes.length; i++) {
         const { name } = element.attributes[i];
         if (!Object.hasOwn(atts, name)) element.removeAttribute(name);
@@ -366,7 +367,7 @@ export const newAtts = (element: Element, atts: AnyAtts): void => {
  * @param element Element.
  * @param atts    Attributes.
  */
-export const setAtts = (element: Element, atts: AnyAtts): void => {
+export const setAtts = (element: Element, atts: $type.DOMAtts): void => {
     // Cast as keyable so we can access properties.
     const elemObj = element as Element & $type.Object;
 

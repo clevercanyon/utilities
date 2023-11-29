@@ -111,6 +111,7 @@ export {
 export { useConsent } from './preact/components/consent.tsx';
 export { useAnalytics } from './preact/components/analytics.tsx';
 export { useTurnstile } from './preact/components/turnstile.tsx';
+export { useClipboard } from './preact/components/clipboard.tsx';
 export { useLocation } from './preact/components/location.tsx';
 export { useData, useHTTP } from './preact/components/data.tsx';
 export { useRoute } from './preact/components/router.tsx';

@@ -9,7 +9,6 @@ import './resources/init.ts';
 
 import { $to } from './index.ts';
 import { type Dayjs } from 'dayjs';
-import { type EventTools as DOMEventTools } from './dom.ts';
 import type * as cf from '@cloudflare/workers-types/experimental';
 
 /**
@@ -27,6 +26,7 @@ export type TypedArray<Type extends $TypedArray = $TypedArray> = Type;
 
 export type { $Function as Function };
 export type { $AsyncFunction as AsyncFunction };
+export type AnyVoidFn = (() => void) | (() => Promise<void>);
 
 /**
  * Class types.
@@ -49,7 +49,11 @@ export type { $Timeout as Timeout };
 /**
  * DOM-related types.
  */
-export type { DOMEventTools };
+export type DOMAtts = { [x: string]: unknown };
+export type DOMEventTools = { cancel: () => void };
+export type DOMEventTargetSelectors = EventTarget | string;
+export type DOMEventDelegated = CustomEvent<{ target: Element; event: Event }>;
+export type DOMEventHandler = ((event: Event) => void) | ((event: CustomEvent) => void) | ((event: Event) => Promise<void>) | ((event: CustomEvent) => Promise<void>);
 
 /**
  * Cloudflare worker types.
