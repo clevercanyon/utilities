@@ -102,8 +102,9 @@ export const addListeners = async (): Promise<void> => {
         const copyTarget = $dom.query('[id="' + $str.escSelector(copyTargetId) + '"]') as unknown as HTMLElement | null;
 
         if (copyTarget?.innerText) {
-            const cleanCopyTarget = copyTarget.cloneNode() as HTMLElement;
-            cleanCopyTarget.querySelectorAll('.line-number').forEach((l) => l.remove());
+            const cleanCopyTarget = copyTarget.cloneNode(true) as HTMLElement;
+            // This removes, for example, line numbers added by starry night syntax hiliter.
+            cleanCopyTarget.querySelectorAll('[hidden], [aria-hidden="true"]').forEach((n) => n.remove());
 
             void copy(cleanCopyTarget.innerText.trim())
                 .then(() => {
