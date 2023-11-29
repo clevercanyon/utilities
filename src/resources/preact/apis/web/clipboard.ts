@@ -108,7 +108,7 @@ export const addListeners = async (): Promise<void> => {
 
             void copy(cleanCopyTarget.innerText.trim())
                 .then(() => {
-                    const animationClasses = ['animate-jump', 'animate-duration-[250ms]'];
+                    const animationClasses = ['animate-jump', 'animate-ease-out', 'animate-alternate-reverse'];
                     clickTarget.classList.add(...animationClasses); // Animation runs once only.
                     setTimeout(() => $dom.onNextFrame(() => clickTarget.classList.remove(...animationClasses)), 250);
                 })
