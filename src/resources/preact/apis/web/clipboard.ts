@@ -93,17 +93,25 @@ export const addListeners = async (): Promise<void> => {
 
     // Attaches click listener for copy-to-clipboard buttons.
     $dom.on(document, 'click', 'button[data-copy-id]', (event: $type.DOMEventDelegated): void => {
-        const clickTarget = event.detail.target;
-        const copyTargetId = (event.detail.target as HTMLElement).dataset?.copyId || '';
-        const copyTarget = $dom.query('[id="' + $str.escSelector(copyTargetId) + '"]');
+        const clickTarget = event.detail.target as HTMLElement;
+        const copyTargetId = clickTarget.dataset.copyId || ''; // Possibly empty.
 
-        if ((copyTarget as HTMLElement)?.innerText)
-            void copy((copyTarget as HTMLElement).innerText)
+        if (!copyTargetId) return; // Nothing to work with in this case.
+        // We’re using an attribute selector because hash IDs that begin with a `~` are technically invalid in
+        // the eyes of `document.querySelector()`. We get around the nag by instead using an attribute selector.
+        const copyTarget = $dom.query('[id="' + $str.escSelector(copyTargetId) + '"]') as unknown as HTMLElement | null;
+
+        if (copyTarget?.innerText) {
+            const cleanCopyTarget = copyTarget.cloneNode() as HTMLElement;
+            cleanCopyTarget.querySelectorAll('.line-number').forEach((l) => l.remove());
+
+            void copy(cleanCopyTarget.innerText.trim())
                 .then(() => {
                     const animationClasses = ['animate-jump', 'animate-duration-[250ms]'];
                     clickTarget.classList.add(...animationClasses); // Animation runs once only.
                     setTimeout(() => $dom.onNextFrame(() => clickTarget.classList.remove(...animationClasses)), 250);
                 })
                 .catch((error) => state.debug && console.log('Copy error:', error));
+        }
     });
 };

@@ -352,6 +352,8 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                         (document.activeElement as HTMLElement | null)?.blur();
 
                         const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
+                        // We’re using an attribute selector because hash IDs that begin with a `~` are technically invalid in
+                        // the eyes of `document.querySelector()`. We get around the nag by instead using an attribute selector.
                         const currentHashElement = currentHash ? $dom.query('[id="' + $str.escSelector(currentHash) + '"]') : null;
 
                         if (currentHashElement) {
