@@ -91,28 +91,50 @@ export const addListeners = async (): Promise<void> => {
     if (state.addedListeners) return;
     state.addedListeners = true;
 
-    // Attaches click listener for copy-to-clipboard buttons.
+    // Attaches click listener and handler for all click-to-copy buttons.
     $dom.on(document, 'click', 'button[data-copy-id]', (event: $type.DOMEventDelegated): void => {
+        // Click target; i.e., the click-to-copy button.
         const clickTarget = event.detail.target as HTMLElement;
-        const copyTargetId = clickTarget.dataset.copyId || ''; // Possibly empty.
 
-        if (!copyTargetId) return; // Nothing to work with in this case.
+        // Acquires copy target ID.
+        const copyTargetId = clickTarget.dataset.copyId;
+        if (!copyTargetId) return; // Bail; no copy target ID.
+
         // We’re using an attribute selector because hash IDs that begin with a `~` are technically invalid in
         // the eyes of `document.querySelector()`. We get around the nag by instead using an attribute selector.
         const copyTarget = $dom.query('[id="' + $str.escSelector(copyTargetId) + '"]') as unknown as HTMLElement | null;
+        if (!copyTarget?.innerText) return; // ID not found, or nothing to actually copy.
 
-        if (copyTarget?.innerText) {
-            const cleanCopyTarget = copyTarget.cloneNode(true) as HTMLElement;
-            // This removes, for example, line numbers added by starry night syntax hiliter.
-            cleanCopyTarget.querySelectorAll('[hidden], [aria-hidden="true"]').forEach((n) => n.remove());
+        // Clones and cleans up textual data in the copy target.
+        const cleanCopyTarget = copyTarget.cloneNode(true) as HTMLElement;
+        // This removes, for example, line numbers added by starry night syntax hiliter.
+        cleanCopyTarget.querySelectorAll('[hidden], [aria-hidden="true"]').forEach((n) => n.remove());
 
-            void copy(cleanCopyTarget.innerText.trim())
-                .then(() => {
-                    const animationClasses = ['animate-jump', 'animate-ease-out', 'animate-alternate-reverse'];
-                    clickTarget.classList.add(...animationClasses); // Animation runs once only.
-                    setTimeout(() => $dom.onNextFrame(() => clickTarget.classList.remove(...animationClasses)), 250);
-                })
-                .catch((error) => state.debug && console.log('Copy error:', error));
-        }
+        // Copy-in-progress classes to apply to copy target.
+        const copyTargetCopyInProgressClasses = ['-copy-in-progress'];
+
+        // Animation classes we apply to click target on success.
+        const clickTargetSuccessAnimationClasses = ['animate-jump', 'animate-ease-out', 'animate-alternate-reverse', 'animate-duration-500'];
+
+        // Adds copy-in-progress classes to copy target.
+        copyTarget.classList.add(...copyTargetCopyInProgressClasses);
+
+        // Peforms copy operation.
+        void copy(cleanCopyTarget.innerText.trim())
+            .then(() => {
+                // Adds animation classes to click target on success.
+                clickTarget.classList.add(...clickTargetSuccessAnimationClasses);
+
+                // Removes copy-in-progress and animation classes upon animation completion.
+                setTimeout(
+                    () =>
+                        $dom.onNextFrame(() => {
+                            copyTarget.classList.remove(...copyTargetCopyInProgressClasses);
+                            clickTarget.classList.remove(...clickTargetSuccessAnimationClasses);
+                        }),
+                    500,
+                );
+            })
+            .catch((error) => state.debug && console.log('Copy error:', error));
     });
 };
