@@ -100,9 +100,9 @@ export const addListeners = async (): Promise<void> => {
         if ((copyTarget as HTMLElement)?.innerText)
             void copy((copyTarget as HTMLElement).innerText)
                 .then(() => {
-                    const animationClass = 'animate-one-fast-ping';
-                    clickTarget.classList.add(animationClass); // Duration is .5s = 500ms.
-                    setTimeout(() => $dom.onNextFrame(() => clickTarget.classList.remove(animationClass)), 500);
+                    const animationClasses = ['animate-jump', 'animate-duration-[250ms]'];
+                    clickTarget.classList.add(...animationClasses); // Animation runs once only.
+                    setTimeout(() => $dom.onNextFrame(() => clickTarget.classList.remove(...animationClasses)), 250);
                 })
                 .catch((error) => state.debug && console.log('Copy error:', error));
     });

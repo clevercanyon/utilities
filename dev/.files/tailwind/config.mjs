@@ -22,6 +22,7 @@ import pluginTypography from '@tailwindcss/typography';
 import pluginTypographyStyles from '@tailwindcss/typography/src/styles.js';
 import fs from 'node:fs';
 import path from 'node:path';
+import pluginAnimated from 'tailwindcss-animated';
 import pluginThemer from 'tailwindcss-themer';
 import exclusions from '../bin/includes/exclusions.mjs';
 import extensions from '../bin/includes/extensions.mjs';
@@ -336,7 +337,6 @@ export default /* not async compatible */ ({ themesConfig } = {}) => {
                     },
                 },
                 animation: {
-                    'one-fast-ping': 'ping .5s 1',
                     'fade-in': 'fade-in 150ms linear',
                     'fade-out': 'fade-out 150ms linear',
                 },
@@ -348,6 +348,9 @@ export default /* not async compatible */ ({ themesConfig } = {}) => {
 
             // This plugin is what powers all of our theme configurations; {@see https://www.npmjs.com/package/tailwindcss-themer}.
             pluginThemer(mergeThemesConfig({ themesConfig })), // Our own theme system is also called upon here to configure Tailwind themes.
+
+            // This plugin adds support for more animation utilities and comes with a beautiful animation configurator.
+            pluginAnimated, // {@see https://www.tailwindcss-animated.com/configurator.html}.
         ],
         content: [
             path.resolve(projDir, './{src,dist}') + '/**/*.' + extensions.asBracedGlob([...extensions.tailwindContent]),
