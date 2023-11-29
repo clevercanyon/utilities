@@ -7,7 +7,7 @@
 # @note This entire file will be updated automatically.
 # @note Instead of editing here, please review `./wrangler.mjs`.
 #
-# Last generated using `./wrangler.mjs` Nov 28, 2023 8:10 AM UTC.
+# Last generated using `./wrangler.mjs` Nov 29, 2023 5:36 AM UTC.
 ##
 
 send_metrics = false
@@ -15,7 +15,7 @@ usage_model = "bundled"
 compatibility_date = "2023-08-15"
 compatibility_flags = [ ]
 account_id = "f1176464a976947aa5665d989814a4b1"
-name = "skeleton"
+name = "utilities"
 workers_dev = false
 main = "./dist/index.js"
 
@@ -420,7 +420,7 @@ exclude = [
 
 [route]
 zone_name = "hop.gdn"
-pattern = "workers.hop.gdn/skeleton/*"
+pattern = "workers.hop.gdn/utilities/*"
 
 [env.dev]
 workers_dev = false
