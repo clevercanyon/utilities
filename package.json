@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.491",
+    "version": "1.0.492",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -288,7 +288,7 @@
     "optionalDependencies": {},
     "bundleDependencies": [],
     "devDependencies": {
-        "@clevercanyon/dev-deps": "^1.0.279"
+        "@clevercanyon/dev-deps": "^1.0.280"
     },
     "overrides": {},
     "cpu": ["x64", "arm64"],

@@ -79,7 +79,7 @@ export const copy = async (value: string): Promise<void> => {
     const blob = new Blob([value], { type });
     const data = [new ClipboardItem({ [type]: blob })];
 
-    // This API is only available in secure (SSL) contexts.
+    // Only available in secure contexts.
     return navigator.clipboard.write(data);
 };
 
@@ -93,7 +93,7 @@ export const addListeners = async (): Promise<void> => {
 
     // Attaches click listener and handler for all click-to-copy buttons.
     $dom.on(document, 'click', 'button[data-copy-id]', (event: $type.DOMEventDelegated): void => {
-        // Click target; i.e., the click-to-copy button.
+        // Click target; i.e., a click-to-copy button.
         const clickTarget = event.detail.target as HTMLElement;
 
         // Acquires copy target ID.
@@ -105,36 +105,47 @@ export const addListeners = async (): Promise<void> => {
         const copyTarget = $dom.query('[id="' + $str.escSelector(copyTargetId) + '"]') as unknown as HTMLElement | null;
         if (!copyTarget?.innerText) return; // ID not found, or nothing to actually copy.
 
-        // Clones and cleans up textual data in the copy target.
+        // Clones and cleans up text in the copy target.
         const cleanCopyTarget = copyTarget.cloneNode(true) as HTMLElement;
-        // This removes, for example, line numbers added by starry night syntax hiliter.
-        cleanCopyTarget.querySelectorAll('[hidden], [aria-hidden="true"]').forEach((n) => n.remove());
+        // This removes, for example, line numbers added by starry night syntax highlighting.
+        cleanCopyTarget.querySelectorAll('[hidden], [aria-hidden="true"]').forEach((node) => node.remove());
 
-        // Copy-in-progress classes to apply to copy target.
-        const copyTargetCopyInProgressClasses = ['-copy-in-progress'];
+        // Shorter; optimizing for minification.
+        const copyTargetClassList = copyTarget.classList,
+            clickTargetClassList = clickTarget.classList;
 
-        // Animation classes we apply to click target on success.
-        const clickTargetSuccessAnimationClasses = ['animate-jump', 'animate-ease-out', 'animate-alternate-reverse', 'animate-duration-500'];
+        // Copy in-progress classes we apply to copy target.
+        const copyTargetCopyInProgressClasses = ['-copy-in-progress'],
+            // Copy success classes we apply to click target.
+            clickTargetCopySuccessClasses = ['-copy-success'];
 
-        // Adds copy-in-progress classes to copy target.
-        copyTarget.classList.add(...copyTargetCopyInProgressClasses);
+        // Disables click target while in-progress.
+        $dom.setAtts(clickTarget, { disabled: true });
+
+        // Adds copy in-progress classes to copy target.
+        copyTargetClassList.add(...copyTargetCopyInProgressClasses);
 
         // Peforms copy operation.
         void copy(cleanCopyTarget.innerText.trim())
             .then(() => {
-                // Adds animation classes to click target on success.
-                clickTarget.classList.add(...clickTargetSuccessAnimationClasses);
+                // Adds copy success classes to click target.
+                clickTargetClassList.add(...clickTargetCopySuccessClasses);
 
-                // Removes copy-in-progress and animation classes upon animation completion.
+                // Removes copy in-progress classes after just a brief delay.
+                // Requires that any CSS transitions use a duration of `.5s`; i.e., matching timeout below.
+                setTimeout(() => $dom.onNextFrame(() => copyTargetClassList.remove(...copyTargetCopyInProgressClasses)), 500);
+
+                // Removes copy success classes and re-enables click target.
+                // Requires that CSS transitions use a duration of `1s`; i.e., matching timeout below.
                 setTimeout(
                     () =>
                         $dom.onNextFrame(() => {
-                            copyTarget.classList.remove(...copyTargetCopyInProgressClasses);
-                            clickTarget.classList.remove(...clickTargetSuccessAnimationClasses);
+                            clickTargetClassList.remove(...clickTargetCopySuccessClasses);
+                            $dom.setAtts(clickTarget, { disabled: false });
                         }),
-                    500,
+                    1000,
                 );
             })
-            .catch((error) => state.debug && console.log('Copy error:', error));
+            .catch((copyError: Error) => state.debug && console.log({ copyError }));
     });
 };
