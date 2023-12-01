@@ -114,6 +114,7 @@ export type Context = $preact.Context<{
     updateState: Head['updateState'];
     forceFullUpdate: Head['forceFullUpdate'];
 }>;
+type GetComputedStateOptions = { useLayoutState?: boolean };
 
 /**
  * Defines plain text tokens.
@@ -405,14 +406,12 @@ export default class Head extends Component<Props, ActualState> {
         // Acquires app’s brand from environment var.
 
         const brand = $env.get('APP_BRAND') as $type.Brand,
-            brandꓺicon = brand.icon,
             brandꓺogImage = brand.ogImage;
 
         // Gathers state from various contexts.
 
         const { state: locationState } = $preact.useLocation(),
             { state: dataState, ...data } = $preact.useData(),
-            { state: layoutState } = $preact.useLayout(),
             { state: htmlState } = $preact.useHTML();
 
         // Initializes local variables.
@@ -429,112 +428,7 @@ export default class Head extends Component<Props, ActualState> {
         }
         // Memoizes computed state.
 
-        state = this.computedState = $preact.useMemo((): State => {
-            let {
-                charset,
-                viewport,
-                //
-                robots,
-                canonical,
-                //
-                siteName,
-                title,
-                titleSuffix,
-                description,
-                category,
-                tags,
-                image,
-                //
-                author,
-                publishTime,
-                lastModifiedTime,
-                //
-                pngIcon,
-                svgIcon,
-                //
-                ogSiteName,
-                ogType,
-                ogTitle,
-                ogDescription,
-                ogCategory,
-                ogTags,
-                ogURL,
-                ogImage,
-                //
-                styleBundle,
-                scriptBundle,
-            } = { ...layoutState?.head, ...actualState };
-
-            // Extracts data/utilities from location state.
-            const { url, canonicalURL, fromBase } = locationState;
-
-            // Resolves titles for suffixed variants below.
-            title = title || ogTitle || url.hostname; // No port.
-            ogTitle = ogTitle || title; // Variant for open graph tag.
-
-            let suffixedTitle = title, // Initializes suffixed titles.
-                ogSuffixedTitle = ogTitle; // Uses `ogTitle` variant.
-
-            if (titleSuffix /* String or `true`. If truthy, it converts to a string here. */) {
-                if (!$is.string(titleSuffix)) titleSuffix = ' • ' + (siteName || ogSiteName || brand.name);
-                (suffixedTitle += titleSuffix), (ogSuffixedTitle += titleSuffix);
-            }
-            let defaultDescription = 'Take the tiger by the tail.';
-            let defaultStyleBundle, defaultScriptBundle; // When possible.
-
-            if (!styleBundle && '' !== styleBundle && isLocalVite) {
-                defaultStyleBundle = './index.scss'; // For vite dev server.
-            }
-            if (!scriptBundle && '' !== scriptBundle && isLocalVite) {
-                defaultScriptBundle = './index.tsx'; // For vite dev server.
-            }
-            const asAbsoluteURLString = (parseable: $type.URL | string): string => {
-                return $url.isAbsolute((parseable = parseable.toString())) ? parseable : fromBase(parseable);
-            };
-            return {
-                ...layoutState?.head,
-                ...actualState,
-
-                [tꓺcharset]: charset || 'utf-8',
-                [tꓺviewport]: viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
-
-                [tꓺrobots]: robots || '', // Default is empty string.
-                [tꓺcanonical]: asAbsoluteURLString(canonical || canonicalURL),
-
-                [tꓺsiteName]: siteName || brand.name || url.hostname,
-                [tꓺtitle]: title, // Computed above.
-                [tꓺtitleSuffix]: titleSuffix || '',
-                [tꓺsuffixedTitle]: suffixedTitle,
-                [tꓺdescription]: description || defaultDescription,
-                [tꓺcategory]: category || ogCategory || '',
-                [tꓺtags]: tags || ogTags || [],
-                [tꓺimage]: asAbsoluteURLString(image || ogImage || brandꓺogImage.png),
-
-                [tꓺauthor]: $is.string(author) ? $fn.try(() => $person.get(author as string), tꓺvꓺundefined)() : author,
-                [tꓺpublishTime]: publishTime ? $time.parse(publishTime) : tꓺvꓺundefined,
-                [tꓺlastModifiedTime]: lastModifiedTime ? $time.parse(lastModifiedTime) : tꓺvꓺundefined,
-
-                [tꓺsvgIcon]: asAbsoluteURLString(svgIcon || brandꓺicon.svg),
-                [tꓺpngIcon]: asAbsoluteURLString(pngIcon || brandꓺicon.png),
-
-                [tꓺogSiteName]: ogSiteName || siteName || brand.name || url.hostname,
-                [tꓺogType]: ogType || tꓺarticle,
-                [tꓺogTitle]: ogTitle, // Computed above.
-                [tꓺogSuffixedTitle]: ogSuffixedTitle,
-                [tꓺogDescription]: ogDescription || description || defaultDescription,
-                [tꓺogCategory]: ogCategory || category || '',
-                [tꓺogTags]: ogTags || tags || [],
-                [tꓺogURL]: asAbsoluteURLString(ogURL || canonical || canonicalURL),
-                [tꓺogImage]: asAbsoluteURLString(ogImage || image || brandꓺogImage.png),
-
-                // These URLs are potentially relative, and that’s as it should be. They don’t have to be absolute.
-                [tꓺstyleBundle]: ('' === styleBundle ? '' : styleBundle || dataState.head.styleBundle || defaultStyleBundle || '').toString(),
-                [tꓺscriptBundle]: ('' === scriptBundle ? '' : scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '').toString(),
-
-                // Concatenated, not merged, as they are potentially arrays.
-                [tꓺappend]: (layoutState?.head.append || []).concat(actualState.append || []),
-            };
-        }, [brand, locationState, dataState, actualState]);
+        state = this.computedState = getComputedState(actualState);
 
         // Memoizes vNodes for all keyed & unkeyed children.
 
@@ -717,7 +611,168 @@ export default class Head extends Component<Props, ActualState> {
 }
 
 // ---
+// Misc exports.
+
+/**
+ * Gets computed `<Head>` state.
+ *
+ * This variant is slightly different than our internal {@see getComputedState()}. It doesn’t utilize current layout
+ * state, because this particular utility is primarily intended to be used in; e.g., archive views that need to compute
+ * state while iterating arrays or maps of content that define frontMatter.
+ *
+ * Please be cautious about the context in which this is used. It leverages preact hooks and contexts, and therefore it
+ * must only be used inside a component’s render method, at the top-level, in order to maintain hook index integrity.
+ *
+ * @param   head Actual; i.e., raw state.
+ *
+ * @returns      Fully computed state.
+ */
+export const computeHead = (head: ActualState): State => {
+    return getComputedState(head, { useLayoutState: false });
+};
+
+// ---
 // Misc utilities.
+
+/**
+ * Gets computed `<Head>` state.
+ *
+ * @param   head Actual; i.e., raw state.
+ *
+ * @returns      Fully computed state.
+ */
+const getComputedState = (head: ActualState, options?: GetComputedStateOptions): State => {
+    // Resolves options.
+
+    const defaultOpts = { useLayoutState: true },
+        opts = $obj.defaults({}, options || {}, defaultOpts) as Required<GetComputedStateOptions>,
+        { useLayoutState } = opts;
+
+    // Checks environment.
+
+    const isLocalVite = $env.isLocalVite();
+
+    // Acquires app’s brand from environment var.
+
+    const brand = $env.get('APP_BRAND') as $type.Brand,
+        brandꓺicon = brand.icon,
+        brandꓺogImage = brand.ogImage;
+
+    // Gathers state from various contexts.
+
+    const { state: locationState } = $preact.useLocation(),
+        { state: dataState } = $preact.useData(),
+        { state: layoutState } = $preact.useLayout();
+
+    // Memoizes computed state.
+
+    return $preact.useMemo((): State => {
+        let {
+            charset,
+            viewport,
+            //
+            robots,
+            canonical,
+            //
+            siteName,
+            title,
+            titleSuffix,
+            description,
+            category,
+            tags,
+            image,
+            //
+            author,
+            publishTime,
+            lastModifiedTime,
+            //
+            pngIcon,
+            svgIcon,
+            //
+            ogSiteName,
+            ogType,
+            ogTitle,
+            ogDescription,
+            ogCategory,
+            ogTags,
+            ogURL,
+            ogImage,
+            //
+            styleBundle,
+            scriptBundle,
+        } = { ...(useLayoutState ? { ...layoutState?.head } : {}), ...head };
+
+        // Extracts data/utilities from location state.
+        const { url, canonicalURL, fromBase } = locationState;
+
+        // Resolves titles for suffixed variants below.
+        title = title || ogTitle || url.hostname; // No port.
+        ogTitle = ogTitle || title; // Variant for open graph tag.
+
+        let suffixedTitle = title, // Initializes suffixed titles.
+            ogSuffixedTitle = ogTitle; // Uses `ogTitle` variant.
+
+        if (titleSuffix /* String or `true`. If truthy, it converts to a string here. */) {
+            if (!$is.string(titleSuffix)) titleSuffix = ' • ' + (siteName || ogSiteName || brand.name);
+            (suffixedTitle += titleSuffix), (ogSuffixedTitle += titleSuffix);
+        }
+        let defaultDescription = 'Why is the rum gone?';
+        let defaultStyleBundle, defaultScriptBundle; // When possible.
+
+        if (!styleBundle && '' !== styleBundle && isLocalVite) {
+            defaultStyleBundle = './index.scss'; // For vite dev server.
+        }
+        if (!scriptBundle && '' !== scriptBundle && isLocalVite) {
+            defaultScriptBundle = './index.tsx'; // For vite dev server.
+        }
+        const asAbsoluteURLString = (parseable: $type.URL | string): string => {
+            return $url.isAbsolute((parseable = parseable.toString())) ? parseable : fromBase(parseable);
+        };
+        return {
+            ...(useLayoutState ? { ...layoutState?.head } : {}),
+            ...head,
+
+            [tꓺcharset]: charset || 'utf-8',
+            [tꓺviewport]: viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
+
+            [tꓺrobots]: robots || '', // Default is empty string.
+            [tꓺcanonical]: asAbsoluteURLString(canonical || canonicalURL),
+
+            [tꓺsiteName]: siteName || brand.name || url.hostname,
+            [tꓺtitle]: title, // Computed above.
+            [tꓺtitleSuffix]: titleSuffix || '',
+            [tꓺsuffixedTitle]: suffixedTitle,
+            [tꓺdescription]: description || defaultDescription,
+            [tꓺcategory]: category || ogCategory || '',
+            [tꓺtags]: tags || ogTags || [],
+            [tꓺimage]: asAbsoluteURLString(image || ogImage || brandꓺogImage.png),
+
+            [tꓺauthor]: $is.string(author) ? $fn.try(() => $person.get(author as string), tꓺvꓺundefined)() : author,
+            [tꓺpublishTime]: publishTime ? $time.parse(publishTime) : tꓺvꓺundefined,
+            [tꓺlastModifiedTime]: lastModifiedTime ? $time.parse(lastModifiedTime) : tꓺvꓺundefined,
+
+            [tꓺsvgIcon]: asAbsoluteURLString(svgIcon || brandꓺicon.svg),
+            [tꓺpngIcon]: asAbsoluteURLString(pngIcon || brandꓺicon.png),
+
+            [tꓺogSiteName]: ogSiteName || siteName || brand.name || url.hostname,
+            [tꓺogType]: ogType || tꓺarticle,
+            [tꓺogTitle]: ogTitle, // Computed above.
+            [tꓺogSuffixedTitle]: ogSuffixedTitle,
+            [tꓺogDescription]: ogDescription || description || defaultDescription,
+            [tꓺogCategory]: ogCategory || category || '',
+            [tꓺogTags]: ogTags || tags || [],
+            [tꓺogURL]: asAbsoluteURLString(ogURL || canonical || canonicalURL),
+            [tꓺogImage]: asAbsoluteURLString(ogImage || image || brandꓺogImage.png),
+
+            // These URLs are potentially relative, and that’s as it should be. They don’t have to be absolute.
+            [tꓺstyleBundle]: ('' === styleBundle ? '' : styleBundle || dataState.head.styleBundle || defaultStyleBundle || '').toString(),
+            [tꓺscriptBundle]: ('' === scriptBundle ? '' : scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '').toString(),
+
+            // Concatenated, not merged, as they are potentially arrays.
+            [tꓺappend]: ((useLayoutState && layoutState?.head.append) || []).concat(head.append || []),
+        };
+    }, [useLayoutState, isLocalVite, brand, locationState, dataState, layoutState, head]);
+};
 
 /**
  * Generates structured data.

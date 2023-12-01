@@ -117,7 +117,7 @@ export { useData, useHTTP } from './preact/components/data.tsx';
 export { useRoute } from './preact/components/router.tsx';
 export { useLayout } from './preact/components/layout-context.tsx';
 export { useHTML } from './preact/components/html.tsx';
-export { useHead } from './preact/components/head.tsx';
+export { useHead, computeHead } from './preact/components/head.tsx';
 export { useBody } from './preact/components/body.tsx';
 
 /**
