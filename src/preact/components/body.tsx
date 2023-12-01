@@ -20,7 +20,7 @@ export type ActualState = $preact.State<
 export type State = $preact.State<Partial<$preact.Intrinsic['body']>>;
 export type PartialActualState = Partial<ActualState>;
 export type PartialActualStateUpdates = PartialActualState;
-export type Props = $preact.BasicPropsNoKeyRef<PartialActualState>;
+export type Props = $preact.BasicTreeProps<PartialActualState>;
 export type Context = $preact.Context<{
     state: State;
     updateState: $preact.StateDispatcher<PartialActualStateUpdates>;

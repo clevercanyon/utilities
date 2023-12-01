@@ -418,7 +418,7 @@ const deployProviders = (): void => {
     // i.e., Because Google Analytics is our primary analytics provider, there is simply no reason to deploy
     // if third-party cookies are disallowed, so we don’t. Therefore, we should not have a `false` condition here.
     if (canUseCookies.thirdParty && canUseCookies.analytics) {
-        parentElement.appendChild($dom.create('script', { async: true, src: 'https://www.googletagmanager.com/gtag/js?id=' + $url.encode(state.gtagId) }));
+        parentElement.appendChild($dom.create('script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=' + $url.encode(state.gtagId) }));
     }
 };
 

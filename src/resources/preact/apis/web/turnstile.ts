@@ -94,7 +94,7 @@ export const deploy = async (): Promise<$type.Turnstile> => {
             // Deploys turnstile using parent element container.
             // Note: Turnstile does not use cookies whatsoever, so no need for a consent check.
             // For further details, please review Turnstile documentation at Cloudflare; {@see https://o5p.me/L5kwnD}.
-            parentElement.appendChild($dom.create('script', { async: true, src: 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstile' }));
+            parentElement.appendChild($dom.create('script', { async: '', src: 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstile' }));
         });
     }));
 };

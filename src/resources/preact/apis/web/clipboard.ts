@@ -120,7 +120,7 @@ export const addListeners = async (): Promise<void> => {
             clickTargetCopySuccessClasses = ['-copy-success'];
 
         // Disables click target while in-progress.
-        $dom.setAtts(clickTarget, { disabled: true });
+        $dom.setAtts(clickTarget, { disabled: '' });
 
         // Adds copy in-progress classes to copy target.
         copyTargetClassList.add(...copyTargetCopyInProgressClasses);
@@ -141,7 +141,7 @@ export const addListeners = async (): Promise<void> => {
                     () =>
                         $dom.onNextFrame(() => {
                             clickTargetClassList.remove(...clickTargetCopySuccessClasses);
-                            $dom.setAtts(clickTarget, { disabled: false });
+                            $dom.setAtts(clickTarget, { disabled: null });
                         }),
                     1000,
                 );

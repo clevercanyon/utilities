@@ -29,7 +29,7 @@ export type HydrativelyRenderSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
 };
-export type LazyComponentLoader<Props extends $preact.Props = $preact.Props> = () => Promise<{ default: $preact.AnyComponent<Props> }>;
+export type LazyComponentLoader<Props extends $preact.AnyProps = $preact.Props> = () => Promise<{ default: $preact.AnyComponent<Props> }>;
 export type LazyComponentProps<Type extends LazyComponentLoader> = // Conditional type.
     Awaited<ReturnType<Type>>['default'] extends $preact.ClassComponent
         ? ConstructorParameters<Awaited<ReturnType<Type>>['default']>[0] extends undefined
@@ -219,7 +219,7 @@ export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, r
  *
  * @returns             VNode created by a routed, lazy loaded, async function component.
  */
-export const lazyLoadAsync = <Props extends $preact.Props>(fn: $preact.AsyncFnComponent<Props>, props?: Props, routerProps?: LazyRouterProps): LazyRouterVNode => {
+export const lazyLoadAsync = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, props?: Props, routerProps?: LazyRouterProps): LazyRouterVNode => {
     return $preact.create(lazyAsyncLoader(fn, routerProps), props || ({} as Props)) as LazyRouterVNode;
 };
 
@@ -231,7 +231,7 @@ export const lazyLoadAsync = <Props extends $preact.Props>(fn: $preact.AsyncFnCo
  *
  * @returns             A routed component that lazy loads an async function component.
  */
-export const lazyAsyncLoader = <Props extends $preact.Props>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode) => {
+export const lazyAsyncLoader = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode) => {
     const lazyAsyncFnComponentProps = { current: {} as Props };
     const LazyPseudoRoute = lazyRoute(async (): ReturnType<LazyRouteLoader> => {
         const renderedAsyncFnComponentVNode = await fn(lazyAsyncFnComponentProps.current);
@@ -261,7 +261,7 @@ export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedPr
     let promise: Promise<Awaited<ReturnType<LazyRouteLoader>>['default']> | undefined;
     let component: Awaited<typeof promise> | undefined;
 
-    return (props: $preact.Props<RoutedProps>): $preact.VNode<RoutedProps> => {
+    return (props: RoutedProps): $preact.VNode<RoutedProps> => {
         const didChainPromiseResolution = $preact.useRef(false);
         const [, updateResolvedState] = $preact.useState(false);
 

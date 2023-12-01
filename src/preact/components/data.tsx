@@ -32,7 +32,7 @@ export type PartialStateUpdates = $preact.State<
         head?: Partial<Pick<State['head'], UpdatableHeadStateKeys>>;
     }
 >;
-export type Props = $preact.BasicPropsNoKeyRef<
+export type Props = $preact.BasicTreeProps<
     Omit<PartialState, 'head'> & {
         head?: Partial<Pick<State['head'], PassableHeadStateKeys>>;
     }

@@ -91,7 +91,7 @@ export type State = $preact.State<{
 
     append: $preact.VNode[];
 }>;
-export type Props = $preact.BasicPropsNoKeyRefChildren<PartialActualState> & {
+export type Props = $preact.CleanProps<PartialActualState> & {
     // There’s really not a great way to enforce the child vNode type.
     // Internal JSX types use things that are too generic for that to work.
     // For now, we go ahead and add them here, but we also allow for any `$preact.Children`.
@@ -100,7 +100,7 @@ export type Props = $preact.BasicPropsNoKeyRefChildren<PartialActualState> & {
 };
 export type ChildVNode = Omit<$preact.VNode, 'type' | 'props'> & {
     type: string; // i.e., Intrinsic HTML tags only.
-    props: Partial<$preact.BasicPropsNoKeyRefChildren> & {
+    props: $preact.CleanProps<{}> & {
         [x: string]: unknown;
         'data-key': string;
         children?: $type.Primitive;

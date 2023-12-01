@@ -80,6 +80,19 @@ export const array = <Type>(value: Type): Type extends unknown[] ? Type : Type e
 };
 
 /**
+ * Converts any value into a flat array.
+ *
+ * This uses {@see array()}. Then, it runs {@see Array.prototype.flat(Infinity)}.
+ *
+ * @param   value Value to cast as a flat array.
+ *
+ * @returns       Value cast as a flat array.
+ */
+export const flatArray = <Type>(value: Type): $type.FlatArray<ReturnType<typeof array<Type>>, typeof Infinity> => {
+    return array(value).flat(Infinity) as ReturnType<typeof flatArray<Type>>;
+};
+
+/**
  * Converts any value into a plain object.
  *
  * @param   value Value to convert into a plain object.

@@ -50,7 +50,7 @@ export type State = $preact.State<{
     fromBase(parseable: $type.URL | string): string;
     pathFromBase(parseable: $type.URL | string): string;
 }>;
-export type Props = $preact.BasicPropsNoKeyRef<{
+export type Props = $preact.BasicTreeProps<{
     isHydration?: boolean;
     url?: $type.URL | string;
     baseURL?: $type.URL | string;

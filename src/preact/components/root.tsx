@@ -16,7 +16,7 @@ import { default as Turnstile } from '../components/turnstile.tsx';
 /**
  * Defines types.
  */
-export type Props = $preact.BasicPropsNoKeyRef<LocationProps & DataProps & RouterProps>;
+export type Props = $preact.BasicTreeProps<LocationProps & DataProps & RouterProps>;
 
 /**
  * Renders component.

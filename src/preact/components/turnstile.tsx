@@ -11,7 +11,7 @@ import { $env, $preact, type $type } from '../../index.ts';
  * Defines types.
  */
 declare type API = typeof import('../../resources/preact/apis/web/turnstile.ts');
-export type Props = $preact.BasicPropsNoKeyRef<object>;
+export type Props = $preact.BasicTreeProps<{}>;
 export type Context = {
     promise: Promise<API>;
     effect: (selectors: string) => () => () => void;

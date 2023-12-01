@@ -276,7 +276,7 @@ export const appendStyle = (href: string, atts: Partial<HTMLLinkElement> = {}): 
  *   - Attributes may override default `async` if necessary.
  */
 export const appendScript = (src: string, atts: Partial<HTMLScriptElement> = {}): void => {
-    headAppend(create('script', { async: true, ...atts, src }));
+    headAppend(create('script', { async: '', ...atts, src }));
 };
 
 /**
@@ -354,26 +354,35 @@ export const newAtts = (element: Element, atts: $type.DOMAtts): void => {
 /**
  * Sets an element’s attributes.
  *
- * This utility is simply one that sets arbitrary attributes for any element type. Thus, we use an intentionally loose
- * type for `atts`, as we prefer to avoid colliding with any type validations that have already occurred higher up in
- * the call stack; e.g., in a more element-specific context.
+ * This utility is one that sets arbitrary attributes for any element type. Thus, we use an intentionally loose type for
+ * `atts`, as we prefer to avoid colliding with any type validations that have already occurred higher up in the call
+ * stack; e.g., in a more element-specific context. A few points worth noting are as follows:
  *
- * - Attributes that already exist with the same value will not be set again.
- * - Attributes set to `false`, `null`, or `undefined`, will be removed entirely.
- * - `innerText`, `children`, will set `innerText`, which is not technically an attribute.
- * - `innerHTML`, `dangerouslySetInnerHTML` will set `innerHTML`, which is not technically an attribute.
- * - This supports attributes with function values; e.g., `onload`, `onclick`, etc.
+ * - `innerText`, `children` will set `innerText`. While not an attribute, we do support it here.
+ * - `innerHTML`, `dangerouslySetInnerHTML` will set `innerHTML`. While not an attribute, we do support it here.
+ * - Attributes set as `null` or `undefined` will be removed entirely. `false` is also a removal signal, but only for
+ *   non-data attributes, which aligns this utility with preact so we aren’t creating a new way of doing things.
+ * - Also like preact, attributes set to `true` are stringified as `'true'`, no different from `.setAttribute()`.
+ * - Worth noting this also supports `on*` properties with function values; e.g., `onload`, `onclick`, etc.
+ * - In all cases, attributes that already exist with the same value will not be set and/or removed again.
+ *
+ * Note: This does not officially support 'properties' or the full array of all features that preact does. It is
+ * explicitly limited to setting attributes, and specific properties: `innerText`, `innerHTML`, `on[event]` only. It
+ * also does not support `style` being passed as an object like preact does, only as a string. With respect to preact,
+ * the goal here is to provide the right balance of preact compatibility, such that we can update the DOM by passing
+ * this utility intrinsic component props, but not to get so carried away that we try to support every single thing
+ * preact does. Also, keep in mind this general purpose DOM utility is sometimes used outside of a preact context.
  *
  * @param element Element.
  * @param atts    Attributes.
  */
 export const setAtts = (element: Element, atts: $type.DOMAtts): void => {
     // Cast as keyable so we can access properties.
-    const elemObj = element as Element & $type.Object;
+    const elementObj = element as $type.Object<Element>;
 
     // Removes internal preact props, which are not real attributes.
-    // We don’t, however, remove `children`, because there are cases in which we can handle.
-    atts = $obj.omit(atts, ['jsx', 'ref', 'key']); // We also handle `dangerouslySetInnerHTML`.
+    // We don’t, however, remove `children`, because there are cases in which we can handle below.
+    atts = $obj.omit(atts, ['ref', 'key']); // `dangerouslySetInnerHTML` is also handled below.
 
     // Consolidates class prop variants into a single `class` attribute.
     if ($preact.classPropVariants().some((variant) => Object.hasOwn(atts, variant))) {
@@ -381,30 +390,37 @@ export const setAtts = (element: Element, atts: $type.DOMAtts): void => {
     }
     // Iterates all new attribute names/values.
     for (let [name, newValue] of Object.entries(atts)) {
-        const currentValue = elemObj.getAttribute(name);
-
         if (['innerText', 'children'].includes(name)) {
             if (!$is.primitive(newValue)) throw new Error();
             const newStrValue = $to.string(newValue);
-            if (elemObj.innerText !== newStrValue) elemObj.innerText = newStrValue;
-            //
+
+            if (elementObj.innerText !== newStrValue) {
+                elementObj.innerText = newStrValue;
+            }
         } else if (['innerHTML', 'dangerouslySetInnerHTML'].includes(name)) {
             if ($is.object(newValue)) newValue = newValue.__html;
             const newStrValue = $to.string(newValue);
-            if (elemObj.innerHTML !== newStrValue) elemObj.innerHTML = newStrValue;
-            //
-        } else if (true === newValue) {
-            if (currentValue !== '') elemObj.setAttribute(name, '');
-            //
-        } else if (false === newValue || null === newValue || undefined === newValue) {
-            if (currentValue !== null) elemObj.removeAttribute(name);
-            //
+
+            if (elementObj.innerHTML !== newStrValue) {
+                elementObj.innerHTML = newStrValue;
+            }
         } else if ($is.function(newValue)) {
-            if (elemObj[name] !== newValue) elemObj[name] = newValue;
+            if (!name.startsWith('on')) throw new Error();
+            if (elementObj[name] !== newValue) elementObj[name] = newValue;
             //
         } else {
-            const newStrValue = $to.string(newValue); // e.g., URL, Time, etc.
-            if (currentValue !== newStrValue) elemObj.setAttribute(name, newStrValue);
+            const currentValue = element.getAttribute(name);
+
+            if ($is.nul(newValue) || (false === newValue && '-' !== name[4])) {
+                // Mimics preact; i.e., `false` is only a removal signal on non-data attributes.
+                // Technically, not `data-`, but `????-`, which is almost sure to be `data-`.
+                if (null !== currentValue) element.removeAttribute(name);
+                //
+            } /* Anything else, including `true`, is stringified here. */ else {
+                // Mimics preact; i.e., boolean `true` is stringified as `'true'`.
+                const newStrValue = $to.string(newValue); // e.g., `'true'`, URL, Time, etc.
+                if (currentValue !== newStrValue) element.setAttribute(name, newStrValue);
+            }
         }
     }
 };

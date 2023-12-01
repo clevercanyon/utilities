@@ -32,7 +32,7 @@ export type State = $preact.State<{
     closing: boolean;
     data: Data;
 }>;
-export type Props = $preact.BasicPropsNoKeyRefChildren<object>;
+export type Props = $preact.NoProps;
 export type UpdateEvent = CustomEvent<{ data: Data }>;
 
 /**

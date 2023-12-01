@@ -11,7 +11,7 @@ import { $env, $preact } from '../../index.ts';
  * Defines types.
  */
 declare type API = typeof import('../../resources/preact/apis/web/clipboard.ts');
-export type Props = $preact.BasicPropsNoKeyRef<object>;
+export type Props = $preact.BasicTreeProps<{}>;
 export type Context = Promise<API>;
 
 /**

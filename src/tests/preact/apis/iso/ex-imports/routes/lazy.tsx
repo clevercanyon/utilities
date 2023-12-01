@@ -8,7 +8,7 @@ import { Body, HTML, Head, type RoutedProps } from '../../../../../../preact/com
 /**
  * Defines types.
  */
-export type Props = $preact.Props<RoutedProps>;
+export type Props = RoutedProps;
 export type LazyProps = $preact.Props<{
     a: string;
     b: string;

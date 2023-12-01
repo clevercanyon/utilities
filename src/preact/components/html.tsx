@@ -26,7 +26,7 @@ export type State = $preact.State<
 >;
 export type PartialActualState = Partial<ActualState>;
 export type PartialActualStateUpdates = PartialActualState;
-export type Props = $preact.BasicPropsNoKeyRef<PartialActualState>;
+export type Props = $preact.BasicTreeProps<PartialActualState>;
 export type Context = $preact.Context<{
     state: State;
     updateState: $preact.StateDispatcher<PartialActualStateUpdates>;
@@ -78,7 +78,7 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
         $preact.useEffect((): void => {
             void clipboard.then(({ addListeners }) => void addListeners());
             void import('../../resources/preact/apis/web/elements/x-hash.ts').then((module): void => {
-                module.define(); // Defines `<x-hash`>: `CustomHTMLHashElement`.
+                module.define(); // Defines `<x-hash>`: `CustomHTMLHashElement`.
             });
         }, []);
     }

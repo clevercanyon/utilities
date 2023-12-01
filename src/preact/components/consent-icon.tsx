@@ -16,7 +16,7 @@ import { default as As } from './as.tsx';
 /**
  * Defines types.
  */
-export type Props = $preact.BasicPropsNoKeyRefChildren<object>;
+export type Props = $preact.NoProps;
 
 /**
  * Renders component.

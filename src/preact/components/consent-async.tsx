@@ -16,7 +16,7 @@ export type State = $preact.State<{
     Dialog?: typeof import('./consent-dialog.tsx').default;
     Icon?: typeof import('./consent-icon.tsx').default;
 }>;
-export type Props = $preact.BasicPropsNoKeyRefChildren<object>;
+export type Props = $preact.NoProps;
 
 /**
  * Renders component.

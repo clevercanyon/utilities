@@ -14,12 +14,15 @@ import type * as cf from '@cloudflare/workers-types/experimental';
 /**
  * Basic types.
  */
-export type { $Object as Object };
 export type ObjectKey = PropertyKey;
 export type ObjectPath = number | string;
 
-export type ObjectC9r = { new (...args: unknown[]): $Object } | ObjectConstructor;
-export type ObjectEntries<Type extends object = $Object> = [keyof Type, Type[keyof Type]][];
+export type { $Keyable as Object };
+export type { $StrKeyable as StrKeyable };
+export type Unkeyable = Record<PropertyKey, never>;
+
+export type ObjectC9r = { new (...args: unknown[]): $Keyable } | ObjectConstructor;
+export type ObjectEntries<Type extends object = $Keyable> = [keyof Type, Type[keyof Type]][];
 
 export type Primitive = null | undefined | boolean | number | bigint | string | symbol;
 export type TypedArray<Type extends $TypedArray = $TypedArray> = Type;
@@ -97,11 +100,11 @@ export type EnsuredType<Type> =
     : Type extends 'object' ? object
     : Type extends 'object[]' ? object[]
     //
-    : Type extends 'plainObject' ? $Object
-    : Type extends 'plainObject[]' ? $Object[]
+    : Type extends 'plainObject' ? $Keyable
+    : Type extends 'plainObject[]' ? $Keyable[]
     //
-    : Type extends 'plainObjectDeep' ? $Object
-    : Type extends 'plainObjectDeep[]' ? $Object[]
+    : Type extends 'plainObjectDeep' ? $Keyable
+    : Type extends 'plainObjectDeep[]' ? $Keyable[]
     //
     : unknown; // prettier-ignore
 
@@ -133,6 +136,11 @@ export type RemainingParameters<Provided extends unknown[], Expected extends unk
         : // Else, no more parameters.
           [];
 
+export type FlatArray<Type, Depth extends number> = {
+    'done': Type;
+    'recursive': Type extends ReadonlyArray<infer InnerType> ? FlatArray<InnerType, [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20][Depth]> : Type;
+}[Depth extends -1 ? 'done' : 'recursive'];
+
 /**
  * Private types used by this file.
  */
@@ -158,8 +166,8 @@ type $fetch = typeof fetch | typeof cf.fetch;
 type $Error<Type extends Error = Error> = Type;
 type $Timeout = ReturnType<typeof setTimeout> | number;
 
-type $Keyable = { [x: ObjectKey]: unknown };
-type $Object<Type extends object = $Keyable> = $Keyable & Type;
+type $Keyable<Type extends object = { [x: ObjectKey]: unknown }> = { [x: ObjectKey]: unknown } & Type;
+type $StrKeyable<Type extends object = { [x: string]: unknown }> = { [x: string]: unknown } & Type;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type $AnyFn = (...args: any[]) => unknown; // See: <https://o5p.me/CwHQYM>.

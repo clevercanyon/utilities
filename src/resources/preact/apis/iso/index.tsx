@@ -8,7 +8,7 @@ import { $env, $is, $obj, $preact } from '../../../../index.ts';
  * Defines types.
  */
 export type PrerenderOptions = {
-    props?: $preact.Props;
+    props?: $preact.AnyProps;
     maxDepth?: number;
 };
 export type PrerenderResult = { html: string };

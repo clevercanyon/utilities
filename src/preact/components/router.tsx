@@ -12,19 +12,19 @@ import { type State as LocationState } from './location.tsx';
 /**
  * Defines types.
  */
-export type ErrorBoundaryCoreProps = $preact.BasicPropsNoKeyRef<{
+export type ErrorBoundaryCoreProps = $preact.BasicTreeProps<{
     onLoadError?: (error: $type.Error) => void;
 }>;
-export type CoreProps = $preact.BasicPropsNoKeyRef<{
+export type CoreProps = $preact.BasicTreeProps<{
     handleLoading?: boolean;
     handleScrolling?: boolean;
     onLoadStart?: (data: RouteLoadEventData) => void;
     onLoadEnd?: (data: RouteLoadEventData) => void;
     onLoaded?: (data: RouteLoadEventData) => void;
 }>;
-export type Props = $preact.BasicPropsNoKeyRef<ErrorBoundaryCoreProps & CoreProps>;
+export type Props = $preact.BasicTreeProps<ErrorBoundaryCoreProps & CoreProps>;
 
-export type RouteProps = $preact.BasicPropsNoKeyRefChildren<{
+export type RouteProps = $preact.CleanProps<{
     path?: string;
     default?: boolean;
     component: $preact.AnyComponent<RoutedProps>;
@@ -47,7 +47,7 @@ export type RouteContext = $preact.Context<{
     // Path parameter keys/values.
     params: { [x: string]: string };
 }>;
-export type RoutedProps = $preact.BasicPropsNoKeyRefChildren<RouteProps & RouteContext>;
+export type RoutedProps = $preact.CleanProps<RouteProps & RouteContext>;
 export type RouteLoadEventData = { locationState: LocationState; routeContext: RouteContext };
 
 /**
@@ -379,7 +379,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
  */
 function RenderRefRoute({
     r, // Route reference.
-}: $preact.BasicPropsNoKeyRefChildren<{
+}: $preact.CleanProps<{
     r: $preact.Ref<$preact.VNode<RoutedProps>>;
 }>): $preact.Ref<$preact.VNode<RoutedProps>>['current'] {
     return r.current;

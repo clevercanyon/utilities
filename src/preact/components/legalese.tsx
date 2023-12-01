@@ -8,7 +8,7 @@ import { $env, $preact, type $type } from '../../index.ts';
 /**
  * Defines types.
  */
-export type Props = $preact.BasicPropsNoKeyRefChildren<object>;
+export type Props = $preact.NoProps;
 
 /**
  * Defines tokens.

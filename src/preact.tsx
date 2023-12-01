@@ -5,7 +5,7 @@
 
 import './resources/init.ts';
 
-import { $is, $obj, $to, type $type } from './index.ts';
+import { $is, $obj, $to, $str, type $type } from './index.ts';
 import { $fnꓺmemo } from './resources/standalone/index.ts';
 import { getClass as getClassMap, type Class as ClassMap } from './resources/preact/classes/class-map.ts';
 
@@ -125,23 +125,23 @@ export { useBody } from './preact/components/body.tsx';
  */
 export type Children = preact.ComponentChildren;
 export type Intrinsic = preact.JSX.IntrinsicElements;
-export type VNode<Type extends Props = Props> = preact.VNode<Type>;
+export type VNode<Type extends AnyProps = Props> = preact.VNode<Type>;
 
-export type FnComponent<Type extends Props = Props> = preact.FunctionComponent<Type>;
-export type AsyncFnComponent<Type extends Props = Props> = (...args: Parameters<FnComponent<Type>>) => Promise<ReturnType<FnComponent<Type>>>;
-export type ClassComponent<Type extends Props = Props, Type2 extends State = State> = preact.ComponentClass<Type, Type2>;
-export type AnyComponent<Type extends Props = Props, Type2 extends State = State> = FnComponent<Type> | ClassComponent<Type, Type2>;
+export type AnyComponent<Type extends AnyProps = Props, Type2 extends State = State> = FnComponent<Type> | ClassComponent<Type, Type2>;
+export type AnyProps<Type extends $type.StrKeyable = $type.StrKeyable> = Props<Type> | BasicProps<Type> | BasicTreeProps<Type> | CleanProps<Type> | NoProps;
 
-export type BasicProps<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx'>>; // prettier-ignore
-export type BasicPropsNoKeyRef<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref'>>; // prettier-ignore
-export type BasicPropsNoKeyRefChildren<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref' | 'children'>>; // prettier-ignore
+export type FnComponent<Type extends AnyProps = Props> = preact.FunctionComponent<Type>;
+export type AsyncFnComponent<Type extends AnyProps = Props> = (...args: Parameters<FnComponent<Type>>) => Promise<ReturnType<FnComponent<Type>>>;
+export type ClassComponent<Type extends AnyProps = Props, Type2 extends State = State> = preact.ComponentClass<Type, Type2>;
 
-export type Props<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx'>>; // prettier-ignore
-export type PropsNoKeyRef<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx' | 'key' | 'ref'>>; // prettier-ignore
-export type PropsNoKeyRefChildren<Type extends object = { [x: string]: unknown }> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx' | 'key' | 'ref' | 'children'>>; // prettier-ignore
+export type Props<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx'>>;
+export type BasicProps<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx'>>;
+export type BasicTreeProps<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref'>>;
+export type CleanProps<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref' | 'children'>>;
+export type NoProps = CleanProps<{}>; // Explicitly no props whatsoever.
 
-export type State<Type extends object = { [x: string]: unknown }> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
-export type Context<Type extends object = { [x: string]: unknown }> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
+export type State<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
+export type Context<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
 export type Ref<Type = unknown> = preact.RefObject<Type>;
 
 export type StateUpdater<Type> = preactꓺhooksꓺStateUpdater<Type>; // e.g., {@see useState()}.
@@ -168,17 +168,24 @@ type TypesOfClasses = // Internal class prop variants.
 /**
  * Omits specific component props.
  *
- * If `keys` includes a class prop variant, then we omit all class prop variants.
- *
  * @param   props   Props from which to omit `keys`.
  * @param   keys    Specific keys to omit from `props`.
+ *
+ *   - `data-` prop keys should be passed in kebab-case like anywhere else.
+ *   - `aria-` can be passed as `aria-[key]` as per usual, or as camelCase `aria[Key]`.
+ *   - All other prop keys should be passed as camelCase keys so we can derive proper variants.
+ *   - //
  * @param   options Options (all optional); {@see $obj.OmitOptions}.
  *
  * @returns         A clone of `props` with all `keys` omitted; {@see $obj.omit()}.
- *
- * @todo Should this automatically omit other prop variants? Such as `tabindex` vs `tabIndex`, etc?
  */
-export const omitProps = <Type extends Props, Key extends keyof Type>(props: Type, keys: Key[], options?: $obj.OmitOptions): Omit<Type, Key> => {
+export const omitProps = <Type extends AnyProps, Key extends keyof Type>(props: Type, keys: Key[], options?: $obj.OmitOptions): Omit<Type, Key> => {
+    if ((keys as string[]).includes('for')) {
+        (keys as string[]).push('htmlFor');
+    }
+    for (const key of [...keys] as string[]) {
+        keys = [...new Set(keys.concat([$str.camelCase(key), $str.kebabCase(key), key.toLowerCase()] as unknown as Key[]))];
+    }
     if (keys.some((v) => internalClassPropVariants.includes(v as ClassPropVariants))) {
         keys = [...new Set(keys.concat(internalClassPropVariants as unknown as Key[]))];
     }

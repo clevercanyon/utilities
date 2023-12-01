@@ -49,9 +49,9 @@ export default function Route404(): $preact.VNode {
 /**
  * Defines types.
  */
-type StandAloneProps = $preact.BasicPropsNoKeyRefChildren & {
+type StandAloneProps = $preact.CleanProps<{
     [x in $preact.ClassPropVariants]?: $preact.Classes;
-};
+}>;
 
 /**
  * Renders component.
