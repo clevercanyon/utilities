@@ -31,12 +31,12 @@ export type RouteProps = $preact.BasicPropsNoKeyRefChildren<{
 }>;
 export type RouteContext = $preact.Context<{
     // These are relative `./` to base.
-    // And, these are relative `./` to parent route.
+    // These are also relative `./` to parent route.
     path: string;
     pathQuery: string;
 
     // These are relative `./` to base.
-    // And, these are relative `./` to parent route.
+    // These are also relative `./` to parent route.
     restPath: string;
     restPathQuery: string;
 
@@ -201,12 +201,12 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         // i,e., In current context of potentially a parent route.
         currentRouteContext.current = {
             // These are `./` relative to base.
-            // And, these are relative `./` to parent route.
+            // These are also relative `./` to parent route.
             path: parentContext.restPath || locationState.path,
             pathQuery: parentContext.restPathQuery || locationState.pathQuery,
 
             // These are `./` relative to base.
-            // And, these are relative `./` to parent route.
+            // These are also relative `./` to parent route.
             restPath: '', // Potentially populated by `pathMatchesRoutePattern()`.
             restPathQuery: '', // Potentially populated by `pathMatchesRoutePattern()`.
 
@@ -402,7 +402,7 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
         return; // Not possible.
     }
     // These are `./` relative to base.
-    // And, these are relative `./` to parent route.
+    // These are also relative `./` to parent route.
     const pathParts = $str.lTrim(path, './').split('/').filter(Boolean);
     const routePatternParts = $str.lTrim(routePattern, './').split('/').filter(Boolean);
 
@@ -442,7 +442,7 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
         } else {
             if (!routePatternPartValue && '*' === routePatternPartFlag) {
                 // These are `./` relative to base.
-                // And, these are relative `./` to parent route.
+                // These are also relative `./` to parent route.
                 newRouteContext.restPath = './' + pathParts.slice(i).join('/');
                 newRouteContext.restPathQuery = newRouteContext.restPath + newRouteContext.query;
                 break; // We can stop here; i.e., the rest can be parsed by nested routes.
