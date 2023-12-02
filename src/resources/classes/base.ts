@@ -2,7 +2,7 @@
  * Base class.
  */
 
-import { $app, $obj, $symbol, type $type } from '../../index.ts';
+import { $app, $obj, $symbol, type $type } from '#index.ts';
 
 /**
  * Constructor cache.

@@ -2,12 +2,12 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
+import { $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, $url, type $type } from '#index.ts';
+import { globalToScriptCode as dataGlobalToScriptCode, type Context as DataContext } from '#preact/components/data.tsx';
+import { type State as HTMLState } from '#preact/components/html.tsx';
 import { Component } from 'preact';
-import { $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, $url, type $type } from '../../index.ts';
-import { globalToScriptCode as dataGlobalToScriptCode, type Context as DataContext } from './data.tsx';
-import { type State as HTMLState } from './html.tsx';
 
 /**
  * Defines types.

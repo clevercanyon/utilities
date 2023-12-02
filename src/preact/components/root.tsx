@@ -2,16 +2,16 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
-import { $obj, $preact } from '../../index.ts';
-import { default as Analytics } from '../components/analytics.tsx';
-import { default as Clipboard } from '../components/clipboard.tsx';
-import { default as Consent } from '../components/consent.tsx';
-import { default as Data, namedPropKeys as namedDataPropKeys, type Props as DataProps } from '../components/data.tsx';
-import { default as Location, namedPropKeys as namedLocationPropKeys, type Props as LocationProps } from '../components/location.tsx';
-import { default as Router, namedPropKeys as namedRouterPropKeys, type Props as RouterProps } from '../components/router.tsx';
-import { default as Turnstile } from '../components/turnstile.tsx';
+import { $obj, $preact } from '#index.ts';
+import { default as Analytics } from '#preact/components/analytics.tsx';
+import { default as Clipboard } from '#preact/components/clipboard.tsx';
+import { default as Consent } from '#preact/components/consent.tsx';
+import { default as Data, namedPropKeys as namedDataPropKeys, type Props as DataProps } from '#preact/components/data.tsx';
+import { default as Location, namedPropKeys as namedLocationPropKeys, type Props as LocationProps } from '#preact/components/location.tsx';
+import { default as Router, namedPropKeys as namedRouterPropKeys, type Props as RouterProps } from '#preact/components/router.tsx';
+import { default as Turnstile } from '#preact/components/turnstile.tsx';
 
 /**
  * Defines types.

@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $fn } from '#index.ts';
 import { describe, expect, test, vi } from 'vitest';
-import { $fn } from '../../index.ts';
 
 describe('$fn', async () => {
     test('.noOp()', async () => {

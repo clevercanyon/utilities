@@ -2,12 +2,12 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
-import { $env, $is, $preact } from '../../index.ts';
-import { default as Body } from './body.tsx';
-import { default as Head } from './head.tsx';
-import { default as HTML } from './html.tsx';
+import { $env, $is, $preact } from '#index.ts';
+import { default as Body } from '#preact/components/body.tsx';
+import { default as Head } from '#preact/components/head.tsx';
+import { default as HTML } from '#preact/components/html.tsx';
 
 /**
  * Renders component.

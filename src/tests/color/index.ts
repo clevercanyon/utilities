@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $color } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $color } from '../../index.ts';
 
 describe('$color', async () => {
     test('.tw()', async () => {

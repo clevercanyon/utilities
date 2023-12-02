@@ -2,9 +2,9 @@
  * Test suite.
  */
 
+import { $brand, $env, $json, $preact, $url } from '#index.ts';
+import { Body, HTML, Head, Root, Route, type RootProps, type RoutedProps } from '#preact/components.tsx';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
-import { $brand, $env, $json, $preact, $url } from '../../../../index.ts';
-import { Body, HTML, Head, Root, Route, type RootProps, type RoutedProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
@@ -59,8 +59,8 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
                 </HTML>
             );
         };
-        const Lazy = $preact.lazyRoute(() => import('./ex-imports/routes/lazy.tsx'));
-        const Route404 = $preact.lazyRoute(() => import('../../../../preact/components/404.tsx'));
+        const Lazy = $preact.lazyRoute(() => import('#tests/preact/apis/iso/ex-imports/routes/lazy.tsx'));
+        const Route404 = $preact.lazyRoute(() => import('#preact/components/404.tsx'));
 
         const {
             httpState: indexHTTPState,

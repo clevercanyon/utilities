@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $env, $url } from '#index.ts';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { $env, $url } from '../../index.ts';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'string', default: '' });
 

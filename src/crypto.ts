@@ -2,10 +2,10 @@
  * Crypto utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $obj } from './index.ts';
-import { $fnꓺmemo } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from '#@standalone/index.ts';
+import { $obj } from '#index.ts';
 
 const textEncoder: TextEncoder = new TextEncoder();
 

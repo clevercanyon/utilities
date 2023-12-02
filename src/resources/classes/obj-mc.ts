@@ -2,7 +2,7 @@
  * Object MC class.
  */
 
-import { $class, $is, $obj, $obp, $to, type $type } from '../../index.ts';
+import { $class, $is, $obj, $obp, $to, type $type } from '#index.ts';
 
 /**
  * Constructor cache.

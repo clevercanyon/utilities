@@ -2,8 +2,8 @@
  * Preact route component.
  */
 
-import { $json, $preact } from '../../../../../../index.ts';
-import { Body, HTML, Head, type RoutedProps } from '../../../../../../preact/components.tsx';
+import { $json, $preact } from '#index.ts';
+import { Body, HTML, Head, type RoutedProps } from '#preact/components.tsx';
 
 /**
  * Defines types.

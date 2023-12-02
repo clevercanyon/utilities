@@ -2,10 +2,10 @@
  * Conditional utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $app, $env, $obj, $preact, type $type } from './index.ts';
-import * as $standalone from './resources/standalone/index.ts';
+import * as $standalone from '#@standalone/index.ts';
+import { $app, $env, $obj, $preact, type $type } from '#index.ts';
 
 let structuredCloneableObjectTags: string[];
 const numericIntegerRegExp = /^(?:0|-?[1-9][0-9]*)$/u;

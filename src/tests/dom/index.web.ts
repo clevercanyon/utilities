@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $dom } from '#index.ts';
 import { describe, expect, test, vi } from 'vitest';
-import { $dom } from '../../index.ts';
 
 describe('$dom', async () => {
     test('.onReady()', async () => {

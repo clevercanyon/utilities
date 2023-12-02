@@ -2,9 +2,9 @@
  * Test suite.
  */
 
+import { $brand, $env, $json, $person, $preact, $url } from '#index.ts';
+import { Body, HTML, Head, Root, Route, type RootProps } from '#preact/components.tsx';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
-import { $brand, $env, $json, $person, $preact, $url } from '../../../../index.ts';
-import { Body, HTML, Head, Root, Route, type RootProps } from '../../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
@@ -67,7 +67,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
             }),
         );
         // Populates DOM using fixture from SSR.
-        const doctypeHTML = (await import('./ex-imports/fixtures/prerender-spa-for-web.html?raw')).default;
+        const doctypeHTML = (await import('#tests/preact/apis/iso/ex-imports/fixtures/prerender-spa-for-web.html?raw')).default;
         Object.defineProperty(window, 'location', { value: new URL('http://x.tld/?a=_a&b=_b&c=_c') });
         document.open(), document.write(doctypeHTML), document.close();
 

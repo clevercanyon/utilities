@@ -2,9 +2,9 @@
  * Brand utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $app, $class, $obj, $person, $str, $url, type $type } from './index.ts';
+import { $app, $class, $obj, $person, $str, $url, type $type } from '#index.ts';
 
 /**
  * Tracks initialization.

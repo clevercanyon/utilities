@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $app, $brand, $class, $is, $obj, $symbol, $time } from '#index.ts';
 import { beforeEach, describe, expect, test } from 'vitest';
-import { $app, $brand, $class, $is, $obj, $symbol, $time } from '../../index.ts';
 
 describe('$obj', async () => {
     class Custom {

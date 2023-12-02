@@ -3,11 +3,11 @@
  */
 // organize-imports-ignore
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $is, $obj, $to, $str, type $type } from './index.ts';
-import { $fnꓺmemo } from './resources/standalone/index.ts';
-import { getClass as getClassMap, type Class as ClassMap } from './resources/preact/classes/class-map.ts';
+import { $is, $obj, $to, $str, type $type } from '#index.ts';
+import { $fnꓺmemo } from '#@standalone/index.ts';
+import { getClass as getClassMap, type Class as ClassMap } from '#@preact/classes/class-map.ts';
 
 import type * as preact from 'preact';
 import {
@@ -88,8 +88,8 @@ export {
 /**
  * Exports our Preact APIs.
  */
-export * as iso from './resources/preact/apis/iso.tsx';
-export * as ssr from './resources/preact/apis/ssr.tsx';
+export * as iso from '#@preact/apis/iso.tsx';
+export * as ssr from '#@preact/apis/ssr.tsx';
 
 /**
  * Exports our Preact lazy loaders.
@@ -103,22 +103,22 @@ export {
     lazyLoadAsync,
     lazyAsyncLoader,
     lazyRoute, //
-} from './resources/preact/apis/iso.tsx';
+} from '#@preact/apis/iso.tsx';
 
 /**
  * Exports our Preact hooks.
  */
-export { useConsent } from './preact/components/consent.tsx';
-export { useAnalytics } from './preact/components/analytics.tsx';
-export { useTurnstile } from './preact/components/turnstile.tsx';
-export { useClipboard } from './preact/components/clipboard.tsx';
-export { useLocation } from './preact/components/location.tsx';
-export { useData, useHTTP } from './preact/components/data.tsx';
-export { useRoute } from './preact/components/router.tsx';
-export { useLayout } from './preact/components/layout-context.tsx';
-export { useHTML } from './preact/components/html.tsx';
-export { useHead, computeHead } from './preact/components/head.tsx';
-export { useBody } from './preact/components/body.tsx';
+export { useConsent } from '#preact/components/consent.tsx';
+export { useAnalytics } from '#preact/components/analytics.tsx';
+export { useTurnstile } from '#preact/components/turnstile.tsx';
+export { useClipboard } from '#preact/components/clipboard.tsx';
+export { useLocation } from '#preact/components/location.tsx';
+export { useData, useHTTP } from '#preact/components/data.tsx';
+export { useRoute } from '#preact/components/router.tsx';
+export { useLayout } from '#preact/components/layout-context.tsx';
+export { useHTML } from '#preact/components/html.tsx';
+export { useHead, computeHead } from '#preact/components/head.tsx';
+export { useBody } from '#preact/components/body.tsx';
 
 /**
  * Defines types.

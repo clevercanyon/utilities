@@ -2,11 +2,11 @@
  * Function utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $is, $obj, type $type } from './index.ts';
-import * as $standalone from './resources/standalone/index.ts';
-import { type $fnꓺMemoOptions, type $fnꓺMemoizedFunction } from './resources/standalone/index.ts';
+import * as $standalone from '#@standalone/index.ts';
+import { type $fnꓺMemoOptions, type $fnꓺMemoizedFunction } from '#@standalone/index.ts';
+import { $is, $obj, type $type } from '#index.ts';
 
 /**
  * Defines types.

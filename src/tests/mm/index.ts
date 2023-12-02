@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $mm } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $mm } from '../../index.ts';
 
 describe('$mm', async () => {
     test('.test()', async () => {

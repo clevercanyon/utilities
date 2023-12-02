@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $is, $path } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $is, $path } from '../../index.ts';
 
 describe('$path', async () => {
     test('.ext()', async () => {

@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $crypto } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $crypto } from '../../index.ts';
 
 describe('$crypto', async () => {
     test('.sha1()', async () => {

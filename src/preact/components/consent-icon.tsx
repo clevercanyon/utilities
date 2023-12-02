@@ -7,11 +7,11 @@
  * @requiredEnv web
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
+import { $preact } from '#index.ts';
+import { default as As } from '#preact/components/as.tsx';
 import FluentEmojiFlatCookie from '~icons/fluent-emoji-flat/cookie';
-import { $preact } from '../../index.ts';
-import { default as As } from './as.tsx';
 
 /**
  * Defines types.

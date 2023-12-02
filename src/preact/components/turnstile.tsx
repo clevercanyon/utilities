@@ -2,15 +2,15 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
+import { $env, $preact, type $type } from '#index.ts';
 import { createContext } from 'preact';
-import { $env, $preact, type $type } from '../../index.ts';
 
 /**
  * Defines types.
  */
-declare type API = typeof import('../../resources/preact/apis/web/turnstile.ts');
+declare type API = typeof import('#@preact/apis/web/turnstile.ts');
 export type Props = $preact.BasicTreeProps<{}>;
 export type Context = {
     promise: Promise<API>;
@@ -43,7 +43,7 @@ export default function Turnstile(props: Props = {}): $preact.VNode<Props> {
     const promise = $preact.useRef(
         new Promise<API>((resolve): void => {
             if (!$env.isWeb()) return; // It will simply never resolve.
-            void import('../../resources/preact/apis/web/turnstile.ts').then((api): void => {
+            void import('#@preact/apis/web/turnstile.ts').then((api): void => {
                 void api.initialize().then((): void => resolve(api));
             });
         }),

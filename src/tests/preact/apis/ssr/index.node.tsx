@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $preact } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $preact } from '../../../../index.ts';
 
 describe('$preact.ssr', async () => {
     test('.renderToString()', async () => {

@@ -2,7 +2,7 @@
  * Version utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
 export { default as $ } from 'semver';
 

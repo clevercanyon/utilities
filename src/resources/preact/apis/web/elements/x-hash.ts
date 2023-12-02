@@ -7,7 +7,7 @@
  * @see https://o5p.me/Htnn8e
  */
 
-import { $dom, $is, type $type } from '../../../../../index.ts';
+import { $dom, $is, type $type } from '#index.ts';
 
 /**
  * Constructor cache.

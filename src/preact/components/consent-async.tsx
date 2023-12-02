@@ -4,17 +4,17 @@
  * @requiredEnv web
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
-import { $preact } from '../../index.ts';
-import { default as As } from './as.tsx';
+import { $preact } from '#index.ts';
+import { default as As } from '#preact/components/as.tsx';
 
 /**
  * Defines types.
  */
 export type State = $preact.State<{
-    Dialog?: typeof import('./consent-dialog.tsx').default;
-    Icon?: typeof import('./consent-icon.tsx').default;
+    Dialog?: typeof import('#preact/components/consent-dialog.tsx').default;
+    Icon?: typeof import('#preact/components/consent-icon.tsx').default;
 }>;
 export type Props = $preact.NoProps;
 
@@ -30,8 +30,8 @@ export default function ConsentAsync(/* props: Props = {} */): $preact.VNode<Pro
     const { Dialog, Icon } = state; // Initially undefined.
 
     $preact.useEffect((): void => {
-        void import('./consent-dialog.tsx').then(({ default: ConsentDialog }) => {
-            void import('./consent-icon.tsx').then(({ default: ConsentIcon }) => {
+        void import('#preact/components/consent-dialog.tsx').then(({ default: ConsentDialog }) => {
+            void import('#preact/components/consent-icon.tsx').then(({ default: ConsentIcon }) => {
                 updateState({ Dialog: ConsentDialog, Icon: ConsentIcon });
             });
         });

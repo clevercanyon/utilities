@@ -4,7 +4,7 @@
  * @requiredEnv web
  */
 
-import { $dom, $env, $obj, type $type } from '../../../../index.ts';
+import { $dom, $env, $obj, type $type } from '#index.ts';
 
 /**
  * Defines types.

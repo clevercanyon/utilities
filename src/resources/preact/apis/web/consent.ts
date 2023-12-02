@@ -7,8 +7,8 @@
  * @requiredEnv web
  */
 
-import { $cookie, $dom, $env, $fn, $json, $obj, $obp, $time, type $type } from '../../../../index.ts';
-import { type UpdateEvent as DialogUpdateEvent } from '../../../../preact/components/consent-dialog.tsx';
+import { $cookie, $dom, $env, $fn, $json, $obj, $obp, $time, type $type } from '#index.ts';
+import { type UpdateEvent as DialogUpdateEvent } from '#preact/components/consent-dialog.tsx';
 
 /**
  * Defines types.

@@ -2,9 +2,9 @@
  * Object path utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $is, $obj, $str, $to, type $type } from './index.ts';
+import { $is, $obj, $str, $to, type $type } from '#index.ts';
 
 /**
  * Defines types.

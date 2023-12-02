@@ -5,9 +5,9 @@
  */
 // organize-imports-ignore
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $to } from './index.ts';
+import { $to } from '#index.ts';
 import { type Dayjs } from 'dayjs';
 import type * as cf from '@cloudflare/workers-types/experimental';
 
@@ -35,7 +35,7 @@ export type AnyVoidFn = (() => void) | (() => Promise<void>);
  * Class types.
  */
 export type { Dayjs as Time };
-export type * from './class.ts';
+export type * from '#class.ts';
 
 /**
  * Cross env types.

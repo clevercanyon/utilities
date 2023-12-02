@@ -2,12 +2,12 @@
  * Color utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
+import { $is, $obj, type $type } from '#index.ts';
 import * as c2k from 'color2k';
 import parseColor from 'parse-css-color';
 import tailwindColors from 'tailwindcss/colors.js';
-import { $is, $obj, type $type } from './index.ts';
 
 // These exist in code, but they are already removed from Tailwind’s types.
 // Accessing them yields a warning in Node, so we need to avoid accessing any of these.

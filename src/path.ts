@@ -2,11 +2,11 @@
  * Path utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
+import { $fnꓺmemo } from '#@standalone/index.ts';
+import { $mime, $mm, $obj, $str, $to } from '#index.ts';
 import { default as untypedGitIgnoreFactory, type Ignore as GitIgnore } from 'ignore';
-import { $mime, $mm, $obj, $str, $to } from './index.ts';
-import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
 const gitIgnoreFactory = untypedGitIgnoreFactory as unknown as (options: GitIgnoreFactoryOptions) => GitIgnore;

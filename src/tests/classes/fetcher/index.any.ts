@@ -3,8 +3,8 @@
  */
 /* eslint-disable @typescript-eslint/unbound-method -- safe to ignore. */
 
+import { $class } from '#index.ts';
 import { describe, expect, test, vi } from 'vitest';
-import { $class } from '../../../index.ts';
 
 describe('Fetcher', async () => {
     const Fetcher = $class.getFetcher();

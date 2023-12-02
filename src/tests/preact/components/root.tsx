@@ -2,9 +2,9 @@
  * Test suite.
  */
 
+import { $brand, $env, $json, $preact, $url } from '#index.ts';
+import { Body, HTML, Head, Root, Route } from '#preact/components.tsx';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { $brand, $env, $json, $preact, $url } from '../../../index.ts';
-import { Body, HTML, Head, Root, Route } from '../../../preact/components.tsx';
 
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });

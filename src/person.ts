@@ -2,9 +2,9 @@
  * Person utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $class, $str, type $type } from './index.ts';
+import { $class, $str, type $type } from '#index.ts';
 
 /**
  * Tracks initialization.

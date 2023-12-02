@@ -2,10 +2,10 @@
  * HTTP utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $env, $fn, $is, $obj, $path, $str, $time, $url, type $type } from './index.ts';
-import { $fnꓺmemo } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from '#@standalone/index.ts';
+import { $env, $fn, $is, $obj, $path, $str, $time, $url, type $type } from '#index.ts';
 
 /**
  * Defines types.

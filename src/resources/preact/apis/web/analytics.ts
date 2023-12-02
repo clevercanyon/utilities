@@ -4,9 +4,9 @@
  * @requiredEnv web
  */
 
+import { initialize as consentInitialize, state as consentState } from '#@preact/apis/web/consent.ts';
+import { $cookie, $dom, $env, $fn, $is, $json, $obj, $str, $url, type $type } from '#index.ts';
 import { finder as buildCSSSelector } from '@medv/finder';
-import { $cookie, $dom, $env, $fn, $is, $json, $obj, $str, $url, type $type } from '../../../../index.ts';
-import { initialize as consentInitialize, state as consentState } from './consent.ts';
 
 /**
  * Defines types.

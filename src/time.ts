@@ -4,7 +4,7 @@
  * Dayjs is approximately 18kbs.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
 import dayjs from 'dayjs'; // 7kbs.
 import dayjsAdvancedFormat from 'dayjs/plugin/advancedFormat.js'; // 1.07kbs.
@@ -14,7 +14,7 @@ import dayjsTimezone from 'dayjs/plugin/timezone.js'; // 2.09kbs.
 import dayjsToObject from 'dayjs/plugin/toObject.js'; // 422 bytes.
 import dayjsUTC from 'dayjs/plugin/utc.js'; // 2.2kbs.
 
-import { $app, $is, $obj, $symbol, type $type } from './index.ts';
+import { $app, $is, $obj, $symbol, type $type } from '#index.ts';
 
 let initialized: boolean = false;
 let i18n: Intl.ResolvedDateTimeFormatOptions;

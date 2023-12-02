@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $brand, $json } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $brand, $json } from '../../index.ts';
 
 describe('$json', async () => {
     test('.stringify() .parse()', async () => {

@@ -2,9 +2,9 @@
  * Object utilities.
  */
 
+import { type $type } from '#index.ts';
 import type * as MicroMemoize from 'micro-memoize';
 import microMemoizeWithBrokenTypes from 'micro-memoize';
-import { type $type } from '../../index.ts';
 
 /**
  * Exports app package name.

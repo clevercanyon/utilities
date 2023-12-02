@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $url } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $url } from '../../index.ts';
 
 describe('$url', async () => {
     test('.current()', async () => {

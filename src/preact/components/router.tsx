@@ -2,12 +2,12 @@
  * Preact ISO.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
+import { $fnꓺmemo } from '#@standalone/index.ts';
+import { $dom, $env, $is, $obj, $preact, $str, $url, type $type } from '#index.ts';
+import { type State as LocationState } from '#preact/components/location.tsx';
 import { createContext, options as preactꓺoptions } from 'preact';
-import { $dom, $env, $is, $obj, $preact, $str, $url, type $type } from '../../index.ts';
-import { $fnꓺmemo } from '../../resources/standalone/index.ts';
-import { type State as LocationState } from './location.tsx';
 
 /**
  * Defines types.

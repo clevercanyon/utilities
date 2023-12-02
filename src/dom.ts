@@ -4,11 +4,11 @@
  * @requiredEnv web
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
+import { $fnꓺmemo } from '#@standalone/index.ts';
+import { $fn, $is, $obj, $preact, $to, type $type } from '#index.ts';
 import { finder as buildCSSSelector } from '@medv/finder';
-import { $fn, $is, $obj, $preact, $to, type $type } from './index.ts';
-import { $fnꓺmemo } from './resources/standalone/index.ts';
 
 /**
  * Tracks wheel status.

@@ -2,7 +2,7 @@
  * Brand utility class.
  */
 
-import { $class, $obj, $symbol, type $type } from '../../index.ts';
+import { $class, $obj, $symbol, type $type } from '#index.ts';
 
 /**
  * Constructor cache.

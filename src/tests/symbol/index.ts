@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $is, $symbol } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $is, $symbol } from '../../index.ts';
 
 describe('$symbol', async () => {
     test('.objTag', async () => {

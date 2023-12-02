@@ -2,7 +2,7 @@
  * Person utility class.
  */
 
-import { $class, $obj, $str, $url, type $type } from '../../index.ts';
+import { $class, $obj, $str, $url, type $type } from '#index.ts';
 
 /**
  * Constructor cache.

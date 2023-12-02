@@ -2,7 +2,7 @@
  * Preact ISO.
  */
 
-import { $env, $is, $obj, $preact } from '../../../../index.ts';
+import { $env, $is, $obj, $preact } from '#index.ts';
 
 /**
  * Defines types.

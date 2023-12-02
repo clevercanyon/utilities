@@ -2,9 +2,9 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
-import { $preact } from '../../index.ts';
+import { $preact } from '#index.ts';
 
 /**
  * Defines types.

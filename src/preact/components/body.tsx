@@ -2,12 +2,12 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
+import { $dom, $env, $preact } from '#index.ts';
+import { default as As } from '#preact/components/as.tsx';
+import { default as ConsentAsync } from '#preact/components/consent-async.tsx';
 import { createContext } from 'preact';
-import { $dom, $env, $preact } from '../../index.ts';
-import { default as As } from './as.tsx';
-import { default as ConsentAsync } from './consent-async.tsx';
 
 /**
  * Defines types.

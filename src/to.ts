@@ -2,9 +2,9 @@
  * Data conversion utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $is, $obj, $symbol, type $type } from './index.ts';
+import { $is, $obj, $symbol, type $type } from '#index.ts';
 
 /**
  * Converts any value into a string.

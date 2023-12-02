@@ -2,10 +2,10 @@
  * String utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
+import { $dom, $env, $is, $obj, $to } from '#index.ts';
 import ipRegex from 'ip-regex';
-import { $dom, $env, $is, $obj, $to } from './index.ts';
 
 const textEncoder: TextEncoder = new TextEncoder();
 const textDecoder: TextDecoder = new TextDecoder();

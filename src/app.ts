@@ -2,10 +2,10 @@
  * App utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $str } from './index.ts';
-import * as $standalone from './resources/standalone/index.ts';
+import * as $standalone from '#@standalone/index.ts';
+import { $str } from '#index.ts';
 
 /**
  * Clever Canyon utilities package name.

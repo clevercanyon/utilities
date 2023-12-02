@@ -2,10 +2,10 @@
  * Preact ISO.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
+import { $dom, $env, $is, $preact, $url, type $type } from '#index.ts';
 import { createContext } from 'preact';
-import { $dom, $env, $is, $preact, $url, type $type } from '../../index.ts';
 
 /**
  * Defines types.

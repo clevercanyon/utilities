@@ -2,11 +2,11 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
+import { $preact, type $type } from '#index.ts';
+import { type PartialActualState as PartialActualHeadState } from '#preact/components/head.tsx';
 import { createContext } from 'preact';
-import { $preact, type $type } from '../../index.ts';
-import { type PartialActualState as PartialActualHeadState } from './head.tsx';
 
 /**
  * Defines types.

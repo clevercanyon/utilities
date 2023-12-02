@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $preact, $to } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $preact, $to } from '../../index.ts';
 
 describe('$preact', async () => {
     test('.classes()', async () => {

@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $obp } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $obp } from '../../index.ts';
 
 describe('$obp', async () => {
     test('.has()', async () => {

@@ -2,11 +2,11 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
+import { $app, $env, $is, $json, $obj, $obp, $preact, $str, type $type } from '#index.ts';
+import { type default as HeadInstance, type PartialActualState as PartialActualHeadState } from '#preact/components/head.tsx';
 import { Component, createContext } from 'preact';
-import { $app, $env, $is, $json, $obj, $obp, $preact, $str, type $type } from '../../index.ts';
-import { type default as HeadInstance, type PartialActualState as PartialActualHeadState } from './head.tsx';
 
 /**
  * Defines data types.

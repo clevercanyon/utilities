@@ -2,7 +2,7 @@
  * Utility class.
  */
 
-import { $app, $class, type $type } from '../../index.ts';
+import { $app, $class, type $type } from '#index.ts';
 
 /**
  * Constructor cache.

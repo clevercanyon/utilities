@@ -2,10 +2,10 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
+import { $dom, $env, $preact } from '#index.ts';
 import { createContext } from 'preact';
-import { $dom, $env, $preact } from '../../index.ts';
 
 /**
  * Defines types.
@@ -77,7 +77,7 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
 
         $preact.useEffect((): void => {
             void clipboard.then(({ addListeners }) => void addListeners());
-            void import('../../resources/preact/apis/web/elements/x-hash.ts').then((module): void => {
+            void import('#@preact/apis/web/elements/x-hash.ts').then((module): void => {
                 module.define(); // Defines `<x-hash>`: `CustomHTMLHashElement`.
             });
         }, []);

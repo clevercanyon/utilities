@@ -2,10 +2,10 @@
  * MIME utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $path } from './index.ts';
-import { $fnꓺmemo } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from '#@standalone/index.ts';
+import { $path } from '#index.ts';
 
 // Frequently used strings.
 const vsCodeLangBinary = 'code-text-binary';

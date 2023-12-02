@@ -7,10 +7,10 @@
  * @requiredEnv web
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
-import { $dom, $env, $is, $obj, $preact, $time, type $type } from '../../index.ts';
-import { default as As } from './as.tsx';
+import { $dom, $env, $is, $obj, $preact, $time, type $type } from '#index.ts';
+import { default as As } from '#preact/components/as.tsx';
 
 // Various icons needed for consent dialog interface.
 import Fa6SolidArrowUpRightFromSquare from '~icons/fa6-solid/arrow-up-right-from-square';
@@ -21,7 +21,7 @@ import FluentEmojiFlatCookie from '~icons/fluent-emoji-flat/cookie';
 import HeroiconsXMark from '~icons/heroicons/x-mark';
 
 // These are explicit imports of stateless utilities in our consent API.
-import { cookieData, updateCookieData, type Data, type OpenDialogEvent } from '../../resources/preact/apis/web/consent.ts';
+import { cookieData, updateCookieData, type Data, type OpenDialogEvent } from '#@preact/apis/web/consent.ts';
 
 /**
  * Defines types.

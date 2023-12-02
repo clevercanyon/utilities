@@ -2,11 +2,11 @@
  * Preact API.
  */
 
-import { $app, $class, $dom, $env, $is, $obj, $obp, $path, $preact, $str, $url, type $type } from '../../../index.ts';
-import { defaultGlobalObp, type GlobalState } from '../../../preact/components/data.tsx';
-import { type Props as RootProps } from '../../../preact/components/root.tsx';
-import { Route, default as Router, type RoutedProps, type Props as RouterProps } from '../../../preact/components/router.tsx';
-import { prerender } from './iso/index.tsx';
+import { prerender } from '#@preact/apis/iso/index.tsx';
+import { $app, $class, $dom, $env, $is, $obj, $obp, $path, $preact, $str, $url, type $type } from '#index.ts';
+import { defaultGlobalObp, type GlobalState } from '#preact/components/data.tsx';
+import { type Props as RootProps } from '#preact/components/root.tsx';
+import { Route, default as Router, type RoutedProps, type Props as RouterProps } from '#preact/components/router.tsx';
 
 /**
  * Defines types.
@@ -127,7 +127,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
         httpState = { ...httpState, status: 404 };
         $obp.set(globalThis, globalObp + '.http', httpState);
 
-        const StandAlone404 = (await import('../../../preact/components/404.tsx')).StandAlone;
+        const StandAlone404 = (await import('#preact/components/404.tsx')).StandAlone;
         html = $preact.ssr.renderToString(<StandAlone404 class='preact-iso-404' />);
     }
     return { httpState, docType: '<!doctype html>', html };

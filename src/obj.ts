@@ -2,11 +2,11 @@
  * Object utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $class, $is, $symbol, type $type } from './index.ts';
-import * as $standalone from './resources/standalone/index.ts';
-import { $fnꓺmemo } from './resources/standalone/index.ts';
+import * as $standalone from '#@standalone/index.ts';
+import { $fnꓺmemo } from '#@standalone/index.ts';
+import { $class, $is, $symbol, type $type } from '#index.ts';
 
 let mc: $type.ObjMC;
 let mcNoOps: $type.ObjMC;

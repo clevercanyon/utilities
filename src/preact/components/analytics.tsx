@@ -2,15 +2,15 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
+import { $env, $preact } from '#index.ts';
 import { createContext } from 'preact';
-import { $env, $preact } from '../../index.ts';
 
 /**
  * Defines types.
  */
-declare type API = typeof import('../../resources/preact/apis/web/analytics.ts');
+declare type API = typeof import('#@preact/apis/web/analytics.ts');
 export type Props = $preact.BasicTreeProps<{}>;
 export type Context = Promise<API>;
 
@@ -40,7 +40,7 @@ export default function Analytics(props: Props = {}): $preact.VNode<Props> {
     const promise = $preact.useRef(
         new Promise<API>((resolve): void => {
             if (!$env.isWeb()) return; // It will simply never resolve.
-            void import('../../resources/preact/apis/web/analytics.ts').then((api): void => {
+            void import('#@preact/apis/web/analytics.ts').then((api): void => {
                 void api.initialize().then((): void => resolve(api));
             });
         }),

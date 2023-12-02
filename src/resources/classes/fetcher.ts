@@ -2,7 +2,7 @@
  * Fetcher utility class.
  */
 
-import { $app, $class, $crypto, $env, $json, $obp, $str, type $type } from '../../index.ts';
+import { $app, $class, $crypto, $env, $json, $obp, $str, type $type } from '#index.ts';
 
 /**
  * Constructor cache.

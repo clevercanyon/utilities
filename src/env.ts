@@ -2,10 +2,10 @@
  * Environment utilities.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
-import { $app, $cookie, $fn, $is, $obj, $obp, $str, $to, $type, $url } from './index.ts';
-import { $fnꓺmemo } from './resources/standalone/index.ts';
+import { $fnꓺmemo } from '#@standalone/index.ts';
+import { $app, $cookie, $fn, $is, $obj, $obp, $str, $to, $type, $url } from '#index.ts';
 
 let topLevelObp: string = '';
 let topLevelObpSet: boolean = false;

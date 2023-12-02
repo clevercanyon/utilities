@@ -2,8 +2,8 @@
  * Test suite.
  */
 
+import { $app, $brand, $is, $obj } from '#index.ts';
 import { describe, expect, test } from 'vitest';
-import { $app, $brand, $is, $obj } from '../../index.ts';
 
 describe('$brand', async () => {
     test('.get()', async () => {

@@ -4,10 +4,10 @@
  * Micromatch is approximately 35kbs.
  */
 
-import './resources/init.ts';
+import '#@init.ts';
 
+import { $obj } from '#index.ts';
 import { default as mm, type Options as MMOptions } from 'micromatch';
-import { $obj } from './index.ts';
 
 /**
  * Defines types.

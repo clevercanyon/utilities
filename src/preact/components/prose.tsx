@@ -2,10 +2,10 @@
  * Preact component.
  */
 
-import '../../resources/init.ts';
+import '#@init.ts';
 
-import { $preact } from '../../index.ts';
-import { default as As, type Props as AsProps } from '../components/as.tsx';
+import { $preact } from '#index.ts';
+import { default as As, type Props as AsProps } from '#preact/components/as.tsx';
 
 /**
  * Defines types.
