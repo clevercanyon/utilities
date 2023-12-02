@@ -54,7 +54,7 @@ export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig
     return $obj.defaults({}, config || {}, {
         status: 405,
         enableCORs: false,
-        enableCDN: !$env.isCFW(),
+        enableCDN: true,
         maxAge: null,
         sMaxAge: null,
         staleAge: null,

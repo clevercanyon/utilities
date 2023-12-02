@@ -15,6 +15,20 @@ const vars: { [x: string]: unknown } = {};
 
 /**
  * Defines types.
+ *
+ *     {
+ *         "city": "Madawaska",
+ *         "colo": "EWR",
+ *         "continent": "NA",
+ *         "country": "US",
+ *         "latitude": "47.33320",
+ *         "longitude": "-68.33160",
+ *         "metroCode": "552",
+ *         "postalCode": "04756",
+ *         "region": "Maine",
+ *         "regionCode": "ME",
+ *         "timezone": "America/New_York"
+ *     }
  */
 export type IPGeoData = {
     city: string;
