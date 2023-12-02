@@ -54,7 +54,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         vi.stubGlobal(
             'fetch',
             vi.fn(async (...args): Promise<Response> => {
-                if ('https://workers.hop.gdn/utilities/ip-geo/v1' === args[0]) {
+                if ('https://workers.hop.gdn/utilities/api/ip-geo/v1' === args[0]) {
                     return new Response('{ "mockFetchResponse": "' + String(args[0]) + '" }', {
                         status: 200,
                         headers: { 'content-type': 'application/json; charset=utf-8' },

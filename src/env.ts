@@ -498,7 +498,7 @@ export const hasGlobalPrivacy = $fnꓺmemo(2, (request?: $type.Request): boolean
  *       i.e., This is our own API, so we are not sharing with any third-party.
  */
 export const ipGeoData = $fnꓺmemo(async (): Promise<IPGeoData> => {
-    return fetch('https://workers.hop.gdn/utilities/ip-geo/v1') //
+    return fetch('https://workers.hop.gdn/utilities/api/ip-geo/v1') //
         .then((response) => response.json())
         .then((data) => data as IPGeoData);
 });
