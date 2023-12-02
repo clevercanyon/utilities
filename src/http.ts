@@ -903,7 +903,8 @@ export const defaultSecurityHeaders = (): { [x: string]: string } => {
             " object-src 'none';" + // No objects whatsoever.
             //
             " script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample'" + // Standard allowances.
-                ' :: 0.0.0.0 ::1 127.0.0.1 *.local *.localhost *.mac *.loc *.dkr *.vm' + // Local hostnames.
+                // ' :: ::1' + // These are not actually supported at present and trigger console warnings; {@see https://o5p.me/HYDIog}.
+                ' 0.0.0.0 127.0.0.1 *.local *.localhost *.mac *.loc *.dkr *.vm' + // Local hostnames.
                 ' *.clevercanyon.com *.hop.gdn' + // Our own hostnames.
                 ' *.cloudflare.com *.cloudflareinsights.com' + // Cloudflare services.
                 ' *.google.com *.googletagmanager.com *.google-analytics.com *.googleadservices.com googleads.g.doubleclick.net' + // Google services.
