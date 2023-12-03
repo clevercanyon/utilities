@@ -220,7 +220,12 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                     data-open={!state.closing && state.open}
                 >
                     <section aria-label='Consent Preferences'>
-                        <button type='button' onClick={onClose} title='Close Consent Dialog' class='float-right -mr-2 -mt-2 ml-4 opacity-70 lte-tablet:-mr-1 lte-tablet:-mt-1'>
+                        <button
+                            type='button'
+                            onClick={onClose}
+                            title='Close Consent Dialog'
+                            class='float-right -mr-2 -mt-2 ml-4 opacity-70 hover:opacity-100 lte-tablet:-mr-1 lte-tablet:-mt-1'
+                        >
                             <span class='sr-only'>Close Consent Dialog</span>
                             <HeroiconsXMark class='inline h-auto w-4' aria-hidden='true' />
                         </button>
@@ -395,7 +400,9 @@ type ButtonProps = $preact.Props<Partial<$preact.Intrinsic['button']> & { withIc
  * @returns       VNode / JSX element tree.
  */
 function Checkbox(props: CheckboxProps): $preact.VNode<CheckboxProps> {
-    const cursorClass = props.disabled ? 'cursor-not-allowed' : 'cursor-pointer';
+    const cursorClass = props.disabled //
+        ? 'cursor-not-allowed pointer-events-none'
+        : 'cursor-pointer';
     return (
         <label
             for={props.id}
@@ -407,7 +414,8 @@ function Checkbox(props: CheckboxProps): $preact.VNode<CheckboxProps> {
                 type='checkbox'
                 tabIndex={props.tabIndex || 0}
                 class={$preact.classes('select-none rounded', cursorClass, props)}
-                {...$preact.omitProps(props, ['tabIndex', 'label', 'labelProps', 'class', 'children'])}
+                {...(props.disabled ? { 'aria-disabled': 'true', onClick: (e): void => e.preventDefault() } : {})}
+                {...$preact.omitProps(props, ['disabled', 'tabIndex', 'label', 'labelProps', 'class', 'children'])}
             />{' '}
             {props.label}
             {props.children}
