@@ -105,13 +105,18 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
             _ck = (_ck ? _ck + '&' : '') + 'origin=' + origin;
         }
         if (_ck) url.searchParams.set('_ck', _ck);
-
         url.searchParams.sort(); // Optimizes cache.
 
         if (url.toString() !== originalURL.toString()) {
-            request.headers.set('x-rewrite-url', url.toString());
-            request.headers.set('x-original-url', originalURL.toString());
-            request = new Request(url.toString(), request as Request);
+            request = new Request(
+                url.toString(),
+                new Request(request as Request, {
+                    headers: {
+                        'x-rewrite-url': url.toString(),
+                        'x-original-url': originalURL.toString(),
+                    },
+                }),
+            );
         }
     }
     return request; // Potentially a rewritten request now.
