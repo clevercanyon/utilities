@@ -60,8 +60,10 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
     const brandOrgOrgLogoSVG = brandOrgOrg.logo[brandLogoKey].svg;
 
     const onClickOpenConsentDialog = $preact.useCallback((event: Event): void => {
-        event.preventDefault();
-        void consent.then(({ openDialog }) => openDialog());
+        event.preventDefault(), void consent.then(({ openDialog }) => openDialog());
+    }, []);
+    const onClickOpenConsentDialogInOptOutState = $preact.useCallback((event: Event): void => {
+        event.preventDefault(), void consent.then(({ openDialog }) => openDialog({ prefs: { optOut: { doNotSellOrSharePII: true } } }));
     }, []);
     const legalLinks = $preact.useMemo(
         () => [
@@ -72,7 +74,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
             },
             {
                 [tꓺtitle]: 'Do Not Sell or Share My Personal Information',
-                [tꓺonClick]: onClickOpenConsentDialog,
+                [tꓺonClick]: onClickOpenConsentDialogInOptOutState,
                 [tꓺhref]: privacy,
             },
             {
