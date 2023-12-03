@@ -367,7 +367,7 @@ export const isCFW = $fnꓺmemo((): boolean => {
  */
 export const isCFWViaMiniflare = $fnꓺmemo((): boolean => {
     return (
-        'MINIFLARE' in globalThis && true === MINIFLARE &&
+        ('MINIFLARE' in globalThis && true === MINIFLARE) || (test('WRANGLER', {env: /^dev$/ui})) &&
         'Navigator' in globalThis && $is.function(Navigator) &&
         'navigator' in globalThis && navigator instanceof Navigator &&
         'Cloudflare-Workers' === navigator.userAgent
