@@ -473,13 +473,26 @@ let scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
  * @returns `<x-preact-app-loading>` element; {@see Element}.
  *
  * @requiredEnv web
+ *
+ * Why are there so many crazy variables used here? The intention is to optimize for minification. i.e., By using as
+ * many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome.
+ * Remember, variable names can be minified, so the length of variable names is not an issue.
  */
 const xPreactAppLoading = $fnꓺmemo((): Element => {
+    const tꓺsvg = 'svg',
+        tꓺspan = 'span',
+        tꓺrect = 'rect',
+        tꓺclass = 'class',
+        tꓺstyle = 'style',
+        tꓺanimation = 'animation',
+        tꓺanimationᱼdelay = tꓺanimation + '-delay',
+        tꓺrectAtts = 'x="1" y="1" rx="1" width="10" height="10"';
+
     return $dom.create('x-preact-app-loading', {
         role: 'status',
         style: 'z-index: 2147483647', // Maximum allowed value on 32-bit systems.
         class: 'flex place-content-center fixed inset-0 w-screen h-screen bg-color-basic/50 pointer-events-none animate-fade-in',
-        innerHTML: `<span class="sr-only">Loading</span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" viewBox="0 0 100 100" class="inline-block h-auto w-8 fill-color-accent text-color-basic-fg animate-spin"><path fill="currentColor" d="M100 51A50 50 0 1 1 0 51a50 50 0 0 1 100 0ZM9 51a41 41 0 1 0 82 0 41 41 0 0 0-82 0Z"/><path fill="currentFill" d="M94 39c2-1 4-3 3-5A50 50 0 0 0 42 1c-3 1-4 3-4 6 1 2 4 3 6 3a41 41 0 0 1 44 26c1 2 4 4 6 3Z"/></svg>`,
+        innerHTML: `<${tꓺspan} ${tꓺclass}="sr-only">Loading</${tꓺspan}><${tꓺsvg} aria-hidden="true" ${tꓺclass}="h-auto w-10 fill-color-tertiary" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/${tꓺsvg}"><${tꓺstyle}>.la4{${tꓺanimation}:_la1 2.4s -2.4s linear infinite}.la2{${tꓺanimationᱼdelay}:-1.6s}.la3{${tꓺanimationᱼdelay}:-.8s}@keyframes _la1{8.33%{x:13px;y:1px}25%{x:13px;y:1px}33.3%{x:13px;y:13px}50%{x:13px;y:13px}58.33%{x:1px;y:13px}75%{x:1px;y:13px}83.33%{x:1px;y:1px}}</${tꓺstyle}><${tꓺrect} ${tꓺclass}="la4" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="la4 la2" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="la4 la3" ${tꓺrectAtts}></${tꓺrect}></${tꓺsvg}>`,
     });
 });
 
