@@ -407,8 +407,9 @@ function Checkbox(props: CheckboxProps): $preact.VNode<CheckboxProps> {
             <input
                 type='checkbox'
                 tabIndex={props.tabIndex || 0}
+                onClick={props.disabled ? () => false : undefined}
                 class={$preact.classes('select-none rounded', cursorClass, props)}
-                {...$preact.omitProps(props, ['tabIndex', 'label', 'labelProps', 'class', 'children'])}
+                {...$preact.omitProps(props, ['disabled', 'tabIndex', 'label', 'labelProps', 'class', 'children'])}
             />{' '}
             {props.label}
             {props.children}
