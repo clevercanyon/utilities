@@ -401,7 +401,7 @@ type ButtonProps = $preact.Props<Partial<$preact.Intrinsic['button']> & { withIc
  */
 function Checkbox(props: CheckboxProps): $preact.VNode<CheckboxProps> {
     const cursorClass = props.disabled //
-        ? 'cursor-not-allowed pointer-events-none'
+        ? 'pointer-events-none'
         : 'cursor-pointer';
     return (
         <label
