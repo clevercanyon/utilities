@@ -211,18 +211,18 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
             <dialog open={state.open} aria-label='Consent Dialog'>
                 <div
                     style={{ zIndex: 103 }}
-                    class='pointer-events-none fixed inset-0 h-screen w-screen bg-color-basic opacity-90 backdrop-blur-sm data-[open=false]:animate-fade-out data-[open=true]:animate-fade-in'
+                    class='pointer-events-none fixed inset-0 h-screen w-screen bg-color-basic opacity-95 backdrop-blur-sm data-[open=false]:animate-fade-out data-[open=true]:animate-fade-in'
                     data-open={!state.closing && state.open}
                 />
                 <div
                     style={{ zIndex: 104 }}
-                    class='fixed inset-1/2 h-min max-h-[calc(100vh_-_3rem)] w-[calc(100%_-_3rem)] max-w-[720px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-none rounded border border-color-basic-bdr bg-color-basic p-6 text-color-basic-fg data-[open=false]:animate-fade-out data-[open=true]:animate-fade-in lte-tablet:p-4 lte-phone:max-h-[calc(100vh_-_1.5rem)] lte-phone:w-[calc(100%_-_1.5rem)] lte-phone:p-3'
+                    class='fixed inset-1/2 h-min max-h-[calc(100vh_-_3rem)] w-[calc(100%_-_3rem)] max-w-[720px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-none rounded border border-color-basic-fg/30 bg-color-basic p-6 text-color-basic-fg data-[open=false]:animate-fade-out data-[open=true]:animate-fade-in lte-tablet:p-4 lte-phone:max-h-[calc(100vh_-_1.5rem)] lte-phone:w-[calc(100%_-_1.5rem)] lte-phone:p-3'
                     data-open={!state.closing && state.open}
                 >
                     <section aria-label='Consent Preferences'>
                         <button type='button' onClick={onClose} title='Close Consent Dialog' class='float-right -mr-2 -mt-2 ml-4 opacity-70 lte-tablet:-mr-1 lte-tablet:-mt-1'>
                             <span class='sr-only'>Close Consent Dialog</span>
-                            <HeroiconsXMark class='inline-block h-auto w-4' aria-hidden='true' />
+                            <HeroiconsXMark class='inline h-auto w-4' aria-hidden='true' />
                         </button>
                         <div class='text-sm'>
                             <h2 class='-mt-2 text-lg text-color-basic-heading lte-tablet:-mt-1'>
@@ -232,7 +232,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                             <p class='mt-2 opacity-50'>
                                 Your privacy is critically important to us. By using our website you consent to essential cookies in accordance with our{' '}
                                 <a class='_ underline' href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
-                                    privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline-block h-auto w-2' aria-hidden='true' />
+                                    privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
                                 </a>{' '}
                                 . By clicking "Accept All", you are choosing to accept all cookies, including non-essential cookies. Or, by clicking "Decline All", you are choosing
                                 to decline all non-essential cookies.
@@ -246,11 +246,10 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 labelProps={{}}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'always-on-essential-cookies'}
-                                                class='bg-color-basic text-color-primary'
+                                                class='accent-color-primary'
                                                 //
                                                 disabled={true}
                                                 checked={true}
-                                                onChange={onCheckboxChange}
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Essential Cookies'>
                                                 <p class='my-1 ml-2'>
@@ -259,7 +258,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                         preferences. To learn more, please review our
                                                     </span>{' '}
                                                     <a href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
-                                                        privacy policy <Fa6SolidArrowUpRightFromSquare class='inline-block h-auto w-2' aria-hidden='true' />
+                                                        privacy policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
                                                     </a>
                                                 </p>
                                             </HelpIconToggle>
@@ -270,7 +269,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-50 line-through' : '' }}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'accept-functionality-cookies'}
-                                                class='bg-color-basic text-color-success'
+                                                class='accent-color-success'
                                                 //
                                                 disabled={prefs.optOut.doNotSellOrSharePII ? true : false}
                                                 checked={!prefs.optOut.doNotSellOrSharePII && prefs.optIn.acceptFunctionalityCookies ? true : false}
@@ -289,7 +288,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-50 line-through' : '' }}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'accept-analytics-cookies'}
-                                                class='bg-color-basic text-color-success'
+                                                class='accent-color-success'
                                                 //
                                                 disabled={prefs.optOut.doNotSellOrSharePII ? true : false}
                                                 checked={!prefs.optOut.doNotSellOrSharePII && prefs.optIn.acceptAnalyticsCookies ? true : false}
@@ -308,7 +307,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-50 line-through' : '' }}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'accept-advertising-cookies'}
-                                                class='bg-color-basic text-color-success'
+                                                class='accent-color-success'
                                                 //
                                                 disabled={prefs.optOut.doNotSellOrSharePII ? true : false}
                                                 checked={!prefs.optOut.doNotSellOrSharePII && prefs.optIn.acceptAdvertisingCookies ? true : false}
@@ -328,7 +327,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 labelProps={{}}
                                                 //
                                                 id={htmlIdPrefixForOptOutPrefs + 'do-not-sell-or-share-pii'}
-                                                class='bg-color-basic text-color-danger'
+                                                class='accent-color-danger'
                                                 //
                                                 disabled={false}
                                                 checked={prefs.optOut.doNotSellOrSharePII ? true : false}
@@ -407,9 +406,8 @@ function Checkbox(props: CheckboxProps): $preact.VNode<CheckboxProps> {
             <input
                 type='checkbox'
                 tabIndex={props.tabIndex || 0}
-                onClick={props.disabled ? () => false : undefined}
                 class={$preact.classes('select-none rounded', cursorClass, props)}
-                {...$preact.omitProps(props, ['disabled', 'tabIndex', 'label', 'labelProps', 'class', 'children'])}
+                {...$preact.omitProps(props, ['tabIndex', 'label', 'labelProps', 'class', 'children'])}
             />{' '}
             {props.label}
             {props.children}
