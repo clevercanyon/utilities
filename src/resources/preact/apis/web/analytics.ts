@@ -385,12 +385,12 @@ const configureProviders = (): void => {
     $dom.on(document, 'x:location:change', (): void => void trackPageView());
 
     // Sets up click tracking for anchors, buttons, and input buttons.
-    $dom.on(document, 'click', 'a, button, input[type="button"], input[type="submit"]', (event: Event): void => {
-        void trackClick(event.target as HTMLElement);
+    $dom.on(document, 'click', 'a, button, input[type="button"], input[type="submit"]', (event: $type.DOMEventDelegated): void => {
+        void trackClick(event.detail.target as HTMLElement);
     });
     // Sets up form submission tracking.
-    $dom.on(document, 'submit', 'form', (event: Event): void => {
-        void trackSubmit(event.target as HTMLElement);
+    $dom.on(document, 'submit', 'form', (event: $type.DOMEventDelegated): void => {
+        void trackSubmit(event.detail.target as HTMLElement);
     });
 };
 

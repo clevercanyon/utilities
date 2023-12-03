@@ -211,21 +211,16 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
             <dialog open={state.open} aria-label='Consent Dialog'>
                 <div
                     style={{ zIndex: 103 }}
-                    class='pointer-events-none fixed inset-0 h-screen w-screen bg-color-basic/90 backdrop-blur-sm data-[open=false]:animate-fade-out data-[open=true]:animate-fade-in'
+                    class='pointer-events-none fixed inset-0 h-screen w-screen bg-color-basic opacity-90 backdrop-blur-sm data-[open=false]:animate-fade-out data-[open=true]:animate-fade-in'
                     data-open={!state.closing && state.open}
                 />
                 <div
                     style={{ zIndex: 104 }}
-                    class='fixed inset-1/2 h-min max-h-[calc(100vh_-_3rem)] w-[calc(100%_-_3rem)] max-w-[720px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-none rounded border border-color-basic-fg/30 bg-color-basic p-6 data-[open=false]:animate-fade-out data-[open=true]:animate-fade-in lte-tablet:p-4 lte-phone:max-h-[calc(100vh_-_1.5rem)] lte-phone:w-[calc(100%_-_1.5rem)] lte-phone:p-3'
+                    class='fixed inset-1/2 h-min max-h-[calc(100vh_-_3rem)] w-[calc(100%_-_3rem)] max-w-[720px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-none rounded border border-color-basic-bdr bg-color-basic p-6 text-color-basic-fg data-[open=false]:animate-fade-out data-[open=true]:animate-fade-in lte-tablet:p-4 lte-phone:max-h-[calc(100vh_-_1.5rem)] lte-phone:w-[calc(100%_-_1.5rem)] lte-phone:p-3'
                     data-open={!state.closing && state.open}
                 >
                     <section aria-label='Consent Preferences'>
-                        <button
-                            type='button'
-                            onClick={onClose}
-                            title='Close Consent Dialog'
-                            class='float-right -mr-2 -mt-2 ml-4 text-color-basic-fg/70 hover:text-color-basic-fg lte-tablet:-mr-1 lte-tablet:-mt-1'
-                        >
+                        <button type='button' onClick={onClose} title='Close Consent Dialog' class='float-right -mr-2 -mt-2 ml-4 opacity-70 lte-tablet:-mr-1 lte-tablet:-mt-1'>
                             <span class='sr-only'>Close Consent Dialog</span>
                             <HeroiconsXMark class='inline-block h-auto w-4' aria-hidden='true' />
                         </button>
@@ -234,9 +229,9 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                 <FluentEmojiFlatCookie class='-ml-1 mr-1 inline-block h-auto w-6' aria-hidden='true' />
                                 Cookie Preferences
                             </h2>
-                            <p class='mt-2 text-color-basic-fg/50'>
+                            <p class='mt-2 opacity-50'>
                                 Your privacy is critically important to us. By using our website you consent to essential cookies in accordance with our{' '}
-                                <a class='_ text-color-basic-fg/70 hover:text-color-basic-link' href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
+                                <a class='_ underline' href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
                                     privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline-block h-auto w-2' aria-hidden='true' />
                                 </a>{' '}
                                 . By clicking "Accept All", you are choosing to accept all cookies, including non-essential cookies. Or, by clicking "Decline All", you are choosing
@@ -258,9 +253,11 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 onChange={onCheckboxChange}
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Essential Cookies'>
-                                                <p class='my-1 ml-2 text-color-basic-fg/50'>
-                                                    Essential cookies are always enabled. They’re necessary for our site to function; e.g., account access, consent settings,
-                                                    preferences. To learn more, please review our{' '}
+                                                <p class='my-1 ml-2'>
+                                                    <span class='opacity-50'>
+                                                        Essential cookies are always enabled. They’re necessary for our site to function; e.g., account access, consent settings,
+                                                        preferences. To learn more, please review our
+                                                    </span>{' '}
                                                     <a href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
                                                         privacy policy <Fa6SolidArrowUpRightFromSquare class='inline-block h-auto w-2' aria-hidden='true' />
                                                     </a>
@@ -270,7 +267,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                         <div>
                                             <Checkbox
                                                 label='Accept Functionality Cookies'
-                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'text-color-basic-fg/50 line-through' : '' }}
+                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-50 line-through' : '' }}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'accept-functionality-cookies'}
                                                 class='bg-color-basic text-color-success'
@@ -280,7 +277,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 onChange={onCheckboxChange}
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Functionality Cookies'>
-                                                <p class='my-1 ml-2 text-color-basic-fg/50'>
+                                                <p class='my-1 ml-2 opacity-50'>
                                                     Functionality cookies are similar to essential cookies. They remember preferences and improve user experience. However, unlike
                                                     essential cookies, they are not strictly necessary.
                                                 </p>
@@ -289,7 +286,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                         <div>
                                             <Checkbox
                                                 label='Accept Analytics Cookies'
-                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'text-color-basic-fg/50 line-through' : '' }}
+                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-50 line-through' : '' }}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'accept-analytics-cookies'}
                                                 class='bg-color-basic text-color-success'
@@ -299,7 +296,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 onChange={onCheckboxChange}
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Analytics Cookies'>
-                                                <p class='my-1 ml-2 text-color-basic-fg/50'>
+                                                <p class='my-1 ml-2 opacity-50'>
                                                     Analytics cookies measure user experience, traffic volume, traffic source, clicks, etc. We use these to optimize performance by
                                                     collecting information about how users interact with our site.
                                                 </p>
@@ -308,7 +305,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                         <div>
                                             <Checkbox
                                                 label='Accept Advertising Cookies'
-                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'text-color-basic-fg/50 line-through' : '' }}
+                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-50 line-through' : '' }}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'accept-advertising-cookies'}
                                                 class='bg-color-basic text-color-success'
@@ -318,13 +315,13 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 onChange={onCheckboxChange}
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Advertising Cookies'>
-                                                <p class='ml-2 mt-1 text-color-basic-fg/50'>
+                                                <p class='ml-2 mt-1 opacity-50'>
                                                     Advertising cookies are used to identify visitors across sites; e.g., content partners, ad networks. We and our partners use
                                                     these to provide relevant ad content and to understand its effectiveness.
                                                 </p>
                                             </HelpIconToggle>
                                         </div>
-                                        <h3 class='mt-3 border-t border-color-basic-fg/10 pt-2 text-base text-color-basic-heading'>Opt-Out Preferences</h3>
+                                        <h3 class='mt-3 border-t border-color-basic-bdr pt-2 text-base text-color-basic-heading'>Opt-Out Preferences</h3>
                                         <div>
                                             <Checkbox
                                                 label='Do Not Sell or Share My Personal Information'
@@ -338,7 +335,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 onChange={onCheckboxChange}
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Opting Out'>
-                                                <p class='ml-2 mt-1 text-color-basic-fg/50'>
+                                                <p class='ml-2 mt-1 opacity-50'>
                                                     Opting out declines all non-essential cookies &amp; disables selling or sharing of your personal data.
                                                 </p>
                                             </HelpIconToggle>

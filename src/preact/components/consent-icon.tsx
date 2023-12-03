@@ -38,7 +38,7 @@ export default function ConsentIcon(/* props: Props = {} */): $preact.VNode<Prop
             <div style={{ zIndex: 102 }} class='fixed bottom-0 left-0'>
                 <button type='button' onClick={onClick} class='mb-2 ml-1 opacity-20 hover:opacity-100' title='Consent Preferences'>
                     <span class='sr-only'>Consent Preferences</span>
-                    <FluentEmojiFlatCookie class='inline-block h-auto w-9' aria-hidden='true' />
+                    <FluentEmojiFlatCookie class='h-auto w-9' aria-hidden='true' />
                 </button>
             </div>
         </As>
