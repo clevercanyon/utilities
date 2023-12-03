@@ -53,9 +53,9 @@ export default async ({ mode, command, isSSRBuild, projDir, distDir, pkg, env, a
              * Generates typescript type declaration file(s).
              */
             if ('build' === command /* Also does important type checking at build time. */) {
-                u.log($chalk.gray('Generating TypeScript type declarations.'));
-                await u.spawn('npx', ['tsc', '--emitDeclarationOnly']);
-                await u.spawn('npx', ['tsc-alias']); // Resolves aliases.
+                //u.log($chalk.gray('Generating TypeScript type declarations.'));
+                //await u.spawn('npx', ['tsc', '--emitDeclarationOnly']);
+                //await u.spawn('npx', ['tsc-alias']); // Resolves aliases.
             }
 
             /**

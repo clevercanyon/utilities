@@ -13,6 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createLogger, loadEnv } from 'vite';
+import dts from 'vite-plugin-dts';
 import { $fs, $glob } from '../../../node_modules/@clevercanyon/utilities.node/dist/index.js';
 import { $is, $json, $obj, $obp, $str, $time, $url } from '../../../node_modules/@clevercanyon/utilities/dist/index.js';
 import esVersion from '../bin/includes/es-version.mjs';
@@ -175,6 +176,7 @@ export default async ({ mode, command, isSsrBuild: isSSRBuild }) => {
         await viteMDXConfig({ projDir }),
         await viteEJSConfig({ mode, projDir, srcDir, pkg, env }),
         await viteMinifyConfig({ mode }),
+        await dts({ outDir: distDir + '/types' }),
         await viteC10nPostProcessingConfig({
             mode, command, isSSRBuild, projDir, distDir,
             pkg, env, appType, targetEnv, staticDefs, pkgUpdates

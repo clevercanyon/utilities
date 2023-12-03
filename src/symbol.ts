@@ -6,9 +6,9 @@
 import '#@init.ts';
 
 export {
-    $symbolꓺobjTag as objTag, //
+    $symbolꓺobjTag as objTag,
     $symbolꓺobjStringTag as objStringTag,
-    $symbolꓺobjToEquals as objToEquals,
+    $symbolꓺobjToEquals as objToEquals, //
 } from '#@standalone/index.ts';
 
 export const objToPlain: unique symbol = Symbol('objToPlain');

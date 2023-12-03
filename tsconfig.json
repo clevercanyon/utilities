@@ -163,5 +163,14 @@
                 }
             ]
         ]
+    },
+    "tsc-alias": {
+        "debug": true,
+        "silent": false,
+        "verbose": true,
+        "fileExtensions": {
+            "inputGlob": "d.{ts,tsx,mts,mtsx,cts,ctsx}",
+            "outputCheck": ["js", "jsx", "mjs", "mjsx", "cjs", "cjsx", "ts", "tsx", "mts", "mtsx", "cts", "ctsx"]
+        }
     }
 }
