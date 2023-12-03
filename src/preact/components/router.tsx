@@ -495,8 +495,8 @@ const xPreactAppLoading = $fnꓺmemo((): Element => {
     return $dom.create('x-preact-app-loading', {
         role: 'status',
         style: 'z-index: 2147483647', // Maximum allowed value on 32-bit systems.
-        class: 'flex place-content-center fixed inset-0 w-screen h-screen bg-color-basic/70 pointer-events-none animate-fade-in',
-        innerHTML: `<${tꓺspan} ${tꓺclass}="sr-only">Loading</${tꓺspan}><${tꓺsvg} aria-hidden="true" ${tꓺclass}="h-auto w-10 fill-color-dazzle" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/${tꓺsvg}"><${tꓺstyle}>.la4{${tꓺanimation}:_la1 2.4s -2.4s linear infinite}.la2{${tꓺanimationᱼdelay}:-1.6s}.la3{${tꓺanimationᱼdelay}:-.8s}@keyframes _la1{8.33%{${tꓺx13pxy1px}}25%{${tꓺx13pxy1px}}33.3%{${tꓺx13pxy13px}}50%{${tꓺx13pxy13px}}58.33%{${tꓺx1pxy13px}}75%{${tꓺx1pxy13px}}83.33%{${tꓺx1pxy1px}}}</${tꓺstyle}><${tꓺrect} ${tꓺclass}="la4" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="la4 la2" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="la4 la3" ${tꓺrectAtts}></${tꓺrect}></${tꓺsvg}>`,
+        class: 'flex place-content-center fixed inset-0 w-screen h-screen bg-color-basic/75 pointer-events-none animate-fade-in',
+        innerHTML: `<${tꓺspan} ${tꓺclass}="sr-only">Loading</${tꓺspan}><${tꓺsvg} aria-hidden="true" ${tꓺclass}="h-auto w-10 stroke-color-primary-fg fill-color-primary" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/${tꓺsvg}"><${tꓺstyle}>.la4{${tꓺanimation}:_la1 2.4s -2.4s linear infinite}.la2{${tꓺanimationᱼdelay}:-1.6s}.la3{${tꓺanimationᱼdelay}:-.8s}@keyframes _la1{8.33%{${tꓺx13pxy1px}}25%{${tꓺx13pxy1px}}33.3%{${tꓺx13pxy13px}}50%{${tꓺx13pxy13px}}58.33%{${tꓺx1pxy13px}}75%{${tꓺx1pxy13px}}83.33%{${tꓺx1pxy1px}}}</${tꓺstyle}><${tꓺrect} ${tꓺclass}="la4" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="la4 la2" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="la4 la3" ${tꓺrectAtts}></${tꓺrect}></${tꓺsvg}>`,
     });
 });
 
