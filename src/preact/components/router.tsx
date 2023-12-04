@@ -237,7 +237,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         // In such a case, there are simply no children to render in the current route. Therefore, it becomes
         // important for a top-level prerenderer to look for routes that are entirely empty; treating as a 404 error.
         return <RouteContextObject.Provider value={currentRouteContext.current}>{matchingChildVNode || defaultChildVNode}</RouteContextObject.Provider>;
-    }, [locationState]);
+    }, [props, locationState]);
 
     // Snapshots the previous route, and then resets it to `null`, for now.
     // Note: This uses `previousRoute`, which was potentially altered by the memo above.
@@ -318,16 +318,16 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             }
             // Marks router as having committed now.
             routerHasEverCommitted.current = true;
-        }, [locationState, layoutTicks]);
+        }, [layoutTicks]);
 
-        $preact.useEffect((): void => {
+        $preact.useEffect((): (() => void) => {
             // Ignores suspended renders.
             if (currentRouteDidSuspend.current) {
-                return; // Stop here.
+                return onUnmountEffect; // Stop here.
             }
             // Loading sequence ended already?
             if (!currentRouteDidSuspendAndIsLoading.current) {
-                return; // Stop here.
+                return onUnmountEffect; // Stop here.
             }
             // Ends current route loading sequence.
             currentRouteDidSuspendAndIsLoading.current = false;
@@ -367,7 +367,15 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                     });
                 });
             }
+            return onUnmountEffect;
         }, [props, locationState, layoutTicks]);
+
+        const onUnmountEffect = $preact.useCallback((): void => {
+            // Handles reduction of loading stack size whenever an unmount occurs.
+            if (currentRouteDidSuspendAndIsLoading.current && false !== handleLoading && !isInitialHydration) {
+                loadingStackSize = Math.max(0, loadingStackSize - 1);
+            }
+        }, [props, locationState]);
     }
     // Renders `currentRoute` and `previousRoute` components.
     // Note: `currentRoute` MUST render first to trigger a thrown promise.
