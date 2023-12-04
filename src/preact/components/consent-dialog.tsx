@@ -235,11 +235,11 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                 Cookie Preferences
                             </h2>
                             <p class='mt-2 opacity-50'>
-                                Your privacy is critically important to us. By using our website you consent to essential cookies in accordance with our{' '}
+                                By using our website you consent to essential cookies in accordance with our{' '}
                                 <a class='_ underline' href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
                                     privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
                                 </a>{' '}
-                                . By clicking "Accept All", you are choosing to accept all cookies, including non-essential cookies. Or, by clicking "Decline All", you are choosing
+                                . If you click "Accept All", you are choosing to accept all cookies, including non-essential cookies. If you click "Decline All", you are choosing
                                 to decline all non-essential cookies.
                             </p>
                             <form onSubmit={onInadvertentSubmit} class='mt-2' novalidate>

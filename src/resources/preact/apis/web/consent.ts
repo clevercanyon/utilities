@@ -200,7 +200,7 @@ export const cookieData = (): Data => {
  * @param data Consent data; {@see Data}.
  */
 export const updateCookieData = (data: Data): void => {
-    $cookie.set('consent', $json.stringify(data, { pretty: true }));
+    $cookie.set('consent', $json.stringify(data));
 };
 
 // ---
