@@ -101,7 +101,7 @@ export const addListeners = async (): Promise<void> => {
         if (!copyTargetId) return; // Bail; no copy target ID.
 
         // We’re using an attribute selector because hash IDs that begin with a `~` are technically invalid in
-        // the eyes of `document.querySelector()`. We get around the nag by instead using an attribute selector.
+        // the eyes of `document.querySelector()`. We get around it by instead using an attribute selector.
         const copyTarget = $dom.query('[id="' + $str.escSelector(copyTargetId) + '"]') as unknown as HTMLElement | null;
         if (!copyTarget?.innerText) return; // ID not found, or nothing to actually copy.
 

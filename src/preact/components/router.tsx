@@ -146,33 +146,35 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
     // Self-reference, as plain object value.
     const thisObj = this as unknown as $type.Object;
 
-    // Gathers state.
+    // Gathers props and state.
 
-    const { state: locationState } = $preact.useLocation();
-    const parentContext = $preact.useRoute(); // i.e., Parent route.
-    const [layoutTicks, updateLayoutTicks] = $preact.useReducer((c) => c + 1, 0);
+    const { handleScrolling, handleLoading } = props,
+        { state: locationState } = $preact.useLocation(),
+        { wasPushed, isInitialHydration } = locationState,
+        parentContext = $preact.useRoute(), // Possibly an empty object.
+        [layoutTicks, updateLayoutTicks] = $preact.useReducer((c) => c + 1, 0);
 
     // Initializes route references.
 
-    const routeCounter = $preact.useRef(0);
-    const routerHasEverCommitted = $preact.useRef(false);
+    const routeCounter = $preact.useRef(0),
+        routerHasEverCommitted = $preact.useRef(false);
 
     // Initializes previous route reference.
 
-    const previousRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
-    const previousRouteSnapshot = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
+    const previousRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>,
+        previousRouteSnapshot = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
 
     // Initializes current route references.
 
-    const currentRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
-    const currentRouteContext = $preact.useRef() as $preact.Ref<RouteContext>;
-    const currentRouteLoadEventData = $preact.useRef() as $preact.Ref<RouteLoadEventData>;
-    const currentRoutePendingHydrationDOM = $preact.useRef() as $preact.Ref<HTMLElement>;
+    const currentRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>,
+        currentRouteContext = $preact.useRef() as $preact.Ref<RouteContext>,
+        currentRouteLoadEventData = $preact.useRef() as $preact.Ref<RouteLoadEventData>,
+        currentRoutePendingHydrationDOM = $preact.useRef() as $preact.Ref<HTMLElement>;
 
     // Initializes other current route references.
 
-    const currentRouteDidSuspend = $preact.useRef(false);
-    const currentRouteDidSuspendAndIsLoading = $preact.useRef(false);
+    const currentRouteDidSuspend = $preact.useRef(false),
+        currentRouteDidSuspendAndIsLoading = $preact.useRef(false);
 
     // Resets this flag on each and every attempt to re-render.
     // A thrown promise will change this back to `true`, when applicable.
@@ -267,12 +269,13 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 
             // Handles effects of loading sequence starting.
             if ($env.isWeb() /* Only possible on the web. */) {
+                // Cancels scroll handlers, as loading is not yet complete.
+                if (false !== handleScrolling && wasPushed && !isInitialHydration) {
+                    scrollWheelHandler?.cancel(), scrollHandler?.cancel();
+                }
                 // Appends `<x-preact-app-loading>` status indicator.
-                if (false !== props.handleLoading && !locationState.isInitialHydration) {
-                    loadingHandler?.cancel(); // Don’t stack these up.
-                    loadingHandler = $dom.afterNextFrame((): void => {
-                        $dom.body().appendChild(xPreactAppLoading());
-                    });
+                if (false !== handleLoading && !isInitialHydration) {
+                    if (1 === ++loadingStackSize) $dom.afterNextFrame((): void => void $dom.body().appendChild(xPreactAppLoading()));
                 }
                 // Fires an event indicating the current route is now loading.
                 if (props.onLoadStart) props.onLoadStart(currentRouteLoadEventData.current as RouteLoadEventData);
@@ -287,7 +290,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                 (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers new effects.
             });
         },
-        [locationState],
+        [props, locationState],
     );
     // Configures the router’s effects.
     // These are only applicable on the web.
@@ -329,10 +332,10 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             // Ends current route loading sequence.
             currentRouteDidSuspendAndIsLoading.current = false;
 
-            // Handles removal of `<x-preact-app-loading>` status indicator.
-            if (false !== props.handleLoading && !locationState.isInitialHydration) {
-                loadingHandler?.cancel(); // Don’t stack these up.
-                loadingHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
+            // Handles removal of `<x-preact-app-loading>`.
+            if (false !== handleLoading && !isInitialHydration) {
+                loadingStackSize = Math.max(0, loadingStackSize - 1);
+                if (0 === loadingStackSize) $dom.afterNextFrame((): void => xPreactAppLoading().remove());
             }
             // Fires an event indicating the end of loading sequence.
             if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData.current as RouteLoadEventData);
@@ -342,18 +345,20 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             if (props.onLoaded) props.onLoaded(currentRouteLoadEventData.current as RouteLoadEventData);
             $dom.trigger(document, 'x:route:loaded', currentRouteLoadEventData.current as RouteLoadEventData);
 
-            // Handles scroll position for current route location.
-            if (false !== props.handleScrolling && locationState.wasPushed && !locationState.isInitialHydration) {
+            // Handles scroll position changes in response to current route.
+            if (false !== handleScrolling && wasPushed && !isInitialHydration) {
                 scrollWheelHandler?.cancel(), // Don’t stack these up.
                     scrollHandler?.cancel(); // Same for inner handler.
 
-                scrollWheelHandler = $dom.onWheelEnd((): void => {
+                scrollWheelHandler = $dom.onWheelEnd((/* Waits for user to stop wheel-scrolling. */): void => {
                     scrollHandler = $dom.afterNextFrame((): void => {
+                        // De-focus active element to avoid browser shifting scroll position while restoring focus.
+                        // e.g., In the case of a form element being in focus whenever a location change occurs.
                         (document.activeElement as HTMLElement | null)?.blur();
 
                         const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
                         // We’re using an attribute selector because hash IDs that begin with a `~` are technically invalid in
-                        // the eyes of `document.querySelector()`. We get around the nag by instead using an attribute selector.
+                        // the eyes of `document.querySelector()`. We get around it by instead using an attribute selector.
                         const currentHashElement = currentHash ? $dom.query('[id="' + $str.escSelector(currentHash) + '"]') : null;
 
                         if (currentHashElement) {
@@ -362,7 +367,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                     });
                 });
             }
-        }, [locationState, layoutTicks]);
+        }, [props, locationState, layoutTicks]);
     }
     // Renders `currentRoute` and `previousRoute` components.
     // Note: `currentRoute` MUST render first to trigger a thrown promise.
@@ -463,9 +468,9 @@ const resolvedPromise = Promise.resolve();
 /**
  * Loading and scroll handlers.
  */
-let loadingHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
-let scrollWheelHandler: ReturnType<typeof $dom.onWheelEnd> | undefined;
-let scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
+let loadingStackSize = 0,
+    scrollWheelHandler: ReturnType<typeof $dom.onWheelEnd> | undefined,
+    scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
 
 /**
  * Generates `<x-preact-app-loading>` element.
