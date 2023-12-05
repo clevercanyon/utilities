@@ -338,9 +338,11 @@ export const requestHasCacheableMethod = $fnꓺmemo(2, (request: $type.Request):
  * @param   responseStatus HTTP response status code.
  *
  * @returns                True if request method needs content headers.
+ *
+ * @see https://fetch.spec.whatwg.org/#null-body-status
  */
 export const requestNeedsContentHeaders = $fnꓺmemo(2, (request: $type.Request, responseStatus: number): boolean => {
-    return 204 !== responseStatus && requestHasSupportedMethod(request) && !['OPTIONS'].includes(request.method);
+    return requestHasSupportedMethod(request) && !['OPTIONS'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus);
 });
 
 /**
@@ -350,9 +352,11 @@ export const requestNeedsContentHeaders = $fnꓺmemo(2, (request: $type.Request,
  * @param   responseStatus HTTP response status code.
  *
  * @returns                True if request method needs content body.
+ *
+ * @see https://fetch.spec.whatwg.org/#null-body-status
  */
 export const requestNeedsContentBody = $fnꓺmemo(2, (request: $type.Request, responseStatus: number): boolean => {
-    return 204 !== responseStatus && requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method);
+    return requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus);
 });
 
 /**

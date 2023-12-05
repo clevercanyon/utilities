@@ -261,6 +261,9 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             // Marks current render as having suspended and currently loading.
             currentRouteDidSuspendAndIsLoading.current = true;
 
+            // Tracks, globally, number of routers that are currently loading.
+            loadingStackSize++; // Increments global loading stack size.
+
             // Keeps previous route around while current route loads.
             previousRoute.current = previousRouteSnapshot.current;
 
@@ -274,8 +277,8 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                     scrollWheelHandler?.cancel(), scrollHandler?.cancel();
                 }
                 // Appends `<x-preact-app-loading>` status indicator.
-                if (false !== handleLoading && !isInitialHydration) {
-                    if (1 === ++loadingStackSize) $dom.afterNextFrame((): void => void $dom.body().appendChild(xPreactAppLoading()));
+                if (false !== handleLoading && !isInitialHydration && 1 === loadingStackSize) {
+                    $dom.afterNextFrame((): void => void $dom.body().appendChild(xPreactAppLoading()));
                 }
                 // Fires an event indicating the current route is now loading.
                 if (props.onLoadStart) props.onLoadStart(currentRouteLoadEventData.current as RouteLoadEventData);
@@ -287,6 +290,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                 if (routeCounterSnapshot !== routeCounter.current) return;
 
                 // Successful route transition. Unsuspend after a tick and stop rendering the old route.
+                // The nullification of `previousRoute.current` will lead to an unmount effect running below.
                 (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers new effects.
             });
         },
@@ -323,19 +327,19 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         $preact.useEffect((): (() => void) => {
             // Ignores suspended renders.
             if (currentRouteDidSuspend.current) {
-                return onUnmountEffect; // Stop here.
+                return unmountEffect; // Stop here.
             }
             // Loading sequence ended already?
             if (!currentRouteDidSuspendAndIsLoading.current) {
-                return onUnmountEffect; // Stop here.
+                return unmountEffect; // Stop here.
             }
             // Ends current route loading sequence.
             currentRouteDidSuspendAndIsLoading.current = false;
+            loadingStackSize = Math.max(0, loadingStackSize - 1);
 
             // Handles removal of `<x-preact-app-loading>`.
-            if (false !== handleLoading && !isInitialHydration) {
-                loadingStackSize = Math.max(0, loadingStackSize - 1);
-                if (0 === loadingStackSize) $dom.afterNextFrame((): void => xPreactAppLoading().remove());
+            if (false !== handleLoading && !isInitialHydration && 0 === loadingStackSize) {
+                $dom.afterNextFrame((): void => xPreactAppLoading().remove());
             }
             // Fires an event indicating the end of loading sequence.
             if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData.current as RouteLoadEventData);
@@ -346,7 +350,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             $dom.trigger(document, 'x:route:loaded', currentRouteLoadEventData.current as RouteLoadEventData);
 
             // Handles scroll position changes in response to current route.
-            if (false !== handleScrolling && wasPushed && !isInitialHydration) {
+            if (false !== handleScrolling && wasPushed && !isInitialHydration && 0 === loadingStackSize) {
                 scrollWheelHandler?.cancel(), // Don’t stack these up.
                     scrollHandler?.cancel(); // Same for inner handler.
 
@@ -367,15 +371,13 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                     });
                 });
             }
-            return onUnmountEffect;
+            return unmountEffect;
         }, [props, locationState, layoutTicks]);
 
-        const onUnmountEffect = $preact.useCallback((): void => {
+        const unmountEffect = $preact.useCallback((): void => {
             // Handles reduction of loading stack size whenever an unmount occurs.
-            if (currentRouteDidSuspendAndIsLoading.current && false !== handleLoading && !isInitialHydration) {
-                loadingStackSize = Math.max(0, loadingStackSize - 1);
-            }
-        }, [props, locationState]);
+            if (currentRouteDidSuspendAndIsLoading.current) loadingStackSize = Math.max(0, loadingStackSize - 1);
+        }, []);
     }
     // Renders `currentRoute` and `previousRoute` components.
     // Note: `currentRoute` MUST render first to trigger a thrown promise.
@@ -476,7 +478,7 @@ const resolvedPromise = Promise.resolve();
 /**
  * Loading and scroll handlers.
  */
-let loadingStackSize = 0,
+let loadingStackSize = 0, // Number of routers currenty loading.
     scrollWheelHandler: ReturnType<typeof $dom.onWheelEnd> | undefined,
     scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
 
@@ -492,24 +494,35 @@ let loadingStackSize = 0,
  * Remember, variable names can be minified, so the length of variable names is not an issue.
  */
 const xPreactAppLoading = $fnꓺmemo((): Element => {
-    const tꓺsvg = 'svg',
+    const tꓺla = 'la',
+        tꓺsvg = 'svg',
         tꓺspan = 'span',
         tꓺrect = 'rect',
+        tꓺrole = 'role',
         tꓺclass = 'class',
         tꓺstyle = 'style',
+        tꓺla1 = tꓺla + '1',
+        tꓺla2 = tꓺla + '2',
+        tꓺla3 = tꓺla + '3',
+        tꓺla4 = tꓺla + '4',
+        tꓺx1px = 'x:1px;',
+        tꓺy1px = 'y:1px',
+        tꓺx13px = 'x:13px;',
+        tꓺy13px = 'y:13px',
+        tꓺinnerHTML = 'innerHTML',
         tꓺanimation = 'animation',
-        tꓺx13pxy1px = 'x:13px;y:1px',
-        tꓺx13pxy13px = 'x:13px;y:13px',
-        tꓺx1pxy13px = 'x:1px;y:13px',
-        tꓺx1pxy1px = 'x:1px;y:1px',
+        tꓺx13pxy1px = tꓺx13px + tꓺy1px,
+        tꓺx13pxy13px = tꓺx13px + tꓺy13px,
+        tꓺx1pxy13px = tꓺx1px + tꓺy13px,
+        tꓺx1pxy1px = tꓺx1px + tꓺy1px,
         tꓺanimationᱼdelay = tꓺanimation + '-delay',
         tꓺrectAtts = 'x="1" y="1" rx="1" width="10" height="10"';
 
     return $dom.create('x-preact-app-loading', {
-        role: 'status',
-        style: 'z-index: 2147483647', // Maximum allowed value on 32-bit systems.
-        class: 'flex place-content-center fixed inset-0 w-screen h-screen bg-color-basic/75 pointer-events-none animate-fade-in',
-        innerHTML: `<${tꓺspan} ${tꓺclass}="sr-only">Loading</${tꓺspan}><${tꓺsvg} aria-hidden="true" ${tꓺclass}="h-auto w-10 stroke-color-primary-fg fill-color-primary" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/${tꓺsvg}"><${tꓺstyle}>.la4{${tꓺanimation}:_la1 2.4s -2.4s linear infinite}.la2{${tꓺanimationᱼdelay}:-1.6s}.la3{${tꓺanimationᱼdelay}:-.8s}@keyframes _la1{8.33%{${tꓺx13pxy1px}}25%{${tꓺx13pxy1px}}33.3%{${tꓺx13pxy13px}}50%{${tꓺx13pxy13px}}58.33%{${tꓺx1pxy13px}}75%{${tꓺx1pxy13px}}83.33%{${tꓺx1pxy1px}}}</${tꓺstyle}><${tꓺrect} ${tꓺclass}="la4" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="la4 la2" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="la4 la3" ${tꓺrectAtts}></${tꓺrect}></${tꓺsvg}>`,
+        [tꓺrole]: 'status',
+        [tꓺstyle]: 'z-index: 2147483647', // Maximum allowed value on 32-bit systems.
+        [tꓺclass]: 'flex place-content-center fixed inset-0 w-screen h-screen bg-color-basic/75 pointer-events-none animate-fade-in',
+        [tꓺinnerHTML]: `<${tꓺspan} ${tꓺclass}="sr-only">Loading</${tꓺspan}><${tꓺsvg} aria-hidden="true" ${tꓺclass}="h-auto w-10 stroke-color-primary-fg fill-color-primary" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/${tꓺsvg}"><${tꓺstyle}>.${tꓺla4}{${tꓺanimation}:${tꓺla1} 2.4s -2.4s linear infinite}.${tꓺla2}{${tꓺanimationᱼdelay}:-1.6s}.${tꓺla3}{${tꓺanimationᱼdelay}:-.8s}@keyframes ${tꓺla1}{8.33%{${tꓺx13pxy1px}}25%{${tꓺx13pxy1px}}33.3%{${tꓺx13pxy13px}}50%{${tꓺx13pxy13px}}58.33%{${tꓺx1pxy13px}}75%{${tꓺx1pxy13px}}83.33%{${tꓺx1pxy1px}}}</${tꓺstyle}><${tꓺrect} ${tꓺclass}="${tꓺla4}" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="${tꓺla4} ${tꓺla2}" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="${tꓺla4} ${tꓺla3}" ${tꓺrectAtts}></${tꓺrect}></${tꓺsvg}>`,
     });
 });
 
