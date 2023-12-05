@@ -148,11 +148,13 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 
     // Gathers props and state.
 
-    const { handleScrolling, handleLoading } = props,
-        { state: locationState } = $preact.useLocation(),
-        { wasPushed, isInitialHydration } = locationState,
-        parentContext = $preact.useRoute(), // Possibly an empty object.
+    const { state: locationState } = $preact.useLocation(),
         [layoutTicks, updateLayoutTicks] = $preact.useReducer((c) => c + 1, 0);
+
+    // Initializes parent context; e.g., for nested routers.
+
+    const parentContext = $preact.useRef({} as RouteContext);
+    parentContext.current = $preact.useRoute(); // Possibly an empty object.
 
     // Initializes route references.
 
@@ -204,8 +206,8 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         currentRouteContext.current = {
             // These are `./` relative to base.
             // These are also relative `./` to parent route.
-            path: parentContext.restPath || locationState.path,
-            pathQuery: parentContext.restPathQuery || locationState.pathQuery,
+            path: parentContext.current.restPath || locationState.path,
+            pathQuery: parentContext.current.restPathQuery || locationState.pathQuery,
 
             // These are `./` relative to base.
             // These are also relative `./` to parent route.
@@ -237,7 +239,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
         // In such a case, there are simply no children to render in the current route. Therefore, it becomes
         // important for a top-level prerenderer to look for routes that are entirely empty; treating as a 404 error.
         return <RouteContextObject.Provider value={currentRouteContext.current}>{matchingChildVNode || defaultChildVNode}</RouteContextObject.Provider>;
-    }, [props, locationState]);
+    }, [locationState]);
 
     // Snapshots the previous route, and then resets it to `null`, for now.
     // Note: This uses `previousRoute`, which was potentially altered by the memo above.
@@ -273,11 +275,11 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             // Handles effects of loading sequence starting.
             if ($env.isWeb() /* Only possible on the web. */) {
                 // Cancels scroll handlers, as loading is not yet complete.
-                if (false !== handleScrolling && wasPushed && !isInitialHydration) {
+                if (false !== props.handleScrolling && locationState.wasPushed && !locationState.isInitialHydration) {
                     scrollWheelHandler?.cancel(), scrollHandler?.cancel();
                 }
                 // Appends `<x-preact-app-loading>` status indicator.
-                if (false !== handleLoading && !isInitialHydration && 1 === loadingStackSize) {
+                if (false !== props.handleLoading && !locationState.isInitialHydration && 1 === loadingStackSize) {
                     $dom.afterNextFrame((): void => void $dom.body().appendChild(xPreactAppLoading()));
                 }
                 // Fires an event indicating the current route is now loading.
@@ -294,7 +296,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                 (previousRoute.current = null), void resolvedPromise.then(updateLayoutTicks); // Triggers new effects.
             });
         },
-        [props, locationState],
+        [locationState],
     );
     // Configures the router’s effects.
     // These are only applicable on the web.
@@ -322,7 +324,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             }
             // Marks router as having committed now.
             routerHasEverCommitted.current = true;
-        }, [layoutTicks]);
+        }, [locationState, layoutTicks]);
 
         $preact.useEffect((): (() => void) => {
             // Ignores suspended renders.
@@ -338,7 +340,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             loadingStackSize = Math.max(0, loadingStackSize - 1);
 
             // Handles removal of `<x-preact-app-loading>`.
-            if (false !== handleLoading && !isInitialHydration && 0 === loadingStackSize) {
+            if (false !== props.handleLoading && !locationState.isInitialHydration && 0 === loadingStackSize) {
                 $dom.afterNextFrame((): void => xPreactAppLoading().remove());
             }
             // Fires an event indicating the end of loading sequence.
@@ -350,7 +352,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             $dom.trigger(document, 'x:route:loaded', currentRouteLoadEventData.current as RouteLoadEventData);
 
             // Handles scroll position changes in response to current route.
-            if (false !== handleScrolling && wasPushed && !isInitialHydration && 0 === loadingStackSize) {
+            if (false !== props.handleScrolling && locationState.wasPushed && !locationState.isInitialHydration && 0 === loadingStackSize) {
                 scrollWheelHandler?.cancel(), // Don’t stack these up.
                     scrollHandler?.cancel(); // Same for inner handler.
 
@@ -372,7 +374,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                 });
             }
             return unmountEffect;
-        }, [props, locationState, layoutTicks]);
+        }, [locationState, layoutTicks]);
 
         const unmountEffect = $preact.useCallback((): void => {
             // Handles reduction of loading stack size whenever an unmount occurs.
