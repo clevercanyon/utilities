@@ -21,9 +21,10 @@ import wranglerSettings from '../wrangler/settings.mjs';
 import events from './includes/events.mjs';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const projDir = path.resolve(__dirname, '../../..');
 const distDir = path.resolve(__dirname, '../../../dist');
-const nodeIncludeFile = path.resolve(__dirname, './includes/node.cjs');
 
+const nodeIncludeFile = path.resolve(__dirname, './includes/node.cjs');
 const nodeEnvVars = { NODE_OPTIONS: $cmd.quote([`--require ${$cmd.esc(nodeIncludeFile)}`].join(' ')) };
 const cloudflareEnvVars = { CLOUDFLARE_API_TOKEN: process.env.USER_CLOUDFLARE_TOKEN || '' };
 
@@ -155,11 +156,18 @@ export default async () => {
                         : []),
                     ...('dev' === args._?.[0]
                         ? // `$ madrun wrangler dev`.
+                          // Config pulled from `./wrangler.toml` in this case.
                           [['npx', 'wrangler', '{{@}}', ...(args.env ? [] : ['--env', 'dev'])]]
                         : //
                           // `$ madrun wrangler pages`.
+                          // Config is not pulled from `./wrangler.toml` in this case.
+                          // Therefore, we must configure everything at command line.
                           'pages' === args._?.[0]
                           ? [
+                                // `$ madrun wrangler pages dev`.
+                                ...('dev' === args._?.[1] ? [{ opts: { cwd: projDir }, cmd: ['npx', 'vite', 'build', '--mode', 'stage'] }] : []),
+
+                                // `$ madrun wrangler pages *`.
                                 [
                                     'npx',
                                     'wrangler',

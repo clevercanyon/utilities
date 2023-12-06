@@ -257,11 +257,8 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
 
     thisObj.__c = $preact.useCallback(
         (thrownPromise: Promise<unknown>): void => {
-            // Marks current render as having suspended.
-            currentRouteDidSuspend.current = true;
-
             // Marks current render as having suspended and currently loading.
-            currentRouteDidSuspendAndIsLoading.current = true;
+            currentRouteDidSuspend.current = currentRouteDidSuspendAndIsLoading.current = true;
 
             // Tracks, globally, number of routers that are currently loading.
             loadingStackSize++; // Increments global loading stack size.
@@ -329,29 +326,29 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
             routerHasEverCommitted.current = true;
         }, [locationState, ticks]);
 
-        $preact.useEffect((): (() => void) => {
+        $preact.useEffect((): void => {
             // Ignores suspended renders.
-            if (currentRouteDidSuspend.current) {
-                return unmountEffect; // Stop here.
-            }
-            // Loading sequence ended already?
-            if (!currentRouteDidSuspendAndIsLoading.current) {
-                return unmountEffect; // Stop here.
-            }
+            if (currentRouteDidSuspend.current) return;
+
+            // Tracks whether current route did suspend as was loading.
+            const wasLoading = currentRouteDidSuspendAndIsLoading.current;
+
             // Ends current route loading sequence.
             currentRouteDidSuspendAndIsLoading.current = false;
-            loadingStackSize = Math.max(0, loadingStackSize - 1);
+
+            // Reduces loading stack size by `1`.
+            if (wasLoading) loadingStackSize = Math.max(0, loadingStackSize - 1);
 
             // Extracts from props & location state.
             const { handleScrolling, handleLoading } = props;
             const { wasPushed, isInitialHydration } = locationState;
 
             // Cancels any existing in-progress handlers.
-            if (false !== handleLoading) loadingHandler?.cancel();
+            if (wasLoading && false !== handleLoading) loadingHandler?.cancel();
             if (false !== handleScrolling) scrollWheelHandler?.cancel(), scrollHandler?.cancel();
 
             // Handles removal of `<x-preact-app-loading>`.
-            if (false !== handleLoading && !isInitialHydration && 0 === loadingStackSize) {
+            if (wasLoading && false !== handleLoading && !isInitialHydration && 0 === loadingStackSize) {
                 loadingHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
             }
             // Handles scroll position changes in response to current route.
@@ -373,24 +370,25 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
                     });
                 });
             }
-            // Fires an event indicating the end of loading sequence.
-            if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData.current as RouteLoadEventData);
-            $dom.trigger(document, 'x:route:loadEnd', currentRouteLoadEventData.current as RouteLoadEventData);
+            if (wasLoading) {
+                // Fires an event indicating the end of loading sequence.
+                if (props.onLoadEnd) props.onLoadEnd(currentRouteLoadEventData.current as RouteLoadEventData);
+                $dom.trigger(document, 'x:route:loadEnd', currentRouteLoadEventData.current as RouteLoadEventData);
 
-            // Fires an event indicating the current route is loaded now.
-            if (props.onLoaded) props.onLoaded(currentRouteLoadEventData.current as RouteLoadEventData);
-            $dom.trigger(document, 'x:route:loaded', currentRouteLoadEventData.current as RouteLoadEventData);
-
-            return unmountEffect; // Returns cleanup effect; i.e., when unmount occurs.
+                // Fires an event indicating the current route is loaded now.
+                if (props.onLoaded) props.onLoaded(currentRouteLoadEventData.current as RouteLoadEventData);
+                $dom.trigger(document, 'x:route:loaded', currentRouteLoadEventData.current as RouteLoadEventData);
+            }
         }, [locationState, ticks]);
 
-        const unmountEffect = $preact.useCallback((): void => {
-            // Loading sequence ended already?
-            if (!currentRouteDidSuspendAndIsLoading.current) {
-                return; // Stop here.
-            }
+        this.componentWillUnmount = $preact.useCallback((): void => {
+            // Ignores cases when not suspended, not loading.
+            if (!currentRouteDidSuspendAndIsLoading.current) return;
+
             // Ends current route loading sequence.
             currentRouteDidSuspendAndIsLoading.current = false;
+
+            // Reduces loading stack size by `1`.
             loadingStackSize = Math.max(0, loadingStackSize - 1);
 
             // Extracts from props & location state.
