@@ -145,7 +145,8 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
 
     const props = $preact.useRef({} as CoreProps);
     props.current = _props; // Current router core props.
-    const childrenLength = (props.current.children as unknown[] | undefined)?.length;
+    const { children: _children } = props.current; // Extracts children.
+    const numberOfChildren = $is.array(_children) ? _children.length : _children ? 1 : 0;
 
     // Initializes current location state reference.
 
@@ -285,7 +286,7 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
         // important for a top-level prerenderer to look for routes that are entirely empty; treating as a 404 error.
         return <RouteContextObject.Provider value={currentRouteContext.current}>{matchingChildVNode || defaultChildVNode}</RouteContextObject.Provider>;
         //
-    }, [locationState.current, parentContext.current, childrenLength]);
+    }, [locationState.current, parentContext.current, numberOfChildren]);
 
     // Configures the router’s effects.
     // These are only applicable on the web.
