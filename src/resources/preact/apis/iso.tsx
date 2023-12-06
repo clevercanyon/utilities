@@ -184,19 +184,6 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
 // Lazy utilities.
 
 /**
- * Lazy loads a routed, dynamically imported component.
- *
- * @param   loader      Dynamic import loader. For details {@see LazyComponentLoader}.
- * @param   props       Potentially required component props; {@see LazyComponentProps}.
- * @param   routerProps Optional router props; {@see LazyRouterProps}.
- *
- * @returns             VNode created by a routed, lazy loaded, dynamically imported component.
- */
-export const lazyLoad = <Loader extends LazyComponentLoader>(loader: Loader, props?: LazyComponentProps<Loader>, routerProps?: LazyRouterProps): LazyRouterVNode => {
-    return $preact.create(lazyLoader(loader, routerProps), props || ({} as LazyComponentProps<Loader>)) as LazyRouterVNode;
-};
-
-/**
  * Produces a routed component that lazy loads a dynamically imported component.
  *
  * @param   loader      Dynamic import loader. For details {@see LazyComponentLoader}.
@@ -205,22 +192,9 @@ export const lazyLoad = <Loader extends LazyComponentLoader>(loader: Loader, pro
  * @returns             A routed component that lazy loads a dynamically imported component.
  */
 export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, routerProps?: LazyRouterProps): ((props?: LazyComponentProps<Loader>) => LazyRouterVNode) => {
-    return lazyAsyncLoader(async (props?: LazyComponentProps<Loader>): Promise<$preact.VNode<LazyComponentProps<Loader>>> => {
+    return lazyComponent(async (props?: LazyComponentProps<Loader>): Promise<$preact.VNode<LazyComponentProps<Loader>>> => {
         return $preact.create((await loader()).default, props || ({} as LazyComponentProps<Loader>));
     }, routerProps);
-};
-
-/**
- * Lazy loads a routed async function component.
- *
- * @param   fn          Async function component to be lazy loaded; {@see $preact.AsyncFnComponent}.
- * @param   props       Potentially required component props; {@see $preact.AsyncFnComponent<Props>}.
- * @param   routerProps Optional router props; {@see LazyRouterProps}.
- *
- * @returns             VNode created by a routed, lazy loaded, async function component.
- */
-export const lazyLoadAsync = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, props?: Props, routerProps?: LazyRouterProps): LazyRouterVNode => {
-    return $preact.create(lazyAsyncLoader(fn, routerProps), props || ({} as Props)) as LazyRouterVNode;
 };
 
 /**
@@ -231,17 +205,35 @@ export const lazyLoadAsync = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
  *
  * @returns             A routed component that lazy loads an async function component.
  */
-export const lazyAsyncLoader = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode) => {
-    const lazyAsyncFnComponentProps = { current: {} as Props };
-    const LazyPseudoRoute = lazyRoute(async (): ReturnType<LazyRouteLoader> => {
-        const renderedAsyncFnComponentVNode = await fn(lazyAsyncFnComponentProps.current);
-        return { default: (unusedꓺ: RoutedProps): $preact.VNode<RoutedProps> | null => renderedAsyncFnComponentVNode };
-    });
+export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode) => {
+    let promise: ReturnType<$preact.AsyncFnComponent<Props>> | undefined, //
+        fnDidResolve: true | undefined,
+        fnRtn: Awaited<typeof promise> | undefined;
+
+    const component: $preact.FnComponent<Props> = (props: Props): $preact.VNode<Props> | null => {
+        const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 1000 ? 1 : c + 1), 0),
+            didPromiseThenUpdateTicks = $preact.useRef() as $preact.Ref<true | undefined>;
+
+        promise ??= fn(props).then((rtn) => ((fnDidResolve = true), (fnRtn = rtn)));
+        if (fnDidResolve) {
+            promise = didPromiseThenUpdateTicks.current = fnDidResolve = undefined;
+            return fnRtn as $preact.VNode<Props> | null;
+        }
+        if (!didPromiseThenUpdateTicks.current) {
+            didPromiseThenUpdateTicks.current = true;
+            void promise.then(updateTicks);
+        }
+        throw promise;
+    };
     return (props?: Props): LazyRouterVNode => {
-        if (props) lazyAsyncFnComponentProps.current = props;
         return (
             <Router {...routerProps}>
-                <Route default component={LazyPseudoRoute} />
+                <Route
+                    default
+                    component={(unusedꓺ: RoutedProps): $preact.VNode<RoutedProps> => {
+                        return $preact.create(component, props || ({} as Props)) as unknown as $preact.VNode<RoutedProps>;
+                    }}
+                />
             </Router>
         );
     };
@@ -258,19 +250,19 @@ export const lazyAsyncLoader = <Props extends $preact.AnyProps>(fn: $preact.Asyn
  * @note This utility is at the heart of all our other lazy loading utilities.
  */
 export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedProps> => {
-    let promise: Promise<Awaited<ReturnType<LazyRouteLoader>>['default']> | undefined;
-    let component: Awaited<typeof promise> | undefined;
+    let promise: Promise<Awaited<ReturnType<LazyRouteLoader>>['default']> | undefined, //
+        component: Awaited<typeof promise> | undefined;
 
     return (props: RoutedProps): $preact.VNode<RoutedProps> => {
-        const didChainPromiseResolution = $preact.useRef(false);
-        const [, updateResolvedState] = $preact.useState(false);
+        const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 1000 ? 1 : c + 1), 0),
+            didPromiseThenUpdateTicks = $preact.useRef(false);
 
         promise ??= loader().then((module) => (component = module.default));
         if (component) return $preact.create(component, props);
 
-        if (!didChainPromiseResolution.current) {
-            didChainPromiseResolution.current = true;
-            void promise.then((): void => updateResolvedState(true));
+        if (!didPromiseThenUpdateTicks.current) {
+            didPromiseThenUpdateTicks.current = true;
+            void promise.then(updateTicks);
         }
         throw promise;
     };

@@ -149,7 +149,7 @@ function RouterCore(this: $preact.Component<CoreProps>, props: CoreProps): $prea
     // Gathers props and state.
 
     const { state: locationState } = $preact.useLocation(),
-        [layoutTicks, updateLayoutTicks] = $preact.useReducer((c) => c + 1, 0);
+        [layoutTicks, updateLayoutTicks] = $preact.useReducer((c) => (c + 1 >= 1000 ? 1 : c + 1), 0);
 
     // Initializes parent context; e.g., for nested routers.
 

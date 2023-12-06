@@ -98,10 +98,8 @@ export * as ssr from '#@preact/apis/ssr.tsx';
  * `$preact.iso.*`. However, we’re exporting here as first-class citizens, for convenience.
  */
 export {
-    lazyLoad,
     lazyLoader,
-    lazyLoadAsync,
-    lazyAsyncLoader,
+    lazyComponent,
     lazyRoute, //
 } from '#@preact/apis/iso.tsx';
 
