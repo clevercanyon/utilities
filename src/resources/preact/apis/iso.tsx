@@ -211,7 +211,7 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
         fnRtn: Awaited<typeof promise> | undefined;
 
     const component: $preact.FnComponent<Props> = (props: Props): $preact.VNode<Props> | null => {
-        const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 1000 ? 1 : c + 1), 0),
+        const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
             didPromiseThenUpdateTicks = $preact.useRef() as $preact.Ref<true | undefined>;
 
         promise ??= fn(props).then((rtn) => ((fnDidResolve = true), (fnRtn = rtn)));
@@ -254,7 +254,7 @@ export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedPr
         component: Awaited<typeof promise> | undefined;
 
     return (props: RoutedProps): $preact.VNode<RoutedProps> => {
-        const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 1000 ? 1 : c + 1), 0),
+        const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
             didPromiseThenUpdateTicks = $preact.useRef(false);
 
         promise ??= loader().then((module) => (component = module.default));
