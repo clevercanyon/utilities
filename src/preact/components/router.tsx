@@ -218,7 +218,7 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
                 loadStartHandler?.cancel(); // Cancels any in-progress.
                 loadStartHandler = $dom.afterNextFrame((): void => {
                     const xPreactApp = $dom.xPreactApp() as HTMLElement; // Cached by DOM utilities.
-                    (xPreactApp.dataset.transitioned = undefined), $dom.body().appendChild(xPreactAppLoading());
+                    delete xPreactApp.dataset.transitioned, $dom.body().appendChild(xPreactAppLoading());
                 });
             }
         }
@@ -379,7 +379,7 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
                     clearTimeout(loadTransTimeout),
                         (loadTransTimeout = setTimeout(() => {
                             loadTransHandler?.cancel(); // Cancels any in-progress.
-                            loadTransHandler = $dom.afterNextFrame(() => void (xPreactApp.dataset.transitioned = undefined));
+                            loadTransHandler = $dom.afterNextFrame((): void => void delete xPreactApp.dataset.transitioned);
                         }, 150));
                 });
             }
