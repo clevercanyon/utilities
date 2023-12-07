@@ -210,13 +210,16 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
                 { isInitialHydration } = locationState.current;
 
             // Cancels any relevant existing in-progress handlers.
-            if (false !== handleLoading) loadingRemovalHandler?.cancel();
+            if (false !== handleLoading) loadEndHandler?.cancel(), loadTransHandler?.cancel(), clearTimeout(loadTransTimeout);
             if (false !== handleScrolling) scrollWheelHandler?.cancel(), scrollHandler?.cancel();
 
-            // Appends `<x-preact-app-loading>` status indicator.
+            // Sets transitioned state & appends `<x-preact-app-loading>`.
             if (false !== handleLoading && !isInitialHydration && 1 === loadingStackSize) {
-                loadingAppendageHandler?.cancel(); // Cancels any in-progress appends.
-                loadingAppendageHandler = $dom.afterNextFrame((): void => void $dom.body().appendChild(xPreactAppLoading()));
+                loadStartHandler?.cancel(); // Cancels any in-progress.
+                loadStartHandler = $dom.afterNextFrame((): void => {
+                    const xPreactApp = $dom.xPreactApp() as HTMLElement; // Cached by DOM utilities.
+                    (xPreactApp.dataset.transitioned = undefined), $dom.body().appendChild(xPreactAppLoading());
+                });
             }
         }
         // Handles resolution of suspended state; i.e., once promise resolves.
@@ -335,13 +338,13 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
                 currentRouteInLoadingSequence.current = false;
 
                 // Cancels any relevant existing in-progress handlers.
-                if (false !== handleLoading) loadingRemovalHandler?.cancel();
+                if (false !== handleLoading) loadEndHandler?.cancel(), loadTransHandler?.cancel(), clearTimeout(loadTransTimeout);
                 if (false !== handleScrolling) scrollWheelHandler?.cancel(), scrollHandler?.cancel();
 
                 // Handles removal of `<x-preact-app-loading>`.
                 if (false !== handleLoading && !isInitialHydration && 0 === loadingStackSize) {
-                    loadingAppendageHandler?.cancel(); // Cancels any in-progress appends.
-                    loadingRemovalHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
+                    loadStartHandler?.cancel(); // Cancels any in-progress appends.
+                    loadEndHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
                 }
             }
             // Scroll handling occurs even for routes that never entered a loading state.
@@ -363,6 +366,21 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
                             currentHashElement.scrollIntoView({ behavior: 'auto' });
                         } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
                     });
+                });
+            }
+            // Transition handling occurs even for routes that never entered a loading state.
+            // However, this does observe the loading stack and only fires at end of the stack.
+            if (false !== handleLoading && !isInitialHydration && wasPushed && 0 === loadingStackSize) {
+                loadTransHandler?.cancel(), clearTimeout(loadTransTimeout);
+                loadTransHandler = $dom.afterNextFrame(() => {
+                    const xPreactApp = $dom.xPreactApp() as HTMLElement; // Cached by DOM utilities.
+                    xPreactApp.dataset.transitioned = 'true'; // Fires transition animation; see `<Body>`.
+
+                    clearTimeout(loadTransTimeout),
+                        (loadTransTimeout = setTimeout(() => {
+                            loadTransHandler?.cancel(); // Cancels any in-progress.
+                            loadTransHandler = $dom.afterNextFrame(() => void (xPreactApp.dataset.transitioned = undefined));
+                        }, 150));
                 });
             }
         }, [locationState.current, ticks]);
@@ -467,10 +485,12 @@ const resolvedPromise = Promise.resolve();
  * Loading and scroll handlers.
  */
 let loadingStackSize = 0, // Number of routers currenty loading.
-    loadingAppendageHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
-    loadingRemovalHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
+    loadStartHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
+    loadEndHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
     scrollWheelHandler: ReturnType<typeof $dom.onWheelEnd> | undefined,
-    scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
+    scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
+    loadTransHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
+    loadTransTimeout: $type.Timeout | undefined;
 
 /**
  * Generates `<x-preact-app-loading>` element.
