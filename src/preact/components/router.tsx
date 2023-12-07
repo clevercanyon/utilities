@@ -136,32 +136,31 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
     // Self-reference, as plain object value.
     const thisObj = this as unknown as $type.Object;
 
-    // Gathers props and state.
+    // Initializes parent context reference; i.e., for nested routers.
 
-    const { state: _locationState } = $preact.useLocation(),
-        [ticks, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0);
+    const parentContext = $preact.useRef({} as RouteContext);
+    parentContext.current = $preact.useRoute(); // Possibly empty.
 
     // Initializes current props reference.
 
     const props = $preact.useRef({} as CoreProps);
     props.current = _props; // Current router core props.
-    const { children: _children } = props.current; // Extracts children.
-    const numberOfChildren = $is.array(_children) ? _children.length : _children ? 1 : 0;
+
+    // Initializes current child array reference.
+
+    const childArray = $preact.useRef([] as $preact.VNode<RouteProps>[]);
+    const { children: _children } = props.current; // Extracts children from props.
+    childArray.current = $preact.useMemo(() => $preact.toChildArray(_children) as $preact.VNode<RouteProps>[], [_children]);
+
+    // Gathers location state and current router tick state.
+
+    const { state: _locationState } = $preact.useLocation(),
+        [ticks, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0);
 
     // Initializes current location state reference.
 
     const locationState = $preact.useRef({} as LocationState);
     locationState.current = _locationState;
-
-    // Initializes parent context; e.g., for nested routers.
-
-    const parentContext = $preact.useRef({} as RouteContext);
-    parentContext.current = $preact.useRoute(); // Possibly an empty object.
-
-    // Initializes router references.
-
-    const currentRouteCounter = $preact.useRef(0),
-        routerHasEverCommitted = $preact.useRef(false);
 
     // Initializes previous route reference.
     // Snapshots and resets to `null` on every attempt to re-render.
@@ -171,27 +170,29 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
         previousRouteSnapshot = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>;
 
     previousRouteSnapshot.current = previousRoute.current;
-    previousRoute.current = null;
+    previousRoute.current = null; // Resets on every attempt to re-render.
 
     // Initializes current route references.
     // Resets `currentRouteIsLoading` on every attempt to re-render.
     // If rendering succeeds synchronously, we will never enter a loading state.
 
-    const currentRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>,
+    const currentRouteCounter = $preact.useRef(0),
         currentRouteIsLoading = $preact.useRef(false),
-        currentRouteIsInLoadingSequence = $preact.useRef(false),
+        currentRouteInLoadingSequence = $preact.useRef(false),
+        currentRouteHasEverLoadedBefore = $preact.useRef(false),
         currentRouteContext = $preact.useRef() as $preact.Ref<RouteContext>,
+        currentRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>,
         currentRoutePendingHydrationDOM = $preact.useRef() as $preact.Ref<HTMLElement>;
 
-    currentRouteIsLoading.current = false; // Resets to `false`.
-    // `currentRouteIsInLoadingSequence` is reset to `false` only by effects.
+    currentRouteIsLoading.current = false; // Resets on every attempt to re-render.
+    // `currentRouteInLoadingSequence` is reset to `false` only by effects.
 
     // Configures the router’s `_childDidSuspend()` handler.
     // Minified `__c` = `_childDidSuspend()`. See: <https://o5p.me/3gXT4t>.
 
     thisObj.__c = $preact.useCallback((thrownPromise: Promise<unknown>): void => {
         // Marks current render as having suspended and currently loading.
-        currentRouteIsLoading.current = currentRouteIsInLoadingSequence.current = true;
+        currentRouteIsLoading.current = currentRouteInLoadingSequence.current = true;
 
         // Tracks, globally, number of routers that are currently loading.
         loadingStackSize++; // Increments global loading stack size.
@@ -220,11 +221,14 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
         }
         // Handles resolution of suspended state; i.e., once promise resolves.
         void thrownPromise.then((): void => {
-            // Ignores update if it isn't the most recently suspended update.
-            if (currentRouteCounterSnapshot !== currentRouteCounter.current) return;
+            // Reduces global loading stack size by `1`.
+            loadingStackSize = Math.max(0, loadingStackSize - 1);
 
-            // Successful route transition. Unsuspend after a tick and stop rendering previous route.
-            (previousRoute.current = null), void resolvedPromise.then(updateTicks); // Triggers re-render.
+            // If this is the most recently suspended route...
+            if (currentRouteCounterSnapshot === currentRouteCounter.current) {
+                // Successful route transition. Unsuspend after a tick and stop rendering previous route.
+                (previousRoute.current = null), void resolvedPromise.then(updateTicks); // Triggers re-render.
+            }
         });
     }, []);
 
@@ -269,7 +273,7 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
         } as RouteContext;
 
         // Looks for a matching `<Route>` child component in the current router.
-        ($preact.toChildArray(props.current.children) as $preact.VNode<RouteProps>[]).some((childVNode): boolean => {
+        childArray.current.some((childVNode): boolean => {
             let routeContext = currentRouteContext.current as RouteContext;
             let matchingRouteContext: RouteContext | undefined;
 
@@ -286,76 +290,60 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
         // important for a top-level prerenderer to look for routes that are entirely empty; treating as a 404 error.
         return <RouteContextObject.Provider value={currentRouteContext.current}>{matchingChildVNode || defaultChildVNode}</RouteContextObject.Provider>;
         //
-    }, [locationState.current, parentContext.current, numberOfChildren]);
+    }, [parentContext.current, childArray.current.length, locationState.current]);
 
     // Configures the router’s effects.
     // These are only applicable on the web.
 
     if ($env.isWeb()) {
-        // Ends current route loading sequence.
-        const maybeEndLoadingSequence = $preact.useCallback((): void => {
-            // Does nothing if not in loading sequence.
-            if (!currentRouteIsInLoadingSequence.current) return;
-
-            // Ends current route loading sequence.
-            currentRouteIsInLoadingSequence.current = false;
-
-            // Reduces loading stack size by `1`.
-            loadingStackSize = Math.max(0, loadingStackSize - 1);
-
-            // Extracts from props & location state.
-            const { handleLoading, handleScrolling } = props.current;
-            const { isInitialHydration } = locationState.current;
-
-            // Cancels any relevant existing in-progress handlers.
-            if (false !== handleLoading) loadingRemovalHandler?.cancel();
-            if (false !== handleScrolling) scrollWheelHandler?.cancel(), scrollHandler?.cancel();
-
-            // Handles removal of `<x-preact-app-loading>`.
-            if (false !== handleLoading && !isInitialHydration && 0 === loadingStackSize) {
-                loadingAppendageHandler?.cancel(); // Cancels any in-progress appends.
-                loadingRemovalHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
-            }
-        }, []);
-
         // Runs layout effects.
         $preact.useLayoutEffect(() => {
-            // Current route's hydration DOM cast as an `HTMLElement | null`.
-            const currentRouteHydrationDOM = ((thisObj.__v as $type.Object | undefined)?.__e || null) as HTMLElement | null;
+            // Current route's DOM cast as an `HTMLElement | null`.
+            const currentDOM = ((thisObj.__v as $type.Object | undefined)?.__e || null) as HTMLElement | null;
 
-            // Ignores suspended renders.
+            // Current route is loading?
             if (currentRouteIsLoading.current) {
-                if (!routerHasEverCommitted.current && !currentRoutePendingHydrationDOM.current) {
-                    // If we've never committed, mark hydration DOM for removal.
-                    currentRoutePendingHydrationDOM.current = currentRouteHydrationDOM;
-                }
-                return; // Stop while in a suspended state.
+                if (!currentRouteHasEverLoadedBefore.current && !currentRoutePendingHydrationDOM.current)
+                    // If we've never loaded before, mark current DOM as hydration DOM.
+                    currentRoutePendingHydrationDOM.current = currentDOM;
+                return; // Stop while in a loading state.
             }
             // Checks if hydration DOM needs to be removed now.
-            if (!routerHasEverCommitted.current && currentRoutePendingHydrationDOM.current) {
-                if (currentRoutePendingHydrationDOM.current !== currentRouteHydrationDOM) {
-                    // Removes hydration DOM if first commit and we didn't use.
+            if (!currentRouteHasEverLoadedBefore.current && currentRoutePendingHydrationDOM.current) {
+                if (currentRoutePendingHydrationDOM.current !== currentDOM)
+                    // Removes hydration DOM if we didn't use.
                     currentRoutePendingHydrationDOM.current.remove();
-                }
-                currentRoutePendingHydrationDOM.current = null; // Nullify now.
+                currentRoutePendingHydrationDOM.current = null; // Nullify.
             }
-            // Marks as having committed now.
-            routerHasEverCommitted.current = true;
+            // Yes, we have loaded a route now.
+            currentRouteHasEverLoadedBefore.current = true;
             //
         }, [locationState.current, ticks]);
 
-        // Runs effects.
+        // Runs all other effects.
         $preact.useEffect((): void => {
-            // Ignores suspended renders.
+            // Ignores renders still in-progress.
             if (currentRouteIsLoading.current) return;
 
-            // Ends current route loading sequence.
-            maybeEndLoadingSequence(); // When applicable.
-
             // Extracts from props & location state.
-            const { handleScrolling } = props.current;
+            const { handleLoading, handleScrolling } = props.current;
             const { isInitialHydration, wasPushed } = locationState.current;
 
+            // Ends current route loading sequence.
+            if (currentRouteInLoadingSequence.current) {
+                // Ends current route loading sequence.
+                currentRouteInLoadingSequence.current = false;
+
+                // Cancels any relevant existing in-progress handlers.
+                if (false !== handleLoading) loadingRemovalHandler?.cancel();
+                if (false !== handleScrolling) scrollWheelHandler?.cancel(), scrollHandler?.cancel();
+
+                // Handles removal of `<x-preact-app-loading>`.
+                if (false !== handleLoading && !isInitialHydration && 0 === loadingStackSize) {
+                    loadingAppendageHandler?.cancel(); // Cancels any in-progress appends.
+                    loadingRemovalHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
+                }
+            }
             // Scroll handling occurs even for routes that never entered a loading state.
             // However, this does observe the loading stack and only fires at end of the stack.
             if (false !== handleScrolling && !isInitialHydration && wasPushed && 0 === loadingStackSize) {
@@ -378,9 +366,6 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
                 });
             }
         }, [locationState.current, ticks]);
-
-        // Ends current route loading sequence.
-        this.componentWillUnmount = maybeEndLoadingSequence;
     }
     // Renders `currentRoute` and `previousRoute` components.
     // Note: `currentRoute` must render first to trigger a thrown promise.

@@ -121,7 +121,9 @@ export { useBody } from '#preact/components/body.tsx';
 /**
  * Defines types.
  */
+export type Child = preact.ComponentChild;
 export type Children = preact.ComponentChildren;
+
 export type Intrinsic = preact.JSX.IntrinsicElements;
 export type VNode<Type extends AnyProps = Props> = preact.VNode<Type>;
 
