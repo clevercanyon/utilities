@@ -13,12 +13,8 @@ import { createContext, options as preactꓺoptions } from 'preact';
  * Defines types.
  */
 export type ErrorBoundaryCoreProps = $preact.BasicTreeProps<{}>;
-export type CoreProps = $preact.BasicTreeProps<{
-    handleLoading?: boolean;
-    handleScrolling?: boolean;
-}>;
+export type CoreProps = $preact.BasicTreeProps<{}>;
 export type Props = $preact.BasicTreeProps<ErrorBoundaryCoreProps & CoreProps>;
-
 export type RouteProps = $preact.CleanProps<{
     path?: string;
     default?: boolean;
@@ -100,7 +96,7 @@ export function Route(props: RouteProps): $preact.VNode<RouteProps> {
  *
  * @returns Array of named {@see Router} prop keys; i.e., excludes `children`.
  */
-export const namedPropKeys = (): string[] => ['handleLoading', 'handleScrolling'];
+export const namedPropKeys = (): string[] => []; // None at this time.
 
 // ---
 // Misc utilities.
@@ -178,21 +174,21 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
 
     const currentRouteCounter = $preact.useRef(0),
         currentRouteIsLoading = $preact.useRef(false),
-        currentRouteInLoadingSequence = $preact.useRef(false),
         currentRouteHasEverLoadedBefore = $preact.useRef(false),
+        currentRoutePendingLoadedEffects = $preact.useRef(false),
         currentRouteContext = $preact.useRef() as $preact.Ref<RouteContext>,
         currentRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>,
         currentRoutePendingHydrationDOM = $preact.useRef() as $preact.Ref<HTMLElement>;
 
+    // `currentRoutePendingLoadedEffects` is reset to `false` only by effects.
     currentRouteIsLoading.current = false; // Resets on every attempt to re-render.
-    // `currentRouteInLoadingSequence` is reset to `false` only by effects.
 
     // Configures the router’s `_childDidSuspend()` handler.
     // Minified `__c` = `_childDidSuspend()`. See: <https://o5p.me/3gXT4t>.
 
     thisObj.__c = $preact.useCallback((thrownPromise: Promise<unknown>): void => {
         // Marks current render as having suspended and currently loading.
-        currentRouteIsLoading.current = currentRouteInLoadingSequence.current = true;
+        currentRouteIsLoading.current = currentRoutePendingLoadedEffects.current = true;
 
         // Tracks, globally, number of routers that are currently loading.
         loadingStackSize++; // Increments global loading stack size.
@@ -203,33 +199,26 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
         // Snapshots counter for comparison once promise resolves.
         const currentRouteCounterSnapshot = currentRouteCounter.current;
 
-        // Handles effects of loading sequence starting.
-        if ($env.isWeb() /* Only possible on the web. */) {
-            // Extracts props & location state.
-            const { handleScrolling, handleLoading } = props.current,
-                { isInitialHydration } = locationState.current;
-
-            // Cancels any relevant existing in-progress handlers.
-            if (false !== handleLoading) loadEndHandler?.cancel(), loadTransHandler?.cancel(), clearTimeout(loadTransTimeout);
-            if (false !== handleScrolling) scrollWheelHandler?.cancel(), scrollHandler?.cancel();
+        // Handles effects of having suspended and currently loading.
+        if ($env.isWeb(/* Only runs effects in a web environment. */)) {
+            // Cancels any of these in-progress handlers.
+            cancelLoadedHandler(), cancelScrollHandlers(), cancelTransitionHandlers();
 
             // Sets transitioned state & appends `<x-preact-app-loading>`.
-            if (false !== handleLoading && !isInitialHydration && 1 === loadingStackSize) {
-                loadStartHandler?.cancel(); // Cancels any in-progress.
-                loadStartHandler = $dom.afterNextFrame((): void => {
-                    const xPreactApp = $dom.xPreactApp() as HTMLElement; // Cached by DOM utilities.
-                    delete xPreactApp.dataset.transitioned, $dom.body().appendChild(xPreactAppLoading());
-                });
-            }
+            if (!locationState.current.isInitialHydration && 1 === loadingStackSize)
+                cancelLoadingHandler(), // Cancels any in-progress.
+                    (loadingHandler = $dom.afterNextFrame((): void => {
+                        updateXPreactAppTransitionedState(), $dom.body().appendChild(xPreactAppLoading());
+                    }));
         }
-        // Handles resolution of suspended state; i.e., once promise resolves.
+        // Handles promise resolution.
         void thrownPromise.then((): void => {
             // Reduces global loading stack size by `1`.
             loadingStackSize = Math.max(0, loadingStackSize - 1);
 
             // If this is the most recently suspended route...
             if (currentRouteCounterSnapshot === currentRouteCounter.current) {
-                // Successful route transition. Unsuspend after a tick and stop rendering previous route.
+                // Loading successful. Unsuspend after a tick and stop rendering previous route.
                 (previousRoute.current = null), void resolvedPromise.then(updateTicks); // Triggers re-render.
             }
         });
@@ -299,89 +288,76 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
     // These are only applicable on the web.
 
     if ($env.isWeb()) {
-        // Runs layout effects.
         $preact.useLayoutEffect(() => {
-            // Current route's DOM cast as an `HTMLElement | null`.
-            const currentDOM = ((thisObj.__v as $type.Object | undefined)?.__e || null) as HTMLElement | null;
+            // Extracts data from current location state.
+            const { isInitialHydration, wasPushed } = locationState.current;
 
-            // Current route is loading?
+            // Current route's DOM cast as an `HTMLElement | null`.
+            const dom = ((thisObj.__v as $type.Object | undefined)?.__e || null) as HTMLElement | null;
+
+            // Current route is currently loading?
             if (currentRouteIsLoading.current) {
                 if (!currentRouteHasEverLoadedBefore.current && !currentRoutePendingHydrationDOM.current)
                     // If we've never loaded before, mark current DOM as hydration DOM.
-                    currentRoutePendingHydrationDOM.current = currentDOM;
+                    currentRoutePendingHydrationDOM.current = dom;
                 return; // Stop while in a loading state.
             }
-            // Checks if hydration DOM needs to be removed now.
+            // Checks if current route's hydration DOM needs to be removed now.
             if (!currentRouteHasEverLoadedBefore.current && currentRoutePendingHydrationDOM.current) {
-                if (currentRoutePendingHydrationDOM.current !== currentDOM)
+                if (currentRoutePendingHydrationDOM.current !== dom)
                     // Removes hydration DOM if we didn't use.
                     currentRoutePendingHydrationDOM.current.remove();
                 currentRoutePendingHydrationDOM.current = null; // Nullify.
             }
-            // Yes, we have loaded a route now.
+            // Yes, successfully loaded a route now.
             currentRouteHasEverLoadedBefore.current = true;
-            //
-        }, [locationState.current, ticks]);
 
-        // Runs all other effects.
-        $preact.useEffect((): void => {
-            // Ignores renders still in-progress.
-            if (currentRouteIsLoading.current) return;
+            // Handles current route’s pending loaded effects.
+            if (currentRoutePendingLoadedEffects.current) {
+                // Handling current route’s loaded effects now.
+                currentRoutePendingLoadedEffects.current = false;
 
-            // Extracts from props & location state.
-            const { handleLoading, handleScrolling } = props.current;
-            const { isInitialHydration, wasPushed } = locationState.current;
-
-            // Ends current route loading sequence.
-            if (currentRouteInLoadingSequence.current) {
-                // Ends current route loading sequence.
-                currentRouteInLoadingSequence.current = false;
-
-                // Cancels any relevant existing in-progress handlers.
-                if (false !== handleLoading) loadEndHandler?.cancel(), loadTransHandler?.cancel(), clearTimeout(loadTransTimeout);
-                if (false !== handleScrolling) scrollWheelHandler?.cancel(), scrollHandler?.cancel();
+                // Cancels any of these in-progress handlers.
+                cancelLoadedHandler(), cancelScrollHandlers(), cancelTransitionHandlers();
 
                 // Handles removal of `<x-preact-app-loading>`.
-                if (false !== handleLoading && !isInitialHydration && 0 === loadingStackSize) {
-                    loadStartHandler?.cancel(); // Cancels any in-progress appends.
-                    loadEndHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
+                if (!isInitialHydration && 0 === loadingStackSize) {
+                    cancelLoadingHandler(); // Cancels any in-progress loading handlers.
+                    loadedHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
                 }
             }
             // Scroll handling occurs even for routes that never entered a loading state.
             // However, this does observe the loading stack and only fires at end of the stack.
-            if (false !== handleScrolling && !isInitialHydration && wasPushed && 0 === loadingStackSize) {
-                scrollWheelHandler?.cancel(), scrollHandler?.cancel(); // Cancels any in-progress.
-                scrollWheelHandler = $dom.onWheelEnd((): void => {
-                    scrollHandler = $dom.afterNextFrame((): void => {
-                        // De-focus active element to avoid browser shifting scroll position while restoring focus.
-                        // e.g., In the case of a form element being in focus whenever a location change occurs.
-                        (document.activeElement as HTMLElement | null)?.blur();
+            if (!isInitialHydration && wasPushed && 0 === loadingStackSize) {
+                cancelScrollHandlers(), // Cancels any in-progress.
+                    (scrollWheelHandler = $dom.onWheelEnd((): void => {
+                        scrollHandler = $dom.afterNextFrame((): void => {
+                            // De-focus active element to avoid browser shifting scroll position while restoring focus.
+                            // e.g., In the case of a form element being in focus whenever a location change occurs.
+                            (document.activeElement as HTMLElement | null)?.blur();
 
-                        const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
-                        // We’re using an attribute selector because hash IDs that begin with a `~` are technically invalid in
-                        // the eyes of `document.querySelector()`. We get around it by instead using an attribute selector.
-                        const currentHashElement = currentHash ? $dom.query('[id="' + $str.escSelector(currentHash) + '"]') : null;
+                            const currentHash = $url.currentHash(); // e.g., `id` without `#` prefix.
+                            // We’re using an attribute selector because hash IDs that begin with a `~` are technically invalid in
+                            // the eyes of `document.querySelector()`. We get around it by instead using an attribute selector.
+                            const currentHashElement = currentHash ? $dom.query('[id="' + $str.escSelector(currentHash) + '"]') : null;
 
-                        if (currentHashElement) {
-                            currentHashElement.scrollIntoView({ behavior: 'auto' });
-                        } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
-                    });
-                });
+                            if (currentHashElement) {
+                                currentHashElement.scrollIntoView({ behavior: 'auto' });
+                            } else scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                        });
+                    }));
             }
             // Transition handling occurs even for routes that never entered a loading state.
             // However, this does observe the loading stack and only fires at end of the stack.
-            if (false !== handleLoading && !isInitialHydration && wasPushed && 0 === loadingStackSize) {
-                loadTransHandler?.cancel(), clearTimeout(loadTransTimeout);
-                loadTransHandler = $dom.afterNextFrame(() => {
-                    const xPreactApp = $dom.xPreactApp() as HTMLElement; // Cached by DOM utilities.
-                    xPreactApp.dataset.transitioned = 'true'; // Fires transition animation; see `<Body>`.
-
-                    clearTimeout(loadTransTimeout),
-                        (loadTransTimeout = setTimeout(() => {
-                            loadTransHandler?.cancel(); // Cancels any in-progress.
-                            loadTransHandler = $dom.afterNextFrame((): void => void delete xPreactApp.dataset.transitioned);
-                        }, 150));
-                });
+            if (!isInitialHydration && wasPushed && 0 === loadingStackSize) {
+                cancelTransitionHandlers(), // Cancels any in-progress transition handlers.
+                    updateXPreactAppTransitionedState('true'), // Triggers a transition animation.
+                    //
+                    (transitionTimeout = setTimeout(() => {
+                        // After transition animation completes in `150ms`.
+                        cancelTransitionHandlers(), // Cancels any in-progress.
+                            (transitionTimeoutHandler = $dom.afterNextFrame((): void => updateXPreactAppTransitionedState()));
+                    }, 150));
             }
         }, [locationState.current, ticks]);
     }
@@ -477,20 +453,43 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
 };
 
 /**
- * A resolved promise.
+ * Defines a resolved promise.
  */
 const resolvedPromise = Promise.resolve();
 
 /**
- * Loading and scroll handlers.
+ * Initializes loading stack size & various handlers.
  */
 let loadingStackSize = 0, // Number of routers currenty loading.
-    loadStartHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
-    loadEndHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
+    //
+    loadingHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
+    loadedHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
+    //
     scrollWheelHandler: ReturnType<typeof $dom.onWheelEnd> | undefined,
     scrollHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
-    loadTransHandler: ReturnType<typeof $dom.afterNextFrame> | undefined,
-    loadTransTimeout: $type.Timeout | undefined;
+    //
+    transitionTimeout: $type.Timeout | undefined, // i.e., `setTimeout()`.
+    transitionTimeoutHandler: ReturnType<typeof $dom.afterNextFrame> | undefined;
+
+/**
+ * Cancels loading handler.
+ */
+const cancelLoadingHandler = (): void => loadingHandler?.cancel();
+
+/**
+ * Cancels loaded handler.
+ */
+const cancelLoadedHandler = (): void => loadedHandler?.cancel();
+
+/**
+ * Cancels scroll handlers.
+ */
+const cancelScrollHandlers = (): void => (scrollWheelHandler?.cancel(), scrollHandler?.cancel());
+
+/**
+ * Cancels transition handlers.
+ */
+const cancelTransitionHandlers = (): void => (clearTimeout(transitionTimeout), transitionTimeoutHandler?.cancel());
 
 /**
  * Generates `<x-preact-app-loading>` element.
@@ -536,9 +535,19 @@ const xPreactAppLoading = $fnꓺmemo((): Element => {
     });
 });
 
+/**
+ * Updates `<x-preact-app>` transitioned state.
+ *
+ * @param state Transitioned state; i.e., `'true'` or `undefined`.
+ */
+const updateXPreactAppTransitionedState = (value?: 'true'): void => {
+    const xPreactAppData = ($dom.xPreactApp() as HTMLElement).dataset;
+    value ? (xPreactAppData.transitioned = value) : delete xPreactAppData.transitioned;
+};
+
 // ---
 // Error handling.
-// i.e., side effects.
+// i.e., Side effects.
 
 /**
  * Previous error handler.
