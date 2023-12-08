@@ -220,6 +220,12 @@ describe('$to', async () => {
             'slogan',
             'description',
 
+            'theme.isDark',
+            'theme.color',
+            'theme.fgColor',
+            'theme.bdrColor',
+            'theme.linkColor',
+
             'icon.svg',
             'icon.png',
             'icon.width',
@@ -365,6 +371,12 @@ describe('$to', async () => {
 
             'slogan',
             'description',
+
+            'theme.isDark',
+            'theme.color',
+            'theme.fgColor',
+            'theme.bdrColor',
+            'theme.linkColor',
 
             'icon.svg',
             'icon.png',

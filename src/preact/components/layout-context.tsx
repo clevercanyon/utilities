@@ -4,7 +4,7 @@
 
 import '#@init.ts';
 
-import { $preact, type $type } from '#index.ts';
+import { $env, $preact, type $type } from '#index.ts';
 import { type PartialActualState as PartialActualHeadState } from '#preact/components/head.tsx';
 import { createContext } from 'preact';
 
@@ -49,11 +49,12 @@ export const useLayout = (): Context => $preact.useContext(ContextObject);
  * @returns       VNode / JSX element tree.
  */
 export default function LayoutContext(props: Props): $preact.VNode<Props> {
+    const brand = $env.get('APP_BRAND') as $type.Brand;
     const [state, updateState] = $preact.useReducedState((): State => {
         return $preact.initialState(
             {
                 theme: 'default',
-                themeIsDark: true,
+                themeIsDark: brand.theme.isDark,
 
                 type: 'default',
                 head: {},

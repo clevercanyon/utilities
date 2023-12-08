@@ -139,6 +139,8 @@ const tꓺabout = 'about',
     tꓺcanonical = 'canonical',
     tꓺcaption = 'caption',
     tꓺcategory = 'category',
+    tꓺcolor = 'color',
+    tꓺColor = 'Color',
     tꓺcontent = 'content',
     tꓺමcontext = '@context',
     tꓺCorporation = 'Corporation',
@@ -222,6 +224,9 @@ const tꓺabout = 'about',
     tꓺpublisher = 'publisher',
     tꓺpublishTime = 'publishTime',
     tꓺlastModifiedTime = 'lastModifiedTime',
+    tꓺtheme = 'theme',
+    tꓺthemeColor = tꓺtheme + tꓺColor,
+    tꓺthemeᱼcolor = tꓺtheme + '-' + tꓺcolor,
     tꓺtime = 'time',
     tꓺpublished_time = 'published_' + tꓺtime,
     tꓺmodified_time = 'modified_' + tꓺtime,
@@ -407,6 +412,7 @@ export default class Head extends Component<Props, ActualState> {
         // Acquires app’s brand from environment var.
 
         const brand = $env.get('APP_BRAND') as $type.Brand,
+            brandꓺtheme = brand.theme,
             brandꓺogImage = brand.ogImage;
 
         // Gathers state from various contexts.
@@ -473,6 +479,8 @@ export default class Head extends Component<Props, ActualState> {
             const vNodes: { [x: string]: $preact.VNode } = {
                 [tꓺcharset]: h(tꓺmeta, { [tꓺcharset]: charset }),
                 [tꓺbaseURL]: h(tꓺbase, { [tꓺhref]: baseURL.toString() }),
+
+                [tꓺthemeColor]: h(tꓺmeta, { [tꓺname]: tꓺthemeᱼcolor, [tꓺcontent]: brandꓺtheme.color }),
                 [tꓺviewport]: h(tꓺmeta, { [tꓺname]: tꓺviewport, [tꓺcontent]: viewport }),
 
                 ...(robots ? { [tꓺrobots]: h(tꓺmeta, { [tꓺname]: tꓺrobots, [tꓺcontent]: robots }) } : {}),

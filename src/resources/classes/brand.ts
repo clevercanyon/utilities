@@ -59,6 +59,13 @@ declare class ClassInterface {
     public readonly slogan: string;
     public readonly description: string;
 
+    public readonly theme: {
+        readonly isDark: boolean;
+        readonly color: string;
+        readonly fgColor: string;
+        readonly bdrColor: string;
+        readonly linkColor: string;
+    };
     public readonly icon: {
         readonly svg: string;
         readonly png: string;
@@ -204,6 +211,17 @@ export const getClass = (): Constructor => {
          * Description; e.g., `We’re the people that rock.`.
          */
         public readonly description!: string;
+
+        /**
+         * Theme, with colors, etc.
+         */
+        public readonly theme!: {
+            readonly isDark: boolean;
+            readonly color: string;
+            readonly fgColor: string;
+            readonly bdrColor: string;
+            readonly linkColor: string;
+        };
 
         /**
          * Icon, with dimensions.
