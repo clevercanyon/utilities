@@ -481,7 +481,7 @@ export const requestPathIsPotentiallyDynamic = $fnꓺmemo(2, (request: $type.Req
     const url = _url || $url.parse(request.url);
     if ('/' === url.pathname) return false;
 
-    return /\/(?:robots\.txt|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|sitemaps\/.*\.xml)$/iu.test(url.pathname);
+    return /\/(?:robots\.txt|manifest\.json|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|sitemaps\/.*\.xml)$/iu.test(url.pathname);
 });
 
 /**
@@ -496,7 +496,7 @@ export const requestPathIsSEORelatedFile = $fnꓺmemo(2, (request: $type.Request
     const url = _url || $url.parse(request.url);
     if ('/' === url.pathname) return false;
 
-    return /\/(?:robots\.txt|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|sitemaps\/.*\.xml|favicon\.ico)$/iu.test(url.pathname);
+    return /\/(?:robots\.txt|manifest\.json|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|sitemaps\/.*\.xml|favicon\.ico)$/iu.test(url.pathname);
 });
 
 /**
