@@ -174,10 +174,12 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
 
     const currentRouteCounter = $preact.useRef(0),
         currentRouteIsLoading = $preact.useRef(false),
-        currentRouteHasEverLoadedBefore = $preact.useRef(false),
-        currentRoutePendingEffectsOnLoadedState = $preact.useRef(false),
+        currentRoutePendingEffectsWhenLoaded = $preact.useRef(false),
+        //
         currentRouteContext = $preact.useRef() as $preact.Ref<RouteContext>,
         currentRoute = $preact.useRef() as $preact.Ref<$preact.VNode<RoutedProps>>,
+        //
+        currentRouteHasEverBeenHydrated = $preact.useRef(false),
         currentRoutePendingHydrationDOM = $preact.useRef() as $preact.Ref<HTMLElement>;
 
     // `currentRoutePendingLoadedEffects` is reset to `false` only by effects.
@@ -188,7 +190,7 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
 
     thisObj.__c = $preact.useCallback((thrownPromise: Promise<unknown>): void => {
         // Marks current render as having suspended and currently loading.
-        currentRouteIsLoading.current = currentRoutePendingEffectsOnLoadedState.current = true;
+        currentRouteIsLoading.current = currentRoutePendingEffectsWhenLoaded.current = true;
 
         // Tracks, globally, number of routers that are currently loading.
         loadingStackSize++; // Increments global loading stack size.
@@ -276,53 +278,87 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
     // These are only applicable on the web.
 
     if ($env.isWeb()) {
-        $preact.useLayoutEffect(() => {
+        // Hydration effects.
+        const hydrationEffects = $preact.useCallback((): void => {
+            // Only relevant during initial hydration.
+            if (currentRouteHasEverBeenHydrated.current) return;
+
+            // Current route's DOM with some juggling to make TypeScript happy.
+            const dom = ((thisObj.__v as $type.Object | undefined)?.__e || null) as HTMLElement | null;
+
+            // If current route is loading...
+            if (currentRouteIsLoading.current) {
+                // Sets hydration DOM, if not set already.
+                currentRoutePendingHydrationDOM.current ??= dom;
+            } else {
+                // Removes hydration DOM if we didn't use.
+                const hydrationDOM = currentRoutePendingHydrationDOM.current;
+                if (hydrationDOM && hydrationDOM !== dom) hydrationDOM.remove();
+
+                // De-refs DOM and flags as hydrated now.
+                currentRoutePendingHydrationDOM.current = null;
+                currentRouteHasEverBeenHydrated.current = true;
+            }
+        }, []);
+
+        // Effects when loading.
+        const effectsWhenLoading = $preact.useCallback((): void => {
+            // Only relevant when loading.
+            if (!currentRouteIsLoading.current) return;
+
+            // Extracts data from current location state.
+            const { isInitialHydration } = locationState.current;
+
+            // This includes `loadedHandler`, scroll, and transition handlers.
+            cancelAllLoadEndHandlers(); // Cancels all of these in-progress handlers.
+
+            // Resets transitioned state & appends `<x-preact-app-loading>`.
+            if (!isInitialHydration && 1 === loadingStackSize) {
+                cancelLoadingHandler(), resetXPreactAppTransitionedState();
+                loadingHandler = $dom.afterNextFrame((): void => void $dom.body().appendChild(xPreactAppLoading()));
+            }
+        }, []);
+
+        // Pending effects when loaded.
+        const pendingEffectsWhenLoaded = $preact.useCallback((willUnmount?: true): void => {
+            // Shorter references for conditions below.
+            const isLoading = currentRouteIsLoading.current,
+                isPendingEffects = currentRoutePendingEffectsWhenLoaded.current;
+
+            // If will unmount, only relevant if loading and/or pending effects.
+            if (willUnmount) if (!isLoading && !isPendingEffects) return;
+
+            // Otherwise, only relevant if not loading and is pending effects.
+            if (!willUnmount) if (isLoading || !isPendingEffects) return;
+
+            // Extracts data from current location state.
+            const { isInitialHydration } = locationState.current;
+
+            // If router will unmount while loading, this reduces global loading stack size by `1`.
+            // Since we unmounted while loading we need to error on the side of not loading forever.
+            if (willUnmount) loadingStackSize = Math.max(0, loadingStackSize - 1);
+
+            // Flags these as true. We’re handling pending effects on loaded state now.
+            currentRouteIsLoading.current = currentRoutePendingEffectsWhenLoaded.current = false;
+
+            // This includes `loadedHandler`, scroll, and transition handlers.
+            cancelAllLoadEndHandlers(); // Cancels all of these in-progress handlers.
+
+            // Resets transitioned state & removes `<x-preact-app-loading>`.
+            if (!isInitialHydration && 0 === loadingStackSize) {
+                cancelLoadingHandler(), resetXPreactAppTransitionedState();
+                loadedHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
+            }
+        }, []);
+
+        // Effects when not loading.
+        const effectsWhenNotLoading = $preact.useCallback((): void => {
+            // Only relevant when not loading.
+            if (currentRouteIsLoading.current) return;
+
             // Extracts data from current location state.
             const { isInitialHydration, wasPushed } = locationState.current;
 
-            // Current route's DOM cast as an `HTMLElement | null`.
-            const dom = ((thisObj.__v as $type.Object | undefined)?.__e || null) as HTMLElement | null;
-
-            // Current route is currently loading?
-            if (currentRouteIsLoading.current) {
-                if (!currentRouteHasEverLoadedBefore.current && !currentRoutePendingHydrationDOM.current)
-                    // If we've never loaded before, mark current DOM as hydration DOM.
-                    currentRoutePendingHydrationDOM.current = dom;
-
-                // This includes `loadedHandler`, scroll, and transition handlers.
-                cancelAllLoadEndHandlers(); // Cancels any of these in-progress handlers.
-
-                // Updates transitioned state & appends `<x-preact-app-loading>`.
-                if (!isInitialHydration && 1 === loadingStackSize) {
-                    cancelLoadingHandler(), resetXPreactAppTransitionedState();
-                    loadingHandler = $dom.afterNextFrame((): void => void $dom.body().appendChild(xPreactAppLoading()));
-                }
-                return; // Stops here while in a loading state.
-            }
-            // Checks if current route's hydration DOM needs to be removed now.
-            if (!currentRouteHasEverLoadedBefore.current && currentRoutePendingHydrationDOM.current) {
-                if (currentRoutePendingHydrationDOM.current !== dom)
-                    // Removes hydration DOM if we didn't use.
-                    currentRoutePendingHydrationDOM.current.remove();
-                currentRoutePendingHydrationDOM.current = null; // Nullify.
-            }
-            // Yes, successfully loaded a route now.
-            currentRouteHasEverLoadedBefore.current = true;
-
-            // Handles current route’s pending effects on loaded state.
-            if (currentRoutePendingEffectsOnLoadedState.current) {
-                // Handling pending effects on loaded state now.
-                currentRoutePendingEffectsOnLoadedState.current = false;
-
-                // This includes `loadedHandler`, scroll, and transition handlers.
-                cancelAllLoadEndHandlers(); // Cancels any of these in-progress handlers.
-
-                // Handles removal of `<x-preact-app-loading>`.
-                if (!isInitialHydration && 0 === loadingStackSize) {
-                    cancelLoadingHandler(), resetXPreactAppTransitionedState();
-                    loadedHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
-                }
-            }
             // Scroll handling occurs even for routes that never entered a loading state.
             // However, this does observe the loading stack and only fires at end of the stack.
             if (!isInitialHydration && wasPushed && 0 === loadingStackSize) {
@@ -356,29 +392,15 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
                             (transitionTimeoutHandler = $dom.afterNextFrame((): void => updateXPreactAppTransitionedState()));
                     }, 150));
             }
+        }, []);
+
+        // Runs all layout effects.
+        $preact.useLayoutEffect((): void => {
+            hydrationEffects(), effectsWhenLoading(), pendingEffectsWhenLoaded(), effectsWhenNotLoading();
         }, [locationState.current, ticks]);
 
-        this.componentWillUnmount = (): void => {
-            if (currentRouteIsLoading.current || currentRoutePendingEffectsOnLoadedState.current) {
-                // Reduces global loading stack size by `1`.
-                loadingStackSize = Math.max(0, loadingStackSize - 1);
-
-                // Handling pending effects on loaded state now.
-                currentRouteIsLoading.current = currentRoutePendingEffectsOnLoadedState.current = false;
-
-                // Extracts data from current location state.
-                const { isInitialHydration } = locationState.current;
-
-                // This includes `loadedHandler`, scroll, and transition handlers.
-                cancelAllLoadEndHandlers(); // Cancels any of these in-progress handlers.
-
-                // Handles removal of `<x-preact-app-loading>`.
-                if (!isInitialHydration && 0 === loadingStackSize) {
-                    cancelLoadingHandler(), resetXPreactAppTransitionedState();
-                    loadedHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
-                }
-            }
-        };
+        // Runs pending effects as if loaded whenever component is unmounted while loading.
+        this.componentWillUnmount = $preact.useCallback((): void => pendingEffectsWhenLoaded(true), []);
     }
     // Renders `currentRoute` and `previousRoute` components.
     // Note: `currentRoute` must render first to trigger a thrown promise.
