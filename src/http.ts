@@ -923,11 +923,14 @@ export const defaultSecurityHeaders = (): { [x: string]: string } => {
                 ' *.google.com *.googletagmanager.com *.google-analytics.com *.googleadservices.com googleads.g.doubleclick.net' + // Google services.
                 ' *.stripe.com' + // Stripe services.
                 ';', // prettier-ignore
+
+        // Regarding the `unload()` permission, it impacts back/forward cache.
+        // {@see https://web.dev/articles/bfcache} for further details from Google.
         'permissions-policy':
             'accelerometer=(self), autoplay=(self), camera=(self), clipboard-read=(self), clipboard-write=(self), cross-origin-isolated=(self), display-capture=(self),' +
             ' encrypted-media=(self), fullscreen=(self), gamepad=(self), geolocation=(self), gyroscope=(self), hid=(self), idle-detection=(self), interest-cohort=(self),' +
             ' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), payment=(self "https://js.stripe.com" "https://pay.google.com"), picture-in-picture=(self),' +
-            ' publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), sync-xhr=(self), usb=(self), window-management=(self), xr-spatial-tracking=(self)',
+            ' publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), sync-xhr=(self), unload=(self), usb=(self), window-management=(self), xr-spatial-tracking=(self)',
     };
 };
 
