@@ -927,7 +927,7 @@ export const defaultSecurityHeaders = (): { [x: string]: string } => {
             'accelerometer=(self), autoplay=(self), camera=(self), clipboard-read=(self), clipboard-write=(self), cross-origin-isolated=(self), display-capture=(self),' +
             ' encrypted-media=(self), fullscreen=(self), gamepad=(self), geolocation=(self), gyroscope=(self), hid=(self), idle-detection=(self), interest-cohort=(self),' +
             ' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), payment=(self "https://js.stripe.com" "https://pay.google.com"), picture-in-picture=(self),' +
-            ' publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), sync-xhr=(self), usb=(self), window-placement=(self), xr-spatial-tracking=(self)',
+            ' publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), sync-xhr=(self), usb=(self), window-management=(self), xr-spatial-tracking=(self)',
     };
 };
 
@@ -947,7 +947,6 @@ export const c10nSecurityHeaders = (): { [x: string]: string } => {
             defaultSecurityHeaders()['content-security-policy'],
 
         'nel': '{ "report_to": "default", "max_age": 31536000, "include_subdomains": true }',
-        'expect-ct': 'max-age=604800, report-uri="https://clevercanyon.report-uri.com/r/d/ct/reportOnly"',
         'report-to':
             '{ "group": "default", "max_age": 31536000, "endpoints": [ { "url": "https://clevercanyon.report-uri.com/a/d/g" } ], "include_subdomains": true },' +
             ' { "group": "csp", "max_age": 31536000, "endpoints": [ { "url": "https://clevercanyon.report-uri.com/r/d/csp/enforce" } ], "include_subdomains": true }',
