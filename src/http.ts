@@ -107,6 +107,10 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
         if (_ck) url.searchParams.set('_ck', _ck);
         url.searchParams.sort(); // Optimizes cache.
 
+        if ($env.isCFWViaMiniflare() && 'http:' === url.protocol) {
+            // This miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
+            url.protocol = 'https:'; // Converts internal proxy URL into `https:`.
+        }
         if (url.toString() !== originalURL.toString()) {
             request = new Request(
                 url.toString(),
