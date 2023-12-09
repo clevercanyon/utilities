@@ -58,6 +58,7 @@ const tꓺaddress = 'address',
     tꓺfoundingDate = 'foundingDate',
     tꓺംgdn = '.gdn',
     tꓺgithub = 'github',
+    tꓺheadingColor = 'headingColor',
     tꓺheight = 'height',
     tꓺhop = 'hop',
     tꓺHop = 'Hop',
@@ -243,6 +244,7 @@ const initializeRawProps = (): void => {
             [tꓺfgColor]: '#f0f0f0',
             [tꓺbdrColor]: '#17171c',
             [tꓺlinkColor]: '#f99980',
+            [tꓺheadingColor]: '#ffffff',
         },
         [tꓺicon]: {
             [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംsvg,
@@ -306,13 +308,8 @@ const initializeRawProps = (): void => {
             [tꓺslogan]: 'Masters of the digital divide.',
             [tꓺdescription]: 'Great things, built on great technology.',
 
-            [tꓺtheme]: {
-                [tꓺisDark]: true,
-                [tꓺcolor]: '#09090b',
-                [tꓺfgColor]: '#f0f0f0',
-                [tꓺbdrColor]: '#17171c',
-                [tꓺlinkColor]: '#80aff9',
-            },
+            [tꓺtheme]: { [tꓺlinkColor]: '#80aff9' },
+
             [tꓺicon]: {
                 [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
                 [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംpng,

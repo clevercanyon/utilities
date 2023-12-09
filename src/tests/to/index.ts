@@ -225,6 +225,7 @@ describe('$to', async () => {
             'theme.fgColor',
             'theme.bdrColor',
             'theme.linkColor',
+            'theme.headingColor',
 
             'icon.svg',
             'icon.png',
@@ -377,6 +378,7 @@ describe('$to', async () => {
             'theme.fgColor',
             'theme.bdrColor',
             'theme.linkColor',
+            'theme.headingColor',
 
             'icon.svg',
             'icon.png',
