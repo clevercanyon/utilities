@@ -298,8 +298,7 @@ export const getClass = (): Constructor => {
          * @returns What value to derive a JSON value from.
          */
         public [$symbol.objToJSON](): ReturnType<$type.ObjToJSONSymbolFn> {
-            if (this.org === this) return { ...this, org: null };
-            return super[$symbol.objToJSON]();
+            return this.rawProps();
         }
 
         /**
