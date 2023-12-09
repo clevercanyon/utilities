@@ -12,16 +12,7 @@ const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     beforeAll(async () => {
         $env.set('APP_BASE_URL', 'http://x.tld/');
-        $env.set(
-            'APP_BRAND',
-            $brand.addApp({
-                org: '@clevercanyon/hop.gdn',
-                type: 'site',
-                pkgName: '@clevercanyon/x.tld',
-                baseURL: $url.appBase(),
-                props: {},
-            }),
-        );
+        $env.set('APP_BRAND', $brand.addApp({ pkgName: '@clevercanyon/x.tld' }));
     });
     afterAll(async () => {
         $env.set('APP_BASE_URL', __origAppBaseURL__);

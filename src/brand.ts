@@ -25,10 +25,8 @@ const rawProps: { [x: string]: $type.BrandRawProps } = {};
  * Defines types.
  */
 export type AddAppOptions = {
-    org: $type.BrandRawProps['org'];
-    type: $type.BrandRawProps['type'];
     pkgName: string;
-    baseURL: string;
+    baseURL?: string;
     props?: Partial<$type.BrandRawProps>;
 };
 
@@ -354,11 +352,11 @@ const initializeRawProps = (): void => {
  */
 export const addApp = (options: AddAppOptions): $type.Brand => {
     /**
-     * Acquires options, org.
+     * Acquires pkgName, baseURL, props, org.
      */
-    const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<AddAppOptions>,
-        { pkgName, baseURL } = opts, // Extracted from options and reused below.
-        org = get(opts.org); // Expands org slug into org brand instance.
+    const { pkgName, baseURL: _baseURL = '', props = {} } = options,
+        baseURL = $url.parse(_baseURL || $url.appBase()),
+        org = get(props.org || '@clevercanyon/hop.gdn');
 
     /**
      * Defines package data.
@@ -384,8 +382,8 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
         $obj.mergeDeep(
             org.rawProps(),
             {
-                [tꓺorg]: opts.org,
-                [tꓺtype]: opts.type,
+                [tꓺorg]: org[tꓺpkgName],
+                [tꓺtype]: props[tꓺtype] || 'site',
 
                 [tꓺn7m]: pkgSlugAsN7m,
                 [tꓺname]: pkgSlugAsName,
@@ -393,8 +391,8 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
                 [tꓺpkgName]: pkgName,
                 [tꓺnamespace]: pkgSlugAsNamespace,
 
-                [tꓺhostname]: $url.parse(baseURL).hostname,
-                [tꓺurl]: baseURL, // We simply use base URL.
+                [tꓺhostname]: baseURL[tꓺhostname],
+                [tꓺurl]: baseURL.toString(),
 
                 [tꓺslug]: pkgSlug,
                 [tꓺvar]: pkgSlugAsVar,
@@ -421,7 +419,7 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
                     [tꓺpng]: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺംpng),
                 },
             },
-            opts.props,
+            props,
         ) as unknown as $type.BrandRawProps,
     );
 };
