@@ -18,6 +18,9 @@ export type ActualState = $preact.State<{
 
     robots?: string;
     canonical?: $type.URL | string;
+
+    manifest?: string;
+    themeColor?: string;
     structuredData?: object;
 
     siteName?: string;
@@ -58,6 +61,9 @@ export type State = $preact.State<{
 
     robots: string;
     canonical: string; // Absolute URL.
+
+    manifest: string;
+    themeColor: string;
     structuredData?: object;
 
     siteName: string;
@@ -140,7 +146,6 @@ const tꓺabout = 'about',
     tꓺcaption = 'caption',
     tꓺcategory = 'category',
     tꓺcolor = 'color',
-    tꓺColor = 'Color',
     tꓺcontent = 'content',
     tꓺමcontext = '@context',
     tꓺCorporation = 'Corporation',
@@ -178,6 +183,7 @@ const tꓺabout = 'about',
     tꓺlink = 'link',
     tꓺlocale = 'locale',
     tꓺlogo = 'logo',
+    tꓺmanifest = 'manifest',
     tꓺmeta = 'meta',
     tꓺmedia = 'media',
     tꓺmodule = 'module',
@@ -225,7 +231,7 @@ const tꓺabout = 'about',
     tꓺpublishTime = 'publishTime',
     tꓺlastModifiedTime = 'lastModifiedTime',
     tꓺtheme = 'theme',
-    tꓺthemeColor = tꓺtheme + tꓺColor,
+    tꓺthemeColor = 'themeColor',
     tꓺthemeᱼcolor = tꓺtheme + '-' + tꓺcolor,
     tꓺtime = 'time',
     tꓺpublished_time = 'published_' + tꓺtime,
@@ -412,7 +418,6 @@ export default class Head extends Component<Props, ActualState> {
         // Acquires app’s brand from environment var.
 
         const brand = $env.get('APP_BRAND') as $type.Brand,
-            brandꓺtheme = brand.theme,
             brandꓺogImage = brand.ogImage;
 
         // Gathers state from various contexts.
@@ -448,6 +453,9 @@ export default class Head extends Component<Props, ActualState> {
                 robots,
                 canonical,
                 //
+                manifest,
+                themeColor,
+                //
                 suffixedTitle,
                 description,
                 tags,
@@ -479,12 +487,13 @@ export default class Head extends Component<Props, ActualState> {
             const vNodes: { [x: string]: $preact.VNode } = {
                 [tꓺcharset]: h(tꓺmeta, { [tꓺcharset]: charset }),
                 [tꓺbaseURL]: h(tꓺbase, { [tꓺhref]: baseURL.toString() }),
-
-                [tꓺthemeColor]: h(tꓺmeta, { [tꓺname]: tꓺthemeᱼcolor, [tꓺcontent]: brandꓺtheme.color }),
                 [tꓺviewport]: h(tꓺmeta, { [tꓺname]: tꓺviewport, [tꓺcontent]: viewport }),
 
                 ...(robots ? { [tꓺrobots]: h(tꓺmeta, { [tꓺname]: tꓺrobots, [tꓺcontent]: robots }) } : {}),
                 [tꓺcanonical]: h(tꓺlink, { [tꓺrel]: tꓺcanonical, [tꓺhref]: canonical }),
+
+                [tꓺmanifest]: h(tꓺlink, { [tꓺrel]: tꓺmanifest, [tꓺhref]: manifest }),
+                [tꓺthemeColor]: h(tꓺmeta, { [tꓺname]: tꓺthemeᱼcolor, [tꓺcontent]: themeColor }),
 
                 [tꓺtitle]: h(tꓺtitle, {}, suffixedTitle),
                 [tꓺdescription]: h(tꓺmeta, { [tꓺname]: tꓺdescription, [tꓺcontent]: description }),
@@ -665,6 +674,7 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
     // Acquires app’s brand from environment var.
 
     const brand = $env.get('APP_BRAND') as $type.Brand,
+        brandꓺtheme = brand.theme,
         brandꓺicon = brand.icon,
         brandꓺogImage = brand.ogImage;
 
@@ -683,6 +693,9 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             //
             robots,
             canonical,
+            //
+            manifest,
+            themeColor,
             //
             siteName,
             title,
@@ -710,8 +723,10 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             //
             styleBundle,
             scriptBundle,
-        } = { ...(useLayoutState ? { ...layoutState?.head } : {}), ...head };
-
+        } = {
+            ...(useLayoutState ? { ...layoutState?.head } : {}),
+            ...head, // Actual `<Head>` state.
+        };
         // Extracts data/utilities from location state.
         const { url, canonicalURL, fromBase } = locationState;
 
@@ -740,13 +755,16 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
         };
         return {
             ...(useLayoutState ? { ...layoutState?.head } : {}),
-            ...head,
+            ...head, // Actual `<Head>` state.
 
             [tꓺcharset]: charset || 'utf-8',
             [tꓺviewport]: viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
 
             [tꓺrobots]: robots || '', // Default is empty string.
             [tꓺcanonical]: asAbsoluteURLString(canonical || canonicalURL),
+
+            [tꓺmanifest]: manifest || './' + tꓺmanifest + '.json',
+            [tꓺthemeColor]: themeColor || brandꓺtheme.color,
 
             [tꓺsiteName]: siteName || brand.name || url.hostname,
             [tꓺtitle]: title, // Computed above.
