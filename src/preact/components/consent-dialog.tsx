@@ -325,7 +325,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 </p>
                                             </HelpIconToggle>
                                         </div>
-                                        <h3 class='mt-3 border-t border-color-basic-bdr pt-2 text-base text-color-basic-heading'>Opt-Out Preferences</h3>
+                                        <h3 class='mt-3 border-t border-color-basic-line pt-2 text-base text-color-basic-heading'>Opt-Out Preferences</h3>
                                         <div>
                                             <Checkbox
                                                 label='Do Not Sell or Share My Personal Information'

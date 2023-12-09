@@ -64,7 +64,7 @@ declare class ClassInterface {
         readonly color: string;
         readonly fgColor: string;
         readonly linkColor: string;
-        readonly borderColor: string;
+        readonly lineColor: string;
         readonly headingColor: string;
     };
     public readonly icon: {
@@ -221,7 +221,7 @@ export const getClass = (): Constructor => {
             readonly color: string;
             readonly fgColor: string;
             readonly linkColor: string;
-            readonly borderColor: string;
+            readonly lineColor: string;
             readonly headingColor: string;
         };
 
