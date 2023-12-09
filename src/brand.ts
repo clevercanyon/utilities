@@ -40,7 +40,7 @@ export type AddAppOptions = {
 const tꓺaddress = 'address',
     tꓺasciiOnly = 'asciiOnly',
     tꓺassets = 'assets',
-    tꓺbdrColor = 'bdrColor',
+    tꓺborderColor = 'borderColor',
     tꓺbrands = 'brands',
     tꓺcity = 'city',
     tꓺclevercanyon = 'clevercanyon',
@@ -242,8 +242,8 @@ const initializeRawProps = (): void => {
             [tꓺisDark]: true,
             [tꓺcolor]: '#09090b',
             [tꓺfgColor]: '#f0f0f0',
-            [tꓺbdrColor]: '#17171c',
             [tꓺlinkColor]: '#f99980',
+            [tꓺborderColor]: '#17171c',
             [tꓺheadingColor]: '#ffffff',
         },
         [tꓺicon]: {
