@@ -308,8 +308,10 @@ const initializeRawProps = (): void => {
             [tꓺslogan]: 'Masters of the digital divide.',
             [tꓺdescription]: 'Great things, built on great technology.',
 
-            [tꓺtheme]: { [tꓺlinkColor]: '#80aff9' },
-
+            [tꓺtheme]: {
+                ...rawProps[tꓺමclevercanyonⳇclevercanyonംcom][tꓺtheme],
+                [tꓺlinkColor]: '#80aff9',
+            },
             [tꓺicon]: {
                 [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
                 [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംpng,
