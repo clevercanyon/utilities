@@ -58,8 +58,7 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
 
     const xPreactAppClasses = $preact.useMemo((): string => {
         const hFull = 'h-full'; // Need this to match w/ <body>.
-        return ('block' + ($preact.classMap(actualState).has(hFull) ? ' ' + hFull : '') +
-                ' data-[transitioned=true]:animate-subtle-fade-in'); // prettier-ignore
+        return 'block' + ($preact.classMap(actualState).has(hFull) ? ' ' + hFull : '');
     }, [actualState]);
 
     if ($env.isWeb()) {

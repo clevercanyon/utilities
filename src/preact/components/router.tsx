@@ -314,7 +314,7 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
 
             // Resets transitioned state & appends `<x-preact-app-loading>`.
             if (!isInitialHydration && 1 === loadingStackSize) {
-                cancelLoadingHandler(), resetXPreactAppTransitionedState();
+                cancelLoadingHandler(), resetXPreactAppTransition();
                 loadingHandler = $dom.afterNextFrame((): void => void $dom.body().appendChild(xPreactAppLoading()));
             }
         }, []);
@@ -346,7 +346,7 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
 
             // Resets transitioned state & removes `<x-preact-app-loading>`.
             if (!isInitialHydration && 0 === loadingStackSize) {
-                cancelLoadingHandler(), resetXPreactAppTransitionedState();
+                cancelLoadingHandler(), resetXPreactAppTransition();
                 loadedHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
             }
         }, []);
@@ -384,12 +384,12 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
             // However, this does observe the loading stack and only fires at end of the stack.
             if (!isInitialHydration && wasPushed && 0 === loadingStackSize) {
                 cancelTransitionHandlers(), // Cancels any in-progress transition handlers.
-                    updateXPreactAppTransitionedState('true'), // Triggers a transition animation.
+                    xPreactAppTransition(), // Triggers a transition animation.
                     //
                     (transitionTimeout = setTimeout(() => {
                         // After transition animation completes in `150ms`.
                         cancelTransitionHandlers(), // Cancels any in-progress.
-                            (transitionTimeoutHandler = $dom.afterNextFrame((): void => updateXPreactAppTransitionedState()));
+                            (transitionTimeoutHandler = $dom.afterNextFrame((): void => resetXPreactAppTransition()));
                     }, 150));
             }
         }, []);
@@ -538,6 +538,18 @@ const cancelTransitionHandlers = (): void => (clearTimeout(transitionTimeout), t
 const cancelAllLoadEndHandlers = (): void => (cancelLoadedHandler(), cancelScrollHandlers(), cancelTransitionHandlers());
 
 /**
+ * Resets `<x-preact-app>` transitioned state.
+ */
+const resetXPreactAppTransition = (): void => xPreactAppTransition(false);
+
+/**
+ * Updates `<x-preact-app>` transitioned state.
+ */
+const xPreactAppTransition = (enable: boolean = true): void => {
+    ($dom.xPreactApp() as HTMLElement).classList[enable ? 'add' : 'remove']('animate-subtle-fade-in');
+};
+
+/**
  * Generates `<x-preact-app-loading>` element.
  *
  * @returns `<x-preact-app-loading>` element; {@see Element}.
@@ -580,17 +592,6 @@ const xPreactAppLoading = $fnꓺmemo((): Element => {
         [tꓺinnerHTML]: `<${tꓺspan} ${tꓺclass}="sr-only">Loading</${tꓺspan}><${tꓺsvg} aria-hidden="true" ${tꓺclass}="h-auto w-10 stroke-color-primary-fg fill-color-primary" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/${tꓺsvg}"><${tꓺstyle}>.${tꓺla4}{${tꓺanimation}:${tꓺla1} 2.4s -2.4s linear infinite}.${tꓺla2}{${tꓺanimationᱼdelay}:-1.6s}.${tꓺla3}{${tꓺanimationᱼdelay}:-.8s}@keyframes ${tꓺla1}{8.33%{${tꓺx13pxy1px}}25%{${tꓺx13pxy1px}}33.3%{${tꓺx13pxy13px}}50%{${tꓺx13pxy13px}}58.33%{${tꓺx1pxy13px}}75%{${tꓺx1pxy13px}}83.33%{${tꓺx1pxy1px}}}</${tꓺstyle}><${tꓺrect} ${tꓺclass}="${tꓺla4}" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="${tꓺla4} ${tꓺla2}" ${tꓺrectAtts}></${tꓺrect}><${tꓺrect} ${tꓺclass}="${tꓺla4} ${tꓺla3}" ${tꓺrectAtts}></${tꓺrect}></${tꓺsvg}>`,
     });
 });
-
-/**
- * Updates `<x-preact-app>` transitioned state.
- *
- * @param state Transitioned state; i.e., `'true'` or `undefined`.
- */
-const updateXPreactAppTransitionedState = (value?: 'true'): void => {
-    const xPreactAppData = ($dom.xPreactApp() as HTMLElement).dataset;
-    value ? (xPreactAppData.transitioned = value) : delete xPreactAppData.transitioned;
-};
-const resetXPreactAppTransitionedState = (): void => updateXPreactAppTransitionedState();
 
 // ---
 // Error handling.
