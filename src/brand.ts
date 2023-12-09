@@ -370,7 +370,7 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
     /**
      * Defines relative path to URL string.
      */
-    const relPathToURL = (relPath: string): string => {
+    const relPathToURLString = (relPath: string): string => {
         return new URL(relPath, baseURL).toString();
     };
 
@@ -401,22 +401,22 @@ export const addApp = (options: AddAppOptions): $type.Brand => {
                 [tꓺvarPrefix]: pkgSlugAsVar + '_',
 
                 [tꓺicon]: {
-                    [tꓺsvg]: relPathToURL(tꓺⳇassetsⳇicon + tꓺംsvg),
-                    [tꓺpng]: relPathToURL(tꓺⳇassetsⳇicon + tꓺംpng),
+                    [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇicon + tꓺംsvg),
+                    [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇicon + tꓺംpng),
                 },
                 [tꓺlogo]: {
                     [tꓺonDarkBg]: {
-                        [tꓺsvg]: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംsvg),
-                        [tꓺpng]: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംpng),
+                        [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംsvg),
+                        [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംpng),
                     },
                     [tꓺonLightBg]: {
-                        [tꓺsvg]: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംsvg),
-                        [tꓺpng]: relPathToURL(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംpng),
+                        [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംsvg),
+                        [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംpng),
                     },
                 },
                 [tꓺogImage]: {
-                    [tꓺsvg]: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺംsvg),
-                    [tꓺpng]: relPathToURL(tꓺⳇassetsⳇogᱼimage + tꓺംpng),
+                    [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇogᱼimage + tꓺംsvg),
+                    [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇogᱼimage + tꓺംpng),
                 },
             },
             props,
