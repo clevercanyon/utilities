@@ -2,7 +2,7 @@
  * URL utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $env, $is, $obj, $str, type $type } from '#index.ts';

@@ -2,7 +2,7 @@
  * Preact component.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, $url, type $type } from '#index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode, type Context as DataContext } from '#preact/components/data.tsx';

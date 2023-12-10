@@ -2,7 +2,7 @@
  * Preact component.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $obj, $preact } from '#index.ts';
 import { default as Analytics } from '#preact/components/analytics.tsx';

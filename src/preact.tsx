@@ -3,7 +3,7 @@
  */
 // organize-imports-ignore
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $is, $obj, $to, $str, type $type } from '#index.ts';
 import { $fnꓺmemo } from '#@standalone/index.ts';

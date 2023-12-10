@@ -213,8 +213,8 @@ export default async ({ mode, inProdLikeMode, command, isSSRBuild, projDir, dist
                         start_url: $url.toPathQueryHash($url.addQueryVar('utm_source', 'pwa', brand.url)),
                         scope: $str.rTrim($url.parse(brand.url).pathname, '/') + '/',
 
-                        display_override: ['browser', 'standalone', 'minimal-ui'],
-                        display: 'browser', // Default and preferred presentation.
+                        display_override: ['standalone', 'browser'],
+                        display: 'standalone', // Preferred presentation.
 
                         theme_color: brand.theme.color,
                         background_color: brand.theme.color,
@@ -229,32 +229,38 @@ export default async ({ mode, inProdLikeMode, command, isSSRBuild, projDir, dist
                                 type: 'image/svg+xml',
                                 src: $url.toPathQueryHash(brand.icon.svg),
                                 sizes: brand.icon.width + 'x' + brand.icon.height,
+                                purpose: 'any maskable',
                             },
                             {
                                 type: 'image/svg+xml',
                                 src: $url.toPathQueryHash(brand.icon.svg),
                                 sizes: '512x512', // Required size in Chrome.
+                                purpose: 'any maskable',
                             },
                             {
                                 type: 'image/svg+xml',
                                 src: $url.toPathQueryHash(brand.icon.svg),
                                 sizes: '192x192', // Required size in Chrome.
+                                purpose: 'any maskable',
                             },
                             // PNGs.
                             {
                                 type: 'image/png',
                                 src: $url.toPathQueryHash(brand.icon.png),
                                 sizes: brand.icon.width + 'x' + brand.icon.height,
+                                purpose: 'any maskable',
                             },
                             {
                                 type: 'image/png',
                                 src: $url.toPathQueryHash(brand.icon.png),
                                 sizes: '512x512', // Required size in Chrome.
+                                purpose: 'any maskable',
                             },
                             {
                                 type: 'image/png',
                                 src: $url.toPathQueryHash(brand.icon.png),
                                 sizes: '192x192', // Required size in Chrome.
+                                purpose: 'any maskable',
                             },
                         ],
                         screenshots: [

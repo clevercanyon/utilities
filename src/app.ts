@@ -2,7 +2,7 @@
  * App utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import * as $standalone from '#@standalone/index.ts';
 import { $str } from '#index.ts';

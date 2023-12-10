@@ -5,7 +5,7 @@
  */
 // organize-imports-ignore
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $to } from '#index.ts';
 import { type Dayjs } from 'dayjs';

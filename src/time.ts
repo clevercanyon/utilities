@@ -4,7 +4,7 @@
  * Dayjs is approximately 18kbs.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import dayjs from 'dayjs'; // 7kbs.
 import dayjsAdvancedFormat from 'dayjs/plugin/advancedFormat.js'; // 1.07kbs.

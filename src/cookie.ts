@@ -2,7 +2,7 @@
  * Cookie utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $env, $obj, $str, $url, type $type } from '#index.ts';

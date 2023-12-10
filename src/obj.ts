@@ -2,7 +2,7 @@
  * Object utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import * as $standalone from '#@standalone/index.ts';
 import { $fnꓺmemo } from '#@standalone/index.ts';

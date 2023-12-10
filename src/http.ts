@@ -2,7 +2,7 @@
  * HTTP utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $env, $fn, $is, $obj, $path, $str, $time, $url, type $type } from '#index.ts';

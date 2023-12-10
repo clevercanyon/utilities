@@ -2,7 +2,7 @@
  * Class utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 /**
  * Defines types/exports.

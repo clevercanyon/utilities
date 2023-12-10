@@ -2,7 +2,7 @@
  * Data conversion utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $is, $obj, $symbol, type $type } from '#index.ts';
 

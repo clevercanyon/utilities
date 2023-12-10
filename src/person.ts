@@ -2,7 +2,7 @@
  * Person utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $class, $str, type $type } from '#index.ts';
 

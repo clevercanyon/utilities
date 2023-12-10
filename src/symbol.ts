@@ -3,7 +3,7 @@
  */
 // organize-imports-ignore
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 export {
     $symbolꓺobjTag as objTag,

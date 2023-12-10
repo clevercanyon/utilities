@@ -7,7 +7,7 @@
  * @requiredEnv web
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $dom, $env, $is, $obj, $preact, $time, type $type } from '#index.ts';
 import { default as As } from '#preact/components/as.tsx';

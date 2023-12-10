@@ -2,7 +2,7 @@
  * Preact component.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $env, $preact, type $type } from '#index.ts';
 import { type PartialActualState as PartialActualHeadState } from '#preact/components/head.tsx';

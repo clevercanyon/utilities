@@ -2,7 +2,7 @@
  * Preact ISO.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $dom, $env, $is, $obj, $preact, $str, $url, type $type } from '#index.ts';

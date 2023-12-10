@@ -2,7 +2,7 @@
  * MIME utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $path } from '#index.ts';

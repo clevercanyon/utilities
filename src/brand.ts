@@ -2,7 +2,7 @@
  * Brand utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $app, $class, $obj, $person, $str, $url, type $type } from '#index.ts';
 

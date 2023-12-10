@@ -2,7 +2,7 @@
  * All Preact components.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 export { default as Route404 } from '#preact/components/404.tsx';
 export { default as Analytics, type Props as AnalyticsProps } from '#preact/components/analytics.tsx';

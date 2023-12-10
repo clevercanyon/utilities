@@ -2,7 +2,7 @@
  * Color utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $is, $obj, type $type } from '#index.ts';
 import * as c2k from 'color2k';

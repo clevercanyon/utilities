@@ -4,7 +4,7 @@
  * @requiredEnv web
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $fn, $is, $obj, $preact, $to, type $type } from '#index.ts';

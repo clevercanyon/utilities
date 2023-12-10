@@ -2,7 +2,7 @@
  * All utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 export * as $app from '#app.ts';
 export * as $brand from '#brand.ts';

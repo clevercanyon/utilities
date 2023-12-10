@@ -2,7 +2,7 @@
  * Preact component.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $preact } from '#index.ts';
 import { default as As, type Props as AsProps } from '#preact/components/as.tsx';

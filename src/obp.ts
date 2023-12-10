@@ -2,7 +2,7 @@
  * Object path utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $is, $obj, $str, $to, type $type } from '#index.ts';
 

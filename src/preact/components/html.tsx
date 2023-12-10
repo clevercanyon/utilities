@@ -2,7 +2,7 @@
  * Preact component.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $dom, $env, $preact } from '#index.ts';
 import { createContext } from 'preact';

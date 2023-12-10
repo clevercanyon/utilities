@@ -2,7 +2,7 @@
  * Preact component.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $env, $is, $preact } from '#index.ts';
 import { default as Body } from '#preact/components/body.tsx';

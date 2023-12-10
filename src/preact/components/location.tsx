@@ -2,7 +2,7 @@
  * Preact ISO.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $dom, $env, $is, $preact, $url, type $type } from '#index.ts';
 import { createContext } from 'preact';

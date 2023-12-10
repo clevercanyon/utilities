@@ -2,7 +2,7 @@
  * JSON utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $is, $obj, type $type } from '#index.ts';
 

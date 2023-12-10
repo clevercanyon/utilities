@@ -2,7 +2,7 @@
  * Environment utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $app, $cookie, $fn, $is, $obj, $obp, $str, $to, $type, $url } from '#index.ts';

@@ -2,7 +2,7 @@
  * String utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $dom, $env, $is, $obj, $to } from '#index.ts';
 import ipRegex from 'ip-regex';

@@ -2,7 +2,7 @@
  * Function utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import * as $standalone from '#@standalone/index.ts';
 import { type $fnꓺMemoOptions, type $fnꓺMemoizedFunction } from '#@standalone/index.ts';

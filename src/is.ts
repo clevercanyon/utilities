@@ -2,7 +2,7 @@
  * Conditional utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import * as $standalone from '#@standalone/index.ts';
 import { $app, $env, $obj, $preact, type $type } from '#index.ts';

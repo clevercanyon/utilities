@@ -2,7 +2,7 @@
  * Path utilities.
  */
 
-import '#@init.ts';
+import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $mime, $mm, $obj, $str, $to } from '#index.ts';
