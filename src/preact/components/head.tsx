@@ -223,8 +223,6 @@ const tꓺabout = 'about',
     tꓺprefetch = 'prefetch',
     tꓺdnsPrefetch = 'dns-' + tꓺprefetch,
     tꓺprefetchWorkers = tꓺprefetch + 'Workers',
-    tꓺprefetchGoogleFonts = tꓺprefetch + 'GoogleFonts',
-    tꓺprefetchGoogleFontsStatic = tꓺprefetchGoogleFonts + 'Static',
     tꓺprimaryImageOfPage = 'primaryImageOfPage',
     tꓺproperty = 'property',
     tꓺpublisher = 'publisher',
@@ -529,8 +527,6 @@ export default class Head extends Component<Props, ActualState> {
                       }
                     : {}),
                 ...(scriptBundle && isC10n ? { [tꓺprefetchWorkers]: h(tꓺlink, { [tꓺrel]: tꓺdnsPrefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + 'workers.hop.gdn/' }) } : {}), // prettier-ignore
-                ...(styleBundle && isC10n ? { [tꓺprefetchGoogleFonts]: h(tꓺlink, { [tꓺrel]: tꓺdnsPrefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + 'fonts.googleapis.com/' }) } : {}), // prettier-ignore
-                ...(styleBundle && isC10n ? { [tꓺprefetchGoogleFontsStatic]: h(tꓺlink, { [tꓺrel]: tꓺdnsPrefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + 'fonts.gstatic.com/' }) } : {}), // prettier-ignore
 
                 ...(styleBundle ? { [tꓺstyleBundle]: h(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: styleBundle, [tꓺmedia]: tꓺall }) } : {}), // prettier-ignore
                 ...(scriptBundle && isSSR ? { [tꓺpreactISOData]: h(tꓺscript, { [tꓺid]: 'preact-iso-data', [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore
