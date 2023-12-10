@@ -697,6 +697,7 @@ export const defaultNPMIgnoresByGroup = $fnꓺmemo((): DefaultNPMIgnoresByGroup 
         ],
         'npm:Dots': [
             '.*', //
+            '!.well-known',
         ],
         'npm:Configs': [
             '*.config.*', //
@@ -983,6 +984,7 @@ export const defaultGitNPMIgnoresByCategory = $fnꓺmemo((): DefaultGitNPMIgnore
 
         dotIgnores: [
             '.*', //
+            '!.well-known', // We don’t ignore `.well-known`.
             // This category covers everything else we have in `./.npmignore`
             // that isn’t already grouped in some other way by our exclusions.
 
