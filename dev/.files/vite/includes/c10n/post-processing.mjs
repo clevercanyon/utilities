@@ -33,6 +33,9 @@ export default async ({ mode, wranglerMode, inProdLikeMode, command, isSSRBuild,
     return {
         name: 'vite-plugin-c10n-post-processing',
         enforce: 'post', // After others on this hook.
+
+        // Listens for build-related errors.
+        // No post-processing if there were errors.
         buildEnd: (error) => void (buildEndError = error),
 
         async closeBundle(/* Rollup hook. */) {
@@ -136,6 +139,8 @@ export default async ({ mode, wranglerMode, inProdLikeMode, command, isSSRBuild,
              * implementation to decide. If they do not exist, or do not contain replacement codes, we assume that
              * nothing should occur. For example, it might be desirable in some cases for `./robots.txt`, `sitemap.xml`,
              * or others to be served dynamically. In which case they may not exist in these locations statically.
+             *
+             * @review Consider expanding `.well-known/` to include extension variants instead of the hard-coded `{txt,xml,html,json}`.
              */
             if (!isSSRBuild && 'build' === command && ['spa', 'mpa'].includes(appType) && ['cfp'].includes(targetEnv)) {
                 for (const file of await $glob.promise(
@@ -143,11 +148,14 @@ export default async ({ mode, wranglerMode, inProdLikeMode, command, isSSRBuild,
                         '_headers', //
                         '_redirects',
                         '_routes.json',
-                        '404.html',
-                        'robots.txt',
-                        'manifest.json',
-                        'sitemap.xml',
+                        '.well-known/**/*.{txt,xml,html,json}',
                         'sitemaps/**/*.xml',
+                        'sitemap.xml',
+                        'manifest.json',
+                        'ads.txt',
+                        'humans.txt',
+                        'robots.txt',
+                        '404.html',
                     ],
                     { cwd: distDir },
                 )) {
@@ -167,7 +175,7 @@ export default async ({ mode, wranglerMode, inProdLikeMode, command, isSSRBuild,
                         const cfpDefault404 = '<!doctype html>' + $preact.ssr.renderToString($preact.create(StandAlone404));
                         fileContents = fileContents.replace('$$__APP_CFP_DEFAULT_404_HTML__$$', cfpDefault404);
                     }
-                    if (['_headers', '_redirects', 'robots.txt'].includes(fileRelPath)) {
+                    if (['_headers', '_redirects'].includes(fileRelPath) || ['txt'].includes(fileExt)) {
                         fileContents = fileContents.replace(/^#[^\n]*\n/gmu, '');
                         //
                     } else if (['json'].includes(fileExt)) {

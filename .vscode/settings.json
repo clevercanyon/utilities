@@ -7,7 +7,7 @@
  * @note This entire file will be updated automatically.
  * @note Instead of editing here, please review `./settings.mjs`.
  *
- * Last generated using `./settings.mjs` Dec 10, 2023 6:06 AM UTC.
+ * Last generated using `./settings.mjs` Dec 10, 2023 10:01 PM UTC.
  */
 {
     "editor.formatOnType": false,
@@ -76,8 +76,8 @@
         "**/src/cargo/_headers": "plaintext",
         "**/dist/_redirects": "plaintext",
         "**/src/cargo/_redirects": "plaintext",
-        "**/dist/_routes.{json,×××××××}": "jsonc",
-        "**/src/cargo/_routes.{json,×××××××}": "jsonc"
+        "**/src/cargo/_routes.{json,×××××××}": "jsonc",
+        "**/src/cargo/.well-known/*.{json,×××××××}": "jsonc"
     },
     "files.exclude": {
         "**/._*": true,
@@ -131,6 +131,7 @@
         "**/Network Trash Folder": true,
         "**/Temporary Items": true,
         ".*": true,
+        ".well-known": false,
         "*.tsbuildinfo": true,
         "*.config.*": true,
         "wrangler.*": true,
@@ -155,6 +156,7 @@
     "search.useParentIgnoreFiles": false,
     "search.exclude": {
         "/.*": true,
+        "/!**/.well-known": true,
         "/*.tsbuildinfo": true,
         "/*.config.*": true,
         "/wrangler.*": true,

@@ -448,6 +448,9 @@ export const requestPathIsForbidden = $fnꓺmemo(2, (request: $type.Request, _ur
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request is dynamic.
+ *
+ * @note This is determining whether it *might* be; i.e., probably is dynamic, not that is in fact dynamic.
+ *       The best practice is to attempt to resolve dynamically first, then fall back on static handlers.
  */
 export const requestPathIsDynamic = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
     return requestPathHasDynamicBase(request, url) || requestPathIsPotentiallyDynamic(request, url) || !requestPathHasStaticExtension(request, url);
@@ -481,7 +484,7 @@ export const requestPathIsPotentiallyDynamic = $fnꓺmemo(2, (request: $type.Req
     const url = _url || $url.parse(request.url);
     if ('/' === url.pathname) return false;
 
-    return /\/(?:sitemaps\/.*\.xml|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|manifest\.json|robots\.txt)$/iu.test(url.pathname);
+    return requestPathIsSEORelatedFile(request, url) && !/\/favicon\.ico$/iu.test(url.pathname);
 });
 
 /**
@@ -496,7 +499,7 @@ export const requestPathIsSEORelatedFile = $fnꓺmemo(2, (request: $type.Request
     const url = _url || $url.parse(request.url);
     if ('/' === url.pathname) return false;
 
-    return /\/(?:sitemaps\/.*\.xml|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|manifest\.json|robots\.txt|favicon\.ico)$/iu.test(url.pathname);
+    return /\/(?:\.well[-_]known\/|sitemaps\/.*\.xml|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|manifest\.json|(?:ads|humans|robots)\.txt|favicon\.ico)$/iu.test(url.pathname);
 });
 
 /**
