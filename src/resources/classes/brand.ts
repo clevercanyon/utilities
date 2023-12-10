@@ -92,8 +92,26 @@ declare class ClassInterface {
         readonly height: number;
     };
     public readonly policies: {
-        terms: string;
-        privacy: string;
+        readonly terms: string;
+        readonly privacy: string;
+    };
+    public readonly contacts: {
+        readonly admin: {
+            readonly email: string;
+            readonly url: string;
+        };
+        readonly security: {
+            readonly email: string;
+            readonly url: string;
+        };
+        readonly privacy: {
+            readonly email: string;
+            readonly url: string;
+        };
+        readonly support: {
+            readonly email: string;
+            readonly url: string;
+        };
     };
     public readonly socialProfiles: {
         readonly [x: string]: string;
@@ -265,8 +283,30 @@ export const getClass = (): Constructor => {
          * Policies; terms/privacy.
          */
         public readonly policies!: {
-            terms: string;
-            privacy: string;
+            readonly terms: string;
+            readonly privacy: string;
+        };
+
+        /**
+         * Contacts; admin, security, etc.
+         */
+        public readonly contacts!: {
+            readonly admin: {
+                readonly email: string;
+                readonly url: string;
+            };
+            readonly security: {
+                readonly email: string;
+                readonly url: string;
+            };
+            readonly privacy: {
+                readonly email: string;
+                readonly url: string;
+            };
+            readonly support: {
+                readonly email: string;
+                readonly url: string;
+            };
         };
 
         /**

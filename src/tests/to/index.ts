@@ -198,7 +198,7 @@ describe('$to', async () => {
             'address.zip',
             'address.country',
 
-            'founder',
+            'founder', // Person object, not plain.
             'foundingDate',
             'numberOfEmployees',
 
@@ -247,9 +247,22 @@ describe('$to', async () => {
             'policies.terms',
             'policies.privacy',
 
+            'contacts.admin.email',
+            'contacts.admin.url',
+
+            'contacts.security.email',
+            'contacts.security.url',
+
+            'contacts.privacy.email',
+            'contacts.privacy.url',
+
+            'contacts.support.email',
+            'contacts.support.url',
+
             'socialProfiles.twitter',
             'socialProfiles.linkedin',
             'socialProfiles.facebook',
+            'socialProfiles.keybase',
             'socialProfiles.github',
             'socialProfiles.npm',
         ]);
@@ -349,6 +362,7 @@ describe('$to', async () => {
             'founder.socialProfiles.twitter',
             'founder.socialProfiles.linkedin',
             'founder.socialProfiles.facebook',
+            'founder.socialProfiles.keybase',
             'founder.socialProfiles.github',
             'founder.socialProfiles.npm',
 
@@ -400,9 +414,22 @@ describe('$to', async () => {
             'policies.terms',
             'policies.privacy',
 
+            'contacts.admin.email',
+            'contacts.admin.url',
+
+            'contacts.security.email',
+            'contacts.security.url',
+
+            'contacts.privacy.email',
+            'contacts.privacy.url',
+
+            'contacts.support.email',
+            'contacts.support.url',
+
             'socialProfiles.twitter',
             'socialProfiles.linkedin',
             'socialProfiles.facebook',
+            'socialProfiles.keybase',
             'socialProfiles.github',
             'socialProfiles.npm',
         ]);
