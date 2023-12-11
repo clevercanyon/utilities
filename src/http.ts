@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $env, $fn, $is, $obj, $path, $str, $time, $url, type $type } from '#index.ts';
+import { $env, $fn, $is, $obj, $path, $str, $time, $to, $url, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -569,6 +569,31 @@ export const extractHeaders = (headers: $type.Headers | { [x: string]: string },
         }
     }
     return plain;
+};
+
+/**
+ * Verifies a Cloudflare turnstile response.
+ *
+ * @param   request   Request to verify.
+ * @param   turnstile Turnstile response token.
+ *
+ * @returns           True if turnstile can be verified by Cloudflare.
+ *
+ * @requiredEnv cfw
+ */
+export const verifyTurnstile = async (request: $type.Request, turnstile: string): Promise<boolean> => {
+    if (!$env.isCFW()) throw new Error();
+
+    const formData = new FormData();
+    formData.append('secret', $env.get('SSR_APP_TURNSTILE_SECRET_KEY', { type: 'string', default: '' }));
+    formData.append('remoteip', request.headers.get('cf-connecting-ip') || '');
+    formData.append('response', turnstile);
+
+    const verificationEndpointURL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+    return await fetch(verificationEndpointURL, { method: 'POST', body: formData })
+        .then(async (response): Promise<$type.Object> => $to.plainObject(await response.json()))
+        .then((response) => Boolean(response.success))
+        .catch(() => false);
 };
 
 /**

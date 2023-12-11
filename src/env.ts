@@ -519,8 +519,7 @@ export const hasGlobalPrivacy = $fnꓺmemo(2, (request?: $type.Request): boolean
 export const ipGeoData = $fnꓺmemo(async (): Promise<IPGeoData> => {
     return fetch('https://workers.hop.gdn/utilities/api/ip-geo/v1') //
         .then(async (response): Promise<IPGeoDataResponsePayload> => {
-            const payload = (await response.json()) as unknown;
-            return ($is.object(payload) ? payload : {}) as IPGeoDataResponsePayload;
+            return $to.plainObject(await response.json()) as IPGeoDataResponsePayload;
         })
         .then(({ ok, error, data }): IPGeoData => {
             if (!ok) throw new Error(error?.message || '');

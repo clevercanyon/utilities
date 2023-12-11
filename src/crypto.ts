@@ -298,6 +298,8 @@ export const uuidV4 = (options?: UUIDV4Options): string => {
  * @param   strB B string to compare.
  *
  * @returns      True if string are equal.
+ *
+ * @requiredEnv cfw -- Otherwise, this uses an unsafe fallback.
  */
 export const safeEqual = (strA: string, strB: string): boolean => {
     if (!$env.isCFW()) return strA === strB;
