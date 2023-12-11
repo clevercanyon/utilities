@@ -14,15 +14,11 @@ import { Component } from 'preact';
  */
 export type ActualState = $preact.State<{
     charset?: string;
+    themeColor?: string;
     viewport?: string;
 
-    humans?: string;
     robots?: string;
     canonical?: $type.URL | string;
-
-    manifest?: string;
-    themeColor?: string;
-    structuredData?: object;
 
     siteName?: string;
     title?: string;
@@ -35,6 +31,10 @@ export type ActualState = $preact.State<{
     author?: $type.Person | string;
     publishTime?: $type.Time | string;
     lastModifiedTime?: $type.Time | string;
+
+    humans?: string;
+    manifest?: string;
+    structuredData?: object;
 
     pngIcon?: $type.URL | string;
     svgIcon?: $type.URL | string;
@@ -58,15 +58,11 @@ export type PartialActualStateUpdates = Omit<PartialActualState, ImmutableStateK
 
 export type State = $preact.State<{
     charset: string;
+    themeColor: string;
     viewport: string;
 
-    humans: string;
     robots: string;
     canonical: string; // Absolute URL.
-
-    manifest: string;
-    themeColor: string;
-    structuredData?: object;
 
     siteName: string;
     title: string;
@@ -80,6 +76,10 @@ export type State = $preact.State<{
     author?: $type.Person;
     publishTime?: $type.Time;
     lastModifiedTime?: $type.Time;
+
+    humans: string;
+    manifest: string;
+    structuredData?: object;
 
     pngIcon: string; // Absolute URL.
     svgIcon: string; // Absolute URL.
@@ -450,14 +450,11 @@ export default class Head extends Component<Props, ActualState> {
             const h = $preact.h;
             const {
                 charset,
+                themeColor,
                 viewport,
                 //
-                humans,
                 robots,
                 canonical,
-                //
-                manifest,
-                themeColor,
                 //
                 suffixedTitle,
                 description,
@@ -466,6 +463,9 @@ export default class Head extends Component<Props, ActualState> {
                 author,
                 publishTime,
                 lastModifiedTime,
+                //
+                humans,
+                manifest,
                 //
                 svgIcon,
                 pngIcon,
@@ -490,19 +490,20 @@ export default class Head extends Component<Props, ActualState> {
             const vNodes: { [x: string]: $preact.VNode } = {
                 [tꓺcharset]: h(tꓺmeta, { [tꓺcharset]: charset }),
                 [tꓺbaseURL]: h(tꓺbase, { [tꓺhref]: baseURL.toString() }),
+
+                [tꓺthemeColor]: h(tꓺmeta, { [tꓺname]: tꓺthemeᱼcolor, [tꓺcontent]: themeColor }),
                 [tꓺviewport]: h(tꓺmeta, { [tꓺname]: tꓺviewport, [tꓺcontent]: viewport }),
 
                 ...(robots ? { [tꓺrobots]: h(tꓺmeta, { [tꓺname]: tꓺrobots, [tꓺcontent]: robots }) } : {}),
-                [tꓺhumans]: h(tꓺlink, { [tꓺrel]: tꓺauthor, [tꓺtype]: tꓺtextⳇplain, [tꓺhref]: humans }),
                 [tꓺcanonical]: h(tꓺlink, { [tꓺrel]: tꓺcanonical, [tꓺhref]: canonical }),
-
-                [tꓺmanifest]: h(tꓺlink, { [tꓺrel]: tꓺmanifest, [tꓺhref]: manifest }),
-                [tꓺthemeColor]: h(tꓺmeta, { [tꓺname]: tꓺthemeᱼcolor, [tꓺcontent]: themeColor }),
 
                 [tꓺtitle]: h(tꓺtitle, {}, suffixedTitle),
                 [tꓺdescription]: h(tꓺmeta, { [tꓺname]: tꓺdescription, [tꓺcontent]: description }),
                 ...(tags.length ? { [tꓺkeywords]: h(tꓺmeta, { [tꓺname]: tꓺkeywords, [tꓺcontent]: tags.join(', ') }) } : {}),
                 ...(authorꓺname ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: authorꓺname }) } : {}),
+
+                [tꓺhumans]: h(tꓺlink, { [tꓺrel]: tꓺauthor, [tꓺtype]: tꓺtextⳇplain, [tꓺhref]: humans }),
+                [tꓺmanifest]: h(tꓺlink, { [tꓺrel]: tꓺmanifest, [tꓺhref]: manifest }),
 
                 [tꓺsvgIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇsvg, [tꓺsizes]: tꓺany, [tꓺhref]: svgIcon }),
                 [tꓺpngIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon }),
@@ -691,14 +692,11 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
     return $preact.useMemo((): State => {
         let {
             charset,
+            themeColor,
             viewport,
             //
-            humans,
             robots,
             canonical,
-            //
-            manifest,
-            themeColor,
             //
             siteName,
             title,
@@ -711,6 +709,9 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             author,
             publishTime,
             lastModifiedTime,
+            //
+            humans,
+            manifest,
             //
             pngIcon,
             svgIcon,
@@ -761,14 +762,11 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             ...head, // Actual `<Head>` state.
 
             [tꓺcharset]: charset || 'utf-8',
+            [tꓺthemeColor]: themeColor || brandꓺtheme.color,
             [tꓺviewport]: viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
 
-            [tꓺhumans]: humans || './' + tꓺhumans + '.txt',
             [tꓺrobots]: robots || '', // Default is empty string.
             [tꓺcanonical]: asAbsoluteURLString(canonical || canonicalURL),
-
-            [tꓺmanifest]: manifest || './' + tꓺmanifest + '.json',
-            [tꓺthemeColor]: themeColor || brandꓺtheme.color,
 
             [tꓺsiteName]: siteName || brand.name || url.hostname,
             [tꓺtitle]: title, // Computed above.
@@ -782,6 +780,9 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             [tꓺauthor]: $is.string(author) ? $fn.try(() => $person.get(author as string), tꓺvꓺundefined)() : author,
             [tꓺpublishTime]: publishTime ? $time.parse(publishTime) : tꓺvꓺundefined,
             [tꓺlastModifiedTime]: lastModifiedTime ? $time.parse(lastModifiedTime) : tꓺvꓺundefined,
+
+            [tꓺhumans]: humans || './' + tꓺhumans + '.txt',
+            [tꓺmanifest]: manifest || './' + tꓺmanifest + '.json',
 
             [tꓺsvgIcon]: asAbsoluteURLString(svgIcon || brandꓺicon.svg),
             [tꓺpngIcon]: asAbsoluteURLString(pngIcon || brandꓺicon.png),
