@@ -503,7 +503,7 @@ export default class Head extends Component<Props, ActualState> {
                 ...(authorꓺname ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: authorꓺname }) } : {}),
 
                 [tꓺhumans]: h(tꓺlink, { [tꓺrel]: tꓺauthor, [tꓺtype]: tꓺtextⳇplain, [tꓺhref]: humans }),
-                [tꓺmanifest]: h(tꓺlink, { [tꓺrel]: tꓺmanifest, [tꓺhref]: manifest }),
+                ...(isLocalVite ? {} : { [tꓺmanifest]: h(tꓺlink, { [tꓺrel]: tꓺmanifest, [tꓺhref]: manifest }) }),
 
                 [tꓺsvgIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇsvg, [tꓺsizes]: tꓺany, [tꓺhref]: svgIcon }),
                 [tꓺpngIcon]: h(tꓺlink, { [tꓺrel]: tꓺicon, [tꓺtype]: tꓺimageⳇpng, [tꓺsizes]: tꓺany, [tꓺhref]: pngIcon }),
@@ -749,7 +749,7 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
         let defaultStyleBundle, defaultScriptBundle; // When possible.
 
         if (!styleBundle && '' !== styleBundle && isLocalVite) {
-            defaultStyleBundle = './index.scss'; // For vite dev server.
+            defaultStyleBundle = './index.css'; // For vite dev server.
         }
         if (!scriptBundle && '' !== scriptBundle && isLocalVite) {
             defaultScriptBundle = './index.tsx'; // For vite dev server.
