@@ -30,7 +30,7 @@ const vars: { [x: string]: unknown } = {};
  *         "timezone": "America/New_York"
  *     }
  */
-export type IPGeoData = {
+export type IPGeoData = Readonly<{
     city: string;
     colo: string;
     continent: string;
@@ -42,7 +42,12 @@ export type IPGeoData = {
     region: string;
     regionCode: string;
     timezone: string;
-};
+}>;
+type IPGeoDataResponsePayload = Readonly<{
+    ok: boolean;
+    error?: Readonly<{ message: string }>;
+    data?: IPGeoData;
+}>;
 export type GetOptions = { default?: unknown; type?: $type.EnsurableType };
 export type GetOptionsWithoutType = GetOptions & { type?: undefined };
 export type GetOptionsWithType = GetOptions & { type: $type.EnsurableType };
@@ -513,8 +518,14 @@ export const hasGlobalPrivacy = $fnꓺmemo(2, (request?: $type.Request): boolean
  */
 export const ipGeoData = $fnꓺmemo(async (): Promise<IPGeoData> => {
     return fetch('https://workers.hop.gdn/utilities/api/ip-geo/v1') //
-        .then((response) => response.json())
-        .then((data) => data as IPGeoData);
+        .then(async (response): Promise<IPGeoDataResponsePayload> => {
+            const payload = (await response.json()) as unknown;
+            return ($is.object(payload) ? payload : {}) as IPGeoDataResponsePayload;
+        })
+        .then((payload): IPGeoData => {
+            if (!payload.ok) throw new Error(payload.error?.message);
+            return payload.data as IPGeoData;
+        });
 });
 
 /**
