@@ -5,9 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $obj } from '#index.ts';
-
-const textEncoder: TextEncoder = new TextEncoder();
+import { $env, $obj, $str, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -292,6 +290,32 @@ export const uuidV4 = (options?: UUIDV4Options): string => {
 };
 
 /**
+ * Performs a timing-safe string comparison.
+ *
+ * Currently, this only works in a Cloudflare environment; {@see https://o5p.me/0PgtOY}.
+ *
+ * @param   strA A string to compare.
+ * @param   strB B string to compare.
+ *
+ * @returns      True if string are equal.
+ */
+export const safeEqual = (strA: string, strB: string): boolean => {
+    if (!$env.isCFW()) return strA === strB;
+    if (strA.length !== strB.length) return false;
+
+    const textEncoder = $str.textEncoder;
+    const a = textEncoder.encode(strA),
+        b = textEncoder.encode(strB);
+
+    if (a.byteLength !== b.byteLength) return false;
+    return (crypto as $type.cf.Crypto).subtle.timingSafeEqual(a, b);
+};
+
+/* ---
+ * Misc utilities.
+ */
+
+/**
  * Converts an array buffer to hexadecimals.
  *
  * @param   buffer Any {@see ArrayBuffer}.
@@ -312,7 +336,7 @@ const bufferToHex = (buffer: ArrayBuffer): string => {
  * @returns      Hash promise, of variable length, based on selected algorithm.
  */
 const buildHash = async (algo: HashAlgorithm, str: string): Promise<string> => {
-    return bufferToHex(await crypto.subtle.digest(algo, textEncoder.encode(str)));
+    return bufferToHex(await crypto.subtle.digest(algo, $str.textEncoder.encode(str)));
 };
 
 /**
@@ -323,6 +347,6 @@ const buildHash = async (algo: HashAlgorithm, str: string): Promise<string> => {
  * @returns      HMAC keyed hash promise, of variable length, based on selected algorithm.
  */
 const buildHMACHash = async (algo: HashAlgorithm, str: string, key: string): Promise<string> => {
-    const cryptoKey = await crypto.subtle.importKey('raw', textEncoder.encode(key || '\0'), { name: 'hmac', hash: { name: algo } }, false, ['sign', 'verify']);
-    return bufferToHex(await crypto.subtle.sign('hmac', cryptoKey, textEncoder.encode(str)));
+    const cryptoKey = await crypto.subtle.importKey('raw', $str.textEncoder.encode(key || '\0'), { name: 'hmac', hash: { name: algo } }, false, ['sign', 'verify']);
+    return bufferToHex(await crypto.subtle.sign('hmac', cryptoKey, $str.textEncoder.encode(str)));
 };

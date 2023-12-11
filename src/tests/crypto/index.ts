@@ -169,4 +169,8 @@ describe('$crypto', async () => {
         expect(uuidThree === uuidOne).toBe(false);
         expect(uuidThree === uuidTwo).toBe(false);
     });
+    test('.safeEqual()', async () => {
+        expect($crypto.safeEqual('a', 'a')).toBe(true);
+        expect($crypto.safeEqual('a', 'b')).toBe(false);
+    });
 });

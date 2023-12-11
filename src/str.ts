@@ -7,9 +7,6 @@ import '#@initialize.ts';
 import { $dom, $env, $is, $obj, $to } from '#index.ts';
 import ipRegex from 'ip-regex';
 
-const textEncoder: TextEncoder = new TextEncoder();
-const textDecoder: TextDecoder = new TextDecoder();
-
 const ipV4MaxLength = 15; // Max length of an IPv4 address.
 const ipV6MaxLength = 45; // Max length of an IPv6 address.
 
@@ -39,6 +36,13 @@ export type SnakeCaseOptions = KebabCaseOptions; // Same options as kebabCase.
 export type QuoteOptions = { type?: 'single' | 'double' };
 export type UnquoteOptions = { type?: string };
 export type EscHTMLOptions = { doubleEncode: boolean };
+
+/* ---
+ * Encoder/decoder.
+ */
+
+export const textEncoder: TextEncoder = new TextEncoder();
+export const textDecoder: TextDecoder = new TextDecoder();
 
 /* ---
  * Size utilities.
