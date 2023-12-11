@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $env, $preact, type $type } from '#index.ts';
+import { $env, $is, $preact, type $type } from '#index.ts';
 import { createContext } from 'preact';
 
 /**
@@ -14,7 +14,7 @@ declare type API = typeof import('#@preact/apis/web/turnstile.ts');
 export type Props = $preact.BasicTreeProps<{}>;
 export type Context = {
     promise: Promise<API>;
-    effect: (elementOrSelectors: string | HTMLElement) => () => () => void;
+    effect: (ers: HTMLElement | $preact.Ref<HTMLElement> | string) => () => () => void;
 };
 
 /**
@@ -48,7 +48,7 @@ export default function Turnstile(props: Props = {}): $preact.VNode<Props> {
             });
         }),
     );
-    const effect = $preact.useRef((elementOrSelectors: string | HTMLElement): (() => () => void) => {
+    const effect = $preact.useRef((ers: HTMLElement | $preact.Ref<HTMLElement> | string): (() => () => void) => {
         return (): (() => void) => {
             let ref: {
                 remove: $type.Turnstile['remove'];
@@ -58,7 +58,7 @@ export default function Turnstile(props: Props = {}): $preact.VNode<Props> {
                 void deploy().then(({ render, remove }): void => {
                     ref = {
                         remove,
-                        id: render(elementOrSelectors, {
+                        id: render(($is.object(ers) ? ers.current || ers : ers) as HTMLElement | string, {
                             sitekey: siteKey(),
                             // @ts-ignore -- property ok.
                             'response-field-name': 'turnstile',

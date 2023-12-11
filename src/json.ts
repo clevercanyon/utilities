@@ -15,6 +15,15 @@ export type StringifyOptions = {
 };
 
 /**
+ * Gets JSON MIME content type.
+ *
+ * @returns JSON MIME content type.
+ */
+export const contentType = (): string => {
+    return 'application/json; charset=utf-8';
+};
+
+/**
  * Converts any value into JSON.
  *
  * @param   value Value to convert into JSON.
