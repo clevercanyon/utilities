@@ -522,9 +522,9 @@ export const ipGeoData = $fnꓺmemo(async (): Promise<IPGeoData> => {
             const payload = (await response.json()) as unknown;
             return ($is.object(payload) ? payload : {}) as IPGeoDataResponsePayload;
         })
-        .then((payload): IPGeoData => {
-            if (!payload.ok) throw new Error(payload.error?.message);
-            return payload.data as IPGeoData;
+        .then(({ ok, error, data }): IPGeoData => {
+            if (!ok) throw new Error(error?.message || '');
+            return data as IPGeoData;
         });
 });
 
