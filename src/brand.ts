@@ -67,6 +67,7 @@ const tꓺaddress = 'address',
     tꓺHop = 'Hop',
     tꓺHopംgdn = tꓺHop + tꓺംgdn,
     tꓺhostname = 'hostname',
+    tꓺmxHostname = 'mxHostname',
     tꓺhttpsꓽⳇⳇ = 'https://',
     tꓺicon = 'icon',
     tꓺംio = '.io',
@@ -244,6 +245,7 @@ const initializeRawProps = (): void => {
         [tꓺnamespace]: tꓺCleverCanyon,
 
         [tꓺhostname]: tꓺclevercanyonംcom,
+        [tꓺmxHostname]: tꓺclevercanyonംcom,
         [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ,
 
         [tꓺslug]: tꓺclevercanyon,
@@ -333,6 +335,7 @@ const initializeRawProps = (): void => {
             [tꓺnamespace]: tꓺHop,
 
             [tꓺhostname]: tꓺhopംgdn,
+            [tꓺmxHostname]: tꓺhopംgdn,
             [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ,
 
             [tꓺslug]: tꓺhop,

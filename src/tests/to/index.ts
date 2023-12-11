@@ -209,6 +209,7 @@ describe('$to', async () => {
             'namespace',
 
             'hostname',
+            'mxHostname',
             'url',
 
             'slug',
@@ -377,6 +378,7 @@ describe('$to', async () => {
             'namespace',
 
             'hostname',
+            'mxHostname',
             'url',
 
             'slug',
