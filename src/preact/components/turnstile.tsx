@@ -50,13 +50,13 @@ export default function Turnstile(props: Props = {}): $preact.VNode<Props> {
     );
     const effect = $preact.useRef((ers: HTMLElement | $preact.Ref<HTMLElement> | string): (() => () => void) => {
         return (): (() => void) => {
-            let ref: {
+            let tsRender: {
                 remove: $type.Turnstile['remove'];
                 id: ReturnType<$type.Turnstile['render']>;
             };
             void promise.current.then(({ deploy, siteKey }): void => {
                 void deploy().then(({ render, remove }): void => {
-                    ref = {
+                    tsRender = {
                         remove,
                         id: render(($is.object(ers) ? ers.current || ers : ers) as HTMLElement | string, {
                             sitekey: siteKey(),
@@ -68,7 +68,7 @@ export default function Turnstile(props: Props = {}): $preact.VNode<Props> {
             });
             return (): void => {
                 // Unmount cleanup routine.
-                if (ref && ref.id) ref.remove(ref.id);
+                if (tsRender?.id) tsRender.remove(tsRender.id);
             };
         };
     });
