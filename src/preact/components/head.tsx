@@ -16,6 +16,7 @@ export type ActualState = $preact.State<{
     charset?: string;
     viewport?: string;
 
+    humans?: string;
     robots?: string;
     canonical?: $type.URL | string;
 
@@ -59,6 +60,7 @@ export type State = $preact.State<{
     charset: string;
     viewport: string;
 
+    humans: string;
     robots: string;
     canonical: string; // Absolute URL.
 
@@ -169,6 +171,7 @@ const tꓺabout = 'about',
     tꓺappleTouchIcon = 'appleTouchIcon',
     tꓺappleᱼtouchᱼicon = 'apple-touch-' + tꓺicon,
     tꓺ__html = '__html',
+    tꓺhumans = 'humans',
     tꓺImageObject = 'ImageObject',
     tꓺid = 'id',
     tꓺමid = '@' + tꓺid,
@@ -448,6 +451,7 @@ export default class Head extends Component<Props, ActualState> {
                 charset,
                 viewport,
                 //
+                humans,
                 robots,
                 canonical,
                 //
@@ -487,6 +491,7 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺbaseURL]: h(tꓺbase, { [tꓺhref]: baseURL.toString() }),
                 [tꓺviewport]: h(tꓺmeta, { [tꓺname]: tꓺviewport, [tꓺcontent]: viewport }),
 
+                [tꓺhumans]: h(tꓺmeta, { [tꓺname]: tꓺhumans, [tꓺcontent]: humans }),
                 ...(robots ? { [tꓺrobots]: h(tꓺmeta, { [tꓺname]: tꓺrobots, [tꓺcontent]: robots }) } : {}),
                 [tꓺcanonical]: h(tꓺlink, { [tꓺrel]: tꓺcanonical, [tꓺhref]: canonical }),
 
@@ -687,6 +692,7 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             charset,
             viewport,
             //
+            humans,
             robots,
             canonical,
             //
@@ -756,6 +762,7 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             [tꓺcharset]: charset || 'utf-8',
             [tꓺviewport]: viewport || 'width=device-width, initial-scale=1, minimum-scale=1',
 
+            [tꓺhumans]: humans || './' + tꓺhumans + '.txt',
             [tꓺrobots]: robots || '', // Default is empty string.
             [tꓺcanonical]: asAbsoluteURLString(canonical || canonicalURL),
 
