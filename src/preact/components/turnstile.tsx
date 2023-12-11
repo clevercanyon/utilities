@@ -56,7 +56,14 @@ export default function Turnstile(props: Props = {}): $preact.VNode<Props> {
             };
             void promise.current.then(({ deploy, siteKey }): void => {
                 void deploy().then(({ render, remove }): void => {
-                    ref = { remove, id: render(selectors, { sitekey: siteKey() }) };
+                    ref = {
+                        remove,
+                        id: render(selectors, {
+                            sitekey: siteKey(),
+                            // @ts-ignore -- property ok.
+                            'response-field-name': 'turnstile',
+                        }),
+                    };
                 });
             });
             return (): void => {
