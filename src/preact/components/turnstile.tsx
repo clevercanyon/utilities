@@ -14,7 +14,7 @@ declare type API = typeof import('#@preact/apis/web/turnstile.ts');
 export type Props = $preact.BasicTreeProps<{}>;
 export type Context = {
     promise: Promise<API>;
-    effect: (selectors: string) => () => () => void;
+    effect: (elementOrSelectors: string | HTMLElement) => () => () => void;
 };
 
 /**
