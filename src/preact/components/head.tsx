@@ -231,6 +231,7 @@ const tꓺabout = 'about',
     tꓺpublisher = 'publisher',
     tꓺpublishTime = 'publishTime',
     tꓺlastModifiedTime = 'lastModifiedTime',
+    tꓺtextⳇplain = 'text/plain',
     tꓺtheme = 'theme',
     tꓺthemeColor = 'themeColor',
     tꓺthemeᱼcolor = tꓺtheme + '-' + tꓺcolor,
@@ -491,8 +492,8 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺbaseURL]: h(tꓺbase, { [tꓺhref]: baseURL.toString() }),
                 [tꓺviewport]: h(tꓺmeta, { [tꓺname]: tꓺviewport, [tꓺcontent]: viewport }),
 
-                [tꓺhumans]: h(tꓺmeta, { [tꓺname]: tꓺhumans, [tꓺcontent]: humans }),
                 ...(robots ? { [tꓺrobots]: h(tꓺmeta, { [tꓺname]: tꓺrobots, [tꓺcontent]: robots }) } : {}),
+                [tꓺhumans]: h(tꓺlink, { [tꓺrel]: tꓺauthor, [tꓺtype]: tꓺtextⳇplain, [tꓺhref]: humans }),
                 [tꓺcanonical]: h(tꓺlink, { [tꓺrel]: tꓺcanonical, [tꓺhref]: canonical }),
 
                 [tꓺmanifest]: h(tꓺlink, { [tꓺrel]: tꓺmanifest, [tꓺhref]: manifest }),
