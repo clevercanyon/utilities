@@ -356,6 +356,7 @@ describe('$to', async () => {
             'founder.headline',
             'founder.description',
             'founder.url',
+            'founder.location',
             'founder.gravatar.url',
             'founder.gravatar.width',
             'founder.gravatar.height',

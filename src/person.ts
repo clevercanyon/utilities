@@ -176,7 +176,9 @@ const initializeRawProps = (): void => {
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {
+            [tꓺtwitter]: tꓺhttpsꓽⳇⳇtwitterംcomⳇ + tꓺbrucewrks,
             [tꓺlinkedin]: tꓺhttpsꓽⳇⳇwwwംlinkedinംcomⳇinⳇ + tꓺbrucewrks,
+            [tꓺfacebook]: tꓺhttpsꓽⳇⳇwwwംfacebookംcomⳇ + tꓺbrucewrks,
             [tꓺkeybase]: tꓺhttpsꓽⳇⳇkeybaseംioⳇ + tꓺbrucewrks,
             [tꓺgithub]: tꓺhttpsꓽⳇⳇgithubംcomⳇ + tꓺbrucewrks,
             [tꓺnpm]: tꓺhttpsꓽⳇⳇwwwംnpmjsംcomⳇ + tꓺbrucewrks,
