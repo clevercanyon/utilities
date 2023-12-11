@@ -48,7 +48,7 @@ export default function Turnstile(props: Props = {}): $preact.VNode<Props> {
             });
         }),
     );
-    const effect = $preact.useRef((selectors: string): (() => () => void) => {
+    const effect = $preact.useRef((elementOrSelectors: string | HTMLElement): (() => () => void) => {
         return (): (() => void) => {
             let ref: {
                 remove: $type.Turnstile['remove'];
@@ -58,7 +58,7 @@ export default function Turnstile(props: Props = {}): $preact.VNode<Props> {
                 void deploy().then(({ render, remove }): void => {
                     ref = {
                         remove,
-                        id: render(selectors, {
+                        id: render(elementOrSelectors, {
                             sitekey: siteKey(),
                             // @ts-ignore -- property ok.
                             'response-field-name': 'turnstile',
