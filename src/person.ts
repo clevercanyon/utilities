@@ -44,6 +44,8 @@ const tꓺavatar = 'avatar',
     tꓺkeybase = 'keybase',
     tꓺlastName = 'lastName',
     tꓺlinkedin = 'linkedin',
+    tꓺlocation = 'location',
+    tꓺNorthern𑂱Maine𑂱USA = 'Northern Maine, USA',
     tꓺnpm = 'npm',
     tꓺnpmjs = tꓺnpm + 'js',
     tꓺsocialProfiles = 'socialProfiles',
@@ -137,6 +139,8 @@ const initializeRawProps = (): void => {
 
         [tꓺheadline]: 'Engineering Manager, Consultant, Staff Engineer',
         [tꓺdescription]: 'Entrepreneur and full-stack engineer with 20+ years experience.',
+
+        [tꓺlocation]: tꓺNorthern𑂱Maine𑂱USA,
         [tꓺurl]: tꓺhttpsꓽⳇⳇ + tꓺjaswrks + tꓺംcom + '/',
 
         [tꓺgravatar]: {
@@ -163,6 +167,8 @@ const initializeRawProps = (): void => {
 
         [tꓺheadline]: 'Senior Fullstack Engineer, NodeJS, React, PHP, DevOps',
         [tꓺdescription]: 'Entrepreneur and full-stack engineer with 10+ years experience.',
+
+        [tꓺlocation]: tꓺNorthern𑂱Maine𑂱USA,
         [tꓺurl]: tꓺhttpsꓽⳇⳇgithubംcomⳇ + tꓺbrucewrks,
 
         [tꓺgravatar]: {

@@ -26,12 +26,15 @@ export type Class = $type.Utility & ClassInterface;
 declare class ClassInterface {
     public readonly firstName: string;
     public readonly lastName: string;
+
     public readonly name: string;
     public readonly username: string;
 
     public readonly headline: string;
     public readonly description: string;
+
     public readonly url: string;
+    public readonly location: string;
 
     public readonly gravatar: {
         readonly url: string;
@@ -90,6 +93,11 @@ export const getClass = (): Constructor => {
          * URL; e.g., `https://jaswrks.com/`.
          */
         public readonly url!: string;
+
+        /**
+         * Location; e.g., `Northern Maine, USA`.
+         */
+        public readonly location!: string;
 
         /**
          * Gravatar, with dimensions.
