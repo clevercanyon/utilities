@@ -67,6 +67,7 @@ const tꓺaddress = 'address',
     tꓺHop = 'Hop',
     tꓺHopംgdn = tꓺHop + tꓺംgdn,
     tꓺhostname = 'hostname',
+    tꓺhttpsꓽⳇⳇ = 'https://',
     tꓺicon = 'icon',
     tꓺംio = '.io',
     tꓺisDark = 'isDark',
@@ -119,15 +120,17 @@ const tꓺaddress = 'address',
     //
     tꓺclevercanyonംcom = tꓺclevercanyon + tꓺംcom,
     tꓺමclevercanyonംcom = '@' + tꓺclevercanyonംcom,
+    tꓺhttpsꓽⳇⳇclevercanyonംcom = tꓺhttpsꓽⳇⳇ + tꓺclevercanyonംcom,
+    tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ = tꓺhttpsꓽⳇⳇclevercanyonംcom + '/',
+    //
+    tꓺhopംgdn = tꓺhop + tꓺംgdn,
+    tꓺමhopംgdn = '@' + tꓺhopംgdn,
+    tꓺhttpsꓽⳇⳇhopംgdn = tꓺhttpsꓽⳇⳇ + tꓺhopംgdn,
+    tꓺhttpsꓽⳇⳇhopംgdnⳇ = tꓺhttpsꓽⳇⳇhopംgdn + '/',
     //
     tꓺමclevercanyon = '@' + tꓺclevercanyon,
     tꓺමclevercanyonⳇclevercanyonംcom = tꓺමclevercanyon + '/' + tꓺclevercanyonംcom,
-    tꓺමclevercanyonⳇhopംgdn = tꓺමclevercanyon + '/' + tꓺhop + tꓺംgdn,
-    //
-    tꓺhttpsꓽⳇⳇ = 'https://',
-    tꓺhttpsꓽⳇⳇclevercanyonംcom = tꓺhttpsꓽⳇⳇ + tꓺclevercanyonംcom,
-    tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ = tꓺhttpsꓽⳇⳇclevercanyonംcom + '/',
-    tꓺhttpsꓽⳇⳇhopംgdn = tꓺhttpsꓽⳇⳇ + tꓺhop + tꓺംgdn,
+    tꓺමclevercanyonⳇhopംgdn = tꓺමclevercanyon + '/' + tꓺhopംgdn,
     //
     tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrands = tꓺhttpsꓽⳇⳇ + 'cdn.' + tꓺclevercanyonംcom + '/' + tꓺassets + '/' + tꓺbrands,
     tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon = tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrands + '/' + tꓺclevercanyon,
@@ -329,8 +332,8 @@ const initializeRawProps = (): void => {
             [tꓺpkgName]: tꓺමclevercanyonⳇhopംgdn,
             [tꓺnamespace]: tꓺHop,
 
-            [tꓺhostname]: tꓺhop + tꓺംgdn,
-            [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdn + '/',
+            [tꓺhostname]: tꓺhopംgdn,
+            [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ,
 
             [tꓺslug]: tꓺhop,
             [tꓺvar]: tꓺhop,
@@ -365,6 +368,24 @@ const initializeRawProps = (): void => {
                 [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംsvg,
                 [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംpng,
                 ...tꓺobjꓺwidthHeight2400x1260,
+            },
+            [tꓺcontacts]: {
+                [tꓺadmin]: {
+                    [tꓺemail]: tꓺadmin + tꓺමhopംgdn,
+                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                },
+                [tꓺsecurity]: {
+                    [tꓺemail]: tꓺsecurity + tꓺමhopംgdn,
+                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                },
+                [tꓺprivacy]: {
+                    [tꓺemail]: tꓺprivacy + tꓺමhopംgdn,
+                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                },
+                [tꓺsupport]: {
+                    [tꓺemail]: tꓺsupport + tꓺමhopംgdn,
+                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                },
             },
         },
     }) as unknown as $type.BrandRawProps;
