@@ -251,14 +251,17 @@ describe('$to', async () => {
             'contacts.admin.email',
             'contacts.admin.url',
 
+            'contacts.info.email',
+            'contacts.info.url',
+
+            'contacts.support.email',
+            'contacts.support.url',
+
             'contacts.security.email',
             'contacts.security.url',
 
             'contacts.privacy.email',
             'contacts.privacy.url',
-
-            'contacts.support.email',
-            'contacts.support.url',
 
             'socialProfiles.twitter',
             'socialProfiles.linkedin',
@@ -420,14 +423,17 @@ describe('$to', async () => {
             'contacts.admin.email',
             'contacts.admin.url',
 
+            'contacts.info.email',
+            'contacts.info.url',
+
+            'contacts.support.email',
+            'contacts.support.url',
+
             'contacts.security.email',
             'contacts.security.url',
 
             'contacts.privacy.email',
             'contacts.privacy.url',
-
-            'contacts.support.email',
-            'contacts.support.url',
 
             'socialProfiles.twitter',
             'socialProfiles.linkedin',

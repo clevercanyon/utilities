@@ -101,15 +101,19 @@ declare class ClassInterface {
             readonly email: string;
             readonly url: string;
         };
+        readonly info: {
+            readonly email: string;
+            readonly url: string;
+        };
+        readonly support: {
+            readonly email: string;
+            readonly url: string;
+        };
         readonly security: {
             readonly email: string;
             readonly url: string;
         };
         readonly privacy: {
-            readonly email: string;
-            readonly url: string;
-        };
-        readonly support: {
             readonly email: string;
             readonly url: string;
         };
@@ -301,15 +305,19 @@ export const getClass = (): Constructor => {
                 readonly email: string;
                 readonly url: string;
             };
+            readonly info: {
+                readonly email: string;
+                readonly url: string;
+            };
+            readonly support: {
+                readonly email: string;
+                readonly url: string;
+            };
             readonly security: {
                 readonly email: string;
                 readonly url: string;
             };
             readonly privacy: {
-                readonly email: string;
-                readonly url: string;
-            };
-            readonly support: {
                 readonly email: string;
                 readonly url: string;
             };

@@ -90,6 +90,11 @@ export default /* not async compatible */ ({ themesConfig } = {}) => {
                     '1.5em': '1.5em',
                     '2em': '2em',
                 },
+                lineHeight: {
+                    '1em': '1em',
+                    '1.5em': '1.5em',
+                    '2em': '2em',
+                },
                 aspectRatio: {
                     'image': '40 / 21', // e.g., 1200 x 630 for OG image.
                 },
@@ -125,6 +130,10 @@ export default /* not async compatible */ ({ themesConfig } = {}) => {
                     '2/3': '66.667%',
                 },
                 fontSize: {
+                    '.5em': ['.5em', '.5em'],
+                    '.75em': ['.75em', '.75em'],
+                    '1em': ['1em', '1em'],
+
                     // Neither of these are allowed to autoscale.
                     // We don’t autoscale text that is small already.
                     xs: ['.75rem', { lineHeight: '1rem' }], // Equivalent to 12px/16px.

@@ -71,6 +71,7 @@ const tꓺaddress = 'address',
     tꓺhttpsꓽⳇⳇ = 'https://',
     tꓺicon = 'icon',
     tꓺംio = '.io',
+    tꓺinfo = 'info',
     tꓺisDark = 'isDark',
     tꓺkeybase = 'keybase',
     tꓺlegalName = 'legalName',
@@ -295,16 +296,20 @@ const initializeRawProps = (): void => {
                 [tꓺemail]: tꓺadmin + tꓺමclevercanyonംcom,
                 [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
             },
+            [tꓺinfo]: {
+                [tꓺemail]: tꓺinfo + tꓺමclevercanyonംcom,
+                [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
+            },
+            [tꓺsupport]: {
+                [tꓺemail]: tꓺsupport + tꓺමclevercanyonംcom,
+                [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
+            },
             [tꓺsecurity]: {
                 [tꓺemail]: tꓺsecurity + tꓺමclevercanyonംcom,
                 [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
             },
             [tꓺprivacy]: {
                 [tꓺemail]: tꓺprivacy + tꓺමclevercanyonംcom,
-                [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
-            },
-            [tꓺsupport]: {
-                [tꓺemail]: tꓺsupport + tꓺමclevercanyonംcom,
                 [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
             },
         },
@@ -377,16 +382,20 @@ const initializeRawProps = (): void => {
                     [tꓺemail]: tꓺadmin + tꓺමhopംgdn,
                     [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
                 },
+                [tꓺinfo]: {
+                    [tꓺemail]: tꓺinfo + tꓺමhopംgdn,
+                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                },
+                [tꓺsupport]: {
+                    [tꓺemail]: tꓺsupport + tꓺමhopംgdn,
+                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                },
                 [tꓺsecurity]: {
                     [tꓺemail]: tꓺsecurity + tꓺමhopംgdn,
                     [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
                 },
                 [tꓺprivacy]: {
                     [tꓺemail]: tꓺprivacy + tꓺමhopംgdn,
-                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
-                },
-                [tꓺsupport]: {
-                    [tꓺemail]: tꓺsupport + tꓺමhopംgdn,
                     [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
                 },
             },
