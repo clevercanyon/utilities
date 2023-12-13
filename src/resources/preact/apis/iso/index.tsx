@@ -42,9 +42,8 @@ export async function prerender(componentOrVNode: $preact.AnyComponent | $preact
         try {
             return $preact.ssr.renderToString(vNode);
         } catch (thrown) {
-            if ($is.promise(thrown)) {
-                return thrown.then(render);
-            } else throw thrown;
+            if ($is.promise(thrown)) return thrown.then(render);
+            throw thrown; // Otherwise, re-throw whatever problem there is.
         }
     };
     return { html: await render() };

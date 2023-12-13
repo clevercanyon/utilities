@@ -622,8 +622,8 @@ export const parse = <Options extends ParseOptions>(
     }
     try {
         return new URL(strURL, strBase || undefined);
-    } catch (error) {
-        if (opts.throwOnError) throw error;
+    } catch (thrown) {
+        if (opts.throwOnError) throw thrown;
     }
     return undefined as ReturnType<typeof parse<Options>>;
 };
