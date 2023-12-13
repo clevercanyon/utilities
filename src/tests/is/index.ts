@@ -454,16 +454,16 @@ describe('$is', async () => {
         expect($is.error([])).toBe(false);
         expect($is.error({})).toBe(false);
     });
-    test('.crypticError()', async () => {
-        expect($is.crypticError(Error('8bXGEZMF'))).toBe(true);
-        expect($is.crypticError(Error('n3H5bnVq'))).toBe(true);
-        expect($is.crypticError(Error('xxxxxxxx'))).toBe(true);
-        expect($is.crypticError(Error('00000000'))).toBe(true);
+    test('.errorCode()', async () => {
+        expect($is.errorCode(Error('8bXGEZMF'))).toBe(true);
+        expect($is.errorCode(Error('n3H5bnVq'))).toBe(true);
+        expect($is.errorCode(Error('xxxxxxxx'))).toBe(true);
+        expect($is.errorCode(Error('00000000'))).toBe(true);
 
-        expect($is.crypticError(Error('8bXGEZMFx'))).toBe(false);
-        expect($is.crypticError(Error('.bXGEZMF'))).toBe(false);
-        expect($is.crypticError(Error('x'))).toBe(false);
-        expect($is.crypticError(Error(''))).toBe(false);
+        expect($is.errorCode(Error('8bXGEZMFx'))).toBe(false);
+        expect($is.errorCode(Error('.bXGEZMF'))).toBe(false);
+        expect($is.errorCode(Error('x'))).toBe(false);
+        expect($is.errorCode(Error(''))).toBe(false);
     });
     test('.brand()', async () => {
         expect($is.brand($brand.get('&'))).toBe(true);

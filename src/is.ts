@@ -504,33 +504,34 @@ export const blob = (value: unknown): value is Blob => {
 };
 
 /**
- * Checks if value is a {@see Error}.
+ * Checks if value is an {@see Error}.
  *
  * @param   value Value to consider.
  *
- * @returns       True if value is a {@see Error}.
+ * @returns       True if value is an {@see Error}.
  */
 export const error = (value: unknown): value is $type.Error => {
     return value instanceof Error;
 };
 
 /**
- * Checks if value is a {@see Error} with a cryptic message.
+ * Checks if value is an {@see Error} containing a message that’s merely an error code.
  *
- * Cryptic errors contain a message that’s exactly 8 alphanumeric bytes in length; i.e., only an error code. A few
- * examples: `yYxSWAPg`, `56MMRj3J`, `xejqwBWR`, `Rqr8YpSW`, `t6Sg78Yr`, `fkDneern`. Cryptic errors are lighter and
- * safer. They don’t expose potentially sensitive information to an end-user. When they are used consistently throughout
- * a codebase, they contribute far fewer bytes to the overall size of a JavaScript bundle.
+ * Error codes are {@see Error} instances containing a message that’s exactly 8 alphanumeric bytes in length; i.e.,
+ * merely an error code. A few examples: `yYxSWAPg`, `56MMRj3J`, `xejqwBWR`, `Rqr8YpSW`, `t6Sg78Yr`, `fkDneern`. Using a
+ * message with only an error code is not always approriate, but error codes are generally lighter and safer. They don’t
+ * expose potentially sensitive information to an end-user. When they are used consistently throughout a codebase, the
+ * result is that errors contribute far fewer bytes to the overall size of a JavaScript bundle.
  *
  * Code example:
  *
- *     throw Error('yYxSWAPg');
+ *     throw Error('yYxSWAPg'); // Every error thrown should have a unique ID.
  *
  * @param   value Value to consider.
  *
- * @returns       True if value is a {@see Error} with a cryptic message.
+ * @returns       True if value is an {@see Error} containing a message that’s merely an error code.
  */
-export const crypticError = (value: unknown): value is $type.Error => {
+export const errorCode = (value: unknown): value is $type.Error => {
     return error(value) && /^[a-z0-9]{8}$/iu.test(value.message);
 };
 
