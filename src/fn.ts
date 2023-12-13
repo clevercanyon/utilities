@@ -112,7 +112,7 @@ function tryFn<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: Cat
             } catch (thrown) {
                 if (opts.throwOnError) throw thrown;
                 if (useCatchReturn) return catchReturn;
-                return $is.error(thrown) ? thrown : new Error('T5TGFUSp');
+                return $is.error(thrown) ? thrown : Error('T5TGFUSp');
             }
         } as TryFunction<Fn, CatchReturn | $type.Error>;
     } else {
@@ -122,7 +122,7 @@ function tryFn<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: Cat
             } catch (thrown) {
                 if (opts.throwOnError) throw thrown;
                 if (useCatchReturn) return catchReturn;
-                return $is.error(thrown) ? thrown : new Error('eKnHRRWW');
+                return $is.error(thrown) ? thrown : Error('eKnHRRWW');
             }
         } as TryFunction<Fn, CatchReturn | $type.Error>;
     }

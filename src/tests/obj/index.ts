@@ -66,7 +66,7 @@ describe('$obj', async () => {
         expect($obj.tag(undefined)).toBe('Undefined');
 
         expect($obj.tag(new Date())).toBe('Date');
-        expect($obj.tag(new Error())).toBe('Error');
+        expect($obj.tag(Error())).toBe('Error');
         expect($obj.tag($time.parse('now'))).toBe($app.$pkgName + '/Time');
 
         expect($obj.tag(testObj)).toBe('Object');
@@ -94,7 +94,7 @@ describe('$obj', async () => {
         expect($obj.tags(undefined)).toStrictEqual(['Undefined']);
 
         expect($obj.tags(new Date())).toStrictEqual(['Date', 'Object']);
-        expect($obj.tags(new Error())).toStrictEqual(['Error', 'Object']);
+        expect($obj.tags(Error())).toStrictEqual(['Error', 'Object']);
         expect($obj.tags($time.parse('now'))).toStrictEqual([$app.$pkgName + '/Time', 'Object']);
 
         expect($obj.tags(testObj)).toStrictEqual(['Object']);

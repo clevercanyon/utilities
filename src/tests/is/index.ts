@@ -448,8 +448,8 @@ describe('$is', async () => {
         expect($is.buffer({})).toBe(false);
     });
     test('.error()', async () => {
-        expect($is.error(new Error('x'))).toBe(true);
-        expect($is.error(new TypeError('x'))).toBe(true);
+        expect($is.error(Error('x'))).toBe(true);
+        expect($is.error(TypeError('x'))).toBe(true);
 
         expect($is.error([])).toBe(false);
         expect($is.error({})).toBe(false);
