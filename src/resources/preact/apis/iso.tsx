@@ -76,7 +76,7 @@ export const replaceNativeFetch = (): Fetcher => {
  * @requiredEnv ssr -- This utility must only be used server-side.
  */
 export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPromise => {
-    if (!$env.isSSR()) throw $env.errSSROnly;
+    if (!$env.isSSR()) throw new Error('kTqymmPe');
 
     // Extracts options into local variables.
     const { request, appManifest, App, props = {} } = options;
@@ -144,7 +144,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
  * @requiredEnv web -- This utility must only be used client-side.
  */
 export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void => {
-    if (!$env.isWeb()) throw $env.errWebOnly;
+    if (!$env.isWeb()) throw new Error('N4WUN2gk');
 
     const appSelectors = 'body > x-preact-app';
     let appToHydrate, appToRender; // Queried below.

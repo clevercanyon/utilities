@@ -30,6 +30,8 @@ describe('$url', async () => {
             $url.appBasePath.flush(),
             $url.fromAppBase.flush(),
             $url.pathFromAppBase.flush(),
+            $url.addAppBasePath.flush(),
+            $url.removeAppBasePath.flush(),
             $app.adaptBrand.flush(),
             $app.brandProps.flush(),
             $app.brand.flush();

@@ -67,7 +67,7 @@ type StandAloneProps = $preact.CleanProps<{
  * @requiredEnv ssr -- This component must only be used server-side.
  */
 export const StandAlone = (props: StandAloneProps = {}): $preact.VNode<StandAloneProps> => {
-    if (!$env.isSSR()) throw $env.errSSROnly;
+    if (!$env.isSSR()) throw new Error('a7uu3pZV');
     return (
         <html class={$preact.classes(props)} lang='en-US' dir='ltr'>
             <head>

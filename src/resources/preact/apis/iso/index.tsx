@@ -24,7 +24,7 @@ export type PrerenderResult = { html: string };
  * @note This utility must only be used server-side.
  */
 export async function prerender(componentOrVNode: $preact.AnyComponent | $preact.VNode, options?: PrerenderOptions): Promise<PrerenderResult> {
-    if (!$env.isSSR()) throw $env.errSSROnly;
+    if (!$env.isSSR()) throw new Error('auyKXPAm');
 
     let vNode: $preact.VNode; // Initializes vNode.
     let currentDepth = 0; // Initializes current depth.

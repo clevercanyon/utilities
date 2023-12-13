@@ -56,12 +56,6 @@ export type QVTests = { [x: string]: null | undefined | boolean | RegExp | RegEx
 export type TestOptions = { alsoTryCookie?: boolean };
 
 /**
- * Exports frequently-used errors.
- */
-export const errWebOnly = new Error('Web only.');
-export const errSSROnly = new Error('SSR only.');
-
-/**
  * Checks if an object path is top-level.
  *
  * @param   obp Object path to check.
@@ -138,13 +132,13 @@ export const setTopLevelObp = (rootObp: string): void => {
 /**
  * Captures environment variables.
  *
- * - Order of capture matters.
- * - Existing values are not overwritten.
+ * Order of capture matters. Existing values are not overwritten.
  *
  * @param rootObp A root object path in which to place captured environment variables; e.g., `@top`.
- * @param env     Environment variables, by object subpath.
  *
  *   - Root object path is sanitized using {@see $str.obpPartSafe()} automatically.
+ *   - //
+ * @param env     Environment variables, by object subpath.
  */
 export const capture = (rootObp: string, env: object): void => {
     if (!varsInitialized) initializeVars();
@@ -186,7 +180,7 @@ const initializeVars = (): void => {
 
     // `clevercanyon/utilities` app-specific environment variables compiled by Vite.
     // Note: This is for `clevercanyon/utilities`, explicity. Apps must capture their own.
-    capture($app.$pkgName, import.meta.env); // Sourced by dotenv files.
+    capture($app.$pkgName, { APP_PKG_NAME: $app.$pkgName, ...import.meta.env });
 };
 
 /**
