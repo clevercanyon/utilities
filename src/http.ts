@@ -928,6 +928,9 @@ export const responseStatusCodes = (): { [x: string]: string } => {
  * @returns Object with header names as props.
  */
 export const defaultSecurityHeaders = (): { [x: string]: string } => {
+    const stripe = '"https://js.stripe.com"';
+    const googlePay = '"https://pay.google.com"';
+    const youtube = '"https://youtube-nocookie.com" "https://*.youtube-nocookie.com"';
     return {
         'x-frame-options': 'SAMEORIGIN',
         'x-content-type-options': 'nosniff',
@@ -955,10 +958,11 @@ export const defaultSecurityHeaders = (): { [x: string]: string } => {
         // Regarding the `unload()` permission, it impacts back/forward cache.
         // {@see https://web.dev/articles/bfcache} for further details from Google.
         'permissions-policy':
-            'accelerometer=(self), autoplay=(self), camera=(self), clipboard-read=(self), clipboard-write=(self), cross-origin-isolated=(self), display-capture=(self),' +
-            ' encrypted-media=(self), fullscreen=(self), gamepad=(self), geolocation=(self), gyroscope=(self), hid=(self), idle-detection=(self), interest-cohort=(self),' +
-            ' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), payment=(self "https://js.stripe.com" "https://pay.google.com"), picture-in-picture=(self),' +
+            'accelerometer=(self ' + youtube + '), autoplay=(self ' + youtube + '), camera=(self), clipboard-read=(self), clipboard-write=(self ' + youtube + '), cross-origin-isolated=(self), display-capture=(self),' +
+            ' encrypted-media=(self ' + youtube + '), fullscreen=(self ' + youtube + '), gamepad=(self), geolocation=(self), gyroscope=(self ' + youtube + '), hid=(self), idle-detection=(self), interest-cohort=(self),' +
+            ' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), payment=(self ' + stripe + ' ' + googlePay + '), picture-in-picture=(self ' + youtube + '),' +
             ' publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), sync-xhr=(self), unload=(self), usb=(self), window-management=(self), xr-spatial-tracking=(self)',
+        // prettier-ignore
     };
 };
 
