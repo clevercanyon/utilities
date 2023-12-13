@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import * as $standalone from '#@standalone/index.ts';
-import { $app, $env, $obj, $preact, type $type } from '#index.ts';
+import { $app, $env, $error, $obj, $preact, type $type } from '#index.ts';
 
 let structuredCloneableObjectTags: string[];
 const numericIntegerRegExp = /^(?:0|-?[1-9][0-9]*)$/u;
@@ -515,7 +515,7 @@ export const error = (value: unknown): value is $type.Error => {
 };
 
 /**
- * Checks if value is an {@see Error} containing a message that’s merely an error code.
+ * Checks if value is an {@see Error} code.
  *
  * Error codes are {@see Error} instances containing a message that’s exactly 8 alphanumeric bytes in length; i.e.,
  * merely an error code. A few examples: `yYxSWAPg`, `56MMRj3J`, `xejqwBWR`, `Rqr8YpSW`, `t6Sg78Yr`, `fkDneern`. Using a
@@ -523,16 +523,19 @@ export const error = (value: unknown): value is $type.Error => {
  * expose potentially sensitive information to an end-user. When they are used consistently throughout a codebase, the
  * result is that errors contribute far fewer bytes to the overall size of a JavaScript bundle.
  *
- * Code example:
+ * Code examples:
  *
- *     throw Error('yYxSWAPg'); // Every error thrown should have a unique ID.
+ *     throw Error('yYxSWAPg'); // Must be a unique ID.
+ *     throw Error('XZfhG2rc'); // Must be a unique ID.
  *
  * @param   value Value to consider.
  *
- * @returns       True if value is an {@see Error} containing a message that’s merely an error code.
+ * @returns       True if value is an {@see Error} code.
+ *
+ * @see $error.codeRegExp()
  */
 export const errorCode = (value: unknown): value is $type.Error => {
-    return error(value) && /^[a-z0-9]{8}$/iu.test(value.message);
+    return error(value) && $error.codeRegExp().test(value.message);
 };
 
 /**
