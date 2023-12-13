@@ -12,6 +12,7 @@ export * as $cookie from '#cookie.ts';
 export * as $crypto from '#crypto.ts';
 export * as $dom from '#dom.ts';
 export * as $env from '#env.ts';
+export * as $error from '#error.ts';
 export * as $fn from '#fn.ts';
 export * as $http from '#http.ts';
 export * as $is from '#is.ts';
