@@ -193,8 +193,9 @@ type $AsyncFunction<Type extends $AsyncFn = $AsyncFn> = (...args: Parameters<Typ
  * Having given fair warning, the safest conversions are into: `boolean`, `string`, `array`, or `object` types, as these
  * won’t throw errors. Anything can be converted into these types. Please review the list of URLs below to learn more.
  *
- * When converting to `string`, beware of the potential for a resulting string literal value; e.g., `null`, `undefined`,
- * `true`, `false`. These can pop up in crazy places if you aren’t careful about what data types you coerce.
+ * When converting to `string` {@see $to.string()} is used, such that `null`, `undefined` get converted into an empty
+ * string instead of into `'null'`, `'undefined'`. It does not, however, handle `true` or `false`. Thus, if booleans are
+ * converted into a string the conversion will occur as per usual in JavaScript; e.g., `'true'`, `'false'`.
  *
  * Casting as a `number` is also relatively safe, but will throw if attempting to convert from a `bigint` or `symbol`
  * into a `number`. Additionally, converting to a `number` can result in `NaN` values, depending on the input value.
@@ -244,10 +245,10 @@ export const ensure = <Type extends EnsurableType>(value: unknown, type: Type): 
         }
 
         case 'string': {
-            return String(value) as EnsuredType<Type>;
+            return $to.string(value) as EnsuredType<Type>;
         }
         case 'string[]': {
-            return $to.array(value).map(String) as EnsuredType<Type>;
+            return $to.array(value).map($to.string) as EnsuredType<Type>;
         }
 
         case 'object': {
@@ -275,7 +276,7 @@ export const ensure = <Type extends EnsurableType>(value: unknown, type: Type): 
             return value as EnsuredType<Type>; // Explicitly.
         }
         default: {
-            throw new Error(); // Unknown type: `' + type + '`.
+            throw new Error('Y8PGpTWn'); // Unknown type: `' + type + '`.
         }
     }
 };

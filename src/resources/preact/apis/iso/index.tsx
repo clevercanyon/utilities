@@ -37,7 +37,7 @@ export async function prerender(componentOrVNode: $preact.AnyComponent | $preact
     }
     const render = (): Promise<string> | string => {
         if (++currentDepth > opts.maxDepth) {
-            throw new Error(); // Max prerender depth: `' + String(opts.maxDepth) + '`.
+            throw new Error('weXCR2Sn'); // Max prerender depth: `' + String(opts.maxDepth) + '`.
         }
         try {
             return $preact.ssr.renderToString(vNode);

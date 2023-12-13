@@ -3,7 +3,7 @@
  */
 
 import { prerender } from '#@preact/apis/iso/index.tsx';
-import { $app, $class, $dom, $env, $is, $obj, $obp, $path, $preact, $str, $url, type $type } from '#index.ts';
+import { $app, $class, $dom, $env, $is, $obj, $obp, $path, $preact, $str, type $type } from '#index.ts';
 import { defaultGlobalObp, type GlobalState } from '#preact/components/data.tsx';
 import { type Props as RootProps } from '#preact/components/root.tsx';
 import { Route, default as Router, type RoutedProps, type Props as RouterProps } from '#preact/components/router.tsx';
@@ -61,7 +61,7 @@ let fetcher: Fetcher | undefined;
 export const replaceNativeFetch = (): Fetcher => {
     if (!fetcher) {
         const Fetcher = $class.getFetcher();
-        fetcher = new Fetcher({ globalObp: $str.obpPartSafe($app.pkgName) + '.preactISOFetcher' });
+        fetcher = new Fetcher({ globalObp: $str.obpPartSafe($app.$pkgName) + '.preactISOFetcher' });
     }
     return fetcher.replaceNativeFetch();
 };
@@ -82,7 +82,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
     const { request, appManifest, App, props = {} } = options;
 
     const url = props.url || request.url;
-    const baseURL = props.baseURL || $url.appBase();
+    const baseURL = props.baseURL || $app.baseURL();
 
     const globalObp = props.globalObp || defaultGlobalObp();
     const fetcher = props.fetcher || replaceNativeFetch();
@@ -98,8 +98,8 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
             break; // We can stop here.
         }
     } // Now let’s confirm we found the bundle files.
-    if (!styleBundleSubpath) throw new Error(); // Missing `appManifest[index.html].css[0]`.
-    if (!scriptBundleSubpath) throw new Error(); // Missing `appManifest[index.html].file`.
+    if (!styleBundleSubpath) throw new Error('GHj26RSc'); // Missing `appManifest[index.html].css[0]`.
+    if (!scriptBundleSubpath) throw new Error('hNnwQfBr'); // Missing `appManifest[index.html].file`.
 
     const styleBundle = './' + styleBundleSubpath;
     const scriptBundle = './' + scriptBundleSubpath;
@@ -110,7 +110,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
 
         // `<Location>` props.
         url, // Absolute URL extracted from request.
-        baseURL, // Base URL from app environment vars.
+        baseURL, // Base URL from; e.g., {@see $app.baseURL()}.
 
         // `<Data>` props.
         globalObp, // Global object path.
@@ -159,7 +159,7 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
     } else if ((appToRender = $dom.query(appSelectors))) {
         $preact.render(<App {...{ ...props, isHydration: false }} />, appToRender);
     } else {
-        throw new Error(); // Missing <x-preact-app>.
+        throw new Error('NxgH8pMc'); // Missing <x-preact-app>.
     }
 
     /**

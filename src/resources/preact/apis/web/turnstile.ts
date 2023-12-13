@@ -105,9 +105,13 @@ export const deploy = async (): Promise<$type.Turnstile> => {
  * @returns Turnstile site key.
  */
 export const siteKey = (): string => {
+    let key: string; // Initialize.
+
     if ($env.isLocal()) {
-        return '1x00000000000000000000BB'; // Site test key; invisible captcha.
+        return '1x00000000000000000000BB'; // Invisible test key.
     }
-    // Default site key is our own; i.e., for Clever Canyon. It produces an invisible captcha.
-    return $env.get('APP_TURNSTILE_SITE_KEY', { type: 'string', default: '0x4AAAAAAANUNOXO3QO69yGk' });
+    if (!(key = $env.get('APP_TURNSTILE_SITE_KEY', { type: 'string' }))) {
+        throw new Error('z3ZZ6KtJ'); // Missing turnstile site key.
+    }
+    return key;
 };

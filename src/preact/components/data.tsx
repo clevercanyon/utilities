@@ -281,7 +281,7 @@ export const namedPropKeys = () => ['globalObp', 'fetcher', 'head'];
  * This is also called upon by our ISO prerenderer.
  */
 export const defaultGlobalObp = (): string => {
-    return $str.obpPartSafe($app.pkgName) + '.preactISOData';
+    return $str.obpPartSafe($app.$pkgName) + '.preactISOData';
 };
 
 /**

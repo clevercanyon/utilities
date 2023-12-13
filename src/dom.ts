@@ -216,7 +216,7 @@ export function on(...args: unknown[]): $type.DOMEventTools {
     } else actualCallback = (event: Event): void => void callback.call(event.target, event);
 
     for (const eventName of eventNames) {
-        if (!eventName) throw new Error(); // Missing event name.
+        if (!eventName) throw new Error('KvYQ3ufQ'); // Missing event name.
         target.addEventListener(eventName, actualCallback, options);
         cancelers.push((): void => target.removeEventListener(eventName, actualCallback, options));
     }
@@ -391,7 +391,7 @@ export const setAtts = (element: Element, atts: $type.DOMAtts): void => {
     // Iterates all new attribute names/values.
     for (let [name, newValue] of Object.entries(atts)) {
         if (['innerText', 'children'].includes(name)) {
-            if (!$is.primitive(newValue)) throw new Error();
+            if (!$is.primitive(newValue)) throw new Error('UTVWT5J9');
             const newStrValue = $to.string(newValue);
 
             if (elementObj.innerText !== newStrValue) {
@@ -405,7 +405,7 @@ export const setAtts = (element: Element, atts: $type.DOMAtts): void => {
                 elementObj.innerHTML = newStrValue;
             }
         } else if ($is.function(newValue)) {
-            if (!name.startsWith('on')) throw new Error();
+            if (!name.startsWith('on')) throw new Error('Nsq5Mqr4');
             if (elementObj[name] !== newValue) elementObj[name] = newValue;
             //
         } else {
@@ -524,7 +524,7 @@ export function require<Type extends Element = Element, Selectors extends string
     } else rtnValue = document.querySelector(selectors);
 
     if (!rtnValue /* Cannot be an empty node list, either. */) {
-        throw new Error(); // DOM query failed on: `' + $to.array(selectors).join(', ') + '`.
+        throw new Error('2BQgcWpj'); // DOM query failed on: `' + $to.array(selectors).join(', ') + '`.
     }
     return rtnValue as RtnType;
 }

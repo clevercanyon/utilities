@@ -41,6 +41,7 @@ export type ThrottledFunction<Fn extends $type.Function> = {
     flush: () => void;
     cancel: (reason?: unknown) => void;
 };
+export type OnceFunction<Fn extends $type.Function> = $fnꓺMemoizedFunction<Fn>;
 
 /**
  * No-op function.
@@ -57,15 +58,33 @@ export const noOp = $standalone.$fnꓺnoOp; // From standalone library.
  *
  * If you’re calling this from outside of `clevercanyon/utilities`, please ignore the following warning.
  *
- * - **WARNING**: Please do _not_ use this particular copy from within the `clevercanyon/utilities` package. Instead, use
- *   the standalone source of this utility in order to avoid problems with circular dependencies.
+ * - **WARNING**: Please do _not_ use this particular copy when writing code _within_ the `clevercanyon/utilities` package
+ *   itself. Instead, use the standalone source of this utility in order to avoid problems with circular dependencies.
  *
  * @param   args Variadic args; {@see $standalone.$fnꓺmemo} for details.
  *
- * @returns      Memoized function. {@see MemoizedFunction}.
+ * @returns      Memoized function; {@see MemoizedFunction}.
  */
 /*@__NO_SIDE_EFFECTS__*/
 export const memo = $standalone.$fnꓺmemo; // From standalone library.
+
+/**
+ * Creates a function that can fire multiple times, but only run once.
+ *
+ * This has to be clearly marked as not having side-effects, because we often use it to produce exports. If those
+ * exports are not used, we don’t want memoization of those exports to cause them not to be tree-shaken.
+ *
+ * If you’re calling this from outside of `clevercanyon/utilities`, please ignore the following warning.
+ *
+ * - **WARNING**: Please do _not_ use this particular copy when writing code _within_ the `clevercanyon/utilities` package
+ *   itself. Instead, use the standalone source of this utility in order to avoid problems with circular dependencies.
+ *
+ * @param   fn Sync or async function to memoize; i.e., run once; {@see $standalone.$fnꓺonce} for details.
+ *
+ * @returns    Memoized sync or async function that runs once; {@see MemoizedFunction}.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+export const once = $standalone.$fnꓺonce;
 
 /**
  * Tries to invoke a sync or async function.
@@ -138,7 +157,7 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
  * @param   fn      Sync or async function to throttle.
  * @param   options Options (all optional); {@see ThrottleOptions}.
  *
- *   - Default is: `{ leadingEdge: true, waitTime: 250, trailingEdge: true }`
+ *   - Default is: `{ leadingEdge: true, waitTime: 250, trailingEdge: true }`.
  *   - `_debounceMode` is for internal use only. Do not pass. Instead, {@see debounce()}.
  *
  * @returns         Throttled sync or async function.
@@ -216,7 +235,7 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
  * @param   fn      Sync or async function to debounce.
  * @param   options Options (all optional); {@see DebounceOptions}.
  *
- *   - Default is: `{ leadingEdge: true, waitTime: 250, trailingEdge: true }`
+ *   - Default is: `{ leadingEdge: true, waitTime: 250, trailingEdge: true }`.
  *
  * @returns         Debounced sync or async function.
  */

@@ -9,7 +9,7 @@ import microMemoizeWithBrokenTypes from 'micro-memoize';
 /**
  * Exports app package name.
  */
-export const $appꓺpkgName = $$__APP_PKG_NAME__$$;
+export const $appꓺ$pkgName = $$__APP_PKG_NAME__$$;
 
 /**
  * Exports symbols; {@see $symbols}.
@@ -497,10 +497,10 @@ export type $fnꓺMemoizedFunction<Fn extends MicroMemoize.AnyFn> = MicroMemoize
 /**
  * Exports memoize utility function.
  *
- * This has to be clearly marked as not having side-effects, because we often use it to produce exports. If those
- * exports are not used, we don’t want memoization of those exports to cause them not to be tree-shaken.
+ * This has to be clearly marked as not having side-effects because we often use it to produce exports. If those exports
+ * are not used, we don’t want memoization of those exports to cause them not to be tree-shaken.
  *
- * @param   ...args {@see $fnꓺmemo()} signatures.
+ * @param   ...args {@see $fnꓺMemoizable} {@see $fnꓺmemo()} signatures.
  *
  * @returns         Memoized function; {@see $fnꓺMemoizedFn}.
  *
@@ -568,4 +568,19 @@ const $fnꓺmemoꓺflushꓺhelper = function <Fn extends $fnꓺMemoizable>(this:
 const $fnꓺmemoꓺfreshꓺhelper = function <Fn extends $fnꓺMemoizable>(this: $fnꓺMemoizedFunction<Fn>): $fnꓺMemoizedFunction<Fn> {
     this.flush(); // Automatically flushes the cache.
     return this; // e.g., `foo.fresh(a, b, c)`.
+};
+
+/**
+ * Creates a function that can fire multiple times, but only run once.
+ *
+ * This has to be clearly marked as not having side-effects because we often use it to produce exports. If those exports
+ * are not used, we don’t want memoization of those exports to cause them not to be tree-shaken.
+ *
+ * @param   fn Sync or async function to memoize; i.e., run once; {@see $fnꓺMemoizable}.
+ *
+ * @returns    Memoized sync or async function that runs once; {@see $fnꓺMemoizedFn}.
+ */
+/*@__NO_SIDE_EFFECTS__*/
+export const $fnꓺonce = <Fn extends $fnꓺMemoizable>(fn: Fn): $fnꓺMemoizedFunction<Fn> => {
+    return $fnꓺmemo({ maxSize: 1, isMatchingKey: (): boolean => true }, fn);
 };

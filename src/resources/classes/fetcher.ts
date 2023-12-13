@@ -83,7 +83,7 @@ export const getClass = (): Constructor => {
             props = props || {}; // Force object value.
             const isClone = props instanceof Fetcher;
 
-            this.globalObp = props.globalObp || $str.obpPartSafe($app.pkgName) + '.fetcher';
+            this.globalObp = props.globalObp || $str.obpPartSafe($app.$pkgName) + '.fetcher';
             this.global = $obp.get(globalThis, this.globalObp, {}) as Global; // Default is `{}`.
 
             this.global.cache = this.global.cache || {};

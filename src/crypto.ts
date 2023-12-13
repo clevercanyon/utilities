@@ -269,7 +269,7 @@ export const randomString = (byteLength: number = 32, options?: RandomStringOpti
         }
     }
     if (byteDictionary.length <= 1) {
-        throw new Error(); // Byte dictionary length is `<= 1`.
+        throw new Error('JqrKKDY2'); // Byte dictionary length is `<= 1`.
     }
     for (let i = 0; i < byteLength; i++) {
         str += byteDictionary.at(randomNumber(0, byteDictionary.length - 1));

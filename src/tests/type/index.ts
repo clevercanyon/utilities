@@ -59,6 +59,11 @@ describe('$type', async () => {
         expect($type.ensure('foo', 'string')).toBe('foo');
         expect($type.ensure('foo', 'string[]')).toStrictEqual(['foo']);
 
+        expect($type.ensure(null, 'string')).toBe('');
+        expect($type.ensure(undefined, 'string')).toBe('');
+        expect($type.ensure(true, 'string')).toBe('true');
+        expect($type.ensure(false, 'string')).toBe('false');
+
         expect($type.ensure('foo', 'object')).toStrictEqual(new String('foo'));
         expect($type.ensure('foo', 'object[]')).toStrictEqual([new String('foo')]);
 

@@ -67,7 +67,7 @@ describe('$obj', async () => {
 
         expect($obj.tag(new Date())).toBe('Date');
         expect($obj.tag(new Error())).toBe('Error');
-        expect($obj.tag($time.parse('now'))).toBe($app.pkgName + '/Time');
+        expect($obj.tag($time.parse('now'))).toBe($app.$pkgName + '/Time');
 
         expect($obj.tag(testObj)).toBe('Object');
         expect($obj.tag(testCustomObj)).toBe('Object:Custom');
@@ -95,7 +95,7 @@ describe('$obj', async () => {
 
         expect($obj.tags(new Date())).toStrictEqual(['Date', 'Object']);
         expect($obj.tags(new Error())).toStrictEqual(['Error', 'Object']);
-        expect($obj.tags($time.parse('now'))).toStrictEqual([$app.pkgName + '/Time', 'Object']);
+        expect($obj.tags($time.parse('now'))).toStrictEqual([$app.$pkgName + '/Time', 'Object']);
 
         expect($obj.tags(testObj)).toStrictEqual(['Object']);
         expect($obj.tags(testCustomObj)).toStrictEqual(['Object:Custom', 'Object']);
@@ -402,9 +402,9 @@ describe('$obj', async () => {
     });
     test('.mcCustom()', async () => {
         expect($obj.tags($obj.mcCustom())).toStrictEqual([
-            $app.pkgName + '/ObjMC', //
-            $app.pkgName + '/Utility',
-            $app.pkgName + '/Base',
+            $app.$pkgName + '/ObjMC', //
+            $app.$pkgName + '/Utility',
+            $app.$pkgName + '/Base',
             'Object',
         ]);
     });

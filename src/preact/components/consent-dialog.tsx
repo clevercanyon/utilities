@@ -9,7 +9,7 @@
 
 import '#@initialize.ts';
 
-import { $dom, $env, $is, $obj, $preact, $time, type $type } from '#index.ts';
+import { $app, $dom, $is, $obj, $preact, $time, type $type } from '#index.ts';
 import { default as As } from '#preact/components/as.tsx';
 
 // Various icons needed for consent dialog interface.
@@ -48,17 +48,17 @@ export type UpdateEvent = CustomEvent<{ data: Data }>;
 export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Props> {
     // Acquires consent, brand, state.
 
-    const consent = $preact.useConsent();
-    const brand = $env.get('APP_BRAND') as $type.Brand;
-    const [state, updateState] = $preact.useReducedState((): State => {
-        return $preact.initialState({
-            isInitial: true,
-            open: false,
-            closing: false,
-            data: cookieData(),
-        });
-    });
-    const { prefs } = state.data;
+    const brand = $app.brand(),
+        consent = $preact.useConsent(),
+        [state, updateState] = $preact.useReducedState((): State => {
+            return $preact.initialState({
+                isInitial: true,
+                open: false,
+                closing: false,
+                data: cookieData(),
+            });
+        }),
+        { prefs } = state.data;
 
     // Holds a reference to current state.
 
@@ -87,9 +87,9 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
 
     // Defines prefixes for HTML IDs.
 
-    const htmlIdPrefix = 'consent-dialog-';
-    const htmlIdPrefixForOptInPrefs = htmlIdPrefix + 'prefs-opt-in-';
-    const htmlIdPrefixForOptOutPrefs = htmlIdPrefix + 'prefs-opt-out-';
+    const htmlIdPrefix = 'consent-dialog-',
+        htmlIdPrefixForOptInPrefs = htmlIdPrefix + 'prefs-opt-in-',
+        htmlIdPrefixForOptOutPrefs = htmlIdPrefix + 'prefs-opt-out-';
 
     // Opens dialog w/ optional preconfigured data.
 
@@ -179,13 +179,13 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
 
     // Defines various event handlers.
 
-    const onSave = $preact.useCallback((): void => updatePrefs(queryPrefs()), []);
-    const onAcceptAll = $preact.useCallback((): void => updatePrefs(allPrefsAs(true)), []);
-    const onDeclineAll = $preact.useCallback((): void => updatePrefs(allPrefsAs(false)), []);
-    const onClose = $preact.useCallback((): void => updatePrefs(prefsPriorToOpen.current), []);
+    const onSave = $preact.useCallback((): void => updatePrefs(queryPrefs()), []),
+        onAcceptAll = $preact.useCallback((): void => updatePrefs(allPrefsAs(true)), []),
+        onDeclineAll = $preact.useCallback((): void => updatePrefs(allPrefsAs(false)), []),
+        onClose = $preact.useCallback((): void => updatePrefs(prefsPriorToOpen.current), []);
 
-    const onCheckboxChange = $preact.useCallback((): void => updateState({ data: { prefs: queryPrefs() } }), []);
-    const onInadvertentSubmit = $preact.useCallback((event: Event): void => event.preventDefault(), []);
+    const onCheckboxChange = $preact.useCallback((): void => updateState({ data: { prefs: queryPrefs() } }), []),
+        onInadvertentSubmit = $preact.useCallback((event: Event): void => event.preventDefault(), []);
 
     const onOpenDialog = $preact.useCallback((event: OpenDialogEvent): void => openDialog(event.detail.data), []);
     $preact.useEffect((): (() => void) => $dom.on(document, 'x:consent:openDialog', onOpenDialog).cancel, []);

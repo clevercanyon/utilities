@@ -25,7 +25,7 @@ const rawProps: { [x: string]: $type.BrandRawProps } = {};
  * Defines types.
  */
 export type AddAppOptions = {
-    pkgName: string;
+    pkgName?: string;
     baseURL?: string;
     props?: Partial<$type.BrandRawProps>;
 };
@@ -161,7 +161,7 @@ export const add = (pkgName: string, props: $type.BrandRawProps): $type.Brand =>
     if (!rawPropsInitialized) initializeRawProps();
 
     if (Object.hasOwn(rawProps, pkgName)) {
-        throw new Error(); // Brand `' + pkgName + '` exists already.
+        throw new Error('rcqcXjar'); // Brand `' + pkgName + '` exists already.
     }
     rawProps[pkgName] = props;
 
@@ -195,7 +195,7 @@ export const get = (pkgName: string): $type.Brand => {
     // `&` is a self-referential Clever Canyon brand alias.
 
     if (!pkgName || !rawProps[pkgName]) {
-        throw new Error(); // Missing brand: `' + pkgName + '`.
+        throw new Error('NC4Pnsxq'); // Missing brand: `' + pkgName + '`.
     }
     if (instances[pkgName]) {
         return instances[pkgName];
@@ -414,13 +414,25 @@ const initializeRawProps = (): void => {
  * @param   options Required; {@see AddAppOptions}.
  *
  * @returns         Brand instance {@see $type.Brand}.
+ *
+ * @review Consider supporting some form of dynamics wrt to base URL used in `props`.
  */
-export const addApp = (options: AddAppOptions): $type.Brand => {
+export const addApp = (options?: AddAppOptions): $type.Brand => {
     /**
-     * Acquires pkgName, baseURL, props, org.
+     * Parses options.
      */
-    const { pkgName, baseURL: _baseURL = '', props = {} } = options,
-        baseURL = $url.parse(_baseURL || $url.appBase()),
+    const opts = $obj.defaults({}, options || {}, {
+        pkgName: '', // Default below is {@see $app.pkgName()}.
+        baseURL: '', // Default below is {@see $app.baseURL()}.
+        props: undefined, // i.e., Any other raw brand props.
+    }) as Required<AddAppOptions>;
+
+    /**
+     * Defines critical variables.
+     */
+    const pkgName = opts.pkgName || $app.pkgName(),
+        baseURL = $url.parse(opts.baseURL || $app.baseURL()),
+        props = opts.props || $app.brandProps(),
         org = get(props.org || '@clevercanyon/hop.gdn');
 
     /**

@@ -23,7 +23,7 @@ import { default as HTML } from '#preact/components/html.tsx';
  */
 export default function Route404(): $preact.VNode {
     if ($is.empty($preact.useRoute())) {
-        throw new Error(); // Must only be used as a route.
+        throw new Error('cXCwBZ54'); // Must only be used as a route.
     }
     if ($env.isSSR()) {
         const { updateState: updateHTTPState } = $preact.useHTTP();

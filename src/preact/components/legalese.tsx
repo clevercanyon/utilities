@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $env, $preact, type $type } from '#index.ts';
+import { $app, $preact } from '#index.ts';
 import Fa6SolidArrowUpRightFromSquare from '~icons/fa6-solid/arrow-up-right-from-square';
 
 /**
@@ -42,57 +42,58 @@ const tꓺrel = 'rel',
  * @returns       VNode / JSX element tree.
  */
 export default function Legalese(/* props: Props */): $preact.VNode<Props> {
-    const consent = $preact.useConsent();
-    const { state: layoutState } = $preact.useLayout();
-    const brand = $env.get('APP_BRAND') as $type.Brand;
+    const brand = $app.brand(),
+        consent = $preact.useConsent(),
+        { state: layoutState } = $preact.useLayout();
 
-    const { policies } = brand;
-    const { terms, privacy } = policies;
-    // Selects brand logo image based on layout context; i.e., on dark or light bg.
-    const brandLogoKey = ('on' + (layoutState?.themeIsDark ? 'Dark' : 'Light') + 'Bg') as 'onDarkBg' | 'onLightBg';
+    const { policies } = brand,
+        { terms, privacy } = policies,
+        // Selects brand logo image based on layout context; i.e., on dark or light bg.
+        brandLogoKey = ('on' + (layoutState?.themeIsDark ? 'Dark' : 'Light') + 'Bg') as 'onDarkBg' | 'onLightBg';
 
-    const { org: brandOrg } = brand;
-    const { legalName: brandOrgLegalName } = brandOrg;
-    const brandOrgLogoSVG = brandOrg.logo[brandLogoKey].svg;
+    const { org: brandOrg } = brand,
+        { legalName: brandOrgLegalName } = brandOrg,
+        brandOrgLogoSVG = brandOrg.logo[brandLogoKey].svg;
 
-    const { org: brandOrgOrg } = brandOrg;
-    const { legalName: brandOrgOrgLegalName } = brandOrgOrg;
-    const brandOrgOrgLogoSVG = brandOrgOrg.logo[brandLogoKey].svg;
+    const { org: brandOrgOrg } = brandOrg,
+        { legalName: brandOrgOrgLegalName } = brandOrgOrg,
+        brandOrgOrgLogoSVG = brandOrgOrg.logo[brandLogoKey].svg;
 
     const onClickOpenConsentDialog = $preact.useCallback((event: Event): void => {
-        event.preventDefault(), void consent.then(({ openDialog }) => openDialog());
-    }, []);
-    const onClickOpenConsentDialogInOptOutState = $preact.useCallback((event: Event): void => {
-        event.preventDefault(), void consent.then(({ openDialog }) => openDialog({ prefs: { optOut: { doNotSellOrSharePII: true } } }));
-    }, []);
+            event.preventDefault(), void consent.then(({ openDialog }) => openDialog());
+        }, []),
+        onClickOpenConsentDialogInOptOutState = $preact.useCallback((event: Event): void => {
+            event.preventDefault(), void consent.then(({ openDialog }) => openDialog({ prefs: { optOut: { doNotSellOrSharePII: true } } }));
+        }, []);
+
     const legalLinks = $preact.useMemo(
-        () => [
-            {
-                [tꓺtitle]: 'My Privacy Choices',
-                [tꓺonClick]: onClickOpenConsentDialog,
-                [tꓺhref]: privacy,
-            },
-            {
-                [tꓺtitle]: 'Do Not Sell or Share My Personal Information',
-                [tꓺonClick]: onClickOpenConsentDialogInOptOutState,
-                [tꓺhref]: privacy,
-            },
-            {
-                [tꓺtitle]: 'Terms',
-                [tꓺhref]: terms,
-                [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
-                [tꓺrel]: tꓺtermsᱼofᱼservice + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
-            },
-            {
-                [tꓺtitle]: 'Privacy',
-                [tꓺhref]: privacy,
-                [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
-                [tꓺrel]: tꓺprivacyᱼpolicy + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
-            },
-        ],
-        [],
-    );
-    const currentYear = $preact.useMemo(() => new Date().getFullYear().toString(), []);
+            () => [
+                {
+                    [tꓺtitle]: 'My Privacy Choices',
+                    [tꓺonClick]: onClickOpenConsentDialog,
+                    [tꓺhref]: privacy,
+                },
+                {
+                    [tꓺtitle]: 'Do Not Sell or Share My Personal Information',
+                    [tꓺonClick]: onClickOpenConsentDialogInOptOutState,
+                    [tꓺhref]: privacy,
+                },
+                {
+                    [tꓺtitle]: 'Terms',
+                    [tꓺhref]: terms,
+                    [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
+                    [tꓺrel]: tꓺtermsᱼofᱼservice + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
+                },
+                {
+                    [tꓺtitle]: 'Privacy',
+                    [tꓺhref]: privacy,
+                    [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
+                    [tꓺrel]: tꓺprivacyᱼpolicy + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
+                },
+            ],
+            [],
+        ),
+        currentYear = $preact.useMemo(() => new Date().getFullYear().toString(), []);
 
     return (
         <section class='mt-12 text-xs leading-none lte-tablet:mt-6 lte-phone:mt-4' aria-label='Legalese'>

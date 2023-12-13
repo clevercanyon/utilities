@@ -95,9 +95,9 @@ const globalTopLevelObp = (obp: string): string => {
  */
 const resolveTopLevelObp = (obp: string): string => {
     if (!obp.includes('.')) {
-        return (topLevelObp || $str.obpPartSafe($app.pkgName)) + '.' + obp;
+        return (topLevelObp || $str.obpPartSafe($app.$pkgName)) + '.' + obp;
     }
-    return obp.replace(/^@top\./u, (topLevelObp || $str.obpPartSafe($app.pkgName)) + '.');
+    return obp.replace(/^@top\./u, (topLevelObp || $str.obpPartSafe($app.$pkgName)) + '.');
 };
 
 /**
@@ -151,7 +151,7 @@ export const capture = (rootObp: string, env: object): void => {
     rootObp = $str.obpPartSafe(rootObp);
 
     if ('@top' === rootObp && !topLevelObpSet) {
-        throw new Error(); // `@top` used in capture before calling `$env.setTopLevelObp()`.
+        throw new Error('79yZmpRt'); // `@top` used in capture before calling `$env.setTopLevelObp()`.
     }
     for (const [subObp, value] of Object.entries(env)) {
         if (!subObp) continue; // Empty subpath not allowable.
@@ -186,7 +186,7 @@ const initializeVars = (): void => {
 
     // `clevercanyon/utilities` app-specific environment variables compiled by Vite.
     // Note: This is for `clevercanyon/utilities`, explicity. Apps must capture their own.
-    capture($app.pkgName, import.meta.env); // Sourced by dotenv files.
+    capture($app.$pkgName, import.meta.env); // Sourced by dotenv files.
 };
 
 /**

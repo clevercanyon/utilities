@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, $url, type $type } from '#index.ts';
+import { $app, $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, $url, type $type } from '#index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode, type Context as DataContext } from '#preact/components/data.tsx';
 import { type State as HTMLState } from '#preact/components/html.tsx';
 import { Component } from 'preact';
@@ -314,7 +314,7 @@ export const useHead = (): Context => {
     const instance = dataState.head.instance;
 
     if (!instance?.computedState) {
-        throw new Error(); // Missing `computedState`.
+        throw new Error('sX8HsSFC'); // Missing `computedState`.
     }
     return {
         state: instance.computedState,
@@ -371,7 +371,7 @@ export default class Head extends Component<Props, ActualState> {
      * @param callback Optional callback.
      */
     public forceFullUpdate(callback?: () => void): void {
-        if (!this.forceDataUpdate) throw new Error();
+        if (!this.forceDataUpdate) throw new Error('QN6EpnRM');
         this.forceDataUpdate(callback);
     }
 
@@ -419,7 +419,7 @@ export default class Head extends Component<Props, ActualState> {
 
         // Acquires app’s brand from environment var.
 
-        const brand = $env.get('APP_BRAND') as $type.Brand,
+        const brand = $app.brand(),
             brandꓺogImage = brand.ogImage;
 
         // Gathers state from various contexts.
@@ -548,7 +548,7 @@ export default class Head extends Component<Props, ActualState> {
                         .toChildArray([children, append])
                         .filter((child: unknown) => {
                             // Children must be vNodes; i.e., not primitives.
-                            if (!$is.vNode(child)) throw new Error(); // Invalid vNode.
+                            if (!$is.vNode(child)) throw new Error('EBPZT9Rz'); // Invalid vNode.
 
                             const { type, props } = child; // Extracts locals.
                             const { children, [tꓺdataᱼkey]: key } = props;
@@ -560,7 +560,7 @@ export default class Head extends Component<Props, ActualState> {
                             // We choose not to support component functions, classes, or any further nesting.
 
                             if (!type || !$is.string(type) || !key || !$is.string(key) || $is.numeric(key) || !$is.primitive(children)) {
-                                throw new Error(); // Missing or invalid child vNode. Please review `<Head>` component docBlock.
+                                throw new Error('euN9vUbu'); // Missing or invalid child vNode. Please review `<Head>` component docBlock.
                             }
                             // Ensure all keyed children have `_` prefixed keys so they don’t collide with built-in keys.
                             if (!(key as string).startsWith('_')) props[tꓺdataᱼkey] = '_' + (key as string);
@@ -676,7 +676,7 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
 
     // Acquires app’s brand from environment var.
 
-    const brand = $env.get('APP_BRAND') as $type.Brand,
+    const brand = $app.brand(),
         brandꓺtheme = brand.theme,
         brandꓺicon = brand.icon,
         brandꓺogImage = brand.ogImage;

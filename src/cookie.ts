@@ -45,7 +45,7 @@ export const parse = $fnꓺmemo(6, (header?: string): { readonly [x: string]: st
             header = document.cookie;
             isWebCookieHeader = true;
         } else {
-            throw new Error(); // Missing `header`.
+            throw new Error('cYBccffX'); // Missing `header`.
         }
     }
     for (const cookie of header.split(/\s*;\s*/)) {
@@ -116,7 +116,7 @@ export const get = $fnꓺmemo(24, <Default extends $type.Primitive = undefined>(
  */
 export const set = (name: string, value: string, options: Options = {}): void => {
     if (!nameIsValid(name)) {
-        throw new Error(); // Invalid name: `' + name + '`.
+        throw new Error('zVYzdc6k'); // Invalid name: `' + name + '`.
     }
     const opts = $obj.defaults({}, options, {
         domain: $url.currentHost({ withPort: false }),

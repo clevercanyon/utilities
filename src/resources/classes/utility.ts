@@ -35,7 +35,7 @@ export const getClass = (): Constructor => {
         /**
          * App package name.
          */
-        public static readonly appPkgName = $app.pkgName;
+        public static readonly appPkgName = $app.$pkgName;
 
         /**
          * Object constructor.

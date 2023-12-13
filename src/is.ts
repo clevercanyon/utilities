@@ -522,7 +522,7 @@ export const error = (value: unknown): value is $type.Error => {
  * @returns       True if value is a brand.
  */
 export const brand = (value: unknown): value is $type.Brand => {
-    return object(value) && objectOfTag(value, $app.pkgName + '/Brand');
+    return object(value) && objectOfTag(value, $app.$pkgName + '/Brand');
 };
 
 /**
@@ -533,7 +533,7 @@ export const brand = (value: unknown): value is $type.Brand => {
  * @returns       True if value is a person.
  */
 export const person = (value: unknown): value is $type.Person => {
-    return object(value) && objectOfTag(value, $app.pkgName + '/Person');
+    return object(value) && objectOfTag(value, $app.$pkgName + '/Person');
 };
 
 /**
@@ -544,7 +544,7 @@ export const person = (value: unknown): value is $type.Person => {
  * @returns       True if value is a time.
  */
 export const time = (value: unknown): value is $type.Time => {
-    return object(value) && objectOfTag(value, $app.pkgName + '/Time');
+    return object(value) && objectOfTag(value, $app.$pkgName + '/Time');
 };
 
 /**

@@ -11,6 +11,6 @@ describe('$class', async () => {
         const base = new Base();
 
         expect($obj.tag(Base)).toBe('Function');
-        expect($obj.tag(base)).toBe($app.pkgName + '/Base');
+        expect($obj.tag(base)).toBe($app.$pkgName + '/Base');
     });
 });

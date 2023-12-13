@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $dom, $env, $is, $preact, $url, type $type } from '#index.ts';
+import { $app, $dom, $env, $is, $preact, $url, type $type } from '#index.ts';
 import { createContext } from 'preact';
 
 /**
@@ -182,7 +182,7 @@ const initialState = (props: Props): ActualState => {
     } else if (baseURL && $is.string(baseURL)) {
         baseURL = $url.parse(baseURL);
     } else {
-        baseURL = $url.parse($url.appBase());
+        baseURL = $url.parse($app.baseURL());
     }
     // We intentionally do not trim a trailing slash from the base URL.
     // The trailing slash is important to `URL()` when forming paths from base.
@@ -194,13 +194,13 @@ const initialState = (props: Props): ActualState => {
     } else if ($env.isWeb()) {
         url = $url.parse($url.current(), baseURL);
     } else {
-        throw new Error(); // Missing `url`.
+        throw new Error('EQA6sQqq'); // Missing `url`.
     }
     // Forces a canonical path for consistency.
     url.pathname = $url.parse($url.toCanonical(url)).pathname;
 
     if (url.origin !== baseURL.origin) {
-        throw new Error(); // URL `origin` mismatch.
+        throw new Error('2AVgp85w'); // URL `origin` mismatch.
     }
     return {
         isInitial: true,

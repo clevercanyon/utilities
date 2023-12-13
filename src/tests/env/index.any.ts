@@ -18,12 +18,12 @@ describe('$env', async () => {
         expect($is.string($env.get('VITEST_MODE'))).toBe(true);
     });
     test('$env.setTopLevelObp()', async () => {
-        expect($env.setTopLevelObp($app.pkgName)).toBe(undefined);
-        expect($env.setTopLevelObp($app.pkgName)).toBe(undefined);
+        expect($env.setTopLevelObp($app.$pkgName)).toBe(undefined);
+        expect($env.setTopLevelObp($app.$pkgName)).toBe(undefined);
     });
     test('.get()', async () => {
         expect($env.set('', 'TEST_FOO', 'true')).toBe(undefined);
-        expect($env.set($app.pkgName, 'TEST_BAR', 'true')).toBe(undefined);
+        expect($env.set($app.$pkgName, 'TEST_BAR', 'true')).toBe(undefined);
 
         expect($env.get('', 'TEST_FOO')).toBe(true);
         expect($env.get('', 'TEST_BAR')).toBe(true);
@@ -31,8 +31,8 @@ describe('$env', async () => {
         expect($env.get('@top', 'TEST_FOO')).toBe(true);
         expect($env.get('@top', 'TEST_BAR')).toBe(true);
 
-        expect($env.get($app.pkgName, 'TEST_FOO')).toBe(true);
-        expect($env.get($app.pkgName, 'TEST_BAR')).toBe(true);
+        expect($env.get($app.$pkgName, 'TEST_FOO')).toBe(true);
+        expect($env.get($app.$pkgName, 'TEST_BAR')).toBe(true);
 
         expect($env.get('@global', 'TEST_FOO')).toBe(undefined);
         expect($env.get('@global', 'TEST_BAR')).toBe(undefined);
@@ -47,7 +47,7 @@ describe('$env', async () => {
     test('.unset()', async () => {
         expect($env.set('', 'TEST_FOO', 'true')).toBe(undefined);
         expect($env.get('', 'TEST_FOO')).toBe(true);
-        expect($env.get($app.pkgName, 'TEST_FOO')).toBe(true);
+        expect($env.get($app.$pkgName, 'TEST_FOO')).toBe(true);
 
         expect($env.unset('', 'TEST_FOO')).toBe(undefined);
         expect($env.get('', 'TEST_FOO')).toBe(undefined);

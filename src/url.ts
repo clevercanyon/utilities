@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $env, $is, $obj, $str, type $type } from '#index.ts';
+import { $app, $env, $is, $obj, $str, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -308,16 +308,8 @@ export function removeCurrentBasePath(parseable: $type.URL | string): $type.URL 
  *
  * @returns App’s base URL string.
  *
- * @throws  If `APP_BASE_URL` is missing.
+ * @see $app.baseURL()
  */
-export const appBase = $fnꓺmemo((): string => {
-    let appBaseURL: string; // Initialize.
-
-    if (!(appBaseURL = $env.get('APP_BASE_URL', { type: 'string', default: '' }))) {
-        throw new Error(); // Missing `APP_BASE_URL`.
-    }
-    return appBaseURL;
-});
 
 /**
  * Gets app’s base path.
@@ -325,7 +317,7 @@ export const appBase = $fnꓺmemo((): string => {
  * @returns App’s base path.
  */
 export const appBasePath = $fnꓺmemo((): string => {
-    return parse(appBase()).pathname;
+    return parse($app.baseURL()).pathname;
 });
 
 /**
@@ -336,7 +328,7 @@ export const appBasePath = $fnꓺmemo((): string => {
  * @returns           A full URL from app’s base.
  */
 export const fromAppBase = $fnꓺmemo(24, (parseable: $type.URL | string): string => {
-    return parse(parseable, appBase()).toString();
+    return parse(parseable, $app.baseURL()).toString();
 });
 
 /**
@@ -365,7 +357,7 @@ function _addAppBasePath(parseable: $type.URL): $type.URL;
 function _addAppBasePath(parseable: string): string;
 
 function _addAppBasePath(parseable: $type.URL | string): $type.URL | string {
-    return addBasePath(parseable, appBase());
+    return addBasePath(parseable, $app.baseURL());
 }
 export const addAppBasePath = $fnꓺmemo(24, _addAppBasePath);
 
@@ -384,7 +376,7 @@ function _removeAppBasePath(parseable: $type.URL): $type.URL;
 function _removeAppBasePath(parseable: string): string;
 
 function _removeAppBasePath(parseable: $type.URL | string): $type.URL | string {
-    return removeBasePath(parseable, appBase());
+    return removeBasePath(parseable, $app.baseURL());
 }
 export const removeAppBasePath = $fnꓺmemo(24, _removeAppBasePath);
 
@@ -545,8 +537,9 @@ export const rootHost = $fnꓺmemo({ deep: true, maxSize: 12 }, (host?: $type.UR
     const opts = $obj.defaults({}, options || {}, { withPort: true }) as Required<RootHostOptions>;
 
     if (undefined === host) {
-        if ($env.isWeb()) host = currentHost();
-        else throw new Error(); // Missing `host`.
+        if ($env.isWeb()) {
+            host = currentHost();
+        } else throw new Error('xWX6jGrg'); // Missing `host`.
     }
     // `host` becomes a string value; see below.
     let hostname: string; // Defined below.
@@ -610,10 +603,12 @@ export const parse = <Options extends ParseOptions>(
     if ($is.url(parseable)) return new URL(parseable); // Simply a clone.
 
     if (undefined === parseable) {
-        if ($env.isWeb()) parseable = current();
+        if ($env.isWeb()) {
+            parseable = current();
+        }
         // If not on the web, and a URL was not passed in, then it’s simply not parseable.
         // So we flag that as a dev-related error, and not as a parse error in our try/catch block below.
-        else throw new Error(); // Missing `url`.
+        else throw new Error('jKgRHAUK'); // Missing `url`.
     }
     let strURL = parseable.toString();
     if (strURL && isProtoRelative(strURL)) {

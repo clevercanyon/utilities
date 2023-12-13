@@ -582,10 +582,10 @@ export const extractHeaders = (headers: $type.Headers | { [x: string]: string },
  * @requiredEnv cfw
  */
 export const verifyTurnstile = async (request: $type.Request, turnstile: string): Promise<boolean> => {
-    if (!$env.isCFW()) throw new Error();
+    if (!$env.isCFW()) throw new Error('SqRkpZAB');
 
     const formData = new FormData();
-    formData.append('secret', $env.get('SSR_APP_TURNSTILE_SECRET_KEY', { type: 'string', default: '' }));
+    formData.append('secret', $env.get('SSR_APP_TURNSTILE_SECRET_KEY', { type: 'string' }));
     formData.append('remoteip', request.headers.get('cf-connecting-ip') || '');
     formData.append('response', turnstile);
 

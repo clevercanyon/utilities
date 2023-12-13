@@ -202,7 +202,7 @@ export const parse = (parseable?: Parseable, options?: ParseOptions): $type.Time
         else time = dayjs(parseable); // Dayjs simply passes this on to `Date()` in native JS.
     }
     if (!time || !time.isValid()) {
-        throw new Error(); // Unable to parse time from: `' + String(from) + '`.
+        throw new Error('HavduxTK'); // Unable to parse time from: `' + String(from) + '`.
     }
     return applyLocaleTZOptions(time, options);
 };
@@ -240,7 +240,7 @@ const initialize = (): void => {
 
         Object.defineProperty(prototype, $symbol.objTag, {
             get: function (this: dayjs.Dayjs): ReturnType<$type.ObjTagSymbolFn> {
-                return $app.pkgName + '/Time';
+                return $app.$pkgName + '/Time';
             },
         });
         (prototype as unknown as $type.Object)[$symbol.objToPlain] = //

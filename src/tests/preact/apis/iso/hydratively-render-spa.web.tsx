@@ -2,25 +2,38 @@
  * Test suite.
  */
 
-import { $brand, $env, $json, $person, $preact, $url } from '#index.ts';
+import { $app, $brand, $env, $json, $person, $preact, $url } from '#index.ts';
 import { Body, HTML, Head, Root, Route, type RootProps } from '#preact/components.tsx';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 
+const __origAppPkgName__ = $env.get('APP_PKG_NAME', { type: 'unknown' });
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
+const __origAppBrandProps__ = $env.get('APP_BRAND_PROPS', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 
 describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     beforeAll(async () => {
+        $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
         $env.set('APP_BASE_URL', 'http://x.tld/');
-        $env.set('APP_BRAND', $brand.addApp({ pkgName: '@clevercanyon/x.tld' }));
+        $env.set('APP_BRAND_PROPS', {});
+        $app.adaptBrand.fresh('x.tld');
     });
     afterAll(async () => {
+        $env.set('APP_PKG_NAME', __origAppPkgName__);
         $env.set('APP_BASE_URL', __origAppBaseURL__);
-        $url.appBase.flush();
-        $url.appBasePath.flush();
-
+        $env.set('APP_BRAND_PROPS', __origAppBrandProps__);
         $env.set('APP_BRAND', __origAppBrand__);
         $brand.remove('@clevercanyon/x.tld');
+
+        $app.pkgName.flush(), //
+            $app.pkgSlug.flush(),
+            $app.pkgSlug.flush(),
+            $url.appBasePath.flush(),
+            $url.fromAppBase.flush(),
+            $url.pathFromAppBase.flush(),
+            $app.adaptBrand.flush(),
+            $app.brandProps.flush(),
+            $app.brand.flush();
     });
     const App = (props: RootProps): $preact.VNode<RootProps> => {
         return (
@@ -48,7 +61,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
                 if ('https://workers.hop.gdn/utilities/api/ip-geo/v1' === args[0]) {
                     return new Response('{ "ok": true, "data": { "city": "Madawaska", "colo": "EWR", "continent": "NA", "country": "US", "latitude": "47.33320", "longitude": "-68.33160", "metroCode": "552", "postalCode": "04756", "region": "Maine", "regionCode": "ME", "timezone": "America/New_York" } }', {
                         status: 200,
-                        headers: { 'content-type': 'application/json; charset=utf-8' },
+                        headers: { 'content-type': $json.contentType() },
                     }); // prettier-ignore
                 }
                 return new Response('Plain text, mock fetch response.', {

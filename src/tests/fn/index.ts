@@ -66,6 +66,19 @@ describe('$fn', async () => {
         const testFn3 = (a: string, b: string, c: string) => ({ a, b, c });
         await expect($fn.debounce(testFn3)('a', 'b', 'c')).resolves.toStrictEqual({ a: 'a', b: 'b', c: 'c' });
     });
+    test('.once()', async () => {
+        const fn1Mock = vi.fn((arg1?: string, arg2?: string): boolean => (arg1 && arg2 ? true : false));
+        const fn1 = $fn.once(fn1Mock);
+
+        expect(fn1('a', 'a')).toBe(true);
+        expect(fn1('a', 'b')).toBe(true);
+        expect(fn1('a', 'c')).toBe(true);
+        expect(fn1('a', 'd')).toBe(true);
+        expect(fn1()).toBe(true);
+        expect(fn1('a')).toBe(true);
+        expect(fn1(undefined, 'b')).toBe(true);
+        expect(fn1Mock).toHaveBeenCalledTimes(1);
+    });
     test('.memo()', async () => {
         const fn1Mock = vi.fn((): boolean => true);
         const fn1 = $fn.memo({ maxSize: 1 }, fn1Mock);

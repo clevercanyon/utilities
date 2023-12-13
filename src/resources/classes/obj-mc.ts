@@ -182,13 +182,13 @@ export const getClass = (): Constructor => {
          */
         public addMerge(tagA: string, tagB: string, callback: MergeCallback): MergeCallback | undefined {
             if (!tagA || !$is.string(tagA)) {
-                throw new Error(); // Invalid merge tagA.
+                throw new Error('ZJuUzhPy'); // Invalid merge tagA.
             }
             if (!tagB || !$is.string(tagB)) {
-                throw new Error(); // Invalid merge tagB.
+                throw new Error('yJbDxHjv'); // Invalid merge tagB.
             }
             if (!$is.function(callback)) {
-                throw new Error(); // Invalid merge callback.
+                throw new Error('J5EfwQxV'); // Invalid merge callback.
             }
             const previousCallback = this[`merge${tagA}${tagB}`];
             this[`merge${tagA}${tagB}`] = callback; // New callback.
@@ -206,10 +206,10 @@ export const getClass = (): Constructor => {
          */
         public addOperation(name: string, callback: OperationCallback): OperationCallback | undefined {
             if (!name || !$is.string(name)) {
-                throw new Error(); // Invalid operation name.
+                throw new Error('QbhAHTVk'); // Invalid operation name.
             }
             if (!$is.function(callback)) {
-                throw new Error(); // Invalid operation callback.
+                throw new Error('aFZZdR4u'); // Invalid operation callback.
             }
             if (!name.startsWith('$')) {
                 name = '$' + name; // Must begin with `$`.
@@ -265,7 +265,7 @@ export const getClass = (): Constructor => {
                             return (this[mergeCallback] as MergeCallback)(a, b, kind, circular);
                         }
                     }
-                    throw new Error(); // Unsupported merge.
+                    throw new Error('QCDcJQwc'); // Unsupported merge.
                 });
             } as Handler;
         }
@@ -533,10 +533,10 @@ export const getClass = (): Constructor => {
          */
         protected operation$set(target: unknown, params: unknown, separator: string = '.', unusedꓺcalledAs: string = '$set') {
             if (!$is.object(target)) {
-                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
+                throw new Error('fB9tK7yq'); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.object(params) || $is.array(params)) {
-                throw new Error(); // Invalid ' + calledAs + ' params. Expecting non-array object.
+                throw new Error('xqsb9A6k'); // Invalid ' + calledAs + ' params. Expecting non-array object.
             }
             for (const [path, value] of Object.entries(params)) {
                 $obp.set(target, path, value, separator);
@@ -565,14 +565,14 @@ export const getClass = (): Constructor => {
          */
         protected operation$unset(target: unknown, params: unknown, separator: string = '.', unusedꓺcalledAs: string = '$unset') {
             if (!$is.object(target)) {
-                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
+                throw new Error('Pzs7dSCe'); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.array(params)) {
-                throw new Error(); // Invalid ' + calledAs + ' params. Expecting array.
+                throw new Error('MqqWJEg4'); // Invalid ' + calledAs + ' params. Expecting array.
             }
             for (const path of params) {
                 if (!$is.safeObjectPath(path)) {
-                    throw new Error(); // Invalid ' + calledAs + ' param. Expecting object path.
+                    throw new Error('XrpZw3vN'); // Invalid ' + calledAs + ' param. Expecting object path.
                 }
                 $obp.unset(target, path, separator);
             }
@@ -607,10 +607,10 @@ export const getClass = (): Constructor => {
          */
         protected operation$leave(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$leave') {
             if (!$is.object(target)) {
-                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
+                throw new Error('SXGAEVtz'); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.array(params)) {
-                throw new Error(); // Invalid ' + calledAs + ' params. Expecting array.
+                throw new Error('eKB5Sd2j'); // Invalid ' + calledAs + ' params. Expecting array.
             }
             $obp.leave(target, params as $type.ObjectPath[], separator);
 
@@ -641,16 +641,16 @@ export const getClass = (): Constructor => {
          */
         protected operation$push(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$push') {
             if (!$is.object(target)) {
-                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
+                throw new Error('Hw4pmuqg'); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.object(params) || $is.array(params)) {
-                throw new Error(); // Invalid ' + calledAs + ' params. Expecting non-array object.
+                throw new Error('4HrEp58g'); // Invalid ' + calledAs + ' params. Expecting non-array object.
             }
             for (const [path, value] of Object.entries(params)) {
                 const array = $obp.get(target, path, [], separator);
 
                 if (!$is.array(array)) {
-                    throw new Error(); // Invalid ' + calledAs + '. Cannot push onto non-array value.
+                    throw new Error('RFM5u7wc'); // Invalid ' + calledAs + '. Cannot push onto non-array value.
                 }
                 array.push(value); // Onto end of stack.
                 $obp.set(target, path, array, separator);
@@ -676,17 +676,17 @@ export const getClass = (): Constructor => {
          */
         protected operation$pull(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$pull') {
             if (!$is.object(target)) {
-                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
+                throw new Error('MQUS9pSr'); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.object(params) || $is.array(params)) {
-                throw new Error(); // Invalid ' + calledAs + ' params. Expecting non-array object.
+                throw new Error('CbsBX2Hd'); // Invalid ' + calledAs + ' params. Expecting non-array object.
             }
             for (const [path, value] of Object.entries(params)) {
                 const array = $obp.get(target, path, [], separator);
                 const pullValues = $is.array(value) ? value : [value];
 
                 if (!$is.array(array)) {
-                    throw new Error(); // Invalid ' + calledAs + '. Cannot pull from non-array value.
+                    throw new Error('Q8HSnJMQ'); // Invalid ' + calledAs + '. Cannot pull from non-array value.
                 }
                 for (let key = array.length - 1; key >= 0; key--) {
                     if (pullValues.includes(array[key])) {
@@ -715,16 +715,16 @@ export const getClass = (): Constructor => {
          */
         protected operation$concat(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$concat') {
             if (!$is.object(target)) {
-                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
+                throw new Error('MV5efAbR'); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.object(params) || $is.array(params)) {
-                throw new Error(); // Invalid ' + calledAs + ' params. Expecting non-array object.
+                throw new Error('ewMCyu5a'); // Invalid ' + calledAs + ' params. Expecting non-array object.
             }
             for (const [path, value] of Object.entries(params)) {
                 const array = $obp.get(target, path, [], separator);
 
                 if (!$is.array(array)) {
-                    throw new Error(); // Invalid ' + calledAs + '. Cannot concat onto non-array value.
+                    throw new Error('kbfS6kg8'); // Invalid ' + calledAs + '. Cannot concat onto non-array value.
                 }
                 $obp.set(target, path, array.concat(value), separator);
             }
@@ -751,10 +751,10 @@ export const getClass = (): Constructor => {
          */
         protected operation$default(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$default') {
             if (!$is.object(target)) {
-                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
+                throw new Error('38R9WUCZ'); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.object(params) || $is.array(params)) {
-                throw new Error(); // Invalid ' + calledAs + ' params. Expecting non-array object.
+                throw new Error('QVmxttTf'); // Invalid ' + calledAs + ' params. Expecting non-array object.
             }
             for (const [path, value] of Object.entries(params)) {
                 $obp.defaultTo(target, path, value, separator);
@@ -810,10 +810,10 @@ export const getClass = (): Constructor => {
          */
         protected operation$keySortOrder(target: unknown, params: unknown, separator = '.', unusedꓺcalledAs: string = '$keySortOrder') {
             if (!$is.object(target)) {
-                throw new Error(); // Invalid ' + calledAs + '. Requires object target.
+                throw new Error('turQAUfc'); // Invalid ' + calledAs + '. Requires object target.
             }
             if (!$is.array(params)) {
-                throw new Error(); // Invalid ' + calledAs + ' params. Expecting array.
+                throw new Error('mQyvX5dJ'); // Invalid ' + calledAs + ' params. Expecting array.
             }
             /*
              * These are flat; i.e., the deepest/longest paths possible.
@@ -832,7 +832,7 @@ export const getClass = (): Constructor => {
              */
             for (const path of params) {
                 if (!$is.safeObjectPath(path)) {
-                    throw new Error(); // Invalid ' + calledAs + ' param. Expecting object path.
+                    throw new Error('WBc36nVD'); // Invalid ' + calledAs + ' param. Expecting object path.
                 }
                 if ($obp.has(targetClone, path, separator)) {
                     $obp.set(target, path, $obp.get(targetClone, path, undefined, separator), separator);
