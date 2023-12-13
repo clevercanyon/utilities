@@ -356,6 +356,17 @@ describe('$str', async () => {
         expect($str.escSelector('aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ!"#$%&\'()*+,./:;<=>?@[\\]^`{|}~')) //
             .toBe('aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ\\!\\"\\#\\$\\%\\&\\\'\\(\\)\\*\\+\\,\\.\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\`\\{\\|\\}\\~');
     });
+    test('.isErrorCode()', async () => {
+        expect($str.isErrorCode('8bXGEZMF')).toBe(true);
+        expect($str.isErrorCode('n3H5bnVq')).toBe(true);
+        expect($str.isErrorCode('xxxxxxxx')).toBe(true);
+        expect($str.isErrorCode('00000000')).toBe(true);
+
+        expect($str.isErrorCode('8bXGEZMFx')).toBe(false);
+        expect($str.isErrorCode('.bXGEZMF')).toBe(false);
+        expect($str.isErrorCode('x')).toBe(false);
+        expect($str.isErrorCode('')).toBe(false);
+    });
     test('.test()', async () => {
         expect($str.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', /^aeiou.*$/u)).toBe(true);
         expect($str.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', /^.*?aeiou.*$/u)).toBe(true);

@@ -716,6 +716,14 @@ export const escSelector = (str: string): string => {
 };
 
 /* ---
+ * Error code utilities.
+ */
+
+export const isErrorCode = (str: string): boolean => {
+    return /^[a-z0-9]{8}$/iu.test(str);
+};
+
+/* ---
  * IP utilities.
  */
 

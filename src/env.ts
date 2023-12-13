@@ -516,7 +516,7 @@ export const ipGeoData = $fnꓺmemo(async (): Promise<IPGeoData> => {
             return $to.plainObject(await response.json()) as IPGeoDataResponsePayload;
         })
         .then(({ ok, error, data }): IPGeoData => {
-            if (!ok) throw new Error(error?.message || '');
+            if (!ok) throw new Error(error?.message || 'DkvKa3NM');
             return data as IPGeoData;
         });
 });
