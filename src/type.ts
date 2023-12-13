@@ -276,7 +276,7 @@ export const ensure = <Type extends EnsurableType>(value: unknown, type: Type): 
             return value as EnsuredType<Type>; // Explicitly.
         }
         default: {
-            throw new Error('Y8PGpTWn'); // Unknown type: `' + type + '`.
+            throw Error('Y8PGpTWn'); // Unknown type: `' + type + '`.
         }
     }
 };

@@ -88,7 +88,7 @@ export const parse = (color: string): string => {
     const data = parseColor(color);
 
     if (!$is.object(data)) {
-        throw new Error('wgrRdcnZ'); // Color parse error: `' + String(color) + '`.
+        throw Error('wgrRdcnZ'); // Color parse error: `' + String(color) + '`.
     }
     type Args = [number, number, number, number];
 
@@ -98,7 +98,7 @@ export const parse = (color: string): string => {
     if ('hsl' === data.type) {
         return c2k.toHex(c2k.hsla.apply(undefined, [data.values[0], data.values[1] / 100, data.values[2] / 100, data.alpha] as Args));
     }
-    throw new Error('sDV5ugXn'); // Color2k parse error: `' + String(color) + '`.
+    throw Error('sDV5ugXn'); // Color2k parse error: `' + String(color) + '`.
 };
 
 /**

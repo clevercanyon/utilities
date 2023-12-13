@@ -161,7 +161,7 @@ export const add = (pkgName: string, props: $type.BrandRawProps): $type.Brand =>
     if (!rawPropsInitialized) initializeRawProps();
 
     if (Object.hasOwn(rawProps, pkgName)) {
-        throw new Error('rcqcXjar'); // Brand `' + pkgName + '` exists already.
+        throw Error('rcqcXjar'); // Brand `' + pkgName + '` exists already.
     }
     rawProps[pkgName] = props;
 
@@ -195,7 +195,7 @@ export const get = (pkgName: string): $type.Brand => {
     // `&` is a self-referential Clever Canyon brand alias.
 
     if (!pkgName || !rawProps[pkgName]) {
-        throw new Error('NC4Pnsxq'); // Missing brand: `' + pkgName + '`.
+        throw Error('NC4Pnsxq'); // Missing brand: `' + pkgName + '`.
     }
     if (instances[pkgName]) {
         return instances[pkgName];

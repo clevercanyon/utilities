@@ -23,7 +23,7 @@ import { default as HTML } from '#preact/components/html.tsx';
  */
 export default function Route404(): $preact.VNode {
     if ($is.empty($preact.useRoute())) {
-        throw new Error('cXCwBZ54'); // Must only be used as a route.
+        throw Error('cXCwBZ54'); // Must only be used as a route.
     }
     if ($env.isSSR()) {
         const { updateState: updateHTTPState } = $preact.useHTTP();
@@ -67,7 +67,7 @@ type StandAloneProps = $preact.CleanProps<{
  * @requiredEnv ssr -- This component must only be used server-side.
  */
 export const StandAlone = (props: StandAloneProps = {}): $preact.VNode<StandAloneProps> => {
-    if (!$env.isSSR()) throw new Error('a7uu3pZV');
+    if (!$env.isSSR()) throw Error('a7uu3pZV');
     return (
         <html class={$preact.classes(props)} lang='en-US' dir='ltr'>
             <head>

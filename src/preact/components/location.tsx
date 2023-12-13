@@ -194,13 +194,13 @@ const initialState = (props: Props): ActualState => {
     } else if ($env.isWeb()) {
         url = $url.parse($url.current(), baseURL);
     } else {
-        throw new Error('EQA6sQqq'); // Missing `url`.
+        throw Error('EQA6sQqq'); // Missing `url`.
     }
     // Forces a canonical path for consistency.
     url.pathname = $url.parse($url.toCanonical(url)).pathname;
 
     if (url.origin !== baseURL.origin) {
-        throw new Error('2AVgp85w'); // URL `origin` mismatch.
+        throw Error('2AVgp85w'); // URL `origin` mismatch.
     }
     return {
         isInitial: true,

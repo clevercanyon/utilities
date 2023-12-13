@@ -111,7 +111,7 @@ export const siteKey = (): string => {
         return '1x00000000000000000000BB'; // Invisible test key.
     }
     if (!(key = $env.get('APP_TURNSTILE_SITE_KEY', { type: 'string' }))) {
-        throw new Error('z3ZZ6KtJ'); // Missing turnstile site key.
+        throw Error('z3ZZ6KtJ'); // Missing turnstile site key.
     }
     return key;
 };

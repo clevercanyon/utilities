@@ -13,16 +13,16 @@ describe('$fn', async () => {
         expect($fn.try(() => null)()).toBe(null);
         expect($fn.try(() => undefined)()).toBe(undefined);
         expect($fn.try((v: string) => v)('abc')).toBe('abc');
-        expect($fn.try(() => { throw new Error(); }, 'abc')()).toBe('abc'); // prettier-ignore
-        expect($fn.try(() => { throw new Error(); })()).toBeInstanceOf(Error); // prettier-ignore
-        expect($fn.try(() => { throw new Error(); }, undefined, {throwOnError: true})).toThrowError(); // prettier-ignore
+        expect($fn.try(() => { throw Error(); }, 'abc')()).toBe('abc'); // prettier-ignore
+        expect($fn.try(() => { throw Error(); })()).toBeInstanceOf(Error); // prettier-ignore
+        expect($fn.try(() => { throw Error(); }, undefined, {throwOnError: true})).toThrowError(); // prettier-ignore
 
         await expect($fn.try(async () => null)()).resolves.toBe(null);
         await expect($fn.try(async () => undefined)()).resolves.toBe(undefined);
         await expect($fn.try(async (v: string) => v)('abc')).resolves.toBe('abc');
-        await expect($fn.try(async () => { throw new Error(); }, 'abc')()).resolves.toBe('abc'); // prettier-ignore
-        await expect($fn.try(async () => { throw new Error(); })()).resolves.toBeInstanceOf(Error); // prettier-ignore
-        await expect($fn.try(async () => { throw new Error(); }, undefined, {throwOnError: true})()).rejects.toThrowError(); // prettier-ignore
+        await expect($fn.try(async () => { throw Error(); }, 'abc')()).resolves.toBe('abc'); // prettier-ignore
+        await expect($fn.try(async () => { throw Error(); })()).resolves.toBeInstanceOf(Error); // prettier-ignore
+        await expect($fn.try(async () => { throw Error(); }, undefined, {throwOnError: true})()).rejects.toThrowError(); // prettier-ignore
     });
     test('.curry()', async () => {
         const testFn = (a: string, b: string, c: string) => ({ a, b, c });

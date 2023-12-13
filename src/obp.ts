@@ -87,7 +87,7 @@ export const set = (objValue: unknown, path: $type.ObjectPath | $type.ObjectPath
     const currentPath = path[0]; // Potential prototype.
 
     if ($is.protoPollutionKey(currentPath)) {
-        throw new Error('vdW86ej9'); // Denying write access to prototype pollution key: `' + String(currentPath) + '`.
+        throw Error('vdW86ej9'); // Denying write access to prototype pollution key: `' + String(currentPath) + '`.
     }
     if (1 === path.length) {
         if (!intOpts.defaultTo || undefined === objValue[currentPath]) {
@@ -137,7 +137,7 @@ export const unset = (objValue: unknown, path: $type.ObjectPath | $type.ObjectPa
     const currentPath = path[0]; // Potential prototype.
 
     if ($is.protoPollutionKey(currentPath)) {
-        throw new Error('CcguuNCd'); // Denying write access to prototype pollution key: `' + String(currentPath) + '`.
+        throw Error('CcguuNCd'); // Denying write access to prototype pollution key: `' + String(currentPath) + '`.
     }
     if ('*' === currentPath) {
         if ($is.array(objValue)) {
@@ -183,7 +183,7 @@ export const leave = (objValue: unknown, paths: $type.ObjectPath | $type.ObjectP
 
     for (const path of $to.array(paths)) {
         if (!$is.safeObjectPath(path)) {
-            throw new Error('b8aD3mN4'); // Invalid object path. Got: `' + String(path) + '`.
+            throw Error('b8aD3mN4'); // Invalid object path. Got: `' + String(path) + '`.
         }
         let leavePath: $type.ObjectPath = path;
         let subPaths: $type.ObjectPath[] = [];
@@ -279,7 +279,7 @@ export const splitPath = (path: $type.ObjectPath | $type.ObjectPath[], separator
     }
     if ($is.number(path)) {
         if (!$is.safeObjectPath(path)) {
-            throw new Error('tZVtFWYz'); // Invalid object path. Got: `' + String(path) + '`.
+            throw Error('tZVtFWYz'); // Invalid object path. Got: `' + String(path) + '`.
         }
         return [path]; // Array index.
     }
@@ -288,7 +288,7 @@ export const splitPath = (path: $type.ObjectPath | $type.ObjectPath[], separator
             path = Number(path.slice(1, -1));
 
             if (!$is.safeObjectPath(path)) {
-                throw new Error('GnWqwYxh'); // Invalid object path. Got: `' + String(path) + '`.
+                throw Error('GnWqwYxh'); // Invalid object path. Got: `' + String(path) + '`.
             }
             return [path]; // Array index.
         }
@@ -302,12 +302,12 @@ export const splitPath = (path: $type.ObjectPath | $type.ObjectPath[], separator
                 pathPart = Number(_pathPart.slice(1, -1)); // Array index.
             }
             if (!$is.safeObjectPath(pathPart)) {
-                throw new Error('Zscn3aVu'); // Invalid object path. Part: `' + String(pathPart) + '`.
+                throw Error('Zscn3aVu'); // Invalid object path. Part: `' + String(pathPart) + '`.
             }
             return pathPart; // Object path part.
         });
     }
-    throw new Error('npkVYFWz'); // Invalid object path. Got: `' + String(path) + '`.
+    throw Error('npkVYFWz'); // Invalid object path. Got: `' + String(path) + '`.
 };
 
 /**

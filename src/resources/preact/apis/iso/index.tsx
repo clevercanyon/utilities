@@ -24,7 +24,7 @@ export type PrerenderResult = { html: string };
  * @note This utility must only be used server-side.
  */
 export async function prerender(componentOrVNode: $preact.AnyComponent | $preact.VNode, options?: PrerenderOptions): Promise<PrerenderResult> {
-    if (!$env.isSSR()) throw new Error('auyKXPAm');
+    if (!$env.isSSR()) throw Error('auyKXPAm');
 
     let vNode: $preact.VNode; // Initializes vNode.
     let currentDepth = 0; // Initializes current depth.
@@ -37,7 +37,7 @@ export async function prerender(componentOrVNode: $preact.AnyComponent | $preact
     }
     const render = (): Promise<string> | string => {
         if (++currentDepth > opts.maxDepth) {
-            throw new Error('weXCR2Sn'); // Max prerender depth: `' + String(opts.maxDepth) + '`.
+            throw Error('weXCR2Sn'); // Max prerender depth: `' + String(opts.maxDepth) + '`.
         }
         try {
             return $preact.ssr.renderToString(vNode);

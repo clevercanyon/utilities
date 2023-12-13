@@ -148,7 +148,7 @@ export const useData = (): Context => $preact.useContext(ContextObject);
  * @requiredEnv ssr -- This hook must only be used server-side.
  */
 export const useHTTP = (): HTTPContext => {
-    if (!$env.isSSR()) throw new Error('fVWczR9h');
+    if (!$env.isSSR()) throw Error('fVWczR9h');
 
     const { state } = useData();
 
@@ -294,7 +294,7 @@ export const defaultGlobalObp = (): string => {
  * @requiredEnv ssr -- This utility must only be used server-side.
  */
 export const globalToScriptCode = (state: State): string => {
-    if (!$env.isSSR()) throw new Error('MYPrYzaC');
+    if (!$env.isSSR()) throw Error('MYPrYzaC');
 
     // We use `<Data>` state to acquire `globalObp`.
     const globalScriptCode = $obp.toScriptCode(state.globalObp);

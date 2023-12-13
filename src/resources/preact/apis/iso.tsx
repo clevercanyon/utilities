@@ -76,7 +76,7 @@ export const replaceNativeFetch = (): Fetcher => {
  * @requiredEnv ssr -- This utility must only be used server-side.
  */
 export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPromise => {
-    if (!$env.isSSR()) throw new Error('kTqymmPe');
+    if (!$env.isSSR()) throw Error('kTqymmPe');
 
     // Extracts options into local variables.
     const { request, appManifest, App, props = {} } = options;
@@ -98,8 +98,8 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
             break; // We can stop here.
         }
     } // Now let’s confirm we found the bundle files.
-    if (!styleBundleSubpath) throw new Error('GHj26RSc'); // Missing `appManifest[index.html].css[0]`.
-    if (!scriptBundleSubpath) throw new Error('hNnwQfBr'); // Missing `appManifest[index.html].file`.
+    if (!styleBundleSubpath) throw Error('GHj26RSc'); // Missing `appManifest[index.html].css[0]`.
+    if (!scriptBundleSubpath) throw Error('hNnwQfBr'); // Missing `appManifest[index.html].file`.
 
     const styleBundle = './' + styleBundleSubpath;
     const scriptBundle = './' + scriptBundleSubpath;
@@ -144,7 +144,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
  * @requiredEnv web -- This utility must only be used client-side.
  */
 export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void => {
-    if (!$env.isWeb()) throw new Error('N4WUN2gk');
+    if (!$env.isWeb()) throw Error('N4WUN2gk');
 
     const appSelectors = 'body > x-preact-app';
     let appToHydrate, appToRender; // Queried below.
@@ -159,7 +159,7 @@ export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void
     } else if ((appToRender = $dom.query(appSelectors))) {
         $preact.render(<App {...{ ...props, isHydration: false }} />, appToRender);
     } else {
-        throw new Error('NxgH8pMc'); // Missing <x-preact-app>.
+        throw Error('NxgH8pMc'); // Missing <x-preact-app>.
     }
 
     /**

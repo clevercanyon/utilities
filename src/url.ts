@@ -539,7 +539,7 @@ export const rootHost = $fnꓺmemo({ deep: true, maxSize: 12 }, (host?: $type.UR
     if (undefined === host) {
         if ($env.isWeb()) {
             host = currentHost();
-        } else throw new Error('xWX6jGrg'); // Missing `host`.
+        } else throw Error('xWX6jGrg'); // Missing `host`.
     }
     // `host` becomes a string value; see below.
     let hostname: string; // Defined below.
@@ -608,7 +608,7 @@ export const parse = <Options extends ParseOptions>(
         }
         // If not on the web, and a URL was not passed in, then it’s simply not parseable.
         // So we flag that as a dev-related error, and not as a parse error in our try/catch block below.
-        else throw new Error('jKgRHAUK'); // Missing `url`.
+        else throw Error('jKgRHAUK'); // Missing `url`.
     }
     let strURL = parseable.toString();
     if (strURL && isProtoRelative(strURL)) {

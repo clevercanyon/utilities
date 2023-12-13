@@ -202,7 +202,7 @@ export const parse = (parseable?: Parseable, options?: ParseOptions): $type.Time
         else time = dayjs(parseable); // Dayjs simply passes this on to `Date()` in native JS.
     }
     if (!time || !time.isValid()) {
-        throw new Error('HavduxTK'); // Unable to parse time from: `' + String(from) + '`.
+        throw Error('HavduxTK'); // Unable to parse time from: `' + String(from) + '`.
     }
     return applyLocaleTZOptions(time, options);
 };

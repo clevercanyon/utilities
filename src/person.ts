@@ -76,7 +76,7 @@ export const add = (username: string, props: $type.PersonRawProps): $type.Person
     if (!rawPropsInitialized) initializeRawProps();
 
     if (Object.hasOwn(rawProps, username)) {
-        throw new Error('Czuf6MDV'); // Person `' + username + '` exists already.
+        throw Error('Czuf6MDV'); // Person `' + username + '` exists already.
     }
     rawProps[username] = props;
 
@@ -111,7 +111,7 @@ export const get = (username: string): $type.Person => {
     // `&` is a self-referential founder alias.
 
     if (!username || !rawProps[username]) {
-        throw new Error('72PZaBbj'); // Missing person: `' + username + '`.
+        throw Error('72PZaBbj'); // Missing person: `' + username + '`.
     }
     if (instances[username]) {
         return instances[username];

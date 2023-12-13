@@ -28,7 +28,7 @@ export const pkgName = $fnꓺmemo((): string => {
     let value: string; // Initialize.
 
     if (!(value = $env.get('APP_PKG_NAME', { type: 'string' }))) {
-        throw new Error('Bfr8cnc9'); // Missing `APP_PKG_NAME`.
+        throw Error('Bfr8cnc9'); // Missing `APP_PKG_NAME`.
     }
     return value;
 });
@@ -61,12 +61,12 @@ export const pkgSlug = $fnꓺmemo(12, (value?: string): string => {
  */
 export const baseURL = $fnꓺmemo((): string => {
     if (!brandAdapted) {
-        throw new Error('95kgxMsG'); // Called out of sequence.
+        throw Error('95kgxMsG'); // Called out of sequence.
     }
     let value: string; // Initialize.
 
     if (!(value = $env.get('APP_BASE_URL', { type: 'string' }))) {
-        throw new Error('Tmvgc7Bv'); // Missing `APP_BASE_URL`.
+        throw Error('Tmvgc7Bv'); // Missing `APP_BASE_URL`.
     }
     return value;
 });
@@ -105,7 +105,7 @@ export const adaptBrand = $fnꓺonce((host: string): void => {
         !$env.get('APP_BASE_URL') ||
         !$env.get('APP_BRAND_PROPS')
     ) {
-        throw new Error('vwRtGSnR'); // Called out of sequence.
+        throw Error('vwRtGSnR'); // Called out of sequence.
     }
     brandAdapted = true; // Adapting brand now.
 
@@ -130,7 +130,7 @@ export const brandProps = $fnꓺmemo((): $type.BrandRawProps => {
     let value: $type.BrandRawProps; // Initialize.
 
     if (!(value = $env.get('APP_BRAND_PROPS') as $type.BrandRawProps)) {
-        throw new Error('aFS2xh2X'); // Missing `APP_BRAND_PROPS`.
+        throw Error('aFS2xh2X'); // Missing `APP_BRAND_PROPS`.
     }
     return value;
 });
@@ -146,7 +146,7 @@ export const brand = $fnꓺmemo((): $type.Brand => {
     let value: $type.Brand; // Initialize.
 
     if (!(value = $env.get('APP_BRAND') as $type.Brand)) {
-        throw new Error('d6W8bWAG'); // Missing `APP_BRAND`.
+        throw Error('d6W8bWAG'); // Missing `APP_BRAND`.
     }
     return value;
 });

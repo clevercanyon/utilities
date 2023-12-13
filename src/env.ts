@@ -145,7 +145,7 @@ export const capture = (rootObp: string, env: object): void => {
     rootObp = $str.obpPartSafe(rootObp);
 
     if ('@top' === rootObp && !topLevelObpSet) {
-        throw new Error('79yZmpRt'); // `@top` used in capture before calling `$env.setTopLevelObp()`.
+        throw Error('79yZmpRt'); // `@top` used in capture before calling `$env.setTopLevelObp()`.
     }
     for (const [subObp, value] of Object.entries(env)) {
         if (!subObp) continue; // Empty subpath not allowable.
@@ -516,7 +516,7 @@ export const ipGeoData = $fnꓺmemo(async (): Promise<IPGeoData> => {
             return $to.plainObject(await response.json()) as IPGeoDataResponsePayload;
         })
         .then(({ ok, error, data }): IPGeoData => {
-            if (!ok) throw new Error(error?.message || 'DkvKa3NM');
+            if (!ok) throw Error(error?.message || 'DkvKa3NM');
             return data as IPGeoData;
         });
 });

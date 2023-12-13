@@ -504,14 +504,34 @@ export const blob = (value: unknown): value is Blob => {
 };
 
 /**
- * Checks if value is an error.
+ * Checks if value is a {@see Error}.
  *
  * @param   value Value to consider.
  *
- * @returns       True if value is an error.
+ * @returns       True if value is a {@see Error}.
  */
 export const error = (value: unknown): value is $type.Error => {
     return value instanceof Error;
+};
+
+/**
+ * Checks if value is a {@see Error} with a cryptic message.
+ *
+ * Cryptic errors contain a message that’s exactly 8 alphanumeric bytes in length; i.e., only an error code. A few
+ * examples: `yYxSWAPg`, `56MMRj3J`, `xejqwBWR`, `Rqr8YpSW`, `t6Sg78Yr`, `fkDneern`. Cryptic errors are lighter and
+ * safer. They don’t expose potentially sensitive information to an end-user. When they are used consistently throughout
+ * a codebase, they contribute far fewer bytes to the overall size of a JavaScript bundle.
+ *
+ * Code example:
+ *
+ *     throw Error('yYxSWAPg');
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is a {@see Error} with a cryptic message.
+ */
+export const crypticError = (value: unknown): value is $type.Error => {
+    return error(value) && /^[a-z0-9]{8}$/iu.test(value.message);
 };
 
 /**

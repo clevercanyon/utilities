@@ -922,16 +922,16 @@ For example, here's an already-defined operation handler that could be customize
 ```js
 const previous = mc.addOperation('$concat', (target, params, separator = '.', calledAs = '$concat') => {
     if (!$isꓺobject(target)) {
-        throw new Error('yd3hj28h'); // Invalid ' + calledAs + '. Requires object target.
+        throw Error('yd3hj28h'); // Invalid ' + calledAs + '. Requires object target.
     }
     if (!$isꓺobject(params) || $isꓺarray(params)) {
-        throw new Error('nMr2JuWf'); // Invalid ' + calledAs + ' params. Expecting non-array object.
+        throw Error('nMr2JuWf'); // Invalid ' + calledAs + ' params. Expecting non-array object.
     }
     for (const [path, value] of Object.entries(params)) {
         const array = $obpꓺget(target, path, [], separator);
 
         if (!$isꓺarray(array)) {
-            throw new Error('PwukxeW3'); // Invalid ' + calledAs + '. Cannot concat onto non-array value.
+            throw Error('PwukxeW3'); // Invalid ' + calledAs + '. Cannot concat onto non-array value.
         }
         $obpꓺset(target, path, array.concat(value), separator);
     }

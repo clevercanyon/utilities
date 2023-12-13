@@ -307,18 +307,18 @@ export const trackEvent = async (name: string, props: EventProps = {}): Promise<
         };
         if (state.debug /* Only when debugging. */) {
             if ($str.charLength(name) > 40) {
-                throw new Error('RCbdD6Dv'); // Event name exceeds 40 chars.
+                throw Error('RCbdD6Dv'); // Event name exceeds 40 chars.
             }
             if ([anonId, sessionId, userId, customerId].some((id) => $str.charLength(id) > 36)) {
                 // Technically, `userId` can be 256 chars, but we also put it in `user_properties`, which only allows `36`.
-                throw new Error('VKDvXeVR'); // Exceeds limit of 36 chars.
+                throw Error('VKDvXeVR'); // Exceeds limit of 36 chars.
             }
             if (Object.keys(eventData).length > 25) {
-                throw new Error('BsW77Cjk'); // Event data exceeds total limit of 25 parameters.
+                throw Error('BsW77Cjk'); // Event data exceeds total limit of 25 parameters.
             }
             for (const [key, value] of Object.entries(eventData)) {
-                if ($str.charLength(key) > 40) throw new Error('E7cVVUH6'); // Event parameter exceeds name limit of 40 chars.
-                if ($is.string(value) && $str.charLength(value) > 100) throw new Error('JpEhtbyf'); // Event parameter exceeds value limit of 100 chars.
+                if ($str.charLength(key) > 40) throw Error('E7cVVUH6'); // Event parameter exceeds name limit of 40 chars.
+                if ($is.string(value) && $str.charLength(value) > 100) throw Error('JpEhtbyf'); // Event parameter exceeds value limit of 100 chars.
             }
             console.log('[analytics]:', { eventName: name, eventData });
         }
