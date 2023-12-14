@@ -421,7 +421,15 @@ export const requestPathIsInvalid = $fnꓺmemo(2, (request: $type.Request, _url?
 export const requestPathHasInvalidAppBaseURLOrigin = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
     const url = _url || $url.parse(request.url);
     const appBaseURL = $app.baseURL({ parsed: true });
-    return url.protocol !== appBaseURL.protocol || url.host !== appBaseURL.host;
+
+    if (url.host !== appBaseURL.host) return true;
+    return (
+        url.protocol !== appBaseURL.protocol && //
+        // This miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
+        // We don’t consider mismatched protocols to be an issue in Miniflare,
+        // so long as protocol is the expected `http:`, which we rewrite anyway.
+        (!$env.isCFWViaMiniflare() || 'http:' !== url.protocol)
+    );
 });
 
 /**
