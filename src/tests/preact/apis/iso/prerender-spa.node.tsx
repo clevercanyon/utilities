@@ -14,9 +14,9 @@ const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 describe('$preact.iso.prerenderSPA()', async () => {
     beforeAll(async () => {
         $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
-        $env.set('APP_BASE_URL', 'http://x.tld/');
-        $env.set('APP_BRAND_PROPS', {});
-        $app.adaptBrand.fresh('x.tld');
+        $env.set('APP_BASE_URL', 'https://x.tld/base/');
+        $env.set('APP_BRAND_PROPS', { type: 'site' });
+        $env.set('APP_BRAND', $brand.addApp());
     });
     afterAll(async () => {
         $env.set('APP_PKG_NAME', __origAppPkgName__);
@@ -26,16 +26,20 @@ describe('$preact.iso.prerenderSPA()', async () => {
         $brand.remove('@clevercanyon/x.tld');
 
         $app.pkgName.flush(), //
+            $app.pkgName.flush(),
             $app.pkgSlug.flush(),
+            //
+            $app.hasBaseURL.flush(),
             $app.baseURL.flush(),
+            //
+            $app.brandProps.flush(),
+            $app.brand.flush(),
+            //
             $url.appBasePath.flush(),
             $url.fromAppBase.flush(),
             $url.pathFromAppBase.flush(),
             $url.addAppBasePath.flush(),
-            $url.removeAppBasePath.flush(),
-            $app.adaptBrand.flush(),
-            $app.brandProps.flush(),
-            $app.brand.flush();
+            $url.removeAppBasePath.flush();
     });
     const App = (props: RootProps): $preact.VNode<RootProps> => {
         return (
@@ -154,7 +158,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: indexDocType,
             html: indexHTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -179,7 +183,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: blogDocType,
             html: blogHTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/blog?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/blog?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -204,7 +208,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: blogPostDocType,
             html: blogPostHTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/blog/post/123?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/blog/post/123?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -229,7 +233,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherA1DocType,
             html: othersOtherA1HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-a/123?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-a/123?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -252,7 +256,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherA2DocType,
             html: othersOtherA2HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-a/123/another?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-a/123/another?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -277,7 +281,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherB1DocType,
             html: othersOtherB1HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-b?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-b?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -302,7 +306,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherB2DocType,
             html: othersOtherB2HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-b/123?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-b/123?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -327,7 +331,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherC1DocType,
             html: othersOtherC1HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-c?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-c?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -352,7 +356,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherC2DocType,
             html: othersOtherC2HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-c/123?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-c/123?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -377,7 +381,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherC3DocType,
             html: othersOtherC3HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-c/123/456/789?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-c/123/456/789?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -402,7 +406,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherD1DocType,
             html: othersOtherD1HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-d?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-d?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -427,7 +431,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherD2DocType,
             html: othersOtherD2HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-d/123?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-d/123?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -452,7 +456,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherD3DocType,
             html: othersOtherD3HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-d/123/456?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-d/123/456?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -477,7 +481,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherE1DocType,
             html: othersOtherE1HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-e?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-e?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -502,7 +506,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherE2DocType,
             html: othersOtherE2HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-e/123?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-e/123?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -527,7 +531,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherE3DocType,
             html: othersOtherE3HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-e/123/456?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-e/123/456?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -552,7 +556,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: othersOtherE4DocType,
             html: othersOtherE4HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/others/other-e/123?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/other-e/123?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['foo.css'], file: 'foo.js' } },
             App, // Defined above.
         });
@@ -577,7 +581,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             docType: _404DocType,
             html: _404HTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/nonexistent?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/nonexistent?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -592,7 +596,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
 
         await expect(async () => {
             await $preact.iso.prerenderSPA({
-                request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),
+                request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c')),
                 appManifest: { 'index.html': { css: [], file: 'script.js' } },
                 App, // Defined above.
             });
@@ -602,7 +606,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
 
         await expect(async () => {
             await $preact.iso.prerenderSPA({
-                request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),
+                request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c')),
                 appManifest: { 'index.html': { css: ['style.css'], file: '' } },
                 App, // Defined above.
             });

@@ -18,9 +18,9 @@ const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     beforeAll(async () => {
         $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
-        $env.set('APP_BASE_URL', 'http://x.tld/');
-        $env.set('APP_BRAND_PROPS', {});
-        $app.adaptBrand.fresh('x.tld');
+        $env.set('APP_BASE_URL', 'https://x.tld/base/');
+        $env.set('APP_BRAND_PROPS', { type: 'site' });
+        $env.set('APP_BRAND', $brand.addApp());
     });
     afterAll(async () => {
         $env.set('APP_PKG_NAME', __origAppPkgName__);
@@ -30,16 +30,20 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         $brand.remove('@clevercanyon/x.tld');
 
         $app.pkgName.flush(), //
+            $app.pkgName.flush(),
             $app.pkgSlug.flush(),
+            //
+            $app.hasBaseURL.flush(),
             $app.baseURL.flush(),
+            //
+            $app.brandProps.flush(),
+            $app.brand.flush(),
+            //
             $url.appBasePath.flush(),
             $url.fromAppBase.flush(),
             $url.pathFromAppBase.flush(),
             $url.addAppBasePath.flush(),
-            $url.removeAppBasePath.flush(),
-            $app.adaptBrand.flush(),
-            $app.brandProps.flush(),
-            $app.brand.flush();
+            $url.removeAppBasePath.flush();
     });
     const App = (props: RootProps): $preact.VNode<RootProps> => {
         return (
@@ -62,7 +66,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
 
     test('$preact.iso.prerenderSPA()', async () => {
         const { httpState, docType, html } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('http://x.tld/?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c')),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });

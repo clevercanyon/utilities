@@ -414,8 +414,6 @@ const initializeRawProps = (): void => {
  * @param   options Required; {@see AddAppOptions}.
  *
  * @returns         Brand instance {@see $type.Brand}.
- *
- * @review Consider supporting some form of dynamics wrt to base URL used in `props`.
  */
 export const addApp = (options?: AddAppOptions): $type.Brand => {
     /**
@@ -433,7 +431,7 @@ export const addApp = (options?: AddAppOptions): $type.Brand => {
     const pkgName = opts.pkgName || $app.pkgName(),
         baseURL = $url.parse(opts.baseURL || $app.baseURL()),
         props = opts.props || $app.brandProps(),
-        org = get(props.org || '@clevercanyon/hop.gdn');
+        org = get(props.org || tꓺමclevercanyonⳇhopംgdn);
 
     /**
      * Defines package data.

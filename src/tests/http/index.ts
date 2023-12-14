@@ -8,6 +8,7 @@ import { describe, expect, test } from 'vitest';
 describe('$http', async () => {
     test('.requestConfig()', async () => {
         expect($http.requestConfig()).toStrictEqual({
+            enforceAppBaseURLOrigin: false,
             enforceNoTrailingSlash: false,
             enableRewrites: false,
         });

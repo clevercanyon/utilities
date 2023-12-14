@@ -5,12 +5,13 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $env, $fn, $is, $obj, $path, $str, $time, $to, $url, type $type } from '#index.ts';
+import { $app, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, type $type } from '#index.ts';
 
 /**
  * Defines types.
  */
 export type RequestConfig = {
+    enforceAppBaseURLOrigin?: boolean;
     enforceNoTrailingSlash?: boolean;
     enableRewrites?: boolean;
 };
@@ -36,6 +37,7 @@ export type ExtractHeaderOptions = { lowercase?: boolean };
  */
 export const requestConfig = (config?: RequestConfig): RequestConfig => {
     return $obj.defaults({}, config || {}, {
+        enforceAppBaseURLOrigin: $env.isC10n() && $app.hasBaseURL(),
         enforceNoTrailingSlash: $env.isC10n(),
         enableRewrites: $env.isCFW(),
     }) as Required<RequestConfig>;
@@ -90,8 +92,17 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
     if (!requestHasSupportedMethod(request)) {
         throw prepareResponse(request, { status: 405 });
     }
+    if (cfg.enforceAppBaseURLOrigin && requestPathHasInvalidAppBaseURLOrigin(request, url)) {
+        const appBaseURL = $app.baseURL({ parsed: true });
+        (url.protocol = appBaseURL.protocol), (url.host = appBaseURL.host);
+
+        if (cfg.enforceNoTrailingSlash && requestPathHasInvalidTrailingSlash(request, url)) {
+            url.pathname = $str.rTrim(url.pathname, '/'); // Avoids two redirects.
+        }
+        throw prepareResponse(request, { status: 301, headers: { location: url.toString() } });
+    }
     if (cfg.enforceNoTrailingSlash && requestPathHasInvalidTrailingSlash(request, url)) {
-        url.pathname = $str.rTrim(url.pathname, '/'); // Remove.
+        url.pathname = $str.rTrim(url.pathname, '/');
         throw prepareResponse(request, { status: 301, headers: { location: url.toString() } });
     }
     if (cfg.enableRewrites && !request.headers.has('x-rewrite-url')) {
@@ -397,6 +408,20 @@ export const requestPathIsInvalid = $fnꓺmemo(2, (request: $type.Request, _url?
     if ('/' === url.pathname) return false;
 
     return /\\|\/{2,}|\.{2,}/iu.test(url.pathname);
+});
+
+/**
+ * Request has an invalid app base URL origin?
+ *
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request has an invalid app base URL origin.
+ */
+export const requestPathHasInvalidAppBaseURLOrigin = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    const appBaseURL = $app.baseURL({ parsed: true });
+    return url.protocol !== appBaseURL.protocol || url.host !== appBaseURL.host;
 });
 
 /**

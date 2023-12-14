@@ -7,11 +7,12 @@ import '#@initialize.ts';
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $app, $cookie, $fn, $is, $obj, $obp, $str, $to, $type, $url } from '#index.ts';
 
-let topLevelObp: string = '';
-let topLevelObpSet: boolean = false;
+let topLevelObp: string = '',
+    topLevelObpSet: boolean = false,
+    varsInitialized: boolean = false;
 
-let varsInitialized: boolean = false;
-const vars: { [x: string]: unknown } = {};
+const vars: { [x: string]: unknown } = {},
+    tꓺvꓺundefined = undefined;
 
 /**
  * Defines types.
@@ -48,7 +49,8 @@ type IPGeoDataResponsePayload = Readonly<{
     error?: Readonly<{ message: string }>;
     data?: IPGeoData;
 }>;
-export type GetOptions = { default?: unknown; type?: $type.EnsurableType };
+export type CaptureOptions = { overrideExisting: boolean };
+export type GetOptions = { type?: $type.EnsurableType; require?: boolean; default?: unknown };
 export type GetOptionsWithoutType = GetOptions & { type?: undefined };
 export type GetOptionsWithType = GetOptions & { type: $type.EnsurableType };
 
@@ -119,7 +121,7 @@ const resolveTopLevelObp = (obp: string): string => {
  *
  * @param rootObp A root object path to use as the top-level object path.
  *
- *   - Root object path is sanitized using {@see $str.obpPartSafe()} automatically.
+ *   - Root object path is sanitized using {@see $str.obpPartSafe()}.
  */
 export const setTopLevelObp = (rootObp: string): void => {
     if (topLevelObpSet) {
@@ -132,17 +134,21 @@ export const setTopLevelObp = (rootObp: string): void => {
 /**
  * Captures environment variables.
  *
- * Order of capture matters. Existing values are not overwritten.
+ * Order of capture matters. By default, existing values are not overwritten.
  *
  * @param rootObp A root object path in which to place captured environment variables; e.g., `@top`.
  *
- *   - Root object path is sanitized using {@see $str.obpPartSafe()} automatically.
+ *   - Root object path is sanitized using {@see $str.obpPartSafe()}.
  *   - //
  * @param env     Environment variables, by object subpath.
+ * @param options Options (all optional); {@see CaptureOptions}.
  */
-export const capture = (rootObp: string, env: object): void => {
+export const capture = (rootObp: string, env: object, options?: CaptureOptions): void => {
     if (!varsInitialized) initializeVars();
     rootObp = $str.obpPartSafe(rootObp);
+
+    const opts = $obj.defaults({}, options || {}, { overrideExisting: false }) as Required<CaptureOptions>,
+        captureFn = opts.overrideExisting ? $obp.set : $obp.defaultTo;
 
     if ('@top' === rootObp && !topLevelObpSet) {
         throw Error('79yZmpRt'); // `@top` used in capture before calling `$env.setTopLevelObp()`.
@@ -150,7 +156,7 @@ export const capture = (rootObp: string, env: object): void => {
     for (const [subObp, value] of Object.entries(env)) {
         if (!subObp) continue; // Empty subpath not allowable.
         const obp = [rootObp, subObp].filter((v) => '' !== v).join('.');
-        $obp.defaultTo(vars, resolveTopLevelObp(obp), $is.string(value) ? $str.parseValue(value) : value);
+        captureFn(vars, resolveTopLevelObp(obp), $is.string(value) ? $str.parseValue(value) : value);
     }
 };
 
@@ -217,7 +223,7 @@ export function get(...args: unknown[]): unknown {
     } else (leadingObps = args[0] as string | string[]), (subObpOrObp = args[1] as string), (options = args[2] as GetOptions | undefined);
 
     let value: unknown; // Initialize value, which is populated below, if possible.
-    const opts = $obj.defaults({}, options || {}, { type: undefined, default: undefined }) as GetOptions;
+    const opts = $obj.defaults({}, options || {}, { type: tꓺvꓺundefined, require: false, default: tꓺvꓺundefined }) as GetOptions;
 
     for (const leadingObp of $to.array(leadingObps)) {
         const obp = [leadingObp, subObpOrObp].filter((v) => '' !== v).join('.');
@@ -226,13 +232,15 @@ export function get(...args: unknown[]): unknown {
             // If top-level, look first at globals.
             value = $obp.get(vars, globalTopLevelObp(obp));
         }
-        if (undefined === value) {
+        if (tꓺvꓺundefined === value) {
             // Otherwise, resolve top-level and query.
             value = $obp.get(vars, resolveTopLevelObp(obp));
         }
-        if (undefined !== value) break; // Got value.
+        if (tꓺvꓺundefined !== value) break; // Got value.
     }
-    value = undefined !== value ? value : opts.default;
+    if (tꓺvꓺundefined === value) value = opts.default;
+    // Only throws if both the value and the default are undefined.
+    if (opts.require && tꓺvꓺundefined === value) throw Error('r4bAXRmQ');
 
     if (opts.type /* Ensurable type. */) {
         return $type.ensure(value, opts.type);
@@ -503,14 +511,18 @@ export const hasGlobalPrivacy = $fnꓺmemo(2, (request?: $type.Request): boolean
 /**
  * Gets IP geolocation data.
  *
+ * Requires a web environment. Current IP is mapped to a geo-location. This does a remote first-party HTTP request to
+ * determine geolocation; i.e., this is our own API. Thus, we are not sharing with a third-party.
+ *
  * @returns IP geolocation data promise.
  *
- * @note Recommened for web, but potentially useful in other environments.
- * ---
- * @note This does a remote first-party HTTP request to determine geolocation.
- *       i.e., This is our own API, so we are not sharing with any third-party.
+ * @requiredEnv web
  */
 export const ipGeoData = $fnꓺmemo(async (): Promise<IPGeoData> => {
+    // A web environment is strictly required by this utility.
+    // Guards against automated tests potentially attempting to make remote requests.
+    if (!isWeb()) throw Error('rVVvpwhe');
+
     return fetch('https://workers.hop.gdn/utilities/api/ip-geo/v1') //
         .then(async (response): Promise<IPGeoDataResponsePayload> => {
             return $to.plainObject(await response.json()) as IPGeoDataResponsePayload;
@@ -607,8 +619,8 @@ export function test(...args: unknown[]): boolean {
 
     let value = get(leadingObps, subObpOrObp); // Environment variable value.
     // We can also try a cookie by the same name, but only under a set of specific conditions.
-    if (undefined === value && opts.alsoTryCookie && isWeb() && '' === $to.array(leadingObps).join('')) {
-        value = $cookie.get(subObpOrObp, undefined); // Cookie value.
+    if (tꓺvꓺundefined === value && opts.alsoTryCookie && isWeb() && '' === $to.array(leadingObps).join('')) {
+        value = $cookie.get(subObpOrObp, tꓺvꓺundefined); // Cookie value.
     }
     if ($is.emptyOrZero(value)) return false; // Empty or `'0'` = false.
     if ($is.empty(tests)) return true; // Not empty, not `'0'`, no tests = true.
@@ -619,9 +631,9 @@ export function test(...args: unknown[]): boolean {
 
     for (const [qv, test] of Object.entries(tests as QVTests)) {
         const exists = Object.hasOwn(qvs, qv);
-        const parsedValue = exists ? $str.parseValue(qvs[qv]) : undefined;
+        const parsedValue = exists ? $str.parseValue(qvs[qv]) : tꓺvꓺundefined;
 
-        if (null === test || undefined === test) {
+        if (null === test || tꓺvꓺundefined === test) {
             if (!exists) return false;
             //
         } else if (true === test) {
