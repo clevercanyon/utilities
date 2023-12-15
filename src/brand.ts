@@ -262,9 +262,9 @@ const initializeRawProps = (): void => {
             [tꓺisDark]: true,
             [tꓺcolor]: '#09090b',
             [tꓺfgColor]: '#f0f0f0',
-            [tꓺlinkColor]: '#ff6640',
+            [tꓺlinkColor]: '#ff9a62',
             [tꓺlineColor]: '#17171c',
-            [tꓺheadingColor]: '#ffffff',
+            [tꓺheadingColor]: '#d75736',
         },
         [tꓺicon]: {
             [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംsvg,
@@ -355,6 +355,7 @@ const initializeRawProps = (): void => {
             [tꓺtheme]: {
                 ...rawProps[tꓺමclevercanyonⳇclevercanyonംcom][tꓺtheme],
                 [tꓺlinkColor]: '#80aff9',
+                [tꓺheadingColor]: '#ffffff',
             },
             [tꓺicon]: {
                 [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
