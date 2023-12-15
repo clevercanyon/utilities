@@ -264,7 +264,7 @@ const initializeRawProps = (): void => {
             [tꓺfgColor]: '#f0f0f0',
             [tꓺlinkColor]: '#ff9a62',
             [tꓺlineColor]: '#17171c',
-            [tꓺheadingColor]: '#d75736',
+            [tꓺheadingColor]: '#ed5f3b',
         },
         [tꓺicon]: {
             [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംsvg,
