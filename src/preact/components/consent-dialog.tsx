@@ -251,7 +251,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 labelProps={{}}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'always-on-essential-cookies'}
-                                                class='accent-color-primary'
+                                                class='accent-color-success'
                                                 //
                                                 disabled={true}
                                                 checked={true}
