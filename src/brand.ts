@@ -262,7 +262,7 @@ const initializeRawProps = (): void => {
             [tꓺisDark]: true,
             [tꓺcolor]: '#09090b',
             [tꓺfgColor]: '#f0f0f0',
-            [tꓺlinkColor]: '#f99980',
+            [tꓺlinkColor]: '#ff6640',
             [tꓺlineColor]: '#17171c',
             [tꓺheadingColor]: '#ffffff',
         },
