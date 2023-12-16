@@ -93,6 +93,7 @@ const tꓺaddress = 'address',
     tꓺonDarkBg = 'onDarkBg',
     tꓺonLightBg = 'onLightBg',
     tꓺorg = 'org',
+    tꓺphone = 'phone',
     tꓺpkgName = 'pkgName',
     tꓺpng = 'png',
     tꓺംpng = '.' + tꓺpng,
@@ -119,6 +120,8 @@ const tꓺaddress = 'address',
     tꓺwidth = 'width',
     tꓺwwwം = 'www.',
     tꓺzip = 'zip',
+    //
+    tꓺvꓺc10nPhone = '+1-678-632-6015',
     //
     tꓺclevercanyonംcom = tꓺclevercanyon + tꓺംcom,
     tꓺමclevercanyonംcom = '@' + tꓺclevercanyonംcom,
@@ -227,7 +230,7 @@ const initializeRawProps = (): void => {
         [tꓺorg]: tꓺමclevercanyonⳇclevercanyonംcom,
         [tꓺtype]: tꓺcorp, // Corporation.
 
-        [tꓺlegalName]: tꓺClever𑂱Canyon + ', LLC',
+        [tꓺlegalName]: tꓺClever𑂱Canyon + ' LLC',
         [tꓺaddress]: {
             [tꓺstreet]: '9 N River Rd #660',
             [tꓺcity]: 'Auburn',
@@ -295,22 +298,27 @@ const initializeRawProps = (): void => {
             [tꓺadmin]: {
                 [tꓺemail]: tꓺadmin + tꓺමclevercanyonംcom,
                 [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
+                [tꓺphone]: tꓺvꓺc10nPhone,
             },
             [tꓺinfo]: {
                 [tꓺemail]: tꓺinfo + tꓺමclevercanyonംcom,
                 [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
+                [tꓺphone]: tꓺvꓺc10nPhone,
             },
             [tꓺsupport]: {
                 [tꓺemail]: tꓺsupport + tꓺමclevercanyonംcom,
                 [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
+                [tꓺphone]: tꓺvꓺc10nPhone,
             },
             [tꓺsecurity]: {
                 [tꓺemail]: tꓺsecurity + tꓺමclevercanyonംcom,
                 [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
+                [tꓺphone]: tꓺvꓺc10nPhone,
             },
             [tꓺprivacy]: {
                 [tꓺemail]: tꓺprivacy + tꓺමclevercanyonംcom,
                 [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺcontact,
+                [tꓺphone]: tꓺvꓺc10nPhone,
             },
         },
         [tꓺsocialProfiles]: {
@@ -382,22 +390,27 @@ const initializeRawProps = (): void => {
                 [tꓺadmin]: {
                     [tꓺemail]: tꓺadmin + tꓺමhopംgdn,
                     [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                    [tꓺphone]: tꓺvꓺc10nPhone,
                 },
                 [tꓺinfo]: {
                     [tꓺemail]: tꓺinfo + tꓺමhopംgdn,
                     [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                    [tꓺphone]: tꓺvꓺc10nPhone,
                 },
                 [tꓺsupport]: {
                     [tꓺemail]: tꓺsupport + tꓺමhopംgdn,
                     [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                    [tꓺphone]: tꓺvꓺc10nPhone,
                 },
                 [tꓺsecurity]: {
                     [tꓺemail]: tꓺsecurity + tꓺමhopംgdn,
                     [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                    [tꓺphone]: tꓺvꓺc10nPhone,
                 },
                 [tꓺprivacy]: {
                     [tꓺemail]: tꓺprivacy + tꓺමhopംgdn,
                     [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                    [tꓺphone]: tꓺvꓺc10nPhone,
                 },
             },
         },

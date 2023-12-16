@@ -100,22 +100,27 @@ declare class ClassInterface {
         readonly admin: {
             readonly email: string;
             readonly url: string;
+            readonly phone: string;
         };
         readonly info: {
             readonly email: string;
             readonly url: string;
+            readonly phone: string;
         };
         readonly support: {
             readonly email: string;
             readonly url: string;
+            readonly phone: string;
         };
         readonly security: {
             readonly email: string;
             readonly url: string;
+            readonly phone: string;
         };
         readonly privacy: {
             readonly email: string;
             readonly url: string;
+            readonly phone: string;
         };
     };
     public readonly socialProfiles: {
@@ -304,22 +309,27 @@ export const getClass = (): Constructor => {
             readonly admin: {
                 readonly email: string;
                 readonly url: string;
+                readonly phone: string;
             };
             readonly info: {
                 readonly email: string;
                 readonly url: string;
+                readonly phone: string;
             };
             readonly support: {
                 readonly email: string;
                 readonly url: string;
+                readonly phone: string;
             };
             readonly security: {
                 readonly email: string;
                 readonly url: string;
+                readonly phone: string;
             };
             readonly privacy: {
                 readonly email: string;
                 readonly url: string;
+                readonly phone: string;
             };
         };
 
