@@ -401,25 +401,30 @@ type ButtonProps = $preact.Props<Partial<$preact.Intrinsic['button']> & { withIc
  */
 function Checkbox(props: CheckboxProps): $preact.VNode<CheckboxProps> {
     const cursorClass = props.disabled //
-        ? 'cursor-not-allowed'
-        : 'cursor-pointer';
+            ? 'cursor-not-allowed'
+            : 'cursor-pointer',
+        pointerEventsClass = props.disabled //
+            ? 'pointer-events-none'
+            : '';
     return (
-        <label
-            for={props.id}
-            title={props.labelProps?.title || props.title}
-            class={$preact.classes(cursorClass, props.labelProps)}
-            {...$preact.omitProps(props.labelProps || {}, ['title', 'class', 'children'])}
-        >
-            <input
-                type='checkbox'
-                tabIndex={props.tabIndex || 0}
-                class={$preact.classes('select-none rounded', cursorClass, props)}
-                {...(props.disabled ? { 'aria-disabled': 'true', onClick: (e): void => e.preventDefault() } : {})}
-                {...$preact.omitProps(props, ['disabled', 'tabIndex', 'label', 'labelProps', 'class', 'children'])}
-            />{' '}
-            {props.label}
-            {props.children}
-        </label>
+        <div class={cursorClass}>
+            <label
+                for={props.id}
+                title={props.labelProps?.title || props.title}
+                class={$preact.classes(pointerEventsClass, props.labelProps)}
+                {...$preact.omitProps(props.labelProps || {}, ['title', 'class', 'children'])}
+            >
+                <input
+                    type='checkbox'
+                    tabIndex={props.tabIndex || 0}
+                    class={$preact.classes('select-none rounded', pointerEventsClass, props)}
+                    {...(props.disabled ? { 'aria-disabled': 'true', onClick: (e): void => e.preventDefault() } : {})}
+                    {...$preact.omitProps(props, ['disabled', 'tabIndex', 'label', 'labelProps', 'class', 'children'])}
+                />{' '}
+                {props.label}
+                {props.children}
+            </label>
+        </div>
     );
 }
 
