@@ -194,8 +194,8 @@ export const remove = (pkgName: string): void => {
 export const get = (pkgName: string): $type.Brand => {
     if (!rawPropsInitialized) initializeRawProps();
 
-    pkgName = '&' === pkgName ? tꓺමclevercanyonⳇclevercanyonംcom : pkgName;
-    // `&` is a self-referential Clever Canyon brand alias.
+    pkgName = '&' === pkgName ? tꓺමclevercanyonⳇclevercanyonംcom : '&&' === pkgName ? tꓺමclevercanyonⳇhopംgdn : pkgName;
+    // `&`, `&&` are self-referential Clever Canyon and Hop.gdn brand aliases.
 
     if (!pkgName || !rawProps[pkgName]) {
         throw Error('NC4Pnsxq'); // Missing brand: `' + pkgName + '`.
