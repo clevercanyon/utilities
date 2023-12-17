@@ -53,11 +53,15 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
 
     const { org: brandOrg } = brand,
         { legalName: brandOrgLegalName } = brandOrg,
-        brandOrgLogoSVG = brandOrg.logo[brandLogoKey].svg;
+        brandOrgLogo = brandOrg.logo, // For width/height ratio.
+        brandOrgLogoRatio = brandOrgLogo.width.toString() + '/' + brandOrgLogo.height.toString(),
+        brandOrgLogoSVG = brandOrgLogo[brandLogoKey].svg;
 
     const { org: brandOrgOrg } = brandOrg,
         { legalName: brandOrgOrgLegalName } = brandOrgOrg,
-        brandOrgOrgLogoSVG = brandOrgOrg.logo[brandLogoKey].svg;
+        brandOrgOrgLogo = brandOrgOrg.logo, // For width/height ratio.
+        brandOrgOrgLogoRatio = brandOrgOrgLogo.width.toString() + '/' + brandOrgOrgLogo.height.toString(),
+        brandOrgOrgLogoSVG = brandOrgOrgLogo[brandLogoKey].svg;
 
     const onClickOpenConsentDialog = $preact.useCallback((event: Event): void => {
             event.preventDefault(), void consent.then(({ openDialog }) => openDialog());
@@ -103,8 +107,8 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                         <span class={tꓺcꓺopacityᱼ50}>Brought to you by</span>{' '}
                         <a href={brandOrg.url} target='_blank'>
                             <img
-                                class='-mt-0.5 inline'
-                                style={{ width: '71px', height: '14px' }}
+                                class={'-mt-0.5 inline ' + (brandOrgOrg !== brandOrg ? 'h-3.5' : 'h-4')}
+                                style={{ aspectRatio: brandOrgLogoRatio }}
                                 src={brandOrgLogoSVG}
                                 alt={brandOrgLegalName}
                                 title={brandOrgLegalName}
@@ -118,8 +122,8 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                             <span class={tꓺcꓺopacityᱼ50}>… a</span>{' '}
                             <a href={brandOrgOrg.url} target='_blank'>
                                 <img
-                                    class='-mt-0.5 inline'
-                                    style={{ width: '115px', height: '16px' }}
+                                    class='-mt-0.5 inline h-4'
+                                    style={{ aspectRatio: brandOrgOrgLogoRatio }}
                                     src={brandOrgOrgLogoSVG}
                                     alt={brandOrgOrgLegalName}
                                     title={brandOrgOrgLegalName}
