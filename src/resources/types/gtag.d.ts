@@ -2,8 +2,8 @@
  * Defines types for Google Analytics.
  */
 interface Window {
-    dataLayer: unknown[][];
+    dataLayer: IArguments[];
     gtag: (...args: unknown[]) => void;
 }
-declare var dataLayer: unknown[][];
+declare var dataLayer: IArguments[];
 declare var gtag: (...args: unknown[]) => void;

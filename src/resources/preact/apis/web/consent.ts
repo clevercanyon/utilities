@@ -236,7 +236,7 @@ const updateStateUsingData = (data: Data): void => {
         state.needsOpenDialog = !state.hasUpdatedPrefs || state.hasGeoStalePrefs ? true : false;
     }
     if (!state.needsOpenDialog) {
-        if (data.lastUpdated && data.lastUpdated < $time.stamp() - 180 * $time.dayInSeconds) {
+        if (data.lastUpdated && data.lastUpdated < $time.stamp() - (state.hasOptOutFlag ? 12 : 6) * $time.monthInSeconds) {
             state.needsOpenDialog = true;
         }
     }

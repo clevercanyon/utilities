@@ -341,8 +341,8 @@ const initializeProviders = (): void => {
 
     // Initializes Google Analytics.
     (window.dataLayer = []),
-        (window.gtag = function (...args: unknown[]) {
-            dataLayer.push(args);
+        (window.gtag = function () {
+            dataLayer.push(arguments);
         });
     // Initializes consent data associated with analytics providers.
     updateProvidersConsentData(); // First update initializes.
