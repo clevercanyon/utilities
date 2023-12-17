@@ -21,7 +21,7 @@ export default async ({ isSSRBuild, distDir }) => {
     return isSSRBuild
         ? null // No types for SSR builds.
         : (await import('vite-plugin-dts')).default({
-              //logLevel: 'error',
+              logLevel: 'error',
               outDir: distDir + '/types',
           });
 };
