@@ -248,7 +248,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                         <div>
                                             <Checkbox
                                                 label='Essential Cookies (always on)'
-                                                labelProps={{}}
+                                                labelProps={{ class: 'font-semibold' }}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'always-on-essential-cookies'}
                                                 class='accent-color-success'
