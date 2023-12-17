@@ -407,7 +407,7 @@ function Checkbox(props: CheckboxProps): $preact.VNode<CheckboxProps> {
             ? 'pointer-events-none'
             : '';
     return (
-        <div class={cursorClass}>
+        <span class={cursorClass}>
             <label
                 for={props.id}
                 title={props.labelProps?.title || props.title}
@@ -424,7 +424,7 @@ function Checkbox(props: CheckboxProps): $preact.VNode<CheckboxProps> {
                 {props.label}
                 {props.children}
             </label>
-        </div>
+        </span>
     );
 }
 
