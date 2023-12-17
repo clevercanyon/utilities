@@ -400,24 +400,20 @@ type ButtonProps = $preact.Props<Partial<$preact.Intrinsic['button']> & { withIc
  * @returns       VNode / JSX element tree.
  */
 function Checkbox(props: CheckboxProps): $preact.VNode<CheckboxProps> {
-    const cursorClass = props.disabled //
-            ? 'cursor-not-allowed'
-            : 'cursor-pointer',
-        pointerEventsClass = props.disabled //
-            ? 'pointer-events-none'
-            : '';
+    const cursorClass = props.disabled ? 'cursor-not-allowed' : '',
+        pointerClass = props.disabled ? 'pointer-events-none' : 'cursor-pointer';
     return (
         <span class={cursorClass}>
             <label
                 for={props.id}
                 title={props.labelProps?.title || props.title}
-                class={$preact.classes(pointerEventsClass, props.labelProps)}
+                class={$preact.classes(pointerClass, props.labelProps)}
                 {...$preact.omitProps(props.labelProps || {}, ['title', 'class', 'children'])}
             >
                 <input
                     type='checkbox'
                     tabIndex={props.tabIndex || 0}
-                    class={$preact.classes('select-none rounded', pointerEventsClass, props)}
+                    class={$preact.classes('select-none rounded', pointerClass, props)}
                     {...(props.disabled ? { 'aria-disabled': 'true', onClick: (e): void => e.preventDefault() } : {})}
                     {...$preact.omitProps(props, ['disabled', 'tabIndex', 'label', 'labelProps', 'class', 'children'])}
                 />{' '}
