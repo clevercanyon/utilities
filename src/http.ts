@@ -13,7 +13,6 @@ import { $app, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, type $type }
 export type RequestConfig = {
     enforceAppBaseURLOrigin?: boolean;
     enforceNoTrailingSlash?: boolean;
-    enableCFWCacheRewrites?: boolean;
 };
 export type ResponseConfig = {
     status?: number;
@@ -39,7 +38,6 @@ export const requestConfig = (config?: RequestConfig): RequestConfig => {
     return $obj.defaults({}, config || {}, {
         enforceAppBaseURLOrigin: $env.isC10n() && $app.hasBaseURL(),
         enforceNoTrailingSlash: $env.isC10n(),
-        enableCFWCacheRewrites: $env.isCFW(),
     }) as Required<RequestConfig>;
 };
 
@@ -105,35 +103,15 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
         url.pathname = $str.rTrim(url.pathname, '/');
         throw prepareResponse(request, { status: 301, headers: { location: url.toString() } });
     }
-    if (cfg.enableCFWCacheRewrites && $env.isCFW() && !request.headers.has('x-rewrite-url')) {
-        // Initializes cache key using current app’s build time stamp.
-        let _ck = 'v=' + $app.buildTime().unix().toString();
+    // Deals with Miniflare URLs being proxied as `http:`.
+    if ($env.isCFWViaMiniflare() && 'http:' === url.protocol) {
+        // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
+        // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
+        // It’s worth noting that all our local test configurations make `https:` requests only.
+        url.protocol = 'https:'; // Rewrites to assumed original request URL w/ `https:`.
 
-        if (request.headers.has('origin')) {
-            const origin = request.headers.get('origin') || '';
-            _ck += '&origin=' + origin;
-        }
-        const originalURL = url; // Before CFW cache rewrites.
-        url = $url.removeCSOQueryVars(originalURL); // After rewrites.
-
-        if ($env.isCFWViaMiniflare() && 'http:' === url.protocol) {
-            // This miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
-            url.protocol = 'https:'; // Converts internal proxy URL into `https:`.
-        }
-        url.searchParams.set('_ck', _ck); // Sets the cache key param.
-        url.searchParams.sort(); // Optimizes cache by sorting query vars.
-
-        if (url.toString() !== originalURL.toString()) {
-            request = new Request(
-                url.toString(),
-                new Request(request as Request, {
-                    headers: {
-                        'x-rewrite-url': url.toString(),
-                        'x-original-url': originalURL.toString(),
-                    },
-                }),
-            );
-        }
+        // Rewrites request object using `https:` URL.
+        request = new Request(url.toString(), request as Request);
     }
     return request; // Potentially a rewritten request now.
 };
@@ -426,9 +404,10 @@ export const requestPathHasInvalidAppBaseURLOrigin = $fnꓺmemo(2, (request: $ty
     if (url.host !== appBaseURL.host) return true;
     return (
         url.protocol !== appBaseURL.protocol && //
-        // This miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
-        // We don’t consider mismatched protocols to be an issue in Miniflare,
-        // so long as protocol is the expected `http:`, which we rewrite anyway.
+        // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
+        // In Miniflare, we don’t consider a mismatched protocol to be an issue.
+        // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
+        // It’s worth noting that all our local test configurations make `https:` requests only.
         (!$env.isCFWViaMiniflare() || 'http:' !== url.protocol)
     );
 });

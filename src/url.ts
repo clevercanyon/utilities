@@ -912,12 +912,12 @@ export function removeQueryVars(...args: unknown[]): $type.URL | string {
 }
 
 /**
- * Removes client|cache-side-only query variables.
+ * Removes (client|cache)-side-only query variables.
  *
  * @param   parseable Parseable URL or string. Optional in browser; i.e., default is {@see current()}.
  * @param   base      Base URL. Required when parsing a URL that’s not absolute.
  *
- * @returns           Updated URL with client|cache-side-only query variables removed.
+ * @returns           Updated URL with (client|cache)-side-only query variables removed.
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
  */

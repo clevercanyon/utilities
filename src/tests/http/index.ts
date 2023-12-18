@@ -10,7 +10,6 @@ describe('$http', async () => {
         expect($http.requestConfig()).toStrictEqual({
             enforceAppBaseURLOrigin: false,
             enforceNoTrailingSlash: false,
-            enableCFWCacheRewrites: false,
         });
     });
     test('.responseConfig()', async () => {
