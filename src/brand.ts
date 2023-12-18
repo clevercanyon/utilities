@@ -363,7 +363,7 @@ const initializeRawProps = (): void => {
             [tꓺtheme]: {
                 ...rawProps[tꓺමclevercanyonⳇclevercanyonംcom][tꓺtheme],
                 [tꓺlinkColor]: '#80aff9',
-                [tꓺheadingColor]: '#f7cde2',
+                [tꓺheadingColor]: '#ffc3e1',
             },
             [tꓺicon]: {
                 [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
