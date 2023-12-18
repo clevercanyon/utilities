@@ -107,7 +107,7 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
     }
     if (cfg.enableCFWCacheRewrites && $env.isCFW() && !request.headers.has('x-rewrite-url')) {
         // Initializes cache key using current app’s build time stamp.
-        let _ck = 'version=' + $app.buildTime().unix().toString();
+        let _ck = 'v=' + $app.buildTime().unix().toString();
 
         if (request.headers.has('origin')) {
             const origin = request.headers.get('origin') || '';

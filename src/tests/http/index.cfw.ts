@@ -49,7 +49,7 @@ describe('$http', async () => {
     test('.prepareRequest()', async () => {
         const request1 = $http.prepareRequest(new Request('https://example.com/?utx_abc=abc&utm_abc=abc&xyz=xyz&abc=abc&_ck=_ck'));
         expect(request1).toBeInstanceOf(Request);
-        expect(request1.url.toString()).toBe('https://example.com/?_ck=version%3D' + $app.buildTime().unix().toString() + '&abc=abc&xyz=xyz');
+        expect(request1.url.toString()).toBe('https://example.com/?_ck=v%3D' + $app.buildTime().unix().toString() + '&abc=abc&xyz=xyz');
     });
     test('.prepareResponse()', async () => {
         const response1 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'));

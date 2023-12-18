@@ -124,6 +124,8 @@ export const get = (username: string): $type.Person => {
 
 /**
  * Initializes raw props.
+ *
+ * @todo Don't use gravatar to serve images, it leaks our visitors to a8c and complicates our default privacy stance.
  */
 const initializeRawProps = (): void => {
     if (rawPropsInitialized) return;
