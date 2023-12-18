@@ -256,6 +256,9 @@ const reduceState = (state: ActualState, x: Parameters<Context['updateState']>[0
         if (!/^(_?self)?$/iu.test(a.target || '') /* Ignores target !== `_self`. */) {
             return state; // Not applicable; i.e., targets a different tab/window.
         }
+        if ('noLocationChange' in a.dataset /* e.g., `data-no-location-change={''}` */) {
+            return state; // Explicitly states no location change.
+        }
         url = $url.parse(a.href, state.baseURL);
         //
     } else if (isObject && 'popstate' === (x as PopStateEvent).type) {

@@ -174,6 +174,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                             tꓺ_blank === target ? tꓺcꓺwhitespaceᱼnowrap : '',
                             0 === key ? '' : 'ml-2 border-l border-color-footer-fg/30 pl-2',
                         )}
+                        {...(onClick ? { 'data-no-location-change': '' } : {})}
                     >
                         {title}
                         {tꓺ_blank === target && <Fa6SolidArrowUpRightFromSquare class='ml-1 inline-block h-2 w-2' aria-hidden='true' />}
