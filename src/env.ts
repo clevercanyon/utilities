@@ -186,7 +186,12 @@ const initializeVars = (): void => {
 
     // `clevercanyon/utilities` app-specific environment variables compiled by Vite.
     // Note: This is for `clevercanyon/utilities`, explicity. Apps must capture their own.
-    capture($app.$pkgName, { APP_PKG_NAME: $app.$pkgName, ...import.meta.env });
+    capture($app.$pkgName, {
+        APP_PKG_NAME: $app.$pkgName,
+        APP_PKG_VERSION: $$__APP_PKG_VERSION__$$,
+        APP_BUILD_TIME_STAMP: $$__APP_BUILD_TIME_STAMP__$$,
+        ...import.meta.env,
+    });
 };
 
 /**

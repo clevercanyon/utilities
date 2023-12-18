@@ -13,7 +13,7 @@ import { $app, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, type $type }
 export type RequestConfig = {
     enforceAppBaseURLOrigin?: boolean;
     enforceNoTrailingSlash?: boolean;
-    enableRewrites?: boolean;
+    enableCFWCacheRewrites?: boolean;
 };
 export type ResponseConfig = {
     status?: number;
@@ -39,7 +39,7 @@ export const requestConfig = (config?: RequestConfig): RequestConfig => {
     return $obj.defaults({}, config || {}, {
         enforceAppBaseURLOrigin: $env.isC10n() && $app.hasBaseURL(),
         enforceNoTrailingSlash: $env.isC10n(),
-        enableRewrites: $env.isCFW(),
+        enableCFWCacheRewrites: $env.isCFW(),
     }) as Required<RequestConfig>;
 };
 
@@ -105,23 +105,24 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
         url.pathname = $str.rTrim(url.pathname, '/');
         throw prepareResponse(request, { status: 301, headers: { location: url.toString() } });
     }
-    if (cfg.enableRewrites && !request.headers.has('x-rewrite-url')) {
-        const originalURL = url; // Before rewrites.
-        url = $url.removeCSOQueryVars(originalURL);
-
-        let _ck = ''; // Initializes `_ck`, cache key.
+    if (cfg.enableCFWCacheRewrites && $env.isCFW() && !request.headers.has('x-rewrite-url')) {
+        // Initializes cache key using current app’s build time stamp.
+        let _ck = 'version=' + $app.buildTime().unix().toString();
 
         if (request.headers.has('origin')) {
             const origin = request.headers.get('origin') || '';
-            _ck = (_ck ? _ck + '&' : '') + 'origin=' + origin;
+            _ck += '&origin=' + origin;
         }
-        if (_ck) url.searchParams.set('_ck', _ck);
-        url.searchParams.sort(); // Optimizes cache.
+        const originalURL = url; // Before CFW cache rewrites.
+        url = $url.removeCSOQueryVars(originalURL); // After rewrites.
 
         if ($env.isCFWViaMiniflare() && 'http:' === url.protocol) {
             // This miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
             url.protocol = 'https:'; // Converts internal proxy URL into `https:`.
         }
+        url.searchParams.set('_ck', _ck); // Sets the cache key param.
+        url.searchParams.sort(); // Optimizes cache by sorting query vars.
+
         if (url.toString() !== originalURL.toString()) {
             request = new Request(
                 url.toString(),

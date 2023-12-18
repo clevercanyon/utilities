@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $appꓺ$pkgName, $fnꓺmemo } from '#@standalone/index.ts';
-import { $brand, $env, $obj, $str, $url, type $type } from '#index.ts';
+import { $brand, $env, $obj, $str, $time, $url, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -45,6 +45,28 @@ export const pkgSlug = $fnꓺmemo(12, (value?: string): string => {
     value ??= pkgName(); // Uses current app’s package name as the default value.
     value = value.replace(/^@/u, '').split('/')[1] || value; // Scoped package names.
     return $str.kebabCase(value, { asciiOnly: true, letterFirst: 'x' });
+});
+
+/**
+ * Gets current app’s package version.
+ *
+ * @returns Current app’s package version.
+ *
+ * @throws  If `APP_PKG_VERSION` is missing.
+ */
+export const pkgVersion = $fnꓺmemo((): string => {
+    return $env.get('APP_PKG_VERSION', { type: 'string', require: true });
+});
+
+/**
+ * Gets current app’s build time.
+ *
+ * @returns Current app’s build time; {@see $type.Time}.
+ *
+ * @throws  If `APP_BUILD_TIME_STAMP` is missing.
+ */
+export const buildTime = $fnꓺmemo((): $type.Time => {
+    return $time.parse($env.get('APP_BUILD_TIME_STAMP', { type: 'string', require: true }));
 });
 
 /**
