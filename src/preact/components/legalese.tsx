@@ -176,7 +176,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                         )}
                     >
                         {title}
-                        {tꓺ_blank === target && <Fa6SolidArrowUpRightFromSquare class='ml-1 inline-block h-auto w-2' aria-hidden='true' />}
+                        {tꓺ_blank === target && <Fa6SolidArrowUpRightFromSquare class='ml-1 inline-block h-2 w-2' aria-hidden='true' />}
                     </a>
                 ))}
             </div>
