@@ -177,7 +177,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                         class={$preact.classes(
                             'text-color-footer-fg',
                             onClick ? 'decoration-dotted' : '',
-                            tꓺ_blank === target ? tꓺcꓺwhitespaceᱼnowrap : '',
+                            tꓺ_blank === target && title.length <= 24 ? tꓺcꓺwhitespaceᱼnowrap : '',
                             0 === key ? '' : 'ml-2 border-l border-color-footer-fg/30 pl-2',
                         )}
                         {...(onClick ? { 'data-no-location-change': '' } : {})}
