@@ -70,17 +70,10 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
     const legalLinks = $preact.useMemo(
             () => [
                 {
-                    [tꓺtitle]: 'My Privacy Choices',
-                    [tꓺhref]: policies.privacy,
+                    [tꓺtitle]: 'Terms',
+                    [tꓺhref]: policies.terms,
                     [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
-                    [tꓺrel]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺexternal,
-                    [tꓺonClick]: onClickOpenConsentDialog,
-                },
-                {
-                    [tꓺtitle]: 'Do Not Sell or Share My Personal Information',
-                    [tꓺhref]: policies.dsar, // Data subject access request form.
-                    [tꓺtarget]: tꓺ_blank, // Typically is hosted by a third party.
-                    [tꓺrel]: tꓺnofollow + ' ' + tꓺexternal,
+                    [tꓺrel]: tꓺtermsᱼofᱼservice + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
                 },
                 {
                     [tꓺtitle]: 'Cookies',
@@ -95,10 +88,18 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                     [tꓺrel]: tꓺprivacyᱼpolicy + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
                 },
                 {
-                    [tꓺtitle]: 'Terms',
-                    [tꓺhref]: policies.terms,
+                    [tꓺtitle]: 'My Privacy Choices',
+                    [tꓺhref]: policies.privacy,
                     [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
-                    [tꓺrel]: tꓺtermsᱼofᱼservice + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
+                    [tꓺrel]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺexternal,
+                    [tꓺonClick]: onClickOpenConsentDialog,
+                },
+                {
+                    [tꓺtitle]: 'Do Not Sell or Share My Personal Information',
+                    [tꓺhref]: policies.dsar, // Data subject access request form.
+                    [tꓺtarget]: tꓺ_blank, // Typically is hosted by a third party.
+                    [tꓺrel]: tꓺnofollow + ' ' + tꓺexternal,
+                    [tꓺonClick]: tꓺvꓺundefined,
                 },
             ],
             [],
@@ -165,27 +166,29 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                     )}
                 </span>
             </div>
-            <div class='mx-auto mt-2 leading-tight lte-tablet:max-w-sm'>
-                {legalLinks.map(({ title, target, href, rel, onClick }, key) => (
-                    <a
-                        key={key}
-                        title={title}
-                        target={target}
-                        href={href}
-                        rel={rel}
-                        onClick={onClick}
-                        class={$preact.classes(
-                            'text-color-footer-fg',
-                            onClick ? 'decoration-dotted' : '',
-                            tꓺ_blank === target && title.length <= 24 ? tꓺcꓺwhitespaceᱼnowrap : '',
-                            0 === key ? '' : 'ml-2 border-l border-color-footer-fg/30 pl-2',
-                        )}
-                        {...(onClick ? { 'data-no-location-change': '' } : {})}
-                    >
-                        {title}
-                        {tꓺ_blank === target && <Fa6SolidArrowUpRightFromSquare class='ml-1 inline-block h-2 w-2' aria-hidden='true' />}
-                    </a>
-                ))}
+            <div class='mx-auto mt-2 flex flex-wrap justify-center gap-x-2 divide-x divide-color-footer-fg/30 leading-tight lte-tablet:gap-x-4 lte-tablet:divide-x-0'>
+                {legalLinks.map(({ title, href, target, rel, onClick }, key) => {
+                    return (
+                        <a
+                            key={key}
+                            title={title}
+                            target={target}
+                            href={href}
+                            rel={rel}
+                            onClick={onClick}
+                            class={$preact.classes(
+                                'text-color-footer-fg',
+                                'pl-2 lte-tablet:pl-0',
+                                onClick ? 'decoration-dotted' : '',
+                                tꓺ_blank === target ? tꓺcꓺwhitespaceᱼnowrap : '',
+                            )}
+                            {...(onClick ? { 'data-no-location-change': '' } : {})}
+                        >
+                            {title}
+                            {tꓺ_blank === target && <Fa6SolidArrowUpRightFromSquare class='ml-1 inline-block h-2 w-2' aria-hidden='true' />}
+                        </a>
+                    );
+                })}
             </div>
         </section>
     );
