@@ -95,6 +95,8 @@ declare class ClassInterface {
     public readonly policies: {
         readonly terms: string;
         readonly privacy: string;
+        readonly cookies: string;
+        readonly dsar: string;
     };
     public readonly contacts: {
         readonly admin: {
@@ -300,6 +302,8 @@ export const getClass = (): Constructor => {
         public readonly policies!: {
             readonly terms: string;
             readonly privacy: string;
+            readonly cookies: string;
+            readonly dsar: string;
         };
 
         /**

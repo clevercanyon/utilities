@@ -47,7 +47,6 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
         { state: layoutState } = $preact.useLayout();
 
     const { policies } = brand,
-        { terms, privacy } = policies,
         // Selects brand logo image based on layout context; i.e., on dark or light bg.
         brandLogoKey = ('on' + (layoutState?.themeIsDark ? 'Dark' : 'Light') + 'Bg') as 'onDarkBg' | 'onLightBg';
 
@@ -64,35 +63,38 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
         brandOrgOrgLogoSVG = brandOrgOrgLogo[brandLogoKey].svg;
 
     const onClickOpenConsentDialog = $preact.useCallback((event: Event): void => {
-            event.preventDefault(), void consent.then(({ openDialog }) => openDialog());
-        }, []),
-        onClickOpenConsentDialogInOptOutState = $preact.useCallback((event: Event): void => {
-            event.preventDefault(), void consent.then(({ openDialog }) => openDialog({ prefs: { optOut: { doNotSellOrSharePII: true } } }));
-        }, []);
+        event.preventDefault(), void consent.then(({ openDialog }) => openDialog());
+    }, []);
 
     const legalLinks = $preact.useMemo(
             () => [
                 {
                     [tꓺtitle]: 'My Privacy Choices',
                     [tꓺonClick]: onClickOpenConsentDialog,
-                    [tꓺhref]: privacy,
+                    [tꓺhref]: policies.privacy,
                 },
                 {
                     [tꓺtitle]: 'Do Not Sell or Share My Personal Information',
-                    [tꓺonClick]: onClickOpenConsentDialogInOptOutState,
-                    [tꓺhref]: privacy,
+                    [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
+                    [tꓺhref]: policies.dsar, // Data subject access request form.
                 },
                 {
                     [tꓺtitle]: 'Terms',
-                    [tꓺhref]: terms,
+                    [tꓺhref]: policies.terms,
                     [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
                     [tꓺrel]: tꓺtermsᱼofᱼservice + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
                 },
                 {
                     [tꓺtitle]: 'Privacy',
-                    [tꓺhref]: privacy,
+                    [tꓺhref]: policies.privacy,
                     [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
                     [tꓺrel]: tꓺprivacyᱼpolicy + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
+                },
+                {
+                    [tꓺtitle]: 'Cookies',
+                    [tꓺhref]: policies.cookies,
+                    [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
+                    [tꓺrel]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺexternal,
                 },
             ],
             [],

@@ -49,12 +49,14 @@ const tꓺaddress = 'address',
     tꓺcolor = 'color',
     tꓺംcom = '.com',
     tꓺcompany = 'company',
+    tꓺcookies = 'cookies',
     tꓺcontact = 'contact',
     tꓺcontacts = 'contacts',
     tꓺcorp = 'corp',
     tꓺcountry = 'country',
     tꓺdescription = 'description',
     tꓺemail = 'email',
+    tꓺdsar = 'dsar',
     tꓺfacebook = 'facebook',
     tꓺfgColor = 'fgColor',
     tꓺfounder = 'founder',
@@ -294,6 +296,8 @@ const initializeRawProps = (): void => {
         [tꓺpolicies]: {
             [tꓺterms]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺterms,
             [tꓺprivacy]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺprivacy,
+            [tꓺcookies]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺcookies,
+            [tꓺdsar]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺdsar,
         },
         [tꓺcontacts]: {
             [tꓺadmin]: {
