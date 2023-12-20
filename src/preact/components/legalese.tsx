@@ -79,10 +79,10 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                     [tꓺhref]: policies.dsar, // Data subject access request form.
                 },
                 {
-                    [tꓺtitle]: 'Terms',
-                    [tꓺhref]: policies.terms,
+                    [tꓺtitle]: 'Cookies',
+                    [tꓺhref]: policies.cookies,
                     [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
-                    [tꓺrel]: tꓺtermsᱼofᱼservice + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
+                    [tꓺrel]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺexternal,
                 },
                 {
                     [tꓺtitle]: 'Privacy',
@@ -91,10 +91,10 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                     [tꓺrel]: tꓺprivacyᱼpolicy + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
                 },
                 {
-                    [tꓺtitle]: 'Cookies',
-                    [tꓺhref]: policies.cookies,
+                    [tꓺtitle]: 'Terms',
+                    [tꓺhref]: policies.terms,
                     [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
-                    [tꓺrel]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺexternal,
+                    [tꓺrel]: tꓺtermsᱼofᱼservice + (brandOrgOrg === brand ? '' : ' ' + tꓺexternal),
                 },
             ],
             [],
