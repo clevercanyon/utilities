@@ -127,6 +127,7 @@ const tꓺaddress = 'address',
     tꓺමclevercanyonംcom = '@' + tꓺclevercanyonംcom,
     tꓺhttpsꓽⳇⳇclevercanyonംcom = tꓺhttpsꓽⳇⳇ + tꓺclevercanyonംcom,
     tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ = tꓺhttpsꓽⳇⳇclevercanyonംcom + '/',
+    tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ = tꓺhttpsꓽⳇⳇclevercanyonംcom + '/legal/',
     //
     tꓺhopംgdn = tꓺhop + tꓺംgdn,
     tꓺමhopംgdn = '@' + tꓺhopംgdn,
@@ -291,8 +292,8 @@ const initializeRawProps = (): void => {
             ...tꓺobjꓺwidthHeight2400x1260,
         },
         [tꓺpolicies]: {
-            [tꓺterms]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺterms,
-            [tꓺprivacy]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ + tꓺprivacy,
+            [tꓺterms]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺterms,
+            [tꓺprivacy]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺprivacy,
         },
         [tꓺcontacts]: {
             [tꓺadmin]: {
