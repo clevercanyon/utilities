@@ -247,6 +247,8 @@ describe('$to', async () => {
 
             'policies.terms',
             'policies.privacy',
+            'policies.cookies',
+            'policies.dsar',
 
             'contacts.admin.email',
             'contacts.admin.url',
@@ -424,6 +426,8 @@ describe('$to', async () => {
 
             'policies.terms',
             'policies.privacy',
+            'policies.cookies',
+            'policies.dsar',
 
             'contacts.admin.email',
             'contacts.admin.url',
