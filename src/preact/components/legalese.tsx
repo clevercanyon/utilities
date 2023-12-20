@@ -25,6 +25,7 @@ const tꓺrel = 'rel',
     tꓺ_blank = '_blank',
     tꓺtarget = 'target',
     tꓺonClick = 'onClick',
+    tꓺnofollow = 'nofollow',
     tꓺexternal = 'external',
     tꓺvꓺundefined = undefined,
     tꓺcꓺopacityᱼ50 = 'opacity-50',
@@ -70,13 +71,16 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
             () => [
                 {
                     [tꓺtitle]: 'My Privacy Choices',
-                    [tꓺonClick]: onClickOpenConsentDialog,
                     [tꓺhref]: policies.privacy,
+                    [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
+                    [tꓺrel]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺexternal,
+                    [tꓺonClick]: onClickOpenConsentDialog,
                 },
                 {
                     [tꓺtitle]: 'Do Not Sell or Share My Personal Information',
-                    [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
                     [tꓺhref]: policies.dsar, // Data subject access request form.
+                    [tꓺtarget]: tꓺ_blank, // Typically is hosted by a third party.
+                    [tꓺrel]: tꓺnofollow + ' ' + tꓺexternal,
                 },
                 {
                     [tꓺtitle]: 'Cookies',
