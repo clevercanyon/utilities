@@ -166,7 +166,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                     )}
                 </span>
             </div>
-            <div class='mx-auto mt-2 flex flex-wrap justify-center gap-x-2 divide-x divide-color-footer-fg/30 leading-tight lte-tablet:gap-x-4 lte-tablet:divide-x-0'>
+            <div class='mx-auto mt-2 flex flex-wrap justify-center gap-2 divide-x divide-color-footer-fg/30 leading-tight lte-tablet:gap-x-4 lte-tablet:divide-x-0'>
                 {legalLinks.map(({ title, href, target, rel, onClick }, key) => {
                     return (
                         <a
