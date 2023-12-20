@@ -107,7 +107,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
         currentYear = $preact.useMemo(() => new Date().getFullYear().toString(), []);
 
     return (
-        <section class='mt-12 text-xs leading-none lte-tablet:mt-6 lte-tablet:max-w-notebook lte-phone:mt-4' aria-label='Legalese'>
+        <section class='mt-12 text-xs leading-none lte-tablet:mt-6 lte-phone:mt-4' aria-label='Legalese'>
             {brandOrg !== brand && (
                 <div class='mb-2'>
                     <span class='lte-phone:block'>
