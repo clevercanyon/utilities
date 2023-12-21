@@ -234,13 +234,16 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                 <FluentEmojiFlatCookie class='-ml-1 mr-1 inline-block h-auto w-6' aria-hidden='true' />
                                 Cookie Preferences
                             </h2>
-                            <p class='mt-2 opacity-50'>
-                                By using our website you consent to essential cookies in accordance with our{' '}
-                                <a class='_ underline' href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
+                            <p class='mt-2 opacity-75'>
+                                By using our website you consent to all Essential Cookies in accordance with our{' '}
+                                <a href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
                                     privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
                                 </a>{' '}
                                 . If you click "Accept All", you are choosing to accept all cookies, including non-essential cookies. If you click "Decline All", you are choosing
-                                to decline all non-essential cookies.
+                                to decline all non-essential cookies. Your personal data may be transferred, stored, and processed in the European Economic Area (“EEA”), United
+                                States (“US”), or any other country in which our partners maintain facilities. By using our website, apps, products, and/or other services, you
+                                consent to any transfer, storage, and/or processing of personal data outside your country of residence and outside the EEA. We will take all steps
+                                reasonably necessary to ensure your data is secure.
                             </p>
                             <form onSubmit={onInadvertentSubmit} class='mt-2' novalidate>
                                 <div class='flex flex-wrap'>
@@ -259,11 +262,11 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                             <HelpIconToggle title='Learn More About Essential Cookies'>
                                                 <p class='my-1 ml-2'>
                                                     <span class='opacity-50'>
-                                                        Essential cookies are always enabled. They’re necessary for our site to function; e.g., account access, consent settings,
-                                                        preferences. To learn more, please review our
+                                                        Essential cookies are always enabled. They’re necessary for our site to function; e.g., routing, account access, consent
+                                                        settings, preferences. To learn more, please review our
                                                     </span>{' '}
-                                                    <a href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
-                                                        privacy policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
+                                                    <a href={brand.policies.cookies} target='_blank' title='Cookie Policy'>
+                                                        cookie policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
                                                     </a>
                                                 </p>
                                             </HelpIconToggle>
@@ -282,8 +285,8 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Functionality Cookies'>
                                                 <p class='my-1 ml-2 opacity-50'>
-                                                    Functionality cookies are similar to essential cookies. They remember preferences and improve user experience. However, unlike
-                                                    essential cookies, they are not strictly necessary.
+                                                    Functionality cookies enhance usability and performance. They enable additional features; e.g., embedded YouTube videos.
+                                                    However, unlike essential cookies, they are not strictly necessary.
                                                 </p>
                                             </HelpIconToggle>
                                         </div>
