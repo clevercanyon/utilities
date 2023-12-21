@@ -261,20 +261,20 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Essential Cookies'>
                                                 <p class='my-1 ml-2'>
-                                                    <span class='opacity-50'>
+                                                    <span class='opacity-75'>
                                                         Essential cookies are always enabled. They’re necessary for our site to function; e.g., routing, account access, consent
-                                                        settings, preferences. To learn more, please review our
-                                                    </span>{' '}
-                                                    <a href={brand.policies.cookies} target='_blank' title='Cookie Policy'>
-                                                        cookie policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
-                                                    </a>
+                                                        settings, preferences. To learn more, please review our{' '}
+                                                        <a href={brand.policies.cookies} target='_blank' title='Cookie Policy'>
+                                                            cookie policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
+                                                        </a>
+                                                    </span>
                                                 </p>
                                             </HelpIconToggle>
                                         </div>
                                         <div>
                                             <Checkbox
                                                 label='Accept Functionality Cookies'
-                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-50 line-through' : '' }}
+                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-75 line-through' : '' }}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'accept-functionality-cookies'}
                                                 class='accent-color-success'
@@ -284,7 +284,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 onChange={onCheckboxChange}
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Functionality Cookies'>
-                                                <p class='my-1 ml-2 opacity-50'>
+                                                <p class='my-1 ml-2 opacity-75'>
                                                     Functionality cookies enhance usability and performance. They enable additional features; e.g., embedded YouTube videos.
                                                     However, unlike essential cookies, they are not strictly necessary.
                                                 </p>
@@ -293,7 +293,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                         <div>
                                             <Checkbox
                                                 label='Accept Analytics Cookies'
-                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-50 line-through' : '' }}
+                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-75 line-through' : '' }}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'accept-analytics-cookies'}
                                                 class='accent-color-success'
@@ -303,7 +303,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 onChange={onCheckboxChange}
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Analytics Cookies'>
-                                                <p class='my-1 ml-2 opacity-50'>
+                                                <p class='my-1 ml-2 opacity-75'>
                                                     Analytics cookies measure user experience, traffic volume, traffic source, clicks, etc. We use these to optimize performance by
                                                     collecting information about how users interact with our site.
                                                 </p>
@@ -312,7 +312,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                         <div>
                                             <Checkbox
                                                 label='Accept Advertising Cookies'
-                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-50 line-through' : '' }}
+                                                labelProps={{ class: prefs.optOut.doNotSellOrSharePII ? 'opacity-75 line-through' : '' }}
                                                 //
                                                 id={htmlIdPrefixForOptInPrefs + 'accept-advertising-cookies'}
                                                 class='accent-color-success'
@@ -322,7 +322,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 onChange={onCheckboxChange}
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Advertising Cookies'>
-                                                <p class='ml-2 mt-1 opacity-50'>
+                                                <p class='ml-2 mt-1 opacity-75'>
                                                     Advertising cookies are used to identify visitors across sites; e.g., content partners, ad networks. We and our partners use
                                                     these to provide relevant ad content and to understand its effectiveness.
                                                 </p>
@@ -331,7 +331,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                         <h3 class='mt-3 border-t border-color-basic-line pt-2 text-base text-color-basic-heading'>Opt-Out Preferences</h3>
                                         <div>
                                             <Checkbox
-                                                label='Do Not Sell or Share My Personal Information'
+                                                label='Opt Me Out of All Non-Essential Cookies'
                                                 labelProps={{}}
                                                 //
                                                 id={htmlIdPrefixForOptOutPrefs + 'do-not-sell-or-share-pii'}
@@ -342,8 +342,14 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                 onChange={onCheckboxChange}
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Opting Out'>
-                                                <p class='ml-2 mt-1 opacity-50'>
-                                                    Opting out declines all non-essential cookies &amp; disables selling or sharing of your personal data.
+                                                <p class='ml-2 mt-1 opacity-75'>
+                                                    Opting out declines all non-essential cookies &amp; disables selling or sharing of your personal data, whenever such sharing or
+                                                    selling goes beyond the scope of essential cookies or other essential data required for our website, apps, products, or services
+                                                    to function properly for you. For example, we still need to share <em>some</em> personal data with our hosting providers so you
+                                                    can access our website. See also:{' '}
+                                                    <a href={brand.policies.dsar} target='_blank' title='Data Subject Access Request'>
+                                                        Do Not Sell or Share My Personal Information <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
+                                                    </a>
                                                 </p>
                                             </HelpIconToggle>
                                         </div>
