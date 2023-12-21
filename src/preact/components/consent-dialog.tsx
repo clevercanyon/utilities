@@ -344,7 +344,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                             <HelpIconToggle title='Learn More About Opting Out'>
                                                 <p class='ml-2 mt-1 opacity-75'>
                                                     Opting out forcibly disables all non-essential cookies &amp; non-essential selling or sharing of your personal data; i.e.,
-                                                    whenever such sharing or selling goes beyond the scope of essential cookies or other essential data required for our website,
+                                                    whenever such selling or sharing goes beyond the scope of essential cookies or other essential data required for our website,
                                                     apps, products, or services to function properly for you. For example, we still need to share <em>some</em> personal data with
                                                     our infrastructure providers so you can access our website. See also:{' '}
                                                     <a href={brand.policies.dsar} target='_blank' title='Data Subject Access Request'>
