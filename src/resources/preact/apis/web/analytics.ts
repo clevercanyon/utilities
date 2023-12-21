@@ -189,7 +189,7 @@ export const customerId = async (): Promise<string> => {
  */
 export const trackPageView = async (props: EventProps = {}): Promise<boolean> => {
     if ($url.getQueryVar('utm_source')) {
-        $cookie.set('utx_touch', $json.stringify(utmXQueryVars(), { pretty: true }));
+        $cookie.set('utx_touch', $json.stringify(utmXQueryVars()));
     }
     return trackEvent('page_view', props);
 };
