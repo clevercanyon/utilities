@@ -331,7 +331,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                         <h3 class='mt-3 border-t border-color-basic-line pt-2 text-base text-color-basic-heading'>Opt-Out Preferences</h3>
                                         <div>
                                             <Checkbox
-                                                label='Opt Me Out of All Non-Essential Cookies'
+                                                label='Opt Me Out of All Non-Essentials'
                                                 labelProps={{}}
                                                 //
                                                 id={htmlIdPrefixForOptOutPrefs + 'do-not-sell-or-share-pii'}
@@ -343,10 +343,10 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Opting Out'>
                                                 <p class='ml-2 mt-1 opacity-75'>
-                                                    Opting out declines all non-essential cookies &amp; disables selling or sharing of your personal data, whenever such sharing or
-                                                    selling goes beyond the scope of essential cookies or other essential data required for our website, apps, products, or services
-                                                    to function properly for you. For example, we still need to share <em>some</em> personal data with our hosting providers so you
-                                                    can access our website. See also:{' '}
+                                                    Opting out forcibly disables all non-essential cookies &amp; non-essential selling or sharing of your personal data; i.e.,
+                                                    whenever such sharing or selling goes beyond the scope of essential cookies or other essential data required for our website,
+                                                    apps, products, or services to function properly for you. For example, we still need to share <em>some</em> personal data with
+                                                    our infrastructure providers so you can access our website. See also:{' '}
                                                     <a href={brand.policies.dsar} target='_blank' title='Data Subject Access Request'>
                                                         Do Not Sell or Share My Personal Information <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
                                                     </a>
