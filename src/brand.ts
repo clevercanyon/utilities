@@ -297,6 +297,7 @@ const initializeRawProps = (): void => {
             [tꓺterms]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺterms,
             [tꓺprivacy]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺprivacy,
             [tꓺcookies]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺcookies,
+            [tꓺsecurity]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺsecurity,
             [tꓺdsar]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺdsar,
         },
         [tꓺcontacts]: {
