@@ -239,11 +239,11 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                 <a href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
                                     privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
                                 </a>{' '}
-                                . If you click "Accept All", you are choosing to accept all cookies, including non-essential cookies. If you click "Decline All", you are choosing
-                                to decline all non-essential cookies. Your personal data may be transferred, stored, and processed in the European Economic Area (“EEA”), United
-                                States (“US”), or any other country in which our partners maintain facilities. By using our website, apps, products, and/or other services, you
-                                consent to any transfer, storage, and/or processing of personal data outside your country of residence and outside the EEA. We will take all steps
-                                reasonably necessary to ensure your data is secure.
+                                . If you click "Accept All", you’re choosing to accept all cookies, including non-essential cookies. If you click "Decline All", you’re choosing to
+                                decline all non-essential cookies. Your personal data may be transferred, stored, and processed in the European Economic Area (“EEA”), United States
+                                (“US”), or any other country in which our partners maintain facilities. By using our website, apps, products, or other services, you consent to any
+                                transfer, storage, or processing of personal data outside your country of residence and outside the EEA. We will take all steps reasonably necessary
+                                to ensure your data is secure.
                             </p>
                             <form onSubmit={onInadvertentSubmit} class='mt-2' novalidate>
                                 <div class='flex flex-wrap'>
@@ -344,9 +344,9 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                             <HelpIconToggle title='Learn More About Opting Out'>
                                                 <p class='ml-2 mt-1 opacity-75'>
                                                     Opting out forcibly disables all non-essential cookies &amp; non-essential selling or sharing of your personal data; i.e.,
-                                                    whenever such selling or sharing goes beyond the scope of essential cookies or other essential data required for our website,
-                                                    apps, products, or services to function properly for you. For example, we still need to share <em>some</em> personal data with
-                                                    our infrastructure providers so you can access our website. See also:{' '}
+                                                    whenever such selling or sharing goes beyond the scope of essential cookies or essential data required for our website, apps,
+                                                    products, or services to function properly for you. For example, we still need to share <em>some</em> personal data with our
+                                                    infrastructure providers so you can access our website. See also:{' '}
                                                     <a href={brand.policies.dsar} target='_blank' title='Data Subject Access Request'>
                                                         Do Not Sell or Share My Personal Information <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
                                                     </a>
