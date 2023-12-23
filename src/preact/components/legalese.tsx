@@ -47,7 +47,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
         consent = $preact.useConsent(),
         { state: layoutState } = $preact.useLayout();
 
-    const { policies } = brand,
+    const { statusURL, policies } = brand,
         // Selects brand logo image based on layout context; i.e., on dark or light bg.
         brandLogoKey = ('on' + (layoutState?.themeIsDark ? 'Dark' : 'Light') + 'Bg') as 'onDarkBg' | 'onLightBg';
 
@@ -97,9 +97,14 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                 {
                     [tꓺtitle]: 'Do Not Sell or Share My Personal Information',
                     [tꓺhref]: policies.dsar, // Data subject access request form.
-                    [tꓺtarget]: tꓺ_blank, // Typically is hosted by a third party.
+                    [tꓺtarget]: tꓺ_blank, // Typically hosted by a third party.
                     [tꓺrel]: tꓺnofollow + ' ' + tꓺexternal,
-                    [tꓺonClick]: tꓺvꓺundefined,
+                },
+                {
+                    [tꓺtitle]: 'Network Status',
+                    [tꓺhref]: statusURL, // Network system status page.
+                    [tꓺtarget]: tꓺ_blank, // Should be hosted by a third party.
+                    [tꓺrel]: tꓺnofollow + ' ' + tꓺexternal,
                 },
             ],
             [],
