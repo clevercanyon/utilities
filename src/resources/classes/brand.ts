@@ -49,7 +49,9 @@ declare class ClassInterface {
 
     public readonly hostname: string;
     public readonly mxHostname: string;
+
     public readonly url: string;
+    public readonly statusURL: string;
 
     public readonly slug: string;
     public readonly var: string;
@@ -218,6 +220,11 @@ export const getClass = (): Constructor => {
          * URL; e.g., `https://my-brand.com/`.
          */
         public readonly url!: string;
+
+        /**
+         * URL; e.g., `https://status.my-brand.com/`.
+         */
+        public readonly statusURL!: string;
 
         /**
          * Slug; e.g., `my-brand`.

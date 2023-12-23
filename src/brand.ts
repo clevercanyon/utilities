@@ -107,6 +107,8 @@ const tꓺaddress = 'address',
     tꓺslugPrefix = 'slugPrefix',
     tꓺsocialProfiles = 'socialProfiles',
     tꓺstate = 'state',
+    tꓺstatus = 'status',
+    tꓺstatusURL = 'statusURL',
     tꓺstreet = 'street',
     tꓺsupport = 'support',
     tꓺsvg = 'svg',
@@ -130,6 +132,7 @@ const tꓺaddress = 'address',
     tꓺhttpsꓽⳇⳇclevercanyonംcom = tꓺhttpsꓽⳇⳇ + tꓺclevercanyonംcom,
     tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ = tꓺhttpsꓽⳇⳇclevercanyonംcom + '/',
     tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ = tꓺhttpsꓽⳇⳇclevercanyonംcom + '/legal/',
+    tꓺhttpsꓽⳇⳇstatusംclevercanyonംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺstatus + '.' + tꓺclevercanyonംcom + '/',
     //
     tꓺhopംgdn = tꓺhop + tꓺംgdn,
     tꓺමhopംgdn = '@' + tꓺhopംgdn,
@@ -253,7 +256,9 @@ const initializeRawProps = (): void => {
 
         [tꓺhostname]: tꓺclevercanyonംcom,
         [tꓺmxHostname]: tꓺclevercanyonംcom,
+
         [tꓺurl]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇ,
+        [tꓺstatusURL]: tꓺhttpsꓽⳇⳇstatusംclevercanyonംcomⳇ,
 
         [tꓺslug]: tꓺclevercanyon,
         [tꓺvar]: tꓺclevercanyon,
@@ -355,7 +360,9 @@ const initializeRawProps = (): void => {
 
             [tꓺhostname]: tꓺhopംgdn,
             [tꓺmxHostname]: tꓺhopംgdn,
+
             [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ,
+            // Inherits c10n status URL.
 
             [tꓺslug]: tꓺhop,
             [tꓺvar]: tꓺhop,

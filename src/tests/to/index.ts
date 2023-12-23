@@ -210,7 +210,9 @@ describe('$to', async () => {
 
             'hostname',
             'mxHostname',
+
             'url',
+            'statusURL',
 
             'slug',
             'var',
@@ -390,7 +392,9 @@ describe('$to', async () => {
 
             'hostname',
             'mxHostname',
+
             'url',
+            'statusURL',
 
             'slug',
             'var',
