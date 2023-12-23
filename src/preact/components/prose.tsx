@@ -30,7 +30,12 @@ export default function Prose(props: Props = {}): $preact.VNode<Props> {
                 // In our Tailwind implementation, `p` = `prose`.
                 // The `text-base` class handles auto-scaling of prose copy.
                 // Prose styles use em units while `text-base` uses autoscaling clamps.
-                class: $preact.classes('p', classMap.hasTextSize() ? '' : 'text-base', props),
+                class: $preact.classes(
+                    'p', //
+                    classMap.hasTextSize() ? '' : 'text-base',
+                    classMap.hasTextWrap() ? '' : 'text-balance',
+                    props,
+                ),
             }}
         />
     );
