@@ -6,6 +6,7 @@ import '#@initialize.ts';
 
 import { $appꓺ$pkgName, $fnꓺmemo } from '#@standalone/index.ts';
 import { $brand, $env, $obj, $str, $time, $url, type $type } from '#index.ts';
+import { type Base as Logtail } from '@logtail/core';
 
 /**
  * Defines types.
@@ -118,4 +119,26 @@ export const brand = $fnꓺmemo((): $type.Brand => {
     const value = $env.get('APP_BRAND');
     if (!value) $env.set('APP_BRAND', $brand.addApp());
     return $env.get('APP_BRAND', { require: true }) as $type.Brand;
+});
+
+/**
+ * Gets current app’s audit logger.
+ *
+ * @returns Current app’s audit logger.
+ *
+ * @throws  If `APP_AUDIT_LOGGER` is missing.
+ */
+export const auditLogger = $fnꓺmemo((): Logtail => {
+    return $env.get('APP_AUDIT_LOGGER', { require: true }) as Logtail;
+});
+
+/**
+ * Gets current app’s consent logger.
+ *
+ * @returns Current app’s consent logger.
+ *
+ * @throws  If `APP_CONSENT_LOGGER` is missing.
+ */
+export const consentLogger = $fnꓺmemo((): Logtail => {
+    return $env.get('APP_CONSENT_LOGGER', { require: true }) as Logtail;
 });

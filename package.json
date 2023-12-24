@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.657",
+    "version": "1.0.658",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -279,6 +279,7 @@
     },
     "dependencies": {},
     "peerDependencies": {
+        "@logtail/core": "^0.4.17",
         "@medv/finder": "3.1.0",
         "@preact/signals": "1.2.2",
         "color2k": "2.0.2",
@@ -297,7 +298,7 @@
     "optionalDependencies": {},
     "bundleDependencies": [],
     "devDependencies": {
-        "@clevercanyon/dev-deps": "^1.0.309"
+        "@clevercanyon/dev-deps": "^1.0.312"
     },
     "overrides": {},
     "cpu": ["x64", "arm64"],
