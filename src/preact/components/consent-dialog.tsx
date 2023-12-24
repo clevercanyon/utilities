@@ -227,17 +227,17 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                             class='float-right -mr-2 -mt-2 ml-4 opacity-70 hover:opacity-100 lte-tablet:-mr-1 lte-tablet:-mt-1'
                         >
                             <span class='sr-only'>Close Consent Dialog</span>
-                            <HeroiconsXMark class='inline h-auto w-4' aria-hidden='true' />
+                            <HeroiconsXMark class='inline h-4 w-4' aria-hidden='true' />
                         </button>
                         <div class='text-sm'>
                             <h2 class='-mt-2 text-lg text-color-basic-heading lte-tablet:-mt-1'>
-                                <FluentEmojiFlatCookie class='-ml-1 mr-1 inline-block h-auto w-6' aria-hidden='true' />
+                                <FluentEmojiFlatCookie class='-ml-1 mr-1 inline-block h-6 w-6' aria-hidden='true' />
                                 Cookie Preferences
                             </h2>
                             <p class='mt-2 opacity-75'>
                                 By using our website you consent to all Essential Cookies in accordance with our{' '}
                                 <a href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
-                                    privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
+                                    privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline h-2 w-2' aria-hidden='true' />
                                 </a>{' '}
                                 . If you click "Accept All", you’re choosing to accept all cookies, including non-essential cookies. If you click "Decline All", you’re choosing to
                                 decline all non-essential cookies. Your personal data may be transferred, stored, and processed in the European Economic Area (“EEA”), United States
@@ -265,7 +265,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                                         Essential cookies are always enabled. They’re necessary for our site to function; e.g., routing, account access, consent
                                                         settings, preferences. To learn more, please review our{' '}
                                                         <a href={brand.policies.cookies} target='_blank' title='Cookie Policy'>
-                                                            cookie policy <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
+                                                            cookie policy <Fa6SolidArrowUpRightFromSquare class='inline h-2 w-2' aria-hidden='true' />
                                                         </a>
                                                     </span>
                                                 </p>
@@ -343,12 +343,14 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                             />{' '}
                                             <HelpIconToggle title='Learn More About Opting Out'>
                                                 <p class='ml-2 mt-1 opacity-75'>
-                                                    Opting out forcibly disables all non-essential cookies &amp; non-essential selling or sharing of your personal data; i.e.,
-                                                    whenever such selling or sharing goes beyond the scope of essential cookies or essential data required for our website, apps,
-                                                    products, or services to function properly for you. For example, we still need to share <em>some</em> personal data with our
-                                                    infrastructure providers so you can access our website. See also:{' '}
+                                                    Opting out explicitly disables all non-essential cookies &amp; non-essential selling or sharing of personal data; i.e., whenever
+                                                    such selling or sharing goes beyond the scope of essentials required for our website, apps, products, or services to function.
+                                                    We still need to share <em>some</em> personal data with infrastructure providers, at minimum.
+                                                </p>
+                                                <p class='mt-2 text-xs opacity-75'>
+                                                    See also:{' '}
                                                     <a href={brand.policies.dsar} target='_blank' title='Data Subject Access Request'>
-                                                        Do Not Sell or Share My Personal Information <Fa6SolidArrowUpRightFromSquare class='inline h-auto w-2' aria-hidden='true' />
+                                                        Do Not Sell or Share My Personal Information <Fa6SolidArrowUpRightFromSquare class='inline h-2 w-2' aria-hidden='true' />
                                                     </a>
                                                 </p>
                                             </HelpIconToggle>
@@ -361,7 +363,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
                                             </Button>
                                         ) : (
                                             <Button withIcon={true} onClick={onAcceptAll} class='bg-color-primary text-color-primary-fg' title='Accept All Cookies'>
-                                                <Fa6SolidCircleCheck class='-ml-0.5 inline-block h-auto w-5' aria-hidden='true' />
+                                                <Fa6SolidCircleCheck class='-ml-0.5 inline-block h-5 w-5' aria-hidden='true' />
                                                 Accept All
                                             </Button>
                                         )}
@@ -464,9 +466,9 @@ function HelpIconToggle(props: HelpIconToggleProps): $preact.VNode<HelpIconToggl
             >
                 <span class='sr-only'>{props.title}</span>
                 {state.open ? (
-                    <Fa6SolidCircleChevronUp class='inline-block h-auto w-3' aria-hidden='true' />
+                    <Fa6SolidCircleChevronUp class='inline-block h-3 w-3' aria-hidden='true' />
                 ) : (
-                    <Fa6SolidCircleQuestion class='inline-block h-auto w-3' aria-hidden='true' />
+                    <Fa6SolidCircleQuestion class='inline-block h-3 w-3' aria-hidden='true' />
                 )}
             </button>
             <div class={state.open ? '' : 'hidden'}>{props.children}</div>
