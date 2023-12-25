@@ -3,6 +3,7 @@
  */
 
 import { $http } from '#index.ts';
+import { type ILogtailLog } from '@logtail/types';
 import { describe, expect, test } from 'vitest';
 
 describe('$http', async () => {
@@ -300,7 +301,7 @@ describe('$http', async () => {
     });
     test('.loggerMiddleware()', async () => {
         const request = new Request('https://x.tld/', { headers: { 'x-foo': 'foo' } });
-        expect(await $http.loggerMiddleware({ context: request })).toStrictEqual({
+        expect(await $http.loggerMiddleware({ context: request } as unknown as ILogtailLog)).toStrictEqual({
             context: {
                 method: 'GET',
                 url: 'https://x.tld/',
@@ -319,7 +320,7 @@ describe('$http', async () => {
             },
         });
         const response = new Response('Foo!', { headers: { 'content-type': 'text/html; charset=utf-8', 'x-foo': 'foo' } });
-        expect(await $http.loggerMiddleware({ context: response })).toStrictEqual({
+        expect(await $http.loggerMiddleware({ context: response } as unknown as ILogtailLog)).toStrictEqual({
             context: {
                 type: 'default',
                 url: '',
@@ -331,7 +332,7 @@ describe('$http', async () => {
                 body: 'Foo!',
             },
         });
-        expect(await $http.loggerMiddleware({ context: { xFoo: 'foo' } })).toStrictEqual({ context: { xFoo: 'foo' } });
+        expect(await $http.loggerMiddleware({ context: { xFoo: 'foo' } } as unknown as ILogtailLog)).toStrictEqual({ context: { xFoo: 'foo' } });
     });
     test('.extractHeaders()', async () => {
         expect($http.extractHeaders(new Headers({ A: 'A', B: 'B', c: 'c' }))).toStrictEqual({ a: 'A', b: 'B', c: 'c' });

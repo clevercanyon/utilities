@@ -6,6 +6,7 @@ import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $app, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, type $type } from '#index.ts';
+import { type ILogtailLog } from '@logtail/types';
 
 /**
  * Defines types.
@@ -613,7 +614,7 @@ export const verifyTurnstile = async (request: $type.Request, turnstile: string)
  *
  * @returns     Potentially modified object to log.
  */
-export const loggerMiddleware = async (log: $type.Object): Promise<$type.Object> => {
+export const loggerMiddleware = async (log: ILogtailLog): Promise<ILogtailLog> => {
     const { context } = log;
 
     if (context instanceof Request) {
