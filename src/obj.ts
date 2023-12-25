@@ -157,7 +157,79 @@ export const hasOwn = <Type, Key extends $type.ObjectKey>(value: Type, key: Key)
 };
 
 /**
- * Gets all of an object’s own enumerable keys and symbols.
+ * Gets all of an object’s enumerable keys.
+ *
+ * @param   value Value from which to get keys.
+ *
+ * @returns       All enumerable keys.
+ *
+ *   In this order:
+ *
+ *   - Own numeric keys in ascending order.
+ *   - Own string keys in their insertion order.
+ *
+ *   Followed by:
+ *
+ *   - Inherited numeric keys in ascending order.
+ *   - Inherited string keys in their insertion order.
+ *
+ * @note Unlike {@see Object.keys()}, this returns inherited keys also.
+ * @note Key order matches that of `{ ...spread }` and {@see Object.keys()}.
+ * @note Regarding enumerability and ownership, see: <https://o5p.me/cht9Ot>.
+ */
+export const allKeys = (value: unknown): string[] => {
+    const objValue = Object(value) as $type.Object,
+        keys = Object.keys(objValue);
+
+    const objProto = proto(objValue),
+        inheritedKeys = objProto ? allKeys(objProto) : [];
+
+    return [...new Set(keys.concat(inheritedKeys))];
+};
+
+/**
+ * Gets all of an object’s enumerable key entries.
+ *
+ * @param   value           Value from which to get key entries.
+ * @param   _parentObjValue Internal use only. Do not pass.
+ *
+ * @returns                 All enumerable key entries.
+ *
+ *   In this order:
+ *
+ *   - Own numeric keys in ascending order.
+ *   - Own string keys in their insertion order.
+ *
+ *   Followed by:
+ *
+ *   - Inherited numeric keys in ascending order.
+ *   - Inherited string keys in their insertion order.
+ *
+ * @note For further details, {@see allKeys()}.
+ * @note Unlike {@see Object.entries()}, this returns inherited entries also.
+ * @note Regarding enumerability and ownership, see: <https://o5p.me/cht9Ot>.
+ */
+export const allEntries = (value: unknown, _parentObjValue?: $type.Object): [string, unknown][] => {
+    const objValue = Object(value) as $type.Object,
+        parentObjValue = _parentObjValue || objValue,
+        entries: [string, unknown][] = [],
+        keys = Object.keys(objValue);
+
+    for (const key of keys) {
+        entries.push([key, parentObjValue[key]]);
+    }
+    const objProto = proto(objValue),
+        inheritedEntries = objProto ? allEntries(objProto, parentObjValue) : [];
+
+    return entries.concat(
+        inheritedEntries.filter(([inheritedKey]): boolean => {
+            return !keys.includes(inheritedKey);
+        }),
+    );
+};
+
+/**
+ * Gets an object’s own enumerable keys and symbols.
  *
  * @param   value Value from which to get keys and symbols.
  *
@@ -176,7 +248,7 @@ export const hasOwn = <Type, Key extends $type.ObjectKey>(value: Type, key: Key)
 export const keysAndSymbols = $standalone.$objꓺkeysAndSymbols;
 
 /**
- * Gets all of an object’s own enumerable key and symbol entries.
+ * Gets an object’s own enumerable key and symbol entries.
  *
  * @param   value Value from which to get key and symbol entries.
  *
@@ -189,11 +261,12 @@ export const keysAndSymbols = $standalone.$objꓺkeysAndSymbols;
  *   - Symbol keys in their insertion order.
  *
  * @note For further details, {@see keysAndSymbols()}.
- * @note Unlike {@see Object.entries()}, this returns symbol keys also.
+ * @note Unlike {@see Object.entries()}, this returns symbol entries also.
+ * @note Regarding enumerability and ownership, see: <https://o5p.me/cht9Ot>.
  */
 export const keyAndSymbolEntries = (value: unknown): $type.ObjectEntries => {
-    const entries: $type.ObjectEntries = [];
-    const objValue = Object(value) as $type.Object;
+    const entries: $type.ObjectEntries = [],
+        objValue = Object(value) as $type.Object;
 
     for (const keyOrSymbol of Reflect.ownKeys(objValue)) {
         if (Object.getOwnPropertyDescriptor(objValue, keyOrSymbol)?.enumerable) {
@@ -201,6 +274,91 @@ export const keyAndSymbolEntries = (value: unknown): $type.ObjectEntries => {
         }
     }
     return entries;
+};
+
+/**
+ * Gets all of an object’s enumerable keys and symbols.
+ *
+ * @param   value Value from which to get keys and symbols.
+ *
+ * @returns       All enumerable keys and symbols.
+ *
+ *   In this order:
+ *
+ *   - Own numeric keys in ascending order.
+ *   - Own string keys in their insertion order.
+ *   - Own symbol keys in their insertion order.
+ *
+ *   Followed by:
+ *
+ *   - Inherited numeric keys in ascending order.
+ *   - Inherited string keys in their insertion order.
+ *   - Inherited symbol keys in their insertion order.
+ *
+ * @note Unlike {@see Object.keys()}, this returns symbol keys also.
+ * @note Unlike {@see Object.keys()}, this returns inherited keys also.
+ * @note Key order matches that of `{ ...spread }` and {@see Object.keys()}.
+ * @note Regarding enumerability and ownership, see: <https://o5p.me/cht9Ot>.
+ */
+export const allKeysAndSymbols = (value: unknown): $type.ObjectKey[] => {
+    const keys: $type.ObjectKey[] = [],
+        objValue = Object(value) as $type.Object;
+
+    for (const keyOrSymbol of Reflect.ownKeys(objValue)) {
+        if (Object.getOwnPropertyDescriptor(objValue, keyOrSymbol)?.enumerable) {
+            keys.push(keyOrSymbol);
+        }
+    }
+    const objProto = proto(objValue),
+        inheritedKeys = objProto ? allKeysAndSymbols(objProto) : [];
+
+    return [...new Set(keys.concat(inheritedKeys))];
+};
+
+/**
+ * Gets all of an object’s enumerable key and symbol entries.
+ *
+ * @param   value           Value from which to get key and symbol entries.
+ * @param   _parentObjValue Internal use only. Do not pass.
+ *
+ * @returns                 All enumerable key and symbol entries.
+ *
+ *   In this order:
+ *
+ *   - Own numeric keys in ascending order.
+ *   - Own string keys in their insertion order.
+ *   - Own symbol keys in their insertion order.
+ *
+ *   Followed by:
+ *
+ *   - Inherited numeric keys in ascending order.
+ *   - Inherited string keys in their insertion order.
+ *   - Inherited symbol keys in their insertion order.
+ *
+ * @note For further details, {@see allKeysAndSymbols()}.
+ * @note Unlike {@see Object.entries()}, this returns symbol entries also.
+ * @note Unlike {@see Object.entries()}, this returns inherited entries also.
+ * @note Regarding enumerability and ownership, see: <https://o5p.me/cht9Ot>.
+ */
+export const allKeyAndSymbolEntries = (value: unknown, _parentObjValue?: $type.Object): $type.ObjectEntries => {
+    const entries: $type.ObjectEntries = [],
+        objValue = Object(value) as $type.Object,
+        parentObjValue = _parentObjValue || objValue;
+
+    for (const keyOrSymbol of Reflect.ownKeys(objValue)) {
+        if (Object.getOwnPropertyDescriptor(objValue, keyOrSymbol)?.enumerable) {
+            entries.push([keyOrSymbol, parentObjValue[keyOrSymbol]]);
+        }
+    }
+    const objProto = proto(objValue),
+        objKeysAndSymbols = keysAndSymbols(objValue),
+        inheritedEntries = objProto ? allKeyAndSymbolEntries(objProto, parentObjValue) : [];
+
+    return entries.concat(
+        inheritedEntries.filter(([inheritedKeyOrSymbol]) => {
+            return !objKeysAndSymbols.includes(inheritedKeyOrSymbol);
+        }),
+    );
 };
 
 /**

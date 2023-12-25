@@ -169,6 +169,143 @@ describe('$obj', async () => {
         expect($obj.protoC9r(testCustomSubNamedObj, 3)).toBe(Custom);
         expect($obj.protoC9r(testCustomAnonObj, 10)).toBe(undefined);
     });
+    test('.allKeys()', async () => {
+        const symbolA = Symbol();
+        const symbolB = Symbol();
+
+        const customObj = new (class extends Custom {
+            public constructor() {
+                super({ a: 'a', b: 'b', c: 'c' });
+                Object.defineProperty(this, 'a', { value: 'a', enumerable: true });
+                Object.defineProperty(this, 'b', { value: 'b', enumerable: true });
+                Object.defineProperty(this, 'c', { value: 'c', enumerable: true });
+                Object.defineProperty(this, 'd', { value: 'd', enumerable: false });
+                Object.defineProperty(this, symbolA, { value: true, enumerable: true });
+                Object.defineProperty(this, symbolB, { value: true, enumerable: false });
+            }
+        })();
+        const requestObj = new Request('https://x.tld/', { headers: { 'x-foo': 'foo' } });
+        const responseObj = new Response('body', { headers: { 'x-foo': 'foo' } });
+
+        expect($obj.allKeys(testCustomObj)).toStrictEqual(['values']);
+        expect($obj.allKeys(testObj)).toStrictEqual(['a', 'b', 'c']);
+        expect($obj.allKeys(customObj)).toStrictEqual(['values', 'a', 'b', 'c']);
+        expect($obj.allKeys(requestObj)).toStrictEqual([
+            'method',
+            'url',
+            'headers',
+            'destination',
+            'referrer',
+            'referrerPolicy',
+            'mode',
+            'credentials',
+            'cache',
+            'redirect',
+            'integrity',
+            'keepalive',
+            'isReloadNavigation',
+            'isHistoryNavigation',
+            'signal',
+            'body',
+            'bodyUsed',
+            'duplex',
+            'clone',
+            'blob',
+            'arrayBuffer',
+            'text',
+            'json',
+            'formData',
+            'attribute',
+        ]);
+        expect($obj.allKeys(responseObj)).toStrictEqual([
+            'type',
+            'url',
+            'redirected',
+            'status',
+            'ok',
+            'statusText',
+            'headers',
+            'body',
+            'bodyUsed',
+            'clone',
+            'blob',
+            'arrayBuffer',
+            'text',
+            'json',
+            'formData',
+        ]);
+    });
+    test('.allEntries()', async () => {
+        const symbolA = Symbol();
+        const symbolB = Symbol();
+
+        const customObj = new (class extends Custom {
+            public constructor() {
+                super({ a: 'a', b: 'b', c: 'c' });
+                Object.defineProperty(this, 'a', { value: 'a', enumerable: true });
+                Object.defineProperty(this, 'b', { value: 'b', enumerable: true });
+                Object.defineProperty(this, 'c', { value: 'c', enumerable: true });
+                Object.defineProperty(this, 'd', { value: 'd', enumerable: false });
+                Object.defineProperty(this, symbolA, { value: true, enumerable: true });
+                Object.defineProperty(this, symbolB, { value: true, enumerable: false });
+            }
+        })();
+        const requestObj = new Request('https://x.tld/', { headers: { 'x-foo': 'foo' } });
+        const requestObjEntries = $obj.allEntries(requestObj);
+
+        const responseObj = new Response('body', { headers: { 'x-foo': 'foo' } });
+        const responseObjEntries = $obj.allEntries(responseObj);
+
+        expect($obj.allEntries(testCustomObj)).toStrictEqual([['values', { a: 'a', b: 'b', c: 'c' }]]);
+        expect($obj.allEntries(testObj)).toStrictEqual([['a', 'a'], ['b', 'b'], ['c', 'c']]); // prettier-ignore
+        expect($obj.allEntries(customObj)).toStrictEqual([
+            ['values', { a: 'a', b: 'b', c: 'c' }],
+            ['a', 'a'],
+            ['b', 'b'],
+            ['c', 'c'],
+        ]);
+        expect(requestObjEntries[0]).toEqual(['method', 'GET']);
+        expect(requestObjEntries[1]).toEqual(['url', 'https://x.tld/']);
+        expect(requestObjEntries[2][0]).toBe('headers');
+        expect(requestObjEntries[3]).toEqual(['destination', '']);
+        expect(requestObjEntries[4]).toEqual(['referrer', 'about:client']);
+        expect(requestObjEntries[5]).toEqual(['referrerPolicy', '']);
+        expect(requestObjEntries[6]).toEqual(['mode', 'cors']);
+        expect(requestObjEntries[7]).toEqual(['credentials', 'same-origin']);
+        expect(requestObjEntries[8]).toEqual(['cache', 'default']);
+        expect(requestObjEntries[9]).toEqual(['redirect', 'follow']);
+        expect(requestObjEntries[10]).toEqual(['integrity', '']);
+        expect(requestObjEntries[11]).toEqual(['keepalive', false]);
+        expect(requestObjEntries[12]).toEqual(['isReloadNavigation', false]);
+        expect(requestObjEntries[13]).toEqual(['isHistoryNavigation', false]);
+        expect(requestObjEntries[14][0]).toBe('signal');
+        expect(requestObjEntries[15][0]).toBe('body');
+        expect(requestObjEntries[16]).toEqual(['bodyUsed', false]);
+        expect(requestObjEntries[17]).toEqual(['duplex', 'half']);
+        expect(requestObjEntries[18][0]).toBe('clone');
+        expect(requestObjEntries[19][0]).toBe('blob');
+        expect(requestObjEntries[20][0]).toBe('arrayBuffer');
+        expect(requestObjEntries[21][0]).toBe('text');
+        expect(requestObjEntries[22][0]).toBe('json');
+        expect(requestObjEntries[23][0]).toBe('formData');
+        expect(requestObjEntries[24]).toEqual(['attribute', undefined]);
+
+        expect(responseObjEntries[0]).toEqual(['type', 'default']);
+        expect(responseObjEntries[1]).toEqual(['url', '']);
+        expect(responseObjEntries[2]).toEqual(['redirected', false]);
+        expect(responseObjEntries[3]).toEqual(['status', 200]);
+        expect(responseObjEntries[4]).toEqual(['ok', true]);
+        expect(responseObjEntries[5]).toEqual(['statusText', '']);
+        expect(responseObjEntries[6][0]).toBe('headers');
+        expect(responseObjEntries[7][0]).toBe('body');
+        expect(responseObjEntries[8]).toEqual(['bodyUsed', false]);
+        expect(responseObjEntries[9][0]).toBe('clone');
+        expect(responseObjEntries[10][0]).toBe('blob');
+        expect(responseObjEntries[11][0]).toBe('arrayBuffer');
+        expect(responseObjEntries[12][0]).toBe('text');
+        expect(responseObjEntries[13][0]).toBe('json');
+        expect(responseObjEntries[14][0]).toBe('formData');
+    });
     test('.keysAndSymbols()', async () => {
         const symbolA = Symbol();
         const symbolB = Symbol();
@@ -180,7 +317,7 @@ describe('$obj', async () => {
                 Object.defineProperty(this, 'b', { value: 'b', enumerable: true });
                 Object.defineProperty(this, 'c', { value: 'c', enumerable: true });
                 Object.defineProperty(this, 'd', { value: 'd', enumerable: false });
-                Object.defineProperty(this, symbolA, { value: true, enumerable: true, writable: true });
+                Object.defineProperty(this, symbolA, { value: true, enumerable: true });
                 Object.defineProperty(this, symbolB, { value: true, enumerable: false });
             }
         })();
@@ -199,7 +336,7 @@ describe('$obj', async () => {
                 Object.defineProperty(this, 'b', { value: 'b', enumerable: true });
                 Object.defineProperty(this, 'c', { value: 'c', enumerable: true });
                 Object.defineProperty(this, 'd', { value: 'd', enumerable: false });
-                Object.defineProperty(this, symbolA, { value: true, enumerable: true, writable: true });
+                Object.defineProperty(this, symbolA, { value: true, enumerable: true });
                 Object.defineProperty(this, symbolB, { value: true, enumerable: false });
             }
         })();
@@ -212,6 +349,142 @@ describe('$obj', async () => {
             ['c', 'c'],
             [symbolA, true],
         ]);
+    });
+    test('.allKeysAndSymbols()', async () => {
+        const symbolA = Symbol();
+        const symbolB = Symbol();
+
+        const customObj = new (class extends Custom {
+            public constructor() {
+                super({ a: 'a', b: 'b', c: 'c' });
+                Object.defineProperty(this, 'a', { value: 'a', enumerable: true });
+                Object.defineProperty(this, 'b', { value: 'b', enumerable: true });
+                Object.defineProperty(this, 'c', { value: 'c', enumerable: true });
+                Object.defineProperty(this, 'd', { value: 'd', enumerable: false });
+                Object.defineProperty(this, symbolA, { value: true, enumerable: true });
+                Object.defineProperty(this, symbolB, { value: true, enumerable: false });
+            }
+        })();
+        const requestObj = new Request('https://x.tld/', { headers: { 'x-foo': 'foo' } });
+        const responseObj = new Response('body', { headers: { 'x-foo': 'foo' } });
+
+        expect($obj.allKeysAndSymbols(testCustomObj)).toStrictEqual(['values']);
+        expect($obj.allKeysAndSymbols(testObj)).toStrictEqual(['a', 'b', 'c']);
+        expect($obj.allKeysAndSymbols(customObj)).toStrictEqual(['values', 'a', 'b', 'c', symbolA]);
+        expect($obj.allKeysAndSymbols(requestObj)).toHaveLength(29);
+        expect($obj.allKeysAndSymbols(responseObj)).toHaveLength(18);
+
+        for (const key of [
+            'method',
+            'url',
+            'headers',
+            'destination',
+            'referrer',
+            'referrerPolicy',
+            'mode',
+            'credentials',
+            'cache',
+            'redirect',
+            'integrity',
+            'keepalive',
+            'isReloadNavigation',
+            'isHistoryNavigation',
+            'signal',
+            'body',
+            'bodyUsed',
+            'duplex',
+            'clone',
+            'blob',
+            'arrayBuffer',
+            'text',
+            'json',
+            'formData',
+            'attribute',
+        ]) {
+            expect($obj.allKeysAndSymbols(requestObj), key).toContain(key);
+        }
+        for (const key of ['type', 'url', 'redirected', 'status', 'ok', 'statusText', 'headers', 'body', 'bodyUsed', 'clone', 'blob', 'arrayBuffer', 'text', 'json', 'formData']) {
+            expect($obj.allKeysAndSymbols(responseObj), key).toContain(key);
+        }
+    });
+    test('.allKeyAndSymbolEntries()', async () => {
+        const symbolA = Symbol();
+        const symbolB = Symbol();
+
+        const customObj = new (class extends Custom {
+            public constructor() {
+                super({ a: 'a', b: 'b', c: 'c' });
+                Object.defineProperty(this, 'a', { value: 'a', enumerable: true });
+                Object.defineProperty(this, 'b', { value: 'b', enumerable: true });
+                Object.defineProperty(this, 'c', { value: 'c', enumerable: true });
+                Object.defineProperty(this, 'd', { value: 'd', enumerable: false });
+                Object.defineProperty(this, symbolA, { value: true, enumerable: true });
+                Object.defineProperty(this, symbolB, { value: true, enumerable: false });
+            }
+        })();
+        const requestObj = new Request('https://x.tld/', { headers: { 'x-foo': 'foo' } });
+        const requestObjEntries = $obj.allKeyAndSymbolEntries(requestObj);
+
+        const responseObj = new Response('body', { headers: { 'x-foo': 'foo' } });
+        const responseObjEntries = $obj.allKeyAndSymbolEntries(responseObj);
+
+        expect($obj.allKeyAndSymbolEntries(testCustomObj)).toStrictEqual([['values', { a: 'a', b: 'b', c: 'c' }]]);
+        expect($obj.allKeyAndSymbolEntries(testObj)).toStrictEqual([['a', 'a'], ['b', 'b'], ['c', 'c']]); // prettier-ignore
+        expect($obj.allKeyAndSymbolEntries(customObj)).toStrictEqual([
+            ['values', { a: 'a', b: 'b', c: 'c' }],
+            ['a', 'a'],
+            ['b', 'b'],
+            ['c', 'c'],
+            [symbolA, true],
+        ]);
+        expect(typeof requestObjEntries[0][1]).toBe('object');
+        expect(typeof requestObjEntries[1][1]).toBe('object');
+        expect(typeof requestObjEntries[2][1]).toBe('object');
+        expect(typeof requestObjEntries[3][1]).toBe('object');
+        expect(requestObjEntries[4]).toEqual(['method', 'GET']);
+        expect(requestObjEntries[5]).toEqual(['url', 'https://x.tld/']);
+        expect(requestObjEntries[6][0]).toBe('headers');
+        expect(requestObjEntries[7]).toEqual(['destination', '']);
+        expect(requestObjEntries[8]).toEqual(['referrer', 'about:client']);
+        expect(requestObjEntries[9]).toEqual(['referrerPolicy', '']);
+        expect(requestObjEntries[10]).toEqual(['mode', 'cors']);
+        expect(requestObjEntries[11]).toEqual(['credentials', 'same-origin']);
+        expect(requestObjEntries[12]).toEqual(['cache', 'default']);
+        expect(requestObjEntries[13]).toEqual(['redirect', 'follow']);
+        expect(requestObjEntries[14]).toEqual(['integrity', '']);
+        expect(requestObjEntries[15]).toEqual(['keepalive', false]);
+        expect(requestObjEntries[16]).toEqual(['isReloadNavigation', false]);
+        expect(requestObjEntries[17]).toEqual(['isHistoryNavigation', false]);
+        expect(requestObjEntries[18][0]).toBe('signal');
+        expect(requestObjEntries[19][0]).toBe('body');
+        expect(requestObjEntries[20]).toEqual(['bodyUsed', false]);
+        expect(requestObjEntries[21]).toEqual(['duplex', 'half']);
+        expect(requestObjEntries[22][0]).toBe('clone');
+        expect(requestObjEntries[23][0]).toBe('blob');
+        expect(requestObjEntries[24][0]).toBe('arrayBuffer');
+        expect(requestObjEntries[25][0]).toBe('text');
+        expect(requestObjEntries[26][0]).toBe('json');
+        expect(requestObjEntries[27][0]).toBe('formData');
+        expect(requestObjEntries[28]).toEqual(['attribute', undefined]);
+
+        expect(typeof responseObjEntries[0][1]).toBe('object');
+        expect(typeof responseObjEntries[1][1]).toBe('object');
+        expect(typeof responseObjEntries[2][1]).toBe('object');
+        expect(responseObjEntries[3]).toEqual(['type', 'default']);
+        expect(responseObjEntries[4]).toEqual(['url', '']);
+        expect(responseObjEntries[5]).toEqual(['redirected', false]);
+        expect(responseObjEntries[6]).toEqual(['status', 200]);
+        expect(responseObjEntries[7]).toEqual(['ok', true]);
+        expect(responseObjEntries[8]).toEqual(['statusText', '']);
+        expect(responseObjEntries[9][0]).toBe('headers');
+        expect(responseObjEntries[10][0]).toBe('body');
+        expect(responseObjEntries[11]).toEqual(['bodyUsed', false]);
+        expect(responseObjEntries[12][0]).toBe('clone');
+        expect(responseObjEntries[13][0]).toBe('blob');
+        expect(responseObjEntries[14][0]).toBe('arrayBuffer');
+        expect(responseObjEntries[15][0]).toBe('text');
+        expect(responseObjEntries[16][0]).toBe('json');
+        expect(responseObjEntries[17][0]).toBe('formData');
     });
     test('.assign()', async () => {
         const symbolA = Symbol();

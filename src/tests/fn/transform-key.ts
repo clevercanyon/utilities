@@ -37,7 +37,6 @@ describe('$fn', async () => {
                 deep: true,
                 maxSize: 3,
                 transformKey: (args: unknown[]): unknown[] => {
-                    console.log({ args: args.concat([$env.get('_TEST')]) });
                     return args.concat([$env.get('_TEST')]);
                 },
             },
