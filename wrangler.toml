@@ -7,7 +7,7 @@
 # @note This entire file will be updated automatically.
 # @note Instead of editing here, please review `./wrangler.mjs`.
 #
-# Last generated using `./wrangler.mjs` Dec 25, 2023 8:43 AM UTC.
+# Last generated using `./wrangler.mjs` Dec 25, 2023 9:13 AM UTC.
 ##
 
 send_metrics = false

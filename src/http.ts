@@ -607,6 +607,51 @@ export const verifyTurnstile = async (request: $type.Request, turnstile: string)
 };
 
 /**
+ * Acts as middleware for HTTP logging.
+ *
+ * @param   log Object being logged.
+ *
+ * @returns     Potentially modified object to log.
+ */
+export const loggerMiddleware = async (log: $type.Object): Promise<$type.Object> => {
+    const { context } = log;
+
+    if (context instanceof Request) {
+        return {
+            ...log,
+            context: {
+                ...$obj.pick(Object.fromEntries($obj.allEntries(context)), [
+                    'method',
+                    'destination',
+                    'url',
+                    'referrer',
+                    'referrerPolicy',
+                    'mode',
+                    'credentials',
+                    'cache',
+                    'redirect',
+                    'integrity',
+                    'keepalive',
+                    'isReloadNavigation',
+                    'isHistoryNavigation',
+                ]),
+                headers: extractHeaders(context.headers),
+            },
+        };
+    } else if (context instanceof Response) {
+        return {
+            ...log,
+            context: {
+                ...$obj.pick(Object.fromEntries($obj.allEntries(context)), ['type', 'url', 'redirected', 'ok', 'status', 'statusText']),
+                headers: extractHeaders(context.headers),
+                body: $str.clip(await context.text(), { maxBytes: 2048 }),
+            },
+        };
+    }
+    return log;
+};
+
+/**
  * Supported HTTP request methods.
  *
  * @returns An array of supported HTTP request methods (uppercase).
