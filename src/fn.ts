@@ -19,7 +19,7 @@ export type TryFunction<Fn extends $type.Function, CatchReturns> = Fn extends $t
 
 export type CurriedFunction<Fn extends $type.Function, Provided extends unknown[]> =
     // If there is at least one required parameter remaining, return new curried function; else invocation return value.
-    <Remaining extends $type.PartialTuple<$type.RemainingParameters<Provided, Parameters<Fn>>>>(...args: Remaining) => CurriedReturn<Fn, [...Provided, ...Remaining]>;
+    <Remaining extends $type.PartialParameters<$type.RemainingParameters<Provided, Parameters<Fn>>>>(...args: Remaining) => CurriedReturn<Fn, [...Provided, ...Remaining]>;
 
 export type CurriedReturn<Fn extends $type.Function, Provided extends unknown[]> = //
     // If there is at least one required parameter remaining.
@@ -36,10 +36,8 @@ type ThrottleDebounceCommonOptions = { leadingEdge?: boolean; waitTime?: number;
 
 export type ThrottledFunction<Fn extends $type.Function> = {
     (this: ThisParameterType<Fn>, ...args: Parameters<Fn>): Promise<ReturnType<Fn>>;
-    $onLeadingEdge: () => void;
-    $onTrailingEdge: () => void;
     flush: () => void;
-    cancel: (reason?: unknown) => void;
+    cancel: (rtnValue?: unknown) => void;
 };
 export type OnceFunction<Fn extends $type.Function> = $fnꓺMemoizedFunction<Fn>;
 
@@ -139,9 +137,9 @@ export { tryFn as try }; // Must export as alias.
  *
  * @note See: <https://o5p.me/ECOsaJ>, which inspired this utility.
  */
-export const curry = <Fn extends $type.Function, Args extends $type.PartialParameters<Fn>>(fn: Fn, ...startingArgs: Args): CurriedFunction<Fn, Args> => {
+export const curry = <Fn extends $type.Function, Args extends $type.PartialParametersOf<Fn>>(fn: Fn, ...startingArgs: Args): CurriedFunction<Fn, Args> => {
     return function (this: ThisParameterType<Fn>, ...partialArgs) {
-        const args = [...startingArgs, ...partialArgs] as $type.PartialParameters<Fn>;
+        const args = [...startingArgs, ...partialArgs] as $type.PartialParametersOf<Fn>;
 
         if (args.length >= fn.length) {
             return fn.apply(this, args); // Potentially a promise.
@@ -153,6 +151,9 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
 
 /**
  * Throttles a sync or async function.
+ *
+ * - Throttling limits the execution of code to once every `waitTime`.
+ * - Debouncing delays the execution of code until a caller stops calling for `waitTime`.
  *
  * @param   fn      Sync or async function to throttle.
  * @param   options Options (all optional); {@see ThrottleOptions}.
@@ -173,14 +174,16 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
 
             if (!rtnFn.$waitTimeout) rtnFn.$onLeadingEdge();
             if (!rtnFn.$waitTimeout || opts._debounceMode) {
-                rtnFn.$clearTimeout();
+                rtnFn.$clearTimeout(); // e.g., Case of debounce mode.
                 rtnFn.$waitTimeout = setTimeout(rtnFn.$onTrailingEdge, opts.waitTime);
             }
             // We cannot know here what the return value will be in a reject scenario.
             // In a case where `.cancel()` is explicitly called by the throttle implementation,
             // it will be `.cancel()` that sets the rejection return value in the implementation.
-        }).catch((fnRejectRtn) => fnRejectRtn as ReturnType<Fn>);
+        }).catch((rtnValue) => rtnValue as ReturnType<Fn>);
     };
+    // Private properties.
+
     rtnFn.$promises = [] as {
         resolve: (fnRtn: ReturnType<Fn>) => void;
         reject: (fnRejectRtn?: unknown) => void;
@@ -189,16 +192,16 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
     rtnFn.$waitTimeout = 0 as $type.Timeout | undefined;
     rtnFn.$latestArgs = [] as unknown as Parameters<Fn>;
 
-    rtnFn.$clearTimeout = function (): void {
-        clearTimeout(rtnFn.$waitTimeout), (rtnFn.$waitTimeout = 0);
-    };
+    // Private methods.
+
     rtnFn.$onLeadingEdge = function (): void {
         if (opts.leadingEdge) rtnFn.$resolvePromises();
     };
     rtnFn.$onTrailingEdge = function (): void {
         if (opts.trailingEdge) rtnFn.$resolvePromises();
-        rtnFn.$clearTimeout(); // Delays next potential leading edge.
-        rtnFn.$waitTimeout = setTimeout(() => rtnFn.$clearTimeout(), opts.waitTime);
+        rtnFn.$clearTimeout(); // Allowing for a new leading edge.
+        // If we resolved on trailing edge, delay next potential leading edge.
+        if (opts.trailingEdge) rtnFn.$waitTimeout = setTimeout(() => rtnFn.$clearTimeout(), opts.waitTime);
     };
     rtnFn.$resolvePromises = function (): number {
         if (!rtnFn.$promises.length) return 0;
@@ -211,26 +214,35 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
 
         return copyOfPromises.length;
     };
-    rtnFn.$rejectPromises = function (fnRejectRtn?: unknown): void {
+    rtnFn.$rejectPromises = function (rtnValue?: unknown): void {
         if (!rtnFn.$promises.length) return;
 
         const copyOfPromises = [...rtnFn.$promises];
         rtnFn.$promises = []; // Resets promises.
 
         // Rejections caught via `.catch()` above.
-        copyOfPromises.forEach(({ reject }) => reject(fnRejectRtn));
+        copyOfPromises.forEach(({ reject }) => reject(rtnValue));
     };
+    rtnFn.$clearTimeout = function (): void {
+        clearTimeout(rtnFn.$waitTimeout), (rtnFn.$waitTimeout = 0);
+    };
+    // Public methods.
+
     rtnFn.flush = function (): void {
         rtnFn.$resolvePromises(), rtnFn.$clearTimeout();
     };
-    rtnFn.cancel = function (fnRejectRtn?: unknown): void {
-        rtnFn.$rejectPromises(fnRejectRtn), rtnFn.$clearTimeout();
+    rtnFn.cancel = function (rtnValue?: unknown): void {
+        rtnFn.$rejectPromises(rtnValue), rtnFn.$clearTimeout();
     };
+
     return rtnFn as ThrottledFunction<Fn>;
 };
 
 /**
  * Debounces a sync or async function.
+ *
+ * - Throttling limits the execution of code to once every `waitTime`.
+ * - Debouncing delays the execution of code until a caller stops calling for `waitTime`.
  *
  * @param   fn      Sync or async function to debounce.
  * @param   options Options (all optional); {@see DebounceOptions}.

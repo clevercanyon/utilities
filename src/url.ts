@@ -40,21 +40,23 @@ export const stdLocalHostnames = (): string[] => ['local', 'localhost'];
  * These match up with the IP/DNS addresses in our SSL certificates for local development.
  * `@clevercanyon/skeleton/dev/.files/bin/ssl-certs/generate.bash` has the complete list for review.
  */
-export const localHostPatterns = $fnꓺmemo((): RegExp[] => [
-    ...new Set([
-        /^\[::\]$/u, // IPv6 null address.
-        /^0\.0\.0\.0$/u, // IPv4 null address.
+export const localHostPatterns = $fnꓺmemo((): Readonly<RegExp[]> => {
+    return $obj.freeze([
+        ...new Set([
+            /^\[::\]$/u, // IPv6 null address.
+            /^0\.0\.0\.0$/u, // IPv4 null address.
 
-        /^\[::1\]$/u, // IPv6 loopback address.
-        /^127\.0\.0\.1$/u, // IPv4 loopback address.
+            /^\[::1\]$/u, // IPv6 loopback address.
+            /^127\.0\.0\.1$/u, // IPv4 loopback address.
 
-        // These can be used as hostnames, or as TLDs; e.g., `local`, `x.local`.
-        ...stdLocalHostnames().map((name) => new RegExp('^(?:.+\\.)?' + $str.escRegExp(name) + '$', 'ui')),
+            // These can be used as hostnames, or as TLDs; e.g., `local`, `x.local`.
+            ...stdLocalHostnames().map((name) => new RegExp('^(?:.+\\.)?' + $str.escRegExp(name) + '$', 'ui')),
 
-        // These can only be used as TLDs; e.g., `x.mac`, `x.loc`, etc.
-        ...['mac', 'loc', 'dkr', 'vm'].map((name) => new RegExp('^(?:.+\\.)' + $str.escRegExp(name) + '$', 'ui')),
-    ]),
-]);
+            // These can only be used as TLDs; e.g., `x.mac`, `x.loc`, etc.
+            ...['mac', 'loc', 'dkr', 'vm'].map((name) => new RegExp('^(?:.+\\.)' + $str.escRegExp(name) + '$', 'ui')),
+        ]),
+    ]);
+});
 
 /* ---
  * Current utilities.
@@ -351,12 +353,15 @@ export const pathFromAppBase = $fnꓺmemo(24, (parseable: $type.URL | string): s
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
  *
+ * @note Unable to deep freeze a URL, but we would do so if possible.
+ *       For now, we just declare it readonly using a TypeScript return type.
+ *
  * @see addBasePath()
  */
-function _addAppBasePath(parseable: $type.URL): $type.URL;
+function _addAppBasePath(parseable: $type.URL): Readonly<$type.URL>;
 function _addAppBasePath(parseable: string): string;
 
-function _addAppBasePath(parseable: $type.URL | string): $type.URL | string {
+function _addAppBasePath(parseable: $type.URL | string): Readonly<$type.URL> | string {
     return addBasePath(parseable, $app.baseURL());
 }
 export const addAppBasePath = $fnꓺmemo(24, _addAppBasePath);
@@ -370,12 +375,15 @@ export const addAppBasePath = $fnꓺmemo(24, _addAppBasePath);
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
  *
+ * @note Unable to deep freeze a URL, but we would do so if possible.
+ *       For now, we just declare it readonly using a TypeScript return type.
+ *
  * @see removeBasePath()
  */
-function _removeAppBasePath(parseable: $type.URL): $type.URL;
+function _removeAppBasePath(parseable: $type.URL): Readonly<$type.URL>;
 function _removeAppBasePath(parseable: string): string;
 
-function _removeAppBasePath(parseable: $type.URL | string): $type.URL | string {
+function _removeAppBasePath(parseable: $type.URL | string): Readonly<$type.URL> | string {
     return removeBasePath(parseable, $app.baseURL());
 }
 export const removeAppBasePath = $fnꓺmemo(24, _removeAppBasePath);

@@ -74,7 +74,7 @@ export const tag = $fnꓺmemo(64, $standalone.$objꓺtag);
  *
  * @note Please {@see tag()} for details regarding the special case of `[tag]:[cn]`.
  */
-export const tags = $fnꓺmemo(64, (value: unknown): string[] => $standalone.$objꓺtags(value));
+export const tags = $fnꓺmemo(64, (value: unknown): Readonly<string[]> => $standalone.$objꓺtags(value));
 
 /**
  * Gets a value’s constructor.
@@ -470,6 +470,40 @@ export function defaults<TypeA, TypeB>(target: TypeA, ...values: [TypeB]): Recor
 }
 
 /**
+ * Freezes an object; {@see Object.freeze()}.
+ *
+ * @param   value Value to freeze.
+ *
+ * @returns       Frozen object; {@see Object.freeze()}.
+ */
+export const freeze = <Type>(value: Type): Readonly<Type extends object ? Type : $type.Object> => {
+    return Object.freeze(Object(value)) as ReturnType<typeof freeze<Type>>;
+};
+
+/**
+ * Deep freezes an object; {@see Object.freeze()}.
+ *
+ * @param   value    Value to deep freeze.
+ * @param   circular Internal use only. Do not pass.
+ *
+ * @returns          Deeply frozen object; {@see Object.freeze()}.
+ */
+export const deepFreeze = <Type>(value: Type, circular: Map<object, object> = new Map()): $type.ReadonlyDeep<Type extends object ? Type : $type.Object> => {
+    const objValue = Object(value) as Type extends object ? Type : $type.Object;
+
+    if (circular.has(objValue)) {
+        return circular.get(objValue) as ReturnType<typeof deepFreeze<Type>>;
+    }
+    circular.set(objValue, objValue); // Freezing now.
+    // Must freeze keys/symbols *before* freezing `objValue`.
+
+    for (const [, keyOrSymbolValue] of keyAndSymbolEntries(objValue)) {
+        if ($is.object(keyOrSymbolValue)) deepFreeze(keyOrSymbolValue, circular);
+    }
+    return Object.freeze(objValue) as ReturnType<typeof deepFreeze<Type>>;
+};
+
+/**
  * Produces a shallow clone of input value.
  *
  * Note that {@see structuredClone()} isn't a feature of the JavaScript language. It's a feature of browsers and it
@@ -718,6 +752,7 @@ const mcInitialize = (): true => {
     } else mcInitialized = true;
 
     const ObjMC = $class.getObjMC();
+
     mc = new ObjMC(); // Class instance.
     mcNoOps = new ObjMC({ allowOps: false });
 

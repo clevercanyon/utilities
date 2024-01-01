@@ -2,7 +2,7 @@
  * Person utility class.
  */
 
-import { $class, $obj, $str, $url, type $type } from '#index.ts';
+import { $class, $obj, $str, $symbol, $url, type $type } from '#index.ts';
 
 /**
  * Constructor cache.
@@ -122,11 +122,28 @@ export const getClass = (): Constructor => {
          */
         public constructor(props: C9rProps | Class) {
             super(); // Parent constructor.
+            const isClone = props instanceof Person;
 
             for (const [key, value] of $obj.keyAndSymbolEntries(props)) {
                 this[key] = value; // Property assignments.
             }
             this.name = $str.trim(this.firstName + ' ' + this.lastName);
+
+            if (isClone) {
+                // Clones will freeze; i.e., upon cloning.
+                // {@see $symbol.objDeepFreezeClones}.
+            } else {
+                $obj.deepFreeze(this); // Enforces readonly.
+            }
+        }
+
+        /**
+         * {@see $obj.clone()}, {@see $obj.cloneDeep()} helper.
+         *
+         * @returns True if object clones should be frozen deeply.
+         */
+        public get [$symbol.objDeepFreezeClones](): ReturnType<$type.objDeepFreezeClonesSymbolFn> {
+            return true; // Default value.
         }
 
         /**
@@ -146,7 +163,8 @@ export const getClass = (): Constructor => {
          * @returns Object {@see RawProps}.
          */
         public rawProps(): RawProps {
-            return { ...this };
+            // Enforces person raw props being readonly.
+            return $obj.deepFreeze({ ...this });
         }
     };
     return Object.defineProperty(Person, 'name', {

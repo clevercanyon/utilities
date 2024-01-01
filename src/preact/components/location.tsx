@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $app, $dom, $env, $is, $preact, $url, type $type } from '#index.ts';
+import { $app, $dom, $env, $is, $preact, $url, $user, type $type } from '#index.ts';
 import { createContext } from 'preact';
 
 /**
@@ -129,10 +129,10 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
         };
     }, [actualState]);
 
-    if ($env.isWeb() && !$env.isMajorCrawler()) {
+    if ($env.isWeb() && !$user.isMajorCrawler()) {
         // Crawlers can detect SPAs by inspecting history event listeners.
         // So let’s not attach when it’s a major crawler, because we ask they do full page changes.
-        // For further details, please review other instances of `$env.isMajorCrawler()` in this file.
+        // For further details, please review other instances of `$user.isMajorCrawler()` in this file.
 
         $preact.useEffect((): (() => void) => {
             addEventListener('click', updateState);
@@ -232,7 +232,7 @@ const reduceState = (state: ActualState, x: Parameters<Context['updateState']>[0
     // Full pages changes for all major crawlers.
     // i.e., Do not change state, do not prevent default.
 
-    if (isWeb && $env.isMajorCrawler()) return state;
+    if (isWeb && $user.isMajorCrawler()) return state;
 
     // ---
     // Case handlers for various types of state updates.

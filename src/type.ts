@@ -1,9 +1,8 @@
 /**
  * Types.
- *
- * Inspired by {@see https://www.npmjs.com/package/type-fest}.
  */
 // organize-imports-ignore
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '#@initialize.ts';
 
@@ -11,43 +10,55 @@ import { $to } from '#index.ts';
 import { type Dayjs } from 'dayjs';
 import type * as cf from '@cloudflare/workers-types/experimental';
 
+// ---
+// Types.
+
 /**
  * Basic types.
  */
+export type { $Keyable as Object };
+export type { $AnyObject as AnyObject };
+
 export type ObjectKey = PropertyKey;
 export type ObjectPath = number | string;
+export type { $ObjectC9r as ObjectC9r };
 
-export type { $Keyable as Object };
+export type { $Keyable as Keyable };
 export type { $StrKeyable as StrKeyable };
-export type Unkeyable = Record<PropertyKey, never>;
-
-export type ObjectC9r = { new (...args: unknown[]): $Keyable } | ObjectConstructor;
-export type ObjectEntries<Type extends object = $Keyable> = [keyof Type, Type[keyof Type]][];
-
-export type Primitive = null | undefined | boolean | number | bigint | string | symbol;
-export type TypedArray<Type extends $TypedArray = $TypedArray> = Type;
+export type { $Unkeyable as Unkeyable };
 
 export type { $Function as Function };
 export type { $AsyncFunction as AsyncFunction };
-export type AnyVoidFn = (() => void) | (() => Promise<void>);
+export type { $AnyVoidFunction as AnyVoidFunction };
+
+export type TypedArray<Type extends $TypedArray = $TypedArray> = Type;
+export type Primitive = null | undefined | boolean | number | bigint | string | symbol;
+export type ObjectEntries<Type extends object = $Keyable> = [keyof Type, Type[keyof Type]][];
 
 /**
  * Class types.
  */
-export type { Dayjs as Time };
+export type { $Time as Time };
 export type * from '#class.ts';
 
 /**
  * Cross env types.
  */
 export type { $URL as URL };
-export type { $Request as Request };
-export type { $Response as Response };
-export type { $BodyInit as BodyInit };
 export type { $Headers as Headers };
+export type { $BodyInit as BodyInit };
+
+export type { $Request as Request };
+export type { $RequestInit as RequestInit };
+
+export type { $Response as Response };
+export type { $ResponseInit as ResponseInit };
+
+export type { $Timeout as Timeout };
+export type { $Interval as Interval };
+
 export type { $fetch as fetch };
 export type { $Error as Error };
-export type { $Timeout as Timeout };
 
 /**
  * DOM-related types.
@@ -109,22 +120,216 @@ export type EnsuredType<Type> =
     : unknown; // prettier-ignore
 
 /**
- * Misc. utility types.
+ * Readonly utility types.
  */
-export type PartialDeep<Type> = Type extends object ? { [Prop in keyof Type]?: Type[Prop] extends object ? PartialDeep<Type[Prop]> : Type[Prop] } : Type;
+export type ReadonlyDeep<Type> = //
+    Type extends void | Primitive
+        ? Type // Not applicable.
+        : //
+          Type extends $ꓺAnyFn
+          ? //
+            {} extends $ꓺReadonlyObjectDeep<Type>
+              ? Type // No keys; not applicable.
+              : //
+                $ꓺHasMultipleCallSignatures<Type> extends true
+                ? Type // Not possible when there are multiple signatures.
+                : //
+                  Type extends $ꓺAnyObjectC9r
+                  ? (new (...args: Parameters<Type>) => ReturnType<Type>) & $ꓺReadonlyObjectDeep<Type>
+                  : ((...args: Parameters<Type>) => ReturnType<Type>) & $ꓺReadonlyObjectDeep<Type>
+          : //
+            Type extends Readonly<Set<infer TypeOfSet>>
+            ? $ꓺReadonlySetDeep<TypeOfSet>
+            : //
+              Type extends Readonly<Map<infer KeyTypeOfMap, infer ValueTypeOfMap>>
+              ? $ꓺReadonlyMapDeep<KeyTypeOfMap, ValueTypeOfMap>
+              : //
+                Type extends Readonly<unknown[]>
+                ? $ꓺReadonlyArrayDeep<Type>
+                : //
+                  Type extends object
+                  ? $ꓺReadonlyObjectDeep<Type>
+                  : //
+                    Type; // Not applicable.
 
-export type Writable<Type> = Type extends object ? { -readonly [Prop in keyof Type]: Type[Prop] } : Type;
-export type WritableDeep<Type> = Type extends object ? { -readonly [Prop in keyof Type]: Type[Prop] extends object ? WritableDeep<Type[Prop]> : Type[Prop] } : Type;
+type $ꓺReadonlyArrayDeep<Type extends Readonly<unknown[]>> = //
+    Type extends Readonly<[]> | Readonly<[...never[]]>
+        ? Readonly<[]> // Empty array, or all never keys.
+        : //
+          Type extends Readonly<[infer First, ...infer Rest]>
+          ? Readonly<[ReadonlyDeep<First>, ...$ꓺReadonlyArrayDeep<Rest>]>
+          : //
+            Type extends Readonly<[...infer Rest, infer Last]>
+            ? Readonly<[...$ꓺReadonlyArrayDeep<Rest>, ReadonlyDeep<Last>]>
+            : //
+              Type extends Readonly<(infer TypeOfArray)[]>
+              ? Readonly<ReadonlyDeep<TypeOfArray>[]>
+              : //
+                Type; // Not applicable.
 
-export type PartialTuple<Tuple extends unknown[], Extracted extends unknown[] = []> = //
+type $ꓺReadonlySetDeep<Type> = Readonly<Set<ReadonlyDeep<Type>>>;
+type $ꓺReadonlyMapDeep<KeyType, ValueType> = Readonly<Map<ReadonlyDeep<KeyType>, ReadonlyDeep<ValueType>>>;
+type $ꓺReadonlyObjectDeep<Type extends object> = { readonly [Key in keyof Type]: ReadonlyDeep<Type[Key]> };
+
+/**
+ * Writable utility types.
+ */
+export type Writable<Type> = //
+    Type extends void | Primitive
+        ? Type // Not applicable.
+        : //
+          Type extends $ꓺAnyFn
+          ? //
+            {} extends Writable<Type>
+              ? Type // No keys; not applicable.
+              : //
+                $ꓺHasMultipleCallSignatures<Type> extends true
+                ? Type // Not possible when there are multiple signatures.
+                : //
+                  Type extends $ꓺAnyObjectC9r
+                  ? (new (...args: Parameters<Type>) => ReturnType<Type>) & Writable<Type>
+                  : ((...args: Parameters<Type>) => ReturnType<Type>) & Writable<Type>
+          : //
+            Type extends Readonly<Set<infer TypeOfSet>>
+            ? Set<TypeOfSet>
+            : //
+              Type extends Readonly<Map<infer KeyTypeOfMap, infer ValueTypeOfMap>>
+              ? Map<KeyTypeOfMap, ValueTypeOfMap>
+              : //
+                Type extends Readonly<unknown[]>
+                ? $ꓺWritableArray<Type>
+                : //
+                  Type extends object
+                  ? { -readonly [Key in keyof Type]: Type[Key] }
+                  : //
+                    Type; // Not applicable.
+
+export type WritableDeep<Type> = //
+    Type extends void | Primitive
+        ? Type // Not applicable.
+        : //
+          Type extends $ꓺAnyFn
+          ? //
+            {} extends $ꓺWritableObjectDeep<Type>
+              ? Type // No keys; not applicable.
+              : //
+                $ꓺHasMultipleCallSignatures<Type> extends true
+                ? Type // Not possible when there are multiple signatures.
+                : //
+                  Type extends $ꓺAnyObjectC9r
+                  ? (new (...args: Parameters<Type>) => ReturnType<Type>) & $ꓺWritableObjectDeep<Type>
+                  : ((...args: Parameters<Type>) => ReturnType<Type>) & $ꓺWritableObjectDeep<Type>
+          : //
+            Type extends Readonly<Set<unknown>>
+            ? $ꓺWritableSetDeep<Type>
+            : //
+              Type extends Readonly<Map<unknown, unknown>>
+              ? $ꓺWritableMapDeep<Type>
+              : //
+                Type extends Readonly<unknown[]>
+                ? $ꓺWritableArrayDeep<Type>
+                : //
+                  Type extends object
+                  ? $ꓺWritableObjectDeep<Type>
+                  : //
+                    Type; // Not applicable.
+
+type $ꓺWritableArray<Type extends Readonly<unknown[]>> = //
+    Type extends Readonly<[]> | Readonly<[...never[]]>
+        ? [] // Empty array, or all never keys.
+        : //
+          Type extends Readonly<[infer First, ...infer Rest]>
+          ? [First, ...Rest]
+          : //
+            Type extends Readonly<[...infer Rest, infer Last]>
+            ? [...Rest, Last]
+            : //
+              Type extends Readonly<(infer TypeOfArray)[]>
+              ? TypeOfArray[]
+              : //
+                Type; // Not applicable.
+
+type $ꓺWritableArrayDeep<Type extends Readonly<unknown[]>> = //
+    Type extends Readonly<[]> | Readonly<[...never[]]>
+        ? [] // Empty array, or all never keys.
+        : //
+          Type extends Readonly<[infer First, ...infer Rest]>
+          ? [WritableDeep<First>, ...$ꓺWritableArrayDeep<Rest>]
+          : //
+            Type extends Readonly<[...infer Rest, infer Last]>
+            ? [...$ꓺWritableArrayDeep<Rest>, WritableDeep<Last>]
+            : //
+              Type extends Readonly<(infer TypeOfArray)[]>
+              ? WritableDeep<TypeOfArray>[]
+              : //
+                Type; // Not applicable.
+
+type $ꓺWritableObjectDeep<Type extends object> = { -readonly [Key in keyof Type]: WritableDeep<Type[Key]> };
+type $ꓺWritableSetDeep<Type extends Readonly<Set<unknown>>> = Type extends Readonly<Set<infer TypeOfSet>> ? Set<WritableDeep<TypeOfSet>> : Type;
+type $ꓺWritableMapDeep<Type extends Readonly<Map<unknown, unknown>>> = // These conditions are merely for type inference, they should never be false.
+    Type extends Readonly<Map<infer KeyTypeOfMap, infer ValueTypeOfMap>> ? Map<WritableDeep<KeyTypeOfMap>, WritableDeep<ValueTypeOfMap>> : Type;
+
+/**
+ * Partial utility types.
+ */
+export type PartialDeep<Type> = //
+    Type extends void | Primitive
+        ? Type // Not applicable.
+        : //
+          Type extends $ꓺAnyFn
+          ? //
+            {} extends $ꓺPartialObjectDeep<Type>
+              ? Type // No keys; not applicable.
+              : //
+                $ꓺHasMultipleCallSignatures<Type> extends true
+                ? Type // Not possible when there are multiple signatures.
+                : //
+                  Type extends $ꓺAnyObjectC9r
+                  ? (new (...args: Parameters<Type>) => ReturnType<Type>) & $ꓺPartialObjectDeep<Type>
+                  : ((...args: Parameters<Type>) => ReturnType<Type>) & $ꓺPartialObjectDeep<Type>
+          : //
+            Type extends Set<infer TypeOfSet>
+            ? $ꓺPartialSetDeep<TypeOfSet>
+            : //
+              Type extends Readonly<Set<infer TypeOfSet>>
+              ? $ꓺPartialReadonlySetDeep<TypeOfSet>
+              : //
+                Type extends Map<infer KeyTypeOfMap, infer ValueTypeOfMap>
+                ? $ꓺPartialMapDeep<KeyTypeOfMap, ValueTypeOfMap>
+                : //
+                  Type extends Readonly<Map<infer KeyTypeOfMap, infer ValueTypeOfMap>>
+                  ? $ꓺPartialReadonlyMapDeep<KeyTypeOfMap, ValueTypeOfMap>
+                  : //
+                    Type extends Readonly<(infer TypeOfArray)[]>
+                    ? TypeOfArray[] extends Type // Tests for non-tuple arrays, specifically.
+                        ? Readonly<TypeOfArray[]> extends Type // Differentiates readonly.
+                            ? Readonly<PartialDeep<TypeOfArray>[]>
+                            : PartialDeep<TypeOfArray>[]
+                        : $ꓺPartialObjectDeep<Type>
+                    : //
+                      Type extends object
+                      ? $ꓺPartialObjectDeep<Type>
+                      : //
+                        Type; // Not applicable.
+
+type $ꓺPartialSetDeep<Type> = Set<PartialDeep<Type>>;
+type $ꓺPartialReadonlySetDeep<Type> = Readonly<Set<PartialDeep<Type>>>;
+type $ꓺPartialMapDeep<KeyType, ValueType> = Map<PartialDeep<KeyType>, PartialDeep<ValueType>>;
+type $ꓺPartialReadonlyMapDeep<KeyType, ValueType> = Readonly<Map<PartialDeep<KeyType>, PartialDeep<ValueType>>>;
+type $ꓺPartialObjectDeep<Type extends object> = { [Key in keyof Type]?: PartialDeep<Type[Key]> };
+
+/**
+ * Parameter utility types.
+ */
+export type PartialParametersOf<Type extends $Function> = PartialParameters<Parameters<Type>>;
+export type PartialParameters<Tuple extends unknown[], Extracted extends unknown[] = []> = //
     // If the tuple provided contains at least one required value.
     Tuple extends [infer Next, ...infer Remaining]
         ? // Recurse with remaining + first being partial now.
-          PartialTuple<Remaining, [...Extracted, Next?]>
+          PartialParameters<Remaining, [...Extracted, Next?]>
         : // Else, return with an empty tuple.
           [...Extracted, /* empty */ ...Tuple];
 
-export type PartialParameters<Type extends $Function> = PartialTuple<Parameters<Type>>;
 export type RemainingParameters<Provided extends unknown[], Expected extends unknown[]> = //
     // If the expected parameters contains at least one required value.
     Expected extends [infer unusedꓺFirstExpected, ...infer RestExpected]
@@ -136,14 +341,29 @@ export type RemainingParameters<Provided extends unknown[], Expected extends unk
         : // Else, no more parameters.
           [];
 
-export type FlatArray<Type, Depth extends number> = {
-    'done': Type;
-    'recursive': Type extends ReadonlyArray<infer InnerType> ? FlatArray<InnerType, [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20][Depth]> : Type;
-}[Depth extends -1 ? 'done' : 'recursive'];
+/**
+ * Flat array type.
+ */
+export type FlatArray<Type, Depth extends number> = ReturnType<typeof Array.prototype.flat<Type, Depth>>;
 
 /**
- * Private types used by this file.
+ * Predicate types.
  */
+// These must narrow to a specific type, and not reflect a type.
+// e.g., We don’t want any of these to ever return a union of types.
+export type OfSet<Type> = Type extends Set<infer TypeOfSet> ? Set<TypeOfSet> : Set<unknown>;
+export type OfObject<Type> = Type extends $AnyObject<infer TypeOfObject> ? TypeOfObject : $Keyable;
+export type OfPromise<Type> = Type extends Promise<infer TypeOfPromise> ? Promise<TypeOfPromise> : Promise<unknown>;
+export type OfIterable<Type> = Type extends Iterable<infer TypeOfIterable> ? Iterable<TypeOfIterable> : Iterable<unknown>;
+export type OfMap<Type> = Type extends Map<infer KeyTypeOfMap, infer ValueTypeOfMap> ? Map<KeyTypeOfMap, ValueTypeOfMap> : Map<unknown, unknown>;
+export type OfAsyncIterable<Type> = Type extends AsyncIterable<infer TypeOfAsyncIterable> ? AsyncIterable<TypeOfAsyncIterable> : AsyncIterable<unknown>;
+export type OfArray<Type> = Type extends (infer TypeOfArray)[] ? TypeOfArray[] : Type extends Readonly<(infer TypeOfArray)[]> ? Readonly<TypeOfArray[]> : unknown[];
+
+/**
+ * Protected internal types.
+ */
+type $Time = Dayjs;
+
 type $TypedArray =
     | Int8Array //
     | Uint8Array
@@ -159,23 +379,43 @@ type $TypedArray =
 
 type $URL = URL | cf.URL;
 type $Request = Request | cf.Request;
+type $RequestInit = (RequestInit | cf.RequestInit) & { cache?: string };
 type $Response = Response | cf.Response;
+type $ResponseInit = ResponseInit | cf.ResponseInit;
 type $BodyInit = BodyInit | cf.BodyInit;
 type $Headers = Headers | cf.Headers;
 type $fetch = typeof fetch | typeof cf.fetch;
 type $Error<Type extends Error = Error> = Type;
 type $Timeout = ReturnType<typeof setTimeout> | number;
+type $Interval = ReturnType<typeof setInterval> | number;
 
-type $Keyable<Type extends object = { [x: ObjectKey]: unknown }> = { [x: ObjectKey]: unknown } & Type;
-type $StrKeyable<Type extends object = { [x: string]: unknown }> = { [x: string]: unknown } & Type;
+type $Unkeyable = Record<ObjectKey, never>;
+type $AnyObject<Type extends object = object> = {} & Type;
+type $Keyable<Type extends object = object> = { [x: ObjectKey]: unknown } & Type;
+type $StrKeyable<Type extends object = object> = { [x: string]: unknown } & Type;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type $AnyFn = (...args: any[]) => unknown; // See: <https://o5p.me/CwHQYM>.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type $AsyncFn = (...args: any[]) => Promise<unknown>; // See: <https://o5p.me/CwHQYM>.
+type $ObjectC9r<Type extends $ꓺAnyObjectC9r = $ꓺAnyObjectC9r> = Type;
+type $Function<Type extends $ꓺAnyFn = $ꓺAnyFn> = (...args: Parameters<Type>) => ReturnType<Type>;
+type $AsyncFunction<Type extends $ꓺAnyAsyncFn = $ꓺAnyAsyncFn> = (...args: Parameters<Type>) => ReturnType<Type>;
+type $AnyVoidFunction<Type extends $ꓺAnyVoidFn = $ꓺAnyVoidFn> = (...args: Parameters<Type>) => ReturnType<Type>;
 
-type $Function<Type extends $AnyFn = $AnyFn> = (...args: Parameters<Type>) => ReturnType<Type>;
-type $AsyncFunction<Type extends $AsyncFn = $AsyncFn> = (...args: Parameters<Type>) => ReturnType<Type>;
+/**
+ * Private internal types.
+ */
+type $ꓺAnyFn = (...args: any[]) => unknown;
+type $ꓺAnyAsyncFn = (...args: any[]) => Promise<unknown>;
+type $ꓺAnyVoidFn = ((...args: any[]) => void) | ((...args: any[]) => Promise<void>);
+type $ꓺAnyObjectC9r = ObjectConstructor | { new (...args: any[]): unknown };
+
+type $ꓺHasMultipleCallSignatures<Type extends $ꓺAnyFn> = Type extends {
+    (...args: infer Args): unknown;
+    (...args: any[]): unknown;
+}
+    ? unknown[] extends Args
+        ? false
+        : true
+    : //
+      false;
 
 // ---
 // Type utilities.

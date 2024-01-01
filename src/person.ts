@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $class, $str, type $type } from '#index.ts';
+import { $class, $obj, $str, type $type } from '#index.ts';
 
 /**
  * Tracks initialization.
@@ -78,7 +78,8 @@ export const add = (username: string, props: $type.PersonRawProps): $type.Person
     if (Object.hasOwn(rawProps, username)) {
         throw Error('Czuf6MDV'); // Person `' + username + '` exists already.
     }
-    rawProps[username] = props;
+    // Enforces raw props being readonly.
+    rawProps[username] = $obj.deepFreeze(props);
 
     return get(username);
 };
@@ -125,7 +126,7 @@ export const get = (username: string): $type.Person => {
 /**
  * Initializes raw props.
  *
- * @todo Don't use gravatar to serve images, it leaks our visitors to a8c and complicates our default privacy stance.
+ * @todo Don't use gravatar to serve images.
  */
 const initializeRawProps = (): void => {
     if (rawPropsInitialized) return;
@@ -134,7 +135,7 @@ const initializeRawProps = (): void => {
     /**
      * Jason Caldwell.
      */
-    rawProps[tꓺjaswrks] = {
+    rawProps[tꓺjaswrks] = $obj.deepFreeze({
         [tꓺfirstName]: 'Jason',
         [tꓺlastName]: tꓺCaldwell,
         [tꓺusername]: tꓺjaswrks,
@@ -157,12 +158,12 @@ const initializeRawProps = (): void => {
             [tꓺgithub]: tꓺhttpsꓽⳇⳇgithubംcomⳇ + tꓺjaswrks,
             [tꓺnpm]: tꓺhttpsꓽⳇⳇwwwംnpmjsംcomⳇ + tꓺjaswrks,
         },
-    };
+    });
 
     /**
      * Bruce Caldwell.
      */
-    rawProps[tꓺbrucewrks] = {
+    rawProps[tꓺbrucewrks] = $obj.deepFreeze({
         [tꓺfirstName]: 'Bruce',
         [tꓺlastName]: tꓺCaldwell,
         [tꓺusername]: tꓺbrucewrks,
@@ -185,5 +186,5 @@ const initializeRawProps = (): void => {
             [tꓺgithub]: tꓺhttpsꓽⳇⳇgithubംcomⳇ + tꓺbrucewrks,
             [tꓺnpm]: tꓺhttpsꓽⳇⳇwwwംnpmjsംcomⳇ + tꓺbrucewrks,
         },
-    };
+    });
 };

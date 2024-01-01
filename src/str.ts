@@ -817,6 +817,6 @@ export const isIPv6Host = (str: string): boolean => {
  *
  * @returns        True if string matches any regular expression test(s).
  */
-export const test = (str: string, regExp: RegExp | RegExp[]): boolean => {
+export const test = (str: string, regExp: RegExp | RegExp[] | Readonly<RegExp[]>): boolean => {
     return $to.array(regExp).some((regExp) => regExp.test(str));
 };

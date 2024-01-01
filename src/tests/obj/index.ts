@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import { $app, $brand, $class, $is, $obj, $symbol, $time } from '#index.ts';
+import { $app, $brand, $class, $is, $obj, $symbol, $time, type $type } from '#index.ts';
 import { beforeEach, describe, expect, test } from 'vitest';
 
 describe('$obj', async () => {
@@ -543,6 +543,32 @@ describe('$obj', async () => {
         const abcObj = { a: 'a' }; // Will update defaults by reference.
         expect($obj.defaults(abcObj, { b: 'b' }, { b: 'c' }, { c: 'c' })).toStrictEqual({ a: 'a', b: 'b', c: 'c' });
         expect(abcObj).toStrictEqual({ a: 'a', b: 'b', c: 'c' });
+    });
+    test('.freeze()', async () => {
+        const abcObj1 = { a: 'a', b: 'b', c: { d: 'd' } };
+        expect($obj.freeze(abcObj1)).toBe(abcObj1);
+        expect((): void => void (abcObj1.a = 'a')).toThrow();
+        expect((): void => void (abcObj1.c.d = 'd')).not.toThrow();
+
+        const abcObj2 = ['a', 'b', { c: 'c' }];
+        expect($obj.freeze(abcObj2)).toBe(abcObj2);
+        expect((): void => void (abcObj2[0] = 'a')).toThrow();
+        expect((): void => void ((abcObj2[2] as $type.Object).c = 'c')).not.toThrow();
+    });
+    test('.deepFreeze()', async () => {
+        const abcObj1 = { a: 'a', b: 'b', c: { d: 'd' } };
+        expect($obj.deepFreeze(abcObj1)).toBe(abcObj1);
+        expect((): void => void (abcObj1.a = 'a')).toThrow();
+        expect((): void => void (abcObj1.c.d = 'd')).toThrow();
+
+        const abcObj2 = [
+            { a: 'a', b: 'b', c: { d: 'd' } },
+            { e: 'e', f: 'f', g: { h: 'h' } },
+        ];
+        expect($obj.deepFreeze(abcObj2)).toBe(abcObj2);
+        expect((): void => void (abcObj2[0].a = 'a')).toThrow();
+        expect((): void => void (abcObj2[1].e = 'a')).toThrow();
+        expect((): void => void ((abcObj2[0].c as $type.Object).d = 'd')).toThrow();
     });
     test('.clone()', async () => {
         const abcObjs = { a: testObj, b: testObj, c: testObj };

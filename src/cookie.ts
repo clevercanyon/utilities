@@ -30,13 +30,13 @@ const webCookieMap: Map<string, string | undefined> = new Map();
  *
  *   - Optional on web. Default is `document.cookie`.
  *
- * @returns        Parsed cookies object.
+ * @returns        Parsed cookies object, frozen deeply.
  *
  * @note Function is memoized. Parsed cookies object is readonly.
  *
  * @requiredEnv web -- When `header` is not given explicitly.
  */
-export const parse = $fnꓺmemo(6, (header?: string): { readonly [x: string]: string } => {
+export const parse = $fnꓺmemo(6, (header?: string): Readonly<{ [x: string]: string }> => {
     let isWebCookieHeader = false;
     const cookies: { [x: string]: string } = {};
 
@@ -74,7 +74,8 @@ export const parse = $fnꓺmemo(6, (header?: string): { readonly [x: string]: st
             }
         }
     }
-    return cookies;
+    // Enforces readonly.
+    return $obj.freeze(cookies);
 });
 
 /**

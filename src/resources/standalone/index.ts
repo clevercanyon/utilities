@@ -35,7 +35,7 @@ export const $fnꓺnoOp = (): void => undefined;
  *
  * @returns       True if value is an array.
  */
-export const $isꓺarray = (value: unknown): value is unknown[] => {
+export const $isꓺarray = <Type>(value: $type.OfArray<Type> | unknown): value is $type.OfArray<Type> => {
     return value instanceof Array || Array.isArray(value);
 };
 
@@ -49,6 +49,7 @@ export const $isꓺarray = (value: unknown): value is unknown[] => {
  *
  * @returns       True if value is an object.
  *
+ * @note This also returns true for arrays.
  * @note This also returns true for functions.
  * @note This also returns true for async functions.
  * @note This also returns true for generator functions.
@@ -56,7 +57,7 @@ export const $isꓺarray = (value: unknown): value is unknown[] => {
  * @note This also returns true for proxied functions, sync or async.
  * @note This also returns true for memoized functions.
  */
-export const $isꓺobject = (value: unknown): value is $type.Object => {
+export const $isꓺobject = <Type>(value: $type.OfObject<Type> | unknown): value is $type.OfObject<Type> => {
     return null !== value && ['object', 'function'].includes(typeof value);
 };
 
@@ -67,7 +68,7 @@ export const $isꓺobject = (value: unknown): value is $type.Object => {
  *
  * @returns       True if value is a prototype.
  */
-export const $isꓺproto = (value: unknown): value is $type.Object => {
+export const $isꓺproto = <Type>(value: $type.OfObject<Type> | unknown): value is $type.OfObject<Type> => {
     return $isꓺobject(value) && value === (value.constructor?.prototype || Object.prototype);
 };
 
@@ -253,7 +254,7 @@ export const $objꓺtag = (value: unknown): string => {
  *
  * @note Please {@see $objꓺtag()} for details regarding the special case of `[tag]:[cn]`.
  */
-export const $objꓺtags = (value: unknown, deepTags?: Set<string>): string[] => {
+export const $objꓺtags = (value: unknown, deepTags?: Set<string>): Readonly<string[]> => {
     let nextProto; // Initialize.
 
     if (!deepTags) {
@@ -269,7 +270,7 @@ export const $objꓺtags = (value: unknown, deepTags?: Set<string>): string[] =>
     if (nextProto) {
         return $objꓺtags(nextProto, deepTags);
     }
-    return Array.from(deepTags);
+    return Object.freeze(Array.from(deepTags));
 };
 
 /**

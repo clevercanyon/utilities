@@ -2,7 +2,7 @@
  * Base class.
  */
 
-import { $app, $obj, $symbol, type $type } from '#index.ts';
+import { $app, $is, $obj, $symbol, type $type } from '#index.ts';
 
 /**
  * Constructor cache.
@@ -26,6 +26,9 @@ declare class ClassInterface {
 
     public get [$symbol.objTag](): ReturnType<$type.ObjTagSymbolFn>;
     public get [$symbol.objStringTag](): ReturnType<$type.ObjStringTagSymbolFn>;
+
+    public get [$symbol.objFreezeClones](): ReturnType<$type.objFreezeClonesSymbolFn>;
+    public get [$symbol.objDeepFreezeClones](): ReturnType<$type.objDeepFreezeClonesSymbolFn>;
 
     public [$symbol.objToPlain](): ReturnType<$type.ObjToPlainSymbolFn>;
     public [$symbol.objToEquals](): ReturnType<$type.ObjToEqualsSymbolFn>;
@@ -58,7 +61,7 @@ export const getClass = (): Constructor => {
         public constructor(/* Takes in nothing. */) {
             // Nothing in base constructor at this time.
             // ---
-            // Note: Classes extending this base *must* be capable
+            // However, classes extending this base *must* be capable
             // of handling the first constructor argument being passed as
             // an instance of itself to facilitate shallow and/or deep cloning.
         }
@@ -81,6 +84,24 @@ export const getClass = (): Constructor => {
         public get [$symbol.objStringTag](): ReturnType<$type.ObjStringTagSymbolFn> {
             const c9r = $obj.c9r(this) as Constructor;
             return (c9r.appPkgName || '?') + '/' + (c9r.name || '?');
+        }
+
+        /**
+         * {@see $obj.clone()}, {@see $obj.cloneDeep()} helper.
+         *
+         * @returns True if object clones should be frozen.
+         */
+        public get [$symbol.objFreezeClones](): ReturnType<$type.objFreezeClonesSymbolFn> {
+            return false; // Default value.
+        }
+
+        /**
+         * {@see $obj.clone()}, {@see $obj.cloneDeep()} helper.
+         *
+         * @returns True if object clones should be frozen deeply.
+         */
+        public get [$symbol.objDeepFreezeClones](): ReturnType<$type.objDeepFreezeClonesSymbolFn> {
+            return false; // Default value.
         }
 
         /**
@@ -124,22 +145,41 @@ export const getClass = (): Constructor => {
                 if (circular.has(this)) {
                     return circular.get(this);
                 }
-                // @ts-ignore -- `this` constructor arg ok.
+                // @ts-ignore -- constructor arg ok.
                 const deepClone = new c9r(this); // A deep clone.
                 circular.set(this, deepClone); // Before going deep.
 
-                for (const key of $obj.keysAndSymbols(deepClone)) {
-                    // Enumerable readonly keys are skipped to avoid triggering errors.
-                    // Instead, any enumerable readonly keys must be handled by constructor.
+                if (!$is.frozen(deepClone) /* Saves time. */) {
+                    for (const key of $obj.keysAndSymbols(deepClone)) {
+                        // Enumerable readonly keys are skipped to avoid triggering errors.
+                        // Instead, any enumerable readonly keys must be handled by constructor.
 
-                    if (Object.getOwnPropertyDescriptor(deepClone, key)?.writable) {
-                        deepClone[key] = $obj.cloneDeep(deepClone[key], opts, circular, true);
+                        if (Object.getOwnPropertyDescriptor(deepClone, key)?.writable) {
+                            deepClone[key] = $obj.cloneDeep(deepClone[key], opts, circular, true);
+                        }
+                    }
+                    if (deepClone[$symbol.objDeepFreezeClones]) {
+                        $obj.deepFreeze(deepClone);
+                        //
+                    } else if (deepClone[$symbol.objFreezeClones]) {
+                        $obj.freeze(deepClone);
                     }
                 }
                 return deepClone;
+            } else {
+                // @ts-ignore -- constructor arg ok.
+                const clone = new c9r(this); // Shallow clone.
+
+                if (!$is.frozen(clone) /* Saves time. */) {
+                    if (clone[$symbol.objDeepFreezeClones]) {
+                        $obj.deepFreeze(clone);
+                        //
+                    } else if (clone[$symbol.objFreezeClones]) {
+                        $obj.freeze(clone);
+                    }
+                }
+                return clone;
             }
-            // @ts-ignore -- `this` constructor arg ok.
-            return new c9r(this); // In this case, a shallow clone.
         }
     };
     return Object.defineProperty(Base, 'name', {

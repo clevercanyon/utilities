@@ -22,7 +22,7 @@ export type State = {
     deployed: boolean;
 
     context: string;
-    subContext: string;
+    subcontext: string;
 
     userId: string;
     customerId: string;
@@ -91,7 +91,7 @@ export const initialize = async (): Promise<void> => {
                     deployed: false,
 
                     context: 'web', // This is explicitly `web` analytics.
-                    subContext: ['site'].includes(brand.type) ? brand.type : 'unknown',
+                    subcontext: ['site'].includes(brand.type) ? brand.type : 'unknown',
 
                     userId: $cookie.get('utx_user_id', ''),
                     customerId: $cookie.get('utx_customer_id', ''),
@@ -107,27 +107,30 @@ export const initialize = async (): Promise<void> => {
                 configureProviders(); // e.g., Event trackers.
 
                 // Extracts from consent state.
-                const { canUseCookies } = consentState;
+                const { ipGeoData, canUse } = consentState;
 
                 // Because Google Analytics is our primary analytics provider, who is indeed a third party,
                 // there is simply no reason to deploy if third-party cookies are not currently allowed by user.
                 // e.g., `anonId()`, `sessionId()`, and other parts of our API depend on Google Analytics.
 
-                // Conditionally deploys analytics providers.
-                if (canUseCookies.thirdParty && canUseCookies.analytics) deployProviders();
+                // Checks if user is in a GA banned country.
+                const inBannedCountry = gaBannedCountries.includes(ipGeoData.country);
 
-                // Listens for consent dialog updates.
-                $dom.on(document, 'x:consentDialog:update', () => {
+                // Conditionally deploys analytics providers.
+                if (canUse.thirdParty && canUse.analytics && !inBannedCountry) deployProviders();
+
+                // Listens for consent state updates.
+                $dom.on(document, 'x:consent:stateUpdate', (): void => {
                     // Updates consent data associated with analytics providers.
                     updateProvidersConsentData(); // Uses consent state.
 
                     // If not deployed already...
                     if (!state.deployed) {
                         // Extracts from consent state.
-                        const { canUseCookies } = consentState;
+                        const { canUse } = consentState;
 
                         // Conditionally deploys analytics providers.
-                        if (canUseCookies.thirdParty && canUseCookies.analytics) deployProviders();
+                        if (canUse.thirdParty && canUse.analytics && !inBannedCountry) deployProviders();
                     }
                 });
                 // Tracking events will be pending promise resolution until we have at least deployed Google Analytics,
@@ -236,23 +239,23 @@ export const trackElement = async (element: HTMLElement, eventName: string, prop
 
     return trackEvent(eventName, {
         x_parent_flex_id: $str.clip(domPathTo(parent) || '<' + parentTagName + '>', { maxChars: 100 }),
-        x_parent_flex_sub_id: $str.clip('<' + parentTagName + '>', { maxChars: 100 }),
+        x_parent_flex_subid: $str.clip('<' + parentTagName + '>', { maxChars: 100 }),
 
         x_class_id: $str.clip(element.dataset.classId || '', { maxChars: 100 }),
-        x_class_sub_id: $str.clip(element.dataset.classSubId || '', { maxChars: 100 }),
+        x_class_subid: $str.clip(element.dataset.classSubid || '', { maxChars: 100 }),
 
         x_flex_id: $str.clip(domPathTo(element) || '<' + elementTagName + '>', { maxChars: 100 }),
-        x_flex_sub_id: $str.clip('<' + elementTagName + '>', { maxChars: 100 }),
+        x_flex_subid: $str.clip('<' + elementTagName + '>', { maxChars: 100 }),
 
         ...('x_click' === eventName
             ? {
                   x_flex_value: $str.clip((element as HTMLAnchorElement).href || (element as HTMLButtonElement).formAction || '', { maxChars: 100 }),
-                  x_flex_sub_value: $str.clip(element.title || element.innerText.replace(/\s+/gu, ' ').trim() || '', { maxChars: 100 }),
+                  x_flex_subvalue: $str.clip(element.title || element.innerText.replace(/\s+/gu, ' ').trim() || '', { maxChars: 100 }),
               }
             : 'x_submit' === eventName
               ? {
                     x_flex_value: $str.clip((element as HTMLFormElement).action || $url.current(), { maxChars: 100 }),
-                    x_flex_sub_value: $str.clip(((element as HTMLFormElement).method || 'GET').toUpperCase(), { maxChars: 100 }),
+                    x_flex_subvalue: $str.clip(((element as HTMLFormElement).method || 'GET').toUpperCase(), { maxChars: 100 }),
                 }
               : {}),
         ...props, // Any additional props passed in.
@@ -297,7 +300,7 @@ export const trackEvent = async (name: string, props: EventProps = {}): Promise<
             },
             // Analytics contexts; e.g., `web`, `site`.
             x_context: $str.clip(state.context, { maxChars: 100 }),
-            x_sub_context: $str.clip(state.subContext, { maxChars: 100 }),
+            x_subcontext: $str.clip(state.subcontext, { maxChars: 100 }),
 
             // Analytics hostname; e.g., `acme.example.com:3000` (with port).
             x_hostname: $str.clip($url.currentHost({ withPort: true }), { maxChars: 100 }),
@@ -357,7 +360,7 @@ const configureProviders = (): void => {
     state.configured = true;
 
     // Extracts from consent state.
-    const { canUseCookies } = consentState;
+    const { canUse } = consentState;
 
     // Configures Google Analytics `gtm.js` and `gtm.start` timer.
     // This must be the second queue addition, with consent being first.
@@ -373,10 +376,10 @@ const configureProviders = (): void => {
         url_passthrough: false, // {@see https://o5p.me/vD9oq0}.
 
         // We don’t depend on these, so they are always in privacy mode, for now.
-        allow_google_signals: canUseCookies.advertising ? false : false, // {@see https://o5p.me/nSUIYa}.
-        allow_ad_personalization_signals: canUseCookies.advertising ? false : false, // {@see https://o5p.me/BkZrLm}.
-        restricted_data_processing: canUseCookies.advertising ? true : true, // {@see https://o5p.me/nIUVf6}.
-        ads_data_redaction: canUseCookies.advertising ? true : true, // {@see https://o5p.me/8JrK91}.
+        allow_google_signals: canUse.advertising ? false : false, // {@see https://o5p.me/nSUIYa}.
+        allow_ad_personalization_signals: canUse.advertising ? false : false, // {@see https://o5p.me/BkZrLm}.
+        restricted_data_processing: canUse.advertising ? true : true, // {@see https://o5p.me/nIUVf6}.
+        ads_data_redaction: canUse.advertising ? true : true, // {@see https://o5p.me/8JrK91}.
     });
     // Tracks initial page view.
     void trackPageView();
@@ -403,7 +406,7 @@ const deployProviders = (): void => {
     state.deployed = true;
 
     // Extracts from consent state.
-    const { canUseCookies } = consentState;
+    const { canUse } = consentState;
 
     // Parent element receiving analytics tags.
     let parentElement: Element; // Parent container.
@@ -417,7 +420,7 @@ const deployProviders = (): void => {
     // This check exists for legal/privacy redundancy, but actually, it should never be `false` here.
     // i.e., Because Google Analytics is our primary analytics provider, there is simply no reason to deploy
     // if third-party cookies are disallowed, so we don’t. Therefore, we should not have a `false` condition here.
-    if (canUseCookies.thirdParty && canUseCookies.analytics) {
+    if (canUse.thirdParty && canUse.analytics) {
         parentElement.appendChild($dom.create('script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=' + $url.encode(state.gtagId) }));
     }
 };
@@ -432,9 +435,8 @@ const deployProviders = (): void => {
  */
 const updateProvidersConsentData = (): void => {
     // Extracts from consent state.
-    const { consentInitialized } = state;
-    const { canUseCookies } = consentState;
-    const canUseThirdPartyCookies = canUseCookies.thirdParty;
+    const { consentInitialized } = state,
+        { canUse } = consentState;
 
     // Updates Google Analytics consent data.
     // When initializing, this must be the first addition to the GA queue.
@@ -442,17 +444,17 @@ const updateProvidersConsentData = (): void => {
     gtag('consent', consentInitialized ? 'update' : 'default', {
         // We do consider these to be essential cookies.
         // However, they are still third-party cookies that share/sell data.
-        security_storage: canUseThirdPartyCookies && canUseCookies.essential ? 'granted' : 'denied',
+        security_storage: canUse.thirdParty && canUse.essential ? 'granted' : 'denied',
 
         // We don’t consider these to be essential cookies.
         // For our purposes, personalization === functionality.
-        functionality_storage: canUseThirdPartyCookies && canUseCookies.functionality ? 'granted' : 'denied',
-        personalization_storage: canUseThirdPartyCookies && canUseCookies.functionality ? 'granted' : 'denied',
+        functionality_storage: canUse.thirdParty && canUse.functionality ? 'granted' : 'denied',
+        personalization_storage: canUse.thirdParty && canUse.functionality ? 'granted' : 'denied',
 
         // We don’t consider these to be essential cookies.
         // These are the only two buckets actually used by Google Analytics.
-        analytics_storage: canUseThirdPartyCookies && canUseCookies.analytics ? 'granted' : 'denied',
-        ad_storage: canUseThirdPartyCookies && canUseCookies.advertising ? 'granted' : 'denied',
+        analytics_storage: canUse.thirdParty && canUse.analytics ? 'granted' : 'denied',
+        ad_storage: canUse.thirdParty && canUse.advertising ? 'granted' : 'denied',
     });
     // Flags consent data as having now been initialized.
     state.consentInitialized = true; // First update initializes consent data.
@@ -510,3 +512,12 @@ const utmXQueryVarDimensions = (): { [x: string]: string } => {
     }
     return dimensions;
 };
+
+/**
+ * Countries where Google Analytics has been banned.
+ *
+ * @review Consider using Plausible or another provider.
+ *
+ * @see https://plausible.io/blog/google-analytics-illegal
+ */
+const gaBannedCountries = ['AT', 'FR', 'IT', 'DK', 'FI', 'NO', 'SE'];

@@ -547,8 +547,8 @@ export default class Head extends Component<Props, ActualState> {
                     $preact
                         .toChildArray([children, append])
                         .filter((child: unknown) => {
-                            // Children must be vNodes; i.e., not primitives.
-                            if (!$is.vNode(child)) throw Error('EBPZT9Rz'); // Invalid vNode.
+                            // Children must be vNodes, not primitives.
+                            if (!$is.vNode(child)) throw Error('EBPZT9Rz');
 
                             const { type, props } = child; // Extracts locals.
                             const { children, [tꓺdataᱼkey]: key } = props;
@@ -563,7 +563,7 @@ export default class Head extends Component<Props, ActualState> {
                                 throw Error('euN9vUbu'); // Missing or invalid child vNode. Please review `<Head>` component docBlock.
                             }
                             // Ensure all keyed children have `_` prefixed keys so they don’t collide with built-in keys.
-                            if (!(key as string).startsWith('_')) props[tꓺdataᱼkey] = '_' + (key as string);
+                            if (!(key as string).startsWith('_')) (props as $type.Writable<typeof props>)[tꓺdataᱼkey] = '_' + (key as string);
 
                             return true;
                         })

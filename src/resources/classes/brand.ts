@@ -360,6 +360,7 @@ export const getClass = (): Constructor => {
          */
         public constructor(props: C9rProps | Class) {
             super(); // Parent constructor.
+            const isClone = props instanceof Brand;
 
             for (const [key, value] of $obj.keyAndSymbolEntries(props)) {
                 this[key] = value; // Property assignments.
@@ -367,6 +368,21 @@ export const getClass = (): Constructor => {
             if (!(this.org instanceof Brand)) {
                 this.org = this; // Circular.
             }
+            if (isClone) {
+                // Clones will freeze; i.e., upon cloning.
+                // {@see $symbol.objDeepFreezeClones}.
+            } else {
+                $obj.deepFreeze(this); // Enforces readonly.
+            }
+        }
+
+        /**
+         * {@see $obj.clone()}, {@see $obj.cloneDeep()} helper.
+         *
+         * @returns True if object clones should be frozen deeply.
+         */
+        public get [$symbol.objDeepFreezeClones](): ReturnType<$type.objDeepFreezeClonesSymbolFn> {
+            return true; // Default value.
         }
 
         /**
@@ -384,7 +400,8 @@ export const getClass = (): Constructor => {
          * @returns Object {@see RawProps}.
          */
         public rawProps(): RawProps {
-            return { ...this, org: this.org.slug };
+            // Enforces brand raw props being readonly.
+            return $obj.deepFreeze({ ...this, org: this.org.slug }) as RawProps;
         }
     };
     return Object.defineProperty(Brand, 'name', {

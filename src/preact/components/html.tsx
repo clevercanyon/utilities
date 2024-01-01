@@ -85,7 +85,7 @@ export default function HTML(props: Props = {}): $preact.VNode<Props> {
     return (
         <ContextObject.Provider value={{ state, updateState }}>
             {/* eslint-disable-next-line jsx-a11y/html-has-lang -- lang is ok. */}
-            {$env.isWeb() ? <>{props.children}</> : <html {...state}>{props.children}</html>}
+            {$env.isWeb() ? props.children : <html {...state}>{props.children}</html>}
         </ContextObject.Provider>
     );
 }

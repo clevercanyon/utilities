@@ -49,6 +49,33 @@ export type GlobalCacheEntry = {
 };
 
 /**
+ * Defines tokens.
+ *
+ * Why are there so many crazy variables used here? The intention is to optimize for minification. i.e., By using as
+ * many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome.
+ * Remember, variable names can be minified, so the length of variable names is not an issue.
+ */
+const tꓺapplicationⳇ = 'application/',
+    tꓺimageⳇ = 'image/',
+    tꓺjson = 'json',
+    tꓺplain = 'plain',
+    tꓺsvg = 'svg',
+    tꓺtextⳇ = 'text/',
+    tꓺxml = 'xml';
+
+/**
+ * Defines cachedable response content MIME types.
+ */
+const cacheableResponseContentMIMETypes = [
+    tꓺtextⳇ + tꓺplain,
+    tꓺapplicationⳇ + tꓺjson,
+    tꓺapplicationⳇ + 'ld+' + tꓺjson,
+    tꓺimageⳇ + tꓺsvg + '+' + tꓺxml,
+    tꓺapplicationⳇ + tꓺxml,
+    tꓺtextⳇ + tꓺxml,
+];
+
+/**
  * Fetcher class factory.
  *
  * @returns Class constructor.
@@ -128,6 +155,20 @@ export const getClass = (): Constructor => {
         }
 
         /**
+         * Checks if request is cacheable.
+         *
+         * @param   requestInit Request init properties.
+         *
+         * @returns             True if request is cacheable.
+         */
+        protected isCacheableRequest(requestInit?: $type.RequestInit): boolean {
+            return (
+                ['HEAD', 'GET'].includes((requestInit?.method || 'GET').toUpperCase()) &&
+                !['no-store', 'no-cache', 'reload'].includes((requestInit?.cache || 'default').toLowerCase())
+            );
+        }
+
+        /**
          * Used to wrap native {@see fetch()} in JS.
          *
          * @param   args Same as {@see fetch()} native function.
@@ -135,28 +176,30 @@ export const getClass = (): Constructor => {
          * @returns      Same as {@see fetch()} native function.
          */
         public async fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> {
-            const hash = await $crypto.sha1($json.stringify(args));
+            if (!this.isCacheableRequest(args[1])) {
+                return this.global.boundNativeFetch(...args);
+            }
+            const cacheKey = await $crypto.sha1($json.stringify(args));
 
-            if (Object.hasOwn(this.global.cache, hash)) {
-                const globalCacheEntry = this.global.cache[hash];
+            if (Object.hasOwn(this.global.cache, cacheKey)) {
+                const globalCacheEntry = this.global.cache[cacheKey];
                 return new Response(globalCacheEntry.body, globalCacheEntry.options);
             }
-            if ($env.isWeb() /* No cache writes client-side, so no await either. */) {
+            if ($env.isWeb() /* No cache writes client-side. */) {
                 return this.global.boundNativeFetch(...args);
             }
             const response = await this.global.boundNativeFetch(...args);
-            const contentType = (response.headers.get('content-type') || '').toLowerCase();
-            const contentMIMEType = contentType.split(';')[0]; // Removes a possible `; charset=utf-8`, for example.
-            const allowedMIMETypes = ['text/plain', 'application/json', 'application/ld+json', 'image/svg+xml', 'application/xml', 'text/xml'];
+            const responseContentType = (response.headers.get('content-type') || '').toLowerCase();
+            const responseContentMIMEType = responseContentType.split(';')[0]; // Removes a possible `; charset=*`.
 
-            if (!allowedMIMETypes.includes(contentMIMEType)) {
+            if (!cacheableResponseContentMIMETypes.includes(responseContentMIMEType)) {
                 return response; // Don't cache MIME types not in list above.
             }
             const globalCacheEntry: GlobalCacheEntry = {
                 body: await response.text(), // Body as plain text.
-                options: { status: response.status, headers: { 'content-type': contentType } },
+                options: { status: response.status, headers: { 'content-type': responseContentType } },
             };
-            this.global.cache[hash] = globalCacheEntry;
+            this.global.cache[cacheKey] = globalCacheEntry;
             return new Response(globalCacheEntry.body, globalCacheEntry.options);
         }
     };

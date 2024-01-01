@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $path } from '#index.ts';
+import { $obj, $path, type $type } from '#index.ts';
 
 // Frequently used strings.
 const vsCodeLangBinary = 'code-text-binary';
@@ -14,7 +14,7 @@ const mimeTypeStream = 'application/octet-stream';
 /**
  * Defines types.
  */
-export type Types = {
+export type Types = $type.ReadonlyDeep<{
     [x: string]: {
         [x: string]: {
             type: string;
@@ -23,7 +23,7 @@ export type Types = {
             vsCodeLang: string;
         };
     };
-};
+}>;
 
 /**
  * Gets a file's MIME type.
@@ -118,7 +118,7 @@ export const contentTypeCharset = (contentType: string): string => {
  *       exceptions will have to be made in your implementation — not here.
  */
 export const types = $fnꓺmemo((): Types => {
-    return {
+    return $obj.deepFreeze({
         // Documents.
 
         'Text': {
@@ -458,7 +458,7 @@ export const types = $fnꓺmemo((): Types => {
         'WordPerfect': {
             'wpd|wp': { type: 'application/wordperfect', binary: true, canonical: 'wpd', vsCodeLang: vsCodeLangBinary },
         },
-    };
+    });
 });
 
 /**
@@ -466,7 +466,7 @@ export const types = $fnꓺmemo((): Types => {
  *
  * @returns An array of file extensions.
  */
-export const exts = $fnꓺmemo((): string[] => {
+export const exts = $fnꓺmemo((): Readonly<string[]> => {
     let flat: string[] = []; // Initialize.
 
     for (const [, group] of Object.entries(types())) {
@@ -474,7 +474,7 @@ export const exts = $fnꓺmemo((): string[] => {
             flat = flat.concat(subgroupExts.split('|'));
         }
     }
-    return [...new Set(flat.sort())]; // Unique extensions only.
+    return $obj.freeze([...new Set(flat.sort())]); // Unique extensions only.
 });
 
 /**

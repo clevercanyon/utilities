@@ -344,6 +344,7 @@ export const proto = $standalone.$isꓺproto;
  *
  * @returns       True if value is an object.
  *
+ * @note This also returns true for arrays.
  * @note This also returns true for functions.
  * @note This also returns true for async functions.
  * @note This also returns true for generator functions.
@@ -360,7 +361,7 @@ export const object = $standalone.$isꓺobject;
  *
  * @returns       True if value is a plain object.
  */
-export const plainObject = (value: unknown): value is $type.Object => {
+export const plainObject = <Type>(value: $type.OfObject<Type> | unknown): value is $type.OfObject<Type> => {
     return object(value) && objectTag(value, 'Object');
 };
 
@@ -411,7 +412,7 @@ export const fnArguments = (value: unknown): value is IArguments => {
  *
  * @returns       True if value is a promise.
  */
-export const promise = (value: unknown): value is Promise<unknown> => {
+export const promise = <Type>(value: $type.OfPromise<Type> | unknown): value is $type.OfPromise<Type> => {
     return value instanceof Promise;
 };
 
@@ -422,7 +423,7 @@ export const promise = (value: unknown): value is Promise<unknown> => {
  *
  * @returns       True if value is a set.
  */
-export const set = (value: unknown): value is Set<unknown> => {
+export const set = <Type>(value: $type.OfSet<Type> | unknown): value is $type.OfSet<Type> => {
     return value instanceof Set;
 };
 
@@ -433,7 +434,7 @@ export const set = (value: unknown): value is Set<unknown> => {
  *
  * @returns       True if value is a map.
  */
-export const map = (value: unknown): value is Map<unknown, unknown> => {
+export const map = <Type>(value: $type.OfMap<Type> | unknown): value is $type.OfMap<Type> => {
     return value instanceof Map;
 };
 
@@ -539,6 +540,28 @@ export const errorCode = (value: unknown): value is $type.Error => {
 };
 
 /**
+ * Checks if value is a {@see Request}.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is a {@see Request}.
+ */
+export const request = (value: unknown): value is $type.Request => {
+    return value instanceof Request;
+};
+
+/**
+ * Checks if value is a {@see Response}.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is a {@see Response}.
+ */
+export const response = (value: unknown): value is $type.Response => {
+    return value instanceof Response;
+};
+
+/**
  * Checks if value is a brand.
  *
  * @param   value Value to consider.
@@ -627,7 +650,7 @@ export const node = (value: unknown): value is Node => {
  * @see https://o5p.me/jSIg3C -- JSX runtime.
  * @see https://o5p.me/GqM0aR -- Preact vNode.
  */
-export const vNode = (value: unknown): value is $type.Object<{ type: unknown; props: $type.Object }> => {
+export const vNode = (value: unknown): value is $preact.VNode => {
     return $preact.isVNode(value) && plainObject(value)
         && Object.hasOwn(value, 'type') && plainObject(value.props)
         && Object.hasOwn(value, '__e' /* `__e` = `_dom` */); // prettier-ignore
@@ -720,6 +743,32 @@ export const objectTag = $standalone.$isꓺobjectTag;
 export const objectOfTag = $standalone.$isꓺobjectOfTag;
 
 /**
+ * Checks if a value is frozen.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is frozen.
+ *
+ * @note See: <https://o5p.me/Ni4WqQ> for frozen details.
+ */
+export const frozen = (value: unknown): boolean => {
+    return object(value) && Object.isFrozen(value);
+};
+
+/**
+ * Checks if a value is sealed.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is sealed.
+ *
+ * @note See: <https://o5p.me/D0CKAG> for sealed details.
+ */
+export const sealed = (value: unknown): boolean => {
+    return object(value) && Object.isSealed(value);
+};
+
+/**
  * Checks if a value is iterable.
  *
  * @param   value Value to consider.
@@ -728,7 +777,7 @@ export const objectOfTag = $standalone.$isꓺobjectOfTag;
  *
  * @note See: <https://o5p.me/iYUYVK> for iterable details.
  */
-export const iterable = (value: unknown): value is Iterable<unknown> => {
+export const iterable = <Type>(value: $type.OfIterable<Type> | unknown): value is $type.OfIterable<Type> => {
     return Symbol.iterator in Object(value);
 };
 
@@ -741,7 +790,7 @@ export const iterable = (value: unknown): value is Iterable<unknown> => {
  *
  * @note See: <https://o5p.me/iYUYVK> for iterable details.
  */
-export const asyncIterable = (value: unknown): value is AsyncIterable<unknown> => {
+export const asyncIterable = <Type>(value: $type.OfAsyncIterable<Type> | unknown): value is $type.OfAsyncIterable<Type> => {
     return Symbol.asyncIterator in Object(value);
 };
 

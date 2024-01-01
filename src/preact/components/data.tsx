@@ -179,6 +179,14 @@ export const useHTTP = (): HTTPContext => {
  */
 export default class Data extends Component<Props, State> {
     /**
+     * Context tools.
+     */
+    protected contextTools: {
+        updateState: Data['updateState'];
+        forceUpdate: Data['forceUpdate'];
+    };
+
+    /**
      * Constructor.
      *
      * @param props Props.
@@ -186,15 +194,20 @@ export default class Data extends Component<Props, State> {
     public constructor(props: Props = {}) {
         super(props); // Parent constructor.
 
-        const globalObp = props.globalObp || defaultGlobalObp();
-        const globalState = initialGlobalState(globalObp, props);
-        const fetcher = props.fetcher || $preact.iso.replaceNativeFetch();
+        const globalObp = props.globalObp || defaultGlobalObp(),
+            globalState = initialGlobalState(globalObp, props),
+            fetcher = props.fetcher || $preact.iso.replaceNativeFetch();
 
         this.state = $obj.mergeDeep(
             $obj.pick(globalState, mergeableGlobalStateKeys as unknown as string[]),
             $preact.omitProps(props, ['globalObp', 'fetcher', 'children']), //
             { $set: { globalObp, fetcher }, head: {} },
         ) as unknown as State;
+
+        this.contextTools = {
+            updateState: (...args) => this.updateState(...args),
+            forceUpdate: (...args) => this.forceUpdate(...args),
+        };
     }
 
     /**
@@ -224,8 +237,8 @@ export default class Data extends Component<Props, State> {
      * @returns           True if component should update.
      */
     public shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-        const sameProps = nextProps === this.props;
-        const sameState = nextState === this.state;
+        const sameProps = nextProps === this.props,
+            sameState = nextState === this.state;
 
         if (!sameProps) return true; // Must re-render.
         if (sameState) return false; // No reason to re-render.
@@ -251,17 +264,7 @@ export default class Data extends Component<Props, State> {
      * @returns VNode / JSX element tree.
      */
     public render(): $preact.VNode<Props> {
-        return (
-            <ContextObject.Provider
-                value={{
-                    state: this.state,
-                    updateState: (...args) => this.updateState(...args),
-                    forceUpdate: (...args) => this.forceUpdate(...args),
-                }}
-            >
-                {this.props.children}
-            </ContextObject.Provider>
-        );
+        return <ContextObject.Provider value={{ state: this.state, ...this.contextTools }}>{this.props.children}</ContextObject.Provider>;
     }
 }
 

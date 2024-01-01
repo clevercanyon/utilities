@@ -146,6 +146,8 @@ export const addListeners = async (): Promise<void> => {
                     1000,
                 );
             })
-            .catch((copyError: Error) => state.debug && console.log({ copyError }));
+            .catch((thrown: unknown) => {
+                if (state.debug) console.log('[clipboard]:', { thrown });
+            });
     });
 };

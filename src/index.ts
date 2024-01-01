@@ -30,4 +30,5 @@ export * as $time from '#time.ts';
 export * as $to from '#to.ts';
 export * as $type from '#type.ts';
 export * as $url from '#url.ts';
+export * as $user from '#user.ts';
 export * as $version from '#version.ts';

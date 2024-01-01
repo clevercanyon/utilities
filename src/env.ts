@@ -10,45 +10,8 @@ import { $app, $cookie, $fn, $is, $obj, $obp, $str, $to, $type, $url } from '#in
 let topLevelObp: string = '',
     topLevelObpSet: boolean = false,
     varsInitialized: boolean = false;
+const vars: { [x: string]: unknown } = {};
 
-const vars: { [x: string]: unknown } = {},
-    tꓺvꓺundefined = undefined;
-
-/**
- * Defines types.
- *
- *     {
- *         "city": "Madawaska",
- *         "colo": "EWR",
- *         "continent": "NA",
- *         "country": "US",
- *         "latitude": "47.33320",
- *         "longitude": "-68.33160",
- *         "metroCode": "552",
- *         "postalCode": "04756",
- *         "region": "Maine",
- *         "regionCode": "ME",
- *         "timezone": "America/New_York"
- *     }
- */
-export type IPGeoData = Readonly<{
-    city: string;
-    colo: string;
-    continent: string;
-    country: string;
-    latitude: string;
-    longitude: string;
-    metroCode: string;
-    postalCode: string;
-    region: string;
-    regionCode: string;
-    timezone: string;
-}>;
-type IPGeoDataResponsePayload = Readonly<{
-    ok: boolean;
-    error?: Readonly<{ message: string }>;
-    data?: IPGeoData;
-}>;
 export type CaptureOptions = { overrideExisting: boolean };
 export type GetOptions = { type?: $type.EnsurableType; require?: boolean; default?: unknown };
 export type GetOptionsWithoutType = GetOptions & { type?: undefined };
@@ -228,7 +191,7 @@ export function get(...args: unknown[]): unknown {
     } else (leadingObps = args[0] as string | string[]), (subObpOrObp = args[1] as string), (options = args[2] as GetOptions | undefined);
 
     let value: unknown; // Initialize value, which is populated below, if possible.
-    const opts = $obj.defaults({}, options || {}, { type: tꓺvꓺundefined, require: false, default: tꓺvꓺundefined }) as GetOptions;
+    const opts = $obj.defaults({}, options || {}, { type: undefined, require: false, default: undefined }) as GetOptions;
 
     for (const leadingObp of $to.array(leadingObps)) {
         const obp = [leadingObp, subObpOrObp].filter((v) => '' !== v).join('.');
@@ -237,15 +200,15 @@ export function get(...args: unknown[]): unknown {
             // If top-level, look first at globals.
             value = $obp.get(vars, globalTopLevelObp(obp));
         }
-        if (tꓺvꓺundefined === value) {
+        if (undefined === value) {
             // Otherwise, resolve top-level and query.
             value = $obp.get(vars, resolveTopLevelObp(obp));
         }
-        if (tꓺvꓺundefined !== value) break; // Got value.
+        if (undefined !== value) break; // Got value.
     }
-    if (tꓺvꓺundefined === value) value = opts.default;
+    if (undefined === value) value = opts.default;
     // Only throws if both the value and the default are undefined.
-    if (opts.require && tꓺvꓺundefined === value) throw Error('r4bAXRmQ');
+    if (opts.require && undefined === value) throw Error('r4bAXRmQ');
 
     if (opts.type /* Ensurable type. */) {
         return $type.ensure(value, opts.type);
@@ -313,6 +276,55 @@ export function unset(...args: unknown[]): void {
  */
 export const isTest = $fnꓺmemo((): boolean => {
     return test('TEST'); // Set by Vitest; maybe by Jest also.
+});
+
+/**
+ * Checks if environment is operated by Clever Canyon.
+ *
+ * @param   tests Optional tests. {@see test()} for details.
+ *
+ * @returns       True if environment is operated by Clever Canyon.
+ *
+ *   - If different tests are passed, meaning of return value potentially changes.
+ */
+export const isC10n = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {}): boolean => {
+    return test('APP_IS_C10N', tests);
+});
+
+/**
+ * Checks if environment is a Vite dev server running an app.
+ *
+ * @param   tests Optional tests. {@see test()} for details.
+ *
+ * @returns       True if environment is a Vite dev server running an app.
+ *
+ *   - If different tests are passed, meaning of return value potentially changes.
+ *
+ * @note By default, this also returns `true` when running tests; because that’s how Vitest works.
+ *       The test files are served by Vite’s dev server; i.e., `serve` is the Vite command internally.
+ *       If you’d like to avoid that condition you can simply check `if (!$env.isTest())`.
+ */
+export const isVite = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = { serve: true }): boolean => {
+    return test('APP_IS_VITE', tests);
+});
+
+/**
+ * Checks if environment is in debug mode.
+ *
+ * While this does support a cookie check, it intentionally does not support a `request` parameter. The passing of a
+ * `request` is frequently associated with SSR, and we do not want server-side requests to place an app into debug mode,
+ * as doing so may alter server-side caching or state in ways we do not anticipate, and result in corruption or
+ * malfunction for normal requests not in debug mode — running in production. If a server-side app needs debug mode,
+ * consider deploying to a stage environment with the `APP_DEBUG` environment variable set explicitly.
+ *
+ * @param   tests Optional tests. {@see test()} for details.
+ *
+ * @returns       True if environment is in debug mode.
+ *
+ *   - If different tests are passed, meaning of return value potentially changes.
+ */
+export const inDebugMode = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {}): boolean => {
+    return test('APP_DEBUG', tests, { alsoTryCookie: true });
 });
 
 /**
@@ -466,116 +478,6 @@ export const isLocalVitePrefresh = $fnꓺmemo(2, (request?: $type.Request): bool
 });
 
 /**
- * Checks if user-agent is a major crawler.
- *
- * @param   request Optional HTTP request to check.
- *
- *   - If not passed, only web environments can be tested properly.
- *
- * @returns         True if user-agent is a major crawler.
- *
- * @see https://blog.hubspot.com/marketing/top-search-engines
- * @see https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers
- * @see https://github.com/monperrus/crawler-user-agents/blob/master/crawler-user-agents.json
- */
-export const isMajorCrawler = $fnꓺmemo(2, (request?: $type.Request) => {
-    const regExps = [
-        /\b(?:google|bing|msn|adidx|duckduck)bot\b/iu, // `*bot` patterns.
-        /\b(?:(?:ads|store)bot|apis|mediapartners)-google\b/iu, // `*-google` patterns.
-        /\bgoogle(?:-(?:read|site|adwords|extended|inspectiontool|structured)|producer|other)\b/iu, // `google{-*,*}` patterns.
-        /\b(?:slurp|teoma|yeti|heritrix|ia_archiver|archive\.org_bot|baiduspider|yandex\.com\/bots)\b/iu, // Other search engines.
-    ];
-    if (request) {
-        const { headers } = request;
-        const userAgent = headers.get('user-agent') || '';
-        if (regExps.some((regExp) => regExp.test(userAgent))) return true;
-    }
-    return isWeb() && regExps.some((regExp) => regExp.test(navigator.userAgent));
-});
-
-/**
- * Checks GPC/DNT headers.
- *
- * @param   request Optional HTTP request to check.
- *
- *   - If not passed, only web environments can be tested properly.
- *
- * @returns         True when GPC and/or DNT header exists.
- *
- * @see https://o5p.me/nXslpm
- * @see https://o5p.me/jAUC6x
- */
-export const hasGlobalPrivacy = $fnꓺmemo(2, (request?: $type.Request): boolean => {
-    if (request) {
-        const { headers } = request;
-        if ('1' === headers.get('sec-gpc') || '1' === headers.get('dnt')) return true;
-    }
-    return isWeb() && ('1' === navigator.globalPrivacyControl || '1' === navigator.doNotTrack);
-});
-
-/**
- * Gets IP geolocation data.
- *
- * Requires a web environment. Current IP is mapped to a geo-location. This does a remote first-party HTTP request to
- * determine geolocation; i.e., this is our own API. Thus, we are not sharing with a third-party.
- *
- * @returns IP geolocation data promise.
- *
- * @requiredEnv web
- */
-export const ipGeoData = $fnꓺmemo(async (): Promise<IPGeoData> => {
-    // A web environment is strictly required by this utility.
-    // Guards against automated tests potentially attempting to make remote requests.
-    if (!isWeb()) throw Error('rVVvpwhe');
-
-    return fetch('https://workers.hop.gdn/utilities/api/ip-geo/v1') //
-        .then(async (response): Promise<IPGeoDataResponsePayload> => {
-            return $to.plainObject(await response.json()) as IPGeoDataResponsePayload;
-        })
-        .then(({ ok, error, data }): IPGeoData => {
-            if (!ok) throw Error(error?.message || 'DkvKa3NM');
-            return data as IPGeoData;
-        });
-});
-
-/**
- * Checks if environment is operated by Clever Canyon.
- *
- * @param   tests Optional tests. {@see test()} for details.
- *
- * @returns       True if environment is operated by Clever Canyon.
- *
- *   - If different tests are passed, meaning of return value potentially changes.
- */
-export const isC10n = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {}): boolean => test('APP_IS_C10N', tests));
-
-/**
- * Checks if environment is a Vite dev server running an app.
- *
- * @param   tests Optional tests. {@see test()} for details.
- *
- * @returns       True if environment is a Vite dev server running an app.
- *
- *   - If different tests are passed, meaning of return value potentially changes.
- *
- * @note By default, this also returns `true` when running tests; because that’s how Vitest works.
- *       The test files are served by Vite’s dev server; i.e., `serve` is the Vite command internally.
- *       If you’d like to avoid that condition you can simply check `if (!$env.isTest())`.
- */
-export const isVite = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = { serve: true }): boolean => test('APP_IS_VITE', tests));
-
-/**
- * Checks if environment is in debug mode.
- *
- * @param   tests Optional tests. {@see test()} for details.
- *
- * @returns       True if environment is in debug mode.
- *
- *   - If different tests are passed, meaning of return value potentially changes.
- */
-export const inDebugMode = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {}): boolean => test('APP_DEBUG', tests, { alsoTryCookie: true }));
-
-/**
  * Tests an environment variable and optionally its query variables.
  *
  * An environment variable that is defined as a query string can optionally have each of its query string variables
@@ -624,8 +526,8 @@ export function test(...args: unknown[]): boolean {
 
     let value = get(leadingObps, subObpOrObp); // Environment variable value.
     // We can also try a cookie by the same name, but only under a set of specific conditions.
-    if (tꓺvꓺundefined === value && opts.alsoTryCookie && isWeb() && '' === $to.array(leadingObps).join('')) {
-        value = $cookie.get(subObpOrObp, tꓺvꓺundefined); // Cookie value.
+    if (undefined === value && opts.alsoTryCookie && isWeb() && '' === $to.array(leadingObps).join('')) {
+        value = $cookie.get(subObpOrObp, undefined); // Cookie value.
     }
     if ($is.emptyOrZero(value)) return false; // Empty or `'0'` = false.
     if ($is.empty(tests)) return true; // Not empty, not `'0'`, no tests = true.
@@ -636,9 +538,9 @@ export function test(...args: unknown[]): boolean {
 
     for (const [qv, test] of Object.entries(tests as QVTests)) {
         const exists = Object.hasOwn(qvs, qv);
-        const parsedValue = exists ? $str.parseValue(qvs[qv]) : tꓺvꓺundefined;
+        const parsedValue = exists ? $str.parseValue(qvs[qv]) : undefined;
 
-        if (null === test || tꓺvꓺundefined === test) {
+        if (null === test || undefined === test) {
             if (!exists) return false;
             //
         } else if (true === test) {

@@ -37,7 +37,7 @@ export const string = (value: unknown): string => {
  *
  * @returns       Value cast as a map.
  */
-export const map = <Type>(value: Type): Type extends Map<unknown, unknown> ? Type : Map<unknown, unknown> => {
+export const map = <Type>(value: Type): Type extends Map<unknown, unknown> | Readonly<Map<unknown, unknown>> ? Type : Map<unknown, unknown> => {
     if ($is.map(value)) {
         return value as ReturnType<typeof map<Type>>;
         //
@@ -69,7 +69,7 @@ export const map = <Type>(value: Type): Type extends Map<unknown, unknown> ? Typ
  *
  * @returns       Value cast as an array.
  */
-export const array = <Type>(value: Type): Type extends unknown[] ? Type : Type extends undefined | null ? [] : Type[] => {
+export const array = <Type>(value: Type): Type extends unknown[] | Readonly<unknown[]> ? Type : Type extends undefined | null ? [] : Type[] => {
     if ($is.array(value)) {
         return value as ReturnType<typeof array<Type>>;
         //
@@ -89,7 +89,7 @@ export const array = <Type>(value: Type): Type extends unknown[] ? Type : Type e
  * @returns       Value cast as a flat array.
  */
 export const flatArray = <Type>(value: Type): $type.FlatArray<ReturnType<typeof array<Type>>, typeof Infinity> => {
-    return array(value).flat(Infinity) as ReturnType<typeof flatArray<Type>>;
+    return array(value).flat(Infinity);
 };
 
 /**
@@ -114,6 +114,7 @@ export const plainObject = (value: unknown): $type.Object => {
     }
     if ($is.set(value)) {
         return { ...[...value] } as $type.Object;
+        //
     } else if ($is.map(value)) {
         return Object.fromEntries(value.entries()) as $type.Object;
     }

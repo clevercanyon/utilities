@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.665",
+    "version": "1.0.666",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -150,6 +150,11 @@
             "import": "./dist/preact/components/as.js",
             "default": "./dist/preact/components/as.js"
         },
+        "./preact/components/audit-logger": {
+            "types": "./dist/types/preact/components/audit-logger.d.ts",
+            "import": "./dist/preact/components/audit-logger.js",
+            "default": "./dist/preact/components/audit-logger.js"
+        },
         "./preact/components/body": {
             "types": "./dist/types/preact/components/body.d.ts",
             "import": "./dist/preact/components/body.js",
@@ -179,6 +184,11 @@
             "types": "./dist/types/preact/components/consent-icon.d.ts",
             "import": "./dist/preact/components/consent-icon.js",
             "default": "./dist/preact/components/consent-icon.js"
+        },
+        "./preact/components/consent-logger": {
+            "types": "./dist/types/preact/components/consent-logger.d.ts",
+            "import": "./dist/preact/components/consent-logger.js",
+            "default": "./dist/preact/components/consent-logger.js"
         },
         "./preact/components/data": {
             "types": "./dist/types/preact/components/data.d.ts",
@@ -260,6 +270,11 @@
             "import": "./dist/url.js",
             "default": "./dist/url.js"
         },
+        "./user": {
+            "types": "./dist/types/user.d.ts",
+            "import": "./dist/user.js",
+            "default": "./dist/user.js"
+        },
         "./version": {
             "types": "./dist/types/version.d.ts",
             "import": "./dist/version.js",
@@ -277,9 +292,7 @@
             "./*": ["./dist/types/*"]
         }
     },
-    "dependencies": {
-        "@logtail/types": "0.4.14"
-    },
+    "dependencies": {},
     "peerDependencies": {
         "@medv/finder": "3.1.0",
         "@preact/signals": "1.2.2",

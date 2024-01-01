@@ -2,14 +2,15 @@
  * Preact component.
  *
  * This depends on our consent API, which is web-only. For that reason, this component must be loaded and introduced
- * only by effects, and not inserted into DOM via SSR, or initial hydration, which would case diffing issues.
+ * only by effects, and not inserted into DOM via SSR, or initial hydration, which would cause diffing issues.
  *
  * @requiredEnv web
  */
 
 import '#@initialize.ts';
 
-import { $app, $dom, $is, $obj, $preact, $time, type $type } from '#index.ts';
+import { type OpenDialogEvent } from '#@preact/apis/web/consent.ts';
+import { $app, $dom, $is, $obj, $preact, $time, $user, type $type } from '#index.ts';
 import { default as As } from '#preact/components/as.tsx';
 
 // Various icons needed for consent dialog interface.
@@ -20,9 +21,6 @@ import Fa6SolidCircleQuestion from '~icons/fa6-solid/circle-question';
 import FluentEmojiFlatCookie from '~icons/fluent-emoji-flat/cookie';
 import HeroiconsXMark from '~icons/heroicons/x-mark';
 
-// These are explicit imports of stateless utilities in our consent API.
-import { cookieData, updateCookieData, type Data, type OpenDialogEvent } from '#@preact/apis/web/consent.ts';
-
 /**
  * Defines types.
  */
@@ -30,32 +28,31 @@ export type State = $preact.State<{
     isInitial: boolean;
     open: boolean;
     closing: boolean;
-    data: Data;
+    data: $user.ConsentData;
 }>;
 export type Props = $preact.NoProps;
-export type UpdateEvent = CustomEvent<{ data: Data }>;
 
 /**
  * Renders component.
  *
- * @param   props Component props.
- *
- * @returns       VNode / JSX element tree.
+ * @returns VNode / JSX element tree.
  *
  * @note `z-index` for consent dialog uses `103`, `104`, which sits right on top of our consent icon at `102`.
  *       Also, it sits on top of a site’s header and navigation dialog, which should be at `100`, `101`.
  */
-export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Props> {
+export default function ConsentDialog(): $preact.VNode<Props> {
     // Acquires consent, brand, state.
 
     const brand = $app.brand(),
         consent = $preact.useConsent(),
+        consentLogger = $preact.useConsentLogger(),
         [state, updateState] = $preact.useReducedState((): State => {
             return $preact.initialState({
                 isInitial: true,
                 open: false,
                 closing: false,
-                data: cookieData(),
+                // Must clone readonly consent data.
+                data: $obj.cloneDeep($user.consentData()),
             });
         }),
         { prefs } = state.data;
@@ -82,8 +79,8 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
 
     // Tracks a snapshot of prior preferences; i.e., before dialog opens.
 
-    const prefsPriorToOpen = $preact.useRef($obj.cloneDeep(prefs) as Data['prefs']);
-    if (!state.isInitial && !state.open) prefsPriorToOpen.current = $obj.cloneDeep(prefs) as Data['prefs'];
+    const prefsPriorToOpen = $preact.useRef($obj.cloneDeep(prefs) as $user.ConsentData['prefs']);
+    if (!state.isInitial && !state.open) prefsPriorToOpen.current = $obj.cloneDeep(prefs) as $user.ConsentData['prefs'];
 
     // Defines prefixes for HTML IDs.
 
@@ -93,7 +90,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
 
     // Opens dialog w/ optional preconfigured data.
 
-    const openDialog = $preact.useCallback((data?: $type.PartialDeep<Data>): void => {
+    const openDialog = $preact.useCallback((data?: $type.PartialDeep<$user.ConsentData>): void => {
         clearTimeout(closingTimeout.current as $type.Timeout);
         updateState({ open: true, closing: false, data: data || {} });
     }, []);
@@ -109,7 +106,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
     // Gets all prefs as a boolean value.
 
     const allPrefsAs = $preact.useCallback(
-        (value: boolean): Data['prefs'] => ({
+        (value: boolean): $user.ConsentData['prefs'] => ({
             optIn: {
                 acceptFunctionalityCookies: value,
                 acceptAnalyticsCookies: value,
@@ -123,7 +120,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
     );
     // Queries current preferences.
 
-    const queryPrefs = $preact.useCallback((): Data['prefs'] => {
+    const queryPrefs = $preact.useCallback((): $user.ConsentData['prefs'] => {
         return {
             optIn: {
                 acceptFunctionalityCookies: $dom.query('#' + htmlIdPrefixForOptInPrefs + 'accept-functionality-cookies:checked') ? true : false,
@@ -138,7 +135,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
 
     // Updates preferences.
 
-    const updatePrefs = $preact.useCallback((prefs: Data['prefs']): void => {
+    const updatePrefs = $preact.useCallback((prefs: $user.ConsentData['prefs']): void => {
         void consent.then(({ state: consentState }) => {
             // State updates.
             const updates = {
@@ -154,13 +151,15 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
             };
             // Computes next data, updates cookie data, state, and closes.
             const nextData = $preact.reduceState(stateRef.current, updates).data;
-            updateCookieData(nextData), updateState(updates), closeDialog();
+            $user.updateConsentData(nextData), updateState(updates), closeDialog();
+
+            // Logs data as proof of consent having been granted|denied by user.
+            void consentLogger.log('Consent dialog update.', { data: nextData });
 
             // This fires an update event and then potentially reloads immediately.
-            // Event listeners should assume no reload will occur, but its entirely possible.
-            $dom.trigger(document, 'x:consentDialog:update', { data: nextData } as UpdateEvent['detail']);
+            $dom.trigger(document, 'x:consentDialog:update'); // Listeners: {@see $user.consentData()}.
 
-            // This reloads the page, such that we honor critical preference updates immediately.
+            // Conditionally reloads, such that we honor critical preference updates immediately.
             // e.g., Something was true before, and now falsey. Or falsey before, and now true.
             if (
                 Object.entries(prefsPriorToOpen.current.optIn).some(([key, oldValue]) => {
@@ -200,7 +199,7 @@ export default function ConsentDialog(/* props: Props = {} */): $preact.VNode<Pr
             if (!consentState.needsOpenDialog) return;
             const needsPrefconfiguredData = $is.object(consentState.needsOpenDialog);
             const preconfiguredData = needsPrefconfiguredData ? consentState.needsOpenDialog : {};
-            if (!state.open) openDialog(preconfiguredData as $type.PartialDeep<Data>);
+            if (!state.open) openDialog(preconfiguredData as $type.PartialDeep<$user.ConsentData>);
         });
     }
     // ---

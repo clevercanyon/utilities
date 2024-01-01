@@ -143,7 +143,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
  *
  * @requiredEnv web -- This utility must only be used client-side.
  */
-export const hydrativelyRenderSPA = (options: HydrativelyRenderSPAOptions): void => {
+export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions): Promise<void> => {
     if (!$env.isWeb()) throw Error('N4WUN2gk');
 
     const appSelectors = 'body > x-preact-app';

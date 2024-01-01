@@ -106,6 +106,8 @@ export {
 /**
  * Exports our Preact hooks.
  */
+export { useAuditLogger } from '#preact/components/audit-logger.tsx';
+export { useConsentLogger } from '#preact/components/consent-logger.tsx';
 export { useConsent } from '#preact/components/consent.tsx';
 export { useAnalytics } from '#preact/components/analytics.tsx';
 export { useTurnstile } from '#preact/components/turnstile.tsx';
@@ -134,14 +136,14 @@ export type FnComponent<Type extends AnyProps = Props> = preact.FunctionComponen
 export type AsyncFnComponent<Type extends AnyProps = Props> = (...args: Parameters<FnComponent<Type>>) => Promise<ReturnType<FnComponent<Type>>>;
 export type ClassComponent<Type extends AnyProps = Props, Type2 extends State = State> = preact.ComponentClass<Type, Type2>;
 
-export type Props<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>, 'jsx'>>;
-export type BasicProps<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx'>>;
-export type BasicTreeProps<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref'>>;
-export type CleanProps<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<preact.RenderableProps<Type>, 'jsx' | 'key' | 'ref' | 'children'>>;
+export type Props<Type extends $type.StrKeyable = $type.StrKeyable> = Omit<Readonly<preact.RenderableProps<Type & { [x in ClassPropVariants]?: Classes }>>, 'jsx'>;
+export type BasicProps<Type extends $type.StrKeyable = $type.StrKeyable> = Omit<Readonly<preact.RenderableProps<Type>>, 'jsx'>;
+export type BasicTreeProps<Type extends $type.StrKeyable = $type.StrKeyable> = Omit<Readonly<preact.RenderableProps<Type>>, 'jsx' | 'key' | 'ref'>;
+export type CleanProps<Type extends $type.StrKeyable = $type.StrKeyable> = Omit<Readonly<preact.RenderableProps<Type>>, 'jsx' | 'key' | 'ref' | 'children'>;
 export type NoProps = CleanProps<{}>; // Explicitly no props whatsoever.
 
-export type State<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
-export type Context<Type extends $type.StrKeyable = $type.StrKeyable> = Readonly<Omit<Type, 'children' | 'dangerouslySetInnerHTML'>>;
+export type State<Type extends $type.StrKeyable = $type.StrKeyable> = Omit<Readonly<Type>, 'children' | 'dangerouslySetInnerHTML'>;
+export type Context<Type extends $type.StrKeyable = $type.StrKeyable> = Omit<Readonly<Type>, 'children' | 'dangerouslySetInnerHTML'>;
 export type Ref<Type = unknown> = preact.RefObject<Type>;
 
 export type StateUpdater<Type> = preactꓺhooksꓺStateUpdater<Type>; // e.g., {@see useState()}.
@@ -154,13 +156,14 @@ export type Styles = preact.JSX.CSSProperties;
 
 type TypesOfClasses = // Internal class prop variants.
     // Types can be nested into arrays|sets infinitely deep.
-    | string
+    | null
     | undefined
+    | string
     | ClassMap
     | Map<string, boolean>
     | $type.Object<{ [x in ClassPropVariants]?: Classes }>
     // Signal-like is supported because JSX supports it on the `class` attribute.
-    | preact.JSX.SignalLike<string | undefined>; // Exactly the same as JSX internals.
+    | preact.JSX.SignalLike<null | undefined | string>; // Exactly the same as JSX internals.
 
 // ---
 // Prop utilities.
@@ -284,9 +287,9 @@ export const useReducedState = <Type extends State>(initialStateFn: () => Type):
 const internalClassPropVariants = ['class', 'classes', 'className', 'classNames'] as const;
 
 // Additional supporting utility functions for `class` prop variants.
-export const classPropVariants = $fnꓺmemo((): string[] => [...internalClassPropVariants]);
 export const classPropVariantsRegExpStr = $fnꓺmemo((): string => '^class(?:es|Names?)?$');
 export const classPropVariantsRegExp = $fnꓺmemo((): RegExp => new RegExp(classPropVariantsRegExpStr(), 'u'));
+export const classPropVariants = $fnꓺmemo((): Readonly<string[]> => $obj.freeze([...internalClassPropVariants]));
 
 /**
  * Gets component classes.
@@ -366,7 +369,7 @@ const classesꓺhelper = (allArgs: Classes[], classMap?: ClassMap): ClassMap => 
                 }
             } else if ($is.object(arg) && Object.hasOwn(arg, 'value')) {
                 // Note: accessing `.value` subscribes us to the signal-like value.
-                classesꓺhelper([(arg as preact.JSX.SignalLike<string | undefined>).value], map);
+                classesꓺhelper([(arg as preact.JSX.SignalLike<null | undefined | string>).value], map);
             }
         }
     }

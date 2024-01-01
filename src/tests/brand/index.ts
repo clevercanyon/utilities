@@ -31,6 +31,7 @@ describe('$brand', async () => {
             $app.hasBaseURL.flush(),
             $app.baseURL.flush(),
             //
+            $app.hasBrandProps.flush(),
             $app.brandProps.flush(),
             $app.brand.flush(),
             //

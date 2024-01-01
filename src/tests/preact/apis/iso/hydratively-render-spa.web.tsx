@@ -32,6 +32,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
             $app.hasBaseURL.flush(),
             $app.baseURL.flush(),
             //
+            $app.hasBrandProps.flush(),
             $app.brandProps.flush(),
             $app.brand.flush(),
             //
@@ -102,7 +103,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         expect(domIndexBodyMarkup).toContain('"params":{}');
 
         // Hydrate DOM now and continue.
-        $preact.iso.hydrativelyRenderSPA({ App });
+        await $preact.iso.hydrativelyRenderSPA({ App });
 
         // Allow plenty of time for effects, such that any errors can be detected while testing.
         await new Promise((resolve) => {

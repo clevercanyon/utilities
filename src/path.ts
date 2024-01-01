@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $mime, $mm, $obj, $str, $to } from '#index.ts';
+import { $is, $mime, $mm, $obj, $str, $to, type $type } from '#index.ts';
 import { default as untypedGitIgnoreFactory, type Ignore as GitIgnore } from 'ignore';
 
 type GitIgnoreFactoryOptions = { ignorecase?: boolean };
@@ -25,9 +25,9 @@ export type GlobToRegExpStringOptions = $mm.Options;
 export type GitIgnoreToGlobOptions = { useDotGlobstars?: boolean };
 export type ExtsByVSCodeLangOptions = { camelCase?: boolean; enableCodeTextual?: boolean };
 
-export type DefaultGitIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
-export type DefaultNPMIgnoresByGroup = { [x: string]: { [x: string]: string[] } | string[] };
-export type DefaultGitNPMIgnoresByCategory = { [x: string]: string[] };
+export type DefaultGitIgnoresByGroup = $type.ReadonlyDeep<{ [x: string]: { [x: string]: string[] } | string[] }>;
+export type DefaultNPMIgnoresByGroup = $type.ReadonlyDeep<{ [x: string]: { [x: string]: string[] } | string[] }>;
+export type DefaultGitNPMIgnoresByCategory = $type.ReadonlyDeep<{ [x: string]: string[] }>;
 
 /**
  * Any extension RegExp.
@@ -48,10 +48,12 @@ export const extRegExp = $fnꓺmemo((): RegExp => /(?:^|[^.])\.([^\\/.]+)$/iu);
  *
  * @see $mime.exts() in `./mime.ts` for the full list of extensions.
  */
-export const staticExts = $fnꓺmemo((): string[] => {
-    return $mime.exts().filter((ext) => {
-        return !['php', 'phtml', 'phtm', 'phar'].includes(ext) && !/^(?:php|phtml|phtm)(?:[.~_-]*[0-9]+)$/u.test(ext);
-    });
+export const staticExts = $fnꓺmemo((): Readonly<string[]> => {
+    return $obj.freeze(
+        $mime.exts().filter((ext) => {
+            return !['php', 'phtml', 'phtm', 'phar'].includes(ext) && !/^(?:php|phtml|phtm)(?:[.~_-]*[0-9]+)$/u.test(ext);
+        }),
+    );
 });
 
 /**
@@ -290,7 +292,7 @@ export const globToRegExpString = (glob: string, options?: GlobToRegExpStringOpt
  * @returns            An array of canonical extension variants. The extensions within each canonical group are sorted
  *   by priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const canonicalExtVariants = $fnꓺmemo({ deep: true, maxSize: 12 }, (canonicals: string | string[]): string[] => {
+export const canonicalExtVariants = $fnꓺmemo({ deep: true, maxSize: 12 }, (canonicals: string | string[]): Readonly<string[]> => {
     canonicals = $to.array(canonicals);
     let exts: string[] = []; // Initialize.
 
@@ -301,7 +303,7 @@ export const canonicalExtVariants = $fnꓺmemo({ deep: true, maxSize: 12 }, (can
             }
         }
     } // Already sorted by priority in MIME types.
-    return [...new Set(exts)]; // Unique extensions.
+    return $obj.freeze([...new Set(exts)]); // Unique extensions.
 });
 
 /**
@@ -312,7 +314,7 @@ export const canonicalExtVariants = $fnꓺmemo({ deep: true, maxSize: 12 }, (can
  * @returns             An array of language extensions. The extensions within each VS Code lang group are sorted by
  *   priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const vsCodeLangExts = $fnꓺmemo({ deep: true, maxSize: 12 }, (vsCodeLangs: string | string[]): string[] => {
+export const vsCodeLangExts = $fnꓺmemo({ deep: true, maxSize: 12 }, (vsCodeLangs: string | string[]): Readonly<string[]> => {
     vsCodeLangs = $to.array(vsCodeLangs);
     let exts: string[] = []; // Initialize.
 
@@ -323,7 +325,7 @@ export const vsCodeLangExts = $fnꓺmemo({ deep: true, maxSize: 12 }, (vsCodeLan
             }
         }
     } // Already sorted by priority in MIME types.
-    return [...new Set(exts)]; // Unique extensions.
+    return $obj.freeze([...new Set(exts)]); // Unique extensions.
 });
 
 /**
@@ -332,7 +334,7 @@ export const vsCodeLangExts = $fnꓺmemo({ deep: true, maxSize: 12 }, (vsCodeLan
  * @returns An array of extensions by canonical extension. The extensions within each canonical group are sorted by
  *   priority with the canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const extsByCanonical = $fnꓺmemo((): { [x: string]: string[] } => {
+export const extsByCanonical = $fnꓺmemo((): $type.ReadonlyDeep<{ [x: string]: string[] }> => {
     let exts: { [x: string]: string[] } = {}; // Initialize.
 
     for (const [, group] of Object.entries($mime.types())) {
@@ -345,7 +347,7 @@ export const extsByCanonical = $fnꓺmemo((): { [x: string]: string[] } => {
         // Already sorted by priority in MIME types.
         exts[canonical] = [...new Set(exts[canonical])];
     }
-    return exts; // Unique extensions within each canonical group.
+    return $obj.deepFreeze(exts); // Unique extensions within each canonical group.
 });
 
 /**
@@ -359,7 +361,7 @@ export const extsByCanonical = $fnꓺmemo((): { [x: string]: string[] } => {
  * @note VS Code language IDs are caSe-sensitive; {@see https://o5p.me/bmWI0c}.
  *       If you pass options with `{ camelCase: true }`, please beware!
  */
-export const extsByVSCodeLang = $fnꓺmemo({ deep: true, maxSize: 12 }, (options?: ExtsByVSCodeLangOptions): { [x: string]: string[] } => {
+export const extsByVSCodeLang = $fnꓺmemo({ deep: true, maxSize: 12 }, (options?: ExtsByVSCodeLangOptions): $type.ReadonlyDeep<{ [x: string]: string[] }> => {
     let exts: { [x: string]: string[] } = {}; // Initialize.
     const opts = $obj.defaults({}, options || {}, { camelCase: false, enableCodeTextual: false }) as Required<ExtsByVSCodeLangOptions>;
 
@@ -410,7 +412,7 @@ export const extsByVSCodeLang = $fnꓺmemo({ deep: true, maxSize: 12 }, (options
         // Already sorted by priority in MIME types.
         exts[vsCodeLang] = [...new Set(exts[vsCodeLang])];
     }
-    return exts; // Unique extensions within each VS Code lang ID group.
+    return $obj.deepFreeze(exts); // Unique extensions within each VS Code lang ID group.
 });
 
 /**
@@ -419,8 +421,8 @@ export const extsByVSCodeLang = $fnꓺmemo({ deep: true, maxSize: 12 }, (options
  * @returns An array of extensions by dev group. The extensions within each dev group are sorted by priority with the
  *   canonical extension appearing first. Suitable for pattern matching with prioritization.
  */
-export const jsTSExtsByDevGroup = $fnꓺmemo((): { [x: string]: string[] } => {
-    return {
+export const jsTSExtsByDevGroup = $fnꓺmemo((): $type.ReadonlyDeep<{ [x: string]: string[] }> => {
+    return $obj.deepFreeze({
         // Standard JS/TS.
 
         sJavaScript: ['js'],
@@ -454,7 +456,7 @@ export const jsTSExtsByDevGroup = $fnꓺmemo((): { [x: string]: string[] } => {
 
         allJavaScript: ['js', 'jsx', 'mjs', 'mjsx', 'cjs', 'cjsx'],
         allTypeScript: ['ts', 'tsx', 'mts', 'mtsx', 'cts', 'ctsx'],
-    };
+    });
 });
 
 /**
@@ -462,19 +464,18 @@ export const jsTSExtsByDevGroup = $fnꓺmemo((): { [x: string]: string[] } => {
  *
  * @returns An array of glob ignore patterns.
  */
-export const defaultGitIgnores = $fnꓺmemo((): string[] => {
+export const defaultGitIgnores = $fnꓺmemo((): Readonly<string[]> => {
     let flat: string[] = []; // Initialize.
-
     for (const [, group] of Object.entries(defaultGitIgnoresByGroup())) {
-        if (!Array.isArray(group)) {
-            for (const [, subgroup] of Object.entries(group)) {
-                flat = flat.concat(subgroup);
-            }
+        if ($is.array(group)) {
+            flat = flat.concat(group as string[]);
         } else {
-            flat = flat.concat(group);
+            for (const [, subgroup] of Object.entries(group)) {
+                flat = flat.concat(subgroup as string[]);
+            }
         }
     }
-    return [...new Set(flat)]; // Unique ignores only.
+    return $obj.freeze([...new Set(flat)]); // Unique ignores only.
 });
 
 /**
@@ -482,19 +483,19 @@ export const defaultGitIgnores = $fnꓺmemo((): string[] => {
  *
  * @returns An array of glob ignore patterns.
  */
-export const defaultNPMIgnores = $fnꓺmemo((): string[] => {
+export const defaultNPMIgnores = $fnꓺmemo((): Readonly<string[]> => {
     let flat: string[] = []; // Initialize.
 
     for (const [, group] of Object.entries(defaultNPMIgnoresByGroup())) {
-        if (!Array.isArray(group)) {
-            for (const [, subgroup] of Object.entries(group)) {
-                flat = flat.concat(subgroup);
-            }
+        if ($is.array(group)) {
+            flat = flat.concat(group as string[]);
         } else {
-            flat = flat.concat(group);
+            for (const [, subgroup] of Object.entries(group)) {
+                flat = flat.concat(subgroup as string[]);
+            }
         }
     }
-    return [...new Set(flat)]; // Unique ignores only.
+    return $obj.freeze([...new Set(flat)]); // Unique ignores only.
 });
 
 /**
@@ -510,7 +511,7 @@ export const defaultNPMIgnores = $fnꓺmemo((): string[] => {
  * @see {$path.defaultGitNPMIgnoresByCategory()} -- **must also be updated when this changes**.
  */
 export const defaultGitIgnoresByGroup = $fnꓺmemo((): DefaultGitIgnoresByGroup => {
-    return {
+    return $obj.deepFreeze({
         'Locals': [
             '._*', //
             '.~*',
@@ -670,7 +671,7 @@ export const defaultGitIgnoresByGroup = $fnꓺmemo((): DefaultGitIgnoresByGroup 
         'Dist': [
             'dist', //
         ],
-    };
+    });
 });
 
 /**
@@ -689,7 +690,7 @@ export const defaultGitIgnoresByGroup = $fnꓺmemo((): DefaultGitIgnoresByGroup 
  * @see {$path.defaultGitNPMIgnoresByCategory()} -- **must also be updated when this changes**.
  */
 export const defaultNPMIgnoresByGroup = $fnꓺmemo((): DefaultNPMIgnoresByGroup => {
-    return {
+    return $obj.deepFreeze({
         ...defaultGitIgnoresByGroup(),
 
         'npm:Dist': [
@@ -761,7 +762,7 @@ export const defaultNPMIgnoresByGroup = $fnꓺmemo((): DefaultNPMIgnoresByGroup 
         // See: <https://docs.npmjs.com/cli/v9/configuring-npm/package-json#files>
         // See: <https://docs.npmjs.com/cli/v8/using-npm/developers?v=true#keeping-files-out-of-your-package>
         // Other than `package.json`, `README`, `LICENSE|LICENCE` (forced inclusions), our rules already cover everything that NPM does.
-    };
+    });
 });
 
 /**
@@ -780,7 +781,7 @@ export const defaultNPMIgnoresByGroup = $fnꓺmemo((): DefaultNPMIgnoresByGroup 
  * @see {$path.defaultNPMIgnoresByGroup()} -- **must also be updated when this changes**.
  */
 export const defaultGitNPMIgnoresByCategory = $fnꓺmemo((): DefaultGitNPMIgnoresByCategory => {
-    return {
+    return $obj.deepFreeze({
         // Locals
 
         localIgnores: [
@@ -1087,5 +1088,5 @@ export const defaultGitNPMIgnoresByCategory = $fnꓺmemo((): DefaultGitNPMIgnore
             '*.benchmark.*',
             '*.benchmarks.*',
         ],
-    };
+    });
 });

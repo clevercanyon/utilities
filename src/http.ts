@@ -6,7 +6,6 @@ import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
 import { $app, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, type $type } from '#index.ts';
-import { type ILogtailLog } from '@logtail/types';
 
 /**
  * Defines types.
@@ -608,51 +607,6 @@ export const verifyTurnstile = async (request: $type.Request, turnstile: string)
 };
 
 /**
- * Acts as middleware for HTTP logging.
- *
- * @param   log Object being logged.
- *
- * @returns     Potentially modified object to log.
- */
-export const loggerMiddleware = async (log: ILogtailLog): Promise<ILogtailLog> => {
-    const { context } = log;
-
-    if (context instanceof Request) {
-        return {
-            ...log,
-            context: {
-                ...$obj.pick(Object.fromEntries($obj.allEntries(context)), [
-                    'method',
-                    'destination',
-                    'url',
-                    'referrer',
-                    'referrerPolicy',
-                    'mode',
-                    'credentials',
-                    'cache',
-                    'redirect',
-                    'integrity',
-                    'keepalive',
-                    'isReloadNavigation',
-                    'isHistoryNavigation',
-                ]),
-                headers: extractHeaders(context.headers),
-            },
-        };
-    } else if (context instanceof Response) {
-        return {
-            ...log,
-            context: {
-                ...$obj.pick(Object.fromEntries($obj.allEntries(context)), ['type', 'url', 'redirected', 'ok', 'status', 'statusText']),
-                headers: extractHeaders(context.headers),
-                body: $str.clip(await context.text(), { maxBytes: 2048 }),
-            },
-        };
-    }
-    return log;
-};
-
-/**
  * Supported HTTP request methods.
  *
  * @returns An array of supported HTTP request methods (uppercase).
@@ -679,7 +633,9 @@ export const requestHeaderNames = (): string[] => [
     'cache-control',
     'cdn-loop',
     'cf-connecting-ip',
+    'cf-connecting-ipv6',
     'cf-ipcountry',
+    'cf-pseudo-ipv4',
     'cf-ray',
     'cf-visitor',
     'cf-worker',
@@ -699,6 +655,7 @@ export const requestHeaderNames = (): string[] => [
     'early-data',
     'ect',
     'expect',
+    'fastly-client-ip',
     'forwarded',
     'from',
     'front-end-https',
@@ -757,7 +714,9 @@ export const requestHeaderNames = (): string[] => [
     'want-digest',
     'warning',
     'width',
+    'x-appengine-user-ip',
     'x-att-deviceid',
+    'x-client-ip',
     'x-cluster-client-ip',
     'x-correlation-id',
     'x-csrf-token',

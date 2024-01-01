@@ -4,53 +4,20 @@
  * @requiredEnv web
  */
 
-import { $cookie, $dom, $env, $fn, $json, $obj, $obp, $time, type $type } from '#index.ts';
-import { type UpdateEvent as DialogUpdateEvent } from '#preact/components/consent-dialog.tsx';
+import { $dom, $env, $obj, $time, $user, type $type } from '#index.ts';
 
 /**
  * Defines types.
  */
-export type State = {
+export type State = $user.ConsentState & {
     debug: boolean;
     promise: Promise<void>;
-
     dataVersion: string;
-    ipGeoData: $env.IPGeoData;
-
-    hasOptOutFlag: boolean;
-    hasUpdatedPrefs: boolean;
-    hasGeoStalePrefs: boolean;
     needsOpenDialog:
         | boolean // Or data.
-        | $type.PartialDeep<Data>;
-
-    canUseCookies: {
-        essential: boolean;
-        thirdParty: boolean;
-        functionality: boolean;
-        analytics: boolean;
-        advertising: boolean;
-    };
+        | $type.PartialDeep<$user.ConsentData>;
 };
-export type Data = {
-    prefs: {
-        optIn: {
-            acceptFunctionalityCookies: boolean | null;
-            acceptAnalyticsCookies: boolean | null;
-            acceptAdvertisingCookies: boolean | null;
-        };
-        optOut: {
-            doNotSellOrSharePII: boolean | null;
-        };
-    };
-    version: string;
-    lastUpdated: number;
-    lastUpdatedFrom: {
-        country: string;
-        regionCode: string;
-    };
-};
-export type OpenDialogEvent = CustomEvent<{ data: $type.PartialDeep<Data> }>;
+export type OpenDialogEvent = CustomEvent<{ data: $type.PartialDeep<$user.ConsentData> }>;
 
 // ---
 // API exports.
@@ -97,7 +64,7 @@ export const initialize = async (): Promise<void> => {
     // Initializes and returns a consent promise.
     return (state.promise = new Promise((resolve): void => {
         // Fetches remote IP geolocation data using our utilities.
-        void $env.ipGeoData().then((ipGeoData: $env.IPGeoData): void => {
+        void $user.ipGeoData().then((ipGeoData: $user.IPGeoData): void => {
             // Waits for the DOM to reach ready state.
             $dom.onReady((): void => {
                 // Initializes consent state.
@@ -113,7 +80,7 @@ export const initialize = async (): Promise<void> => {
                     hasGeoStalePrefs: false,
                     needsOpenDialog: false,
 
-                    canUseCookies: {
+                    canUse: {
                         essential: true,
                         thirdParty: false,
                         functionality: false,
@@ -122,15 +89,18 @@ export const initialize = async (): Promise<void> => {
                     },
                 } as State);
 
-                // Updates consent state using cookie data.
-                updateStateUsingData(cookieData()); // Via cookie.
-
-                // Listens for consent dialog updates.
-                $dom.on(document, 'x:consentDialog:update', (event: DialogUpdateEvent) => {
-                    updateStateUsingData(event.detail.data);
+                // Updates consent state.
+                void updateState().then((): void => {
+                    // Listens for consent dialog updates.
+                    $dom.on(document, 'x:consentDialog:update', (): void => {
+                        // Updates consent state.
+                        void updateState().then((): void => {
+                            $dom.trigger(document, 'x:consent:stateUpdate');
+                        });
+                    });
+                    // Resolves promise.
+                    resolve(); // Good to go.
                 });
-                // Resolves promise.
-                resolve(); // Good to go.
             });
         });
     }));
@@ -139,100 +109,29 @@ export const initialize = async (): Promise<void> => {
 /**
  * Opens consent dialog.
  *
- * @param data Optional partially preconfigured consent data; {@see Data}.
+ * @param data Optional partially preconfigured consent data; {@see $user.ConsentData}.
  */
-export const openDialog = (data?: $type.PartialDeep<Data>): void => {
+export const openDialog = (data?: $type.PartialDeep<$user.ConsentData>): void => {
     state.needsOpenDialog = data || true; // In case dialog is not yet listening to DOM events.
     $dom.trigger(document, 'x:consent:openDialog', { data: data || {} });
-};
-
-// ---
-// Stateless exports.
-
-/**
- * Gets consent cookie data.
- *
- * This export MUST remain stateless, as it is explicitly imported by our consent dialog. It should not depend on state,
- * and it should not depend on anything else in this file that directly or indirectly depends on state.
- *
- * @returns Consent data; {@see Data}.
- */
-export const cookieData = (): Data => {
-    const hasGlobalPrivacy = $env.hasGlobalPrivacy();
-    let data = $fn.try(() => $json.parse($cookie.get('consent') || '{}'), {})();
-
-    const typeCastedPrefs = <Type extends object>(prefs: Type): Type => {
-        for (const [key, value] of Object.entries(prefs)) {
-            (prefs as $type.Object)[key] = null === value ? value : Boolean(value);
-        }
-        return prefs;
-    };
-    return {
-        prefs: {
-            optIn: typeCastedPrefs({
-                acceptFunctionalityCookies: $obp.get(data, 'prefs.optIn.acceptFunctionalityCookies', hasGlobalPrivacy ? false : null),
-                acceptAnalyticsCookies: $obp.get(data, 'prefs.optIn.acceptAnalyticsCookies', hasGlobalPrivacy ? false : null),
-                acceptAdvertisingCookies: $obp.get(data, 'prefs.optIn.acceptAdvertisingCookies', hasGlobalPrivacy ? false : null),
-            } as Data['prefs']['optIn']),
-
-            optOut: typeCastedPrefs({
-                doNotSellOrSharePII: $obp.get(data, 'prefs.optOut.doNotSellOrSharePII', hasGlobalPrivacy ? true : null),
-            } as Data['prefs']['optOut']),
-        },
-        version: String($obp.get(data, 'version', '')),
-        lastUpdated: Number($obp.get(data, 'lastUpdated', 0)) || 0,
-        lastUpdatedFrom: {
-            country: String($obp.get(data, 'lastUpdatedFrom.country', '')),
-            regionCode: String($obp.get(data, 'lastUpdatedFrom.regionCode', '')),
-        },
-    };
-};
-
-/**
- * Updates consent cookie data.
- *
- * This export MUST remain stateless, as it is explicitly imported by our consent dialog. It should not depend on state,
- * and it should not depend on anything else in this file that directly or indirectly depends on state.
- *
- * @param data Consent data; {@see Data}.
- */
-export const updateCookieData = (data: Data): void => {
-    $cookie.set('consent', $json.stringify(data));
 };
 
 // ---
 // Misc utilities.
 
 /**
- * Updates consent state using data.
+ * Updates consent state.
  *
- * @param data Consent data; {@see Data}.
- *
- * @diagram https://coggle.it/diagram/ZUg4jScP9MedqiuI/t/user/bca9701d3238b926fad4768aafce4182cfcecd58398bf379fad917f714c9d3ea
+ * @diagram https://o5p.me/ZQ49Ij
  */
-const updateStateUsingData = (data: Data): void => {
-    state.hasUpdatedPrefs = data.lastUpdated ? true : false;
-    state.hasOptOutFlag = $env.hasGlobalPrivacy() || data.prefs.optOut.doNotSellOrSharePII ? true : false;
-    state.hasGeoStalePrefs = state.hasUpdatedPrefs && // e.g., Whenever a user has changed locations since last setting prefs.
-        (data.lastUpdatedFrom.country !== state.ipGeoData.country || data.lastUpdatedFrom.regionCode !== state.ipGeoData.regionCode); // prettier-ignore
+const updateState = async (): Promise<void> => {
+    const data = $user.consentData();
+    // Must patch with clones of readonly consent data.
+    $obj.patchClonesDeep(state, await $user.consentState());
 
     if (!state.hasOptOutFlag && 'US' === state.ipGeoData.country) {
-        $obj.patchDeep(state.canUseCookies, {
-            essential: true, // Always on.
-            thirdParty: state.hasGeoStalePrefs ? false : true,
-            functionality: state.hasGeoStalePrefs || false === data.prefs.optIn.acceptFunctionalityCookies ? false : true,
-            analytics: state.hasGeoStalePrefs || false === data.prefs.optIn.acceptAnalyticsCookies ? false : true,
-            advertising: state.hasGeoStalePrefs || false === data.prefs.optIn.acceptAdvertisingCookies ? false : true,
-        });
         state.needsOpenDialog = state.hasGeoStalePrefs ? true : false;
     } else {
-        $obj.patchDeep(state.canUseCookies, {
-            essential: true, // Always on.
-            thirdParty: !state.hasOptOutFlag && !state.hasGeoStalePrefs ? true : false,
-            functionality: !state.hasOptOutFlag && !state.hasGeoStalePrefs && true === data.prefs.optIn.acceptFunctionalityCookies ? true : false,
-            analytics: !state.hasOptOutFlag && !state.hasGeoStalePrefs && true === data.prefs.optIn.acceptAnalyticsCookies ? true : false,
-            advertising: !state.hasOptOutFlag && !state.hasGeoStalePrefs && true === data.prefs.optIn.acceptAdvertisingCookies ? true : false,
-        });
         state.needsOpenDialog = !state.hasUpdatedPrefs || state.hasGeoStalePrefs ? true : false;
     }
     if (!state.needsOpenDialog) {

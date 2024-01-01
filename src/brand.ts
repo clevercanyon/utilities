@@ -172,7 +172,8 @@ export const add = (pkgName: string, props: $type.BrandRawProps): $type.Brand =>
     if (Object.hasOwn(rawProps, pkgName)) {
         throw Error('rcqcXjar'); // Brand `' + pkgName + '` exists already.
     }
-    rawProps[pkgName] = props;
+    // Enforces brand raw props being readonly.
+    rawProps[pkgName] = $obj.deepFreeze(props) as $type.BrandRawProps;
 
     return get(pkgName);
 };
@@ -232,7 +233,7 @@ const initializeRawProps = (): void => {
     /**
      * Clever Canyon, LLC.
      */
-    rawProps[tꓺමclevercanyonⳇclevercanyonംcom] = {
+    rawProps[tꓺමclevercanyonⳇclevercanyonംcom] = $obj.deepFreeze({
         [tꓺorg]: tꓺමclevercanyonⳇclevercanyonംcom,
         [tꓺtype]: tꓺcorp, // Corporation.
 
@@ -340,94 +341,96 @@ const initializeRawProps = (): void => {
             [tꓺgithub]: tꓺhttpsꓽⳇⳇ + tꓺgithub + tꓺംcom + '/' + tꓺclevercanyon,
             [tꓺnpm]: tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺnpmjs + tꓺംcom + '/' + tꓺorg + '/' + tꓺclevercanyon,
         },
-    };
+    }) as unknown as $type.BrandRawProps;
 
     /**
      * Clever Canyon, LLC (dba: Hop.gdn).
      */
-    rawProps[tꓺමclevercanyonⳇhopംgdn] = $obj.mergeDeep(rawProps[tꓺමclevercanyonⳇclevercanyonംcom], {
-        $set: {
-            [tꓺorg]: tꓺමclevercanyonⳇclevercanyonംcom,
-            [tꓺtype]: tꓺorg, // Organization.
+    rawProps[tꓺමclevercanyonⳇhopംgdn] = $obj.deepFreeze(
+        $obj.mergeDeep(rawProps[tꓺමclevercanyonⳇclevercanyonംcom], {
+            $set: {
+                [tꓺorg]: tꓺමclevercanyonⳇclevercanyonംcom,
+                [tꓺtype]: tꓺorg, // Organization.
 
-            [tꓺlegalName]: tꓺHopംgdn,
+                [tꓺlegalName]: tꓺHopംgdn,
 
-            [tꓺn7m]: 'h5n',
-            [tꓺname]: tꓺHopംgdn,
+                [tꓺn7m]: 'h5n',
+                [tꓺname]: tꓺHopംgdn,
 
-            [tꓺpkgName]: tꓺමclevercanyonⳇhopംgdn,
-            [tꓺnamespace]: tꓺHop,
+                [tꓺpkgName]: tꓺමclevercanyonⳇhopംgdn,
+                [tꓺnamespace]: tꓺHop,
 
-            [tꓺhostname]: tꓺhopംgdn,
-            [tꓺmxHostname]: tꓺhopംgdn,
+                [tꓺhostname]: tꓺhopംgdn,
+                [tꓺmxHostname]: tꓺhopംgdn,
 
-            [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ,
-            // Inherits c10n status URL.
+                [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ,
+                // Inherits c10n status URL.
 
-            [tꓺslug]: tꓺhop,
-            [tꓺvar]: tꓺhop,
+                [tꓺslug]: tꓺhop,
+                [tꓺvar]: tꓺhop,
 
-            [tꓺslugPrefix]: tꓺhop + '-',
-            [tꓺvarPrefix]: tꓺhop + '_',
+                [tꓺslugPrefix]: tꓺhop + '-',
+                [tꓺvarPrefix]: tꓺhop + '_',
 
-            [tꓺslogan]: 'Masters of the digital divide.',
-            [tꓺdescription]: 'Great things, built on great technology.',
+                [tꓺslogan]: 'Masters of the digital divide.',
+                [tꓺdescription]: 'Great things, built on great technology.',
 
-            [tꓺtheme]: {
-                ...rawProps[tꓺමclevercanyonⳇclevercanyonംcom][tꓺtheme],
-                [tꓺlinkColor]: '#80aff9',
-                [tꓺheadingColor]: '#5596ff',
+                [tꓺtheme]: {
+                    ...rawProps[tꓺමclevercanyonⳇclevercanyonംcom][tꓺtheme],
+                    [tꓺlinkColor]: '#80aff9',
+                    [tꓺheadingColor]: '#5596ff',
+                },
+                [tꓺicon]: {
+                    [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
+                    [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംpng,
+                    ...tꓺobjꓺwidthHeight1024x1024,
+                },
+                [tꓺlogo]: {
+                    [tꓺonDarkBg]: {
+                        [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
+                        [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
+                    },
+                    [tꓺonLightBg]: {
+                        [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
+                        [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
+                    },
+                    ...tꓺobjꓺwidthHeight608x120,
+                },
+                [tꓺogImage]: {
+                    [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംsvg,
+                    [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംpng,
+                    ...tꓺobjꓺwidthHeight2400x1260,
+                },
+                [tꓺcontacts]: {
+                    [tꓺadmin]: {
+                        [tꓺemail]: tꓺadmin + tꓺමhopംgdn,
+                        [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                        [tꓺphone]: tꓺvꓺc10nPhone,
+                    },
+                    [tꓺinfo]: {
+                        [tꓺemail]: tꓺinfo + tꓺමhopംgdn,
+                        [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                        [tꓺphone]: tꓺvꓺc10nPhone,
+                    },
+                    [tꓺsupport]: {
+                        [tꓺemail]: tꓺsupport + tꓺමhopംgdn,
+                        [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                        [tꓺphone]: tꓺvꓺc10nPhone,
+                    },
+                    [tꓺsecurity]: {
+                        [tꓺemail]: tꓺsecurity + tꓺමhopംgdn,
+                        [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                        [tꓺphone]: tꓺvꓺc10nPhone,
+                    },
+                    [tꓺprivacy]: {
+                        [tꓺemail]: tꓺprivacy + tꓺමhopംgdn,
+                        [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
+                        [tꓺphone]: tꓺvꓺc10nPhone,
+                    },
+                },
             },
-            [tꓺicon]: {
-                [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
-                [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംpng,
-                ...tꓺobjꓺwidthHeight1024x1024,
-            },
-            [tꓺlogo]: {
-                [tꓺonDarkBg]: {
-                    [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
-                    [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
-                },
-                [tꓺonLightBg]: {
-                    [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
-                    [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
-                },
-                ...tꓺobjꓺwidthHeight608x120,
-            },
-            [tꓺogImage]: {
-                [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംsvg,
-                [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംclevercanyonംcomⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംpng,
-                ...tꓺobjꓺwidthHeight2400x1260,
-            },
-            [tꓺcontacts]: {
-                [tꓺadmin]: {
-                    [tꓺemail]: tꓺadmin + tꓺමhopംgdn,
-                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
-                    [tꓺphone]: tꓺvꓺc10nPhone,
-                },
-                [tꓺinfo]: {
-                    [tꓺemail]: tꓺinfo + tꓺමhopംgdn,
-                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
-                    [tꓺphone]: tꓺvꓺc10nPhone,
-                },
-                [tꓺsupport]: {
-                    [tꓺemail]: tꓺsupport + tꓺමhopംgdn,
-                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
-                    [tꓺphone]: tꓺvꓺc10nPhone,
-                },
-                [tꓺsecurity]: {
-                    [tꓺemail]: tꓺsecurity + tꓺමhopംgdn,
-                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
-                    [tꓺphone]: tꓺvꓺc10nPhone,
-                },
-                [tꓺprivacy]: {
-                    [tꓺemail]: tꓺprivacy + tꓺමhopംgdn,
-                    [tꓺurl]: tꓺhttpsꓽⳇⳇhopംgdnⳇ + tꓺcontact,
-                    [tꓺphone]: tꓺvꓺc10nPhone,
-                },
-            },
-        },
-    }) as unknown as $type.BrandRawProps;
+        }),
+    ) as unknown as $type.BrandRawProps;
 };
 
 /**

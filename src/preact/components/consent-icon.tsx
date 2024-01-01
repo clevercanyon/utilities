@@ -2,7 +2,7 @@
  * Preact component.
  *
  * This depends on our consent API, which is web-only. For that reason, this component must be loaded and introduced
- * only by effects, and not inserted into DOM via SSR, or initial hydration, which would case diffing issues.
+ * only by effects, and not inserted into DOM via SSR, or initial hydration, which would cause diffing issues.
  *
  * @requiredEnv web
  */

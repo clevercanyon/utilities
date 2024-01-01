@@ -62,7 +62,7 @@ const initializeWheelStatus = (): void => {
  *
  * @returns          Event tools; {@see $type.DOMEventTools}.
  */
-export const onReady = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
+export const onReady = (callback: $type.AnyVoidFunction): $type.DOMEventTools => {
     const eventName = 'DOMContentLoaded';
     const actualCallback = (): void => void callback();
 
@@ -81,7 +81,7 @@ export const onReady = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
  *
  * @returns          Event tools; {@see $type.DOMEventTools}.
  */
-export const onLoad = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
+export const onLoad = (callback: $type.AnyVoidFunction): $type.DOMEventTools => {
     const eventName = 'load';
     const actualCallback = (): void => void callback();
 
@@ -109,7 +109,7 @@ export const onLoad = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
  *
  * @returns          Event tools; {@see $type.DOMEventTools}.
  */
-export const onWheelEnd = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
+export const onWheelEnd = (callback: $type.AnyVoidFunction): $type.DOMEventTools => {
     initializeWheelStatus(); // If not already.
 
     const eventName = 'x:wheelEnd';
@@ -130,7 +130,7 @@ export const onWheelEnd = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
  *
  * @returns          Event tools; {@see $type.DOMEventTools}.
  */
-export const onNextFrame = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
+export const onNextFrame = (callback: $type.AnyVoidFunction): $type.DOMEventTools => {
     const raf = requestAnimationFrame((): void => void callback());
     return { cancel: (): void => cancelAnimationFrame(raf) };
 };
@@ -146,7 +146,7 @@ export const onNextFrame = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
  *
  * @returns          Event tools; {@see $type.DOMEventTools}.
  */
-export const afterNextFrame = (callback: $type.AnyVoidFn): $type.DOMEventTools => {
+export const afterNextFrame = (callback: $type.AnyVoidFunction): $type.DOMEventTools => {
     const done = (): void => {
         clearTimeout(timeout);
         cancelAnimationFrame(raf);
