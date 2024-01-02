@@ -16,6 +16,7 @@ export type C9rProps = Partial<{
     endpoint: string;
     endpointToken: string;
     essential: boolean;
+    listenForErrors: boolean;
     configMinutia: ConfigMinutia;
 }>;
 export type Constructor = {
@@ -28,6 +29,7 @@ declare class ClassInterface {
     public endpoint: string;
     public endpointToken: string;
     public essential: boolean;
+    public listenForErrors: boolean;
     public configMinutia: ConfigMinutia;
     public constructor(props?: C9rProps | Class);
     public withContext(context?: object, contextOptions?: WithContextOptions): WithContextInterface;
@@ -91,6 +93,11 @@ export const getClass = (): Constructor => {
         public essential: boolean;
 
         /**
+         * Listen for error events?
+         */
+        public listenForErrors: boolean;
+
+        /**
          * Configuration minutia.
          */
         public configMinutia: ConfigMinutia;
@@ -128,7 +135,8 @@ export const getClass = (): Constructor => {
             }
             this.endpoint ??= $env.isWeb() ? 'https://workers.hop.gdn/utilities/api/logs/v1' : 'https://in.logs.betterstack.com/';
             this.endpointToken ??= $env.get($env.isTest() ? 'APP_TEST_LOGGER_BEARER_TOKEN' : 'APP_DEFAULT_LOGGER_BEARER_TOKEN', { type: 'string', default: '' });
-            this.essential ??= '' !== this.endpointToken && this.endpointToken === $env.get('APP_CONSENT_LOGGER_BEARER_TOKEN');
+            this.essential ??= this.endpointToken && this.endpointToken === $env.get('APP_CONSENT_LOGGER_BEARER_TOKEN') ? true : false;
+            this.listenForErrors ??= this.endpointToken && this.endpointToken === $env.get('APP_AUDIT_LOGGER_BEARER_TOKEN') ? true : false;
             this.configMinutia ??= {
                 maxRetries: 3,
                 maxRetryFailures: 10,
@@ -141,19 +149,16 @@ export const getClass = (): Constructor => {
             this.throttledFlush = $fn.throttle((): Promise<boolean> => this.flush(), { waitTime: this.configMinutia.throttledFlushWaitTime });
 
             if ($env.isNode()) {
-                let flushedBeforeExit = false;
-                process.on('beforeExit', (): void => {
-                    if (flushedBeforeExit) return;
-                    flushedBeforeExit = true;
-                    void this.flush();
-                });
+                if (this.listenForErrors) listenForNodeErrors(this);
+                flushBeforeNodeExits(this);
+                //
             } else if ($env.isWeb()) {
-                $dom.on(document, 'visibilitychange', (): void => {
-                    if ('hidden' === document.visibilityState) void this.flush();
-                });
+                if (this.listenForErrors) listenForWebErrors(this);
+                flushBeforeWebExits(this);
             }
             // {@see withContext()} for Cloudflare workers.
             // It has `waitUntil()` handling baked into it already.
+            // Log uncaught errors using try/catch, or via Logpush; {@see https://o5p.me/QKF7MQ}.
         }
 
         /**
@@ -587,6 +592,76 @@ export const getClass = (): Constructor => {
 
 // ---
 // Misc utilities.
+
+/**
+ * Listens for node errors.
+ *
+ * @param logger {@see Interface}.
+ *
+ * @requiredEnv node
+ */
+const listenForNodeErrors = (logger: Interface): void => {
+    process.on('uncaughtExceptionMonitor', (error: Error, origin: string): void => {
+        void logger.error('[Error Event]: ' + error.message, {
+            event: { type: 'error', error: error, origin },
+        });
+    });
+};
+
+/**
+ * Flushes queue before Node process exits.
+ *
+ * @param logger {@see Interface}.
+ *
+ * @requiredEnv node
+ */
+const flushBeforeNodeExits = (logger: Interface): void => {
+    // Prevents an endless loop.
+    let flushedBeforeExit = false;
+
+    process.on('beforeExit', (): void => {
+        if (flushedBeforeExit) return;
+        flushedBeforeExit = true;
+        void logger.flush();
+    });
+};
+
+/**
+ * Listens for web errors.
+ *
+ * @param logger {@see Interface}.
+ *
+ * @requiredEnv web
+ */
+const listenForWebErrors = (logger: Interface): void => {
+    const listener = $dom.on(window, 'error', (event: Event): void => {
+        if (!(event instanceof ErrorEvent)) return; // Not applicable.
+        if (!event.filename && event.message.toLowerCase().startsWith('script error')) {
+            return; // Cross-origin error with no insight; {@see https://o5p.me/V2sBVp}.
+        }
+        void logger.error('[Error Event]: ' + event.message, {
+            event: {
+                type: event.type,
+                error: event.error as $type.Error,
+                file: event.filename + ':' + String(event.lineno) + ':' + String(event.colno),
+            },
+        });
+        listener.cancel(); // Initial errors only.
+    });
+};
+
+/**
+ * Flushes queue before web visitor exits.
+ *
+ * @param logger {@see Interface}.
+ *
+ * @requiredEnv web
+ */
+const flushBeforeWebExits = (logger: Interface): void => {
+    $dom.on(document, 'visibilitychange', (): void => {
+        if ('hidden' === document.visibilityState) void logger.flush();
+    });
+};
 
 /**
  * Converts queue into a JSON-encoded string.

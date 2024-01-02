@@ -169,14 +169,14 @@ export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions)
      *
      * `<Location>` props.
      *
-     * - `url`: It’s either already in props, or auto-detected in a web browser, so no need to populate here.
-     * - `baseURL`: It’s either already in props, or falls back to current app’s base, so no need to populate here.
+     * - `url`: It’s either already in props, or auto-detected in a web browser.
+     * - `baseURL`: It’s either already in props, or falls back to current app’s base.
      *
      * `<Data>` props.
      *
-     * - `globalObp`: It’s either already in props, or `<Data>` will use default, so no need to populate here.
-     * - `fetcher`: It’s either already in props, or `<Data>` will use default, so no need to populate here.
-     * - `head`: It’s either already in props, or in global script code; e.g., `styleBundle`, `scriptBundle`.
+     * - `globalObp`: It’s either already in props, or `<Data>` will use the same default value as prerendering.
+     * - `fetcher`: It’s either already in props, or `<Data>` will use the same default value as prerendering.
+     * - `head`: It’s either already in props or in global script code; e.g., `styleBundle`, `scriptBundle`.
      */
 };
 
