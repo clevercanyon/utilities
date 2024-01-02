@@ -2,7 +2,7 @@
  * Logger utility class.
  */
 
-import { $app, $class, $dom, $env, $fn, $http, $is, $json, $obj, $time, $url, $user, type $type } from '#index.ts';
+import { $app, $class, $dom, $env, $fn, $http, $is, $json, $obj, $obp, $time, $url, $user, type $type } from '#index.ts';
 
 /**
  * Constructor cache.
@@ -15,7 +15,7 @@ let Logger: Constructor;
 export type C9rProps = Partial<{
     endpoint: string;
     endpointToken: string;
-    requiresConsent: boolean;
+    essential: boolean;
     configMinutia: ConfigMinutia;
 }>;
 export type Constructor = {
@@ -27,7 +27,7 @@ export type Interface = Class | WithContextInterface;
 declare class ClassInterface {
     public endpoint: string;
     public endpointToken: string;
-    public requiresConsent: boolean;
+    public essential: boolean;
     public configMinutia: ConfigMinutia;
     public constructor(props?: C9rProps | Class);
     public withContext(context?: object, contextOptions?: WithContextOptions): WithContextInterface;
@@ -51,11 +51,11 @@ type ConfigMinutia = {
     throttledFlushWaitTime: number;
     maxRetryFailuresExpiresAfter: number;
 };
-type WithContextOptions = {
-    request?: $type.Request;
-    cfwExecutionContext?: $type.cf.ExecutionContext;
-    cfpExecutionContext?: Parameters<$type.cf.PagesFunction>[0];
-};
+type WithContextOptions = Partial<{
+    request: $type.Request;
+    cfwExecutionContext: $type.cf.ExecutionContext;
+    cfpExecutionContext: Parameters<$type.cf.PagesFunction>[0];
+}>;
 type WithContextInterface = {
     withContext(subcontext?: object, subcontextOptions?: WithContextOptions): WithContextInterface;
     log(message: string, subcontext?: object, level?: string): Promise<boolean>;
@@ -86,9 +86,9 @@ export const getClass = (): Constructor => {
         public endpointToken: string;
 
         /**
-         * Logging requires consent?
+         * Logging is essential?
          */
-        public requiresConsent: boolean;
+        public essential: boolean;
 
         /**
          * Configuration minutia.
@@ -128,7 +128,7 @@ export const getClass = (): Constructor => {
             }
             this.endpoint ??= $env.isWeb() ? 'https://workers.hop.gdn/utilities/api/logs/v1' : 'https://in.logs.betterstack.com/';
             this.endpointToken ??= $env.get($env.isTest() ? 'APP_TEST_LOGGER_BEARER_TOKEN' : 'APP_DEFAULT_LOGGER_BEARER_TOKEN', { type: 'string', default: '' });
-            this.requiresConsent ??= this.endpointToken !== $env.get('APP_CONSENT_LOGGER_BEARER_TOKEN');
+            this.essential ??= '' !== this.endpointToken && this.endpointToken === $env.get('APP_CONSENT_LOGGER_BEARER_TOKEN');
             this.configMinutia ??= {
                 maxRetries: 3,
                 maxRetryFailures: 10,
@@ -163,16 +163,18 @@ export const getClass = (): Constructor => {
          */
         protected async appContext(): Promise<$type.Object> {
             return jsonCloneObjectDeep({
-                app: {
-                    name: $app.pkgName(),
-                    version: $app.pkgVersion(),
-                    buildTime: $app.buildTime(),
+                _: {
+                    app: {
+                        name: $app.pkgName(),
+                        version: $app.pkgVersion(),
+                        buildTime: $app.buildTime(),
 
-                    baseURL: $app.hasBaseURL() ? $app.baseURL() : null,
-                    brand: $app.hasBrandProps() ? $app.brand() : null,
+                        baseURL: $app.hasBaseURL() ? $app.baseURL() : null,
+                        brand: $app.hasBrandProps() ? $app.brand() : null,
 
-                    config: $app.config(),
-                    etcConfig: $app.etcConfig(),
+                        config: $app.config(),
+                        etcConfig: $app.etcConfig(),
+                    },
                 },
             });
         }
@@ -189,52 +191,54 @@ export const getClass = (): Constructor => {
                 isWeb = $env.isWeb();
 
             return jsonCloneObjectDeep({
-                env: {
-                    isNode,
-                    isCFW,
-                    isSSR,
-                    isWeb,
+                _: {
+                    env: {
+                        isNode,
+                        isCFW,
+                        isSSR,
+                        isWeb,
 
-                    isC10n: $env.isC10n(),
-                    isVite: $env.isVite(),
-                    isTest: $env.isTest(),
+                        isC10n: $env.isC10n(),
+                        isVite: $env.isVite(),
+                        isTest: $env.isTest(),
 
-                    inDebugMode: $env.inDebugMode(),
+                        inDebugMode: $env.inDebugMode(),
 
-                    ...(isNode
-                        ? {
-                              arch: process.arch,
-                              platform: process.platform,
-                              versions: process.versions,
+                        ...(isNode
+                            ? {
+                                  arch: process.arch,
+                                  platform: process.platform,
+                                  versions: process.versions,
 
-                              // Node web servers must use {@see withContext()}.
-                              // At which point additional `env`, `user` context is merged in.
-                              // Be sure to pass the current `request` to {@see withContext()}.
-                          }
-                        : {}),
-                    ...(isCFW
-                        ? {
-                              isCFWViaMiniflare: $env.isCFWViaMiniflare(),
-                              // Cloudflare workers must use {@see withContext()}.
-                              // At which point additional `env`, `user` context is merged in.
-                              // Be sure to pass the current `request` to {@see withContext()}.
-                          }
-                        : {}),
-                    ...(isWeb
-                        ? {
-                              isLocal: $env.isLocal(),
-                              isLocalVite: $env.isLocalVite(),
-                              isWebViaJSDOM: $env.isWebViaJSDOM(),
+                                  // Node web servers must use {@see withContext()}.
+                                  // At which point additional `env`, `user` context is merged in.
+                                  // Be sure to pass the current `request` to {@see withContext()}.
+                              }
+                            : {}),
+                        ...(isCFW
+                            ? {
+                                  isCFWViaMiniflare: $env.isCFWViaMiniflare(),
+                                  // Cloudflare workers must use {@see withContext()}.
+                                  // At which point additional `env`, `user` context is merged in.
+                                  // Be sure to pass the current `request` to {@see withContext()}.
+                              }
+                            : {}),
+                        ...(isWeb
+                            ? {
+                                  isLocal: $env.isLocal(),
+                                  isLocalVite: $env.isLocalVite(),
+                                  isWebViaJSDOM: $env.isWebViaJSDOM(),
 
-                              url: $url.current(),
+                                  url: $url.current(),
 
-                              screenWidth: screen.width,
-                              screenHeight: screen.height,
-                              windowWidth: window.innerWidth,
-                              windowHeight: window.innerHeight,
-                              devicePixelRatio: window.devicePixelRatio,
-                          }
-                        : {}),
+                                  screenWidth: screen.width,
+                                  screenHeight: screen.height,
+                                  windowWidth: window.innerWidth,
+                                  windowHeight: window.innerHeight,
+                                  devicePixelRatio: window.devicePixelRatio,
+                              }
+                            : {}),
+                    },
                 },
             });
         }
@@ -246,33 +250,35 @@ export const getClass = (): Constructor => {
          */
         protected async userContext(): Promise<$type.Object> {
             return jsonCloneObjectDeep({
-                user: {
-                    ...($env.isNode()
-                        ? {
-                              consentData: $user.consentData(),
-                              consentState: await $user.consentState(),
+                _: {
+                    user: {
+                        ...($env.isNode()
+                            ? {
+                                  consentData: $user.consentData(),
+                                  consentState: await $user.consentState(),
 
-                              // Node web servers must use {@see withContext()}.
-                              // At which point additional `env`, `user` context is merged in.
-                              // Be sure to pass the current `request` to {@see withContext()}.
-                          }
-                        : {}),
-                    // Cloudflare workers must use {@see withContext()}.
-                    // At which point additional `env`, `user` context is merged in.
-                    // Be sure to pass the current `request` to {@see withContext()}.
+                                  // Node web servers must use {@see withContext()}.
+                                  // At which point additional `env`, `user` context is merged in.
+                                  // Be sure to pass the current `request` to {@see withContext()}.
+                              }
+                            : {}),
+                        // Cloudflare workers must use {@see withContext()}.
+                        // At which point additional `env`, `user` context is merged in.
+                        // Be sure to pass the current `request` to {@see withContext()}.
 
-                    ...($env.isWeb()
-                        ? {
-                              isMajorCrawler: $user.isMajorCrawler(),
-                              hasGlobalPrivacy: $user.hasGlobalPrivacy(),
+                        ...($env.isWeb()
+                            ? {
+                                  isMajorCrawler: $user.isMajorCrawler(),
+                                  hasGlobalPrivacy: $user.hasGlobalPrivacy(),
 
-                              agent: $user.agent(),
-                              languages: $user.languages(),
+                                  agent: $user.agent(),
+                                  languages: $user.languages(),
 
-                              consentData: $user.consentData(),
-                              consentState: await $user.consentState(),
-                          }
-                        : {}),
+                                  consentData: $user.consentData(),
+                                  consentState: await $user.consentState(),
+                              }
+                            : {}),
+                    },
                 },
             });
         }
@@ -284,22 +290,24 @@ export const getClass = (): Constructor => {
          */
         protected async requestContext(request: $type.Request): Promise<$type.Object> {
             return jsonCloneObjectDeep({
-                env: {
-                    isLocal: $env.isLocal(request),
-                    isLocalVite: $env.isLocalVite(request),
-                    url: request.url, // Request URL.
-                },
-                user: {
-                    isMajorCrawler: $user.isMajorCrawler(request),
-                    hasGlobalPrivacy: $user.hasGlobalPrivacy(request),
+                _: {
+                    env: {
+                        isLocal: $env.isLocal(request),
+                        isLocalVite: $env.isLocalVite(request),
+                        url: request.url, // Request URL.
+                    },
+                    user: {
+                        isMajorCrawler: $user.isMajorCrawler(request),
+                        hasGlobalPrivacy: $user.hasGlobalPrivacy(request),
 
-                    agent: $user.agent(request),
-                    languages: $user.languages(request),
+                        agent: $user.agent(request),
+                        languages: $user.languages(request),
 
-                    consentData: $user.consentData(request),
-                    consentState: await $user.consentState(request),
+                        consentData: $user.consentData(request),
+                        consentState: await $user.consentState(request),
+                    },
+                    request, // Request object properties also.
                 },
-                request, // Request object properties also.
             });
         }
 
@@ -450,9 +458,11 @@ export const getClass = (): Constructor => {
                 await this.userContext(), // Returns a clone.
                 jsonCloneObjectDeep(context || {}),
             );
-            if (this.requiresConsent) {
-                const { canUse } = (fullContext.user?.consentState || {}) as Partial<$user.ConsentState>;
-                if (!canUse || !canUse.thirdParty || !canUse.analytics) return false; // Disallowed by consent state.
+            if (!this.essential /* If non-essential, check consent state before logging. */) {
+                const canUse = $obp.get(fullContext, '_.user.consentState.canUse') as undefined | $user.ConsentState['canUse'];
+                if (!canUse || !canUse.thirdParty || !canUse.analytics) {
+                    return false; // Disallowed by consent state.
+                }
             }
             const logEntry: LogEntry = {
                 level: level || 'info',
