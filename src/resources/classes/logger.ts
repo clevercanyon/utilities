@@ -12,17 +12,12 @@ let Logger: Constructor;
 /**
  * Defines types.
  */
-export type LogEntry = {
-    dt: string;
-    level: string;
-    message: string;
-    context: $type.Object;
-};
-export type C9rProps = {
-    endpoint?: string;
-    endpointToken?: string;
-    requiresConsent?: boolean;
-};
+export type C9rProps = Partial<{
+    endpoint: string;
+    endpointToken: string;
+    requiresConsent: boolean;
+    configMinutia: ConfigMinutia;
+}>;
 export type Constructor = {
     new (props?: C9rProps | Class): Class;
 };
@@ -33,6 +28,7 @@ declare class ClassInterface {
     public endpoint: string;
     public endpointToken: string;
     public requiresConsent: boolean;
+    public configMinutia: ConfigMinutia;
     public constructor(props?: C9rProps | Class);
     public withContext(context?: object, contextOptions?: WithContextOptions): WithContextInterface;
     public log(message: string, context?: object, level?: string): Promise<boolean>;
@@ -42,6 +38,19 @@ declare class ClassInterface {
     public error(message: string, context?: object): Promise<boolean>;
     public flush(): Promise<boolean>; // Flushes log entry queue.
 }
+type LogEntry = {
+    dt: string;
+    level: string;
+    message: string;
+    context: $type.Object;
+};
+type ConfigMinutia = {
+    maxRetries: number;
+    maxRetryFailures: number;
+    retryAfterMultiplier: number;
+    throttledFlushWaitTime: number;
+    maxRetryFailuresExpiresAfter: number;
+};
 type WithContextOptions = {
     request?: $type.Request;
     cfwExecutionContext?: $type.cf.ExecutionContext;
@@ -84,13 +93,8 @@ export const getClass = (): Constructor => {
         /**
          * Configuration minutia.
          */
-        public configMinutia = {
-            maxRetries: 3,
-            maxRetryFailures: 10,
-            retryAfterMultiplier: $time.secondInMilliseconds,
-            throttledFlushWaitTime: $time.secondInMilliseconds,
-            maxRetryFailuresExpiresAfter: $time.minuteInMilliseconds * 30,
-        };
+        public configMinutia: ConfigMinutia;
+
         /**
          * Log entry queue.
          */
@@ -125,7 +129,13 @@ export const getClass = (): Constructor => {
             this.endpoint ??= $env.isWeb() ? 'https://workers.hop.gdn/utilities/api/logs/v1' : 'https://in.logs.betterstack.com/';
             this.endpointToken ??= $env.get($env.isTest() ? 'APP_TEST_LOGGER_BEARER_TOKEN' : 'APP_DEFAULT_LOGGER_BEARER_TOKEN', { type: 'string', default: '' });
             this.requiresConsent ??= this.endpointToken !== $env.get('APP_CONSENT_LOGGER_BEARER_TOKEN');
-
+            this.configMinutia ??= {
+                maxRetries: 3,
+                maxRetryFailures: 10,
+                retryAfterMultiplier: $time.secondInMilliseconds,
+                throttledFlushWaitTime: $time.secondInMilliseconds,
+                maxRetryFailuresExpiresAfter: $time.minuteInMilliseconds * 30,
+            };
             this.queue = []; // Initialize.
             this.retryFailures = this.maxRetryFailuresExpirationTime = 0; // Initialize.
             this.throttledFlush = $fn.throttle((): Promise<boolean> => this.flush(), { waitTime: this.configMinutia.throttledFlushWaitTime });
