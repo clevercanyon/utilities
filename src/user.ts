@@ -180,7 +180,7 @@ export const languages = $fnꓺmemo(2, (request?: $type.Request): string => {
  * @returns                            Promise of IP address.
  *
  * @throws                             We don’t want Cloudflare workers making remote connections for IP geolocation
- *   data, because: (a) we already have this data in `request`; and (b) without a `request`, the IP geolocation data
+ *   data, because: (a) they already have this data in `request`; and (b) without a `request`, the IP geolocation data
  *   would be memoized globally at runtime by a worker that is actually serving multiple requests. Any attempt to obtain
  *   IP geolocation data from a Cloudflare worker, without passing in a specific `request`, results in an exception
  *   being thrown by {@see ipGeoData()}.
@@ -240,43 +240,50 @@ export const ip = $fnꓺmemo(2, async (request?: $type.Request, prioritizeForwar
  *
  * @see https://o5p.me/rwa3h7
  */
-export const ipGeoData = $fnꓺmemo(2, async (request?: $type.Request): Promise<IPGeoData> => {
-    const isTest = $env.isTest(); // We don’t want tests making remote connections.
-    if (request || isTest) {
-        const cf = (request as undefined | $type.cf.Request)?.cf,
-            data = {
-                ip: isTest ? '184.153.133.157' // Madawaska IP.
+export const ipGeoData = $fnꓺmemo(
+    // Ensures `request` = `undefined` is same as not passing.
+    { maxSize: 2, isMatchingKey: (a, b): boolean => a[0] === b[0] },
+    //
+    async (request?: $type.Request): Promise<IPGeoData> => {
+        // We don’t want tests making remote connections.
+        const isTest = $env.isTest(); // Cached for reuse below.
+
+        if (request || isTest) {
+            const cf = (request as undefined | $type.cf.Request)?.cf,
+                data = {
+                    ip: isTest ? '184.153.133.157' // Madawaska IP.
                   : request ? await ip(request) : '', // prettier-ignore
 
-                city: isTest ? 'Madawaska' : cf?.city,
-                region: isTest ? 'Maine' : cf?.region,
-                regionCode: isTest ? 'ME' : cf?.regionCode,
-                postalCode: isTest ? '04756' : cf?.postalCode,
-                continent: isTest ? 'NA' : cf?.continent,
-                country: isTest ? 'US' : cf?.country,
+                    city: isTest ? 'Madawaska' : cf?.city,
+                    region: isTest ? 'Maine' : cf?.region,
+                    regionCode: isTest ? 'ME' : cf?.regionCode,
+                    postalCode: isTest ? '04756' : cf?.postalCode,
+                    continent: isTest ? 'NA' : cf?.continent,
+                    country: isTest ? 'US' : cf?.country,
 
-                colo: isTest ? 'EWR' : cf?.colo,
-                metroCode: isTest ? '552' : cf?.metroCode,
-                latitude: isTest ? '47.33320' : cf?.latitude,
-                longitude: isTest ? '-68.33160' : cf?.longitude,
-                timezone: isTest ? 'America/New_York' : cf?.timezone,
-            };
-        // Enforces data being readonly.
-        return $obj.deepFreeze($obj.map(data, (v) => $to.string(v))) as IPGeoData;
-        //
-    } else if ($env.isCFW()) throw Error('NQva8dRK'); // See notes above.
-
-    return fetch('https://workers.hop.gdn/utilities/api/ip-geo/v1') //
-        .then(async (response): Promise<IPGeoDataResponsePayload> => {
-            return $to.plainObject(await response.json()) as IPGeoDataResponsePayload;
-        })
-        .then(({ ok, data }): IPGeoData => {
-            if (!ok) throw Error('DkvKa3NM');
-
+                    colo: isTest ? 'EWR' : cf?.colo,
+                    metroCode: isTest ? '552' : cf?.metroCode,
+                    latitude: isTest ? '47.33320' : cf?.latitude,
+                    longitude: isTest ? '-68.33160' : cf?.longitude,
+                    timezone: isTest ? 'America/New_York' : cf?.timezone,
+                };
             // Enforces data being readonly.
-            return $obj.deepFreeze(data) as IPGeoData;
-        });
-});
+            return $obj.deepFreeze($obj.map(data, (v) => $to.string(v))) as IPGeoData;
+            //
+        } else if ($env.isCFW()) throw Error('NQva8dRK'); // See notes above.
+
+        return fetch('https://workers.hop.gdn/utilities/api/ip-geo/v1') //
+            .then(async (response): Promise<IPGeoDataResponsePayload> => {
+                return $to.plainObject(await response.json()) as IPGeoDataResponsePayload;
+            })
+            .then(({ ok, data }): IPGeoData => {
+                if (!ok) throw Error('DkvKa3NM');
+
+                // Enforces data being readonly.
+                return $obj.deepFreeze(data) as IPGeoData;
+            });
+    },
+);
 
 /**
  * Updates consent data.

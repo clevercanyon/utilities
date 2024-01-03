@@ -41,4 +41,23 @@ describe('$user', async () => {
         const consentState2 = await $user.consentState();
         expect(consentState2.canUse.analytics).toBe(true);
     });
+    test('.ipGeoData()', async () => {
+        expect(await $user.ipGeoData()).toStrictEqual({
+            'city': 'Madawaska',
+            'colo': 'EWR',
+            'continent': 'NA',
+            'country': 'US',
+            'ip': '184.153.133.157',
+            'latitude': '47.33320',
+            'longitude': '-68.33160',
+            'metroCode': '552',
+            'postalCode': '04756',
+            'region': 'Maine',
+            'regionCode': 'ME',
+            'timezone': 'America/New_York',
+        });
+    });
+    test('.ip()', async () => {
+        expect(await $user.ip()).toBe('184.153.133.157');
+    });
 });

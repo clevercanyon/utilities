@@ -109,7 +109,11 @@ export const initialize = async (): Promise<void> => {
 /**
  * Opens consent dialog.
  *
- * @param data Optional partially preconfigured consent data; {@see $user.ConsentData}.
+ * This accepts optional consent data, allowing a consent dialog to be opened in a preconfigured pseudo-state, ready to
+ * save. For example, if a user is explicitly choosing to opt-out with a call-to-action like, "Do Not Sell or Share My
+ * Personal Information", the opt-out setting can be preconfigured to enhance user experience.
+ *
+ * @param data Optional consent data; {@see $user.ConsentData}.
  */
 export const openDialog = (data?: $type.PartialDeep<$user.ConsentData>): void => {
     state.needsOpenDialog = data || true; // In case dialog is not yet listening to DOM events.

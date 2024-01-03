@@ -489,7 +489,10 @@ type $fnꓺMicroMemoizeꓺFn = <Fn extends MicroMemoize.AnyFn>(fn: Fn | MicroMem
  * Defines memoization utility types.
  */
 type $fnꓺMemoizable = MicroMemoize.AnyFn; // Sync or async; does not matter.
-export type $fnꓺMemoOptions<Fn extends MicroMemoize.AnyFn> = MicroMemoize.Options<Fn> & { deep?: boolean };
+export type $fnꓺMemoOptions<Fn extends MicroMemoize.AnyFn> = MicroMemoize.Options<Fn> & {
+    deep?: boolean;
+    isMatchingKey?: (a: unknown[], b: unknown[] | IArguments) => boolean;
+};
 export type $fnꓺMemoizedFunction<Fn extends MicroMemoize.AnyFn> = MicroMemoize.Memoized<Fn> & {
     flush: (this: $fnꓺMemoizedFunction<Fn>) => { fresh: $fnꓺMemoizedFunction<Fn> };
     fresh: $fnꓺMemoizedFunction<Fn>; // Magic getter.
