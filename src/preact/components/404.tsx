@@ -36,7 +36,7 @@ export default function Route404(): $preact.VNode {
                 title='404 Error: Not Found'
                 description='The resource you are looking for could not be found.'
                 //
-                styleBundle='https://cdn.clevercanyon.com/assets/uploads/404.css'
+                styleBundle='https://cdn.hop.gdn/assets/uploads/404.css'
                 scriptBundle='' // Purely static. It does not use a script bundle.
             />
             <Body>
@@ -78,7 +78,7 @@ export const StandAlone = (props: StandAloneProps = {}): $preact.VNode<StandAlon
                 <title>404 Error: Not Found</title>
                 <meta name='description' content='The resource you are looking for could not be found.' />
 
-                <link rel='stylesheet' href='https://cdn.clevercanyon.com/assets/uploads/404.css' media='all' />
+                <link rel='stylesheet' href='https://cdn.hop.gdn/assets/uploads/404.css' media='all' />
             </head>
             <body>
                 <Content />
