@@ -75,7 +75,7 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
         expect(!!docType).toBe(true), expect(!!html).toBe(true);
 
         if (fs && path && url) {
-            // We cannot rewrite this each and every time, else it causes `--watch` to enter into an endless loop.
+            // We cannot rewrite this each and every time. It causes `--watch` to enter into an endless loop.
             // fs.writeFileSync(path.dirname(url.fileURLToPath(import.meta.url)) + '/ex-imports/fixtures/prerender-spa-for-web.html', docType + '\n' + html);
         }
     });
