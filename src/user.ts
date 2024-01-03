@@ -157,9 +157,9 @@ export const languages = $fnꓺmemo(2, (request?: $type.Request): string => {
  * Gets external IP address.
  *
  * By default, we prioritize the IP headers that Cloudflare sets, because those are the ones they’ve used for IP
- * geolocation data. Please note that Cloudflare does not allow IP address headers like `forwarded`, `x-forwarded-for`
- * to modify geolocation data. They always use the actual connecting IP address to resolve geolocation, even in the
- * presence of a `forwarded`, `x-forwarded-for`, `x-real-ip`, or other IP header.
+ * geolocation data and Turnstile verifications. Note that Cloudflare does not allow IP address headers like
+ * `forwarded`, `x-forwarded-for` to modify geolocation data or Turnstile. They always use the actual connecting IP
+ * address, even in the presence of a `forwarded`, `x-forwarded-for`, `x-real-ip`, or other IP address header.
  *
  * Other Notes:
  *
@@ -180,7 +180,7 @@ export const languages = $fnꓺmemo(2, (request?: $type.Request): string => {
  * @returns                            Promise of IP address.
  *
  * @throws                             We don’t want Cloudflare workers making remote connections for IP geolocation
- *   data, because: (a) they already have this data in `request`; and (b) without a `request`, the IP geolocation data
+ *   data, because: (a) we already have this data in `request`; and (b) without a `request`, the IP geolocation data
  *   would be memoized globally at runtime by a worker that is actually serving multiple requests. Any attempt to obtain
  *   IP geolocation data from a Cloudflare worker, without passing in a specific `request`, results in an exception
  *   being thrown by {@see ipGeoData()}.

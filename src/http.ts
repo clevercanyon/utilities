@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $app, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, type $type } from '#index.ts';
+import { $app, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, $user, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -596,14 +596,14 @@ export const verifyTurnstile = async (request: $type.Request, turnstile: string)
 
     const formData = new FormData();
     formData.append('secret', $env.get('SSR_APP_TURNSTILE_SECRET_KEY', { type: 'string' }));
-    formData.append('remoteip', request.headers.get('cf-connecting-ip') || '');
+    formData.append('remoteip', await $user.ip(request));
     formData.append('response', turnstile);
 
     const verificationEndpointURL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
     return await fetch(verificationEndpointURL, { method: 'POST', body: formData })
         .then(async (response): Promise<$type.Object> => $to.plainObject(await response.json()))
         .then((response) => Boolean(response.success))
-        .catch(() => false);
+        .catch((): boolean => false);
 };
 
 /**
@@ -943,9 +943,9 @@ export const responseStatusCodes = (): { [x: string]: string } => {
  * @returns Object with header names as props.
  */
 export const defaultSecurityHeaders = (): { [x: string]: string } => {
-    const stripe = '"https://js.stripe.com"';
-    const googlePay = '"https://pay.google.com"';
-    const youtube = '"https://youtube-nocookie.com" "https://*.youtube-nocookie.com"';
+    const stripe = '"https://js.stripe.com"',
+        googlePay = '"https://pay.google.com"',
+        youtube = '"https://youtube-nocookie.com" "https://*.youtube-nocookie.com"';
     return {
         'x-frame-options': 'SAMEORIGIN',
         'x-content-type-options': 'nosniff',
