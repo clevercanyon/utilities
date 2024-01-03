@@ -79,16 +79,16 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
     if (!$env.isSSR()) throw Error('kTqymmPe');
 
     // Extracts options into local variables.
-    const { request, appManifest, App, props = {} } = options;
+    const { request, appManifest, App, props = {} } = options,
+        //
+        url = props.url || request.url,
+        baseURL = props.baseURL || $app.baseURL(),
+        //
+        globalObp = props.globalObp || defaultGlobalObp(),
+        fetcher = props.fetcher || replaceNativeFetch();
 
-    const url = props.url || request.url;
-    const baseURL = props.baseURL || $app.baseURL();
-
-    const globalObp = props.globalObp || defaultGlobalObp();
-    const fetcher = props.fetcher || replaceNativeFetch();
-
-    let styleBundleSubpath: string = ''; // Style bundle.
-    let scriptBundleSubpath: string = ''; // Script bundle.
+    let styleBundleSubpath: string = '', // Style bundle.
+        scriptBundleSubpath: string = ''; // Script bundle.
 
     for (const htmlExt of $path.canonicalExtVariants('html')) {
         const htmlEntry = appManifest['index.' + htmlExt]; // `undefined`, perhaps.
@@ -101,27 +101,27 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
     if (!styleBundleSubpath) throw Error('GHj26RSc'); // Missing `appManifest[index.html].css[0]`.
     if (!scriptBundleSubpath) throw Error('hNnwQfBr'); // Missing `appManifest[index.html].file`.
 
-    const styleBundle = './' + styleBundleSubpath;
-    const scriptBundle = './' + scriptBundleSubpath;
+    const styleBundle = './' + styleBundleSubpath,
+        scriptBundle = './' + scriptBundleSubpath,
+        //
+        appProps = {
+            ...props,
+            isHydration: false,
 
-    const appProps = {
-        ...props,
-        isHydration: false,
+            // `<Location>` props.
+            url, // Absolute URL extracted from request.
+            baseURL, // Base URL from; e.g., {@see $app.baseURL()}.
 
-        // `<Location>` props.
-        url, // Absolute URL extracted from request.
-        baseURL, // Base URL from; e.g., {@see $app.baseURL()}.
-
-        // `<Data>` props.
-        globalObp, // Global object path.
-        fetcher, // Preact ISO fetcher; {@see replaceNativeFetch()}.
-        head: $obj.mergeDeep({ styleBundle, scriptBundle }, props.head),
-    };
+            // `<Data>` props.
+            globalObp, // Global object path.
+            fetcher, // Preact ISO fetcher; {@see replaceNativeFetch()}.
+            head: $obj.mergeDeep({ styleBundle, scriptBundle }, props.head),
+        };
     const prerenderedData = await prerender(App, { props: appProps });
     fetcher.restoreNativeFetch(); // Restore to avoid conflicts.
 
-    let html = prerenderedData.html; // Prerendered HTML markup.
-    let httpState = $obp.get(globalThis, globalObp + '.http') as GlobalState['http'];
+    let html = prerenderedData.html, // Prerendered HTML markup.
+        httpState = $obp.get(globalThis, globalObp + '.http') as GlobalState['http'];
 
     if (!html /* 404 error when render is empty. */) {
         httpState = { ...httpState, status: 404 };
@@ -146,9 +146,10 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
 export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions): Promise<void> => {
     if (!$env.isWeb()) throw Error('N4WUN2gk');
 
-    const appSelectors = 'body > x-preact-app';
-    let appToHydrate, appToRender; // Queried below.
-    const { App, props = {} } = options; // As local vars.
+    const appSelectors = 'body > x-preact-app',
+        { App, props = {} } = options;
+
+    let appToHydrate, appToRender;
 
     /**
      * Hydrates when applicable, else renders.
