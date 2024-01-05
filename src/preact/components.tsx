@@ -18,6 +18,7 @@ export { default as Consent, type Props as ConsentProps } from '#preact/componen
 export { default as Data, type Props as DataProps } from '#preact/components/data.tsx';
 export { default as Head, type Props as HeadProps } from '#preact/components/head.tsx';
 export { default as HTML, type Props as HTMLProps } from '#preact/components/html.tsx';
+export { default as HTTP, type Props as HTTPProps } from '#preact/components/http.tsx';
 export { default as LayoutContext, type Props as LayoutContextProps } from '#preact/components/layout-context.tsx';
 export { default as Legalese, type Props as LegaleseProps } from '#preact/components/legalese.tsx';
 export { default as Location, type Props as LocationProps } from '#preact/components/location.tsx';

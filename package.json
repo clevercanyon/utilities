@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.680",
+    "version": "1.0.681",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -204,6 +204,11 @@
             "types": "./dist/types/preact/components/html.d.ts",
             "import": "./dist/preact/components/html.js",
             "default": "./dist/preact/components/html.js"
+        },
+        "./preact/components/http": {
+            "types": "./dist/types/preact/components/http.d.ts",
+            "import": "./dist/preact/components/http.js",
+            "default": "./dist/preact/components/http.js"
         },
         "./preact/components/layout-context": {
             "types": "./dist/types/preact/components/layout-context.d.ts",

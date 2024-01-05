@@ -43,10 +43,16 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
             $url.removeAppBasePath.flush();
     });
     test('.', async () => {
-        const globalFetchMock = vi.fn(async () => {
-            return new Response('x', {
-                status: 200,
-                headers: { 'content-type': 'text/plain; charset=utf-8' },
+        const globalFetchMock = vi.fn(async (): Promise<Response> => {
+            return new Promise((resolve): void => {
+                setTimeout((): void => {
+                    resolve(
+                        new Response('', {
+                            status: 200,
+                            headers: { 'content-type': 'text/plain; charset=utf-8' },
+                        }),
+                    );
+                }, 500);
             });
         });
         vi.stubGlobal('fetch', globalFetchMock); // Used by lazy route.
@@ -55,6 +61,7 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
             return (
                 <Root {...props}>
                     <Route path='/' component={Index} />
+                    <Route path='/test/*' component={Test} />
                     <Route path='/lazy/*' component={Lazy} />
                     <Route default component={Route404} />
                 </Root>
@@ -70,6 +77,7 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
                 </HTML>
             );
         };
+        const Test = $preact.lazyRoute(() => import('#tests/preact/apis/iso/ex-imports/routes/test.tsx'));
         const Lazy = $preact.lazyRoute(() => import('#tests/preact/apis/iso/ex-imports/routes/lazy.tsx'));
         const Route404 = $preact.lazyRoute(() => import('#preact/components/404.tsx'));
 
@@ -97,6 +105,29 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
         expect(indexHTML).toContain('</html>');
 
         const {
+            httpState: testHTTPState,
+            docType: testDocType,
+            html: testHTML,
+        } = await $preact.iso.prerenderSPA({
+            request: new Request(new URL('https://x.tld/test?a=_a&b=_b&c=_c')),
+            appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
+            App, // Defined above.
+        });
+        expect(testHTTPState.status).toBe(200);
+        expect(testDocType).toBe('<!doctype html>');
+        expect(testHTML).toContain('<title data-key="title">test</title>');
+        expect(testHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
+        expect(testHTML).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');
+        expect(testHTML).toContain('"path":"./test"');
+        expect(testHTML).toContain('"pathQuery":"./test?a=_a&b=_b&c=_c"');
+        expect(testHTML).toContain('"restPath":"./"');
+        expect(testHTML).toContain('"restPathQuery":"./?a=_a&b=_b&c=_c"');
+        expect(testHTML).toContain('"query":"?a=_a&b=_b&c=_c"');
+        expect(testHTML).toContain('"queryVars":{"a":"_a","b":"_b","c":"_c"}');
+        expect(testHTML).toContain('"params":{}');
+        expect(testHTML).toContain('</html>');
+
+        const {
             httpState: lazyHTTPState,
             docType: lazyDocType,
             html: lazyHTML,
@@ -120,7 +151,7 @@ describe('$preact.iso.prerenderSPA() ... lazy', async () => {
         expect(lazyHTML).toContain('<script type="lazy-component-props">{"a":"_a","b":"_b","c":"_c"}</script>');
         expect(lazyHTML).toContain(
             // ISO fetcher cache should be dumped into script tag for client-side use.
-            '{"cache":{"d7b70ada5bdf8fd5be68ba2c359958a3768e044e":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"d77a93a8edb0b9a6e7655df474aaed757e4ae449":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"ddd3a839cabaa8bd47010410e0d588596e4e539e":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"c34287a716fbae3b50f5fe7070c998e997368560":{"body":"x","options":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}}}};',
+            '{"cache":{"d7b70ada5bdf8fd5be68ba2c359958a3768e044e":{"body":"","init":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"d77a93a8edb0b9a6e7655df474aaed757e4ae449":{"body":"","init":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"ddd3a839cabaa8bd47010410e0d588596e4e539e":{"body":"","init":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"c34287a716fbae3b50f5fe7070c998e997368560":{"body":"","init":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}}}};',
         );
         expect(lazyHTML).toContain('</html>');
     });

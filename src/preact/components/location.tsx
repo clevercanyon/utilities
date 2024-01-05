@@ -159,7 +159,7 @@ export default function Location(props: Props = {}): $preact.VNode<Props> {
 /**
  * Defines named prop keys for easy reuse.
  *
- * @returns Array of named {@see Location} prop keys; i.e., excludes `children`.
+ * @returns Array of named {@see Location} prop keys.
  */
 export const namedPropKeys = (): string[] => ['isHydration', 'url', 'baseURL', 'onChange'];
 

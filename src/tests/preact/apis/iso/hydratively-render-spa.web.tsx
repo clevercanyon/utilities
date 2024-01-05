@@ -64,14 +64,8 @@ describe('$preact.iso.hydrativelyRenderSPA()', async () => {
     test('$preact.iso.hydrativelyRenderSPA()', async () => {
         vi.stubGlobal(
             'fetch',
-            vi.fn(async (...args): Promise<Response> => {
-                if ('https://workers.hop.gdn/utilities/api/ip-geo/v1' === args[0]) {
-                    return new Response('{ "ok": true, "data": { "city": "Madawaska", "colo": "EWR", "continent": "NA", "country": "US", "latitude": "47.33320", "longitude": "-68.33160", "metroCode": "552", "postalCode": "04756", "region": "Maine", "regionCode": "ME", "timezone": "America/New_York" } }', {
-                        status: 200,
-                        headers: { 'content-type': $json.contentType() },
-                    }); // prettier-ignore
-                }
-                return new Response('Plain text, mock fetch response.', {
+            vi.fn(async (): Promise<Response> => {
+                return new Response('', {
                     status: 200,
                     headers: { 'content-type': 'text/plain; charset=utf-8' },
                 });

@@ -410,12 +410,12 @@ export default class Head extends Component<Props, ActualState> {
      * @param updates Partial state updates; {@see ImmutableStateKeys}.
      */
     public updateState<Updates extends PartialActualStateUpdates>(updates: Updates): void {
+        // Returning `null` tells Preact not to update; {@see https://o5p.me/9BaxT3}.
         this.setState((currentState: ActualState): Updates | null => {
             // Some `<Head>` state keys are immutable.
             updates = $obj.omit(updates, immutableStateKeys as unknown as string[]) as Updates;
 
             const newState = $obj.updateDeepNoOps(currentState, updates);
-            // Returning `null` tells Preact no; {@see https://o5p.me/9BaxT3}.
             return newState !== currentState ? (newState as Updates) : null;
         });
     }
@@ -845,9 +845,9 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
     const { brand, htmlState, state } = options;
 
     // Extracts brand images.
-    const brandꓺlogo = brand.logo;
-    const brandꓺlogoꓺonLightBg = brandꓺlogo.onLightBg;
-    const brandꓺogImage = brand.ogImage;
+    const brandꓺlogo = brand.logo,
+        brandꓺlogoꓺonLightBg = brandꓺlogo.onLightBg,
+        brandꓺogImage = brand.ogImage;
 
     // Organization graph(s).
     // {@see https://schema.org/Corporation}.

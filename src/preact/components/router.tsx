@@ -12,9 +12,8 @@ import { createContext, options as preactꓺoptions } from 'preact';
 /**
  * Defines types.
  */
-export type ErrorBoundaryCoreProps = $preact.BasicTreeProps<{}>;
 export type CoreProps = $preact.BasicTreeProps<{}>;
-export type Props = $preact.BasicTreeProps<ErrorBoundaryCoreProps & CoreProps>;
+export type Props = $preact.BasicTreeProps<CoreProps>;
 export type RouteProps = $preact.CleanProps<{
     path?: string;
     default?: boolean;
@@ -65,11 +64,7 @@ export const useRoute = (): RouteContext => $preact.useContext(RouteContextObjec
  */
 export default function Router(props: Props = {}): $preact.VNode<Props> {
     const { children, ...restProps } = props;
-    return (
-        <ErrorBoundaryCore>
-            <RouterCore {...$obj.pick(restProps, namedPropKeys())}>{children}</RouterCore>
-        </ErrorBoundaryCore>
-    );
+    return <RouterCore {...$obj.pick(restProps, namedPropKeys())}>{children}</RouterCore>;
 }
 
 /**
@@ -94,29 +89,12 @@ export function Route(props: RouteProps): $preact.VNode<RouteProps> {
 /**
  * Defines named prop keys for easy reuse.
  *
- * @returns Array of named {@see Router} prop keys; i.e., excludes `children`.
+ * @returns Array of named {@see Router} prop keys.
  */
-export const namedPropKeys = (): string[] => []; // None at this time.
+export const namedPropKeys = (): string[] => [];
 
 // ---
 // Misc utilities.
-
-/**
- * Renders error boundary core.
- *
- * @param   props Error boundary core component props.
- *
- * @returns       VNode / JSX element tree.
- *
- * @note Inspired by `Suspense` from preact/compat. See: <https://o5p.me/TA863r>.
- * @note `__c` = `._childDidSuspend()`; {@see https://o5p.me/B8yq0g} in `mangle.json`.
- */
-function ErrorBoundaryCore(this: $preact.Component<ErrorBoundaryCoreProps>, props: ErrorBoundaryCoreProps): $preact.VNode<ErrorBoundaryCoreProps> {
-    (this as unknown as $type.Object).__c = $preact.useCallback((thrownPromise: Promise<unknown>): void => {
-        void thrownPromise.then(() => this.forceUpdate());
-    }, []);
-    return <>{props.children}</>;
-}
 
 /**
  * Renders router core.
@@ -600,6 +578,9 @@ const xPreactAppLoading = $fnꓺmemo((): Element => {
 /**
  * Previous error handler.
  *
+ * While error boundaries work when prerenderering, error handlers set via options run client-side only; i.e., not when
+ * prerendering. Instead, thrown values bubble up to our prerenderer, which catches; e.g., thrown promises.
+ *
  * @note Inspired by `Suspense` from preact/compat. See: <https://o5p.me/TA863r>.
  * @note `__e` = `._catchError`; {@see https://o5p.me/DxqGM3} in `mangle.json`.
  */
@@ -608,15 +589,18 @@ const prevErrorHandler = (preactꓺoptions as unknown as $type.Object).__e;
 /**
  * Configures error handler in support of lazy loads.
  *
+ * While error boundaries work when prerenderering, error handlers set via options run client-side only; i.e., not when
+ * prerendering. Instead, thrown values bubble up to our prerenderer, which catches; e.g., thrown promises.
+ *
  * @param args Variadic args passed in by error hook in preact core.
  *
  * @note Inspired by `Suspense` from preact/compat. See: <https://o5p.me/TA863r>.
  * @note `__e` = `._catchError`; {@see https://o5p.me/DxqGM3} in `mangle.json`.
  */
 (preactꓺoptions as unknown as $type.Object).__e = (...args: unknown[]): void => {
-    let error = args[0] as $type.Object;
-    let newVNode = args[1] as $type.Object;
-    let oldVNode = args[2] as $type.Object | undefined;
+    let error = args[0] as $type.Object,
+        newVNode = args[1] as $type.Object,
+        oldVNode = args[2] as $type.Object | undefined;
 
     if ($is.promise(error) && $is.object(newVNode)) {
         let v = newVNode; // New vnode.

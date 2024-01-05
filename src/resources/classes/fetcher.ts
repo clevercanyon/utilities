@@ -13,8 +13,7 @@ let Fetcher: Constructor;
  * Defines types.
  */
 export type C9rProps = {
-    readonly globalObp?: $type.ObjectPath;
-    readonly autoReplaceNativeFetch?: boolean;
+    globalObp?: $type.ObjectPath;
 };
 export type Constructor = {
     new (props?: C9rProps | Class): Class;
@@ -22,27 +21,19 @@ export type Constructor = {
 export type Class = $type.Utility & ClassInterface;
 
 declare class ClassInterface {
-    public readonly global: Global;
     public readonly globalObp: $type.ObjectPath;
-    public readonly autoReplaceNativeFetch: boolean;
+    public readonly global: Global;
+    public readonly fetch: $type.fetch;
 
     public constructor(props?: C9rProps | Class);
-
-    public replaceNativeFetch(): Class;
-    public restoreNativeFetch(): void;
     public globalToScriptCode(): string;
-
-    public fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']>;
 }
 export type Global = $type.Object<{
     cache: { [x: string]: GlobalCacheEntry };
-    nativeFetch: (...args: Parameters<$type.fetch>) => ReturnType<$type.fetch>;
-    boundNativeFetch: (...args: Parameters<$type.fetch>) => ReturnType<$type.fetch>;
-    pseudoFetch: (...args: Parameters<$type.fetch>) => Promise<$type.Response>;
 }>;
 export type GlobalCacheEntry = {
     body: string;
-    options: {
+    init: {
         status: number;
         headers: { [x: string]: string };
     };
@@ -85,19 +76,19 @@ export const getClass = (): Constructor => {
 
     Fetcher = class extends $class.getUtility() implements Class {
         /**
-         * Global object.
-         */
-        public readonly global: Global;
-
-        /**
          * Global object path.
          */
         public readonly globalObp: $type.ObjectPath;
 
         /**
-         * Auto-replace native fetch?
+         * Global object; i.e., via object path.
          */
-        public readonly autoReplaceNativeFetch: boolean;
+        public readonly global: Global;
+
+        /**
+         * Public fetch interface.
+         */
+        public readonly fetch: $type.fetch;
 
         /**
          * Object constructor.
@@ -108,36 +99,17 @@ export const getClass = (): Constructor => {
             super(); // Parent constructor.
 
             props = props || {}; // Force object value.
-            const isClone = props instanceof Fetcher;
-
             this.globalObp = props.globalObp || $str.obpPartSafe($app.$pkgName) + '.fetcher';
-            this.global = $obp.get(globalThis, this.globalObp, {}) as Global; // Default is `{}`.
 
-            this.global.cache = this.global.cache || {};
-            this.global.nativeFetch = globalThis.fetch as Global['nativeFetch'];
-            this.global.boundNativeFetch = globalThis.fetch.bind(globalThis) as Global['nativeFetch'];
-            this.global.pseudoFetch = async (...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> => this.fetch(...args);
-
-            this.autoReplaceNativeFetch = isClone ? false : props.autoReplaceNativeFetch || false;
-            if (this.autoReplaceNativeFetch) this.replaceNativeFetch();
-        }
-
-        /**
-         * Replaces native fetch.
-         *
-         * @returns Fetcher instance.
-         */
-        public replaceNativeFetch(): Class {
-            globalThis.fetch = this.global.pseudoFetch as typeof fetch;
-            return this; // Self-referential return.
-        }
-
-        /**
-         * Restores native fetch.
-         */
-        public restoreNativeFetch(): void {
-            globalThis.fetch = this.global.nativeFetch as typeof fetch;
-            this.global.cache = {}; // Resets cache.
+            if ($env.isSSR()) {
+                // Write to cache server-side.
+                this.global = { cache: {} } as Global;
+            } else {
+                // Read from cache client-side.
+                this.global = $obp.get(globalThis, this.globalObp, {}) as Global;
+                this.global.cache = this.global.cache || {};
+            }
+            this.fetch = ((...args: Parameters<typeof fetch>) => this.fetcher(...args)) as $type.fetch;
         }
 
         /**
@@ -161,7 +133,7 @@ export const getClass = (): Constructor => {
          *
          * @returns             True if request is cacheable.
          */
-        protected isCacheableRequest(requestInit?: $type.RequestInit): boolean {
+        protected isCacheableRequest(requestInit?: RequestInit): boolean {
             return (
                 ['HEAD', 'GET'].includes((requestInit?.method || 'GET').toUpperCase()) &&
                 !['no-store', 'no-cache', 'reload'].includes((requestInit?.cache || 'default').toLowerCase())
@@ -169,26 +141,25 @@ export const getClass = (): Constructor => {
         }
 
         /**
-         * Used to wrap native {@see fetch()} in JS.
+         * Wraps native {@see fetch()}.
          *
-         * @param   args Same as {@see fetch()} native function.
+         * @param   args              {@see fetch()}.
          *
-         * @returns      Same as {@see fetch()} native function.
+         * @returns {@see fetch()}      Same as native fetch.
          */
-        public async fetch(...args: Parameters<Global['pseudoFetch']>): ReturnType<Global['pseudoFetch']> {
+        protected async fetcher(...args: Parameters<typeof fetch>): ReturnType<typeof fetch> {
             if (!this.isCacheableRequest(args[1])) {
-                return this.global.boundNativeFetch(...args);
+                return fetch(...args); // Uses native fetch.
             }
             const cacheKey = await $crypto.sha1($json.stringify(args));
 
             if (Object.hasOwn(this.global.cache, cacheKey)) {
                 const globalCacheEntry = this.global.cache[cacheKey];
-                return new Response(globalCacheEntry.body, globalCacheEntry.options);
+                return new Response(globalCacheEntry.body, globalCacheEntry.init);
             }
-            if ($env.isWeb() /* No cache writes client-side. */) {
-                return this.global.boundNativeFetch(...args);
-            }
-            const response = await this.global.boundNativeFetch(...args);
+            if ($env.isWeb()) return fetch(...args); // No cache writes client-side.
+
+            const response = await fetch(...args); // Uses native fetch.
             const responseContentType = (response.headers.get('content-type') || '').toLowerCase();
             const responseContentMIMEType = responseContentType.split(';')[0]; // Removes a possible `; charset=*`.
 
@@ -196,11 +167,14 @@ export const getClass = (): Constructor => {
                 return response; // Don't cache MIME types not in list above.
             }
             const globalCacheEntry: GlobalCacheEntry = {
-                body: await response.text(), // Body as plain text.
-                options: { status: response.status, headers: { 'content-type': responseContentType } },
+                body: await response.text(),
+                init: {
+                    status: response.status,
+                    headers: { 'content-type': responseContentType },
+                },
             };
             this.global.cache[cacheKey] = globalCacheEntry;
-            return new Response(globalCacheEntry.body, globalCacheEntry.options);
+            return new Response(globalCacheEntry.body, globalCacheEntry.init);
         }
     };
     return Object.defineProperty(Fetcher, 'name', {

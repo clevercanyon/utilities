@@ -16,7 +16,7 @@ describe('Fetcher', async () => {
         // Mocks `globalThis.fetch()`.
 
         const globalFetchMock = vi.fn(async () => {
-            return new Response('x', {
+            return new Response('', {
                 status: 200,
                 headers: { 'content-type': 'text/plain; charset=utf-8' },
             });
@@ -29,54 +29,31 @@ describe('Fetcher', async () => {
         // Creates fetcher & mocks its `.fetch()`.
 
         const fetcher = new Fetcher();
-        // @ts-ignore -- `spyOn` has broken types. See: <https://o5p.me/O0lghl>.
         const fetcherꓺfetchMock = vi.spyOn(fetcher, 'fetch');
-        // @ts-ignore -- `spyOn` has broken types. See: <https://o5p.me/O0lghl>.
-        const fetcherꓺglobalPseudoFetchMock = vi.spyOn(fetcher.global, 'pseudoFetch');
 
-        expect(globalFetchMock).toHaveBeenCalledTimes(0);
         expect(fetcherꓺfetchMock).toHaveBeenCalledTimes(0);
-        expect(fetcherꓺglobalPseudoFetchMock).toHaveBeenCalledTimes(0);
-
-        expect(vi.isMockFunction(globalThis.fetch)).toBe(true);
         expect(vi.isMockFunction(fetcher.fetch)).toBe(true);
-        expect(vi.isMockFunction(fetcher.global.pseudoFetch)).toBe(true);
 
-        // Enables fetcher; i.e., replacing native fetch.
+        // Performs a fetch using fetcher.
 
-        fetcher.replaceNativeFetch();
-        await globalThis.fetch('http://x.tld/');
+        await fetcher.fetch('https://x.tld/');
 
         expect(globalFetchMock).toHaveBeenCalledTimes(1);
         expect(fetcherꓺfetchMock).toHaveBeenCalledTimes(1);
-        expect(fetcherꓺglobalPseudoFetchMock).toHaveBeenCalledTimes(1);
 
-        expect(vi.isMockFunction(globalThis.fetch)).toBe(true);
-        expect(vi.isMockFunction(fetcher.fetch)).toBe(true);
-        expect(vi.isMockFunction(fetcher.global.pseudoFetch)).toBe(true);
+        // Performs a fetch using fetcher.
 
-        // Restores native fetch; i.e., reversing previous.
+        await fetcher.fetch('https://x.tld/');
 
-        fetcher.restoreNativeFetch();
-        await globalThis.fetch('http://x.tld/');
+        expect(globalFetchMock).toHaveBeenCalledTimes(1);
+        expect(fetcherꓺfetchMock).toHaveBeenCalledTimes(2);
+
+        // Performs a fetch using fetcher.
+
+        await fetcher.fetch('https://x.tld/x');
 
         expect(globalFetchMock).toHaveBeenCalledTimes(2);
-        expect(fetcherꓺfetchMock).toHaveBeenCalledTimes(1);
-        expect(fetcherꓺglobalPseudoFetchMock).toHaveBeenCalledTimes(1);
-
-        expect(vi.isMockFunction(globalThis.fetch)).toBe(true);
-        expect(vi.isMockFunction(fetcher.fetch)).toBe(true);
-        expect(vi.isMockFunction(fetcher.global.pseudoFetch)).toBe(true);
-
-        // Restores `globalThis.fetch()`.
-
-        vi.unstubAllGlobals();
-        fetcherꓺfetchMock.mockRestore();
-        fetcherꓺglobalPseudoFetchMock.mockRestore();
-
-        expect(vi.isMockFunction(globalThis.fetch)).toBe(false);
-        expect(vi.isMockFunction(fetcher.fetch)).toBe(false);
-        expect(vi.isMockFunction(fetcher.global.pseudoFetch)).toBe(false);
+        expect(fetcherꓺfetchMock).toHaveBeenCalledTimes(3);
     });
     test('.globalToScriptCode()', async () => {
         const fetcher1 = new Fetcher();

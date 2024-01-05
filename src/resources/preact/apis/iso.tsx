@@ -3,17 +3,15 @@
  */
 
 import { prerender } from '#@preact/apis/iso/index.tsx';
-import { $app, $class, $dom, $env, $is, $obj, $obp, $path, $preact, $str, type $type } from '#index.ts';
-import { defaultGlobalObp, type GlobalState } from '#preact/components/data.tsx';
+import { $dom, $env, $is, $obj, $path, $preact, $str, type $type } from '#index.ts';
+import { defaultFetcher, defaultGlobalObp } from '#preact/components/data.tsx';
+import { type State as HTTPState } from '#preact/components/http.tsx';
 import { type Props as RootProps } from '#preact/components/root.tsx';
 import { Route, default as Router, type RoutedProps, type Props as RouterProps } from '#preact/components/router.tsx';
 
 /**
  * Defines types.
  */
-export type Fetcher = $type.Fetcher;
-export type AppManifest = { [x: $type.ObjectKey]: $type.Object };
-
 export type PrerenderSPAOptions = {
     request: $type.Request;
     appManifest: AppManifest;
@@ -21,7 +19,7 @@ export type PrerenderSPAOptions = {
     props?: RootProps;
 };
 export type PrerenderSPAPromise = Promise<{
-    httpState: GlobalState['http'];
+    httpState: HTTPState;
     docType: string;
     html: string;
 }>;
@@ -29,6 +27,8 @@ export type HydrativelyRenderSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
 };
+export type AppManifest = { [x: $type.ObjectKey]: $type.Object };
+
 export type LazyComponentLoader<Props extends $preact.AnyProps = $preact.Props> = () => Promise<{ default: $preact.AnyComponent<Props> }>;
 export type LazyComponentProps<Type extends LazyComponentLoader> = // Conditional type.
     Awaited<ReturnType<Type>>['default'] extends $preact.ClassComponent
@@ -49,25 +49,11 @@ export type LazyRouterVNode = $preact.VNode<LazyRouterProps>;
 // Prerender utilities.
 
 /**
- * Fetcher instance.
- */
-let fetcher: Fetcher | undefined;
-
-/**
- * Replaces native fetch and returns fetcher.
- *
- * @returns {@see Fetcher} Instance.
- */
-export const replaceNativeFetch = (): Fetcher => {
-    if (!fetcher) {
-        const Fetcher = $class.getFetcher();
-        fetcher = new Fetcher({ globalObp: $str.obpPartSafe($app.$pkgName) + '.preactISOFetcher' });
-    }
-    return fetcher.replaceNativeFetch();
-};
-
-/**
  * Prerenders SPA component on server-side.
+ *
+ * A request-specific {@see $type.Fetcher} instance must be passed down through props when prerendering so the same
+ * fetcher instance survives potentially multiple prerender passes; e.g., on thrown promises. Otherwise, a new fetcher
+ * instance would be created on each prerender pass by `<Data>`, resulting in fetcher cache being reset each time.
  *
  * @param   options Options; {@see PrerenderSPAOptions}.
  *
@@ -78,59 +64,54 @@ export const replaceNativeFetch = (): Fetcher => {
 export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPromise => {
     if (!$env.isSSR()) throw Error('kTqymmPe');
 
-    // Extracts options into local variables.
-    const { request, appManifest, App, props = {} } = options,
+    const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<PrerenderSPAOptions>,
+        { request, appManifest, App, props } = opts, // Extracts all options.
         //
-        url = props.url || request.url,
-        baseURL = props.baseURL || $app.baseURL(),
+        httpState = props.httpState || {}, // Passed through props as state by reference.
+        url = props.url || request.url, // URL required, as we cannot detect via `location`.
         //
-        globalObp = props.globalObp || defaultGlobalObp(),
-        fetcher = props.fetcher || replaceNativeFetch();
+        globalObp = props.globalObp || defaultGlobalObp(), // Required to create fetcher.
+        fetcher = props.fetcher || defaultFetcher(globalObp); // Required; see notes above.
 
-    let styleBundleSubpath: string = '', // Style bundle.
-        scriptBundleSubpath: string = ''; // Script bundle.
+    let styleBundle: undefined | string, //
+        scriptBundle: undefined | string; // Initialize.
 
     for (const htmlExt of $path.canonicalExtVariants('html')) {
-        const htmlEntry = appManifest['index.' + htmlExt]; // `undefined`, perhaps.
+        const htmlEntry = appManifest['index.' + htmlExt]; // Possibly `undefined`.
+
         if ($is.array(htmlEntry?.css) && $is.string(htmlEntry?.css?.[0]) && $is.string(htmlEntry?.file)) {
-            styleBundleSubpath = $str.lTrim((htmlEntry.css as string[])[0], './');
-            scriptBundleSubpath = $str.lTrim(htmlEntry.file, './');
+            styleBundle = './' + $str.lTrim((htmlEntry.css as string[])[0], './');
+            scriptBundle = './' + $str.lTrim(htmlEntry.file, './');
             break; // We can stop here.
         }
-    } // Now let’s confirm we found the bundle files.
-    if (!styleBundleSubpath) throw Error('GHj26RSc'); // Missing `appManifest[index.html].css[0]`.
-    if (!scriptBundleSubpath) throw Error('hNnwQfBr'); // Missing `appManifest[index.html].file`.
+    } // Let’s make sure we found style/script bundles.
+    if (!styleBundle || './' === styleBundle) throw Error('wSTJgH4k');
+    if (!scriptBundle || './' === scriptBundle) throw Error('M6spfQqT');
 
-    const styleBundle = './' + styleBundleSubpath,
-        scriptBundle = './' + scriptBundleSubpath,
-        //
-        appProps = {
+    const appProps = {
             ...props,
-            isHydration: false,
+
+            // `<HTTP>` props.
+            httpState, // By reference.
 
             // `<Location>` props.
-            url, // Absolute URL extracted from request.
-            baseURL, // Base URL from; e.g., {@see $app.baseURL()}.
+            url, // Absolute request URL.
 
             // `<Data>` props.
             globalObp, // Global object path.
-            fetcher, // Preact ISO fetcher; {@see replaceNativeFetch()}.
-            head: $obj.mergeDeep({ styleBundle, scriptBundle }, props.head),
-        };
-    const prerenderedData = await prerender(App, { props: appProps });
-    fetcher.restoreNativeFetch(); // Restore to avoid conflicts.
+            fetcher, // Request-specific fetcher.
+            head: $obj.patchDeep({ styleBundle, scriptBundle }, props.head),
+        },
+        prerenderedData = await prerender(App, { props: appProps });
 
-    let html = prerenderedData.html, // Prerendered HTML markup.
-        httpState = $obp.get(globalThis, globalObp + '.http') as GlobalState['http'];
+    let html = prerenderedData.html; // Prerendered HTML markup.
 
     if (!html /* 404 error when render is empty. */) {
-        httpState = { ...httpState, status: 404 };
-        $obp.set(globalThis, globalObp + '.http', httpState);
-
+        $obj.patchDeep(httpState, { status: 404 }); // Patches HTTP state.
         const StandAlone404 = (await import('#preact/components/404.tsx')).StandAlone;
         html = $preact.ssr.renderToString(<StandAlone404 class='preact-iso-404' />);
     }
-    return { httpState, docType: '<!doctype html>', html };
+    return { httpState: httpState as HTTPState, docType: '<!doctype html>', html };
 };
 
 // ---
@@ -168,16 +149,19 @@ export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions)
      * affect a prerender, then those exact same props should also be given when hydrating on the web. Otherwise, there
      * will be many problems. So long as that’s the case, though, everything will be just fine.
      *
+     * `<HTTP>` props.
+     *
+     * - `httpState`: It’s entirely unnecessary client-side.
+     *
      * `<Location>` props.
      *
-     * - `url`: It’s either already in props, or auto-detected in a web browser.
-     * - `baseURL`: It’s either already in props, or falls back to current app’s base.
+     * - `url`: It’s either already in props or detected via `location` on web.
      *
      * `<Data>` props.
      *
-     * - `globalObp`: It’s either already in props, or `<Data>` will use the same default value as prerendering.
-     * - `fetcher`: It’s either already in props, or `<Data>` will use the same default value as prerendering.
-     * - `head`: It’s either already in props or in global script code; e.g., `styleBundle`, `scriptBundle`.
+     * - `globalObp`: It’s either already in props, or `<Data>` uses same default as prerender.
+     * - `fetcher`: It’s either already in props, or `<Data>` uses same default as prerender.
+     * - `head`: It’s either already in props, or `<Data>` uses global state in script code.
      */
 };
 

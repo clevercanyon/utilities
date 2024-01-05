@@ -2,7 +2,7 @@
  * Preact ISO.
  */
 
-import { $env, $is, $obj, $preact } from '#index.ts';
+import { $env, $is, $obj, $preact, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -26,8 +26,11 @@ export type PrerenderResult = { html: string };
 export async function prerender(componentOrVNode: $preact.AnyComponent | $preact.VNode, options?: PrerenderOptions): Promise<PrerenderResult> {
     if (!$env.isSSR()) throw Error('auyKXPAm');
 
-    let vNode: $preact.VNode; // Initializes vNode.
-    let currentDepth = 0; // Initializes current depth.
+    // Enables error boundaries in `preact-render-to-string`; {@see https://o5p.me/XaPyFV}.
+    ($preact.options as $type.Object).errorBoundaries = true;
+
+    let vNode: $preact.VNode, // Initializes vNode.
+        currentDepth = 0; // Initializes current depth.
     const opts = $obj.defaults({}, options || {}, { props: {}, maxDepth: 10 }) as Required<PrerenderOptions>;
 
     if ($is.function(componentOrVNode)) {
@@ -35,15 +38,18 @@ export async function prerender(componentOrVNode: $preact.AnyComponent | $preact
     } else {
         vNode = $preact.clone(componentOrVNode as $preact.VNode, opts.props);
     }
-    const render = (): Promise<string> | string => {
+    const render = (): string | Promise<string> => {
         if (++currentDepth > opts.maxDepth) {
-            throw Error('weXCR2Sn'); // Max prerender depth: `' + String(opts.maxDepth) + '`.
+            throw Error('weXCR2Sn'); // Max prerender depth.
         }
         try {
             return $preact.ssr.renderToString(vNode);
+            //
         } catch (thrown) {
-            if ($is.promise(thrown)) return thrown.then(render);
-            throw thrown; // Otherwise, re-throw whatever problem there is.
+            if ($is.promise(thrown)) {
+                return thrown.then(render);
+            }
+            throw thrown; // Otherwise, re-throw.
         }
     };
     return { html: await render() };
