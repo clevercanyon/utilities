@@ -49,8 +49,8 @@ type LogEntry = {
 type ConfigMinutia = {
     maxRetries: number;
     maxRetryFailures: number;
-    retryAfterMultiplier: number;
     throttledFlushWaitTime: number;
+    retryAfterExpMultiplier: number;
     maxRetryFailuresExpiresAfter: number;
 };
 type WithContextOptions = Partial<{
@@ -140,9 +140,14 @@ export const getClass = (): Constructor => {
             this.configMinutia ??= {
                 maxRetries: 3,
                 maxRetryFailures: 10,
-                retryAfterMultiplier: $time.secondInMilliseconds,
                 throttledFlushWaitTime: $time.secondInMilliseconds,
+                retryAfterExpMultiplier: $time.secondInMilliseconds / 2,
                 maxRetryFailuresExpiresAfter: $time.minuteInMilliseconds * 30,
+                /**
+                 * - Math.exp(1) * $time.secondInMilliseconds / 2 = 1359.1409142295227.
+                 * - Math.exp(2) * $time.secondInMilliseconds / 2 = 3694.5280494653252.
+                 * - Math.exp(3) * $time.secondInMilliseconds / 2 = 10042.768461593834.
+                 */
             };
             this.queue = []; // Initialize.
             this.retryFailures = this.maxRetryFailuresExpirationTime = 0; // Initialize.
@@ -571,7 +576,7 @@ export const getClass = (): Constructor => {
                             } else {
                                 retryAttempts++;
                                 clearTimeout(retryTimeout);
-                                retryTimeout = setTimeout((): void => void httpPost(), retryAttempts * this.configMinutia.retryAfterMultiplier);
+                                retryTimeout = setTimeout((): void => void httpPost(), Math.exp(retryAttempts) * this.configMinutia.retryAfterExpMultiplier);
                             }
                         } else {
                             this.retryFailures--;
