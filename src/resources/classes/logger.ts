@@ -54,8 +54,8 @@ type ConfigMinutia = {
     maxRetryFailuresExpiresAfter: number;
 };
 type WithContextOptions = Partial<{
-    request: $type.Request;
-    cfwExecutionContext: $type.cf.ExecutionContext;
+    request?: $type.Request;
+    cfwExecutionContext?: $type.cf.ExecutionContext;
 }>;
 type WithContextInterface = {
     withContext(subcontext?: object, subcontextOptions?: WithContextOptions): WithContextInterface;
