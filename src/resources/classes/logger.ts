@@ -55,7 +55,7 @@ type ConfigMinutia = {
 };
 type WithContextOptions = Partial<{
     request?: $type.Request;
-    cfwExecutionContext?: $type.cf.ExecutionContext;
+    cfwContext?: $type.cf.ExecutionContext;
 }>;
 type WithContextInterface = {
     withContext(subcontext?: object, subcontextOptions?: WithContextOptions): WithContextInterface;
@@ -371,8 +371,8 @@ export const getClass = (): Constructor => {
                         );
                         const logged = this.log(message, withContext, level);
 
-                        if (contextOpts.cfwExecutionContext) {
-                            contextOpts.cfwExecutionContext.waitUntil(logged);
+                        if (contextOpts.cfwContext) {
+                            contextOpts.cfwContext.waitUntil(logged);
                         }
                         return logged;
                     },
@@ -433,8 +433,8 @@ export const getClass = (): Constructor => {
                     flush: async (): Promise<boolean> => {
                         const flushed = this.flush();
 
-                        if (contextOpts.cfwExecutionContext) {
-                            contextOpts.cfwExecutionContext.waitUntil(flushed);
+                        if (contextOpts.cfwContext) {
+                            contextOpts.cfwContext.waitUntil(flushed);
                         }
                         return flushed;
                     },
