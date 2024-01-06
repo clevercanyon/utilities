@@ -241,8 +241,8 @@ export const ip = $fnꓺmemo(2, async (request?: $type.Request, prioritizeForwar
  * @see https://o5p.me/rwa3h7
  */
 export const ipGeoData = $fnꓺmemo(
-    // Ensures `request` = `undefined` is same as not passing.
-    { maxSize: 2, isMatchingKey: (a, b): boolean => a[0] === b[0] },
+    // Ensures no args is the same as passing `request: undefined`.
+    { maxSize: 2, transformKey: (args: unknown[]): unknown[] => (args.length ? args : [undefined]) },
     //
     async (request?: $type.Request): Promise<IPGeoData> => {
         // We don’t want tests making remote connections.

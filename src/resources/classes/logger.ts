@@ -56,7 +56,6 @@ type ConfigMinutia = {
 type WithContextOptions = Partial<{
     request: $type.Request;
     cfwExecutionContext: $type.cf.ExecutionContext;
-    cfpExecutionContext: Parameters<$type.cf.PagesFunction>[0];
 }>;
 type WithContextInterface = {
     withContext(subcontext?: object, subcontextOptions?: WithContextOptions): WithContextInterface;
@@ -374,9 +373,6 @@ export const getClass = (): Constructor => {
 
                         if (contextOpts.cfwExecutionContext) {
                             contextOpts.cfwExecutionContext.waitUntil(logged);
-                            //
-                        } else if (contextOpts.cfpExecutionContext) {
-                            contextOpts.cfpExecutionContext.waitUntil(logged);
                         }
                         return logged;
                     },
@@ -439,9 +435,6 @@ export const getClass = (): Constructor => {
 
                         if (contextOpts.cfwExecutionContext) {
                             contextOpts.cfwExecutionContext.waitUntil(flushed);
-                            //
-                        } else if (contextOpts.cfpExecutionContext) {
-                            contextOpts.cfpExecutionContext.waitUntil(flushed);
                         }
                         return flushed;
                     },

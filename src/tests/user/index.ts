@@ -42,6 +42,8 @@ describe('$user', async () => {
         expect(consentState2.canUse.analytics).toBe(true);
     });
     test('.ipGeoData()', async () => {
+        await $user.ipGeoData();
+        await $user.ipGeoData(undefined);
         expect(await $user.ipGeoData()).toStrictEqual({
             'city': 'Madawaska',
             'colo': 'EWR',
@@ -56,6 +58,7 @@ describe('$user', async () => {
             'regionCode': 'ME',
             'timezone': 'America/New_York',
         });
+        expect($user.ipGeoData.cache.keys.length).toBe(1);
     });
     test('.ip()', async () => {
         expect(await $user.ip()).toBe('184.153.133.157');
