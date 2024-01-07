@@ -17,6 +17,9 @@ const unescHTMLCharMap: { [x: string]: string } = { '&amp;': '&', '&lt;': '<', '
 // Please be cautious, this has the `g`, and therefore it has state.
 const wordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p{L})|(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})|(?<=[\p{L}\p{N}])(?=\p{Lu}\p{Ll}))/gu;
 
+// Regular expression for email validating; {@see https://o5p.me/goVSTH}.
+const emailRegExp = /^[a-z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*$/iu;
+
 /**
  * Defines types.
  */
@@ -713,6 +716,32 @@ export const escRegExp = (str: string): string => {
  */
 export const escSelector = (str: string): string => {
     return str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/gu, '\\$&');
+};
+
+/* ---
+ * Email utilities.
+ */
+
+/**
+ * Tests if a string is an email address.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     True if string is an email address.
+ */
+export const isEmail = (str: string): boolean => {
+    if (!str) return false;
+    const parts = str.split('@');
+
+    if (
+        2 !== parts.length ||
+        parts[0].length > 64 || // Username.
+        parts[1].length > 255 || // Hostname.
+        parts[1].split('.').some((part) => part.length > 63)
+    )
+        return false; // Definitely not an email address.
+
+    return emailRegExp.test(str);
 };
 
 /* ---

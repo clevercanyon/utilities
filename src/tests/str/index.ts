@@ -356,6 +356,83 @@ describe('$str', async () => {
         expect($str.escSelector('aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ!"#$%&\'()*+,./:;<=>?@[\\]^`{|}~')) //
             .toBe('aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ\\!\\"\\#\\$\\%\\&\\\'\\(\\)\\*\\+\\,\\.\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\`\\{\\|\\}\\~');
     });
+    test('.isEmail()', async () => {
+        expect($str.isEmail('x@x')).toBe(true);
+        expect($str.isEmail('x+x@x')).toBe(true);
+
+        expect($str.isEmail('x@localhost')).toBe(true);
+        expect($str.isEmail('x+x@localhost')).toBe(true);
+
+        expect($str.isEmail('x@hop.gdn')).toBe(true);
+        expect($str.isEmail('x+x@hop.gdn')).toBe(true);
+
+        expect($str.isEmail('x@x,x')).toBe(false);
+        expect($str.isEmail('x,x@x')).toBe(false);
+        expect($str.isEmail('<x@hop.gdn>')).toBe(false);
+        expect($str.isEmail('x @hop.gdn')).toBe(false);
+
+        for (const validEmail of [
+            'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@letters-in-local.org',
+            'A-Za-z0-9.!#$%&’*+/=?^_`{|}~-@other-valid-characters-in-local.net',
+            '01234567890@numbers-in-local.net',
+            'mixed-1234-in-{+^}-local@sld.net',
+            'a@single-character-in-local.org',
+            'one-character-third-level@a.example.com',
+            'single-character-in-sld@x.org',
+            'local@dash-in-sld.com',
+            'letters-in-sld@123.com',
+            'one-letter-sld@x.org',
+            'test@test--1.com',
+            'uncommon-tld@sld.museum',
+            'uncommon-tld@sld.travel',
+            'uncommon-tld@sld.mobi',
+            'country-code-tld@sld.uk',
+            'country-code-tld@sld.rw',
+            'local@sld.newTLD',
+            'local@sub.domains.com',
+            'backticks`are`legit@test.com',
+            'digit-only-domain@123.com',
+            'missing-dot-before-tld@com',
+            'digit-only-domain-with-subdomain@sub.123.com',
+            'punycode-numbers-in-tld@sld.xn--3e0b707e',
+            '.local-starts-with-dot@sld.com',
+            'local-ends-with-dot.@sld.com',
+            'two..consecutive-dots@sld.com',
+            'sld-ends-with-dash@sld-.com',
+            'sld-starts-with-dashsh@-sld.com',
+            'unbracketed-IP@127.0.0.1',
+            'invalid-ip@127.0.0.1.26',
+            'another-invalid-ip@127.0.0.256',
+            'mg@ns.i',
+        ]) {
+            expect($str.isEmail(validEmail), validEmail).toBe(true);
+        }
+        for (const validEmail of [
+            '"quoted"@sld.com',
+            '"\\e\\s\\c\\a\\p\\e\\d"@sld.com',
+            '"quoted-at-sign@sld.org"@sld.com',
+            '"escaped\\"quote"@sld.com',
+            '"back\\slash"@sld.com',
+            'bracketed-IP-instead-of-domain@[127.0.0.1]',
+            '@missing-local.org',
+            '! #$%`|@invalid-characters-in-local.org',
+            '(),:;`|@more-invalid-characters-in-local.org',
+            '<>@[]\\`|@even-more-invalid-characters-in-local.org',
+            'partially."quoted"@sld.com',
+            'the-local-part-is-invalid-if-it-is-longer-than-sixty-four-characters@sld.net',
+            'missing-sld@.com',
+            'invalid-characters-in-sld@! "#$%(),/;<>_[]`|.org',
+            'missing-tld@sld.',
+            'invalid',
+            'missing-at-sign.net',
+            'IP-and-port@127.0.0.1:25',
+            'trailing-dots@test.de.',
+            'dot-on-dot-in-domainname@te..st.de',
+            'dot-first-in-domain@.test.de',
+        ]) {
+            expect($str.isEmail(validEmail), validEmail).toBe(false);
+        }
+    });
     test('.test()', async () => {
         expect($str.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', /^aeiou.*$/u)).toBe(true);
         expect($str.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', /^.*?aeiou.*$/u)).toBe(true);
