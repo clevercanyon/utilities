@@ -375,6 +375,22 @@ export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean
 });
 
 /**
+ * Request is coming from a specific via token?
+ *
+ * @param   request HTTP request object.
+ * @param   via     `x-via` token to consider.
+ *
+ * @returns         True if request is coming from `x-via` token.
+ */
+export const requestIsVia = $fnꓺmemo(2, (request: $type.Request, via: string): boolean => {
+    if (!request.headers.has('x-via')) {
+        return false; // No `x-via` header.
+    }
+    const header = request.headers.get('x-via') || ''; // Contains via tokens.
+    return new RegExp('(?:^|[,;])\\s*(?:' + $str.escRegExp(via) + ')\\s*(?:$|[,;])', 'ui').test(header);
+});
+
+/**
  * Request path is invalid?
  *
  * @param   request HTTP request object.

@@ -169,6 +169,20 @@ describe('$http', async () => {
         expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'DELETE' }), 200)).toBe(true);
         expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'ABC' }), 200)).toBe(false);
     });
+    test('.requestIsVia()', async () => {
+        expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'foo' } }), 'foo')).toBe(true);
+        expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'x; foo' } }), 'foo')).toBe(true);
+        expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'x; foo; bar' } }), 'foo')).toBe(true);
+        expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'x; foo; bar' } }), 'bar')).toBe(true);
+        expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'x; foo; bar;' } }), 'bar')).toBe(true);
+
+        expect($http.requestIsVia(new Request('https://example.com/'), 'foo')).toBe(false);
+        expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'bar' } }), 'foo')).toBe(false);
+        expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'x; bar' } }), 'foo')).toBe(false);
+        expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'x; bar; baz' } }), 'foo')).toBe(false);
+        expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'x; bar; baz; x foo' } }), 'foo')).toBe(false);
+        expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'x; bar; baz; foo x' } }), 'foo')).toBe(false);
+    });
     test('.requestIsFromUser()', async () => {
         expect($http.requestIsFromUser(new Request('https://example.com/'))).toBe(false);
         expect($http.requestIsFromUser(new Request('https://example.com/', { headers: { cookie: 'abc' } }))).toBe(false);
