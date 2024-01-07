@@ -723,7 +723,7 @@ const jsonStringifyMiddleware = (key: string, value: unknown): unknown => {
                 'isHistoryNavigation',
                 'cf', // Cloudflare-specific.
             ]),
-            headers: $http.extractHeaders(value.headers),
+            headers: $http.extractHeaders(value.headers, { obfuscateSecrets: true }),
         };
     } else if ($is.response(value)) {
         return {
@@ -736,7 +736,7 @@ const jsonStringifyMiddleware = (key: string, value: unknown): unknown => {
                 'statusText',
                 'bodyUsed',
             ]),
-            headers: $http.extractHeaders(value.headers),
+            headers: $http.extractHeaders(value.headers, { obfuscateSecrets: true }),
         };
     }
     return value;

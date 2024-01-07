@@ -25,7 +25,10 @@ export type ResponseConfig = {
     appendHeaders?: $type.Headers | { [x: string]: string };
     body?: $type.BodyInit | null; // i.e., Body contents.
 };
-export type ExtractHeaderOptions = { lowercase?: boolean };
+export type ExtractHeaderOptions = {
+    lowercase?: boolean;
+    obfuscateSecrets?: boolean;
+};
 
 /**
  * HTTP request config.
@@ -557,8 +560,8 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
 /**
  * Extracts headers, returning a plain object.
  *
- * @param   headers Headers.
- * @param   options Default is `{ lowercase: true }`.
+ * @param   headers Headers instance or string-keyed object.
+ * @param   options Options (all optional); {@see ExtractHeaderOptions}.
  *
  *   - Note that a {@see Headers} object always contains lowercase keys. Therefore, this option is only applicable when a
  *       string-keyed object is passed; i.e., if {@see Headers} are passed, this will always return lowercase keys.
@@ -567,7 +570,7 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
  */
 export const extractHeaders = (headers: $type.Headers | { [x: string]: string }, options?: ExtractHeaderOptions): { [x: string]: string } => {
     const plain: { [x: string]: string } = {}; // Initialize.
-    const opts = $obj.defaults({}, options || {}, { lowercase: true }) as Required<ExtractHeaderOptions>;
+    const opts = $obj.defaults({}, options || {}, { lowercase: true, obfuscateSecrets: false }) as Required<ExtractHeaderOptions>;
 
     if (headers instanceof Headers) {
         headers.forEach((value, name) => {
@@ -577,6 +580,9 @@ export const extractHeaders = (headers: $type.Headers | { [x: string]: string },
         for (const [name, value] of Object.entries(headers as { [x: string]: string })) {
             plain[opts.lowercase ? name.toLowerCase() : name] = value;
         }
+    }
+    if (opts.obfuscateSecrets && Object.hasOwn(plain, 'authorization')) {
+        plain.authorization = '*'.repeat($str.charLength(plain.authorization));
     }
     return plain;
 };
