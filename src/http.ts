@@ -581,9 +581,10 @@ export const extractHeaders = (headers: $type.Headers | { [x: string]: string },
             plain[opts.lowercase ? name.toLowerCase() : name] = value;
         }
     }
-    if (opts.obfuscateSecrets && Object.hasOwn(plain, 'authorization')) {
-        plain.authorization = '*'.repeat($str.charLength(plain.authorization));
-    }
+    if (opts.obfuscateSecrets)
+        for (const secret of ['set-cookie', 'cookie', 'authorization', 'x-waf-key', 'x-csrf-token', 'x-wp-nonce', 'x-nonce']) {
+            if (Object.hasOwn(plain, secret)) plain[secret] = '*'.repeat($str.charLength(plain[secret]));
+        }
     return plain;
 };
 
@@ -744,6 +745,8 @@ export const requestHeaderNames = (): string[] => [
     'x-requested-with',
     'x-rewrite-url',
     'x-uidh',
+    'x-via',
+    'x-waf-key',
     'x-wap-profile',
     'x-wp-nonce',
 ];
@@ -863,6 +866,7 @@ export const responseHeaderNames = (): string[] => [
     'x-sourcemap',
     'x-turbo-charged-by',
     'x-ua-compatible',
+    'x-via',
     'x-webkit-csp',
     'x-wp-total',
     'x-wp-totalpages',

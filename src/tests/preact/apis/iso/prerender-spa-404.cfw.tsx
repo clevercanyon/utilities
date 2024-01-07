@@ -11,7 +11,7 @@ const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
 const __origAppBrandProps__ = $env.get('APP_BRAND_PROPS', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 
-describe('$preact.iso.prerenderSPA() default-404', async () => {
+describe('$preact.iso.prerenderSPA() [404-cfw]', async () => {
     beforeAll(async () => {
         $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
         $env.set('APP_BASE_URL', 'https://x.tld/base/');

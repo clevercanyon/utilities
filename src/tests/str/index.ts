@@ -433,6 +433,36 @@ describe('$str', async () => {
             expect($str.isEmail(validEmail), validEmail).toBe(false);
         }
     });
+    test('.isAddr()', async () => {
+        expect($str.isAddr('x@x')).toBe(true);
+        expect($str.isAddr('x+x@x')).toBe(true);
+
+        expect($str.isAddr('x@localhost')).toBe(true);
+        expect($str.isAddr('x+x@localhost')).toBe(true);
+
+        expect($str.isAddr('x@hop.gdn')).toBe(true);
+        expect($str.isAddr('x+x@hop.gdn')).toBe(true);
+
+        expect($str.isAddr('"X" <x@x>')).toBe(true);
+        expect($str.isAddr('"X" <x+x@x>')).toBe(true);
+
+        expect($str.isAddr('"X" <x@localhost>')).toBe(true);
+        expect($str.isAddr('"X" <x+x@localhost>')).toBe(true);
+
+        expect($str.isAddr('"X" <x@hop.gdn>')).toBe(true);
+        expect($str.isAddr('"X" <x+x@hop.gdn>')).toBe(true);
+
+        expect($str.isAddr('x@x,x')).toBe(false);
+        expect($str.isAddr('x,x@x')).toBe(false);
+        expect($str.isAddr('<x@hop.gdn>')).toBe(false);
+        expect($str.isAddr('x @hop.gdn')).toBe(false);
+
+        expect($str.isAddr('"X" x@x')).toBe(false);
+        expect($str.isAddr('"" <x@x>')).toBe(false);
+        expect($str.isAddr('"X"  <x@x>')).toBe(false);
+        expect($str.isAddr('"X" <x@>')).toBe(false);
+        expect($str.isAddr('"X" <@x>')).toBe(false);
+    });
     test('.test()', async () => {
         expect($str.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', /^aeiou.*$/u)).toBe(true);
         expect($str.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', /^.*?aeiou.*$/u)).toBe(true);

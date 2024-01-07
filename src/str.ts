@@ -725,6 +725,8 @@ export const escSelector = (str: string): string => {
 /**
  * Tests if a string is an email address.
  *
+ * - `username@hostname`.
+ *
  * @param   str String to consider.
  *
  * @returns     True if string is an email address.
@@ -739,9 +741,39 @@ export const isEmail = (str: string): boolean => {
         parts[1].length > 255 || // Hostname.
         parts[1].split('.').some((part) => part.length > 63)
     )
-        return false; // Definitely not an email address.
+        return false; // Not an email.
 
     return emailRegExp.test(str);
+};
+
+/**
+ * Tests if a string is an addr.
+ *
+ * - `username@hostname`.
+ * - `"Name" <username@hostname>`.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     True if string is an addr.
+ */
+export const isAddr = (str: string): boolean => {
+    if (!str) return false;
+    if (isEmail(str)) return true;
+
+    const parts = str.split(' ');
+    return (
+        2 === parts.length &&
+        //
+        parts[0].length >= 3 && // e.g., `"x"`.
+        '"' === parts[0][0] && // Opening quote.
+        '"' === parts[0][parts[0].length - 1] && // Closing quote.
+        parts[0].length <= 255 + 2 && // 2 = quotes; i.e., `"..."`.
+        //
+        parts[1].length >= 3 && // e.g., `<x>`.
+        '<' === parts[1][0] && // Opening bracket.
+        '>' === parts[1][parts[1].length - 1] && // Closing bracket.
+        isEmail(parts[1].slice(1, -1)) // `<email>` validation.
+    );
 };
 
 /* ---
