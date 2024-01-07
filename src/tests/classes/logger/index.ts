@@ -2,23 +2,13 @@
  * Test suite.
  */
 
-import { $class, $env } from '#index.ts';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-
-const Logger = $class.getLogger();
-const __origAppTestLoggerBearerToken__ = $env.get('APP_TEST_LOGGER_BEARER_TOKEN', { type: 'unknown' });
+import { $class } from '#index.ts';
+import { describe, expect, test } from 'vitest';
 
 describe('Logger', async () => {
-    let logger: $class.Logger;
+    const Logger = $class.getLogger(),
+        logger = new Logger();
 
-    beforeAll(async () => {
-        $env.set('APP_TEST_LOGGER_BEARER_TOKEN', '');
-        // To actually post to Test source, use: `Bearer 51JSs4EVPTLmuyvTdVpT74Ts`.
-        logger = new Logger({ endpointToken: $env.get('APP_TEST_LOGGER_BEARER_TOKEN', { type: 'string', default: '' }) });
-    });
-    afterAll(async () => {
-        $env.set('APP_TEST_LOGGER_BEARER_TOKEN', __origAppTestLoggerBearerToken__);
-    });
     test('.log()', async () => {
         expect(logger.log('Test logger.log().') instanceof Promise).toBe(true);
     });
