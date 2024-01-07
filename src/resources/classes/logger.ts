@@ -60,11 +60,7 @@ type WithContextOptions = Partial<{
             $type.cf.ExecutionContext | Parameters<$type.cf.PagesFunction>[0],
             // These are the two required keys.
             'waitUntil' | 'passThroughOnException'
-        > & {
-            // Keyable so `WithContextOptions` can be used as a required type,
-            // but if other string keys happen to exist, that’s fine also.
-            [x: string]: unknown;
-        }
+        >
     >;
 }>;
 type WithContextInterface = {
