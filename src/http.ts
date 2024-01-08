@@ -387,7 +387,25 @@ export const requestIsVia = $fnꓺmemo(2, (request: $type.Request, via: string):
         return false; // No `x-via` header.
     }
     const header = request.headers.get('x-via') || ''; // Contains via tokens.
-    return new RegExp('(?:^|[,;])\\s*(?:' + $str.escRegExp(via) + ')\\s*(?:$|[,;])', 'ui').test(header);
+    return $is.notEmpty(header) && new RegExp('(?:^|[,;])\\s*(?:' + $str.escRegExp(via) + ')\\s*(?:$|[,;])', 'ui').test(header);
+});
+
+/**
+ * Request expects a JSON response?
+ *
+ * @param   request HTTP request object.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request expects a JSON response.
+ */
+export const requestExpectsJSON = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    let url = _url || $url.parse(request.url);
+    url = $fn.try(() => $url.removeAppBasePath(url), url)();
+    const acceptHeader = request.headers.get('accept') || '';
+    return (
+        ($is.notEmpty(acceptHeader) && /\b(?:application\/json)\b/iu.test(acceptHeader)) || //
+        ($env.isC10n() && '/' !== url.pathname && /^\/(?:api)(?:$|\/)/iu.test(url.pathname))
+    );
 });
 
 /**

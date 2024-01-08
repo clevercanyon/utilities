@@ -183,6 +183,15 @@ describe('$http', async () => {
         expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'x; bar; baz; x foo' } }), 'foo')).toBe(false);
         expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'x; bar; baz; foo x' } }), 'foo')).toBe(false);
     });
+    test('.requestExpectsJSON()', async () => {
+        expect($http.requestExpectsJSON(new Request('https://example.com/', { headers: { 'accept': 'application/json' } }))).toBe(true);
+        expect($http.requestExpectsJSON(new Request('https://example.com/', { headers: { 'accept': 'application/json; charset=utf-8' } }))).toBe(true);
+
+        expect($http.requestExpectsJSON(new Request('https://example.com/', {}))).toBe(false);
+        expect($http.requestExpectsJSON(new Request('https://example.com/api', {}))).toBe(false);
+        expect($http.requestExpectsJSON(new Request('https://example.com/api/endpoint/v1', {}))).toBe(false);
+        expect($http.requestExpectsJSON(new Request('https://example.com/', { headers: { 'accept': 'text/plain' } }))).toBe(false);
+    });
     test('.requestIsFromUser()', async () => {
         expect($http.requestIsFromUser(new Request('https://example.com/'))).toBe(false);
         expect($http.requestIsFromUser(new Request('https://example.com/', { headers: { cookie: 'abc' } }))).toBe(false);
