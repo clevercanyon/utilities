@@ -4,7 +4,7 @@
 
 import { prerender } from '#@preact/apis/iso/index.tsx';
 import { $dom, $env, $is, $obj, $path, $preact, $str, type $type } from '#index.ts';
-import { defaultFetcher, defaultGlobalObp } from '#preact/components/data.tsx';
+import { defaultFetcher } from '#preact/components/data.tsx';
 import { type State as HTTPState } from '#preact/components/http.tsx';
 import { type Props as RootProps } from '#preact/components/root.tsx';
 import { Route, default as Router, type RoutedProps, type Props as RouterProps } from '#preact/components/router.tsx';
@@ -53,7 +53,7 @@ export type LazyRouterVNode = $preact.VNode<LazyRouterProps>;
  *
  * A request-specific {@see $type.Fetcher} instance must be passed down through props when prerendering so the same
  * fetcher instance survives potentially multiple prerender passes; e.g., on thrown promises. Otherwise, a new fetcher
- * instance would be created on each prerender pass by `<Data>`, resulting in fetcher cache being reset each time.
+ * instance would be created on each prerender pass by `<Data>`, resulting in our fetcher cache resetting each time.
  *
  * @param   options Options; {@see PrerenderSPAOptions}.
  *
@@ -69,9 +69,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
         //
         httpState = props.httpState || {}, // Passed through props as state by reference.
         url = props.url || request.url, // URL required, as we cannot detect via `location`.
-        //
-        globalObp = props.globalObp || defaultGlobalObp(), // Required to create fetcher.
-        fetcher = props.fetcher || defaultFetcher(globalObp); // Required; see notes above.
+        fetcher = props.fetcher || defaultFetcher(); // Required for prerender; see notes above.
 
     let styleBundle: undefined | string, //
         scriptBundle: undefined | string; // Initialize.
@@ -98,7 +96,6 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
             url, // Absolute request URL.
 
             // `<Data>` props.
-            globalObp, // Global object path.
             fetcher, // Request-specific fetcher.
             head: $obj.patchDeep({ styleBundle, scriptBundle }, props.head),
         },
@@ -159,9 +156,8 @@ export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions)
      *
      * `<Data>` props.
      *
-     * - `globalObp`: It’s either already in props, or `<Data>` uses same default as prerender.
      * - `fetcher`: It’s either already in props, or `<Data>` uses same default as prerender.
-     * - `head`: It’s either already in props, or `<Data>` uses global state in script code.
+     * - `head`: It’s either already in props, or `<Data>` uses global state from script code.
      */
 };
 

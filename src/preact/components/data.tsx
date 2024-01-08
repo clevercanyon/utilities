@@ -145,7 +145,7 @@ export default class Data extends Component<Props, State> {
         super(props); // Parent constructor.
 
         const globalObp = props.globalObp || defaultGlobalObp(),
-            fetcher = props.fetcher || defaultFetcher(globalObp);
+            fetcher = props.fetcher || defaultFetcher();
 
         this.state = $obj.mergeDeep(
             $obj.pick(initialGlobalState(globalObp), mergeableGlobalStateKeys as unknown as string[]),
@@ -232,7 +232,7 @@ export const namedPropKeys = (): string[] => passableStateKeys as unknown as str
  *
  * This is also called upon by our ISO prerenderer.
  *
- * @returns Default global object path.
+ * @returns Default global object path string.
  */
 export const defaultGlobalObp = (): string => {
     return $str.obpPartSafe($app.$pkgName) + '.preactISOData';
@@ -243,12 +243,10 @@ export const defaultGlobalObp = (): string => {
  *
  * This is also called upon by our ISO prerenderer.
  *
- * @param   globalObp                    Default is {@see defaultGlobalObp()}.
- *
- * @returns {@see $type.Fetcher}           Default fetcher instance.
+ * @returns {@see $type.Fetcher} Default fetcher instance.
  */
-export const defaultFetcher = (globalObp?: string): $type.Fetcher => {
-    return new ($class.getFetcher())({ globalObp: globalObp || defaultGlobalObp() });
+export const defaultFetcher = (): $type.Fetcher => {
+    return new ($class.getFetcher())();
 };
 
 /**
