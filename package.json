@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.695",
+    "version": "1.0.696",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -79,6 +79,11 @@
             "types": "./dist/types/fn.d.ts",
             "import": "./dist/fn.js",
             "default": "./dist/fn.js"
+        },
+        "./fsize": {
+            "types": "./dist/types/fsize.d.ts",
+            "import": "./dist/fsize.js",
+            "default": "./dist/fsize.js"
         },
         "./http": {
             "types": "./dist/types/http.d.ts",
