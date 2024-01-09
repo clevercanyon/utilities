@@ -1011,6 +1011,7 @@ export const defaultSecurityHeaders = (): { [x: string]: string } => {
                 ' *.clevercanyon.com *.hop.gdn' + // Our own hostnames.
                 ' *.cloudflare.com *.cloudflareinsights.com' + // Cloudflare services.
                 ' *.google.com *.googletagmanager.com *.google-analytics.com *.googleadservices.com googleads.g.doubleclick.net' + // Google services.
+                ' *.betterstack.com' + // Better Stack services.
                 ' *.stripe.com' + // Stripe services.
                 ';', // prettier-ignore
 
