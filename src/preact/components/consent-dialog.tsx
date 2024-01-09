@@ -233,7 +233,7 @@ export default function ConsentDialog(): $preact.VNode<Props> {
                                 <FluentEmojiFlatCookie class='-ml-1 mr-1 inline-block h-6 w-6' aria-hidden='true' />
                                 Cookie Preferences
                             </h2>
-                            <p class='mt-2 text-balance text-justify opacity-75'>
+                            <p class='mt-2 text-justify text-xs opacity-75'>
                                 By using our website you consent to all Essential Cookies in accordance with our{' '}
                                 <a href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
                                     privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline h-2 w-2' aria-hidden='true' />
