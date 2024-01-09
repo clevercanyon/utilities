@@ -138,7 +138,7 @@ export const getClass = (): Constructor => {
             for (const [key, value] of $obj.keyAndSymbolEntries(props || {})) {
                 this[key] = value; // Property assignments.
             }
-            this.endpoint ??= 'https://in.logs.betterstack.com/';
+            this.endpoint ??= 'https://logs.hop.gdn/'; // CNAME: `https://in.logs.betterstack.com/`.
             this.endpointToken ??= $env.get($env.isTest() ? 'APP_TEST_LOGGER_BEARER_TOKEN' : 'APP_DEFAULT_LOGGER_BEARER_TOKEN', { type: 'string', default: '' });
             this.essential ??= this.endpointToken && this.endpointToken === $env.get('APP_CONSENT_LOGGER_BEARER_TOKEN') ? true : false;
             this.listenForErrors ??= this.endpointToken && this.endpointToken === $env.get('APP_AUDIT_LOGGER_BEARER_TOKEN') ? true : false;
@@ -583,9 +583,13 @@ export const getClass = (): Constructor => {
                                 retryTimeout = setTimeout((): void => void httpPost(), Math.exp(retryAttempts) * this.configMinutia.retryAfterExpMultiplier);
                             }
                         } else {
-                            this.retryFailures--;
-                            this.maxRetryFailuresExpirationTime = 0;
-                            resolve(true);
+                            // Even though there is no response body, we still need to read the empty response.
+                            // Otherwise, Chrome will throw an erroneous 'Fetch failed loading: POST` in console.
+                            void response.text().then((): void => {
+                                this.retryFailures--;
+                                this.maxRetryFailuresExpirationTime = 0;
+                                resolve(true);
+                            });
                         }
                     });
                 });
