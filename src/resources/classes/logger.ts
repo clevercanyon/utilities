@@ -373,7 +373,7 @@ export const getClass = (): Constructor => {
 
                         const withContext = $obj.mergeDeep(
                             jsonCloneObjectDeep(context), // Inherits current context data/opts.
-                            contextOpts.request ? this.requestContext(contextOpts.request) : {}, // Returns a clone.
+                            contextOpts.request ? await this.requestContext(contextOpts.request) : {}, // Returns a clone.
                             jsonCloneObjectDeep(subcontext || {}), // Optionally, subcontext data also.
                         );
                         const logged = this.log(message, withContext, level);
