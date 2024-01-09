@@ -244,8 +244,6 @@ export const getClass = (): Constructor => {
                                   isLocalVite: $env.isLocalVite(),
                                   isWebViaJSDOM: $env.isWebViaJSDOM(),
 
-                                  url: $url.current(),
-
                                   screenWidth: screen.width,
                                   screenHeight: screen.height,
                                   windowWidth: window.innerWidth,
@@ -254,6 +252,13 @@ export const getClass = (): Constructor => {
                               }
                             : {}),
                     },
+                    ...(isWeb
+                        ? {
+                              request: {
+                                  url: $url.current(),
+                              },
+                          }
+                        : {}),
                 },
             });
         }
@@ -310,7 +315,6 @@ export const getClass = (): Constructor => {
                     env: {
                         isLocal: $env.isLocal(request),
                         isLocalVite: $env.isLocalVite(request),
-                        url: request.url, // Request URL.
                     },
                     user: {
                         isMajorCrawler: $user.isMajorCrawler(request),
