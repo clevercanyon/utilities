@@ -269,6 +269,7 @@ export const getClass = (): Constructor => {
                     user: {
                         ...($env.isNode()
                             ? {
+                                  geo: await $user.ipGeoData(),
                                   consentData: $user.consentData(),
                                   consentState: await $user.consentState(),
 
@@ -288,7 +289,7 @@ export const getClass = (): Constructor => {
 
                                   agent: $user.agent(),
                                   languages: $user.languages(),
-
+                                  geo: await $user.ipGeoData(),
                                   consentData: $user.consentData(),
                                   consentState: await $user.consentState(),
                               }
@@ -317,7 +318,7 @@ export const getClass = (): Constructor => {
 
                         agent: $user.agent(request),
                         languages: $user.languages(request),
-
+                        geo: await $user.ipGeoData(request),
                         consentData: $user.consentData(request),
                         consentState: await $user.consentState(request),
                     },
