@@ -25,7 +25,6 @@ const tꓺrel = 'rel',
     tꓺ_blank = '_blank',
     tꓺtarget = 'target',
     tꓺonClick = 'onClick',
-    tꓺnofollow = 'nofollow',
     tꓺexternal = 'external',
     tꓺvꓺundefined = undefined,
     tꓺcꓺopacityᱼ50 = 'opacity-50',
@@ -96,15 +95,15 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                 },
                 {
                     [tꓺtitle]: 'Do Not Sell or Share My Personal Information',
-                    [tꓺhref]: policies.dsar, // Data subject access request form.
-                    [tꓺtarget]: tꓺ_blank, // Typically hosted by a third party.
-                    [tꓺrel]: tꓺnofollow + ' ' + tꓺexternal,
+                    [tꓺhref]: policies.dsar, // Data subject access request.
+                    [tꓺtarget]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺ_blank,
+                    [tꓺrel]: brandOrgOrg === brand ? tꓺvꓺundefined : tꓺexternal,
                 },
                 {
                     [tꓺtitle]: 'Network Status',
                     [tꓺhref]: statusURL, // Network system status page.
-                    [tꓺtarget]: tꓺ_blank, // Should be hosted by a third party.
-                    [tꓺrel]: tꓺnofollow + ' ' + tꓺexternal,
+                    [tꓺtarget]: tꓺ_blank, // Must be hosted by a third party.
+                    [tꓺrel]: tꓺexternal, // Not `nofollow` — we want it indexed.
                 },
             ],
             [],
