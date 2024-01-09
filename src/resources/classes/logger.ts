@@ -138,7 +138,7 @@ export const getClass = (): Constructor => {
             for (const [key, value] of $obj.keyAndSymbolEntries(props || {})) {
                 this[key] = value; // Property assignments.
             }
-            this.endpoint ??= $env.isWeb() ? 'https://workers.hop.gdn/utilities/api/logs/v1' : 'https://in.logs.betterstack.com/';
+            this.endpoint ??= 'https://in.logs.betterstack.com/';
             this.endpointToken ??= $env.get($env.isTest() ? 'APP_TEST_LOGGER_BEARER_TOKEN' : 'APP_DEFAULT_LOGGER_BEARER_TOKEN', { type: 'string', default: '' });
             this.essential ??= this.endpointToken && this.endpointToken === $env.get('APP_CONSENT_LOGGER_BEARER_TOKEN') ? true : false;
             this.listenForErrors ??= this.endpointToken && this.endpointToken === $env.get('APP_AUDIT_LOGGER_BEARER_TOKEN') ? true : false;
