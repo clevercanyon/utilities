@@ -452,11 +452,15 @@ describe('$str', async () => {
         expect($str.isAddr('"X" <x@hop.gdn>')).toBe(true);
         expect($str.isAddr('"X" <x+x@hop.gdn>')).toBe(true);
 
+        expect($str.isAddr('"X" <x@x>')).toBe(true);
+        expect($str.isAddr('"X X" <x@x>')).toBe(true);
+
         expect($str.isAddr('x@x,x')).toBe(false);
         expect($str.isAddr('x,x@x')).toBe(false);
         expect($str.isAddr('<x@hop.gdn>')).toBe(false);
         expect($str.isAddr('x @hop.gdn')).toBe(false);
 
+        expect($str.isAddr('X x@x')).toBe(false);
         expect($str.isAddr('"X" x@x')).toBe(false);
         expect($str.isAddr('"" <x@x>')).toBe(false);
         expect($str.isAddr('"X"  <x@x>')).toBe(false);

@@ -760,7 +760,7 @@ export const isAddr = (str: string): boolean => {
     if (!str) return false;
     if (isEmail(str)) return true;
 
-    const parts = str.split(' ');
+    const parts = str.split(/(?<=")\s(?=<)/u);
     return (
         2 === parts.length &&
         //
