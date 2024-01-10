@@ -38,6 +38,7 @@ const tꓺavatar = 'avatar',
     tꓺgithub = 'github',
     tꓺgravatar = 'gravatar',
     tꓺheadline = 'headline',
+    tꓺംhopംgdn = '.hop.gdn',
     tꓺhttpsꓽⳇⳇ = 'https://',
     tꓺംio = '.io',
     tꓺjaswrks = 'jaswrks',
@@ -61,7 +62,7 @@ const tꓺavatar = 'avatar',
     tꓺhttpsꓽⳇⳇwwwംnpmjsംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺnpmjs + tꓺംcom + '/~',
     tꓺhttpsꓽⳇⳇkeybaseംioⳇ = tꓺhttpsꓽⳇⳇ + tꓺkeybase + tꓺംio + '/',
     //
-    tꓺhttpsꓽⳇⳇgravatarംcomⳇavatarⳇ = tꓺhttpsꓽⳇⳇ + tꓺgravatar + tꓺംcom + '/' + tꓺavatar + '/',
+    tꓺhttpsꓽⳇⳇgravatarംhopംgdnⳇavatarⳇ = tꓺhttpsꓽⳇⳇ + tꓺgravatar + tꓺംhopംgdn + '/' + tꓺavatar + '/',
     tꓺobjꓺwidthHeight512x512 = { width: 512, height: 512 } as { width: number; height: number };
 
 /**
@@ -125,8 +126,6 @@ export const get = (username: string): $type.Person => {
 
 /**
  * Initializes raw props.
- *
- * @todo Don't use gravatar to serve images.
  */
 const initializeRawProps = (): void => {
     if (rawPropsInitialized) return;
@@ -147,7 +146,7 @@ const initializeRawProps = (): void => {
         [tꓺurl]: tꓺhttpsꓽⳇⳇ + tꓺjaswrks + tꓺംcom + '/',
 
         [tꓺgravatar]: {
-            [tꓺurl]: tꓺhttpsꓽⳇⳇgravatarംcomⳇavatarⳇ + '17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512',
+            [tꓺurl]: tꓺhttpsꓽⳇⳇgravatarംhopംgdnⳇavatarⳇ + '17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c.png?s=512',
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {
@@ -175,7 +174,7 @@ const initializeRawProps = (): void => {
         [tꓺurl]: tꓺhttpsꓽⳇⳇgithubംcomⳇ + tꓺbrucewrks,
 
         [tꓺgravatar]: {
-            [tꓺurl]: tꓺhttpsꓽⳇⳇgravatarംcomⳇavatarⳇ + 'bcdabcc96b6c049e1de6e6e32b0d4b772a4e9cb92e14e50591ee021ec4dd8317?s=512',
+            [tꓺurl]: tꓺhttpsꓽⳇⳇgravatarംhopംgdnⳇavatarⳇ + 'bcdabcc96b6c049e1de6e6e32b0d4b772a4e9cb92e14e50591ee021ec4dd8317.png?s=512',
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {

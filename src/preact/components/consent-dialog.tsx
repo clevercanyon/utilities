@@ -266,6 +266,7 @@ export default function ConsentDialog(): $preact.VNode<Props> {
                                                         <a href={brand.policies.cookies} target='_blank' title='Cookie Policy'>
                                                             cookie policy <Fa6SolidArrowUpRightFromSquare class='inline h-2 w-2' aria-hidden='true' />
                                                         </a>
+                                                        .
                                                     </span>
                                                 </p>
                                             </HelpIconToggle>
