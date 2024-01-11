@@ -15,12 +15,12 @@ export type IPGeoDataOptions = Options;
 export type HeaderOptions = Options;
 
 /**
- * Redacts data in a string value.
+ * Redacts data in a string.
  *
- * @param   str     String to redact.
+ * @param   str     Input string.
  * @param   options All optional; {@see Options}.
  *
- * @returns         Redacted string value.
+ * @returns         Redacted string.
  */
 export const string = (str: string, options?: Options): string => {
     const opts = $obj.defaults({}, options || {}, { char: '*' }) as Required<Options>,

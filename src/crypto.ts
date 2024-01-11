@@ -333,7 +333,7 @@ const bufferToHex = (buffer: ArrayBuffer): string => {
 /**
  * Builds a hash using a specified algorithm.
  *
- * @param   algo Please {@see HashAlgorithm} for details.
+ * @param   algo One of: {@see HashAlgorithm}.
  *
  * @returns      Hash promise, of variable length, based on selected algorithm.
  */
@@ -344,11 +344,22 @@ const buildHash = async (algo: HashAlgorithm, str: string): Promise<string> => {
 /**
  * Builds an HMAC keyed hash using a specified algorithm.
  *
- * @param   algo Please {@see HashAlgorithm} for details.
+ * Note: `key` can be passed as `&` to use `SSR_APP_C10N_HMAC_SHA_KEY`.
+ *
+ * @param   algo One of: {@see HashAlgorithm}.
+ * @param   str  String to hash.
+ * @param   key  Key to use when hashing.
  *
  * @returns      HMAC keyed hash promise, of variable length, based on selected algorithm.
  */
 const buildHMACHash = async (algo: HashAlgorithm, str: string, key: string): Promise<string> => {
-    const cryptoKey = await crypto.subtle.importKey('raw', $str.textEncoder.encode(key || '\0'), { name: 'hmac', hash: { name: algo } }, false, ['sign', 'verify']);
+    if ('&' === key) {
+        key =
+            $env.get('SSR_APP_C10N_HMAC_SHA_KEY', { type: 'string' }) || //
+            $env.get('APP_C10N_HMAC_SHA_KEY', { type: 'string', require: true });
+    }
+    const encodedKey = $str.textEncoder.encode(key || '\0'),
+        cryptoKey = await crypto.subtle.importKey('raw', encodedKey, { name: 'hmac', hash: { name: algo } }, false, ['sign', 'verify']);
+
     return bufferToHex(await crypto.subtle.sign('hmac', cryptoKey, $str.textEncoder.encode(str)));
 };
