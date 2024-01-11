@@ -16,6 +16,8 @@ import type * as cf from '@cloudflare/workers-types/experimental';
 /**
  * Basic types.
  */
+export type Any = any;
+
 export type { $Keyable as Object };
 export type { $AnyObject as AnyObject };
 

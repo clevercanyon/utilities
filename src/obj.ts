@@ -1011,10 +1011,10 @@ export const updateClonesDeepNoOps = ((...args: Parameters<$type.ObjMCHandler>):
  *
  * Callback function signature:
  *
- *     (value: unknown, key?: unknown) => unknown;
+ *     (value: $type.Any, key?: $type.Any) => unknown;
  *
  * If `value` is a {@see Set}, no `key` is passed to callback. If `value` is a {@see Map}, `key` could very well be
- * anything. Thus, use `key` with caution. It’s not always set to a safe object key; i.e., depending on `value` type.
+ * anything. Thus, use `key` with caution. It’s not always set to a safe object key, depending on `value` type.
  *
  * @param   value      Value (i.e., object) to map.
  * @param   callbackFn Callback function with signature above.
@@ -1024,7 +1024,7 @@ export const updateClonesDeepNoOps = ((...args: Parameters<$type.ObjMCHandler>):
  *
  * @note Like {@see Array.prototype.map()}, this produces a shallow clone by default. To map by reference, set `{ byReference: true }`.
  */
-export const map = <Type>(value: Type, callbackFn: (value: unknown, key?: unknown) => unknown, options?: MapOptions): Type extends object ? Type : $type.Object => {
+export const map = <Type>(value: Type, callbackFn: (value: $type.Any, key?: $type.Any) => unknown, options?: MapOptions): Type extends object ? Type : $type.Object => {
     const opts = defaults({}, options || {}, { byReference: false, skipReadonly: true }) as Required<MapOptions>;
     const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
