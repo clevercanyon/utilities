@@ -17,8 +17,8 @@ describe('$crypto', async () => {
         expect(await $crypto.sha1('ghi')).toBe('481743d632b80d39bc2771d19be3ca3005b3f8af');
     });
     test('.hmacSHA1()', async () => {
-        expect((await $crypto.hmacSHA1('', '')).length).toBe(40);
-        expect(await $crypto.hmacSHA1('', '')).toBe('fbdb1d1b18aa6c08324b7d64b71fb76370690e1d');
+        expect((await $crypto.hmacSHA1('', '\0')).length).toBe(40);
+        expect(await $crypto.hmacSHA1('', '\0')).toBe('fbdb1d1b18aa6c08324b7d64b71fb76370690e1d');
 
         expect((await $crypto.hmacSHA1('abc', 'def')).length).toBe(40);
         expect(await $crypto.hmacSHA1('abc', 'def')).toBe('7584ee14493072cd8d9ae850e0ff090538230f8c');
@@ -37,8 +37,8 @@ describe('$crypto', async () => {
         expect(await $crypto.sha256('ghi')).toBe('50ae61e841fac4e8f9e40baf2ad36ec868922ea48368c18f9535e47db56dd7fb');
     });
     test('.hmacSHA256()', async () => {
-        expect((await $crypto.hmacSHA256('', '')).length).toBe(64);
-        expect(await $crypto.hmacSHA256('', '')).toBe('b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad');
+        expect((await $crypto.hmacSHA256('', '\0')).length).toBe(64);
+        expect(await $crypto.hmacSHA256('', '\0')).toBe('b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad');
 
         expect((await $crypto.hmacSHA256('abc', 'def')).length).toBe(64);
         expect(await $crypto.hmacSHA256('abc', 'def')).toBe('397f467341e4d78c474867ef3261cdb46c0e10351e9a989963e6cb2dce40ee5d');
@@ -57,8 +57,8 @@ describe('$crypto', async () => {
         expect(await $crypto.sha384('ghi')).toBe('1ad66ef0418b7e24de0bf2db0c46e700bd8a705efd781a477f5663561970f418f85a159ead0a6de87f17eba03cb7f542');
     });
     test('.hmacSHA384()', async () => {
-        expect((await $crypto.hmacSHA384('', '')).length).toBe(96);
-        expect(await $crypto.hmacSHA384('', '')).toBe('6c1f2ee938fad2e24bd91298474382ca218c75db3d83e114b3d4367776d14d3551289e75e8209cd4b792302840234adc');
+        expect((await $crypto.hmacSHA384('', '\0')).length).toBe(96);
+        expect(await $crypto.hmacSHA384('', '\0')).toBe('6c1f2ee938fad2e24bd91298474382ca218c75db3d83e114b3d4367776d14d3551289e75e8209cd4b792302840234adc');
 
         expect((await $crypto.hmacSHA384('abc', 'def')).length).toBe(96);
         expect(await $crypto.hmacSHA384('abc', 'def')).toBe('43e1d040a32182a0a4df43e7d95eb8c4a104fed3dd4d0fd39944e522626da148b2a7ac3926b8e4bb78892ec497bf2955');
@@ -82,8 +82,8 @@ describe('$crypto', async () => {
         );
     });
     test('.hmacSHA512()', async () => {
-        expect((await $crypto.hmacSHA512('', '')).length).toBe(128);
-        expect(await $crypto.hmacSHA512('', '')).toBe(
+        expect((await $crypto.hmacSHA512('', '\0')).length).toBe(128);
+        expect(await $crypto.hmacSHA512('', '\0')).toBe(
             'b936cee86c9f87aa5d3c6f2e84cb5a4239a5fe50480a6ec66b70ab5b1f4ac6730c6c515421b327ec1d69402e53dfb49ad7381eb067b338fd7b0cb22247225d47',
         );
         expect((await $crypto.hmacSHA512('abc', 'def')).length).toBe(128);

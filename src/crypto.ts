@@ -29,9 +29,11 @@ export const sha1 = $fnꓺmemo(2, async (str: string): Promise<string> => buildH
  * @param   str String to hash.
  * @param   key Key to use when hashing.
  *
+ *   - Default key is taken from `APP_HMAC_SHA_KEY`.
+ *
  * @returns     HMAC SHA-1 hash. 40 hexadecimals in length.
  */
-export const hmacSHA1 = $fnꓺmemo(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-1', str, key));
+export const hmacSHA1 = $fnꓺmemo(2, async (str: string, key?: string): Promise<string> => buildHMACHash('sha-1', str, key));
 
 /**
  * Generates a SHA-256 hash.
@@ -48,9 +50,11 @@ export const sha256 = $fnꓺmemo(2, async (str: string): Promise<string> => buil
  * @param   str String to hash.
  * @param   key Key to use when hashing.
  *
+ *   - Default key is taken from `APP_HMAC_SHA_KEY`.
+ *
  * @returns     HMAC SHA-256 hash. 64 hexadecimals in length.
  */
-export const hmacSHA256 = $fnꓺmemo(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-256', str, key));
+export const hmacSHA256 = $fnꓺmemo(2, async (str: string, key?: string): Promise<string> => buildHMACHash('sha-256', str, key));
 
 /**
  * Generates a SHA-384 hash.
@@ -67,9 +71,11 @@ export const sha384 = $fnꓺmemo(2, async (str: string): Promise<string> => buil
  * @param   str String to hash.
  * @param   key Key to use when hashing.
  *
+ *   - Default key is taken from `APP_HMAC_SHA_KEY`.
+ *
  * @returns     HMAC SHA-384 hash. 96 hexadecimals in length.
  */
-export const hmacSHA384 = $fnꓺmemo(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-384', str, key));
+export const hmacSHA384 = $fnꓺmemo(2, async (str: string, key?: string): Promise<string> => buildHMACHash('sha-384', str, key));
 
 /**
  * Generates a SHA-512 hash.
@@ -86,9 +92,11 @@ export const sha512 = $fnꓺmemo(2, async (str: string): Promise<string> => buil
  * @param   str String to hash.
  * @param   key Key to use when hashing.
  *
+ *   - Default key is taken from `APP_HMAC_SHA_KEY`.
+ *
  * @returns     HMAC SHA-512 hash. 128 hexadecimals in length.
  */
-export const hmacSHA512 = $fnꓺmemo(2, async (str: string, key: string): Promise<string> => buildHMACHash('sha-512', str, key));
+export const hmacSHA512 = $fnꓺmemo(2, async (str: string, key?: string): Promise<string> => buildHMACHash('sha-512', str, key));
 
 /**
  * Random number generator.
@@ -344,21 +352,28 @@ const buildHash = async (algo: HashAlgorithm, str: string): Promise<string> => {
 /**
  * Builds an HMAC keyed hash using a specified algorithm.
  *
- * Note: `key` can be passed as `&` to use `SSR_APP_C10N_HMAC_SHA_KEY`.
- *
  * @param   algo One of: {@see HashAlgorithm}.
  * @param   str  String to hash.
  * @param   key  Key to use when hashing.
  *
+ *   - Default key is taken from `APP_HMAC_SHA_KEY`.
+ *   - Passing `&` will use `SSR_APP_C10N_HMAC_SHA_KEY`.
+ *
  * @returns      HMAC keyed hash promise, of variable length, based on selected algorithm.
  */
-const buildHMACHash = async (algo: HashAlgorithm, str: string, key: string): Promise<string> => {
+const buildHMACHash = async (algo: HashAlgorithm, str: string, key?: string): Promise<string> => {
     if ('&' === key) {
         key =
             $env.get('SSR_APP_C10N_HMAC_SHA_KEY', { type: 'string' }) || //
             $env.get('APP_C10N_HMAC_SHA_KEY', { type: 'string', require: true });
+    } else if (!key) {
+        key =
+            $env.get('SSR_APP_HMAC_SHA_KEY', { type: 'string' }) || //
+            $env.get('APP_HMAC_SHA_KEY', { type: 'string', require: true });
     }
-    const encodedKey = $str.textEncoder.encode(key || '\0'),
+    if (!key) throw Error('Fh5H2DRf');
+
+    const encodedKey = $str.textEncoder.encode(key),
         cryptoKey = await crypto.subtle.importKey('raw', encodedKey, { name: 'hmac', hash: { name: algo } }, false, ['sign', 'verify']);
 
     return bufferToHex(await crypto.subtle.sign('hmac', cryptoKey, $str.textEncoder.encode(str)));
