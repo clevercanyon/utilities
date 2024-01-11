@@ -13,7 +13,15 @@ import { $brand, $env, $obj, $str, $time, $url, $user, type $type } from '#index
 export type BaseURLOptions = { parsed?: boolean };
 export type Config<Type extends object = object> = $type.Object<Type>;
 export type EtcConfig<Type extends object = object> = $type.Object<Type> & {
-    consent?: $user.ConsentData;
+    user?: {
+        id?: string;
+        utxId?: string;
+
+        customerId?: string;
+        utxCustomerId?: string;
+
+        consent?: $user.ConsentData;
+    };
 };
 
 /**

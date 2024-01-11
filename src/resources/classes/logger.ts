@@ -2,7 +2,7 @@
  * Logger utility class.
  */
 
-import { $app, $class, $dom, $env, $fn, $http, $is, $json, $obj, $obp, $time, $url, $user, type $type } from '#index.ts';
+import { $app, $class, $dom, $env, $fn, $http, $is, $json, $obj, $obp, $redact, $time, $url, $user, type $type } from '#index.ts';
 
 /**
  * Constructor cache.
@@ -185,7 +185,9 @@ export const getClass = (): Constructor => {
                         buildTime: $app.buildTime(),
 
                         baseURL: $app.hasBaseURL() ? $app.baseURL() : null,
-                        brand: $app.hasBrandProps() ? $app.brand() : null,
+                        brand: $app.hasBrandProps() // Only what we really need in logs.
+                            ? $obj.pick($app.brand(), ['org', 'type', 'name', 'hostname', 'url'])
+                            : null, // Otherwise, not possible.
 
                         config: $app.config(),
                         etcConfig: $app.etcConfig(),
@@ -255,7 +257,7 @@ export const getClass = (): Constructor => {
                     ...(isWeb
                         ? {
                               request: {
-                                  url: $url.current(),
+                                  url: $redact.url($url.current()),
                               },
                           }
                         : {}),
@@ -269,34 +271,38 @@ export const getClass = (): Constructor => {
          * @returns `user` context data promise.
          */
         protected async userContext(): Promise<$type.Object> {
+            const isNode = $env.isNode(),
+                isWeb = $env.isWeb();
+
             return jsonCloneObjectDeep({
                 _: {
                     user: {
-                        ...($env.isNode()
-                            ? {
-                                  geo: await $user.ipGeoData(),
-                                  consentData: $user.consentData(),
-                                  consentState: await $user.consentState(),
+                        // Node web servers must use {@see withContext()}.
+                        // At which point additional `env`, `user` context is merged in.
+                        // Be sure to pass the current `request` to {@see withContext()}.
 
-                                  // Node web servers must use {@see withContext()}.
-                                  // At which point additional `env`, `user` context is merged in.
-                                  // Be sure to pass the current `request` to {@see withContext()}.
-                              }
-                            : {}),
                         // Cloudflare workers must use {@see withContext()}.
                         // At which point additional `env`, `user` context is merged in.
                         // Be sure to pass the current `request` to {@see withContext()}.
 
-                        ...($env.isWeb()
+                        ...(isWeb
                             ? {
                                   isMajorCrawler: $user.isMajorCrawler(),
                                   hasGlobalPrivacy: $user.hasGlobalPrivacy(),
 
                                   agent: $user.agent(),
                                   languages: $user.languages(),
-                                  geo: await $user.ipGeoData(),
+                              }
+                            : {}),
+                        ...(isNode || isWeb
+                            ? {
+                                  utxId: $user.utxId(),
+                                  utxCustomerId: $user.utxCustomerId(),
+                                  geo: $redact.ipGeoData(await $user.ipGeoData()),
+
                                   consentData: $user.consentData(),
-                                  consentState: await $user.consentState(),
+                                  // Omitting `ipGeoData` because we already have it in `geo`.
+                                  consentState: $obj.omit(await $user.consentState(), ['ipGeoData']),
                               }
                             : {}),
                     },
@@ -322,11 +328,16 @@ export const getClass = (): Constructor => {
 
                         agent: $user.agent(request),
                         languages: $user.languages(request),
-                        geo: await $user.ipGeoData(request),
+
+                        utxId: $user.utxId(request),
+                        utxCustomerId: $user.utxCustomerId(request),
+                        geo: $redact.ipGeoData(await $user.ipGeoData(request)),
+
                         consentData: $user.consentData(request),
-                        consentState: await $user.consentState(request),
+                        // Omitting `ipGeoData` because we already have it in `geo`.
+                        consentState: $obj.omit(await $user.consentState(request), ['ipGeoData']),
                     },
-                    request, // Request object properties also.
+                    request, // Request objects are partially redacted by our JSON middlware.
                 },
             });
         }
@@ -649,6 +660,7 @@ const flushBeforeNodeExits = (logger: Interface): void => {
 const listenForWebErrors = (logger: Interface): void => {
     const listener = $dom.on(window, 'error', (event: Event): void => {
         if (!(event instanceof ErrorEvent)) return; // Not applicable.
+
         if (!event.filename && event.message.toLowerCase().startsWith('script error')) {
             return; // Cross-origin error with no insight; {@see https://o5p.me/V2sBVp}.
         }
@@ -701,6 +713,10 @@ const jsonCloneObjectDeep = (object: object): $type.Object => {
 /**
  * {@see JSON.stringify()} middleware.
  *
+ * Well-known named objects are automatically reformatted and redacted by this middleware. Emphasis on _well-known_, as
+ * we simply cannot predict every single possibility here. Therefore, plain objects, or lesser-known objects, must be
+ * formatted and redacted, if necessary, by the log caller.
+ *
  * @param   key   A JSON string key.
  * @param   value Any arbitrary value.
  *
@@ -719,8 +735,6 @@ const jsonStringifyMiddleware = (key: string, value: unknown): unknown => {
             ...$obj.pick(Object.fromEntries($obj.allEntries(value)), [
                 'method', //
                 'destination',
-                'url',
-                'referrer',
                 'referrerPolicy',
                 'mode',
                 'credentials',
@@ -730,22 +744,23 @@ const jsonStringifyMiddleware = (key: string, value: unknown): unknown => {
                 'keepalive',
                 'isReloadNavigation',
                 'isHistoryNavigation',
-                'cf', // Cloudflare-specific.
             ]),
-            headers: $http.extractHeaders(value.headers, { obfuscateSecrets: true }),
+            url: $redact.url(value.url),
+            ...('referrer' in value ? { referrer: $redact.url(value.referrer) } : {}),
+            headers: $redact.headers($http.extractHeaders(value.headers)),
         };
     } else if ($is.response(value)) {
         return {
             ...$obj.pick(Object.fromEntries($obj.allEntries(value)), [
                 'type', //
-                'url',
                 'redirected',
                 'ok',
                 'status',
                 'statusText',
                 'bodyUsed',
             ]),
-            headers: $http.extractHeaders(value.headers, { obfuscateSecrets: true }),
+            ...(value.url ? { url: $redact.url(value.url) } : {}),
+            headers: $redact.headers($http.extractHeaders(value.headers)),
         };
     }
     return value;

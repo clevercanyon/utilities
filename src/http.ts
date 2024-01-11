@@ -27,7 +27,6 @@ export type ResponseConfig = {
 };
 export type ExtractHeaderOptions = {
     lowercase?: boolean;
-    obfuscateSecrets?: boolean;
 };
 
 /**
@@ -604,7 +603,7 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
  */
 export const extractHeaders = (headers: $type.Headers | { [x: string]: string }, options?: ExtractHeaderOptions): { [x: string]: string } => {
     const plain: { [x: string]: string } = {}; // Initialize.
-    const opts = $obj.defaults({}, options || {}, { lowercase: true, obfuscateSecrets: false }) as Required<ExtractHeaderOptions>;
+    const opts = $obj.defaults({}, options || {}, { lowercase: true }) as Required<ExtractHeaderOptions>;
 
     if (headers instanceof Headers) {
         headers.forEach((value, name) => {
@@ -615,10 +614,6 @@ export const extractHeaders = (headers: $type.Headers | { [x: string]: string },
             plain[opts.lowercase ? name.toLowerCase() : name] = value;
         }
     }
-    if (opts.obfuscateSecrets)
-        for (const secret of ['set-cookie', 'cookie', 'authorization', 'x-waf-key', 'x-csrf-token', 'x-wp-nonce', 'x-nonce']) {
-            if (Object.hasOwn(plain, secret)) plain[secret] = '*'.repeat($str.charLength(plain[secret]));
-        }
     return plain;
 };
 
@@ -655,9 +650,38 @@ export const verifyTurnstile = async (request: $type.Request, turnstile: string)
 export const supportedRequestMethods = (): string[] => ['OPTIONS', 'HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 /**
+ * IP address header names.
+ *
+ * @returns An array of IP address header names (lowercase).
+ *
+ *   - IP addresses are returned in order of precedence; {@see $user.ip()}.
+ */
+export const ipHeaderNames = (): string[] => [
+    // Cloudflare IP geolocation is based on these.
+    'cf-connecting-ip', // Always contains a single IP.
+    'cf-connecting-ipv6', // Always contains a single IP.
+    'cf-pseudo-ipv4', // Always contains a single IP.
+
+    // Other proprietary IP header names.
+    'fastly-client-ip', // May contain multiple IPs.
+    'x-appengine-user-ip', // May contain multiple IPs.
+
+    // Other generic IP header names.
+    'x-real-ip', // May contain multiple IPs.
+    'x-client-ip', // May contain multiple IPs.
+    'x-cluster-client-ip', // May contain multiple IPs.
+
+    // Other unprefixed generic IP header names.
+    'true-client-ip', // May contain multiple IPs.
+    'client-ip', // May contain multiple IPs.
+];
+
+/**
  * HTTP request header names.
  *
  * @returns An array of request header names (lowercase).
+ *
+ * @todo Can we shorten this list?
  */
 export const requestHeaderNames = (): string[] => [
     'a-im',
@@ -789,6 +813,8 @@ export const requestHeaderNames = (): string[] => [
  * HTTP response header names.
  *
  * @returns An array of response header names (lowercase).
+ *
+ * @todo Can we shorten this list?
  */
 export const responseHeaderNames = (): string[] => [
     'accept-ch',

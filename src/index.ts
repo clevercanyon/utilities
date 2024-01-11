@@ -25,6 +25,7 @@ export * as $obp from '#obp.ts';
 export * as $path from '#path.ts';
 export * as $person from '#person.ts';
 export * as $preact from '#preact.tsx';
+export * as $redact from '#redact.ts';
 export * as $str from '#str.ts';
 export * as $symbol from '#symbol.ts';
 export * as $time from '#time.ts';

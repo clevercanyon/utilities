@@ -527,7 +527,7 @@ export function test(...args: unknown[]): boolean {
     let value = get(leadingObps, subObpOrObp); // Environment variable value.
     // We can also try a cookie by the same name, but only under a set of specific conditions.
     if (undefined === value && opts.alsoTryCookie && isWeb() && '' === $to.array(leadingObps).join('')) {
-        value = $cookie.get(subObpOrObp, undefined); // Cookie value.
+        value = $cookie.get(subObpOrObp); // Cookie value; else empty string.
     }
     if ($is.emptyOrZero(value)) return false; // Empty or `'0'` = false.
     if ($is.empty(tests)) return true; // Not empty, not `'0'`, no tests = true.

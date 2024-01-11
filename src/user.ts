@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $app, $cookie, $env, $fn, $json, $obj, $obp, $str, $to, $type } from '#index.ts';
+import { $app, $cookie, $crypto, $env, $fn, $http, $json, $obj, $obp, $str, $to, $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -57,6 +57,7 @@ export type ConsentData = {
             doNotSellOrSharePII: boolean | null;
         };
     };
+    id: string;
     version: string;
     lastUpdated: number;
     lastUpdatedFrom: {
@@ -193,25 +194,7 @@ export const ip = $fnꓺmemo(2, async (request?: $type.Request, prioritizeForwar
         ];
         for (const headerName of [
             ...(prioritizeForwardedHeaders ? forwardedHeaders : []),
-
-            // Cloudflare IP geolocation is based on these.
-            'cf-connecting-ip', // Always contains a single IP.
-            'cf-connecting-ipv6', // Always contains a single IP.
-            'cf-pseudo-ipv4', // Always contains a single IP.
-
-            // Other proprietary IP header names.
-            'fastly-client-ip', // May contain multiple IPs.
-            'x-appengine-user-ip', // May contain multiple IPs.
-
-            // Other generic IP header names.
-            'x-real-ip', // May contain multiple IPs.
-            'x-client-ip', // May contain multiple IPs.
-            'x-cluster-client-ip', // May contain multiple IPs.
-
-            // Other unprefixed generic IP header names.
-            'true-client-ip', // May contain multiple IPs.
-            'client-ip', // May contain multiple IPs.
-
+            ...$http.ipHeaderNames(), // IP header names, in order of precedence.
             ...(!prioritizeForwardedHeaders ? forwardedHeaders : []),
         ]) {
             let ip = request.headers.get(headerName) || '';
@@ -286,6 +269,44 @@ export const ipGeoData = $fnꓺmemo(
 );
 
 /**
+ * Gets user’s UTX user ID.
+ *
+ * We use this for analytics, which only allows 36 chars.
+ *
+ * @param   request Optional HTTP request.
+ *
+ *   - If not passed, only a web environment or an app’s etc config can provide.
+ *
+ * @returns         User’s UTX user ID (36 chars max); else an empty string.
+ */
+export const utxId = (request?: $type.Request): string => {
+    if (request || $env.isWeb()) {
+        return $cookie.get('utx_user_id', { request });
+    } else {
+        return $app.etcConfig().user?.utxId || '';
+    }
+};
+
+/**
+ * Gets user’s UTX customer ID.
+ *
+ * We use this for analytics, which only allows 36 chars.
+ *
+ * @param   request Optional HTTP request.
+ *
+ *   - If not passed, only a web environment or an app’s etc config can provide.
+ *
+ * @returns         User’s UTX customer ID (36 chars max); else an empty string.
+ */
+export const utxCustomerId = (request?: $type.Request): string => {
+    if (request || $env.isWeb()) {
+        return $cookie.get('utx_customer_id', { request });
+    } else {
+        return $app.etcConfig().user?.utxCustomerId || '';
+    }
+};
+
+/**
  * Updates consent data.
  *
  * @param  updates  Updates to merge in; {@see ConsentData}.
@@ -305,7 +326,7 @@ export const updateConsentData = (
     if ($env.isWeb()) {
         $cookie.set('consent', $json.stringify(newConsentData));
         //
-    } else $app.updateEtcConfig({ consent: newConsentData });
+    } else $app.updateEtcConfig({ user: { consent: newConsentData } });
 
     consentData.flush(), consentState.flush();
     if (callback) void callback(newConsentData);
@@ -318,7 +339,7 @@ export const updateConsentData = (
  *
  * @param   request Optional HTTP request.
  *
- *   - If not passed, only a web environment or an app’s config can provide.
+ *   - If not passed, only a web environment or an app’s etc config can provide.
  *
  * @returns         Consent data, frozen deeply.
  *
@@ -334,18 +355,18 @@ export const consentData = $fnꓺmemo(2, (request?: $type.Request): $type.Readon
     let data; // Initialize.
 
     if (request) {
-        const cookies = $cookie.parse(request.headers.get('cookie') || '');
-        data = $fn.try(() => $json.parse(cookies.consent || '{}'), {})();
+        const json = $cookie.get('consent', { request }) || '{}';
+        data = $fn.try(() => $json.parse(json), {})();
         //
     } else if ($env.isCFW()) throw Error('WKQr5uZs'); // See notes above.
     //
     else if ($env.isWeb()) {
-        // On the web, `$cookie.get()` simply uses `document.cookie`.
-        data = $fn.try(() => $json.parse($cookie.get('consent') || '{}'), {})();
+        const json = $cookie.get('consent') || '{}';
+        data = $fn.try(() => $json.parse(json), {})();
         //
     } else {
-        // e.g., A Node app, like a CLI, or another app type.
-        data = $app.etcConfig().consent || {}; // Via app’s etc config.
+        // e.g., A CLI tool, or another app type.
+        data = $app.etcConfig().user?.consent || {};
     }
     const hasGP = hasGlobalPrivacy(request),
         typecastPrefs = <Type extends object>(prefs: Type): Type => {
@@ -366,6 +387,10 @@ export const consentData = $fnꓺmemo(2, (request?: $type.Request): $type.Readon
                 doNotSellOrSharePII: $obp.get(data, 'prefs.optOut.doNotSellOrSharePII', hasGP ? true : null),
             } as ConsentData['prefs']['optOut']),
         },
+        // This is a user’s own consent-specific identifier.
+        // An ID is auto-generated if one does not exist already.
+        id: String($obp.get(data, 'id') || $crypto.uuidV4()),
+
         version: String($obp.get(data, 'version', '')),
         lastUpdated: Number($obp.get(data, 'lastUpdated', 0)) || 0,
         lastUpdatedFrom: {

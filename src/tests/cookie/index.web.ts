@@ -37,7 +37,7 @@ describe('$cookie', async () => {
         expect($cookie.set('c', 'c')).toBe(undefined);
 
         expect($cookie.delete('a')).toBe(undefined);
-        expect($cookie.get('a')).toBe(undefined);
+        expect($cookie.get('a')).toBe('');
         expect($cookie.get('b')).toBe('b');
         expect($cookie.get('c')).toBe('c');
     });

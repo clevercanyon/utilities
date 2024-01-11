@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.713",
+    "version": "1.0.714",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -250,6 +250,11 @@
             "import": "./dist/preact/components/turnstile.js",
             "default": "./dist/preact/components/turnstile.js"
         },
+        "./redact": {
+            "types": "./dist/types/redact.d.ts",
+            "import": "./dist/redact.js",
+            "default": "./dist/redact.js"
+        },
         "./str": {
             "types": "./dist/types/str.d.ts",
             "import": "./dist/str.js",
@@ -311,7 +316,7 @@
         "ignore": "5.3.0",
         "ip-regex": "5.0.0",
         "micro-memoize": "4.1.2",
-        "micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.96",
+        "micromatch": "npm:@clevercanyon/micromatch.fork@^4.0.97",
         "parse-css-color": "0.2.1",
         "preact": "10.19.2",
         "preact-render-to-string": "6.3.1",
@@ -322,7 +327,7 @@
     "optionalDependencies": {},
     "bundleDependencies": [],
     "devDependencies": {
-        "@clevercanyon/dev-deps": "^1.0.321"
+        "@clevercanyon/dev-deps": "^1.0.322"
     },
     "overrides": {},
     "cpu": ["x64", "arm64"],
