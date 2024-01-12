@@ -16,6 +16,14 @@ describe('$str', async () => {
         expect($str.charLength('abcdefghijklmnopqrstuvwxyzꓺ0123456789')).toBe(37);
         expect($str.charLength(new String('abcdefghijklmnopqrstuvwxyzꓺ0123456789').valueOf())).toBe(37);
     });
+    test('.toBytes()', async () => {
+        expect($str.toBytes('')).toStrictEqual(new Uint8Array());
+        expect($str.toBytes('abc')).toStrictEqual(new Uint8Array([97, 98, 99]));
+    });
+    test('.toChars()', async () => {
+        expect($str.toChars('')).toStrictEqual([]);
+        expect($str.toChars('abc')).toStrictEqual(['a', 'b', 'c']);
+    });
     test('.fromBytes(.toBytes())', async () => {
         expect($str.fromBytes($str.toBytes('abcdefghijklmnopqrstuvwxyzꓺ0123456789'))).toBe('abcdefghijklmnopqrstuvwxyzꓺ0123456789');
         expect($str.fromBytes($str.toBytes('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ'))).toBe('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ');

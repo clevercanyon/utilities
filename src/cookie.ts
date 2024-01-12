@@ -146,7 +146,7 @@ export const get = $fnꓺmemo(
         },
     },
     (name: string, options?: GetOptions): string => {
-        const opts = $obj.defaults({}, options || { default: '' }) as GetOptions & { default: string },
+        const opts = $obj.defaults({}, options || {}, { default: '' }) as GetOptions & { default: string },
             cookies = parse(opts.request); // Parser is memoized (important).
 
         return Object.hasOwn(cookies, name) ? cookies[name] : opts.default;
