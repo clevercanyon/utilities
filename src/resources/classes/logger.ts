@@ -186,7 +186,7 @@ export const getClass = (): Constructor => {
 
                         baseURL: $app.hasBaseURL() ? $app.baseURL() : null,
                         brand: $app.hasBrandProps() // Only what we really need in logs.
-                            ? $obj.pick($app.brand(), ['org', 'type', 'name', 'hostname', 'url'])
+                            ? $obj.pick($app.brand().rawProps(), ['org', 'type', 'name', 'hostname', 'url'])
                             : null, // Otherwise, not possible.
 
                         config: $redact.object($app.config()),

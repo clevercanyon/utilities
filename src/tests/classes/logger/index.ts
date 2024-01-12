@@ -2,13 +2,48 @@
  * Test suite.
  */
 
-import { $class } from '#index.ts';
-import { describe, expect, test } from 'vitest';
+import { $app, $brand, $class, $env, $url } from '#index.ts';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+
+const __origAppPkgName__ = $env.get('APP_PKG_NAME', { type: 'unknown' });
+const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
+const __origAppBrandProps__ = $env.get('APP_BRAND_PROPS', { type: 'unknown' });
+const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 
 describe('Logger', async () => {
     const Logger = $class.getLogger(),
         logger = new Logger();
 
+    beforeAll(async () => {
+        $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
+        $env.set('APP_BASE_URL', 'https://x.tld/base/');
+        $env.set('APP_BRAND_PROPS', { type: 'site' });
+        $env.set('APP_BRAND', $brand.addApp());
+    });
+    afterAll(async () => {
+        $env.set('APP_PKG_NAME', __origAppPkgName__);
+        $env.set('APP_BASE_URL', __origAppBaseURL__);
+        $env.set('APP_BRAND_PROPS', __origAppBrandProps__);
+        $env.set('APP_BRAND', __origAppBrand__);
+        $brand.remove('@clevercanyon/x.tld');
+
+        $app.pkgName.flush(), //
+            $app.pkgName.flush(),
+            $app.pkgSlug.flush(),
+            //
+            $app.hasBaseURL.flush(),
+            $app.baseURL.flush(),
+            //
+            $app.hasBrandProps.flush(),
+            $app.brandProps.flush(),
+            $app.brand.flush(),
+            //
+            $url.appBasePath.flush(),
+            $url.fromAppBase.flush(),
+            $url.pathFromAppBase.flush(),
+            $url.addAppBasePath.flush(),
+            $url.removeAppBasePath.flush();
+    });
     test('.log()', async () => {
         expect(logger.log('Test logger.log().') instanceof Promise).toBe(true);
     });
