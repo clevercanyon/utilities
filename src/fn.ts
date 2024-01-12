@@ -180,13 +180,13 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
             // We cannot know here what the return value will be in a reject scenario.
             // In a case where `.cancel()` is explicitly called by the throttle implementation,
             // it will be `.cancel()` that sets the rejection return value in the implementation.
-        }).catch((rtnValue) => rtnValue as ReturnType<Fn>);
+        }).catch((fnRtn) => fnRtn as ReturnType<Fn>);
     };
     // Private properties.
 
     rtnFn.$promises = [] as {
         resolve: (fnRtn: ReturnType<Fn>) => void;
-        reject: (fnRejectRtn?: unknown) => void;
+        reject: (fnRtn?: unknown) => void;
     }[]; // Call stack.
 
     rtnFn.$waitTimeout = 0 as $type.Timeout | undefined;
@@ -214,14 +214,14 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
 
         return copyOfPromises.length;
     };
-    rtnFn.$rejectPromises = function (rtnValue?: unknown): void {
+    rtnFn.$rejectPromises = function (fnRtn?: unknown): void {
         if (!rtnFn.$promises.length) return;
 
         const copyOfPromises = [...rtnFn.$promises];
         rtnFn.$promises = []; // Resets promises.
 
         // Rejections caught via `.catch()` above.
-        copyOfPromises.forEach(({ reject }) => reject(rtnValue));
+        copyOfPromises.forEach(({ reject }) => reject(fnRtn));
     };
     rtnFn.$clearTimeout = function (): void {
         clearTimeout(rtnFn.$waitTimeout), (rtnFn.$waitTimeout = 0);
@@ -231,8 +231,8 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
     rtnFn.flush = function (): void {
         rtnFn.$resolvePromises(), rtnFn.$clearTimeout();
     };
-    rtnFn.cancel = function (rtnValue?: unknown): void {
-        rtnFn.$rejectPromises(rtnValue), rtnFn.$clearTimeout();
+    rtnFn.cancel = function (fnRtn?: unknown): void {
+        rtnFn.$rejectPromises(fnRtn), rtnFn.$clearTimeout();
     };
 
     return rtnFn as ThrottledFunction<Fn>;

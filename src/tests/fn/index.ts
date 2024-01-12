@@ -30,31 +30,50 @@ describe('$fn', async () => {
         expect($fn.curry(testFn)('a')('b')('c')).toStrictEqual({ a: 'a', b: 'b', c: 'c' });
         expect($fn.curry(testFn)('a', 'b', 'c')).toStrictEqual({ a: 'a', b: 'b', c: 'c' });
     });
-    test('.throttle()', async () => {
-        const fn1 = vi.fn();
-        const testFn1 = $fn.throttle(fn1);
-        for (let i = 0; i < 100; i++) void testFn1();
-        expect(fn1).toHaveBeenCalledTimes(1); // Leading edge.
-        await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
-        expect(fn1).toHaveBeenCalledTimes(2); // + trailing edge also.
+    test(
+        '.throttle()',
+        async () => {
+            const fn1 = vi.fn();
+            const testFn1 = $fn.throttle(fn1);
+            for (let i = 0; i < 100; i++) void testFn1();
+            expect(fn1).toHaveBeenCalledTimes(1); // Leading edge.
+            await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
+            expect(fn1).toHaveBeenCalledTimes(2); // + trailing edge also.
 
-        const fn2 = vi.fn();
-        const testFn2 = $fn.throttle(fn2, { leadingEdge: false });
-        for (let i = 0; i < 100; i++) void testFn2();
-        expect(fn2).toHaveBeenCalledTimes(0); // Not on leading edge.
-        await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
-        expect(fn2).toHaveBeenCalledTimes(1); // Only on trailing edge.
+            const fn2 = vi.fn();
+            const testFn2 = $fn.throttle(fn2, { leadingEdge: false });
+            for (let i = 0; i < 100; i++) void testFn2();
+            expect(fn2).toHaveBeenCalledTimes(0); // Not on leading edge.
+            await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
+            expect(fn2).toHaveBeenCalledTimes(1); // Only on trailing edge.
 
-        const testFn3 = (a: string, b: string, c: string) => ({ a, b, c });
-        await expect($fn.throttle(testFn3)('a', 'b', 'c')).resolves.toStrictEqual({ a: 'a', b: 'b', c: 'c' });
+            const testFn3 = (a: string, b: string, c: string) => ({ a, b, c });
+            await expect($fn.throttle(testFn3)('a', 'b', 'c')).resolves.toStrictEqual({ a: 'a', b: 'b', c: 'c' });
 
-        const fn4 = vi.fn();
-        const testFn4 = $fn.throttle(fn4, { trailingEdge: false });
-        for (let i = 0; i < 100; i++) void testFn4();
-        expect(fn4).toHaveBeenCalledTimes(1); // Only on leading edge.
-        await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
-        expect(fn4).toHaveBeenCalledTimes(1); // Not on trailing edge.
-    });
+            const fn4 = vi.fn();
+            const testFn4 = $fn.throttle(fn4, { trailingEdge: false });
+            for (let i = 0; i < 100; i++) void testFn4();
+            expect(fn4).toHaveBeenCalledTimes(1); // Only on leading edge.
+            await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
+            expect(fn4).toHaveBeenCalledTimes(1); // Not on trailing edge.
+
+            const fn5 = vi.fn(),
+                fn5Wrapper = async (): Promise<string> => {
+                    return new Promise((resolve): void => {
+                        setTimeout((): void => {
+                            fn5(); // Mock.
+                            resolve('fn5');
+                        }, 1000);
+                    });
+                };
+            const testFn5 = $fn.throttle(fn5Wrapper);
+            for (let i = 0; i < 100; i++) void testFn5();
+
+            expect(await testFn5()).toBe('fn5'); // Should return underlying value.
+            expect(fn5).toHaveBeenCalledTimes(2); // Leading and trailing edges.
+        },
+        { timeout: 5000 },
+    );
     test('.debounce()', async () => {
         const fn1 = vi.fn();
         const testFn1 = $fn.debounce(fn1);
