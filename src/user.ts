@@ -288,6 +288,25 @@ export const utxId = (request?: $type.Request): string => {
 };
 
 /**
+ * Gets user’s UTX author ID.
+ *
+ * We use this for analytics, which only allows 36 chars.
+ *
+ * @param   request Optional HTTP request.
+ *
+ *   - If not passed, only a web environment or an app’s etc config can provide.
+ *
+ * @returns         User’s UTX author ID (36 chars max); else an empty string.
+ */
+export const utxAuthorId = (request?: $type.Request): string => {
+    if (request || $env.isWeb()) {
+        return $cookie.get('utx_author_id', { request });
+    } else {
+        return $app.etcConfig().user?.utxAuthorId || '';
+    }
+};
+
+/**
  * Gets user’s UTX customer ID.
  *
  * We use this for analytics, which only allows 36 chars.

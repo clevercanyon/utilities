@@ -279,8 +279,8 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
         corsHeaders['access-control-max-age'] = '7200';
         corsHeaders['access-control-allow-credentials'] = 'true';
         corsHeaders['access-control-allow-methods'] = supportedRequestMethods().join(', ');
-        corsHeaders['access-control-allow-headers'] = requestHeaderNames().join(', ');
-        corsHeaders['access-control-expose-headers'] = responseHeaderNames().join(', ');
+        corsHeaders['access-control-allow-headers'] = corsRequestHeaderNames().join(', ');
+        corsHeaders['access-control-expose-headers'] = corsResponseHeaderNames().join(', ');
         corsHeaders['timing-allow-origin'] = request.headers.has('origin') ? request.headers.get('origin') || '' : '*';
         corsHeaders['access-control-allow-origin'] = request.headers.has('origin') ? request.headers.get('origin') || '' : '*';
     }
@@ -650,6 +650,25 @@ export const verifyTurnstile = async (request: $type.Request, turnstile: string)
 export const supportedRequestMethods = (): string[] => ['OPTIONS', 'HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 /**
+ * URL-containing header names.
+ *
+ * @returns An array of URL-containing header names (lowercase).
+ */
+export const urlHeaderNames = (): string[] => [
+    'link', //
+    'location',
+    'ping-from',
+    'ping-to',
+    'referer',
+    'refresh', // Contains `; url=<URL>`.
+    'sourcemap',
+    'x-original-url',
+    'x-pingback',
+    'x-rewrite-url',
+    'x-sourcemap',
+];
+
+/**
  * IP address header names.
  *
  * @returns An array of IP address header names (lowercase).
@@ -677,13 +696,239 @@ export const ipHeaderNames = (): string[] => [
 ];
 
 /**
- * HTTP request header names.
+ * Public header names.
+ *
+ * These do not contain sensitive data and therefore do not need to be redacted in most cases.
+ *
+ * @returns An array of public header names (lowercase).
+ */
+export const publicHeaderNames = (): string[] => [
+    'accept-ch',
+    'accept-charset',
+    'accept-datetime',
+    'accept-encoding',
+    'accept-language',
+    'accept-patch',
+    'accept-post',
+    'accept-push-policy',
+    'accept-ranges',
+    'accept-signature',
+    'accept',
+    'access-control-allow-credentials',
+    'access-control-allow-headers',
+    'access-control-allow-methods',
+    'access-control-allow-origin',
+    'access-control-expose-headers',
+    'access-control-max-age',
+    'access-control-request-headers',
+    'access-control-request-method',
+    'age',
+    'allow',
+    'alt-svc',
+    'cache-control',
+    'cdn-cache-control',
+    'cdn-loop',
+    'cf-cache-status',
+    'cf-ray',
+    'cf-worker',
+    'clear-site-data',
+    'cloudflare-cdn-cache-control',
+    'connection',
+    'content-disposition',
+    'content-dpr',
+    'content-encoding',
+    'content-language',
+    'content-length',
+    'content-location',
+    'content-md5',
+    'content-range',
+    'content-security-policy-report-only',
+    'content-security-policy',
+    'content-transfer-encoding',
+    'content-type',
+    'cross-origin-embedder-policy',
+    'cross-origin-opener-policy',
+    'cross-origin-resource-policy',
+    'date',
+    'delta-base',
+    'device-memory',
+    'digest',
+    'dnt',
+    'downlink',
+    'dpr',
+    'early-data',
+    'ect',
+    'etag',
+    'expect-ct',
+    'expect',
+    'expires',
+    'feature-policy',
+    'front-end-https',
+    'host',
+    'http2-settings',
+    'if-match',
+    'if-modified-since',
+    'if-none-match',
+    'if-range',
+    'if-unmodified-since',
+    'im',
+    'keep-alive',
+    'large-allocation',
+    'last-modified',
+    'link',
+    'location',
+    'max-forwards',
+    'nel',
+    'origin',
+    'p3p',
+    'permissions-policy',
+    'ping-from',
+    'ping-to',
+    'pragma',
+    'prefer',
+    'preference-applied',
+    'proxy-connection',
+    'public-key-pins-report-only',
+    'public-key-pins',
+    'push-policy',
+    'range',
+    'referer',
+    'referrer-policy',
+    'refresh',
+    'report-to',
+    'retry-after',
+    'rtt',
+    'save-data',
+    'sec-ch-ua-arch',
+    'sec-ch-ua-bitness',
+    'sec-ch-ua-full-version-list',
+    'sec-ch-ua-full-version',
+    'sec-ch-ua-mobile',
+    'sec-ch-ua-model',
+    'sec-ch-ua-platform-version',
+    'sec-ch-ua-platform',
+    'sec-ch-ua',
+    'sec-fetch-dest',
+    'sec-fetch-mode',
+    'sec-fetch-site',
+    'sec-fetch-user',
+    'sec-websocket-extensions',
+    'sec-websocket-protocol',
+    'sec-websocket-version',
+    'server-timing',
+    'server',
+    'service-worker-allowed',
+    'service-worker-navigation-preload',
+    'service-worker',
+    'sourcemap',
+    'status',
+    'strict-transport-security',
+    'surrogate-control',
+    'te',
+    'timing-allow-origin',
+    'tk',
+    'trailer',
+    'transfer-encoding',
+    'upgrade-insecure-requests',
+    'upgrade',
+    'user-agent',
+    'vary',
+    'via',
+    'viewport-width',
+    'want-digest',
+    'warning',
+    'width',
+    'x-content-duration',
+    'x-content-security-policy',
+    'x-content-type-options',
+    'x-dns-prefetch-control',
+    'x-download-options',
+    'x-firefox-spdy',
+    'x-forwarded-host',
+    'x-forwarded-path',
+    'x-forwarded-proto',
+    'x-forwarded-scheme',
+    'x-forwarded-ssl',
+    'x-frame-options',
+    'x-host',
+    'x-http-method-override',
+    'x-http-method',
+    'x-litespeed-cache-control',
+    'x-litespeed-cache',
+    'x-litespeed-purge',
+    'x-litespeed-tag',
+    'x-litespeed-vary',
+    'x-method-override',
+    'x-mod-pagespeed',
+    'x-original-url',
+    'x-permitted-cross-domain-policies',
+    'x-pingback',
+    'x-powered-by',
+    'x-redirect-by',
+    'x-requested-by',
+    'x-requested-with',
+    'x-rewrite-url',
+    'x-robots-tag',
+    'x-server-debug',
+    'x-sourcemap',
+    'x-turbo-charged-by',
+    'x-ua-compatible',
+    'x-via',
+    'x-webkit-csp',
+    'x-wp-total',
+    'x-wp-totalpages',
+    'x-xss-protection',
+];
+
+/**
+ * Protected header names.
+ *
+ * These contain potentially-sensitive data and should therefore be redacted in most cases.
+ *
+ * @returns An array of protected header names (lowercase).
+ */
+export const protectedHeaderNames = (): string[] => [
+    'cookie', //
+    'set-cookie',
+    'lsc-cookie',
+
+    'authorization',
+    'www-authenticate',
+
+    'proxy-authenticate',
+    'proxy-authorization',
+
+    'sec-websocket-key',
+    'sec-websocket-accept',
+
+    'signature',
+    'signed-headers',
+
+    'x-request-id',
+    'x-correlation-id',
+
+    'idempotency-key',
+    'x-csrf-token',
+    'x-nonce',
+    'x-uidh',
+    'x-waf-key',
+    'x-wp-nonce',
+
+    'forwarded',
+    'x-forwarded-for',
+    ...ipHeaderNames(),
+];
+
+/**
+ * CORS HTTP request header names.
+ *
+ * The `access-control-allow-headers` response header is used in response to a preflight request which includes
+ * `access-control-request-headers` to indicate which HTTP headers can be used during the actual request. These are the
+ * headers we allow. {@see https://o5p.me/lIMknV} for further details.
  *
  * @returns An array of request header names (lowercase).
- *
- * @todo Can we shorten this list?
  */
-export const requestHeaderNames = (): string[] => [
+export const corsRequestHeaderNames = (): string[] => [
     'a-im',
     'accept-charset',
     'accept-datetime',
@@ -810,13 +1055,15 @@ export const requestHeaderNames = (): string[] => [
 ];
 
 /**
- * HTTP response header names.
+ * CORS HTTP response header names.
+ *
+ * The `access-control-expose-headers` response header allows a server to indicate which response headers should be made
+ * available to scripts running in the browser, in response to a cross-origin request. These are the headers we allow.
+ * {@see https://o5p.me/7uGcoc} for further details.
  *
  * @returns An array of response header names (lowercase).
- *
- * @todo Can we shorten this list?
  */
-export const responseHeaderNames = (): string[] => [
+export const corsResponseHeaderNames = (): string[] => [
     'accept-ch',
     'accept-patch',
     'accept-post',

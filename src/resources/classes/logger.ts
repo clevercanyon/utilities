@@ -15,7 +15,7 @@ let Logger: Constructor;
 export type C9rProps = Partial<{
     endpoint: string;
     endpointToken: string;
-    essential: boolean;
+    isEssential: boolean;
     listenForErrors: boolean;
     configMinutia: ConfigMinutia;
 }>;
@@ -28,7 +28,7 @@ export type Interface = Class | WithContextInterface;
 declare class ClassInterface {
     public endpoint: string;
     public endpointToken: string;
-    public essential: boolean;
+    public isEssential: boolean;
     public listenForErrors: boolean;
     public configMinutia: ConfigMinutia;
     public constructor(props?: C9rProps | Class);
@@ -95,7 +95,7 @@ export const getClass = (): Constructor => {
         /**
          * Logging is essential?
          */
-        public essential: boolean;
+        public isEssential: boolean;
 
         /**
          * Listen for error events?
@@ -140,7 +140,7 @@ export const getClass = (): Constructor => {
             }
             this.endpoint ??= 'https://logs.hop.gdn/'; // CNAME: `https://in.logs.betterstack.com/`.
             this.endpointToken ??= $env.get($env.isTest() ? 'APP_TEST_LOGGER_BEARER_TOKEN' : 'APP_DEFAULT_LOGGER_BEARER_TOKEN', { type: 'string', default: '' });
-            this.essential ??= this.endpointToken && this.endpointToken === $env.get('APP_CONSENT_LOGGER_BEARER_TOKEN') ? true : false;
+            this.isEssential ??= this.endpointToken && this.endpointToken === $env.get('APP_CONSENT_LOGGER_BEARER_TOKEN') ? true : false;
             this.listenForErrors ??= this.endpointToken && this.endpointToken === $env.get('APP_AUDIT_LOGGER_BEARER_TOKEN') ? true : false;
             this.configMinutia ??= {
                 maxRetries: 3,
@@ -189,8 +189,8 @@ export const getClass = (): Constructor => {
                             ? $obj.pick($app.brand(), ['org', 'type', 'name', 'hostname', 'url'])
                             : null, // Otherwise, not possible.
 
-                        config: $app.config(),
-                        etcConfig: $app.etcConfig(),
+                        config: $redact.object($app.config()),
+                        etcConfig: $redact.object($app.etcConfig()),
                     },
                 },
             });
@@ -297,6 +297,7 @@ export const getClass = (): Constructor => {
                         ...(isNode || isWeb
                             ? {
                                   utxId: $user.utxId(),
+                                  utxAuthorId: $user.utxAuthorId(),
                                   utxCustomerId: $user.utxCustomerId(),
                                   geo: $redact.ipGeoData(await $user.ipGeoData()),
 
@@ -330,6 +331,7 @@ export const getClass = (): Constructor => {
                         languages: $user.languages(request),
 
                         utxId: $user.utxId(request),
+                        utxAuthorId: $user.utxAuthorId(request),
                         utxCustomerId: $user.utxCustomerId(request),
                         geo: $redact.ipGeoData(await $user.ipGeoData(request)),
 
@@ -483,7 +485,7 @@ export const getClass = (): Constructor => {
                 await this.userContext(), // Returns a clone.
                 jsonCloneObjectDeep(context || {}),
             );
-            if (!this.essential /* If non-essential, check consent state before logging. */) {
+            if (!this.isEssential /* If non-essential, check consent state before logging. */) {
                 const canUse = $obp.get(fullContext, '_.user.consentState.canUse') as undefined | $user.ConsentState['canUse'];
                 if (!canUse || !canUse.thirdParty || !canUse.analytics) {
                     return false; // Disallowed by consent state.

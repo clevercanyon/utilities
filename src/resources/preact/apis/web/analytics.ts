@@ -5,7 +5,7 @@
  */
 
 import { initialize as consentInitialize, state as consentState } from '#@preact/apis/web/consent.ts';
-import { $app, $cookie, $dom, $env, $fn, $is, $json, $obj, $str, $url, $user, type $type } from '#index.ts';
+import { $app, $cookie, $dom, $env, $fn, $is, $json, $obj, $redact, $str, $url, $user, type $type } from '#index.ts';
 import { finder as buildCSSSelector } from '@medv/finder';
 
 /**
@@ -25,6 +25,7 @@ export type State = {
     subcontext: string;
 
     utxUserId: string;
+    utxAuthorId: string;
     utxCustomerId: string;
 
     gtagId: string;
@@ -94,6 +95,7 @@ export const initialize = async (): Promise<void> => {
                     subcontext: ['site'].includes(brand.type) ? brand.type : 'unknown',
 
                     utxUserId: $user.utxId(),
+                    utxAuthorId: $user.utxAuthorId(),
                     utxCustomerId: $user.utxCustomerId(),
 
                     // Default gtag ID is our own; i.e., for Clever Canyon.
@@ -172,6 +174,15 @@ export const sessionId = async (): Promise<string> => {
  */
 export const utxUserId = async (): Promise<string> => {
     return state.utxUserId; // Async uniformity.
+};
+
+/**
+ * Gets UTX author ID (e.g., a hash).
+ *
+ * @returns UTX author ID promise; 36 chars max.
+ */
+export const utxAuthorId = async (): Promise<string> => {
+    return state.utxAuthorId; // Async uniformity.
 };
 
 /**
@@ -279,10 +290,14 @@ export const trackEvent = async (name: string, props: EventProps = {}): Promise<
     }
     // Note: `anonId()`, `sessionId()` depend on Google Analytics.
     // If for any reason GA doesn’t load or does not resolve, nothing will occur until it does.
-    return Promise.all([anonId(), sessionId(), utxUserId(), utxCustomerId()]).then(([anonId, sessionId, utxUserId, utxCustomerId]) => {
+    return Promise.all([anonId(), sessionId(), utxUserId(), utxAuthorId(), utxCustomerId()]).then(([anonId, sessionId, utxUserId, utxAuthorId, utxCustomerId]) => {
         const eventData = {
             // Let’s be specific.
             send_to: [state.gtagId],
+
+            // We set these explicitly.
+            page_location: $redact.url($url.current()),
+            page_referrer: $redact.url($url.currentReferrer()),
 
             // A `user_id` strictly identifies logged-in users on the GA side.
             // Note that we don’t actually share a user’s ID, but rather a UTX user ID.
@@ -297,6 +312,7 @@ export const trackEvent = async (name: string, props: EventProps = {}): Promise<
 
                 // A logged-in user may also have a customer ID.
                 x_utx_user_id: $str.clip(utxUserId, { maxChars: 36 }) || undefined,
+                x_utx_author_id: $str.clip(utxAuthorId, { maxChars: 36 }) || undefined,
                 x_utx_customer_id: $str.clip(utxUserId ? utxCustomerId : '', { maxChars: 36 }) || undefined,
             },
             // Analytics contexts; e.g., `web`, `site`.
@@ -313,7 +329,7 @@ export const trackEvent = async (name: string, props: EventProps = {}): Promise<
             if ($str.charLength(name) > 40) {
                 throw Error('RCbdD6Dv'); // Event name exceeds 40 chars.
             }
-            if ([anonId, sessionId, utxUserId, utxCustomerId].some((id) => $str.charLength(id) > 36)) {
+            if ([anonId, sessionId, utxUserId, utxAuthorId, utxCustomerId].some((id) => $str.charLength(id) > 36)) {
                 // Technically, `utxUserId` can be 256 chars, but we also put it in `user_properties`, which only allows `36`.
                 throw Error('VKDvXeVR'); // Exceeds limit of 36 chars.
             }

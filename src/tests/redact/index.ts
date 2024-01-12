@@ -27,6 +27,49 @@ describe('$redact', async () => {
         expect($redact.url('https://x.tld/?foo=bar&utm_source=test')).toBe('https://x.tld/?foo=b*r&utm_source=test');
         expect($redact.url('https://x.tld/?foo=hello+world&utm_source=test')).toBe('https://x.tld/?foo=hel*****rld&utm_source=test');
     });
+    test('.object()', async () => {
+        expect(
+            $redact.object({
+                Ja9nYEdM: 'VPKyC6MA6QgSUzb6',
+                JfSpKvup: 'fA6FZwgJqYAMwHSk',
+                yPT7xnUp: 'qjrXFZZwc9Xnkpw6',
+                wfT6rFaz: {
+                    Ja9nYEdM: 'VPKyC6MA6QgSUzb6',
+                    JfSpKvup: 'fA6FZwgJqYAMwHSk',
+                    yPT7xnUp: 'qjrXFZZwc9Xnkpw6',
+                },
+                xDAjTeek: {
+                    Ja9nYEdM: ['VPKyC6MA6QgSUzb6'],
+                    JfSpKvup: new Set(['fA6FZwgJqYAMwHSk']),
+                    yPT7xnUp: new Map([[0, 'qjrXFZZwc9Xnkpw6']]),
+                    wfT6rFaz: {
+                        Ja9nYEdM: 'VPKyC6MA6QgSUzb6',
+                        JfSpKvup: 'fA6FZwgJqYAMwHSk',
+                        yPT7xnUp: 'qjrXFZZwc9Xnkpw6',
+                    },
+                },
+            }),
+        ).toStrictEqual({
+            Ja9nYEdM: 'VPK**********zb6',
+            JfSpKvup: 'fA6**********HSk',
+            yPT7xnUp: 'qjr**********pw6',
+            wfT6rFaz: {
+                Ja9nYEdM: 'VPK**********zb6',
+                JfSpKvup: 'fA6**********HSk',
+                yPT7xnUp: 'qjr**********pw6',
+            },
+            xDAjTeek: {
+                Ja9nYEdM: ['VPK**********zb6'],
+                JfSpKvup: new Set(['fA6**********HSk']),
+                yPT7xnUp: new Map([[0, 'qjr**********pw6']]),
+                wfT6rFaz: {
+                    Ja9nYEdM: 'VPK**********zb6',
+                    JfSpKvup: 'fA6**********HSk',
+                    yPT7xnUp: 'qjr**********pw6',
+                },
+            },
+        });
+    });
     test('.ipGeoData()', async () => {
         expect($redact.ipGeoData(await $user.ipGeoData())).toStrictEqual({
             city: 'Mad***ska',
@@ -55,7 +98,7 @@ describe('$redact', async () => {
                 'location': 'https://x.tld/?foo=hello+world&utm_source=test',
             }),
         ).toStrictEqual({
-            'foo': 'bar',
+            'foo': 'b*r',
             'x-waf-key': '7Mb**********4Cp',
             'forwarded': 'for*************157',
             'x-forwarded-for': '184*********157',
@@ -74,7 +117,7 @@ describe('$redact', async () => {
                 'location': 'An invalid URL should go unredacted; e.g., for closer review.',
             }),
         ).toStrictEqual({
-            'foo': 'bar',
+            'foo': 'b*r',
             'x-waf-key': '7Mb**********4Cp',
             'forwarded': 'for*************157',
             'x-forwarded-for': '184*********157',

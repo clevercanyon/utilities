@@ -17,6 +17,9 @@ export type EtcConfig<Type extends object = object> = $type.Object<Type> & {
         id?: string;
         utxId?: string;
 
+        authorId?: string;
+        utxAuthorId?: string;
+
         customerId?: string;
         utxCustomerId?: string;
 

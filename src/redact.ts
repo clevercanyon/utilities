@@ -4,12 +4,13 @@
 
 import '#@initialize.ts';
 
-import { $http, $obj, $str, $url, type $type } from '#index.ts';
+import { $http, $is, $obj, $str, $url, $user, type $type } from '#index.ts';
 
 /**
  * Defines types.
  */
 export type Options = { char: string };
+export type ObjectOptions = Options;
 export type URLOptions = Options;
 export type IPGeoDataOptions = Options;
 export type HeaderOptions = Options;
@@ -47,21 +48,33 @@ const redact = string; // Internal alias.
  *
  *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
  */
-export const url = (parseable: $type.URL | string, options?: URLOptions): $type.URL | string => {
+export const url = <Type extends $type.URL | string>(parseable: Type, options?: URLOptions): Type extends $type.URL ? $type.URL : string => {
     const url = $url.tryParse(parseable);
-    if (!url) return parseable; // Not possible.
+    if (!url) return parseable as ReturnType<typeof redactURL<Type>>;
 
-    // Using parsed `url` to save time.
-    const queryVars = $url.getQueryVars(url);
-
-    for (const [name, value] of Object.entries(queryVars)) {
-        if (!/^ut[mx]_/iu.test(name)) {
-            queryVars[name] = redact(value, options);
-        }
-    } // Using `parseable` preserves type.
-    return $url.addQueryVars(queryVars, parseable);
+    return $url.addQueryVars(
+        $obj.map($url.getQueryVars(url), (value: string, name: string): unknown => {
+            return /^ut[mx]_/iu.test(name) ? value : redact(value, options);
+        }),
+        parseable, // Using `parseable` to preserve type.
+    ) as ReturnType<typeof redactURL<Type>>;
 };
 const redactURL = url; // Internal alias.
+
+/**
+ * Redacts all keys in an object deeply.
+ *
+ * @param   object  Object to redact deeply.
+ * @param   options All optional; {@see ObjectOptions}.
+ *
+ * @returns         Redacted deep object clone.
+ */
+export const object = <Type extends object>(object: Type, options?: ObjectOptions): ReturnType<typeof $obj.mapDeep<Type>> => {
+    return $obj.mapDeep(object, (value: unknown): unknown => {
+        return !$is.string(value) ? value : redact(value, options);
+    });
+};
+// const redactObject = object; // Internal alias.
 
 /**
  * Redacts a user’s IP geolocation data.
@@ -71,16 +84,10 @@ const redactURL = url; // Internal alias.
  *
  * @returns         Redacted {@see $user.IPGeoData}.
  */
-export const ipGeoData = (_data: { [x: string]: string }, options?: IPGeoDataOptions): { [x: string]: string } => {
-    const data = // Shallow clone.
-        $obj.clone(_data) as typeof _data;
-
-    for (const [key, value] of Object.entries(data)) {
-        if (!['continent', 'country', 'region', 'regionCode', 'colo', 'metroCode', 'timezone'].includes(key)) {
-            data[key] = redact(value, options);
-        }
-    }
-    return data;
+export const ipGeoData = <Type extends $user.IPGeoData>(data: Type, options?: IPGeoDataOptions): ReturnType<typeof $obj.map<Type>> => {
+    return $obj.map(data, (value: string, key: string): unknown => {
+        return ['continent', 'country', 'region', 'regionCode', 'colo', 'metroCode', 'timezone'].includes(key) ? value : redact(value, options);
+    });
 };
 
 /**
@@ -89,37 +96,21 @@ export const ipGeoData = (_data: { [x: string]: string }, options?: IPGeoDataOpt
  * @param   headers Plain object headers.
  * @param   options All optional; {@see HeaderOptions}.
  *
- * @returns         Redacted plain object headers.
+ * @returns         Redacted headers.
  */
-export const headers = (_headers: { [x: string]: string }, options?: HeaderOptions): { [x: string]: string } => {
-    const headers = // Shallow clone.
-        $obj.clone(_headers) as typeof _headers;
+export const headers = <Type extends { [x: string]: string }>(headers: Type, options?: HeaderOptions): ReturnType<typeof $obj.map<Type>> => {
+    return $obj.map(headers, (value: string, name: string): unknown => {
+        const lcName = name.toLowerCase(); // For comparisons below.
 
-    for (const [name, value] of Object.entries(headers)) {
-        const lcName = name.toLowerCase();
-        if (
-            [
-                'cookie', //
-                'set-cookie',
-
-                'x-waf-key',
-                'authorization',
-
-                'x-csrf-token',
-                'x-wp-nonce',
-                'x-nonce',
-
-                'forwarded',
-                'x-forwarded-for',
-                ...$http.ipHeaderNames(),
-                //
-            ].includes(lcName)
-        ) {
-            headers[name] = redact(value, options);
-            //
-        } else if (['referer', 'location', 'x-original-url', 'x-rewrite-url'].includes(lcName)) {
-            headers[name] = redactURL(value, options) as string;
+        if ($http.publicHeaderNames().includes(lcName)) {
+            if ($http.urlHeaderNames().includes(lcName)) {
+                if (['refresh'].includes(lcName)) {
+                    return value.replace(/(;\s*url=)(.+)$/iu, (...m: string[]): string => m[1] + redactURL(m[2], options));
+                }
+                return redactURL(value, options);
+            }
+            return value;
         }
-    }
-    return headers;
+        return redact(value, options);
+    });
 };

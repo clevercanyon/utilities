@@ -15,7 +15,7 @@ let mcInitialized: boolean = false;
 /**
  * Defines types.
  */
-export type MapOptions = { byReference?: boolean; skipReadonly?: boolean };
+export type MapOptions = { byReference?: boolean; skipReadonly?: boolean; _deep?: boolean };
 
 export type OmitOptions = { byReference?: boolean; skipReadonly?: boolean; undefinedValues?: boolean };
 export type UnsetOptions = OmitOptions; // Same as `OmitOptions`.
@@ -1022,35 +1022,79 @@ export const updateClonesDeepNoOps = ((...args: Parameters<$type.ObjMCHandler>):
  *
  * @returns            Object containing mapped values (a shallow clone, by default).
  *
- * @note Like {@see Array.prototype.map()}, this produces a shallow clone by default. To map by reference, set `{ byReference: true }`.
+ * @note To map by reference, set `{ byReference: true }`.
+ * @note Like {@see Array.prototype.map()}, by default, this produces a shallow clone.
+ *       To map deeply, and thus produce clones deeply, please {@see mapDeep()}.
  */
 export const map = <Type>(value: Type, callbackFn: (value: $type.Any, key?: $type.Any) => unknown, options?: MapOptions): Type extends object ? Type : $type.Object => {
-    const opts = defaults({}, options || {}, { byReference: false, skipReadonly: true }) as Required<MapOptions>;
+    const opts = defaults({}, options || {}, { byReference: false, skipReadonly: true, _deep: false }) as Required<MapOptions>;
     const objValue = Object(opts.byReference ? value : clone(value)) as $type.Object;
 
     if ($is.set(objValue)) {
         for (const value of Array.from(objValue)) {
             objValue.delete(value);
-            objValue.add(callbackFn(value));
+            const newValue = callbackFn(value);
+
+            if (opts._deep && $is.object(newValue)) {
+                objValue.add(map(newValue, callbackFn, opts));
+            } else objValue.add(newValue);
         }
     } else if ($is.map(objValue)) {
         for (const [key, value] of objValue) {
-            objValue.set(key, callbackFn(value, key));
+            const newValue = callbackFn(value, key);
+
+            if (opts._deep && $is.object(newValue)) {
+                objValue.set(key, map(newValue, callbackFn, opts));
+            } else objValue.set(key, newValue);
         }
     } else if ($is.array(objValue)) {
         for (let key = 0; key < objValue.length; key++) {
             if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key)?.writable) {
                 objValue[key] = callbackFn(objValue[key], key);
+
+                if (opts._deep && $is.object(objValue[key])) {
+                    objValue[key] = map(objValue[key], callbackFn, opts);
+                }
             } // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
         }
     } else {
         for (const key of keysAndSymbols(objValue)) {
             if (!opts.byReference || !opts.skipReadonly || Object.getOwnPropertyDescriptor(objValue, key)?.writable) {
                 objValue[key] = callbackFn(objValue[key], key);
+
+                if (opts._deep && $is.object(objValue[key])) {
+                    objValue[key] = map(objValue[key], callbackFn, opts);
+                }
             } // If `byReference` and `skipReadonly` is false, this will throw an error on a readonly key.
         }
     }
     return objValue as Type extends object ? Type : $type.Object;
+};
+
+/**
+ * Maps all values in an object to a callback function, deeply.
+ *
+ * Fully supported object types include sets, maps, arrays, and plain objects. Everything else is potentially converted
+ * into, and returned as, a plain set, map, array, or object; depending on the object’s cloneability.
+ *
+ * When mapping deeply, every single object key will be mapped to a callback function. As such, this follows the same
+ * pattern as a {@see JSON.stringify()} middleware replacer, where each and every key is recursively mapped, including
+ * any values mapped and modified on-the-fly by the callback function. For this reason, when mapping deeply, it is very
+ * important to check a value’s type before modifying, because your callback function may encounter sets, maps, arrays,
+ * or other objects before it finally arrives at primitive value types.
+ *
+ * Please {@see map()} for additional important details.
+ *
+ * @param   value      Value (i.e., object) to map. Please {@see map()}.
+ * @param   callbackFn Callback function. Please {@see map()}.
+ * @param   options    Options. Please {@see map()}.
+ *
+ *   - `{ _deep: true }` is set explicitly by this utility.
+ *
+ * @returns            Object containing mapped values. Please {@see map()}.
+ */
+export const mapDeep = <Type>(...args: Parameters<typeof map<Type>>): ReturnType<typeof map<Type>> => {
+    return map(args[0], args[1], { ...args[2], _deep: true });
 };
 
 /**
