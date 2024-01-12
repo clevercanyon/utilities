@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $env, $preact } from '#index.ts';
+import { $env, $preact, $time } from '#index.ts';
 import { createContext } from 'preact';
 
 /**
@@ -39,10 +39,14 @@ export const useAnalytics = (): Context => $preact.useContext(ContextObject);
 export default function Analytics(props: Props = {}): $preact.VNode<Props> {
     const promise = $preact.useRef(
         new Promise<API>((resolve): void => {
-            if (!$env.isWeb()) return; // It will simply never resolve.
-            void import('#@preact/apis/web/analytics.ts').then((api): void => {
-                void api.initialize().then((): void => resolve(api));
-            });
+            if (!$env.isWeb()) return;
+            // It will simply never resolve.
+
+            setTimeout((): void => {
+                void import('#@preact/apis/web/analytics.ts').then((api): void => {
+                    void api.initialize().then((): void => resolve(api));
+                });
+            }, $time.secondInMilliseconds * 2);
         }),
     );
     return <ContextObject.Provider value={promise.current}>{props.children}</ContextObject.Provider>;

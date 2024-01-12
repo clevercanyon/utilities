@@ -39,7 +39,9 @@ export const useClipboard = (): Context => $preact.useContext(ContextObject);
 export default function Clipboard(props: Props = {}): $preact.VNode<Props> {
     const promise = $preact.useRef(
         new Promise<API>((resolve): void => {
-            if (!$env.isWeb()) return; // It will simply never resolve.
+            if (!$env.isWeb()) return;
+            // It will simply never resolve.
+
             void import('#@preact/apis/web/clipboard.ts').then((api): void => {
                 void api.initialize().then((): void => resolve(api));
             });
