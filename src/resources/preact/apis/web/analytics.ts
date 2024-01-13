@@ -99,7 +99,7 @@ export const initialize = async (): Promise<void> => {
                     utxCustomerId: $user.utxCustomerId(),
 
                     // Default gtag ID is our own; i.e., for Clever Canyon.
-                    gtagId: $env.get('APP_GTAG_ID', { type: 'string', default: 'G-Y5BS7MMHMD' }),
+                    gtagId: $env.get('APP_GTAG_ID', { type: 'string', default: 'G-H5BG6CEHDG' }),
                 } as State);
 
                 // Initializes analytics providers.
