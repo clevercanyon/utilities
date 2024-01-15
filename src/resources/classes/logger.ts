@@ -156,6 +156,9 @@ export const getClass = (): Constructor => {
             };
             this.queue = []; // Initialize.
             this.retryFailures = this.maxRetryFailuresExpirationTime = 0; // Initialize.
+
+            // @todo: This effectively implements cross-request promises in a Cloudflare environment, which is a no-no.
+            // We need to come up with a different solution. See: <https://news.ycombinator.com/item?id=34989560>.
             this.throttledFlush = $fn.throttle((): Promise<boolean> => this.flush(), { waitTime: this.configMinutia.throttledFlushWaitTime });
 
             if ($env.isNode()) {
@@ -575,36 +578,43 @@ export const getClass = (): Constructor => {
                 return new Promise((resolve): void => {
                     void fetch(this.endpoint, {
                         keepalive: true,
+                        redirect: 'manual',
                         method: 'POST',
                         headers: {
-                            authorization: this.endpointToken,
                             'content-type': $json.contentType(),
+                            'authorization': this.endpointToken,
                         },
                         body: jsonStringifiedQueue,
-                        //
-                    }).then((response: Response): void => {
-                        if (!response.ok) {
-                            if (retryAttempts >= this.configMinutia.maxRetries) {
-                                if (++this.retryFailures >= this.configMinutia.maxRetryFailures) {
-                                    // After X retry failures, suspend for X milliseconds.
-                                    this.maxRetryFailuresExpirationTime = Date.now() + this.configMinutia.maxRetryFailuresExpiresAfter;
+                    })
+                        .then((response: Response): void => {
+                            if (!response.ok || 202 !== response.status) {
+                                if (retryAttempts >= this.configMinutia.maxRetries) {
+                                    if (++this.retryFailures >= this.configMinutia.maxRetryFailures) {
+                                        // After X retry failures, suspend for X milliseconds.
+                                        this.maxRetryFailuresExpirationTime = Date.now() + this.configMinutia.maxRetryFailuresExpiresAfter;
+                                    }
+                                    resolve(false); // Retry failure.
+                                } else {
+                                    retryAttempts++;
+                                    clearTimeout(retryTimeout);
+                                    retryTimeout = setTimeout((): void => void httpPost(), Math.exp(retryAttempts) * this.configMinutia.retryAfterExpMultiplier);
                                 }
-                                resolve(false); // Retry failure.
                             } else {
-                                retryAttempts++;
-                                clearTimeout(retryTimeout);
-                                retryTimeout = setTimeout((): void => void httpPost(), Math.exp(retryAttempts) * this.configMinutia.retryAfterExpMultiplier);
+                                // Even though there is no response body, we still need to read the empty response.
+                                // Otherwise, Chrome will throw an erroneous 'Fetch failed loading: POST` in console.
+                                void response.text().then((): void => {
+                                    this.retryFailures--;
+                                    this.maxRetryFailuresExpirationTime = 0;
+                                    resolve(true);
+                                });
                             }
-                        } else {
-                            // Even though there is no response body, we still need to read the empty response.
-                            // Otherwise, Chrome will throw an erroneous 'Fetch failed loading: POST` in console.
-                            void response.text().then((): void => {
-                                this.retryFailures--;
-                                this.maxRetryFailuresExpirationTime = 0;
-                                resolve(true);
-                            });
-                        }
-                    });
+                        })
+                        .catch((thrown: unknown): void => {
+                            // After an all-out rejection, suspend for X milliseconds.
+                            this.maxRetryFailuresExpirationTime = Date.now() + this.configMinutia.maxRetryFailuresExpiresAfter;
+                            console.log('Error code: 4M8aGQ9V.', { thrown }); // Something very wrong.
+                            resolve(false); // Fetch failure.
+                        });
                 });
             };
             return httpPost();

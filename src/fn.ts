@@ -201,7 +201,7 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
         if (opts.trailingEdge) rtnFn.$resolvePromises();
         rtnFn.$clearTimeout(); // Allowing for a new leading edge.
         // If we resolved on trailing edge, delay next potential leading edge.
-        if (opts.trailingEdge) rtnFn.$waitTimeout = setTimeout(() => rtnFn.$clearTimeout(), opts.waitTime);
+        if (opts.trailingEdge) rtnFn.$waitTimeout = setTimeout(rtnFn.$clearTimeout, opts.waitTime);
     };
     rtnFn.$resolvePromises = function (): number {
         if (!rtnFn.$promises.length) return 0;
