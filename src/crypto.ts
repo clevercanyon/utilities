@@ -12,7 +12,18 @@ import { $env, $obj, $str, type $type } from '#index.ts';
  */
 export type UUIDV4Options = { dashes?: boolean };
 export type RandomStringOptions = { type?: string; byteDictionary?: string };
-export type HashAlgorithm = 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
+export type HashAlgorithm = 'md5' | 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
+
+/**
+ * Generates an MD5 hash.
+ *
+ * @param   str String to hash.
+ *
+ * @returns     MD5 hash. 32 hexadecimals in length.
+ *
+ * @requiredEnv cfw -- Only Cloudflare implements MD5 legacy compat.
+ */
+export const md5 = $fnꓺmemo(2, async (str: string): Promise<string> => buildHash('md5', str));
 
 /**
  * Generates a SHA-1 hash.
