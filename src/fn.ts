@@ -30,9 +30,10 @@ export type CurriedReturn<Fn extends $type.Function, Provided extends unknown[]>
           ReturnType<Fn>;
 
 export type TryOptions = { throwOnError?: boolean };
+
+type ThrottleDebounceCommonOptions = { edge?: 'leading' | 'trailing'; waitTime?: number };
 export type ThrottleOptions = ThrottleDebounceCommonOptions & { _debounceMode?: boolean };
-export type DebounceOptions = ThrottleDebounceCommonOptions; // Nothing more to add at this time.
-type ThrottleDebounceCommonOptions = { leadingEdge?: boolean; waitTime?: number; trailingEdge?: boolean };
+export type DebounceOptions = ThrottleDebounceCommonOptions; // Nothing more at this time.
 
 export type ThrottledFunction<Fn extends $type.Function> = {
     (this: ThisParameterType<Fn>, ...args: Parameters<Fn>): Promise<ReturnType<Fn>>;
@@ -158,84 +159,94 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
  * @param   fn      Sync or async function to throttle.
  * @param   options Options (all optional); {@see ThrottleOptions}.
  *
- *   - Default is: `{ leadingEdge: true, waitTime: 250, trailingEdge: true }`.
+ *   - Default is: `{ edge: 'leading', waitTime: 250 }`.
  *   - `_debounceMode` is for internal use only. Do not pass. Instead, {@see debounce()}.
  *
  * @returns         Throttled sync or async function.
  */
 export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOptions): ThrottledFunction<Fn> => {
-    const defaultOpts = { leadingEdge: true, waitTime: 250, trailingEdge: true, _debounceMode: false };
-    const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<ThrottleOptions>;
+    const defaultOpts = { edge: 'leading', waitTime: 250, _debounceMode: false },
+        opts = $obj.defaults({}, options || {}, defaultOpts) as Required<ThrottleOptions>;
 
     const rtnFn = async function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>): Promise<ReturnType<Fn>> {
-        return new Promise<ReturnType<Fn>>((resolve, reject) => {
-            rtnFn.$latestArgs = args;
-            rtnFn.$promises.push({ resolve, reject });
+        rtnFn.$latestArgs = args;
 
-            if (!rtnFn.$waitTimeout) rtnFn.$onLeadingEdge();
-            if (!rtnFn.$waitTimeout || opts._debounceMode) {
-                rtnFn.$clearTimeout(); // e.g., Case of debounce mode.
-                rtnFn.$waitTimeout = setTimeout(rtnFn.$onTrailingEdge, opts.waitTime);
+        if (rtnFn.$promiseLock) {
+            if (opts._debounceMode) {
+                rtnFn.$lastDebounceTime = Date.now();
             }
+            return rtnFn.$promiseLock;
+        }
+        rtnFn.$promiseLock = new Promise<ReturnType<Fn>>((resolve, reject) => {
+            rtnFn.$promiseResolve = resolve;
+            rtnFn.$promiseReject = reject;
+
+            if ('leading' === opts.edge && rtnFn.$promiseResolve) {
+                const fnRtn = fn.apply(this, rtnFn.$latestArgs) as ReturnType<Fn>;
+                rtnFn.$promiseResolve(fnRtn); // Resolves at leading edge.
+            }
+            const afterWaitTimeout = (): void => {
+                if (opts._debounceMode && rtnFn.$lastDebounceTime) {
+                    const adjustedWaitTime = Math.max(0, rtnFn.$lastDebounceTime + opts.waitTime - Date.now());
+                    rtnFn.$lastDebounceTime = 0; // Zeroes-out last debounce time & awaits potentially a new one.
+                    rtnFn.$waitTimeout = setTimeout(afterWaitTimeout, adjustedWaitTime);
+                } else {
+                    if ('trailing' === opts.edge && rtnFn.$promiseResolve) {
+                        const fnRtn = fn.apply(this, rtnFn.$latestArgs) as ReturnType<Fn>;
+                        rtnFn.$promiseResolve(fnRtn); // Resolves at trailing edge.
+                    }
+                    // Promise is now resolved and no longer waiting/blocking, so unlock.
+                    rtnFn.$releasePromiseLock(); // Next call will generate a new promise.
+                }
+            };
+            rtnFn.$waitTimeout = setTimeout(afterWaitTimeout, opts.waitTime);
+
             // We cannot know here what the return value will be in a reject scenario.
             // In a case where `.cancel()` is explicitly called by the throttle implementation,
             // it will be `.cancel()` that sets the rejection return value in the implementation.
         }).catch((fnRtn) => fnRtn as ReturnType<Fn>);
+
+        return rtnFn.$promiseLock;
     };
-    // Private properties.
+    // Private utilities.
 
-    rtnFn.$promises = [] as {
-        resolve: (fnRtn: ReturnType<Fn>) => void;
-        reject: (fnRtn?: unknown) => void;
-    }[]; // Call stack.
-
-    rtnFn.$waitTimeout = 0 as $type.Timeout | undefined;
+    rtnFn.$lastDebounceTime = 0 as number;
     rtnFn.$latestArgs = [] as unknown as Parameters<Fn>;
+    rtnFn.$waitTimeout = undefined as $type.Timeout | undefined;
 
-    // Private methods.
+    rtnFn.$promiseLock = undefined as Promise<ReturnType<Fn>> | undefined;
+    rtnFn.$promiseResolve = undefined as ((value: ReturnType<Fn>) => void) | undefined;
+    rtnFn.$promiseReject = undefined as ((value: unknown) => void) | undefined;
 
-    rtnFn.$onLeadingEdge = function (): void {
-        if (opts.leadingEdge) rtnFn.$resolvePromises();
+    rtnFn.$releasePromiseLock = function (): void {
+        delete rtnFn.$promiseLock;
+        delete rtnFn.$promiseResolve;
+        delete rtnFn.$promiseReject;
     };
-    rtnFn.$onTrailingEdge = function (): void {
-        if (opts.trailingEdge) rtnFn.$resolvePromises();
-        rtnFn.$clearTimeout(); // Allowing for a new leading edge.
-        // If we resolved on trailing edge, delay next potential leading edge.
-        if (opts.trailingEdge) rtnFn.$waitTimeout = setTimeout(rtnFn.$clearTimeout, opts.waitTime);
-    };
-    rtnFn.$resolvePromises = function (): number {
-        if (!rtnFn.$promises.length) return 0;
-
-        const copyOfPromises = [...rtnFn.$promises];
-        rtnFn.$promises = []; // Resets promises.
-
-        const fnRtn = fn.apply(this, rtnFn.$latestArgs) as ReturnType<Fn>;
-        copyOfPromises.forEach(({ resolve }) => resolve(fnRtn));
-
-        return copyOfPromises.length;
-    };
-    rtnFn.$rejectPromises = function (fnRtn?: unknown): void {
-        if (!rtnFn.$promises.length) return;
-
-        const copyOfPromises = [...rtnFn.$promises];
-        rtnFn.$promises = []; // Resets promises.
-
-        // Rejections caught via `.catch()` above.
-        copyOfPromises.forEach(({ reject }) => reject(fnRtn));
-    };
-    rtnFn.$clearTimeout = function (): void {
-        clearTimeout(rtnFn.$waitTimeout), (rtnFn.$waitTimeout = 0);
-    };
-    // Public methods.
+    // Public utility methods.
 
     rtnFn.flush = function (): void {
-        rtnFn.$resolvePromises(), rtnFn.$clearTimeout();
+        if (rtnFn.$promiseLock) {
+            clearTimeout(rtnFn.$waitTimeout);
+
+            if ('trailing' === opts.edge && rtnFn.$promiseResolve) {
+                const fnRtn = fn.apply(this, rtnFn.$latestArgs) as ReturnType<Fn>;
+                rtnFn.$promiseResolve(fnRtn);
+            }
+            rtnFn.$releasePromiseLock();
+        }
     };
     rtnFn.cancel = function (fnRtn?: unknown): void {
-        rtnFn.$rejectPromises(fnRtn), rtnFn.$clearTimeout();
-    };
+        if (rtnFn.$promiseLock) {
+            clearTimeout(rtnFn.$waitTimeout);
 
-    return rtnFn as ThrottledFunction<Fn>;
+            if ('trailing' === opts.edge && rtnFn.$promiseReject) {
+                rtnFn.$promiseReject(fnRtn);
+            }
+            rtnFn.$releasePromiseLock();
+        }
+    };
+    return rtnFn;
 };
 
 /**
@@ -247,10 +258,10 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
  * @param   fn      Sync or async function to debounce.
  * @param   options Options (all optional); {@see DebounceOptions}.
  *
- *   - Default is: `{ leadingEdge: true, waitTime: 250, trailingEdge: true }`.
+ *   - Default is: `{ edge: 'trailing', waitTime: 250 }`.
  *
  * @returns         Debounced sync or async function.
  */
 export const debounce = <Fn extends $type.Function>(fn: Fn, options?: DebounceOptions): ThrottledFunction<Fn> => {
-    return throttle(fn, { ...(options || {}), _debounceMode: true });
+    return throttle(fn, { edge: 'trailing', ...(options || {}), _debounceMode: true });
 };

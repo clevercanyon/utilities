@@ -610,10 +610,8 @@ export const getClass = (): Constructor => {
                             }
                         })
                         .catch((thrown: unknown): void => {
-                            // After an all-out rejection, suspend for X milliseconds.
-                            this.maxRetryFailuresExpirationTime = Date.now() + this.configMinutia.maxRetryFailuresExpiresAfter;
-                            console.log('Error code: 4M8aGQ9V.', { thrown }); // Something very wrong.
-                            resolve(false); // Fetch failure.
+                            console.log('Error code: 4M8aGQ9V.', { thrown });
+                            resolve(false); // Something very wrong.
                         });
                 });
             };
