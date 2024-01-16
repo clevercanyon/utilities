@@ -152,13 +152,14 @@ export const getClass = (): Constructor => {
                  * - Math.exp(1) * $time.secondInMilliseconds / 2 = 1359.1409142295227.
                  * - Math.exp(2) * $time.secondInMilliseconds / 2 = 3694.5280494653252.
                  * - Math.exp(3) * $time.secondInMilliseconds / 2 = 10042.768461593834.
+                 *
+                 * A Cloudflare worker attempts to wait on all promises to finish resolving. Therefore, total retry time
+                 * must be well under 30 seconds for Cloudflare compatibility. That is all the time that a single worker
+                 * request is allowed to take; i.e., whenver the worker is running `waitUntil()` promises.
                  */
             };
             this.queue = []; // Initialize.
             this.retryFailures = this.maxRetryFailuresExpirationTime = 0; // Initialize.
-
-            // @todo: This effectively implements cross-request promises in a Cloudflare environment, which is a no-no.
-            // We need to come up with a different solution. See: <https://news.ycombinator.com/item?id=34989560>.
             this.throttledFlush = $fn.throttle((): Promise<boolean> => this.flush(), { waitTime: this.configMinutia.throttledFlushWaitTime });
 
             if ($env.isNode()) {
@@ -483,9 +484,9 @@ export const getClass = (): Constructor => {
             // i.e., Allowing context to mutate at runtime, then snapshot here.
 
             const fullContext = $obj.mergeDeep(
-                await this.appContext(), // Returns a clone.
-                await this.envContext(), // Returns a clone.
-                await this.userContext(), // Returns a clone.
+                await this.appContext(), // Returns a clone, so no need to clone again.
+                await this.envContext(), // Returns a clone, so no need to clone again.
+                await this.userContext(), // Returns a clone, so no need to clone again.
                 jsonCloneObjectDeep(context || {}),
             );
             if (!this.isEssential /* If non-essential, check consent state before logging. */) {
@@ -500,7 +501,16 @@ export const getClass = (): Constructor => {
                 message, // A message string.
                 context: fullContext,
             };
-            this.queue.push(logEntry);
+            this.queue.push(logEntry); // Adds log entry to queue.
+            /**
+             * It is possible for {@see throttledFlush()} to resolve with a value that reflects a previous attempt to
+             * flush. This happens because flush requests exceeding our throttled rate will be locked onto a previous
+             * flush request promise. Please {@see $fn.throttle()}, which essentially ignores throttled requests.
+             *
+             * Therefore, the current log entry may or may not get logged by this attempt flush. In some cases a log
+             * entry will actually be logged by a subsequent request to flush; e.g., subsequent worker requests when
+             * running within a Cloudflare worker. The only guarantee is that it resolves _a_ flush.
+             */
             return this.throttledFlush();
         }
 
