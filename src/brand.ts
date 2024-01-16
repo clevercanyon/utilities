@@ -143,9 +143,9 @@ const tꓺaddress = 'address',
     tꓺමclevercanyonⳇclevercanyonംcom = tꓺමclevercanyon + '/' + tꓺclevercanyonംcom,
     tꓺමclevercanyonⳇhopംgdn = tꓺමclevercanyon + '/' + tꓺhopംgdn,
     //
-    tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇ = tꓺhttpsꓽⳇⳇ + 'cdn.' + tꓺhopംgdn + '/' + tꓺassets + '/' + tꓺbrands + '/',
-    tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇclevercanyon = tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇ + tꓺclevercanyon,
-    tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇhop = tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇ + tꓺhop,
+    tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇ = tꓺhttpsꓽⳇⳇ + 'r2.' + tꓺhopംgdn + '/' + tꓺassets + '/' + tꓺbrands + '/',
+    tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon = tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇ + tꓺclevercanyon,
+    tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop = tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇ + tꓺhop,
     //
     tꓺⳇassets = './' + tꓺassets,
     tꓺⳇassetsⳇicon = tꓺⳇassets + '/' + tꓺicon,
@@ -279,24 +279,24 @@ const initializeRawProps = (): void => {
             [tꓺheadingColor]: '#ed5f3b',
         },
         [tꓺicon]: {
-            [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംsvg,
-            [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംpng,
+            [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംsvg,
+            [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംpng,
             ...tꓺobjꓺwidthHeight1024x1024,
         },
         [tꓺlogo]: {
             [tꓺonDarkBg]: {
-                [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
-                [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
+                [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
+                [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
             },
             [tꓺonLightBg]: {
-                [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
-                [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
+                [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
+                [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
             },
             ...tꓺobjꓺwidthHeight866x120,
         },
         [tꓺogImage]: {
-            [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംsvg,
-            [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംpng,
+            [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംsvg,
+            [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംpng,
             ...tꓺobjꓺwidthHeight2400x1260,
         },
         [tꓺpolicies]: {
@@ -381,24 +381,24 @@ const initializeRawProps = (): void => {
                     [tꓺheadingColor]: '#5596ff',
                 },
                 [tꓺicon]: {
-                    [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
-                    [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംpng,
+                    [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
+                    [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംpng,
                     ...tꓺobjꓺwidthHeight1024x1024,
                 },
                 [tꓺlogo]: {
                     [tꓺonDarkBg]: {
-                        [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
-                        [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
+                        [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
+                        [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
                     },
                     [tꓺonLightBg]: {
-                        [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
-                        [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
+                        [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
+                        [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
                     },
                     ...tꓺobjꓺwidthHeight608x120,
                 },
                 [tꓺogImage]: {
-                    [tꓺsvg]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംsvg,
-                    [tꓺpng]: tꓺhttpsꓽⳇⳇcdnംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംpng,
+                    [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംsvg,
+                    [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംpng,
                     ...tꓺobjꓺwidthHeight2400x1260,
                 },
                 [tꓺcontacts]: {

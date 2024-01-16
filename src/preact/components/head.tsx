@@ -156,7 +156,6 @@ const tꓺicon = 'icon',
     tꓺcanonical = 'canonical',
     tꓺcaption = 'caption',
     tꓺcategory = 'category',
-    tꓺcdn = 'cdn',
     tꓺcharset = 'charset',
     tꓺcolor = 'color',
     tꓺcontent = 'content',
@@ -169,7 +168,7 @@ const tꓺicon = 'icon',
     tꓺdescription = 'description',
     tꓺdns = 'dns',
     tꓺdnsPrefetch = tꓺdns + tꓺPrefetch,
-    tꓺdnsPrefetchCDN = tꓺdnsPrefetch + 'CDN',
+    tꓺdnsPrefetchR2 = tꓺdnsPrefetch + 'R2',
     tꓺdnsPrefetchGravatar = tꓺdnsPrefetch + 'Gravatar',
     tꓺdnsPrefetchWorkers = tꓺdnsPrefetch + 'Workers',
     tꓺdnsᱼprefetch = tꓺdns + '-' + tꓺprefetch,
@@ -246,6 +245,7 @@ const tꓺicon = 'icon',
     tꓺpublished_time = 'published_' + tꓺtime,
     tꓺpublisher = 'publisher',
     tꓺpublishTime = 'publishTime',
+    tꓺr2 = 'r2',
     tꓺrel = 'rel',
     tꓺrobots = 'robots',
     tꓺsameAs = 'sameAs',
@@ -552,7 +552,7 @@ export default class Head extends Component<Props, ActualState> {
                           ...Object.fromEntries(ogTags.map((tag, i) => [tꓺogArticleTag + String(i), h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺtag, [tꓺcontent]: tag })])), // prettier-ignore
                       }
                     : {}),
-                ...(isC10n ? { [tꓺdnsPrefetchCDN]: h(tꓺlink, { [tꓺrel]: tꓺdnsᱼprefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + tꓺcdn + tꓺംhopംgdnⳇ }) } : {}), // prettier-ignore
+                ...(isC10n ? { [tꓺdnsPrefetchR2]: h(tꓺlink, { [tꓺrel]: tꓺdnsᱼprefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + tꓺr2 + tꓺംhopംgdnⳇ }) } : {}), // prettier-ignore
                 ...(isC10n ? { [tꓺdnsPrefetchGravatar]: h(tꓺlink, { [tꓺrel]: tꓺdnsᱼprefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + tꓺgravatar + tꓺംhopംgdnⳇ }) } : {}), // prettier-ignore
                 ...(scriptBundle && isC10n ? { [tꓺdnsPrefetchWorkers]: h(tꓺlink, { [tꓺrel]: tꓺdnsᱼprefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + tꓺworkers + tꓺംhopംgdnⳇ }) } : {}), // prettier-ignore
                 ...(styleBundle ? { [tꓺpreloadStyleBundle]: h(tꓺlink, { [tꓺrel]: tꓺpreload, [tꓺfetchPriority]: tꓺhigh, [tꓺhref]: styleBundle, [tꓺas]: tꓺstyle }) } : {}), // prettier-ignore
