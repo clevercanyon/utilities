@@ -139,16 +139,12 @@ const initializeVars = (): void => {
         capture('@global', process.env);
     } // Global node process environment variables.
 
-    // Cloudflare worker environment variables are captured by event listeners.
-    // {@see https://github.com/clevercanyon/utilities.cfw/blob/main/src/cfw.ts}.
-    // {@see https://github.com/clevercanyon/utilities.cfp/blob/main/src/cfp.ts}.
-
     if (isWeb() && 'env' in window && $is.object(window.env)) {
         capture('@global', window.env); // Non-standard; must be populated by web app.
     } // Global window environment variables.
 
     // `clevercanyon/utilities` app-specific environment variables compiled by Vite.
-    // Note: This is for `clevercanyon/utilities`, explicity. Apps must capture their own.
+    // Note: This is for `clevercanyon/utilities` explicity. Apps must capture their own.
     capture($app.$pkgName, {
         APP_PKG_NAME: $app.$pkgName,
         APP_PKG_VERSION: $$__APP_PKG_VERSION__$$,
