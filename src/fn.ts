@@ -159,13 +159,13 @@ export const curry = <Fn extends $type.Function, Args extends $type.PartialParam
  * @param   fn      Sync or async function to throttle.
  * @param   options Options (all optional); {@see ThrottleOptions}.
  *
- *   - Default is: `{ edge: 'leading', waitTime: 250 }`.
+ *   - Default is: `{ edge: 'trailing', waitTime: 250 }`.
  *   - `_debounceMode` is for internal use only. Do not pass. Instead, {@see debounce()}.
  *
  * @returns         Throttled sync or async function.
  */
 export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOptions): ThrottledFunction<Fn> => {
-    const defaultOpts = { edge: 'leading', waitTime: 250, _debounceMode: false },
+    const defaultOpts = { edge: 'trailing', waitTime: 250, _debounceMode: false },
         opts = $obj.defaults({}, options || {}, defaultOpts) as Required<ThrottleOptions>;
 
     const rtnFn = async function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>): Promise<ReturnType<Fn>> {
@@ -263,5 +263,5 @@ export const throttle = <Fn extends $type.Function>(fn: Fn, options?: ThrottleOp
  * @returns         Debounced sync or async function.
  */
 export const debounce = <Fn extends $type.Function>(fn: Fn, options?: DebounceOptions): ThrottledFunction<Fn> => {
-    return throttle(fn, { edge: 'trailing', ...(options || {}), _debounceMode: true });
+    return throttle(fn, { ...(options || {}), _debounceMode: true });
 };

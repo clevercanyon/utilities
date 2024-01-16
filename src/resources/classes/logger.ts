@@ -49,9 +49,11 @@ type LogEntry = {
 type ConfigMinutia = {
     maxRetries: number;
     maxRetryFailures: number;
-    throttledFlushWaitTime: number;
     retryAfterExpMultiplier: number;
     maxRetryFailuresExpiresAfter: number;
+
+    throttledFlushWaitTime: number;
+    throttledFlushAfterLogEntries: number;
 };
 type WithContextOptions = Partial<{
     request?: $type.Request;
@@ -113,6 +115,11 @@ export const getClass = (): Constructor => {
         protected queue: LogEntry[];
 
         /**
+         * Log entry counter.
+         */
+        protected logEntryCounter: number;
+
+        /**
          * Retry failure counter.
          */
         protected retryFailures: number;
@@ -121,6 +128,11 @@ export const getClass = (): Constructor => {
          * Max retry failures expiration time.
          */
         protected maxRetryFailuresExpirationTime: number;
+
+        /**
+         * Possibly-throttled flusher.
+         */
+        protected possiblyThrottledFlush: () => Promise<boolean>;
 
         /**
          * Throttled flusher.
@@ -142,25 +154,50 @@ export const getClass = (): Constructor => {
             this.endpointToken ??= $env.get($env.isTest() ? 'APP_TEST_LOGGER_BEARER_TOKEN' : 'APP_DEFAULT_LOGGER_BEARER_TOKEN', { type: 'string', default: '' });
             this.isEssential ??= this.endpointToken && this.endpointToken === $env.get('APP_CONSENT_LOGGER_BEARER_TOKEN') ? true : false;
             this.listenForErrors ??= this.endpointToken && this.endpointToken === $env.get('APP_AUDIT_LOGGER_BEARER_TOKEN') ? true : false;
+
+            /**
+             * Regarding retry attempts and timeouts.
+             *
+             * - Math.exp(1) * $time.secondInMilliseconds / 2 = 1359.1409142295227.
+             * - Math.exp(2) * $time.secondInMilliseconds / 2 = 3694.5280494653252.
+             * - Math.exp(3) * $time.secondInMilliseconds / 2 = 10042.768461593834.
+             *
+             * A Cloudflare worker attempts to wait on all promises to finish resolving via `ctx.waitUntil()`.
+             * Therefore, total retry time must be well under 30 seconds for Cloudflare compatibility. That is all the
+             * time that a single worker request is allowed to take via `ctx.waitUntil()` promises.
+             */
             this.configMinutia ??= {
                 maxRetries: 3,
                 maxRetryFailures: 10,
-                throttledFlushWaitTime: $time.secondInMilliseconds,
                 retryAfterExpMultiplier: $time.secondInMilliseconds / 2,
                 maxRetryFailuresExpiresAfter: $time.minuteInMilliseconds * 30,
-                /**
-                 * - Math.exp(1) * $time.secondInMilliseconds / 2 = 1359.1409142295227.
-                 * - Math.exp(2) * $time.secondInMilliseconds / 2 = 3694.5280494653252.
-                 * - Math.exp(3) * $time.secondInMilliseconds / 2 = 10042.768461593834.
-                 *
-                 * A Cloudflare worker attempts to wait on all promises to finish resolving. Therefore, total retry time
-                 * must be well under 30 seconds for Cloudflare compatibility. That is all the time that a single worker
-                 * request is allowed to take; i.e., whenver the worker is running `waitUntil()` promises.
-                 */
+
+                throttledFlushAfterLogEntries: 5,
+                throttledFlushWaitTime: $time.secondInMilliseconds,
             };
-            this.queue = []; // Initialize.
+            this.queue = []; // Initializes log entry queue.
+            this.logEntryCounter = 0; // Initialize log entry counter.
             this.retryFailures = this.maxRetryFailuresExpirationTime = 0; // Initialize.
-            this.throttledFlush = $fn.throttle((): Promise<boolean> => this.flush(), { waitTime: this.configMinutia.throttledFlushWaitTime });
+
+            /**
+             * It is possible for {@see possiblyThrottledFlush()} to resolve a promise that reflects a previous attempt
+             * to flush. This happens because flush requests exceeding our throttled rate will be locked onto a previous
+             * flush request promise. Please {@see $fn.throttle()}, which essentially ignores throttled flushes.
+             *
+             * However, that’s perfectly OK because we throttle flushes on the trailing edge; {@see $fn.throttle()}.
+             * Therefore, when a flush promise resolves we can be sure it included the current log entry, along with
+             * potentially others that were added to the queue either before or after an attempt to flush.
+             */
+            this.throttledFlush = $fn.throttle((): Promise<boolean> => this.flush(), {
+                edge: 'trailing', // Please see notes above.
+                waitTime: this.configMinutia.throttledFlushWaitTime,
+            });
+            this.possiblyThrottledFlush = async (): Promise<boolean> =>
+                this.logEntryCounter > this.configMinutia.throttledFlushAfterLogEntries ? this.throttledFlush() : this.flush();
+
+            // {@see withContext()} for Cloudflare workers.
+            // It has `waitUntil()` handling baked into it already.
+            // Log uncaught errors using try/catch, or via Logpush; {@see https://o5p.me/QKF7MQ}.
 
             if ($env.isNode()) {
                 if (this.listenForErrors) listenForNodeErrors(this);
@@ -170,9 +207,6 @@ export const getClass = (): Constructor => {
                 if (this.listenForErrors) listenForWebErrors(this);
                 flushBeforeWebExits(this);
             }
-            // {@see withContext()} for Cloudflare workers.
-            // It has `waitUntil()` handling baked into it already.
-            // Log uncaught errors using try/catch, or via Logpush; {@see https://o5p.me/QKF7MQ}.
         }
 
         /**
@@ -501,17 +535,10 @@ export const getClass = (): Constructor => {
                 message, // A message string.
                 context: fullContext,
             };
-            this.queue.push(logEntry); // Adds log entry to queue.
-            /**
-             * It is possible for {@see throttledFlush()} to resolve with a value that reflects a previous attempt to
-             * flush. This happens because flush requests exceeding our throttled rate will be locked onto a previous
-             * flush request promise. Please {@see $fn.throttle()}, which essentially ignores throttled requests.
-             *
-             * Therefore, the current log entry may or may not get logged by this attempt flush. In some cases a log
-             * entry will actually be logged by a subsequent request to flush; e.g., subsequent worker requests when
-             * running within a Cloudflare worker. The only guarantee is that it resolves _a_ flush.
-             */
-            return this.throttledFlush();
+            this.queue.push(logEntry); // Adds to queue.
+            this.logEntryCounter++; // Increments counter.
+
+            return this.possiblyThrottledFlush();
         }
 
         /**

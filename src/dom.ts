@@ -45,7 +45,7 @@ const initializeWheelStatus = (): void => {
             userIsWheeling = true; // Wheeling.
             wheelTimeout = setTimeout(onWheelEnd, 300);
         },
-        { waitTime: 250 }, // Must be less than `300`.
+        { edge: 'leading', waitTime: 250 }, // Must be less than `300`.
     );
     const onWheelEnd = (): void => {
         onWheel.cancel();

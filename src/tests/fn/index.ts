@@ -36,9 +36,9 @@ describe('$fn', async () => {
             const fn1 = vi.fn();
             const testFn1 = $fn.throttle(fn1);
             for (let i = 0; i < 100; i++) void testFn1();
-            expect(fn1).toHaveBeenCalledTimes(1); // On leading edge.
+            expect(fn1).toHaveBeenCalledTimes(0); // On trailing edge.
             await new Promise((resolve) => setTimeout(() => resolve(0), 500));
-            expect(fn1).toHaveBeenCalledTimes(1); // Ensure leading edge only.
+            expect(fn1).toHaveBeenCalledTimes(1); // Ensure trailing edge only.
 
             // ---
 
@@ -54,7 +54,7 @@ describe('$fn', async () => {
             const fn3 = vi.fn();
             const testFn3 = $fn.throttle(fn3, { edge: 'trailing' });
             for (let i = 0; i < 100; i++) void testFn3();
-            expect(fn3).toHaveBeenCalledTimes(0); // Not on leading edge.
+            expect(fn3).toHaveBeenCalledTimes(0); // On trailing edge.
             await new Promise((resolve) => setTimeout(() => resolve(0), 500));
             expect(fn3).toHaveBeenCalledTimes(1); // Ensure trailing edge only.
 
@@ -78,10 +78,10 @@ describe('$fn', async () => {
             const testFn5 = $fn.throttle(fn5Wrapper);
             for (let i = 0; i < 100; i++) void testFn5('x');
             expect(fn5).toHaveBeenCalledTimes(0); // Not yet.
-            expect(await testFn5('y')).toBe('x'); // Leading args.
-            expect(fn5).toHaveBeenCalledTimes(1); // On leading edge.
+            expect(await testFn5('y')).toBe('y'); // Trailing args.
+            expect(fn5).toHaveBeenCalledTimes(1); // On trailing edge.
             await new Promise((resolve) => setTimeout(() => resolve(0), 500));
-            expect(fn5).toHaveBeenCalledTimes(1); // Ensure leading edge only.
+            expect(fn5).toHaveBeenCalledTimes(1); // Ensure trailing edge only.
 
             // ---
 
@@ -94,13 +94,13 @@ describe('$fn', async () => {
                         }, 500);
                     });
                 };
-            const testFn6 = $fn.throttle(fn6Wrapper, { edge: 'trailing' });
+            const testFn6 = $fn.throttle(fn6Wrapper, { edge: 'leading' });
             for (let i = 0; i < 100; i++) void testFn6('x');
             expect(fn6).toHaveBeenCalledTimes(0); // Not yet.
-            expect(await testFn6('y')).toBe('y'); // Trailing args.
-            expect(fn6).toHaveBeenCalledTimes(1); // On trailing edge.
+            expect(await testFn6('y')).toBe('x'); // Leading args.
+            expect(fn6).toHaveBeenCalledTimes(1); // On leading edge.
             await new Promise((resolve) => setTimeout(() => resolve(0), 500));
-            expect(fn6).toHaveBeenCalledTimes(1); // Ensure trailing edge only.
+            expect(fn6).toHaveBeenCalledTimes(1); // Ensure leading edge only.
         },
         { timeout: 10000 },
     );
