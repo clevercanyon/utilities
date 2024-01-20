@@ -17,6 +17,7 @@ import { Component, createContext } from 'preact';
  */
 export type State = $preact.State<{
     globalObp: string;
+    cspNonce: string;
     fetcher: $type.Fetcher;
     head: {
         instance?: HeadInstance;
@@ -24,6 +25,7 @@ export type State = $preact.State<{
 }>;
 export type PartialState = $preact.State<{
     globalObp?: State['globalObp'];
+    cspNonce?: State['cspNonce'];
     fetcher?: State['fetcher'];
     head?: Partial<State['head']>;
 }>;
@@ -51,9 +53,11 @@ export type Context = $preact.Context<{
  * all of these must be JSON serializable. Why? We dump them into preact ISO script code.
  */
 export type GlobalState = $preact.State<{
+    cspNonce: State['cspNonce'];
     head: Pick<PartialActualHeadState, PassableHeadStateKeys>;
 }>;
 export type PartialGlobalState = $preact.State<{
+    cspNonce?: GlobalState['cspNonce'];
     head?: Partial<GlobalState['head']>;
 }>;
 export type MergeableGlobalState = $preact.State<
@@ -68,7 +72,7 @@ export type MergeableGlobalState = $preact.State<
  * - These variables must remain `const`, as they keep types DRY.
  * - Please do not export these variables, they are for internal use only.
  */
-const passableStateKeys = ['globalObp', 'fetcher', 'head'] as const,
+const passableStateKeys = ['globalObp', 'cspNonce', 'fetcher', 'head'] as const,
     passableHeadStateKeys = ['styleBundle', 'scriptBundle'] as const;
 
 type PassableStateKeys = $type.Writable<typeof passableStateKeys>[number];
@@ -92,7 +96,7 @@ type UpdatableHeadStateKeys = $type.Writable<typeof updatableHeadStateKeys>[numb
  * - These variables must remain `const`, as they keep types DRY.
  * - Please do not export these variables, they are for internal use only.
  */
-const mergeableGlobalStateKeys = ['head'] as const,
+const mergeableGlobalStateKeys = ['cspNonce', 'head'] as const,
     mergeableGlobalHeadStateKeys = ['styleBundle', 'scriptBundle'] as const;
 
 type MergeableGlobalStateKeys = $type.Writable<typeof mergeableGlobalStateKeys>[number];
@@ -148,9 +152,10 @@ export default class Data extends Component<Props, State> {
             fetcher = props.fetcher || defaultFetcher();
 
         this.state = $obj.mergeDeep(
+            { cspNonce: '', head: {} }, // Defaults.
             $obj.pick(initialGlobalState(globalObp), mergeableGlobalStateKeys as unknown as string[]),
             $preact.omitProps($obj.pick(props, passableStateKeys as unknown as string[]), ['globalObp', 'fetcher']), //
-            { $set: { globalObp, fetcher }, head: {} }, // Also ensures that `head` exists.
+            { $set: { globalObp, fetcher } }, // Set explicity.
         ) as unknown as State;
 
         this.contextTools = {
@@ -235,7 +240,7 @@ export const namedPropKeys = (): string[] => passableStateKeys as unknown as str
  * @returns Default global object path string.
  */
 export const defaultGlobalObp = (): string => {
-    return $str.obpPartSafe($app.$pkgName) + '.preactISOData';
+    return $str.obpPartSafe($app.$pkgName) + '.data';
 };
 
 /**
@@ -301,5 +306,5 @@ const initialGlobalState = (globalObp: string): GlobalState => {
         state = $obj.pick(state, mergeableGlobalStateKeys as unknown as string[]);
         state.head = $obj.pick(state.head || {}, mergeableGlobalHeadStateKeys as unknown as string[]);
     }
-    return (state || { head: {} }) as GlobalState;
+    return (state || { cspNonce: '', head: {} }) as GlobalState;
 };

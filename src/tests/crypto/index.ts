@@ -173,4 +173,20 @@ describe('$crypto', async () => {
         expect($crypto.safeEqual('a', 'a')).toBe(true);
         expect($crypto.safeEqual('a', 'b')).toBe(false);
     });
+    test('.base64Encode()', async () => {
+        expect($crypto.base64Encode('aeiouAEIOUaeiouyAEIOUYaeiouAEIOUanoANOaeiouyAEIOUYçÇßØøÅåÆæœ')).toBe(
+            'YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==',
+        );
+        expect($crypto.base64Encode('aeiouAEIOUaeiouyAEIOUYaeiouAEIOUanoANOaeiouyAEIOUYçÇßØøÅåÆæœ', { urlSafe: true })).toBe(
+            'YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5_DmMO4w4XDpcOGw6bFkw',
+        );
+    });
+    test('.base64Decode()', async () => {
+        expect($crypto.base64Decode('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==')).toBe(
+            'aeiouAEIOUaeiouyAEIOUYaeiouAEIOUanoANOaeiouyAEIOUYçÇßØøÅåÆæœ',
+        );
+        expect($crypto.base64Decode('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5_DmMO4w4XDpcOGw6bFkw', { urlSafe: true })).toBe(
+            'aeiouAEIOUaeiouyAEIOUYaeiouAEIOUanoANOaeiouyAEIOUYçÇßØøÅåÆæœ',
+        );
+    });
 });

@@ -7,13 +7,13 @@ import { describe, expect, test } from 'vitest';
 
 describe('$http', async () => {
     test('.requestConfig()', async () => {
-        expect($http.requestConfig()).toStrictEqual({
+        expect($http.requestConfig()).toMatchObject({
             enforceAppBaseURLOrigin: false,
             enforceNoTrailingSlash: false,
         });
     });
     test('.responseConfig()', async () => {
-        expect($http.responseConfig()).toStrictEqual({
+        expect($http.responseConfig()).toMatchObject({
             status: 405,
             enableCORs: false,
             enableCDN: true,
@@ -33,7 +33,7 @@ describe('$http', async () => {
                 appendHeaders: { d: 'd', e: 'e', f: 'f' },
                 body: 'abc',
             }),
-        ).toStrictEqual({
+        ).toMatchObject({
             status: 200,
             enableCORs: true,
             enableCDN: false,
@@ -53,7 +53,6 @@ describe('$http', async () => {
     test('.prepareResponse()', async () => {
         const response1 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'));
         expect(response1).toBeInstanceOf(Response);
-        expect(response1.headers.get('x-frame-options')).toBe('SAMEORIGIN');
     });
     test('.prepareResponseHeaders()', async () => {
         const response1 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'), {
@@ -67,17 +66,17 @@ describe('$http', async () => {
         expect(response1.headers.get('c')).toBe('c, c');
         expect(response1.headers.get('vary')).toBe('abc');
         expect(response1.headers.get('x-ua-compatible')).toBe('abc');
-        expect(response1.headers.get('x-frame-options')).toBe('SAMEORIGIN');
 
         const response2 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'), { status: 200 });
 
         expect(response2).toBeInstanceOf(Response);
-        expect(response2.headers.get('vary')).toBe('origin');
+        expect(response2.headers.get('vary')).toBe(null);
         expect(response2.headers.get('cache-control')).toBe('public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=43200, stale-if-error=43200');
         expect(response2.headers.get('cdn-cache-control')).toBe('public, must-revalidate, max-age=86400, stale-while-revalidate=43200, stale-if-error=43200');
 
-        const response3 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'), {
+        const response3 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz', { headers: { origin: 'https://example.com' } }), {
             status: 200,
+            enableCORs: true,
             ...{ maxAge: 86400, sMaxAge: 86401, staleAge: 86402 },
         });
         expect(response3).toBeInstanceOf(Response);
@@ -85,8 +84,9 @@ describe('$http', async () => {
         expect(response3.headers.get('cache-control')).toBe('public, must-revalidate, max-age=86400, s-maxage=86401, stale-while-revalidate=86402, stale-if-error=86402');
         expect(response3.headers.get('cdn-cache-control')).toBe('public, must-revalidate, max-age=86401, stale-while-revalidate=86402, stale-if-error=86402');
 
-        const response4 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'), {
+        const response4 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz', { headers: { origin: 'https://example.com' } }), {
             status: 200,
+            enableCORs: true,
             headers: { 'cache-control': 'public' },
             ...{ maxAge: 86400, sMaxAge: 86401, staleAge: 86402 },
         });
@@ -95,26 +95,26 @@ describe('$http', async () => {
         expect(response4.headers.get('cache-control')).toBe('public');
         expect(response4.headers.get('cdn-cache-control')).toBe(null);
 
-        const response5 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'), {
+        const response5 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz', { headers: { origin: 'https://example.com' } }), {
             status: 200,
             ...{ sMaxAge: 86401, staleAge: 86402 },
         });
         expect(response5).toBeInstanceOf(Response);
-        expect(response5.headers.get('vary')).toBe('origin');
+        expect(response5.headers.get('vary')).toBe(null);
         expect(response5.headers.get('cache-control')).toBe('public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=43200, stale-if-error=43200');
         expect(response5.headers.get('cdn-cache-control')).toBe('public, must-revalidate, max-age=86400, stale-while-revalidate=43200, stale-if-error=43200');
 
         const response6 = $http.prepareResponse(new Request('https://example.com/image.png?abc=abc&xyz=xyz'), { status: 200 });
 
         expect(response6).toBeInstanceOf(Response);
-        expect(response6.headers.get('vary')).toBe('origin');
+        expect(response6.headers.get('vary')).toBe(null);
         expect(response6.headers.get('cache-control')).toBe('public, must-revalidate, max-age=31536000, s-maxage=31536000, stale-while-revalidate=7776000, stale-if-error=7776000');
         expect(response6.headers.get('cdn-cache-control')).toBe('public, must-revalidate, max-age=31536000, stale-while-revalidate=7776000, stale-if-error=7776000');
 
         const response7 = $http.prepareResponse(new Request('https://example.com/image.png?abc=abc&xyz=xyz'), { status: 300 });
 
         expect(response7).toBeInstanceOf(Response);
-        expect(response7.headers.get('vary')).toBe('origin');
+        expect(response7.headers.get('vary')).toBe(null);
         expect(response7.headers.get('cache-control')).toBe('no-store');
         expect(response7.headers.get('cdn-cache-control')).toBe('no-store');
     });

@@ -26,16 +26,19 @@
         <meta property="og:article:author" content="Jason Caldwell" data-key="ogArticleAuthor" />
         <link rel="preload" fetchpriority="high" href="./style.css" as="style" data-key="preloadStyleBundle" />
         <link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle" />
-        <script id="preact-iso-data" data-key="preactISOData">
+        <script id="global-data" nonce="NWRlMGM5N2U3MzBiNDA3M2I5MGEyZjlmYjg1OWY3MDA=" data-key="globalData">
             globalThis['@clevercanyon/utilities'] = globalThis['@clevercanyon/utilities'] || {};
-            globalThis['@clevercanyon/utilities']['preactISOData'] = globalThis['@clevercanyon/utilities']['preactISOData'] || {};
-            globalThis['@clevercanyon/utilities']['preactISOData'] = { 'head': { 'styleBundle': './style.css', 'scriptBundle': './script.js' } };
+            globalThis['@clevercanyon/utilities']['data'] = globalThis['@clevercanyon/utilities']['data'] || {};
+            globalThis['@clevercanyon/utilities']['data'] = {
+                'cspNonce': 'NWRlMGM5N2U3MzBiNDA3M2I5MGEyZjlmYjg1OWY3MDA=',
+                'head': { 'styleBundle': './style.css', 'scriptBundle': './script.js' },
+            };
             globalThis['@clevercanyon/utilities'] = globalThis['@clevercanyon/utilities'] || {};
-            globalThis['@clevercanyon/utilities']['preactISOData'] = globalThis['@clevercanyon/utilities']['preactISOData'] || {};
-            globalThis['@clevercanyon/utilities']['preactISOData'] = { 'cache': {} };
+            globalThis['@clevercanyon/utilities']['fetcher'] = globalThis['@clevercanyon/utilities']['fetcher'] || {};
+            globalThis['@clevercanyon/utilities']['fetcher'] = { 'cache': {} };
         </script>
-        <script type="module" src="./script.js" data-key="scriptBundle"></script>
-        <script type="application/ld+json" data-key="structuredData">
+        <script type="module" nonce="NWRlMGM5N2U3MzBiNDA3M2I5MGEyZjlmYjg1OWY3MDA=" src="./script.js" data-key="scriptBundle"></script>
+        <script type="application/ld+json" nonce="NWRlMGM5N2U3MzBiNDA3M2I5MGEyZjlmYjg1OWY3MDA=" data-key="structuredData">
             {
                 "@context": "https://schema.org/",
                 "@graph": [
@@ -64,7 +67,7 @@
                             "image": {
                                 "@type": "ImageObject",
                                 "@id": "https://jaswrks.com/#founderImg",
-                                "url": "https://gravatar.com/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512",
+                                "url": "https://gravatar.hop.gdn/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c.png?s=512",
                                 "width": 512,
                                 "height": 512,
                                 "caption": "Jason Caldwell"
@@ -82,9 +85,7 @@
                             "height": 120,
                             "caption": "Clever Canyon"
                         },
-                        "image": {
-                            "@id": "https://clevercanyon.com/#logo"
-                        },
+                        "image": { "@id": "https://clevercanyon.com/#logo" },
                         "sameAs": [
                             "https://twitter.com/clevercanyon",
                             "https://www.linkedin.com/company/clevercanyon",
@@ -93,9 +94,7 @@
                             "https://github.com/clevercanyon",
                             "https://www.npmjs.com/org/clevercanyon"
                         ],
-                        "subOrganization": {
-                            "@id": "https://hop.gdn/#org"
-                        }
+                        "subOrganization": { "@id": "https://hop.gdn/#org" }
                     },
                     {
                         "@type": "Organization",
@@ -122,7 +121,7 @@
                             "image": {
                                 "@type": "ImageObject",
                                 "@id": "https://jaswrks.com/#founderImg",
-                                "url": "https://gravatar.com/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512",
+                                "url": "https://gravatar.hop.gdn/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c.png?s=512",
                                 "width": 512,
                                 "height": 512,
                                 "caption": "Jason Caldwell"
@@ -140,9 +139,7 @@
                             "height": 120,
                             "caption": "Hop.gdn"
                         },
-                        "image": {
-                            "@id": "https://hop.gdn/#logo"
-                        },
+                        "image": { "@id": "https://hop.gdn/#logo" },
                         "sameAs": [
                             "https://twitter.com/clevercanyon",
                             "https://www.linkedin.com/company/clevercanyon",
@@ -151,9 +148,7 @@
                             "https://github.com/clevercanyon",
                             "https://www.npmjs.com/org/clevercanyon"
                         ],
-                        "parentOrganization": {
-                            "@id": "https://clevercanyon.com/#corp"
-                        }
+                        "parentOrganization": { "@id": "https://clevercanyon.com/#corp" }
                     },
                     {
                         "@type": "WebSite",
@@ -177,9 +172,7 @@
                             "https://github.com/clevercanyon",
                             "https://www.npmjs.com/org/clevercanyon"
                         ],
-                        "publisher": {
-                            "@id": "https://hop.gdn/#org"
-                        }
+                        "publisher": { "@id": "https://hop.gdn/#org" }
                     },
                     {
                         "@type": "WebPage",
@@ -192,9 +185,7 @@
                         "keywords": "",
                         "inLanguage": "en-US",
                         "author": [
-                            {
-                                "@id": "https://x.tld/base/#site"
-                            },
+                            { "@id": "https://x.tld/base/#site" },
                             {
                                 "@type": "Person",
                                 "@id": "https://jaswrks.com/#pageAuthor",
@@ -205,7 +196,7 @@
                                 "image": {
                                     "@type": "ImageObject",
                                     "@id": "https://jaswrks.com/#pageAuthorImg",
-                                    "url": "https://gravatar.com/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c?s=512",
+                                    "url": "https://gravatar.hop.gdn/avatar/17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c.png?s=512",
                                     "width": 512,
                                     "height": 512,
                                     "caption": "Jason Caldwell"
@@ -222,20 +213,10 @@
                             "height": 1260,
                             "caption": "Why is the rum gone?"
                         },
-                        "image": [
-                            {
-                                "@id": "https://x.tld/base#pagePrimaryImg"
-                            }
-                        ],
-                        "about": {
-                            "@id": "https://x.tld/base/#site"
-                        },
-                        "isPartOf": {
-                            "@id": "https://x.tld/base/#site"
-                        },
-                        "publisher": {
-                            "@id": "https://hop.gdn/#org"
-                        }
+                        "image": [{ "@id": "https://x.tld/base#pagePrimaryImg" }],
+                        "about": { "@id": "https://x.tld/base/#site" },
+                        "isPartOf": { "@id": "https://x.tld/base/#site" },
+                        "publisher": { "@id": "https://hop.gdn/#org" }
                     }
                 ]
             }
@@ -243,7 +224,7 @@
     </head>
     <body class="h-full">
         <x-preact-app data-hydrate class="block h-full">
-            <script type="route-context-props">
+            <script type="route-context-props" nonce="NWRlMGM5N2U3MzBiNDA3M2I5MGEyZjlmYjg1OWY3MDA=">
                 {"path":"./","pathQuery":"./?a=_a&b=_b&c=_c","restPath":"","restPathQuery":"","query":"?a=_a&b=_b&c=_c","queryVars":{"a":"_a","b":"_b","c":"_c"},"params":{}}
             </script>
         </x-preact-app>

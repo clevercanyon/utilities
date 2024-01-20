@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 
-import { $app, $brand, $env, $json, $person, $preact, $url } from '#index.ts';
+import { $app, $brand, $crypto, $env, $json, $person, $preact, $url } from '#index.ts';
 import { Body, HTML, Head, Root, Route, type RootProps } from '#preact/components.tsx';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
@@ -54,11 +54,12 @@ describe('$preact.iso.prerenderSPA() [web-fixture]', async () => {
         );
     };
     const Index = (): $preact.VNode => {
+        const { state: dataState } = $preact.useData();
         return (
             <HTML>
                 <Head title={'index'} author={$person.get('&')} />
                 <Body class='h-full'>
-                    <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
+                    <script type='route-context-props' nonce={dataState.cspNonce} dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
                 </Body>
             </HTML>
         );
@@ -67,7 +68,9 @@ describe('$preact.iso.prerenderSPA() [web-fixture]', async () => {
 
     test('$preact.iso.prerenderSPA()', async () => {
         const { httpState, docType, html } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c'), {
+                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+            }),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });

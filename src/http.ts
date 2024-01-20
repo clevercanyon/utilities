@@ -5,12 +5,13 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $app, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, $user, type $type } from '#index.ts';
+import { $app, $crypto, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, $user, type $type } from '#index.ts';
 
 /**
  * Defines types.
  */
 export type RequestConfig = {
+    cspNonce?: string;
     enforceAppBaseURLOrigin?: boolean;
     enforceNoTrailingSlash?: boolean;
 };
@@ -25,9 +26,21 @@ export type ResponseConfig = {
     appendHeaders?: $type.Headers | { [x: string]: string };
     body?: $type.BodyInit | null; // i.e., Body contents.
 };
+export type SecurityHeaderOptions = {
+    cspNonce?: string;
+    enableCORs?: boolean;
+};
 export type ExtractHeaderOptions = {
+    cspNonce?: string;
     lowercase?: boolean;
 };
+
+/**
+ * Gets our CSP nonce replacement code.
+ *
+ * @returns String CSP nonce replacement code.
+ */
+export const cspNonceReplacementCode = (): string => '{%-_{%-_cspNonce_-%}_-%}';
 
 /**
  * HTTP request config.
@@ -38,6 +51,7 @@ export type ExtractHeaderOptions = {
  */
 export const requestConfig = (config?: RequestConfig): RequestConfig => {
     return $obj.defaults({}, config || {}, {
+        cspNonce: config?.cspNonce || $crypto.base64Encode($crypto.uuidV4()),
         enforceAppBaseURLOrigin: $env.isC10n() && $app.hasBaseURL(),
         enforceNoTrailingSlash: $env.isC10n(),
     }) as Required<RequestConfig>;
@@ -72,12 +86,14 @@ export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig
  * @param   request HTTP request object.
  * @param   config  Optional config options.
  *
- * @returns         HTTP request.
+ * @returns         HTTP request; potentially rewritten.
  *
  * @throws          Error {@see Response} on failure.
  */
 export const prepareRequest = (request: $type.Request, config?: RequestConfig): $type.Request => {
-    const cfg = requestConfig(config);
+    const originalRequest = request,
+        cfg = requestConfig(config);
+
     let url = $url.tryParse(request.url);
 
     if (!url /* Catches unparseable URLs. */) {
@@ -106,7 +122,7 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
         throw prepareResponse(request, { status: 301, headers: { location: url.toString() } });
     }
     // Deals with Miniflare URLs being proxied as `http:`.
-    if ($env.isCFWViaMiniflare() && 'http:' === url.protocol) {
+    if ('http:' === url.protocol && $env.isCFWViaMiniflare()) {
         // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
         // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
         // It’s worth noting that all our local test configurations make `https:` requests only.
@@ -114,6 +130,12 @@ export const prepareRequest = (request: $type.Request, config?: RequestConfig): 
 
         // Rewrites request object using `https:` URL.
         request = new Request(url.toString(), request as Request);
+    }
+    if (cfg.cspNonce) {
+        if (request === originalRequest) {
+            request = new Request(request as Request);
+        }
+        request.headers.set('x-csp-nonce', cfg.cspNonce);
     }
     return request; // Potentially a rewritten request now.
 };
@@ -204,24 +226,20 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
             } else if (cfg.body instanceof URLSearchParams) {
                 contentHeaders['content-length'] = String($str.byteLength(cfg.body.toString()));
             } else {
-                // We don't set content-length for `FormData|ReadableStream` body format types.
+                // We don't auto-set content-length for `FormData|ReadableStream` body format types.
                 // The only way to determine the length of a readable stream is to actually read the stream.
                 // Don't use `FormData` sent as `application/x-www-form-urlencoded`. Use `URLSearchParams` or a string.
             }
         }
     }
     // Populates `cache-control` and cache-related headers.
+    // `vary` is ignored by Cloudflare, except in one rare case: <https://o5p.me/k4Xx0j>.
+    // That said, *we* use `?_ck` to vary based on `origin` via Cloudflare workers cache API.
 
-    // Vary is ignored by Cloudflare, except in one rare case: <https://o5p.me/k4Xx0j>.
-    // Vary is *not* ignored by browsers, but since it *is* ignored by Cloudflare, if a browser requests the same location
-    // with one of the following headers, and that location is being cached by Cloudflare, they'll always get the same response.
-
-    // Regardless, note that `origin` is always varied at the edge by Cloudflare; i.e., unless explicitly configured to exclude `origin`.
-    // Additionally, we use `_ck` to vary based on `origin` when using the cache API with Cloudflare workers — handled by request rewrites above.
-
-    cacheHeaders['vary'] = 'origin'; // Only varying based on `origin` at this time.
-
-    if (!cfg.headers.has('cache-control') /* Simply saves time. */) {
+    if (cfg.enableCORs && request.headers.has('origin')) {
+        cacheHeaders['vary'] = 'origin'; // Only varying based on `origin` at this time.
+    }
+    if (!cfg.headers.has('cache-control') /* This simply saves us a little time. */) {
         const cacheControl = (
             maxAge?: ResponseConfig['maxAge'], // Browser max age (cache TTL).
             sMaxAge?: ResponseConfig['sMaxAge'], // Server max age; e.g., Cloudflare.
@@ -269,20 +287,36 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
     // Populates security-related headers.
 
     if ($env.isC10n()) {
-        for (const [name, value] of Object.entries(c10nSecurityHeaders())) securityHeaders[name] = value;
+        for (const [name, value] of Object.entries(
+            c10nSecurityHeaders({
+                enableCORs: cfg.enableCORs,
+                cspNonce: request.headers.get('x-csp-nonce') || '',
+            }),
+        )) {
+            securityHeaders[name] = value; // Assigns security headers.
+        }
     } else {
-        for (const [name, value] of Object.entries(defaultSecurityHeaders())) securityHeaders[name] = value;
+        for (const [name, value] of Object.entries(
+            defaultSecurityHeaders({
+                enableCORs: cfg.enableCORs,
+                cspNonce: request.headers.get('x-csp-nonce') || '',
+            }),
+        )) {
+            securityHeaders[name] = value; // Assigns security headers.
+        }
     }
     // Populates CORs-related headers.
 
-    if (cfg.enableCORs) {
+    if (cfg.enableCORs && request.headers.has('origin')) {
         corsHeaders['access-control-max-age'] = '7200';
         corsHeaders['access-control-allow-credentials'] = 'true';
+        corsHeaders['access-control-allow-origin'] = request.headers.get('origin') || '*';
         corsHeaders['access-control-allow-methods'] = supportedRequestMethods().join(', ');
         corsHeaders['access-control-allow-headers'] = corsRequestHeaderNames().join(', ');
         corsHeaders['access-control-expose-headers'] = corsResponseHeaderNames().join(', ');
-        corsHeaders['timing-allow-origin'] = request.headers.has('origin') ? request.headers.get('origin') || '' : '*';
-        corsHeaders['access-control-allow-origin'] = request.headers.has('origin') ? request.headers.get('origin') || '' : '*';
+        //
+    } else if (cfg.enableCORs) {
+        corsHeaders['access-control-allow-origin'] = '*';
     }
     // Merges and returns all headers.
 
@@ -292,6 +326,67 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
     cfg.appendHeaders.forEach((value, name) => headers.append(name, value));
 
     return headers;
+};
+
+/**
+ * Prepares a cached HTTP response.
+ *
+ * @param   request  HTTP request object.
+ * @param   response HTTP response object.
+ *
+ * @returns          HTTP response object promise.
+ */
+export const prepareCachedResponse = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
+    response = response.clone(); // Safest to always work with a clone here.
+    const useResponseBody = requestNeedsContentBody(request, response.status);
+
+    if (responseIsHTML(response) && request.headers.has('x-csp-nonce') && response.headers.has('content-security-policy')) {
+        const cspNonceReplCode = cspNonceReplacementCode(),
+            cspNonce = request.headers.get('x-csp-nonce') || '',
+            csp = response.headers.get('content-security-policy') || '';
+
+        response.headers.set('content-security-policy', csp.replaceAll(cspNonceReplCode, cspNonce));
+
+        if (useResponseBody && response.body) {
+            response = new Response((await response.text()).replaceAll(cspNonceReplCode, cspNonce), response);
+        }
+    }
+    if (!useResponseBody) {
+        response = new Response(null, response);
+    }
+    return response;
+};
+
+/**
+ * Prepares an HTTP response for cache.
+ *
+ * @param   request  HTTP request object.
+ * @param   response HTTP response object.
+ *
+ * @returns          HTTP response object promise.
+ */
+export const prepareResponseForCache = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
+    response = response.clone(); // Safest to always work with a clone here.
+
+    if (responseIsHTML(response) && request.headers.has('x-csp-nonce') && response.headers.has('content-security-policy')) {
+        const cspNonceReplCode = cspNonceReplacementCode(),
+            csp = response.headers.get('content-security-policy') || '';
+
+        response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
+
+        if (response.body)
+            // {@see https://regex101.com/r/oTjEIq/7} {@see https://regex101.com/r/1MioJI/9}.
+            response = new Response(
+                (await response.text())
+                    .replace(/(<script(?:\s+[^<>]*?)?\s+nonce\s*=\s*)(['"])[^'"<>]*\2/giu, '$1$2' + cspNonceReplCode + '$2')
+                    .replace(
+                        /(<script(?:\s+[^<>]*?)?\s+id\s*=\s*(['"])global-data\2[^<>]*>(?:[\s\S](?!<\/script>))*)((['"]{0,1})cspNonce\4\s*:\s*)(['"])[^'"<>]*\5/iu,
+                        '$1$3$5' + cspNonceReplCode + '$5',
+                    ),
+                response,
+            );
+    }
+    return response;
 };
 
 /**
@@ -376,6 +471,9 @@ export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean
 /**
  * Request is coming from a specific via token?
  *
+ * WARNING: We do not vary caches based on `x-via`. Therefore, you should _only_ use this when processing an uncacheable
+ * request type; e.g., `POST` request, or another that is uncacheable; {@see requestHasCacheableMethod()}.
+ *
  * @param   request HTTP request object.
  * @param   via     `x-via` token to consider.
  *
@@ -392,6 +490,12 @@ export const requestIsVia = $fnꓺmemo(2, (request: $type.Request, via: string):
 /**
  * Request expects a JSON response?
  *
+ * WARNING: We do not vary caches based on `accept`. Therefore, you should _only_ use this when processing an
+ * uncacheable request type; e.g., `POST` request, or another that is uncacheable; {@see requestHasCacheableMethod()}.
+ *
+ * WARNING: This isn’t foolproof because it assumes anything of our own served from `/api` will expect JSON in the
+ * absense of an `accept` header. Therefore, only use in contexts where false-positives are not detrimental.
+ *
  * @param   request HTTP request object.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
@@ -402,8 +506,8 @@ export const requestExpectsJSON = $fnꓺmemo(2, (request: $type.Request, _url?: 
     url = $fn.try(() => $url.removeAppBasePath(url), url)();
     const acceptHeader = request.headers.get('accept') || '';
     return (
-        ($is.notEmpty(acceptHeader) && /\b(?:application\/json)\b/iu.test(acceptHeader)) || //
-        ($env.isC10n() && '/' !== url.pathname && /^\/(?:api)(?:$|\/)/iu.test(url.pathname))
+        (acceptHeader && /\b(?:application\/json)\b/iu.test(acceptHeader)) || //
+        (!acceptHeader && $env.isC10n() && '/' !== url.pathname && /^\/(?:api)(?:$|\/)/iu.test(url.pathname))
     );
 });
 
@@ -588,6 +692,17 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
     if ('/' === url.pathname) return false;
 
     return $path.hasStaticExt(url.pathname);
+});
+
+/**
+ * Response is an HTML document?
+ *
+ * @param   response HTTP response object.
+ *
+ * @returns          True if response is an HTML document.
+ */
+export const responseIsHTML = $fnꓺmemo(2, (response: $type.Response): boolean => {
+    return 'text/html' === response.headers.get('content-type')?.split(';')[0]?.toLowerCase();
 });
 
 /**
@@ -908,6 +1023,7 @@ export const protectedHeaderNames = (): string[] => [
     'x-correlation-id',
 
     'idempotency-key',
+    'x-csp-nonce',
     'x-csrf-token',
     'x-nonce',
     'x-uidh',
@@ -1029,6 +1145,7 @@ export const corsRequestHeaderNames = (): string[] => [
     'x-client-ip',
     'x-cluster-client-ip',
     'x-correlation-id',
+    'x-csp-nonce',
     'x-csrf-token',
     'x-forwarded-for',
     'x-forwarded-host',
@@ -1257,62 +1374,182 @@ export const responseStatusCodes = (): { [x: string]: string } => {
 /**
  * Default security headers.
  *
- * @returns Object with header names as props.
+ * @param   options All optional; {@see SecurityHeaderOptions}.
+ *
+ * @returns         Object with header names as props.
+ *
+ * @see https://report-uri.com/home/generate
+ * @see https://csp-evaluator.withgoogle.com/
  */
-export const defaultSecurityHeaders = (): { [x: string]: string } => {
-    const stripe = '"https://js.stripe.com"',
-        googlePay = '"https://pay.google.com"',
-        youtube = '"https://youtube-nocookie.com" "https://*.youtube-nocookie.com"';
+export const defaultSecurityHeaders = (options?: SecurityHeaderOptions): { [x: string]: string } => {
+    const opts = $obj.defaults({}, options || {}, { cspNonce: '', enableCORs: false }) as Required<SecurityHeaderOptions>;
     return {
-        'x-frame-options': 'SAMEORIGIN',
         'x-content-type-options': 'nosniff',
-        'cross-origin-embedder-policy': 'unsafe-none',
         'cross-origin-opener-policy': 'same-origin',
-        'cross-origin-resource-policy': 'same-origin',
+        ...(opts.enableCORs ? { 'timing-allow-origin': '*' } : {}),
+        'cross-origin-resource-policy': opts.enableCORs ? 'cross-origin' : 'same-origin',
+        'cross-origin-embedder-policy': 'credentialless',
         'referrer-policy': 'strict-origin-when-cross-origin',
-        'content-security-policy':
-            "base-uri 'self';" +
-            " frame-ancestors 'self';" +
+        'strict-transport-security': 'max-age=15552000; includeSubDomains; preload',
+
+        // Generated using {@see https://report-uri.com/home/generate}.
+        // Validated using {@see https://csp-evaluator.withgoogle.com/}.
+        'content-security-policy': (
+            ` child-src *;` +
+            ` connect-src *;` +
+            ` font-src *;` +
+            ` form-action *;` +
+            ` frame-src *;` +
+            ` img-src * data:;` +
+            ` media-src *;` +
+            ` object-src 'none';` +
+            (opts.cspNonce // `* 'unsafe-inline'` are fallbacks for browsers lacking `strict-dynamic`.
+                ? ` script-src 'nonce-${opts.cspNonce}' 'strict-dynamic' * 'unsafe-inline' 'report-sample';`
+                : ` script-src 'self' 'report-sample';`) +
+            ` style-src * 'unsafe-inline' 'report-sample';` +
+            ` worker-src *;` +
             //
-            " default-src * data: blob: mediastream: 'report-sample';" +
-            " style-src * data: blob: 'unsafe-inline' 'report-sample';" +
-            " object-src 'none';" + // No objects whatsoever.
-            //
-            " script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample'" + // Standard allowances.
-                // ' :: ::1' + // These are not actually supported at present and trigger console warnings; {@see https://o5p.me/HYDIog}.
-                ' 0.0.0.0 127.0.0.1 *.local *.localhost *.mac *.loc *.dkr *.vm' + // Local hostnames.
-                ' *.clevercanyon.com *.hop.gdn' + // Our own hostnames.
-                ' *.cloudflare.com *.cloudflareinsights.com' + // Cloudflare services.
-                ' *.google.com *.googletagmanager.com *.google-analytics.com *.googleadservices.com googleads.g.doubleclick.net' + // Google services.
-                ' *.betterstack.com' + // Better Stack services.
-                ' *.stripe.com' + // Stripe services.
-                ';', // prettier-ignore
+            ` base-uri 'self';` +
+            ` default-src 'self';` +
+            ` manifest-src 'self';` +
+            ` upgrade-insecure-requests;` +
+            ` frame-ancestors ${opts.enableCORs ? `*` : `'self'`};` +
+            ''
+        ) // ↑ Last line empty for easy sorting of others.
+            .trim()
+            .replace(/;$/gu, ''),
 
         // Regarding the `unload()` permission, it impacts back/forward cache.
         // {@see https://web.dev/articles/bfcache} for further details from Google.
-        'permissions-policy':
-            'accelerometer=(self ' + youtube + '), autoplay=(self ' + youtube + '), camera=(self), clipboard-read=(self), clipboard-write=(self ' + youtube + '), cross-origin-isolated=(self), display-capture=(self),' +
-            ' encrypted-media=(self ' + youtube + '), fullscreen=(self ' + youtube + '), gamepad=(self), geolocation=(self), gyroscope=(self ' + youtube + '), hid=(self), idle-detection=(self), interest-cohort=(self),' +
-            ' keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), payment=(self ' + stripe + ' ' + googlePay + '), picture-in-picture=(self ' + youtube + '),' +
-            ' publickey-credentials-get=(self), screen-wake-lock=(self), serial=(self), sync-xhr=(self), unload=(self), usb=(self), window-management=(self), xr-spatial-tracking=(self)',
-        // prettier-ignore
+        'permissions-policy': (
+            ` accelerometer=(self),` +
+            ` autoplay=(self),` +
+            ` camera=(self),` +
+            ` clipboard-read=(self),` +
+            ` clipboard-write=(self),` +
+            ` cross-origin-isolated=(self),` +
+            ` display-capture=(self),` +
+            ` encrypted-media=(self),` +
+            ` fullscreen=(self),` +
+            ` gamepad=(self),` +
+            ` geolocation=(self),` +
+            ` gyroscope=(self),` +
+            ` hid=(self),` +
+            ` idle-detection=(self),` +
+            ` interest-cohort=(self),` +
+            ` keyboard-map=(self),` +
+            ` magnetometer=(self),` +
+            ` microphone=(self),` +
+            ` midi=(self),` +
+            ` payment=(self),` +
+            ` picture-in-picture=(self),` +
+            ` publickey-credentials-get=(self),` +
+            ` screen-wake-lock=(self),` +
+            ` serial=(self),` +
+            ` sync-xhr=(self),` +
+            ` unload=(),` + // Disable.
+            ` usb=(self),` +
+            ` window-management=(self),` +
+            ` xr-spatial-tracking=(self),` +
+            ''
+        ) // ↑ Last line empty for easy sorting of others.
+            .trim()
+            .replace(/,$/gu, ''),
     };
 };
 
 /**
  * C10n security headers.
  *
- * @returns Object with header names as props.
+ * See also, CSP for `r2.hop.gdn`:
+ *
+ *     default-src 'self'; script-src 'self' hop.gdn *.hop.gdn ajax.cloudflare.com challenges.cloudflare.com static.cloudflareinsights.com 'report-sample';
+ *     style-src * 'unsafe-inline' 'report-sample'; img-src * data:; font-src *; connect-src *; media-src *; object-src 'none'; child-src *; frame-src *;
+ *     worker-src *; frame-ancestors *; form-action *; upgrade-insecure-requests; base-uri 'self'; manifest-src 'self';
+ *     report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp
+ *
+ * @param   options All optional; {@see SecurityHeaderOptions}.
+ *
+ * @returns         Object with header names as props.
+ *
+ * @see https://report-uri.com/home/generate
+ * @see https://csp-evaluator.withgoogle.com/
  */
-export const c10nSecurityHeaders = (): { [x: string]: string } => {
-    return {
-        ...defaultSecurityHeaders(),
+export const c10nSecurityHeaders = (options?: SecurityHeaderOptions): { [x: string]: string } => {
+    const opts = $obj.defaults({}, options || {}, { cspNonce: '', enableCORs: false }) as Required<SecurityHeaderOptions>,
+        defaultHeaders = defaultSecurityHeaders(opts),
+        hopCSPHostnames = '*.hop.gdn',
+        hopPPOrigins = '"https://*.hop.gdn"',
+        youtubePPOrigins = '"https://www.youtube-nocookie.com"',
+        cloudflareCSPHostnames = 'ajax.cloudflare.com challenges.cloudflare.com static.cloudflareinsights.com';
 
-        'strict-transport-security': 'max-age=15552000; includeSubDomains; preload',
-        'content-security-policy':
-            'report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp; upgrade-insecure-requests;' +
-            ' ' + // Ahead of our default CSP.
-            defaultSecurityHeaders()['content-security-policy'],
+    return {
+        ...defaultHeaders,
+
+        // Generated using {@see https://report-uri.com/home/generate}.
+        // Validated using {@see https://csp-evaluator.withgoogle.com/}.
+        'content-security-policy': (
+            ` child-src *;` +
+            ` connect-src *;` +
+            ` font-src *;` +
+            ` form-action *;` +
+            ` frame-src *;` +
+            ` img-src * data:;` +
+            ` media-src *;` +
+            ` object-src 'none';` +
+            (opts.cspNonce // `* 'unsafe-inline'` are fallbacks for browsers lacking `strict-dynamic`.
+                ? ` script-src 'nonce-${opts.cspNonce}' 'strict-dynamic' * 'unsafe-inline' 'report-sample';`
+                : ` script-src 'self' ${hopCSPHostnames} ${cloudflareCSPHostnames} 'report-sample';`) +
+            ` style-src * 'unsafe-inline' 'report-sample';` +
+            ` worker-src *;` +
+            //
+            ` base-uri 'self';` +
+            ` default-src 'self';` +
+            ` manifest-src 'self';` +
+            ` upgrade-insecure-requests;` +
+            ` frame-ancestors ${opts.enableCORs ? `*` : `'self' ${hopCSPHostnames}`};` +
+            ` report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp;` +
+            ''
+        ) // ↑ Last line empty for easy sorting of others.
+            .trim()
+            .replace(/;$/gu, ''),
+
+        // Regarding the `unload()` permission, it impacts back/forward cache.
+        // {@see https://web.dev/articles/bfcache} for further details from Google.
+        'permissions-policy': (
+            ` accelerometer=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
+            ` autoplay=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
+            ` camera=(self ${hopPPOrigins}),` +
+            ` clipboard-read=(self ${hopPPOrigins}),` +
+            ` clipboard-write=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
+            ` cross-origin-isolated=(self ${hopPPOrigins}),` +
+            ` display-capture=(self ${hopPPOrigins}),` +
+            ` encrypted-media=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
+            ` fullscreen=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
+            ` gamepad=(self ${hopPPOrigins}),` +
+            ` geolocation=(self ${hopPPOrigins}),` +
+            ` gyroscope=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
+            ` hid=(self ${hopPPOrigins}),` +
+            ` idle-detection=(self ${hopPPOrigins}),` +
+            ` interest-cohort=(self ${hopPPOrigins}),` +
+            ` keyboard-map=(self ${hopPPOrigins}),` +
+            ` magnetometer=(self ${hopPPOrigins}),` +
+            ` microphone=(self ${hopPPOrigins}),` +
+            ` midi=(self ${hopPPOrigins}),` +
+            ` payment=(self ${hopPPOrigins}),` +
+            ` picture-in-picture=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
+            ` publickey-credentials-get=(self ${hopPPOrigins}),` +
+            ` screen-wake-lock=(self ${hopPPOrigins}),` +
+            ` serial=(self ${hopPPOrigins}),` +
+            ` sync-xhr=(self ${hopPPOrigins}),` +
+            ` unload=(),` + // Disable.
+            ` usb=(self ${hopPPOrigins}),` +
+            ` window-management=(self ${hopPPOrigins}),` +
+            ` xr-spatial-tracking=(self ${hopPPOrigins}),` +
+            ''
+        ) // ↑ Last line empty for easy sorting of others.
+            .trim()
+            .replace(/,$/gu, ''),
 
         'nel': '{ "report_to": "default", "max_age": 31536000, "include_subdomains": true }',
         'report-to':

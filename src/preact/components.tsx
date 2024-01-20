@@ -4,7 +4,6 @@
 
 import '#@initialize.ts';
 
-export { default as Route404 } from '#preact/components/404.tsx';
 export { default as Analytics, type Props as AnalyticsProps } from '#preact/components/analytics.tsx';
 export { default as As, type Props as AsProps } from '#preact/components/as.tsx';
 export { default as AuditLogger, type Props as AuditLoggerProps } from '#preact/components/audit-logger.tsx';

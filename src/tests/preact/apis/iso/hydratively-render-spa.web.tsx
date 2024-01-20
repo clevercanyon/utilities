@@ -78,7 +78,7 @@ describe('$preact.iso.hydrativelyRenderSPA() [web]', async () => {
 
         // Neither `document.write` or `(outer|inner)HTML` run embedded script tags, for security reasons.
         // That's why we're extracting and running script code using a `new Function()` below, which runs script code.
-        const dataScriptCode = doctypeHTML.match(/<script id="preact-iso-data" data-key="preactISOData">([^<>]+)<\/script>/iu)?.[1] || '';
+        const dataScriptCode = doctypeHTML.match(/<script id="global-data" nonce="[^"]+" data-key="globalData">([^<>]+)<\/script>/u)?.[1] || '';
         // eslint-disable-next-line @typescript-eslint/no-implied-eval -- OK when testing.
         if (dataScriptCode) new Function(dataScriptCode)(); // Execute script code.
 
@@ -87,7 +87,7 @@ describe('$preact.iso.hydrativelyRenderSPA() [web]', async () => {
 
         expect(domIndexHeadMarkup).toContain('<title data-key="title">index</title>');
         expect(domIndexHeadMarkup).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle">');
-        expect(domIndexHeadMarkup).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');
+        expect(domIndexHeadMarkup).toMatch(/<script type="module" nonce="[^"]+" src="\.\/script\.js" data-key="scriptBundle"><\/script>/u);
         expect(domIndexBodyMarkup).toContain('"path":"./"');
         expect(domIndexBodyMarkup).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
         expect(domIndexBodyMarkup).toContain('"restPath":""');
@@ -109,7 +109,7 @@ describe('$preact.iso.hydrativelyRenderSPA() [web]', async () => {
                 expect(domHydratedIndexMarkup).toContain('<html lang="en-US" dir="ltr">');
                 expect(domHydratedIndexHeadMarkup).toContain('<title data-key="title">index</title>');
                 expect(domHydratedIndexHeadMarkup).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle">');
-                expect(domHydratedIndexHeadMarkup).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');
+                expect(domHydratedIndexHeadMarkup).toMatch(/<script type="module" nonce="[^"]+" src="\.\/script\.js" data-key="scriptBundle"><\/script>/u);
                 expect(domHydratedIndexBodyMarkup).toContain('"path":"./"');
                 expect(domHydratedIndexBodyMarkup).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
                 expect(domHydratedIndexBodyMarkup).toContain('"restPath":""');

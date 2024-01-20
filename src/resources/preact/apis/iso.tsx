@@ -69,6 +69,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
         //
         httpState = props.httpState || {}, // Passed through props as state by reference.
         url = props.url || request.url, // URL required, as we cannot detect via `location`.
+        cspNonce = props.cspNonce || request.headers.get('x-csp-nonce') || '', // Nonce for CSP.
         fetcher = props.fetcher || defaultFetcher(); // Required for prerender; see notes above.
 
     let styleBundle: undefined | string, //
@@ -96,6 +97,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
             url, // Absolute request URL.
 
             // `<Data>` props.
+            cspNonce, // Nonce for CSP.
             fetcher, // Request-specific fetcher.
             head: $obj.patchDeep({ styleBundle, scriptBundle }, props.head),
         },
@@ -152,12 +154,13 @@ export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions)
      *
      * `<Location>` props.
      *
-     * - `url`: It’s either already in props or detected via `location` on web.
+     * - `url`: If not already in props, it’s detected via `window.location`.
      *
      * `<Data>` props.
      *
-     * - `fetcher`: It’s either already in props, or `<Data>` uses same default as prerender.
-     * - `head`: It’s either already in props, or `<Data>` uses global state from script code.
+     * - `cspNonce`: If not already in props, `<Data>` uses global state from script code.
+     * - `fetcher`: If not already in props, `<Data>` uses the same default as prerender does.
+     * - `head`: If not already in props, `<Data>` uses global state from script code.
      */
 };
 

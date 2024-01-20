@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import { $app, $brand, $env, $json, $preact, $url } from '#index.ts';
+import { $app, $brand, $crypto, $env, $json, $preact, $url } from '#index.ts';
 import { Body, HTML, Head, Root, Route, Router, type RootProps, type RoutedProps } from '#preact/components.tsx';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
@@ -47,7 +47,6 @@ describe('$preact.iso.prerenderSPA() [404-cfw]', async () => {
             <Root {...props}>
                 <Route path='./' component={Index} />
                 <Route path='./others/*' component={Others} />
-                <Route default component={Route404} />
             </Root>
         );
     };
@@ -79,26 +78,6 @@ describe('$preact.iso.prerenderSPA() [404-cfw]', async () => {
             </HTML>
         );
     };
-    const Route404 = $preact.lazyRoute(() => import('#preact/components/404.tsx'));
-
-    // ---
-
-    test('404/Route404', async () => {
-        const {
-            httpState: othersOtherFooHTTPState,
-            docType: othersOtherFooDocType,
-            html: othersOtherFooHTML,
-        } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('https://x.tld/nonexistent?a=_a&b=_b&c=_c')),
-            appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
-            App, // Defined above.
-        });
-        expect(othersOtherFooHTTPState.status).toBe(404);
-        expect(othersOtherFooDocType).toBe('<!doctype html>');
-        expect(othersOtherFooHTML).toContain('<title data-key="title">404 Error: Not Found</title>');
-        expect(othersOtherFooHTML).toContain('</html>');
-    });
-
     // ---
 
     test('404/StandAlone', async () => {
@@ -107,7 +86,9 @@ describe('$preact.iso.prerenderSPA() [404-cfw]', async () => {
             docType: othersOtherFooDocType,
             html: othersOtherFooHTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('https://x.tld/others/nonexistent?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/others/nonexistent?a=_a&b=_b&c=_c'), {
+                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+            }),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });

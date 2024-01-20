@@ -2,18 +2,18 @@
  * Test suite.
  */
 
-import { $http } from '#index.ts';
+import { $crypto, $http, $is, $mime } from '#index.ts';
 import { describe, expect, test } from 'vitest';
 
 describe('$http', async () => {
     test('.requestConfig()', async () => {
-        expect($http.requestConfig()).toStrictEqual({
+        expect($http.requestConfig()).toMatchObject({
             enforceAppBaseURLOrigin: false,
             enforceNoTrailingSlash: false,
         });
     });
     test('.responseConfig()', async () => {
-        expect($http.responseConfig()).toStrictEqual({
+        expect($http.responseConfig()).toMatchObject({
             status: 405,
             enableCORs: false,
             enableCDN: true,
@@ -33,7 +33,7 @@ describe('$http', async () => {
                 appendHeaders: { d: 'd', e: 'e', f: 'f' },
                 body: 'abc',
             }),
-        ).toStrictEqual({
+        ).toMatchObject({
             status: 200,
             enableCORs: true,
             enableCDN: false,
@@ -53,7 +53,6 @@ describe('$http', async () => {
     test('.prepareResponse()', async () => {
         const response1 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'));
         expect(response1).toBeInstanceOf(Response);
-        expect(response1.headers.get('x-frame-options')).toBe('SAMEORIGIN');
     });
     test('.prepareResponseHeaders()', async () => {
         const response1 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'), {
@@ -67,12 +66,11 @@ describe('$http', async () => {
         expect(response1.headers.get('c')).toBe('c, c');
         expect(response1.headers.get('vary')).toBe('abc');
         expect(response1.headers.get('x-ua-compatible')).toBe('abc');
-        expect(response1.headers.get('x-frame-options')).toBe('SAMEORIGIN');
 
         const response2 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'), { status: 200 });
 
         expect(response2).toBeInstanceOf(Response);
-        expect(response2.headers.get('vary')).toBe('origin');
+        expect(response2.headers.get('vary')).toBe(null);
         expect(response2.headers.get('cache-control')).toBe('public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=43200, stale-if-error=43200');
         expect(response2.headers.get('cdn-cache-control')).toBe('public, must-revalidate, max-age=86400, stale-while-revalidate=43200, stale-if-error=43200');
 
@@ -81,7 +79,7 @@ describe('$http', async () => {
             ...{ maxAge: 86400, sMaxAge: 86401, staleAge: 86402 },
         });
         expect(response3).toBeInstanceOf(Response);
-        expect(response3.headers.get('vary')).toBe('origin');
+        expect(response3.headers.get('vary')).toBe(null);
         expect(response3.headers.get('cache-control')).toBe('public, must-revalidate, max-age=86400, s-maxage=86401, stale-while-revalidate=86402, stale-if-error=86402');
         expect(response3.headers.get('cdn-cache-control')).toBe('public, must-revalidate, max-age=86401, stale-while-revalidate=86402, stale-if-error=86402');
 
@@ -91,12 +89,13 @@ describe('$http', async () => {
             ...{ maxAge: 86400, sMaxAge: 86401, staleAge: 86402 },
         });
         expect(response4).toBeInstanceOf(Response);
-        expect(response4.headers.get('vary')).toBe('origin');
+        expect(response4.headers.get('vary')).toBe(null);
         expect(response4.headers.get('cache-control')).toBe('public');
         expect(response4.headers.get('cdn-cache-control')).toBe(null);
 
-        const response5 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz'), {
+        const response5 = $http.prepareResponse(new Request('https://example.com/?abc=abc&xyz=xyz', { headers: { origin: 'https://example.com' } }), {
             status: 200,
+            enableCORs: true,
             ...{ sMaxAge: 86401, staleAge: 86402 },
         });
         expect(response5).toBeInstanceOf(Response);
@@ -104,19 +103,85 @@ describe('$http', async () => {
         expect(response5.headers.get('cache-control')).toBe('public, must-revalidate, max-age=86400, s-maxage=86400, stale-while-revalidate=43200, stale-if-error=43200');
         expect(response5.headers.get('cdn-cache-control')).toBe('public, must-revalidate, max-age=86400, stale-while-revalidate=43200, stale-if-error=43200');
 
-        const response6 = $http.prepareResponse(new Request('https://example.com/image.png?abc=abc&xyz=xyz'), { status: 200 });
-
+        const response6 = $http.prepareResponse(new Request('https://example.com/image.png?abc=abc&xyz=xyz', { headers: { origin: 'https://example.com' } }), {
+            status: 200,
+            enableCORs: true,
+        });
         expect(response6).toBeInstanceOf(Response);
         expect(response6.headers.get('vary')).toBe('origin');
         expect(response6.headers.get('cache-control')).toBe('public, must-revalidate, max-age=31536000, s-maxage=31536000, stale-while-revalidate=7776000, stale-if-error=7776000');
         expect(response6.headers.get('cdn-cache-control')).toBe('public, must-revalidate, max-age=31536000, stale-while-revalidate=7776000, stale-if-error=7776000');
 
-        const response7 = $http.prepareResponse(new Request('https://example.com/image.png?abc=abc&xyz=xyz'), { status: 300 });
+        const response7 = $http.prepareResponse(new Request('https://example.com/image.png?abc=abc&xyz=xyz', { headers: { origin: 'https://example.com' } }), { status: 300 });
 
         expect(response7).toBeInstanceOf(Response);
-        expect(response7.headers.get('vary')).toBe('origin');
+        expect(response7.headers.get('vary')).toBe(null);
         expect(response7.headers.get('cache-control')).toBe('no-store');
         expect(response7.headers.get('cdn-cache-control')).toBe('no-store');
+    });
+    test('.prepareCachedResponse()', async () => {
+        const request1 = new Request('https://example.com/', {
+                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+            }),
+            cspReplCode = $http.cspNonceReplacementCode(),
+            cspNonce = request1.headers.get('x-csp-nonce') || '',
+            response1 = await $http.prepareCachedResponse(
+                request1,
+                $http.prepareResponse(request1, {
+                    headers: { 'content-type': $mime.contentType('.html') },
+                    body:
+                        `<script nonce="${cspReplCode}"></script>` + //
+                        `<script id="global-data" nonce="${cspReplCode}">const data = { cspNonce: '${cspReplCode}' };</script>`,
+                }),
+            ),
+            response1Headers = response1.headers,
+            response1Body = await response1.text();
+
+        expect(response1).toBeInstanceOf(Response);
+
+        expect(response1Headers.get('content-security-policy') || '').toContain("'nonce-" + cspNonce + "'");
+        expect(response1Headers.get('content-security-policy') || '').not.toContain("'nonce-" + cspReplCode + "'");
+
+        expect(response1Body).toContain('<script nonce="' + cspNonce + '"></script>');
+        expect(response1Body).not.toContain('<script nonce="' + cspReplCode + '"></script>');
+
+        expect(response1Body).toContain('<script id="global-data" nonce="' + cspNonce + '">');
+        expect(response1Body).not.toContain('<script id="global-data" nonce="' + cspReplCode + '">');
+
+        expect(response1Body).toContain(" cspNonce: '" + cspNonce + "'");
+        expect(response1Body).not.toContain(" cspNonce: '" + cspReplCode + "'");
+    });
+    test('.prepareResponseForCache()', async () => {
+        const request1 = new Request('https://example.com/', {
+                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+            }),
+            cspReplCode = $http.cspNonceReplacementCode(),
+            cspNonce = request1.headers.get('x-csp-nonce') || '',
+            response1 = await $http.prepareResponseForCache(
+                request1,
+                $http.prepareResponse(request1, {
+                    headers: { 'content-type': $mime.contentType('.html') },
+                    body:
+                        `<script nonce="${cspNonce}"></script>` + //
+                        `<script id="global-data" nonce="${cspNonce}">const data = { cspNonce: '${cspNonce}' };</script>`,
+                }),
+            ),
+            response1Headers = response1.headers,
+            response1Body = await response1.text();
+
+        expect(response1).toBeInstanceOf(Response);
+
+        expect(response1Headers.get('content-security-policy') || '').toContain("'nonce-" + cspReplCode + "'");
+        expect(response1Headers.get('content-security-policy') || '').not.toContain("'nonce-" + cspNonce + "'");
+
+        expect(response1Body).toContain('<script nonce="' + cspReplCode + '"></script>');
+        expect(response1Body).not.toContain('<script nonce="' + cspNonce + '"></script>');
+
+        expect(response1Body).toContain('<script id="global-data" nonce="' + cspReplCode + '">');
+        expect(response1Body).not.toContain('<script id="global-data" nonce="' + cspNonce + '">');
+
+        expect(response1Body).toContain(" cspNonce: '" + cspReplCode + "'");
+        expect(response1Body).not.toContain(" cspNonce: '" + cspNonce + "'");
     });
     test('.responseStatusText()', async () => {
         expect($http.responseStatusText(200)).toBe('OK');
@@ -327,5 +392,21 @@ describe('$http', async () => {
 
         expect($http.extractHeaders({ A: 'A', B: 'B', c: 'c' })).toStrictEqual({ a: 'A', b: 'B', c: 'c' });
         expect($http.extractHeaders({ A: 'A', B: 'B', c: 'c' }, { lowercase: false })).toStrictEqual({ A: 'A', B: 'B', c: 'c' });
+    });
+    test('.defaultSecurityHeaders()', async () => {
+        expect($http.defaultSecurityHeaders()).toSatisfy((v: unknown) => {
+            return $is.object(v) && !Object.hasOwn(v, 'timing-allow-origin');
+        });
+        expect($http.defaultSecurityHeaders({ enableCORs: true })).toSatisfy((v: unknown) => {
+            return $is.object(v) && '*' === v['timing-allow-origin'];
+        });
+    });
+    test('.c10nSecurityHeaders()', async () => {
+        expect($http.c10nSecurityHeaders()).toSatisfy((v: unknown) => {
+            return $is.object(v) && !Object.hasOwn(v, 'timing-allow-origin');
+        });
+        expect($http.c10nSecurityHeaders({ enableCORs: true })).toSatisfy((v: unknown) => {
+            return $is.object(v) && '*' === v['timing-allow-origin'];
+        });
     });
 });

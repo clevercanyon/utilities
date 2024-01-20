@@ -178,6 +178,8 @@ const tꓺicon = 'icon',
     tꓺfounderImg = tꓺfounder + 'Img',
     tꓺfoundingDate = 'foundingDate',
     tꓺgenre = 'genre',
+    tꓺglobalᱼdata = 'global-data',
+    tꓺglobalData = 'globalData',
     tꓺgravatar = 'gravatar',
     tꓺheadline = 'headline',
     tꓺheight = 'height',
@@ -206,6 +208,7 @@ const tꓺicon = 'icon',
     tꓺmodified_time = 'modified_' + tꓺtime,
     tꓺmodule = 'module',
     tꓺname = 'name',
+    tꓺnonce = 'nonce',
     tꓺnumberOfEmployees = 'numberOfEmployees',
     tꓺogArticle = 'ogArticle',
     tꓺogArticleAuthor = tꓺogArticle + 'Author',
@@ -237,7 +240,6 @@ const tꓺicon = 'icon',
     tꓺpngIcon = 'pngIcon',
     tꓺPostalAddress = 'PostalAddress',
     tꓺpostalCode = 'postalCode',
-    tꓺpreactISOData = 'preactISOData',
     tꓺpreload = 'preload',
     tꓺpreloadStyleBundle = tꓺpreload + 'StyleBundle',
     tꓺprimaryImageOfPage = 'primaryImageOfPage',
@@ -466,45 +468,46 @@ export default class Head extends Component<Props, ActualState> {
         // Memoizes vNodes for all keyed & unkeyed children.
 
         const childVNodes = $preact.useMemo((): ChildVNodes => {
-            const h = $preact.h;
-            const {
-                charset,
-                themeColor,
-                viewport,
-                //
-                robots,
-                canonical,
-                //
-                suffixedTitle,
-                description,
-                tags,
-                //
-                author,
-                publishTime,
-                lastModifiedTime,
-                //
-                humans,
-                manifest,
-                //
-                svgIcon,
-                pngIcon,
-                //
-                ogSiteName,
-                ogType,
-                ogSuffixedTitle,
-                ogDescription,
-                ogCategory,
-                ogTags,
-                ogURL,
-                ogImage,
-                //
-                scriptBundle,
-                styleBundle,
-                //
-                append,
-            } = state;
-            const { baseURL } = locationState;
-            const authorꓺname = $is.person(author) ? author.name : author;
+            const h = $preact.h,
+                {
+                    charset,
+                    themeColor,
+                    viewport,
+                    //
+                    robots,
+                    canonical,
+                    //
+                    suffixedTitle,
+                    description,
+                    tags,
+                    //
+                    author,
+                    publishTime,
+                    lastModifiedTime,
+                    //
+                    humans,
+                    manifest,
+                    //
+                    svgIcon,
+                    pngIcon,
+                    //
+                    ogSiteName,
+                    ogType,
+                    ogSuffixedTitle,
+                    ogDescription,
+                    ogCategory,
+                    ogTags,
+                    ogURL,
+                    ogImage,
+                    //
+                    scriptBundle,
+                    styleBundle,
+                    //
+                    append,
+                } = state,
+                { baseURL } = locationState,
+                { cspNonce } = dataState,
+                authorꓺname = $is.person(author) ? author.name : author;
 
             const vNodes: { [x: string]: $preact.VNode } = {
                 [tꓺcharset]: h(tꓺmeta, { [tꓺcharset]: charset }),
@@ -558,11 +561,12 @@ export default class Head extends Component<Props, ActualState> {
                 ...(styleBundle ? { [tꓺpreloadStyleBundle]: h(tꓺlink, { [tꓺrel]: tꓺpreload, [tꓺfetchPriority]: tꓺhigh, [tꓺhref]: styleBundle, [tꓺas]: tꓺstyle }) } : {}), // prettier-ignore
 
                 ...(styleBundle ? { [tꓺstyleBundle]: h(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: styleBundle, [tꓺmedia]: tꓺall }) } : {}), // prettier-ignore
-                ...(scriptBundle && isSSR ? { [tꓺpreactISOData]: h(tꓺscript, { [tꓺid]: 'preact-iso-data', [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore
-                ...(scriptBundle ? { [tꓺscriptBundle]: h(tꓺscript, { [tꓺtype]: tꓺmodule, [tꓺsrc]: scriptBundle }) } : {}), // prettier-ignore
+                ...(scriptBundle && isSSR ? { [tꓺglobalData]: h(tꓺscript, { [tꓺid]: tꓺglobalᱼdata, [tꓺnonce]: cspNonce, [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore
+                ...(scriptBundle ? { [tꓺscriptBundle]: h(tꓺscript, { [tꓺtype]: tꓺmodule, [tꓺnonce]: cspNonce, [tꓺsrc]: scriptBundle }) } : {}), // prettier-ignore
 
                 [tꓺstructuredData]: h(tꓺscript, {
                     [tꓺtype]: 'application/ld+json',
+                    [tꓺnonce]: cspNonce,
                     [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: generateStructuredData({ brand, htmlState, state }) },
                 }),
                 ...Object.fromEntries(
@@ -1026,5 +1030,5 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
         [tꓺමcontext]: tꓺhttpsꓽⳇⳇ + 'schema.org/',
         [tꓺමgraph]: [...orgGraphs, siteGraph, pageGraph],
     };
-    return $json.stringify(data, { pretty: true });
+    return $json.stringify(data);
 };

@@ -11,6 +11,8 @@ import { $env, $obj, $str, type $type } from '#index.ts';
  * Defines types.
  */
 export type UUIDV4Options = { dashes?: boolean };
+export type Base64EncodeOptions = { urlSafe?: boolean };
+export type Base64DecodeOptions = { urlSafe?: boolean };
 export type RandomStringOptions = { type?: string; byteDictionary?: string };
 export type HashAlgorithm = 'md5' | 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
 
@@ -108,6 +110,34 @@ export const sha512 = $fnꓺmemo(2, async (str: string): Promise<string> => buil
  * @returns     HMAC SHA-512 hash. 128 hexadecimals in length.
  */
 export const hmacSHA512 = $fnꓺmemo(2, async (str: string, key?: string): Promise<string> => buildHMACHash('sha-512', str, key));
+
+/**
+ * Base-64 encodes a string.
+ *
+ * @param   str     Input string to encode.
+ * @param   options All optional; {@see Base64EncodeOptions}.
+ *
+ * @returns         Base-64 encoded string.
+ */
+export const base64Encode = (str: string, options?: Base64EncodeOptions): string => {
+    const base64 = btoa(String.fromCodePoint(...$str.textEncoder.encode(str)));
+    return options?.urlSafe ? base64.replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '') : base64;
+};
+
+/**
+ * Decodes a base-64 encoded string.
+ *
+ * @param   str     Input base-4 string to decode.
+ * @param   options All optional; {@see Base64DecodeOptions}.
+ *
+ * @returns         Base-64 decoded string.
+ *
+ * @throws          When input string is not valid base-64.
+ */
+export const base64Decode = (base64: string, options?: Base64DecodeOptions): string => {
+    base64 = options?.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat(base64.length % 4) : base64;
+    return $str.textDecoder.decode(Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0))));
+};
 
 /**
  * Random number generator.

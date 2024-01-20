@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import { $app, $brand, $env, $json, $preact, $url } from '#index.ts';
+import { $app, $brand, $crypto, $env, $json, $preact, $url } from '#index.ts';
 import { Body, HTML, Head, Root, Route, type RootProps, type RoutedProps } from '#preact/components.tsx';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 
@@ -63,7 +63,6 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
                     <Route path='/' component={Index} />
                     <Route path='/test/*' component={Test} />
                     <Route path='/lazy/*' component={Lazy} />
-                    <Route default component={Route404} />
                 </Root>
             );
         };
@@ -79,14 +78,15 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
         };
         const Test = $preact.lazyRoute(() => import('#tests/preact/apis/iso/ex-imports/routes/test.tsx'));
         const Lazy = $preact.lazyRoute(() => import('#tests/preact/apis/iso/ex-imports/routes/lazy.tsx'));
-        const Route404 = $preact.lazyRoute(() => import('#preact/components/404.tsx'));
 
         const {
             httpState: indexHTTPState,
             docType: indexDocType,
             html: indexHTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c'), {
+                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+            }),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -94,7 +94,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
         expect(indexDocType).toBe('<!doctype html>');
         expect(indexHTML).toContain('<title data-key="title">index</title>');
         expect(indexHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
-        expect(indexHTML).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');
+        expect(indexHTML).toMatch(/<script type="module" nonce="[^"]+" src="\.\/script\.js" data-key="scriptBundle"><\/script>/u);
         expect(indexHTML).toContain('"path":"./"');
         expect(indexHTML).toContain('"pathQuery":"./?a=_a&b=_b&c=_c"');
         expect(indexHTML).toContain('"restPath":""');
@@ -109,7 +109,9 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             docType: testDocType,
             html: testHTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('https://x.tld/test?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/test?a=_a&b=_b&c=_c'), {
+                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+            }),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -117,7 +119,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
         expect(testDocType).toBe('<!doctype html>');
         expect(testHTML).toContain('<title data-key="title">test</title>');
         expect(testHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
-        expect(testHTML).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');
+        expect(testHTML).toMatch(/<script type="module" nonce="[^"]+" src="\.\/script\.js" data-key="scriptBundle"><\/script>/u);
         expect(testHTML).toContain('"path":"./test"');
         expect(testHTML).toContain('"pathQuery":"./test?a=_a&b=_b&c=_c"');
         expect(testHTML).toContain('"restPath":"./"');
@@ -132,7 +134,9 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             docType: lazyDocType,
             html: lazyHTML,
         } = await $preact.iso.prerenderSPA({
-            request: new Request(new URL('https://x.tld/lazy?a=_a&b=_b&c=_c')),
+            request: new Request(new URL('https://x.tld/lazy?a=_a&b=_b&c=_c'), {
+                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+            }),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
@@ -140,7 +144,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
         expect(lazyDocType).toBe('<!doctype html>');
         expect(lazyHTML).toContain('<title data-key="title">lazy</title>');
         expect(lazyHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
-        expect(lazyHTML).toContain('<script type="module" src="./script.js" data-key="scriptBundle"></script>');
+        expect(lazyHTML).toMatch(/<script type="module" nonce="[^"]+" src="\.\/script\.js" data-key="scriptBundle"><\/script>/u);
         expect(lazyHTML).toContain('"path":"./lazy"');
         expect(lazyHTML).toContain('"pathQuery":"./lazy?a=_a&b=_b&c=_c"');
         expect(lazyHTML).toContain('"restPath":"./"');
