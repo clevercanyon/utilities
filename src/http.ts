@@ -31,7 +31,6 @@ export type SecurityHeaderOptions = {
     enableCORs?: boolean;
 };
 export type ExtractHeaderOptions = {
-    cspNonce?: string;
     lowercase?: boolean;
 };
 
@@ -47,9 +46,9 @@ export const cspNonceReplacementCode = (): string => '{%-_{%-_cspNonce_-%}_-%}';
  *
  * @param   config Optional config options.
  *
- * @returns        HTTP request config.
+ * @returns        HTTP request config promise.
  */
-export const requestConfig = (config?: RequestConfig): RequestConfig => {
+export const requestConfig = async (config?: RequestConfig): Promise<Required<RequestConfig>> => {
     return $obj.defaults({}, config || {}, {
         cspNonce: config?.cspNonce || $crypto.base64Encode($crypto.uuidV4()),
         enforceAppBaseURLOrigin: $env.isC10n() && $app.hasBaseURL(),
@@ -62,11 +61,9 @@ export const requestConfig = (config?: RequestConfig): RequestConfig => {
  *
  * @param   config Optional config options.
  *
- * @returns        HTTP response config.
- *
- * @note Default status `405` = method now allowed.
+ * @returns        HTTP response config promise.
  */
-export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig> => {
+export const responseConfig = async (config?: ResponseConfig): Promise<Required<ResponseConfig>> => {
     return $obj.defaults({}, config || {}, {
         status: 405,
         enableCORs: false,
@@ -83,73 +80,71 @@ export const responseConfig = (config?: ResponseConfig): Required<ResponseConfig
 /**
  * Prepares an HTTP request.
  *
- * @param   request HTTP request object.
- * @param   config  Optional config options.
+ * @param   request HTTP request.
+ * @param   config  Optional; {@see RequestConfig}.
  *
- * @returns         HTTP request; potentially rewritten.
+ * @returns         HTTP request promise.
  *
- * @throws          Error {@see Response} on failure.
+ * @throws          HTTP response; e.g., on redirect, on error.
  */
-export const prepareRequest = (request: $type.Request, config?: RequestConfig): $type.Request => {
-    const originalRequest = request,
-        cfg = requestConfig(config);
-
+export const prepareRequest = async (request: $type.Request, config?: RequestConfig): Promise<$type.Request> => {
+    const cfg = await requestConfig(config);
     let url = $url.tryParse(request.url);
 
     if (!url /* Catches unparseable URLs. */) {
-        throw prepareResponse(request, { status: 400 });
+        throw await prepareResponse(request, { status: 400 });
     }
     if (requestPathIsInvalid(request, url)) {
-        throw prepareResponse(request, { status: 400 });
+        throw await prepareResponse(request, { status: 400 });
     }
     if (requestPathIsForbidden(request, url)) {
-        throw prepareResponse(request, { status: 403 });
+        throw await prepareResponse(request, { status: 403 });
     }
     if (!requestHasSupportedMethod(request)) {
-        throw prepareResponse(request, { status: 405 });
+        throw await prepareResponse(request, { status: 405 });
     }
     if (cfg.enforceAppBaseURLOrigin && requestPathHasInvalidAppBaseURLOrigin(request, url)) {
         const appBaseURL = $app.baseURL({ parsed: true });
-        (url.protocol = appBaseURL.protocol), (url.host = appBaseURL.host);
+        (url.protocol = appBaseURL.protocol), //
+            (url.host = appBaseURL.host);
 
         if (cfg.enforceNoTrailingSlash && requestPathHasInvalidTrailingSlash(request, url)) {
             url.pathname = $str.rTrim(url.pathname, '/'); // Avoids two redirects.
         }
-        throw prepareResponse(request, { status: 301, headers: { location: url.toString() } });
+        throw await prepareResponse(request, { status: 301, headers: { location: url.toString() } });
     }
     if (cfg.enforceNoTrailingSlash && requestPathHasInvalidTrailingSlash(request, url)) {
         url.pathname = $str.rTrim(url.pathname, '/');
-        throw prepareResponse(request, { status: 301, headers: { location: url.toString() } });
+        throw await prepareResponse(request, { status: 301, headers: { location: url.toString() } });
     }
-    // Deals with Miniflare URLs being proxied as `http:`.
+    request = request.clone(); // Safest to always work with a clone here.
+
+    if (cfg.cspNonce) {
+        request.headers.set('x-csp-nonce', cfg.cspNonce); // Internal header.
+    } else {
+        request.headers.delete('x-csp-nonce'); // Deleting for security reasons.
+        // i.e., We don’t allow bad actors to send a request with their own nonce.
+    }
     if ('http:' === url.protocol && $env.isCFWViaMiniflare()) {
         // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
         // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
         // It’s worth noting that all our local test configurations make `https:` requests only.
         url.protocol = 'https:'; // Rewrites to assumed original request URL w/ `https:`.
-
-        // Rewrites request object using `https:` URL.
         request = new Request(url.toString(), request as Request);
     }
-    if (cfg.cspNonce) {
-        if (request === originalRequest) {
-            request = new Request(request as Request);
-        }
-        request.headers.set('x-csp-nonce', cfg.cspNonce);
-    }
-    return request; // Potentially a rewritten request now.
+    return request; // Clone.
 };
 
 /**
  * Prepares an HTTP response.
  *
- * @param   request HTTP request object.
- * @param   config  Optional config options.
+ * @param   request HTTP request.
+ * @param   config  Optional; {@see ResponseConfig}.
  *
- * @returns         HTTP response.
+ * @returns         HTTP response promise.
  */
-export const prepareResponse = (request: $type.Request, config?: ResponseConfig): $type.Response => {
-    const cfg = responseConfig(config);
+export const prepareResponse = async (request: $type.Request, config?: ResponseConfig): Promise<$type.Response> => {
+    const cfg = await responseConfig(config);
     const url = $url.tryParse(request.url);
 
     if (!url /* Catches unparseable URLs. */) {
@@ -160,7 +155,7 @@ export const prepareResponse = (request: $type.Request, config?: ResponseConfig)
         return new Response(cfg.body, {
             status: cfg.status,
             statusText: responseStatusText(cfg.status),
-            headers: prepareResponseHeaders(request, new URL('https://0.0.0.0/'), cfg),
+            headers: await prepareResponseHeaders(request, new URL('https://0.0.0.0/'), cfg),
         });
     }
     // This approach makes implementation simpler since we consolidate the handling of `OPTIONS` into the `enableCORs` flag.
@@ -175,21 +170,21 @@ export const prepareResponse = (request: $type.Request, config?: ResponseConfig)
     return new Response(cfg.body as BodyInit | null, {
         status: cfg.status,
         statusText: responseStatusText(cfg.status),
-        headers: prepareResponseHeaders(request, url, cfg),
+        headers: await prepareResponseHeaders(request, url, cfg),
     });
 };
 
 /**
  * Prepares HTTP response headers.
  *
- * @param   request HTTP request object.
- * @param   config  Optional config options.
+ * @param   request HTTP request.
+ * @param   cfg     Required; {@see ResponseConfig}.
  *
- * @returns         HTTP response headers.
+ * @returns         HTTP response headers promise.
  *
- * @note Private function. Intentionally *not* exporting.
+ * @note Private function. Intentionally not exporting.
  */
-const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Required<ResponseConfig>): $type.Headers => {
+const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cfg: Required<ResponseConfig>): Promise<$type.Headers> => {
     // Initializes grouped header objects.
 
     const alwaysOnHeaders: { [x: string]: string } = {};
@@ -237,7 +232,7 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
     // That said, *we* use `?_ck` to vary based on `origin` via Cloudflare workers cache API.
 
     if (cfg.enableCORs && request.headers.has('origin')) {
-        cacheHeaders['vary'] = 'origin'; // Only varying based on `origin` at this time.
+        cacheHeaders['vary'] = 'origin'; // We only vary on `origin` at this time.
     }
     if (!cfg.headers.has('cache-control') /* This simply saves us a little time. */) {
         const cacheControl = (
@@ -305,7 +300,7 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
             securityHeaders[name] = value; // Assigns security headers.
         }
     }
-    // Populates CORs-related headers.
+    // Populates CORs headers.
 
     if (cfg.enableCORs && request.headers.has('origin')) {
         corsHeaders['access-control-max-age'] = '7200';
@@ -331,10 +326,10 @@ const prepareResponseHeaders = (request: $type.Request, url: $type.URL, cfg: Req
 /**
  * Prepares a cached HTTP response.
  *
- * @param   request  HTTP request object.
- * @param   response HTTP response object.
+ * @param   request  HTTP request.
+ * @param   response HTTP response.
  *
- * @returns          HTTP response object promise.
+ * @returns          HTTP response promise.
  */
 export const prepareCachedResponse = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
     response = response.clone(); // Safest to always work with a clone here.
@@ -360,10 +355,10 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
 /**
  * Prepares an HTTP response for cache.
  *
- * @param   request  HTTP request object.
- * @param   response HTTP response object.
+ * @param   request  HTTP request.
+ * @param   response HTTP response.
  *
- * @returns          HTTP response object promise.
+ * @returns          HTTP response promise.
  */
 export const prepareResponseForCache = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
     response = response.clone(); // Safest to always work with a clone here.
@@ -403,7 +398,7 @@ export const responseStatusText = (status: string | number): string => {
 /**
  * Request has a supported method?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  *
  * @returns         True if request has a supported method.
  */
@@ -414,7 +409,7 @@ export const requestHasSupportedMethod = (request: $type.Request): boolean => {
 /**
  * Request has a cacheable request method?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  *
  * @returns         True if request has a cacheable request method.
  */
@@ -425,7 +420,7 @@ export const requestHasCacheableMethod = $fnꓺmemo(2, (request: $type.Request):
 /**
  * Request method needs content headers?
  *
- * @param   request        HTTP request object.
+ * @param   request        HTTP request.
  * @param   responseStatus HTTP response status code.
  *
  * @returns                True if request method needs content headers.
@@ -439,7 +434,7 @@ export const requestNeedsContentHeaders = $fnꓺmemo(2, (request: $type.Request,
 /**
  * Request method needs content body?
  *
- * @param   request        HTTP request object.
+ * @param   request        HTTP request.
  * @param   responseStatus HTTP response status code.
  *
  * @returns                True if request method needs content body.
@@ -453,7 +448,7 @@ export const requestNeedsContentBody = $fnꓺmemo(2, (request: $type.Request, re
 /**
  * Request is coming from an identified user?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  *
  * @returns         True if request is coming from an identified user.
  */
@@ -474,7 +469,7 @@ export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean
  * WARNING: We do not vary caches based on `x-via`. Therefore, you should _only_ use this when processing an uncacheable
  * request type; e.g., `POST` request, or another that is uncacheable; {@see requestHasCacheableMethod()}.
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   via     `x-via` token to consider.
  *
  * @returns         True if request is coming from `x-via` token.
@@ -496,7 +491,7 @@ export const requestIsVia = $fnꓺmemo(2, (request: $type.Request, via: string):
  * WARNING: This isn’t foolproof because it assumes anything of our own served from `/api` will expect JSON in the
  * absense of an `accept` header. Therefore, only use in contexts where false-positives are not detrimental.
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request expects a JSON response.
@@ -514,7 +509,7 @@ export const requestExpectsJSON = $fnꓺmemo(2, (request: $type.Request, _url?: 
 /**
  * Request path is invalid?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request path is invalid.
@@ -529,7 +524,7 @@ export const requestPathIsInvalid = $fnꓺmemo(2, (request: $type.Request, _url?
 /**
  * Request has an invalid app base URL origin?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request has an invalid app base URL origin.
@@ -552,7 +547,7 @@ export const requestPathHasInvalidAppBaseURLOrigin = $fnꓺmemo(2, (request: $ty
 /**
  * Request path has an invalid trailing slash?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request path has an invalid trailing slash.
@@ -567,7 +562,7 @@ export const requestPathHasInvalidTrailingSlash = $fnꓺmemo(2, (request: $type.
 /**
  * Request path is forbidden?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request path is forbidden.
@@ -594,7 +589,7 @@ export const requestPathIsForbidden = $fnꓺmemo(2, (request: $type.Request, _ur
 /**
  * Request path is dynamic?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request is dynamic.
@@ -609,7 +604,7 @@ export const requestPathIsDynamic = $fnꓺmemo(2, (request: $type.Request, url?:
 /**
  * Request path has a dynamic base?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request path has a dynamic base.
@@ -625,7 +620,7 @@ export const requestPathHasDynamicBase = $fnꓺmemo(2, (request: $type.Request, 
 /**
  * Request path is potentially dynamic?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request path is potentially dynamic.
@@ -640,7 +635,7 @@ export const requestPathIsPotentiallyDynamic = $fnꓺmemo(2, (request: $type.Req
 /**
  * Request path is an SEO file?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request path is an SEO file.
@@ -655,7 +650,7 @@ export const requestPathIsSEORelatedFile = $fnꓺmemo(2, (request: $type.Request
 /**
  * Request path is in an admin area?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request path is in an admin area.
@@ -670,7 +665,7 @@ export const requestPathIsInAdmin = $fnꓺmemo(2, (request: $type.Request, _url?
 /**
  * Request path is static?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request is static.
@@ -682,7 +677,7 @@ export const requestPathIsStatic = $fnꓺmemo(2, (request: $type.Request, url?: 
 /**
  * Request path has a static file extension?
  *
- * @param   request HTTP request object.
+ * @param   request HTTP request.
  * @param   url     Optional pre-parsed URL. Default is taken from `request`.
  *
  * @returns         True if request path has a static file extension.
@@ -697,7 +692,7 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
 /**
  * Response is an HTML document?
  *
- * @param   response HTTP response object.
+ * @param   response HTTP response.
  *
  * @returns          True if response is an HTML document.
  */
@@ -735,7 +730,7 @@ export const extractHeaders = (headers: $type.Headers | { [x: string]: string },
 /**
  * Verifies a Cloudflare turnstile response.
  *
- * @param   request   Request to verify.
+ * @param   request   HTTP request to verify.
  * @param   turnstile Turnstile response token.
  *
  * @returns           True if turnstile can be verified by Cloudflare.
@@ -1374,9 +1369,9 @@ export const responseStatusCodes = (): { [x: string]: string } => {
 /**
  * Default security headers.
  *
- * @param   options All optional; {@see SecurityHeaderOptions}.
+ * @param   options Optional; {@see SecurityHeaderOptions}.
  *
- * @returns         Object with header names as props.
+ * @returns         Object with lowercase header names as keys.
  *
  * @see https://report-uri.com/home/generate
  * @see https://csp-evaluator.withgoogle.com/
@@ -1468,9 +1463,9 @@ export const defaultSecurityHeaders = (options?: SecurityHeaderOptions): { [x: s
  *     worker-src *; frame-ancestors *; form-action *; upgrade-insecure-requests; base-uri 'self'; manifest-src 'self';
  *     report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp
  *
- * @param   options All optional; {@see SecurityHeaderOptions}.
+ * @param   options Optional; {@see SecurityHeaderOptions}.
  *
- * @returns         Object with header names as props.
+ * @returns         Object with lowercase header names as keys.
  *
  * @see https://report-uri.com/home/generate
  * @see https://csp-evaluator.withgoogle.com/
