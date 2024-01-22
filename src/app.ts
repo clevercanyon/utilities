@@ -11,6 +11,9 @@ import { $brand, $env, $obj, $str, $time, $url, $user, type $type } from '#index
  * Defines types.
  */
 export type BaseURLOptions = { parsed?: boolean };
+export type R2OriginURLOptions = { parsed?: boolean };
+export type R2BaseURLOptions = { parsed?: boolean };
+
 export type Config<Type extends object = object> = $type.Object<Type>;
 export type EtcConfig<Type extends object = object> = $type.Object<Type> & {
     user?: {
@@ -109,6 +112,62 @@ export const baseURL = $fnꓺmemo(
         const opts = $obj.defaults({}, options || {}, { parsed: false }) as Required<BaseURLOptions>,
             value = $env.get('APP_BASE_URL', { type: 'string', require: true });
         return (opts.parsed ? $url.parse(value) : value) as ReturnType<typeof baseURL<Options>>;
+    },
+);
+
+/**
+ * Checks if environment has an app’s R2 origin URL.
+ *
+ * @returns True if environment has an app’s R2 origin URL.
+ */
+export const hasR2OriginURL = $fnꓺmemo((): boolean => {
+    return $env.get('APP_R2_ORIGIN_URL') ? true : false;
+});
+
+/**
+ * Gets current app’s R2 origin URL.
+ *
+ * @param   options Options (all optional); {@see R2OriginURLOptions}.
+ *
+ * @returns         Current app’s R2 origin URL.
+ *
+ * @note Unable to deep freeze a URL, but we would do so if possible.
+ *       For now, we just declare it readonly using a TypeScript return type.
+ */
+export const r2OriginURL = $fnꓺmemo(
+    { deep: true, maxSize: 2 },
+    <Options extends R2OriginURLOptions>(options?: Options): Options extends R2OriginURLOptions & { parsed: true } ? $type.ReadonlyDeep<$type.URL> : string => {
+        const opts = $obj.defaults({}, options || {}, { parsed: false }) as Required<R2OriginURLOptions>,
+            value = $str.rTrim($env.get('APP_R2_ORIGIN_URL', { type: 'string', require: true }), '/');
+        return (opts.parsed ? $url.parse(value) : value) as ReturnType<typeof r2OriginURL<Options>>;
+    },
+);
+
+/**
+ * Checks if environment has an app’s R2 base URL.
+ *
+ * @returns True if environment has an app’s R2 base URL.
+ */
+export const hasR2BaseURL = $fnꓺmemo((): boolean => {
+    return $env.get('APP_R2_BASE_URL') || hasR2OriginURL() ? true : false;
+});
+
+/**
+ * Gets current app’s R2 base URL.
+ *
+ * @param   options Options (all optional); {@see R2BaseURLOptions}.
+ *
+ * @returns         Current app’s R2 base URL.
+ *
+ * @note Unable to deep freeze a URL, but we would do so if possible.
+ *       For now, we just declare it readonly using a TypeScript return type.
+ */
+export const r2BaseURL = $fnꓺmemo(
+    { deep: true, maxSize: 2 },
+    <Options extends R2BaseURLOptions>(options?: Options): Options extends R2BaseURLOptions & { parsed: true } ? $type.ReadonlyDeep<$type.URL> : string => {
+        const opts = $obj.defaults({}, options || {}, { parsed: false }) as Required<R2BaseURLOptions>,
+            value = $env.get('APP_R2_BASE_URL', { type: 'string', default: '' }) || r2OriginURL() + '/app/' + pkgSlug() + '/';
+        return (opts.parsed ? $url.parse(value) : value) as ReturnType<typeof r2BaseURL<Options>>;
     },
 );
 

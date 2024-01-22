@@ -7,6 +7,8 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
 const __origAppPkgName__ = $env.get('APP_PKG_NAME', { type: 'unknown' });
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
+const __origAppR2OriginURL__ = $env.get('APP_R2_ORIGIN_URL', { type: 'unknown' });
+const __origAppR2BaseURL__ = $env.get('APP_R2_BASE_URL', { type: 'unknown' });
 const __origAppBrandProps__ = $env.get('APP_BRAND_PROPS', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 
@@ -14,12 +16,16 @@ describe('$url', async () => {
     beforeAll(async () => {
         $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
         $env.set('APP_BASE_URL', 'https://x.tld/base/');
+        $env.set('APP_R2_ORIGIN_URL', 'https://r2.tld');
+        $env.set('APP_R2_BASE_URL', 'https://r2.tld/base/');
         $env.set('APP_BRAND_PROPS', { type: 'site' });
         $env.set('APP_BRAND', $brand.addApp());
     });
     afterAll(async () => {
         $env.set('APP_PKG_NAME', __origAppPkgName__);
         $env.set('APP_BASE_URL', __origAppBaseURL__);
+        $env.set('APP_R2_ORIGIN_URL', __origAppR2OriginURL__);
+        $env.set('APP_R2_BASE_URL', __origAppR2BaseURL__);
         $env.set('APP_BRAND_PROPS', __origAppBrandProps__);
         $env.set('APP_BRAND', __origAppBrand__);
         $brand.remove('@clevercanyon/x.tld');
@@ -30,6 +36,12 @@ describe('$url', async () => {
             //
             $app.hasBaseURL.flush(),
             $app.baseURL.flush(),
+            //
+            $app.hasR2OriginURL.flush(),
+            $app.r2OriginURL.flush(),
+            //
+            $app.hasR2BaseURL.flush(),
+            $app.r2BaseURL.flush(),
             //
             $app.hasBrandProps.flush(),
             $app.brandProps.flush(),
@@ -104,6 +116,99 @@ describe('$url', async () => {
 
         expect($url.removeAppBasePath(new URL('https://x.tld/base/path')).toString()).toBe('https://x.tld/path');
         expect($url.removeAppBasePath(new URL('https://x.tld/base/path/')).toString()).toBe('https://x.tld/path/');
+    });
+    test('.appR2Origin()', async () => {
+        expect($app.r2OriginURL()).toBe('https://r2.tld');
+    });
+    test('.fromAppR2Origin()', async () => {
+        expect($url.fromAppR2Origin('path')).toBe('https://r2.tld/path');
+        expect($url.fromAppR2Origin('path/')).toBe('https://r2.tld/path/');
+
+        expect($url.fromAppR2Origin('./path')).toBe('https://r2.tld/path');
+        expect($url.fromAppR2Origin('./path/')).toBe('https://r2.tld/path/');
+
+        expect($url.fromAppR2Origin('https://r2.tld/path')).toBe('https://r2.tld/path');
+        expect($url.fromAppR2Origin('https://r2.tld/path/')).toBe('https://r2.tld/path/');
+
+        expect($url.fromAppR2Origin(new URL('https://r2.tld/path'))).toBe('https://r2.tld/path');
+        expect($url.fromAppR2Origin(new URL('https://r2.tld/path/'))).toBe('https://r2.tld/path/');
+    });
+    test('.pathFromAppR2Origin()', async () => {
+        expect($url.pathFromAppR2Origin('path')).toBe('/path');
+        expect($url.pathFromAppR2Origin('path/')).toBe('/path/');
+
+        expect($url.pathFromAppR2Origin('./path')).toBe('/path');
+        expect($url.pathFromAppR2Origin('./path/')).toBe('/path/');
+
+        expect($url.pathFromAppR2Origin('https://r2.tld/path')).toBe('/path');
+        expect($url.pathFromAppR2Origin('https://r2.tld/path/')).toBe('/path/');
+
+        expect($url.pathFromAppR2Origin(new URL('https://r2.tld/path'))).toBe('/path');
+        expect($url.pathFromAppR2Origin(new URL('https://r2.tld/path/'))).toBe('/path/');
+    });
+    test('.appR2Base()', async () => {
+        expect($app.r2BaseURL()).toBe('https://r2.tld/base/');
+    });
+    test('.appR2BasePath()', async () => {
+        expect($url.appR2BasePath()).toBe('/base/');
+    });
+    test('.fromAppR2Base()', async () => {
+        expect($url.fromAppR2Base('path')).toBe('https://r2.tld/base/path');
+        expect($url.fromAppR2Base('path/')).toBe('https://r2.tld/base/path/');
+
+        expect($url.fromAppR2Base('./path')).toBe('https://r2.tld/base/path');
+        expect($url.fromAppR2Base('./path/')).toBe('https://r2.tld/base/path/');
+
+        expect($url.fromAppR2Base('https://r2.tld/path')).toBe('https://r2.tld/path');
+        expect($url.fromAppR2Base('https://r2.tld/path/')).toBe('https://r2.tld/path/');
+
+        expect($url.fromAppR2Base(new URL('https://r2.tld/path'))).toBe('https://r2.tld/path');
+        expect($url.fromAppR2Base(new URL('https://r2.tld/path/'))).toBe('https://r2.tld/path/');
+    });
+    test('.pathFromAppR2Base()', async () => {
+        expect($url.pathFromAppR2Base('path')).toBe('/base/path');
+        expect($url.pathFromAppR2Base('path/')).toBe('/base/path/');
+
+        expect($url.pathFromAppR2Base('./path')).toBe('/base/path');
+        expect($url.pathFromAppR2Base('./path/')).toBe('/base/path/');
+
+        expect($url.pathFromAppR2Base('https://r2.tld/path')).toBe('/path');
+        expect($url.pathFromAppR2Base('https://r2.tld/path/')).toBe('/path/');
+
+        expect($url.pathFromAppR2Base(new URL('https://r2.tld/path'))).toBe('/path');
+        expect($url.pathFromAppR2Base(new URL('https://r2.tld/path/'))).toBe('/path/');
+    });
+    test('.addAppR2BasePath()', async () => {
+        expect($url.addAppR2BasePath('path')).toBe('/base/path');
+        expect($url.addAppR2BasePath('path/')).toBe('/base/path/');
+
+        expect($url.addAppR2BasePath('./path')).toBe('/base/path');
+        expect($url.addAppR2BasePath('./path/')).toBe('/base/path/');
+
+        expect($url.addAppR2BasePath('https://r2.tld/path')).toBe('https://r2.tld/base/path');
+        expect($url.addAppR2BasePath('https://r2.tld/path/')).toBe('https://r2.tld/base/path/');
+
+        expect($url.addAppR2BasePath(new URL('https://r2.tld/path')) instanceof URL).toBe(true);
+        expect($url.addAppR2BasePath(new URL('https://r2.tld/path/')) instanceof URL).toBe(true);
+
+        expect($url.addAppR2BasePath(new URL('https://r2.tld/path')).toString()).toBe('https://r2.tld/base/path');
+        expect($url.addAppR2BasePath(new URL('https://r2.tld/path/')).toString()).toBe('https://r2.tld/base/path/');
+    });
+    test('.removeAppR2BasePath()', async () => {
+        expect($url.removeAppR2BasePath('/base/path')).toBe('./path');
+        expect($url.removeAppR2BasePath('/base/path/')).toBe('./path/');
+
+        expect($url.removeAppR2BasePath('./base/path')).toBe('./path');
+        expect($url.removeAppR2BasePath('./base/path/')).toBe('./path/');
+
+        expect($url.removeAppR2BasePath('https://r2.tld/base/path')).toBe('https://r2.tld/path');
+        expect($url.removeAppR2BasePath('https://r2.tld/base/path/')).toBe('https://r2.tld/path/');
+
+        expect($url.removeAppR2BasePath(new URL('https://r2.tld/base/path')) instanceof URL).toBe(true);
+        expect($url.removeAppR2BasePath(new URL('https://r2.tld/base/path/')) instanceof URL).toBe(true);
+
+        expect($url.removeAppR2BasePath(new URL('https://r2.tld/base/path')).toString()).toBe('https://r2.tld/path');
+        expect($url.removeAppR2BasePath(new URL('https://r2.tld/base/path/')).toString()).toBe('https://r2.tld/path/');
     });
     test('.isAbsolute()', async () => {
         expect($url.isAbsolute('::invalid::')).toBe(false);
