@@ -22,6 +22,7 @@ export type ResponseConfig = {
     maxAge?: number | null;
     sMaxAge?: number | null;
     staleAge?: number | null;
+    varyOn?: string[]; // Request header names.
     headers?: $type.Headers | { [x: string]: string };
     appendHeaders?: $type.Headers | { [x: string]: string };
     body?: $type.BodyInit | null; // i.e., Body contents.
@@ -71,6 +72,7 @@ export const responseConfig = async (config?: ResponseConfig): Promise<Required<
         maxAge: null,
         sMaxAge: null,
         staleAge: null,
+        varyOn: [],
         headers: {},
         appendHeaders: {},
         body: null,
@@ -231,8 +233,15 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
     // `vary` is ignored by Cloudflare, except in one rare case: <https://o5p.me/k4Xx0j>.
     // That said, *we* use `?_ck` to vary based on `origin` via Cloudflare workers cache API.
 
+    const varyOn = new Set((cfg.varyOn || []).map((v) => v.toLowerCase()));
+    for (const v of varyOn) if (!request.headers.has(v)) varyOn.delete(v);
+
     if (cfg.enableCORs && request.headers.has('origin')) {
-        cacheHeaders['vary'] = 'origin'; // We only vary on `origin` at this time.
+        varyOn.add('origin'); // CORs requires us to vary on origin.
+    } else varyOn.delete('origin'); // Must not vary on origin.
+
+    if (varyOn.size /* Add vary header? */) {
+        cacheHeaders['vary'] = [...varyOn].join(', ');
     }
     if (!cfg.headers.has('cache-control') /* This simply saves us a little time. */) {
         const cacheControl = (
