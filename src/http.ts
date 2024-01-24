@@ -366,7 +366,7 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
 
         if (response.body && requestNeedsContentBody(request, response.status)) {
             response = new Response((await response.text()).replaceAll(cspNonceReplCode, cspNonce), response);
-        } else response = new Response(null, response); // Mutable.
+        } else response = new Response(null, response); // Mutatable.
 
         response.headers.set('content-security-policy', csp.replaceAll(cspNonceReplCode, cspNonce));
         //
@@ -389,6 +389,9 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
         const cspNonceReplCode = cspNonceReplacementCode(),
             csp = response.headers.get('content-security-policy') || '';
 
+        response = new Response(response.body as BodyInit, response); // Copy of response.
+        response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
+
         if (response.body) {
             // {@see https://regex101.com/r/oTjEIq/7} {@see https://regex101.com/r/1MioJI/9}.
             response = new Response(
@@ -400,10 +403,7 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
                     ),
                 response,
             );
-        } else response = new Response(null, response); // Copy of response.
-
-        // Modifying headers using a copy of the response, not the original response.
-        response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
+        }
     }
     return response;
 };
