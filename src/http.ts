@@ -51,9 +51,9 @@ export const cspNonceReplacementCode = (): string => '{%-_{%-_cspNonce_-%}_-%}';
  *
  * @param   config Optional config options.
  *
- * @returns        HTTP route config promise.
+ * @returns        HTTP route config.
  */
-export const routeConfig = async (config?: RouteConfig): Promise<Required<RouteConfig>> => {
+export const routeConfig = (config?: RouteConfig): Required<RouteConfig> => {
     return $obj.defaults({}, config || {}, {
         enableCORs: false,
         varyOn: [],
