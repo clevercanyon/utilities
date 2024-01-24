@@ -10,6 +10,10 @@ import { $app, $crypto, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, $us
 /**
  * Defines types.
  */
+export type RouteConfig = Partial<
+    // Partial response configuration.
+    Pick<ResponseConfig, 'enableCORs' | 'varyOn'>
+>;
 export type RequestConfig = {
     cspNonce?: string;
     enforceAppBaseURLOrigin?: boolean;
@@ -41,6 +45,20 @@ export type ExtractHeaderOptions = {
  * @returns String CSP nonce replacement code.
  */
 export const cspNonceReplacementCode = (): string => '{%-_{%-_cspNonce_-%}_-%}';
+
+/**
+ * HTTP route config.
+ *
+ * @param   config Optional config options.
+ *
+ * @returns        HTTP route config promise.
+ */
+export const routeConfig = async (config?: RouteConfig): Promise<Required<RouteConfig>> => {
+    return $obj.defaults({}, config || {}, {
+        enableCORs: false,
+        varyOn: [],
+    }) as Required<RouteConfig>;
+};
 
 /**
  * HTTP request config.
