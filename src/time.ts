@@ -27,6 +27,10 @@ declare module 'dayjs' {
         clone(): dayjs.Dayjs;
         equals(x: dayjs.Dayjs): boolean;
 
+        toStamp(): number;
+        toFloatStamp(): number;
+        toMilliStamp(): number;
+
         toYMD(): string;
         toSQL(): string;
         toISO(): string;
@@ -111,7 +115,7 @@ export const yearInMicroseconds = yearInSeconds * secondInMicroseconds;
  * @returns           Timestamp in whole seconds, as an integer.
  */
 export const stamp = (parseable?: Parseable): number => {
-    return parse(parseable).unix();
+    return parse(parseable).toStamp();
 };
 
 /**
@@ -125,7 +129,7 @@ export const stamp = (parseable?: Parseable): number => {
  * @returns           Timestamp in seconds, as a float, supporting fractional seconds.
  */
 export const floatStamp = (parseable?: Parseable): number => {
-    return parse(parseable).valueOf() / 1000;
+    return parse(parseable).toFloatStamp();
 };
 
 /**
@@ -139,7 +143,7 @@ export const floatStamp = (parseable?: Parseable): number => {
  * @returns           Timestamp in whole milliseconds, as an integer.
  */
 export const milliStamp = (parseable?: Parseable): number => {
-    return parse(parseable).valueOf();
+    return parse(parseable).toMilliStamp();
 };
 
 /**
@@ -277,6 +281,15 @@ const initialize = (): void => {
         };
         // Standard format helpers.
 
+        prototype.toStamp = function (this: dayjs.Dayjs): number {
+            return this.unix();
+        };
+        prototype.toFloatStamp = function (this: dayjs.Dayjs): number {
+            return this.valueOf() / 1000;
+        };
+        prototype.toMilliStamp = function (this: dayjs.Dayjs): number {
+            return this.valueOf();
+        };
         prototype.toYMD = function (this: dayjs.Dayjs): string {
             return this.format('YYYY-MM-DD');
         };
