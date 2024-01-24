@@ -137,20 +137,20 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
         url.pathname = $str.rTrim(url.pathname, '/');
         throw await prepareResponse(request, { status: 301, headers: { location: url.toString() } });
     }
-    request = request.clone(); // Safest to always work with a clone here.
-
-    if (cfg.cspNonce) {
-        request.headers.set('x-csp-nonce', cfg.cspNonce); // Internal header.
-    } else {
-        request.headers.delete('x-csp-nonce'); // Deleting for security reasons.
-        // i.e., We don’t allow bad actors to send a request with their own nonce.
-    }
     if ('http:' === url.protocol && $env.isCFWViaMiniflare()) {
         // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
         // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
         // It’s worth noting that all our local test configurations make `https:` requests only.
         url.protocol = 'https:'; // Rewrites to assumed original request URL w/ `https:`.
-        request = new Request(url.toString(), request as Request);
+        request = new Request(url.toString(), request as RequestInit); // Mutatable.
+    } else {
+        request = new Request(request as Request); // Mutatable.
+    }
+    if (cfg.cspNonce) {
+        request.headers.set('x-csp-nonce', cfg.cspNonce); // Internal header.
+    } else {
+        request.headers.delete('x-csp-nonce'); // Deleting for security reasons.
+        // i.e., We don’t allow bad actors to send a request with their own nonce.
     }
     return request; // Clone.
 };
@@ -359,9 +359,6 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
  * @returns          HTTP response promise.
  */
 export const prepareCachedResponse = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
-    response = response.clone(); // Safest to always work with a clone here.
-    const useResponseBody = requestNeedsContentBody(request, response.status);
-
     if (responseIsHTML(response) && request.headers.has('x-csp-nonce') && response.headers.has('content-security-policy')) {
         const cspNonceReplCode = cspNonceReplacementCode(),
             cspNonce = request.headers.get('x-csp-nonce') || '',
@@ -369,11 +366,10 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
 
         response.headers.set('content-security-policy', csp.replaceAll(cspNonceReplCode, cspNonce));
 
-        if (useResponseBody && response.body) {
+        if (response.body && requestNeedsContentBody(request, response.status)) {
             response = new Response((await response.text()).replaceAll(cspNonceReplCode, cspNonce), response);
         }
-    }
-    if (!useResponseBody) {
+    } else if (response.body && !requestNeedsContentBody(request, response.status)) {
         response = new Response(null, response);
     }
     return response;
@@ -388,15 +384,11 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
  * @returns          HTTP response promise.
  */
 export const prepareResponseForCache = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
-    response = response.clone(); // Safest to always work with a clone here.
-
     if (responseIsHTML(response) && request.headers.has('x-csp-nonce') && response.headers.has('content-security-policy')) {
         const cspNonceReplCode = cspNonceReplacementCode(),
             csp = response.headers.get('content-security-policy') || '';
 
-        response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
-
-        if (response.body)
+        if (response.body) {
             // {@see https://regex101.com/r/oTjEIq/7} {@see https://regex101.com/r/1MioJI/9}.
             response = new Response(
                 (await response.text())
@@ -407,6 +399,10 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
                     ),
                 response,
             );
+        } else response = new Response(null, response); // Just copy.
+
+        // Modifying headers using a copy of the response, not the original response.
+        response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
     }
     return response;
 };
