@@ -364,11 +364,12 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
             cspNonce = request.headers.get('x-csp-nonce') || '',
             csp = response.headers.get('content-security-policy') || '';
 
-        response.headers.set('content-security-policy', csp.replaceAll(cspNonceReplCode, cspNonce));
-
         if (response.body && requestNeedsContentBody(request, response.status)) {
             response = new Response((await response.text()).replaceAll(cspNonceReplCode, cspNonce), response);
-        }
+        } else response = new Response(null, response); // Mutable.
+
+        response.headers.set('content-security-policy', csp.replaceAll(cspNonceReplCode, cspNonce));
+        //
     } else if (response.body && !requestNeedsContentBody(request, response.status)) {
         response = new Response(null, response);
     }
@@ -399,7 +400,7 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
                     ),
                 response,
             );
-        } else response = new Response(null, response); // Just copy.
+        } else response = new Response(null, response); // Copy of response.
 
         // Modifying headers using a copy of the response, not the original response.
         response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
