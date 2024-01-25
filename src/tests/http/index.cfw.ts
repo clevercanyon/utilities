@@ -16,10 +16,10 @@ describe('$http', async () => {
         expect(await $http.responseConfig()).toMatchObject({
             status: 405,
             enableCORs: false,
-            enableCDN: true,
             maxAge: null,
             sMaxAge: null,
             staleAge: null,
+            varyOn: [],
             headers: {},
             appendHeaders: {},
             body: null,
@@ -28,7 +28,7 @@ describe('$http', async () => {
             await $http.responseConfig({
                 status: 200,
                 enableCORs: true,
-                enableCDN: false,
+                varyOn: ['origin'],
                 headers: { a: 'a', b: 'b', c: 'c' },
                 appendHeaders: { d: 'd', e: 'e', f: 'f' },
                 body: 'abc',
@@ -36,10 +36,10 @@ describe('$http', async () => {
         ).toMatchObject({
             status: 200,
             enableCORs: true,
-            enableCDN: false,
             maxAge: null,
             sMaxAge: null,
             staleAge: null,
+            varyOn: ['origin'],
             headers: { a: 'a', b: 'b', c: 'c' },
             appendHeaders: { d: 'd', e: 'e', f: 'f' },
             body: 'abc',

@@ -22,7 +22,6 @@ export type RequestConfig = {
 export type ResponseConfig = {
     status?: number;
     enableCORs?: boolean;
-    enableCDN?: boolean;
     maxAge?: number | null;
     sMaxAge?: number | null;
     staleAge?: number | null;
@@ -52,6 +51,9 @@ export const cspNonceReplacementCode = (): string => '{%-_{%-_cspNonce_-%}_-%}';
  * @param   config Optional config options.
  *
  * @returns        HTTP route config.
+ *
+ * @note Intentionally not async. We use this in the body of modules to generate exported route configs.
+ *       Some platforms; e.g., Cloudflare, do not support top-level await, so let’s not go down that path.
  */
 export const routeConfig = (config?: RouteConfig): Required<RouteConfig> => {
     return $obj.defaults({}, config || {}, {
@@ -86,7 +88,6 @@ export const responseConfig = async (config?: ResponseConfig): Promise<Required<
     return $obj.defaults({}, config || {}, {
         status: 405,
         enableCORs: false,
-        enableCDN: true,
         maxAge: null,
         sMaxAge: null,
         staleAge: null,
@@ -103,7 +104,7 @@ export const responseConfig = async (config?: ResponseConfig): Promise<Required<
  * @param   request HTTP request.
  * @param   config  Optional; {@see RequestConfig}.
  *
- * @returns         HTTP request promise.
+ * @returns         Mutatable HTTP request copy promise.
  *
  * @throws          HTTP response; e.g., on redirect, on error.
  */
@@ -152,7 +153,7 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
         request.headers.delete('x-csp-nonce'); // Deleting for security reasons.
         // i.e., We don’t allow bad actors to send a request with their own nonce.
     }
-    return request; // Clone.
+    return request; // Mutatable copy.
 };
 
 /**
@@ -161,7 +162,7 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
  * @param   request HTTP request.
  * @param   config  Optional; {@see ResponseConfig}.
  *
- * @returns         HTTP response promise.
+ * @returns         Mutatable HTTP response promise.
  */
 export const prepareResponse = async (request: $type.Request, config?: ResponseConfig): Promise<$type.Response> => {
     const cfg = await responseConfig(config);
@@ -244,6 +245,7 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
                 // We don't auto-set content-length for `FormData|ReadableStream` body format types.
                 // The only way to determine the length of a readable stream is to actually read the stream.
                 // Don't use `FormData` sent as `application/x-www-form-urlencoded`. Use `URLSearchParams` or a string.
+                // See also: <https://o5p.me/YfybY7>.
             }
         }
     }
@@ -284,7 +286,6 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
                 cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=' + String(maxAge) + ', s-maxage=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
                 cacheHeaders['cdn-cache-control'] = 0 === sMaxAge ? 'no-store' : 'public, must-revalidate, max-age=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
             }
-            if (!cfg.enableCDN) delete cacheHeaders['cdn-cache-control']; // Ditches CDN header.
         };
         if ($is.integer(cfg.maxAge)) {
             cacheControl(cfg.maxAge, cfg.sMaxAge, cfg.staleAge);
@@ -354,9 +355,13 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
  * Prepares a cached HTTP response.
  *
  * @param   request  HTTP request.
- * @param   response HTTP response.
+ * @param   response HTTP response from a cache.
  *
- * @returns          HTTP response promise.
+ * @returns          Mutatable HTTP response copy promise.
+ *
+ * @note For performance reasons, this utility reserves the right to read the `.body` of the input response.
+ *       The assumption is that it’s OK to disturb `.body` when preparing a response that was pulled from a cache.
+ *       By doing so, we avoid needing to clone the input response before reading `.body`, which conserves memory.
  */
 export const prepareCachedResponse = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
     if (responseIsHTML(response) && request.headers.has('x-csp-nonce') && response.headers.has('content-security-policy')) {
@@ -364,36 +369,41 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
             cspNonce = request.headers.get('x-csp-nonce') || '',
             csp = response.headers.get('content-security-policy') || '';
 
-        // For performance reasons, this reads the `.body` of the response passed to this utility.
-        // The assumption is that it’s OK to do so, since it should have just been pulled from a cache.
-
         if (response.body && requestNeedsContentBody(request, response.status)) {
             response = new Response((await response.text()).replaceAll(cspNonceReplCode, cspNonce), response);
-        } else response = new Response(null, response); // Mutatable.
+        } else response = new Response(null, response); // Mutatable copy.
 
         response.headers.set('content-security-policy', csp.replaceAll(cspNonceReplCode, cspNonce));
         //
-    } else if (response.body && !requestNeedsContentBody(request, response.status)) {
-        response = new Response(null, response);
+    } else if (!requestNeedsContentBody(request, response.status)) {
+        response = new Response(null, response); // Mutatable copy.
+    } else {
+        response = new Response(response.body as BodyInit, response); // Mutatable copy.
     }
-    return response;
+    response.headers.set('x-cache-status', 'hit; prepared');
+
+    return response; // Mutatable copy.
 };
 
 /**
- * Prepares an HTTP response for cache.
+ * Prepares an HTTP response for a cache.
  *
  * @param   request  HTTP request.
- * @param   response HTTP response.
+ * @param   response HTTP response being served up.
  *
- * @returns          HTTP response promise.
+ * @returns          Mutatable HTTP response clone promise.
+ *
+ * @note This utility always clones the input response instead of disturbing `.body` of a response being served up.
+ *       Even if we don’t read `.body` here, we still need a clone, because what we return will be read into a cache.
+ *       Cloning a response requires added memory. Therefore, this should only be used when the overhead is acceptable.
  */
 export const prepareResponseForCache = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
+    response = response.clone(); // Cloning a response requires added memory.
+    response.headers.delete('x-cache-status'); // This header serves no purpose in a cache.
+
     if (responseIsHTML(response) && request.headers.has('x-csp-nonce') && response.headers.has('content-security-policy')) {
         const cspNonceReplCode = cspNonceReplacementCode(),
             csp = response.headers.get('content-security-policy') || '';
-
-        // In this case we clone instead of reading `.body` of a response passed to this utility.
-        response = response.clone(); // Clone of original so we can read `.body` without disturbing.
 
         if (response.body) {
             // {@see https://regex101.com/r/oTjEIq/7} {@see https://regex101.com/r/1MioJI/9}.
@@ -409,7 +419,7 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
         }
         response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
     }
-    return response.clone(); // Always return a clone.
+    return response; // Mutatable clone.
 };
 
 /**
@@ -976,6 +986,7 @@ export const publicHeaderNames = (): string[] => [
     'want-digest',
     'warning',
     'width',
+    'x-cache-status',
     'x-content-duration',
     'x-content-security-policy',
     'x-content-type-options',
@@ -1289,6 +1300,7 @@ export const corsResponseHeaderNames = (): string[] => [
     'want-digest',
     'warning',
     'www-authenticate',
+    'x-cache-status',
     'x-content-duration',
     'x-content-security-policy',
     'x-content-type-options',
