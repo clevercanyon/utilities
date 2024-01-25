@@ -409,7 +409,7 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
         }
         response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
     }
-    return response;
+    return response.clone(); // Always return a clone.
 };
 
 /**
