@@ -504,8 +504,8 @@ export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean
 /**
  * Request is coming from a specific via token?
  *
- * WARNING: We do not vary caches based on `x-via`. Therefore, you should _only_ use this when processing an uncacheable
- * request type; e.g., `POST` request, or another that is uncacheable; {@see requestHasCacheableMethod()}.
+ * WARNING: We do not, by default, vary caches based on `x-via`. Therefore, _only_ use this when processing an
+ * uncacheable request type; e.g., `POST` request, or by explicitly declaring that a cache should vary on `x-via`.
  *
  * @param   request HTTP request.
  * @param   via     `x-via` token to consider.
