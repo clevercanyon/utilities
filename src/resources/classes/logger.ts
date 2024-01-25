@@ -808,6 +808,7 @@ const jsonStringifyMiddleware = (key: string, value: unknown): unknown => {
             ]),
             ...(value.url ? { url: $redact.url(value.url) } : {}),
             headers: $redact.headers($http.extractHeaders(value.headers)),
+            bodyObjectTags: $obj.tags(value.body),
         };
     }
     return value;

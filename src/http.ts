@@ -364,6 +364,9 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
             cspNonce = request.headers.get('x-csp-nonce') || '',
             csp = response.headers.get('content-security-policy') || '';
 
+        // For performance reasons, this reads the `.body` of the response passed to this utility.
+        // The assumption is that it’s OK to do so, since it should have just been pulled from a cache.
+
         if (response.body && requestNeedsContentBody(request, response.status)) {
             response = new Response((await response.text()).replaceAll(cspNonceReplCode, cspNonce), response);
         } else response = new Response(null, response); // Mutatable.
@@ -389,8 +392,8 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
         const cspNonceReplCode = cspNonceReplacementCode(),
             csp = response.headers.get('content-security-policy') || '';
 
-        response = new Response(response.body as BodyInit, response); // Copy of response.
-        response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
+        // In this case we clone instead of reading `.body` of a response passed to this utility.
+        response = response.clone(); // Clone of original so we can read `.body` without disturbing.
 
         if (response.body) {
             // {@see https://regex101.com/r/oTjEIq/7} {@see https://regex101.com/r/1MioJI/9}.
@@ -404,6 +407,7 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
                 response,
             );
         }
+        response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
     }
     return response;
 };
