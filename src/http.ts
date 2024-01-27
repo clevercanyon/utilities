@@ -123,16 +123,16 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
     let url = $url.tryParse(request.url);
 
     if (!url /* Catches unparseable URLs. */) {
-        throw await prepareResponse(request, { status: 400 });
+        throw await prepareResponse(request, { status: 400, body: responseStatusText(400) });
     }
     if (requestPathIsInvalid(request, url)) {
-        throw await prepareResponse(request, { status: 400 });
+        throw await prepareResponse(request, { status: 400, body: responseStatusText(400) });
     }
     if (requestPathIsForbidden(request, url)) {
-        throw await prepareResponse(request, { status: 403 });
+        throw await prepareResponse(request, { status: 403, body: responseStatusText(403) });
     }
     if (!requestHasSupportedMethod(request)) {
-        throw await prepareResponse(request, { status: 405 });
+        throw await prepareResponse(request, { status: 405, body: responseStatusText(405) });
     }
     if (cfg.enforceAppBaseURLOrigin && requestPathHasInvalidAppBaseURLOrigin(request, url)) {
         const appBaseURL = $app.baseURL({ parsed: true });
@@ -178,6 +178,10 @@ export const prepareResponse = async (request: $type.Request, config?: ResponseC
     const cfg = await responseConfig(config),
         url = $url.tryParse(request.url);
 
+    /**
+     * This will also be the case when preparing a request, which triggers a response error whenever the URL is
+     * unparseable. In such a case, we return immediately with a 400 error status: Bad Request.
+     */
     if (!url /* Catches unparseable URLs. */) {
         const url400 = new URL('https://0.0.0.0/'),
             cfg400 = await responseConfig({ status: 400, body: responseStatusText(400) }),
@@ -189,16 +193,26 @@ export const prepareResponse = async (request: $type.Request, config?: ResponseC
             headers: await prepareResponseHeaders(request, url400, cfg400),
         });
     }
+
     /**
      * This CORs approach makes implementation simpler, because we consolidate the handling of `OPTIONS` into the
      * `enableCORs` flag, such that an explicit `OPTIONS` case handler does not need to be added by an implementation.
-     * The case of `405` (method now allowed; default status) is in conflict with CORs being enabled. Thus, the
+     * The case of `405` (method now allowed; i.e., default status) is in conflict with CORs being enabled. Thus, the
      * `OPTIONS` method is actually ok, because `enableCORs` was defined by the response config.
      */
     if (cfg.enableCORs && 'OPTIONS' === request.method && (!cfg.status || 405 === cfg.status)) {
         cfg.status = 204; // No content for CORs preflight requests.
     }
-    cfg.status = cfg.status || 500; // Internal server error.
+    if (!cfg.status /* Catches empty/invalid status. */) {
+        const cfg500 = await responseConfig({ status: 500, body: responseStatusText(500) }),
+            needsContentBody = responseNeedsContentBody(request, cfg500.status, cfg500.body);
+
+        return new Response((needsContentBody ? cfg500.body : null) as BodyInit | null, {
+            status: cfg500.status,
+            statusText: responseStatusText(cfg500.status),
+            headers: await prepareResponseHeaders(request, url, cfg500),
+        });
+    }
 
     /**
      * We only encode string body types at this time, and only gzip encoding is supported at this time. In a future
