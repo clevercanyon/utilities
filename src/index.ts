@@ -15,6 +15,7 @@ export * as $env from '#env.ts';
 export * as $error from '#error.ts';
 export * as $fn from '#fn.ts';
 export * as $fsize from '#fsize.ts';
+export * as $gzip from '#gzip.ts';
 export * as $http from '#http.ts';
 export * as $is from '#is.ts';
 export * as $json from '#json.ts';

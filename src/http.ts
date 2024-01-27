@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $app, $crypto, $env, $fn, $is, $obj, $path, $str, $time, $to, $url, $user, type $type } from '#index.ts';
+import { $app, $crypto, $env, $fn, $gzip, $is, $mime, $obj, $path, $str, $symbol, $time, $to, $url, $user, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -21,14 +21,19 @@ export type RequestConfig = {
 };
 export type ResponseConfig = {
     status?: number;
+
     enableCORs?: boolean;
+    varyOn?: string[];
+
     maxAge?: number | null;
     sMaxAge?: number | null;
     staleAge?: number | null;
-    varyOn?: string[]; // Request header names.
+
     headers?: $type.Headers | { [x: string]: string };
     appendHeaders?: $type.Headers | { [x: string]: string };
-    body?: $type.BodyInit | null; // i.e., Body contents.
+
+    body?: $type.BodyInit | null;
+    encodeBody?: 'gzip' | null;
 };
 export type SecurityHeaderOptions = {
     cspNonce?: string;
@@ -87,14 +92,19 @@ export const requestConfig = async (config?: RequestConfig): Promise<Required<Re
 export const responseConfig = async (config?: ResponseConfig): Promise<Required<ResponseConfig>> => {
     return $obj.defaults({}, config || {}, {
         status: 405,
+
         enableCORs: false,
+        varyOn: [],
+
         maxAge: null,
         sMaxAge: null,
         staleAge: null,
-        varyOn: [],
+
         headers: {},
         appendHeaders: {},
+
         body: null,
+        encodeBody: null,
     }) as Required<ResponseConfig>;
 };
 
@@ -165,33 +175,82 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
  * @returns         Mutatable HTTP response promise.
  */
 export const prepareResponse = async (request: $type.Request, config?: ResponseConfig): Promise<$type.Response> => {
-    const cfg = await responseConfig(config);
-    const url = $url.tryParse(request.url);
+    const cfg = await responseConfig(config),
+        url = $url.tryParse(request.url);
 
     if (!url /* Catches unparseable URLs. */) {
-        cfg.status = 400; // Bad request status.
-        cfg.body = responseStatusText(cfg.status);
-        cfg.body = requestNeedsContentBody(request, cfg.status) ? cfg.body : null;
+        const url400 = new URL('https://0.0.0.0/'),
+            cfg400 = await responseConfig({ status: 400, body: responseStatusText(400) }),
+            needsContentBody = responseNeedsContentBody(request, cfg400.status, cfg400.body);
 
-        return new Response(cfg.body, {
-            status: cfg.status,
-            statusText: responseStatusText(cfg.status),
-            headers: await prepareResponseHeaders(request, new URL('https://0.0.0.0/'), cfg),
+        return new Response((needsContentBody ? cfg400.body : null) as BodyInit | null, {
+            status: cfg400.status,
+            statusText: responseStatusText(cfg400.status),
+            headers: await prepareResponseHeaders(request, url400, cfg400),
         });
     }
-    // This approach makes implementation simpler since we consolidate the handling of `OPTIONS` into the `enableCORs` flag.
-    // The case of `405` (method now allowed; default status) is in conflict with CORs being enabled; i.e., `OPTIONS` method is ok.
-
+    /**
+     * This CORs approach makes implementation simpler, because we consolidate the handling of `OPTIONS` into the
+     * `enableCORs` flag, such that an explicit `OPTIONS` case handler does not need to be added by an implementation.
+     * The case of `405` (method now allowed; default status) is in conflict with CORs being enabled. Thus, the
+     * `OPTIONS` method is actually ok, because `enableCORs` was defined by the response config.
+     */
     if (cfg.enableCORs && 'OPTIONS' === request.method && (!cfg.status || 405 === cfg.status)) {
         cfg.status = 204; // No content for CORs preflight requests.
     }
-    cfg.status = cfg.status || 500; // If no status by now, we have an internal server error.
-    cfg.body = requestNeedsContentBody(request, cfg.status) ? cfg.body : null;
+    cfg.status = cfg.status || 500; // Internal server error.
 
-    return new Response(cfg.body as BodyInit | null, {
+    /**
+     * We only encode string body types at this time, and only gzip encoding is supported at this time. In a future
+     * version of this library we may decide to support other body types and/or other encoding formats.
+     *
+     * In general, we do not allow the body of HTML documents to be encoded, because doing so would hinder our ability
+     * to easily transform cacheable markup. The best approach for HTML is to utilize Cloudflare for on-the-fly
+     * encoding, because we generally don’t want an HTML response to be encoded at this layer.
+     */
+    if (cfg.encodeBody && !$is.nul(cfg.body)) {
+        if (!$is.string(cfg.body)) throw Error('SHfNesyN');
+        if ('gzip' !== cfg.encodeBody) throw Error('rU2H3CfG');
+        if (contentIsHTML(cfg.headers)) throw Error('DVsRapCc');
+
+        const gzipBody = await $gzip.encode(cfg.body), // Compressed gzip byte array.
+            gzipContentLength = gzipBody.length; // Compressed content length in bytes.
+
+        if ($env.isCFW() /* {@see https://o5p.me/uXMnF4} */) {
+            const _ = globalThis as $type.Keyable,
+                FixedLengthStream = _.FixedLengthStream as typeof $type.cf.FixedLengthStream,
+                { writable: writableStream, readable: readableStream } = new FixedLengthStream(gzipContentLength);
+
+            const writer = writableStream.getWriter();
+            void writer.write(gzipBody), void writer.close();
+
+            (readableStream as unknown as $type.Keyable)[$symbol.objReadableLength] = gzipContentLength;
+            cfg.body = readableStream; // Readable stream includes a length property.
+        } else {
+            const readableStream = new Blob([gzipBody]).stream();
+            (readableStream as unknown as $type.Keyable)[$symbol.objReadableLength] = gzipContentLength;
+            cfg.body = readableStream; // Readable stream includes a length property.
+        }
+    }
+    /**
+     * A few points to remember:
+     *
+     * We want header preparation to consider a potentially encoded (e.g., gzipped) body content length. Therefore, it’s
+     * important that we prepare response headers after we have already prepared & potentially encoded body above.
+     *
+     * The inclusion of a body {@see responseNeedsContentBody()} should not be considered by header preparation. For
+     * example, a HEAD request should return all the same headers that a GET request does, which would include, for
+     * example, the `content-length` of a body, or the `content-length` of an encoded body.
+     */
+    const headers = await prepareResponseHeaders(request, url, cfg),
+        needsContentBody = responseNeedsContentBody(request, cfg.status, cfg.body);
+
+    return new Response((needsContentBody ? cfg.body : null) as BodyInit | null, {
         status: cfg.status,
         statusText: responseStatusText(cfg.status),
-        headers: await prepareResponseHeaders(request, url, cfg),
+        headers, // Prepared above; {@see prepareResponseHeaders()}.
+        // Tells Cloudflare when we encoded manually; {@see https://o5p.me/fHo2ON}.
+        ...(cfg.encodeBody && $env.isCFW() && !$is.nul(cfg.body) ? { encodeBody: 'manual' } : {}),
     });
 };
 
@@ -228,26 +287,49 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
     }
     // Populates content-related headers.
 
-    if (!cfg.headers.has('content-length') /* Simply saves time. */) {
-        if (requestNeedsContentHeaders(request, cfg.status) && !$is.nul(cfg.body)) {
-            if ($is.string(cfg.body)) {
-                contentHeaders['content-length'] = String($str.byteLength(cfg.body));
-                //
-            } else if ($is.blob(cfg.body)) {
-                contentHeaders['content-length'] = String(cfg.body.size);
-                //
-            } else if ($is.typedArray(cfg.body) || $is.arrayBuffer(cfg.body) || $is.dataView(cfg.body)) {
-                contentHeaders['content-length'] = String(cfg.body.byteLength);
-                //
-            } else if (cfg.body instanceof URLSearchParams) {
-                contentHeaders['content-length'] = String($str.byteLength(cfg.body.toString()));
-            } else {
-                // We don't auto-set content-length for `FormData|ReadableStream` body format types.
-                // The only way to determine the length of a readable stream is to actually read the stream.
-                // Don't use `FormData` sent as `application/x-www-form-urlencoded`. Use `URLSearchParams` or a string.
-                // See also: <https://o5p.me/YfybY7>.
-            }
+    const needsContentHeaders // Response needs content headers?
+        = responseNeedsContentHeaders(request, cfg.status, cfg.body); // prettier-ignore
+
+    if (needsContentHeaders && !cfg.headers.has('content-type')) {
+        contentHeaders['content-type'] = $mime.contentType('.txt');
+    }
+    if (needsContentHeaders && 'gzip' === cfg.encodeBody && !cfg.headers.has('content-encoding')) {
+        contentHeaders['content-encoding'] = 'gzip';
+    }
+    if (needsContentHeaders && !cfg.headers.has('content-length') /* Simply saves time. */) {
+        /**
+         * Cloudflare will typically remove a `content-length` header when serving, because, by default, it does
+         * on-the-fly chunked transfer-encoding. However, even in such a case, the `content-length` header is still
+         * useful at runtime. For example, we look at `content-length` before deciding to cache a request.
+         */
+        if ($is.string(cfg.body)) {
+            contentHeaders['content-length'] = String($str.byteLength(cfg.body));
+            //
+        } else if ($is.blob(cfg.body)) {
+            contentHeaders['content-length'] = String(cfg.body.size);
+            //
+        } else if ($is.typedArray(cfg.body) || $is.arrayBuffer(cfg.body) || $is.dataView(cfg.body)) {
+            contentHeaders['content-length'] = String(cfg.body.byteLength);
+            //
+        } else if (cfg.body instanceof URLSearchParams) {
+            contentHeaders['content-length'] = String($str.byteLength(cfg.body.toString()));
+            //
+        } else if (cfg.body instanceof ReadableStream && Object.hasOwn(cfg.body, $symbol.objReadableLength)) {
+            contentHeaders['content-length'] = String((cfg.body as unknown as $type.Keyable)[$symbol.objReadableLength]);
         }
+        /**
+         * We don't acquire content-length for other `FormData|ReadableStream` body types.
+         *
+         * The only way to determine the length of multipart/form-data is to generate each of the parts and separate
+         * them by boundaries, which is generally implementation-specific. Doing that much work would defeat the purpose
+         * of passing a FormData instance to begin with, so we simply don’t do it. When possible, use
+         * `application/x-www-form-urlencoded`; e.g., `URLSearchParams` instead of passing FormData.
+         *
+         * The only way to determine the length of a readable stream is to actually read the stream, which we don’t do,
+         * as reading the stream would disturb the body of the stream, else it would require added memory to clone the
+         * stream before reading. However, there are cases when a readable stream explicitly includes a length property;
+         * e.g., Cloudflare FixedLengthStream, and some of our own readable streams.
+         */
     }
     // Populates `cache-control` and cache-related headers.
     // `vary` is ignored by Cloudflare, except in one rare case: <https://o5p.me/k4Xx0j>.
@@ -285,6 +367,10 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
 
                 cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=' + String(maxAge) + ', s-maxage=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
                 cacheHeaders['cdn-cache-control'] = 0 === sMaxAge ? 'no-store' : 'public, must-revalidate, max-age=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
+            }
+            if (cfg.encodeBody && !$is.nul(cfg.body)) {
+                cacheHeaders['cache-control'] += ', no-transform';
+                cacheHeaders['cdn-cache-control'] += ', no-transform';
             }
         };
         if ($is.integer(cfg.maxAge)) {
@@ -354,28 +440,38 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
 /**
  * Prepares a cached HTTP response.
  *
+ * For performance reasons, this utility reserves the right to read the `.body` of the input response. The assumption is
+ * that it’s OK to disturb `.body` when preparing a response that was pulled from a cache. By doing so, we avoid needing
+ * to clone the input response before reading `.body`, which conserves memory.
+ *
+ * In the case of HTML we don’t transform a response that is encoded; e.g., gzipped, as it would be more resource
+ * intensive than we’d like. In general, we do not allow the body of HTML documents to be encoded by our `$http`
+ * utilities, because doing so would hinder our ability to easily transform markup. The best approach for HTML is to
+ * utilize Cloudflare for on-the-fly encoding, because we don’t want an HTML response to be encoded at this layer.
+ *
  * @param   request  HTTP request.
  * @param   response HTTP response from a cache.
  *
  * @returns          Mutatable HTTP response copy promise.
- *
- * @note For performance reasons, this utility reserves the right to read the `.body` of the input response.
- *       The assumption is that it’s OK to disturb `.body` when preparing a response that was pulled from a cache.
- *       By doing so, we avoid needing to clone the input response before reading `.body`, which conserves memory.
  */
 export const prepareCachedResponse = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
-    if (responseIsHTML(response) && request.headers.has('x-csp-nonce') && response.headers.has('content-security-policy')) {
+    if (
+        responseIsHTML(response) && //
+        !responseIsEncoded(response) &&
+        request.headers.has('x-csp-nonce') &&
+        response.headers.has('content-security-policy')
+    ) {
         const cspNonceReplCode = cspNonceReplacementCode(),
             cspNonce = request.headers.get('x-csp-nonce') || '',
             csp = response.headers.get('content-security-policy') || '';
 
-        if (response.body && requestNeedsContentBody(request, response.status)) {
+        if (responseNeedsContentBody(request, response.status, response.body)) {
             response = new Response((await response.text()).replaceAll(cspNonceReplCode, cspNonce), response);
         } else response = new Response(null, response); // Mutatable copy.
 
         response.headers.set('content-security-policy', csp.replaceAll(cspNonceReplCode, cspNonce));
         //
-    } else if (!requestNeedsContentBody(request, response.status)) {
+    } else if (!responseNeedsContentBody(request, response.status, response.body)) {
         response = new Response(null, response); // Mutatable copy.
     } else {
         response = new Response(response.body as BodyInit, response); // Mutatable copy.
@@ -388,20 +484,29 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
 /**
  * Prepares an HTTP response for a cache.
  *
+ * This utility always clones the input response instead of disturbing `.body` of a response being served up. Even if we
+ * don’t read `.body` here, we still need a clone, because what is returned by this utility will be read into a cache.
+ * Cloning a response requires added memory. Therefore, this should only be used when the overhead is acceptable.
+ *
+ * In the case of HTML we don’t transform a response that is encoded; e.g., gzipped, as it would be more resource
+ * intensive than we’d like. In general, we do not allow the body of HTML documents to be encoded by our `$http`
+ * utilities, because doing so would hinder our ability to easily transform markup. The best approach for HTML is to
+ * utilize Cloudflare for on-the-fly encoding, because we don’t want an HTML response to be encoded at this layer.
+ *
  * @param   request  HTTP request.
  * @param   response HTTP response being served up.
  *
  * @returns          Mutatable HTTP response clone promise.
- *
- * @note This utility always clones the input response instead of disturbing `.body` of a response being served up.
- *       Even if we don’t read `.body` here, we still need a clone, because what we return will be read into a cache.
- *       Cloning a response requires added memory. Therefore, this should only be used when the overhead is acceptable.
  */
 export const prepareResponseForCache = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
-    response = response.clone(); // Cloning a response requires added memory.
-    response.headers.delete('x-cache-status'); // This header serves no purpose in a cache.
-
-    if (responseIsHTML(response) && request.headers.has('x-csp-nonce') && response.headers.has('content-security-policy')) {
+    response = response.clone(); // Must clone response, which requires added memory.
+    response.headers.delete('x-cache-status'); // Serves no purpose in a cache.
+    if (
+        responseIsHTML(response) && //
+        !responseIsEncoded(response) &&
+        request.headers.has('x-csp-nonce') &&
+        response.headers.has('content-security-policy')
+    ) {
         const cspNonceReplCode = cspNonceReplacementCode(),
             csp = response.headers.get('content-security-policy') || '';
 
@@ -456,31 +561,33 @@ export const requestHasCacheableMethod = $fnꓺmemo(2, (request: $type.Request):
 });
 
 /**
- * Request method needs content headers?
+ * Response needs content headers?
  *
  * @param   request        HTTP request.
  * @param   responseStatus HTTP response status code.
+ * @param   responseBody   HTTP response body.
  *
- * @returns                True if request method needs content headers.
+ * @returns                True if response needs content headers.
  *
  * @see https://fetch.spec.whatwg.org/#null-body-status
  */
-export const requestNeedsContentHeaders = $fnꓺmemo(2, (request: $type.Request, responseStatus: number): boolean => {
-    return requestHasSupportedMethod(request) && !['OPTIONS'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus);
+export const responseNeedsContentHeaders = $fnꓺmemo(2, (request: $type.Request, responseStatus: number, responseBody: $type.BodyInit | null): boolean => {
+    return requestHasSupportedMethod(request) && !['OPTIONS'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus) && !$is.nul(responseBody);
 });
 
 /**
- * Request method needs content body?
+ * Response needs content body?
  *
  * @param   request        HTTP request.
  * @param   responseStatus HTTP response status code.
+ * @param   responseBody   HTTP response body.
  *
- * @returns                True if request method needs content body.
+ * @returns                True if response needs content body.
  *
  * @see https://fetch.spec.whatwg.org/#null-body-status
  */
-export const requestNeedsContentBody = $fnꓺmemo(2, (request: $type.Request, responseStatus: number): boolean => {
-    return requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus);
+export const responseNeedsContentBody = $fnꓺmemo(2, (request: $type.Request, responseStatus: number, responseBody: $type.BodyInit | null): boolean => {
+    return requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus) && !$is.nul(responseBody);
 });
 
 /**
@@ -728,14 +835,49 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
 });
 
 /**
- * Response is an HTML document?
+ * Content is HTML?
+ *
+ * @param   headers HTTP headers.
+ *
+ * @returns         True if content is HTML.
+ */
+export const contentIsHTML = $fnꓺmemo(2, (headers: $type.Headers | { [x: string]: string }): boolean => {
+    headers = headers instanceof Headers ? headers : new Headers(headers);
+    return 'text/html' === headers.get('content-type')?.split(';')[0]?.toLowerCase();
+});
+
+/**
+ * Content is encoded?
+ *
+ * @param   headers HTTP headers.
+ *
+ * @returns         True if content is encoded.
+ */
+export const contentIsEncoded = $fnꓺmemo(2, (headers: $type.Headers | { [x: string]: string }): boolean => {
+    headers = headers instanceof Headers ? headers : new Headers(headers);
+    return !['', 'none'].includes((headers.get('content-encoding') || '').toLowerCase());
+});
+
+/**
+ * Response is HTML?
  *
  * @param   response HTTP response.
  *
- * @returns          True if response is an HTML document.
+ * @returns          True if response is HTML.
  */
 export const responseIsHTML = $fnꓺmemo(2, (response: $type.Response): boolean => {
-    return 'text/html' === response.headers.get('content-type')?.split(';')[0]?.toLowerCase();
+    return contentIsHTML(response.headers);
+});
+
+/**
+ * Response is encoded?
+ *
+ * @param   response HTTP response.
+ *
+ * @returns          True if response is encoded.
+ */
+export const responseIsEncoded = $fnꓺmemo(2, (response: $type.Response): boolean => {
+    return contentIsEncoded(response.headers);
 });
 
 /**

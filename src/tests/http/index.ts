@@ -211,29 +211,29 @@ describe('$http', async () => {
         expect($http.requestHasCacheableMethod(new Request('https://example.com/', { method: 'DELETE' }))).toBe(false);
         expect($http.requestHasCacheableMethod(new Request('https://example.com/', { method: 'ABC' }))).toBe(false);
     });
-    test('.requestNeedsContentHeaders()', async () => {
-        expect($http.requestNeedsContentHeaders(new Request('https://example.com/', { method: 'OPTIONS' }), 200)).toBe(false);
-        expect($http.requestNeedsContentHeaders(new Request('https://example.com/', { method: 'HEAD' }), 200)).toBe(true);
-        expect($http.requestNeedsContentHeaders(new Request('https://example.com/', { method: 'HEAD' }), 204)).toBe(false);
-        expect($http.requestNeedsContentHeaders(new Request('https://example.com/', { method: 'GET' }), 200)).toBe(true);
-        expect($http.requestNeedsContentHeaders(new Request('https://example.com/', { method: 'POST' }), 200)).toBe(true);
-        expect($http.requestNeedsContentHeaders(new Request('https://example.com/', { method: 'PUT' }), 200)).toBe(true);
-        expect($http.requestNeedsContentHeaders(new Request('https://example.com/', { method: 'PATCH' }), 200)).toBe(true);
-        expect($http.requestNeedsContentHeaders(new Request('https://example.com/', { method: 'DELETE' }), 200)).toBe(true);
-        expect($http.requestNeedsContentHeaders(new Request('https://example.com/', { method: 'ABC' }), 200)).toBe(false);
+    test('.responseNeedsContentHeaders()', async () => {
+        expect($http.responseNeedsContentHeaders(new Request('https://example.com/', { method: 'OPTIONS' }), 200, '')).toBe(false);
+        expect($http.responseNeedsContentHeaders(new Request('https://example.com/', { method: 'HEAD' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentHeaders(new Request('https://example.com/', { method: 'HEAD' }), 204, '')).toBe(false);
+        expect($http.responseNeedsContentHeaders(new Request('https://example.com/', { method: 'GET' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentHeaders(new Request('https://example.com/', { method: 'POST' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentHeaders(new Request('https://example.com/', { method: 'PUT' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentHeaders(new Request('https://example.com/', { method: 'PATCH' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentHeaders(new Request('https://example.com/', { method: 'DELETE' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentHeaders(new Request('https://example.com/', { method: 'ABC' }), 200, '')).toBe(false);
     });
-    test('.requestNeedsContentBody()', async () => {
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'OPTIONS' }), 200)).toBe(false);
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'OPTIONS' }), 204)).toBe(false);
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'HEAD' }), 200)).toBe(false);
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'HEAD' }), 204)).toBe(false);
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'GET' }), 200)).toBe(true);
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'GET' }), 204)).toBe(false);
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'POST' }), 200)).toBe(true);
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'PUT' }), 200)).toBe(true);
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'PATCH' }), 200)).toBe(true);
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'DELETE' }), 200)).toBe(true);
-        expect($http.requestNeedsContentBody(new Request('https://example.com/', { method: 'ABC' }), 200)).toBe(false);
+    test('.responseNeedsContentBody()', async () => {
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'OPTIONS' }), 200, '')).toBe(false);
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'OPTIONS' }), 204, '')).toBe(false);
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'HEAD' }), 200, '')).toBe(false);
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'HEAD' }), 204, '')).toBe(false);
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'GET' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'GET' }), 204, '')).toBe(false);
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'POST' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'PUT' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'PATCH' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'DELETE' }), 200, '')).toBe(true);
+        expect($http.responseNeedsContentBody(new Request('https://example.com/', { method: 'ABC' }), 200, '')).toBe(false);
     });
     test('.requestIsVia()', async () => {
         expect($http.requestIsVia(new Request('https://example.com/', { headers: { 'x-via': 'foo' } }), 'foo')).toBe(true);
