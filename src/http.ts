@@ -435,13 +435,12 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
     if (cfg.enableCORs && request.headers.has('origin')) {
         corsHeaders['access-control-max-age'] = '7200';
         corsHeaders['access-control-allow-credentials'] = 'true';
+        // `access-control-allow-origin` is also set by our security headers.
+        // When we have an origin, CORs headers will simply override security headers.
         corsHeaders['access-control-allow-origin'] = request.headers.get('origin') || '*';
         corsHeaders['access-control-allow-methods'] = supportedRequestMethods().join(', ');
         corsHeaders['access-control-allow-headers'] = corsRequestHeaderNames().join(', ');
         corsHeaders['access-control-expose-headers'] = corsResponseHeaderNames().join(', ');
-        //
-    } else if (cfg.enableCORs) {
-        corsHeaders['access-control-allow-origin'] = '*';
     }
     // Merges and returns all headers.
 
@@ -1580,6 +1579,7 @@ export const defaultSecurityHeaders = (options?: SecurityHeaderOptions): { [x: s
         'x-content-type-options': 'nosniff',
         'cross-origin-opener-policy': 'same-origin',
         ...(opts.enableCORs ? { 'timing-allow-origin': '*' } : {}),
+        ...(opts.enableCORs ? { 'access-control-allow-origin': '*' } : {}),
         'cross-origin-resource-policy': opts.enableCORs ? 'cross-origin' : 'same-origin',
         'cross-origin-embedder-policy': 'credentialless',
         'referrer-policy': 'strict-origin-when-cross-origin',
