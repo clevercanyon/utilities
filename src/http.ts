@@ -407,6 +407,8 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
             //
         } else cacheControl($time.dayInSeconds);
     }
+    cacheHeaders['x-cache-status'] = 'dynamic'; // Default status.
+
     // Populates security-related headers.
 
     if ($env.isC10n()) {
