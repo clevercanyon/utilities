@@ -7,12 +7,13 @@
 import '#@initialize.ts';
 
 import dayjs from 'dayjs'; // 7kbs.
-import dayjsAdvancedFormat from 'dayjs/plugin/advancedFormat.js'; // 1.07kbs.
-import dayjsCustomParseFormat from 'dayjs/plugin/customParseFormat.js'; // 3.66kbs.
+import dayjsAdvancedFormat from 'dayjs/plugin/advancedFormat.js'; // 1.07KiB.
+import dayjsCustomParseFormat from 'dayjs/plugin/customParseFormat.js'; // 3.66KiB.
 import dayjsLocalizedFormat from 'dayjs/plugin/localizedFormat.js'; // 807 bytes.
-import dayjsTimezone from 'dayjs/plugin/timezone.js'; // 2.09kbs.
+import dayjsRelativeTime from 'dayjs/plugin/relativeTime.js'; // 1.39KiB.
+import dayjsTimezone from 'dayjs/plugin/timezone.js'; // 2.09KiB.
 import dayjsToObject from 'dayjs/plugin/toObject.js'; // 422 bytes.
-import dayjsUTC from 'dayjs/plugin/utc.js'; // 2.2kbs.
+import dayjsUTC from 'dayjs/plugin/utc.js'; // 2.2KiB.
 
 import { $app, $is, $obj, $symbol, type $type } from '#index.ts';
 
@@ -230,6 +231,7 @@ const initialize = (): void => {
     dayjsExtend(dayjsCustomParseFormat);
     dayjsExtend(dayjsLocalizedFormat);
     dayjsExtend(dayjsAdvancedFormat);
+    dayjsExtend(dayjsRelativeTime);
     dayjsExtend(dayjsToObject);
 
     dayjs.locale('en-US');
