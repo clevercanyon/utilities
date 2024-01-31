@@ -189,4 +189,21 @@ describe('$crypto', async () => {
             'aeiouAEIOUaeiouyAEIOUYaeiouAEIOUanoANOaeiouyAEIOUYçÇßØøÅåÆæœ',
         );
     });
+    test('.base64DecodeToBlob()', async () => {
+        expect($crypto.base64DecodeToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==').size).toBe(70);
+        expect($crypto.base64DecodeToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5_DmMO4w4XDpcOGw6bFkw', { urlSafe: true }).size).toBe(70);
+
+        expect($crypto.base64DecodeToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==').type).toBe('');
+        expect($crypto.base64DecodeToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==', { type: 'text/plain' }).type).toBe(
+            'text/plain',
+        );
+        expect($crypto.base64DecodeToBlob('data:text/plain;base64,YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==').size).toBe(70);
+        expect(
+            $crypto.base64DecodeToBlob('data:text/plain;base64,YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5_DmMO4w4XDpcOGw6bFkw', { urlSafe: true })
+                .size,
+        ).toBe(70);
+        expect($crypto.base64DecodeToBlob('data:text/plain;base64,YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==').type).toBe(
+            'text/plain',
+        );
+    });
 });

@@ -13,6 +13,7 @@ import { $env, $obj, $str, type $type } from '#index.ts';
 export type UUIDV4Options = { dashes?: boolean };
 export type Base64EncodeOptions = { urlSafe?: boolean };
 export type Base64DecodeOptions = { urlSafe?: boolean };
+export type Base64DecodeToBlobOptions = { urlSafe?: boolean; type?: string };
 export type RandomStringOptions = { type?: string; byteDictionary?: string };
 export type HashAlgorithm = 'md5' | 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
 
@@ -120,8 +121,10 @@ export const hmacSHA512 = $fnꓺmemo(2, async (str: string, key?: string): Promi
  * @returns         Base-64 encoded string.
  */
 export const base64Encode = (str: string, options?: Base64EncodeOptions): string => {
-    const base64 = btoa(String.fromCodePoint(...$str.textEncoder.encode(str)));
-    return options?.urlSafe ? base64.replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '') : base64;
+    const opts = $obj.defaults({}, options || {}, { urlSafe: false }) as Required<Base64EncodeOptions>,
+        base64 = btoa(String.fromCodePoint(...$str.textEncoder.encode(str)));
+
+    return opts.urlSafe ? base64.replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '') : base64;
 };
 
 /**
@@ -135,8 +138,32 @@ export const base64Encode = (str: string, options?: Base64EncodeOptions): string
  * @throws          When input string is not valid base-64.
  */
 export const base64Decode = (base64: string, options?: Base64DecodeOptions): string => {
-    base64 = options?.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat(base64.length % 4) : base64;
+    const opts = $obj.defaults({}, options || {}, { urlSafe: false }) as Required<Base64DecodeOptions>;
+
+    base64 = base64.replace(/^data:[^:;,]+;base64,/iu, ''); // Ditch data URI prefixes.
+    base64 = opts.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat(base64.length % 4) : base64;
+
     return $str.textDecoder.decode(Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0))));
+};
+
+/**
+ * Decodes a base-64 encoded string into a blob.
+ *
+ * @param   str     Input base-4 string to decode.
+ * @param   options All optional; {@see Base64DecodeToBlobOptions}.
+ *
+ * @returns         Base-64 decoded blob.
+ *
+ * @throws          When input string is not valid base-64.
+ */
+export const base64DecodeToBlob = (base64: string, options?: Base64DecodeToBlobOptions): Blob => {
+    const opts = $obj.defaults({}, options || {}, { urlSafe: false, type: '' }) as Required<Base64DecodeToBlobOptions>,
+        [, dataURIType = ''] = base64.match(/^data:([^:;,]+);base64,/iu) || [],
+        type = opts.type || dataURIType || ''; // Prefers explicit type.
+
+    base64 = base64.replace(/^data:[^:;,]+;base64,/iu, ''); // Ditch data URI prefixes.
+    base64 = opts.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat(base64.length % 4) : base64;
+    return new Blob([Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0)))], { type });
 };
 
 /**
