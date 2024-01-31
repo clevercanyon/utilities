@@ -26,7 +26,7 @@ let i18n: Intl.ResolvedDateTimeFormatOptions;
 declare module 'dayjs' {
     export interface Dayjs {
         clone(): dayjs.Dayjs;
-        equals(x: dayjs.Dayjs): boolean;
+        equals(time: dayjs.Dayjs): boolean;
 
         toStamp(): number;
         toFloatStamp(): number;
@@ -42,6 +42,12 @@ declare module 'dayjs' {
 
         toI18n(options?: I18nOptions): string;
         toI18nDate(options?: I18nOptions): string;
+
+        toNow(withoutSuffix?: boolean): string;
+        to(time: dayjs.Dayjs, withoutSuffix?: boolean): string;
+
+        fromNow(withoutSuffix?: boolean): string;
+        from(time: dayjs.Dayjs, withoutSuffix?: boolean): string;
     }
 }
 export type ParseOptions = { locale?: string; zone?: string };
