@@ -74,6 +74,9 @@ describe('$str', async () => {
         expect($str.rTrim('  [heļlṏ, ꓺ🦊!] ', '[!ꓺ]🦊,')).toBe('  [heļlṏ');
     });
     test('.clip()', async () => {
+        expect($str.byteLength('[…]')).toBe(5);
+        expect($str.charLength('[…]')).toBe(3);
+
         expect($str.clip('🦊øÅåabcdefg', { maxBytes: 9 })).toBe('🦊[…]');
         expect($str.clip('abcdefg🦊øÅå', { maxBytes: 10 })).toBe('abcde[…]');
 
@@ -85,6 +88,43 @@ describe('$str', async () => {
 
         expect($str.charLength($str.clip('🦊øÅåabcdefg', { maxChars: 10 }))).toBe(10);
         expect($str.charLength($str.clip('abcdefg🦊øÅå', { maxChars: 10 }))).toBe(10);
+    });
+    test('.midClip()', async () => {
+        expect($str.byteLength('[…]')).toBe(5);
+        expect($str.charLength('[…]')).toBe(3);
+
+        expect($str.byteLength($str.midClip('', { maxBytes: 9 }))).toBe(0);
+        expect($str.byteLength($str.midClip('', { maxBytes: 10 }))).toBe(0);
+
+        expect($str.byteLength($str.midClip('x', { maxBytes: 9 }))).toBe(1);
+        expect($str.byteLength($str.midClip('x', { maxBytes: 10 }))).toBe(1);
+
+        expect($str.byteLength($str.midClip('abcdefghi', { maxBytes: 9 }))).toBe(9);
+        expect($str.byteLength($str.midClip('abcdefghij', { maxBytes: 10 }))).toBe(10);
+
+        expect($str.byteLength($str.midClip('abcdefghij', { maxBytes: 9 }))).toBe(9);
+        expect($str.byteLength($str.midClip('abcdefghijk', { maxBytes: 10 }))).toBe(10);
+
+        expect($str.byteLength($str.midClip('abcdefghijklmnopqrstuvwxyz', { maxBytes: 9 }))).toBe(9);
+        expect($str.byteLength($str.midClip('abcdefghijklmnopqrstuvwxyz', { maxBytes: 10 }))).toBe(10);
+
+        expect($str.charLength($str.midClip('abcdefghijklmnopqrstuvwxyz', { maxChars: 9 }))).toBe(9);
+        expect($str.charLength($str.midClip('abcdefghijklmnopqrstuvwxyz', { maxChars: 10 }))).toBe(10);
+
+        expect($str.midClip('abcdefghij', { maxBytes: 9 })).toBe('ab[…]ij');
+        expect($str.midClip('abcdefghijk', { maxBytes: 10 })).toBe('abc[…]jk');
+
+        expect($str.midClip('abcdefghijklmnopqrstuvwxyz', { maxBytes: 9 })).toBe('ab[…]yz');
+        expect($str.midClip('abcdefghijklmnopqrstuvwxyz', { maxBytes: 10 })).toBe('abc[…]yz');
+
+        expect($str.midClip('abcdefghijklmnopqrstuvwxyz', { maxChars: 9 })).toBe('abc[…]xyz');
+        expect($str.midClip('abcdefghijklmnopqrstuvwxyz', { maxChars: 10 })).toBe('abcd[…]xyz');
+
+        expect($str.midClip('🦊øÅåabcdefg', { maxChars: 10 })).toBe('🦊øÅå[…]efg');
+        expect($str.midClip('abcdefg🦊øÅå', { maxChars: 10 })).toBe('abcd[…]øÅå');
+
+        expect($str.charLength($str.midClip('🦊øÅåabcdefg', { maxChars: 10 }))).toBe(10);
+        expect($str.charLength($str.midClip('abcdefg🦊øÅå', { maxChars: 10 }))).toBe(10);
     });
     test('.splitWords()', async () => {
         expect($str.splitWords('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toStrictEqual(['heļlṏ', 'ꓺ', 'wɵrḻɖ']);

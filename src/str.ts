@@ -25,6 +25,7 @@ const emailRegExp = /^[a-z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)
  */
 export type TrimOptions = { left?: boolean; right?: boolean };
 export type ClipOptions = { maxBytes?: number; maxChars?: number; indicator?: string };
+export type MidClipOptions = { maxBytes?: number; maxChars?: number; indicator?: string };
 export type SplitWordOptions = { whitespaceOnly?: boolean };
 
 export type TitleCaseOptions = { asciiOnly?: boolean; splitOnWhitespaceOnly?: boolean };
@@ -343,9 +344,10 @@ export const splitWords = (str: string, options?: SplitWordOptions): string[] =>
 /**
  * Clips a string to a specified length.
  *
- * @param   str String to potentially clip.
+ * @param   str     String to potentially clip.
+ * @param   options {@see ClipOptions}; requires `maxBytes` or `maxChars`.
  *
- * @returns     Possibly clipped string.
+ * @returns         Possibly clipped string.
  */
 export const clip = (str: string, options?: ClipOptions): string => {
     const opts = $obj.defaults({}, options || {}, { maxBytes: Infinity, maxChars: Infinity, indicator: '[…]' }) as Required<ClipOptions>;
@@ -355,6 +357,38 @@ export const clip = (str: string, options?: ClipOptions): string => {
         //
     } else if ($is.safeArrayKey(opts.maxChars) && opts.maxChars > 0 && charLength(str) > opts.maxChars) {
         str = fromChars(toChars(str).slice(0, Math.max(0, opts.maxChars - charLength(opts.indicator)))) + opts.indicator;
+    }
+    return str;
+};
+
+/**
+ * Mid-clips a string to a specified length.
+ *
+ * @param   str     String to potentially mid-clip.
+ * @param   options {@see MidClipOptions}; requires `maxBytes` or `maxChars`.
+ *
+ * @returns         Possibly mid-clipped string.
+ */
+export const midClip = (str: string, options?: MidClipOptions): string => {
+    const opts = $obj.defaults({}, options || {}, { maxBytes: Infinity, maxChars: Infinity, indicator: '[…]' }) as Required<MidClipOptions>;
+
+    if ($is.safeArrayKey(opts.maxBytes) && opts.maxBytes > 0 && byteLength(str) > opts.maxBytes) {
+        const bytes = toBytes(str),
+            indicatorBytes = toBytes(opts.indicator),
+            maxLeftBytes = Math.max(0, Math.ceil((opts.maxBytes - indicatorBytes.length) / 2)),
+            leftBytes = bytes.slice(0, Math.max(0, maxLeftBytes)),
+            rightBytes = bytes.slice(-Math.max(0, opts.maxBytes - leftBytes.length - indicatorBytes.length));
+
+        str = fromBytes(leftBytes) + opts.indicator + fromBytes(rightBytes);
+        //
+    } else if ($is.safeArrayKey(opts.maxChars) && opts.maxChars > 0 && charLength(str) > opts.maxChars) {
+        const chars = toChars(str),
+            indicatorChars = toChars(opts.indicator),
+            maxLeftChars = Math.max(0, Math.ceil((opts.maxChars - indicatorChars.length) / 2)),
+            leftChars = chars.slice(0, Math.max(0, maxLeftChars)),
+            rightChars = chars.slice(-Math.max(0, opts.maxChars - leftChars.length - indicatorChars.length));
+
+        str = fromChars(leftChars) + opts.indicator + fromChars(rightChars);
     }
     return str;
 };
