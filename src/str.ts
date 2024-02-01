@@ -20,6 +20,9 @@ const wordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p
 // Regular expression for email validating; {@see https://o5p.me/goVSTH}.
 const emailRegExp = /^[a-z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*$/iu;
 
+// Regular expression for fulltext search query columns prefix.
+const ftsQueryColumnsPrefixRegExp = /^(?:-\s+)?(?:[a-z_0-9]+:|\{[a-z_\s0-9]+\}:)/iu;
+
 /**
  * Defines types.
  */
@@ -765,10 +768,9 @@ export const escSelector = (str: string): string => {
  */
 export const escFTSQuery = (str: string, options?: EscFTSQueryOptions): string => {
     if (!(str = str.trim())) return str; // Nothing to do.
-    const opts = $obj.defaults({}, options || {}, { defaultColumns: [] }) as Required<EscFTSQueryOptions>,
-        columnsPrefixRegExp = /^(?:-\s+)?\{[a-z_\s0-9]+\}:/iu;
+    const opts = $obj.defaults({}, options || {}, { defaultColumns: [] }) as Required<EscFTSQueryOptions>;
 
-    let query = columnsPrefixRegExp.test(str)
+    let query = ftsQueryColumnsPrefixRegExp.test(str)
         ? str // If the query includes columns, leave them as-is.
         : (opts.defaultColumns.length ? '{' + opts.defaultColumns.join(' ') + '}: ' : '') + str;
 
@@ -777,8 +779,8 @@ export const escFTSQuery = (str: string, options?: EscFTSQueryOptions): string =
     // (2) Everything else following a prefix.
     let queryParts = []; // Initialize.
 
-    if (columnsPrefixRegExp.test(query)) {
-        const sliceAtIndexPosition = query.indexOf('}:') + 2;
+    if (ftsQueryColumnsPrefixRegExp.test(query)) {
+        const sliceAtIndexPosition = query.indexOf(':') + 1;
         queryParts[0] = query.slice(0, sliceAtIndexPosition).trim();
         queryParts[1] = query.slice(sliceAtIndexPosition).trim();
     } else {
@@ -808,8 +810,8 @@ export const escFTSQuery = (str: string, options?: EscFTSQueryOptions): string =
                     // Quotes `^` and `-` when not at beginning of piece.
                     .replace(/(?<!^|\()([-^]+)/gu, '"$1"')
 
-                    // Quotes `:` when not preceded by `}`.
-                    .replace(/(?<!\})([:]+)/gu, '"$1"')
+                    // Quotes `:` when not preceded by `[a-z0-9}]`.
+                    .replace(/(?<![a-z0-9}])(:+)/gu, '"$1"')
             );
         })
         .join(' ') // Concatenates pieces.

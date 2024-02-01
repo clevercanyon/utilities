@@ -405,6 +405,10 @@ describe('$str', async () => {
             .toBe('aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ\\!\\"\\#\\$\\%\\&\\\'\\(\\)\\*\\+\\,\\.\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\`\\{\\|\\}\\~');
     });
     test('.escFTSQuery()', async () => {
+        expect($str.escFTSQuery('site: foo bar')).toBe('site: foo bar');
+        expect($str.escFTSQuery('- site: foo bar')).toBe('- site: foo bar');
+        expect($str.escFTSQuery('snippet: foo bar')).toBe('snippet: foo bar');
+
         expect($str.escFTSQuery('{site}: foo bar')).toBe('{site}: foo bar');
         expect($str.escFTSQuery('- {site}: foo bar')).toBe('- {site}: foo bar');
         expect($str.escFTSQuery('{site title snippet}: foo bar')).toBe('{site title snippet}: foo bar');
@@ -412,7 +416,7 @@ describe('$str', async () => {
         expect($str.escFTSQuery('{site title snippet}: foo -bar')).toBe('{site title snippet}: foo -bar');
         expect($str.escFTSQuery('{site title snippet}: foo -b.a-r')).toBe('{site title snippet}: foo -b"."a"-"r');
         expect($str.escFTSQuery('{site title snippet}: foo OR -b.a-r')).toBe('{site title snippet}: foo OR -b"."a"-"r');
-        expect($str.escFTSQuery('{site title snippet}: (foo) OR (-b.a-r)')).toBe('{site title snippet}: (foo) OR (-b"."a"-"r)');
+        expect($str.escFTSQuery('{site title snippet}: (fo-:o) OR (-b.a-r)')).toBe('{site title snippet}: (fo"-"":"o) OR (-b"."a"-"r)');
 
         expect($str.escFTSQuery('{site title snippet}: (foo) OR (^-b.a-r)')).toBe('{site title snippet}: (foo) OR (^"-"b"."a"-"r)');
         expect($str.escFTSQuery('{site title snippet}: (foo) OR (^ -b.a-r)')).toBe('{site title snippet}: (foo) OR (^ -b"."a"-"r)');
