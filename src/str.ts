@@ -40,7 +40,7 @@ export type SnakeCaseOptions = KebabCaseOptions; // Same options as kebabCase.
 export type QuoteOptions = { type?: 'single' | 'double' };
 export type UnquoteOptions = { type?: string };
 export type EscHTMLOptions = { doubleEncode: boolean };
-export type EscSQLiteFTSQueryOptions = { defaultColumns?: string[] };
+export type EscFTSQueryOptions = { defaultColumns?: string[] };
 
 /* ---
  * Encoder/decoder.
@@ -754,18 +754,18 @@ export const escSelector = (str: string): string => {
 };
 
 /**
- * Escapes a string for use in an SQLite FTS query.
+ * Escapes a string for use in an sqlite FTS query.
  *
- * This assumes the default unicode61 tokenizer; {@see https://o5p.me/IBCPl6}.
+ * Assumes unicode61 tokenizer; {@see https://o5p.me/IBCPl6}.
  *
- * @param   str     String to escape.
- * @param   options All optional; {@see EscSQLiteFTSQueryOptions}.
+ * @param   str     String to escape for sqlite FTS query.
+ * @param   options All optional; {@see EscFTSQueryOptions}.
  *
- * @returns         Escaped string.
+ * @returns         Escaped string for use in an sqlite FTS query.
  */
-export const escSQLiteFTSQuery = (str: string, options?: EscSQLiteFTSQueryOptions): string => {
+export const escFTSQuery = (str: string, options?: EscFTSQueryOptions): string => {
     if (!(str = str.trim())) return str; // Nothing to do.
-    const opts = $obj.defaults({}, options || {}, { defaultColumns: [] }) as Required<EscSQLiteFTSQueryOptions>,
+    const opts = $obj.defaults({}, options || {}, { defaultColumns: [] }) as Required<EscFTSQueryOptions>,
         columnsPrefixRegExp = /^(?:-\s+)?\{[a-z_\s0-9]+\}:/iu;
 
     let query = columnsPrefixRegExp.test(str)
