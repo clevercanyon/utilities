@@ -404,6 +404,24 @@ describe('$str', async () => {
         expect($str.escSelector('aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ!"#$%&\'()*+,./:;<=>?@[\\]^`{|}~')) //
             .toBe('aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ\\!\\"\\#\\$\\%\\&\\\'\\(\\)\\*\\+\\,\\.\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\`\\{\\|\\}\\~');
     });
+    test('.escSQLiteFTSQuery()', async () => {
+        expect($str.escSQLiteFTSQuery('{site}: foo bar')).toBe('{site}: foo bar');
+        expect($str.escSQLiteFTSQuery('- {site}: foo bar')).toBe('- {site}: foo bar');
+        expect($str.escSQLiteFTSQuery('{site title snippet}: foo bar')).toBe('{site title snippet}: foo bar');
+
+        expect($str.escSQLiteFTSQuery('{site title snippet}: foo -bar')).toBe('{site title snippet}: foo -bar');
+        expect($str.escSQLiteFTSQuery('{site title snippet}: foo -b.a-r')).toBe('{site title snippet}: foo -b"."a"-"r');
+        expect($str.escSQLiteFTSQuery('{site title snippet}: foo OR -b.a-r')).toBe('{site title snippet}: foo OR -b"."a"-"r');
+        expect($str.escSQLiteFTSQuery('{site title snippet}: (foo) OR (-b.a-r)')).toBe('{site title snippet}: (foo) OR (-b"."a"-"r)');
+
+        expect($str.escSQLiteFTSQuery('{site title snippet}: (foo) OR (^-b.a-r)')).toBe('{site title snippet}: (foo) OR (^"-"b"."a"-"r)');
+        expect($str.escSQLiteFTSQuery('{site title snippet}: (foo) OR (^ -b.a-r)')).toBe('{site title snippet}: (foo) OR (^ -b"."a"-"r)');
+
+        expect($str.escSQLiteFTSQuery('{site title snippet}: (foo) OR ({site snippet}: -b.a-r)')).toBe('{site title snippet}: (foo) OR ({site snippet}: -b"."a"-"r)');
+        expect($str.escSQLiteFTSQuery('{site title snippet}: (foo) OR ({site snippet}: ^ -b.a-r)')).toBe('{site title snippet}: (foo) OR ({site snippet}: ^ -b"."a"-"r)');
+
+        expect($str.escSQLiteFTSQuery('!@#$%^&*(:)')).toBe('"!@#$%""^""&"*(":")');
+    });
     test('.isEmail()', async () => {
         expect($str.isEmail('x@x')).toBe(true);
         expect($str.isEmail('x+x@x')).toBe(true);

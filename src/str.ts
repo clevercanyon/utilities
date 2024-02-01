@@ -40,6 +40,7 @@ export type SnakeCaseOptions = KebabCaseOptions; // Same options as kebabCase.
 export type QuoteOptions = { type?: 'single' | 'double' };
 export type UnquoteOptions = { type?: string };
 export type EscHTMLOptions = { doubleEncode: boolean };
+export type EscSQLiteFTSQueryOptions = { defaultColumns?: string[] };
 
 /* ---
  * Encoder/decoder.
@@ -750,6 +751,74 @@ export const escRegExp = (str: string): string => {
  */
 export const escSelector = (str: string): string => {
     return str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/gu, '\\$&');
+};
+
+/**
+ * Escapes a string for use in an SQLite FTS query.
+ *
+ * This assumes the default unicode61 tokenizer; {@see https://o5p.me/IBCPl6}.
+ *
+ * @param   str     String to escape.
+ * @param   options All optional; {@see EscSQLiteFTSQueryOptions}.
+ *
+ * @returns         Escaped string.
+ */
+export const escSQLiteFTSQuery = (str: string, options?: EscSQLiteFTSQueryOptions): string => {
+    if (!(str = str.trim())) return str; // Nothing to do.
+    const opts = $obj.defaults({}, options || {}, { defaultColumns: [] }) as Required<EscSQLiteFTSQueryOptions>,
+        columnsPrefixRegExp = /^(?:-\s+)?\{[a-z_\s0-9]+\}:/iu;
+
+    let query = columnsPrefixRegExp.test(str)
+        ? str // If the query includes columns, leave them as-is.
+        : (opts.defaultColumns.length ? '{' + opts.defaultColumns.join(' ') + '}: ' : '') + str;
+
+    // There are two main parts.
+    // (1) An optional `{columns}:` prefix.
+    // (2) Everything else following a prefix.
+    let queryParts = []; // Initialize.
+
+    if (columnsPrefixRegExp.test(query)) {
+        const sliceAtIndexPosition = query.indexOf('}:') + 2;
+        queryParts[0] = query.slice(0, sliceAtIndexPosition).trim();
+        queryParts[1] = query.slice(sliceAtIndexPosition).trim();
+    } else {
+        queryParts = ['', query.trim()];
+    }
+    // This breaks all pieces in part (1) into two categories.
+    // (1) Already-"quoted" strings or phrases. (2) Everything else.
+    // It’s unquoted pieces in part (2) that we might need to escape.
+    queryParts[1] = (queryParts[1].match(/(?:"[^"]*"|[^\s"]+)/gu) || [])
+        .map((piece) => {
+            piece = piece.trim();
+
+            // We can save some time by skipping over these.
+            if (['{', '}', '(', ')'].includes(piece)) return piece;
+            if ('"' === piece[0] && piece[piece.length - 1] === '"') return piece;
+
+            // Handles double-quotes around non-token characters.
+            // Assumes unicode61 tokenizer; {@see https://o5p.me/IBCPl6}.
+            return (
+                piece
+                    // Removes any existing double quotes.
+                    .replaceAll('"', '') // We don’t need these.
+
+                    // Quotes anything not a token, space, or operator.
+                    .replace(/([^\p{L}\p{N}\p{Co}\s{}:()^*+-]+)/gu, '"$1"')
+
+                    // Quotes `^` and `-` when not at beginning of piece.
+                    .replace(/(?<!^|\()([-^]+)/gu, '"$1"')
+
+                    // Quotes `:` when not preceded by `}`.
+                    .replace(/(?<!\})([:]+)/gu, '"$1"')
+            );
+        })
+        .join(' ') // Concatenates pieces.
+
+        // Removes whitespace inside brackets.
+        .replace(/([{(]+)\s+/gu, '$1')
+        .replace(/\s+([)}]+)/gu, '$1');
+
+    return queryParts.join(' ').trim(); // Concatenates parts.
 };
 
 /* ---
