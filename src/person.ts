@@ -28,8 +28,7 @@ const rawProps: { [x: string]: $type.PersonRawProps } = {};
  * many variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome.
  * Remember, variable names can be minified, so the length of variable names is not an issue.
  */
-const tꓺavatar = 'avatar',
-    tꓺbrucewrks = 'brucewrks',
+const tꓺbrucewrks = 'brucewrks',
     tꓺCaldwell = 'Caldwell',
     tꓺംcom = '.com',
     tꓺdescription = 'description',
@@ -53,6 +52,7 @@ const tꓺavatar = 'avatar',
     tꓺtwitter = 'twitter',
     tꓺurl = 'url',
     tꓺusername = 'username',
+    tꓺworkers = 'workers',
     tꓺwwwം = 'www.',
     //
     tꓺhttpsꓽⳇⳇtwitterംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺtwitter + tꓺംcom + '/',
@@ -62,7 +62,7 @@ const tꓺavatar = 'avatar',
     tꓺhttpsꓽⳇⳇwwwംnpmjsംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺnpmjs + tꓺംcom + '/~',
     tꓺhttpsꓽⳇⳇkeybaseംioⳇ = tꓺhttpsꓽⳇⳇ + tꓺkeybase + tꓺംio + '/',
     //
-    tꓺhttpsꓽⳇⳇgravatarംhopംgdnⳇavatarⳇ = tꓺhttpsꓽⳇⳇ + tꓺgravatar + tꓺംhopംgdn + '/' + tꓺavatar + '/',
+    tꓺhttpsꓽⳇⳇworkersംhopംgdnⳇutilitiesⳇapiⳇgravatarⳇv1ⳇ = tꓺhttpsꓽⳇⳇ + tꓺworkers + tꓺംhopംgdn + '/utilities/api/' + tꓺgravatar + '/v1/',
     tꓺobjꓺwidthHeight512x512 = { width: 512, height: 512 } as { width: number; height: number };
 
 /**
@@ -146,7 +146,7 @@ const initializeRawProps = (): void => {
         [tꓺurl]: tꓺhttpsꓽⳇⳇ + tꓺjaswrks + tꓺംcom + '/',
 
         [tꓺgravatar]: {
-            [tꓺurl]: tꓺhttpsꓽⳇⳇgravatarംhopംgdnⳇavatarⳇ + '17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c.png?s=512',
+            [tꓺurl]: tꓺhttpsꓽⳇⳇworkersംhopംgdnⳇutilitiesⳇapiⳇgravatarⳇv1ⳇ + '17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c.png?size=512',
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {
@@ -174,7 +174,7 @@ const initializeRawProps = (): void => {
         [tꓺurl]: tꓺhttpsꓽⳇⳇgithubംcomⳇ + tꓺbrucewrks,
 
         [tꓺgravatar]: {
-            [tꓺurl]: tꓺhttpsꓽⳇⳇgravatarംhopംgdnⳇavatarⳇ + 'bcdabcc96b6c049e1de6e6e32b0d4b772a4e9cb92e14e50591ee021ec4dd8317.png?s=512',
+            [tꓺurl]: tꓺhttpsꓽⳇⳇworkersംhopംgdnⳇutilitiesⳇapiⳇgravatarⳇv1ⳇ + 'bcdabcc96b6c049e1de6e6e32b0d4b772a4e9cb92e14e50591ee021ec4dd8317.png?size=512',
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {

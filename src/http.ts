@@ -372,7 +372,8 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
                 cacheHeaders['cache-control'] = 'no-store';
                 cacheHeaders['cdn-cache-control'] = 'no-store';
             } else {
-                // 2h minimum @ Cloudflare on free plan.
+                // 1h minimum on Cloudflare paid workers plan.
+                // 2h minimum on Cloudflare on free workers plan.
                 sMaxAge = Math.max($is.integer(sMaxAge) ? sMaxAge : maxAge, 0);
                 sMaxAge = 0 === sMaxAge ? 0 : Math.max(Math.max(sMaxAge, maxAge), $time.hourInSeconds * 2);
 

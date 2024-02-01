@@ -169,7 +169,6 @@ const tꓺicon = 'icon',
     tꓺdns = 'dns',
     tꓺdnsPrefetch = tꓺdns + tꓺPrefetch,
     tꓺdnsPrefetchR2 = tꓺdnsPrefetch + 'R2',
-    tꓺdnsPrefetchGravatar = tꓺdnsPrefetch + 'Gravatar',
     tꓺdnsPrefetchWorkers = tꓺdnsPrefetch + 'Workers',
     tꓺdnsᱼprefetch = tꓺdns + '-' + tꓺprefetch,
     tꓺfetch = 'fetch',
@@ -180,7 +179,6 @@ const tꓺicon = 'icon',
     tꓺgenre = 'genre',
     tꓺglobalᱼdata = 'global-data',
     tꓺglobalData = 'globalData',
-    tꓺgravatar = 'gravatar',
     tꓺheadline = 'headline',
     tꓺheight = 'height',
     tꓺhigh = 'high',
@@ -556,7 +554,6 @@ export default class Head extends Component<Props, ActualState> {
                       }
                     : {}),
                 ...(isC10n ? { [tꓺdnsPrefetchR2]: h(tꓺlink, { [tꓺrel]: tꓺdnsᱼprefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + tꓺr2 + tꓺംhopംgdnⳇ }) } : {}), // prettier-ignore
-                ...(isC10n ? { [tꓺdnsPrefetchGravatar]: h(tꓺlink, { [tꓺrel]: tꓺdnsᱼprefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + tꓺgravatar + tꓺംhopംgdnⳇ }) } : {}), // prettier-ignore
                 ...(scriptBundle && isC10n ? { [tꓺdnsPrefetchWorkers]: h(tꓺlink, { [tꓺrel]: tꓺdnsᱼprefetch, [tꓺhref]: tꓺhttpsꓽⳇⳇ + tꓺworkers + tꓺംhopംgdnⳇ }) } : {}), // prettier-ignore
                 ...(styleBundle ? { [tꓺpreloadStyleBundle]: h(tꓺlink, { [tꓺrel]: tꓺpreload, [tꓺfetchPriority]: tꓺhigh, [tꓺhref]: styleBundle, [tꓺas]: tꓺstyle }) } : {}), // prettier-ignore
 

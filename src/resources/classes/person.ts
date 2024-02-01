@@ -154,7 +154,7 @@ export const getClass = (): Constructor => {
          * @returns      Gravatar URL.
          */
         public gravatarSize(size: number): string {
-            return $url.addQueryVar('s', String(size), this.gravatar.url);
+            return $url.addQueryVar('size', String(size), this.gravatar.url);
         }
 
         /**
