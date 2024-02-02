@@ -127,6 +127,7 @@ describe('$str', async () => {
         expect($str.charLength($str.midClip('abcdefg🦊øÅå', { maxChars: 10 }))).toBe(10);
     });
     test('.splitWords()', async () => {
+        expect($str.splitWords('')).toStrictEqual([]);
         expect($str.splitWords('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toStrictEqual(['heļlṏ', 'ꓺ', 'wɵrḻɖ']);
 
         expect($str.splitWords('foo-bar-bazBiz-PascalCase-snake_case-kebab-case')) //
@@ -142,6 +143,7 @@ describe('$str', async () => {
             .toStrictEqual(['àèìòù', 'ÀÈÌÒ', 'Ùáéíóúý', 'ÁÉÍÓÚ', 'Ýâêîôû', 'ÂÊÎÔ', 'Ûãñõ', 'ÃÑ', 'Õäëïöüÿ', 'ÄËÏÖÜ', 'Ÿç', 'Çß', 'Øø', 'Åå', 'Ææœ']);
     });
     test('.lowerFirst()', async () => {
+        expect($str.lowerFirst('')).toBe('');
         expect($str.lowerFirst('Heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!');
         expect($str.lowerFirst('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]');
         expect($str.lowerFirst('Foo-bar-bazBiz-PascalCase-snake_case-kebab-case')).toBe('foo-bar-bazBiz-PascalCase-snake_case-kebab-case');
@@ -151,6 +153,7 @@ describe('$str', async () => {
         expect($str.lowerFirst('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('àÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ');
     });
     test('.upperFirst()', async () => {
+        expect($str.upperFirst('')).toBe('');
         expect($str.upperFirst('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('Heļlṏ, ꓺ ... 🦊 wɵrḻɖ!');
         expect($str.upperFirst('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]');
         expect($str.upperFirst('Foo-bar-bazBiz-PascalCase-snake_case-kebab-case')).toBe('Foo-bar-bazBiz-PascalCase-snake_case-kebab-case');
@@ -160,6 +163,7 @@ describe('$str', async () => {
         expect($str.upperFirst('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ');
     });
     test('.capitalize()', async () => {
+        expect($str.capitalize('')).toBe('');
         expect($str.capitalize('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('Heļlṏ, ꓺ ... 🦊 wɵrḻɖ!');
         expect($str.capitalize('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]');
         expect($str.capitalize('Foo-bar-bazBiz-PascalCase-snake_case-kebab-case')).toBe('Foo-bar-bazbiz-pascalcase-snake_case-kebab-case');
@@ -169,6 +173,8 @@ describe('$str', async () => {
         expect($str.capitalize('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('Àèìòùàèìòùáéíóúýáéíóúýâêîôûâêîôûãñõãñõäëïöüÿäëïöüÿççßøøååææœ');
     });
     test('.titleCase()', async () => {
+        expect($str.titleCase('')).toBe('');
+
         expect($str.titleCase('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('Heļlṏ ꓺ Wɵrḻɖ');
         expect($str.titleCase('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('Heļlṏ ꓺ Wɵrḻɖ');
 
@@ -186,6 +192,8 @@ describe('$str', async () => {
             .toBe('Aeio Uaeiouaeiouy Aeiou Yaeiou Aeio Uano An Oaeiouy Aeiou Yc C Aa');
     });
     test('.lowerCase()', async () => {
+        expect($str.lowerCase('')).toBe('');
+
         expect($str.lowerCase('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('heļlṏ ꓺ wɵrḻɖ');
         expect($str.lowerCase('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('heļlṏ ꓺ wɵrḻɖ');
 
@@ -203,6 +211,8 @@ describe('$str', async () => {
             .toBe('aeio uaeiouaeiouy aeiou yaeiou aeio uano an oaeiouy aeiou yc c aa');
     });
     test('.upperCase()', async () => {
+        expect($str.upperCase('')).toBe('');
+
         expect($str.upperCase('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('HEĻLṎ ꓺ WƟRḺƉ');
         expect($str.upperCase('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('HEĻLṎ ꓺ WƟRḺƉ');
 
@@ -220,6 +230,8 @@ describe('$str', async () => {
             .toBe('AEIO UAEIOUAEIOUY AEIOU YAEIOU AEIO UANO AN OAEIOUY AEIOU YC C AA');
     });
     test('.studlyCase()', async () => {
+        expect($str.studlyCase('')).toBe('');
+
         expect($str.studlyCase('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('HeļlṏꓺWɵrḻɖ');
         expect($str.studlyCase('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('HeļlṏꓺWɵrḻɖ');
 
@@ -237,6 +249,8 @@ describe('$str', async () => {
             .toBe('AeioUaeiouaeiouyAeiouYaeiouAeioUanoAnOaeiouyAeiouYcCAa');
     });
     test('.camelCase()', async () => {
+        expect($str.camelCase('')).toBe('');
+
         expect($str.camelCase('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('heļlṏꓺwɵrḻɖ');
         expect($str.camelCase('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('heļlṏꓺwɵrḻɖ');
 
@@ -254,6 +268,8 @@ describe('$str', async () => {
             .toBe('aeioUaeiouaeiouyAeiouYaeiouAeioUanoAnOaeiouyAeiouYcCAa');
     });
     test('.kebabCase()', async () => {
+        expect($str.kebabCase('')).toBe('');
+
         expect($str.kebabCase('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('heļlṏ-ꓺwɵrḻɖ');
         expect($str.kebabCase('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('heļlṏ-ꓺwɵrḻɖ');
 
@@ -274,6 +290,8 @@ describe('$str', async () => {
             .toBe('ꓺàꓺèꓺìò-ùàèìòùáéíóúý-áéíóú-ýâêîôû-âêîô-ûãñõ-ãñ-õäëïöüÿ-äëïöü-ÿç-çß-øø-åå-ææœ');
     });
     test('.snakeCase()', async () => {
+        expect($str.snakeCase('')).toBe('');
+
         expect($str.snakeCase('heļlṏ, ꓺ ... 🦊 wɵrḻɖ!')).toBe('heļlṏ_ꓺwɵrḻɖ');
         expect($str.snakeCase('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toBe('heļlṏ_ꓺwɵrḻɖ');
 
@@ -294,6 +312,8 @@ describe('$str', async () => {
             .toBe('ꓺàꓺèꓺìò_ùàèìòùáéíóúý_áéíóú_ýâêîôû_âêîô_ûãñõ_ãñ_õäëïöüÿ_äëïöü_ÿç_çß_øø_åå_ææœ');
     });
     test('.parseValue()', async () => {
+        expect($str.snakeCase('')).toBe('');
+
         expect($str.parseValue('null')).toBe(null);
         expect($str.parseValue('null*')).toBe('null');
 
