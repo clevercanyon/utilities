@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $is, $obj, type $type } from '#index.ts';
+import { $fn, $is, $obj, type $type } from '#index.ts';
 import * as c2k from 'color2k';
 import parseColor from 'parse-css-color';
 import tailwindColors from 'tailwindcss/colors.js';
@@ -99,6 +99,24 @@ export const parse = (color: string): string => {
         return c2k.toHex(c2k.hsla.apply(undefined, [data.values[0], data.values[1] / 100, data.values[2] / 100, data.alpha] as Args));
     }
     throw Error('sDV5ugXn'); // Color2k parse error: `' + String(color) + '`.
+};
+
+/**
+ * Tries to parse a color into a hex color code.
+ *
+ * @param   color Color to parse; {@see https://o5p.me/ce0m3O}.
+ *
+ *   - RGB/A color module level 3 and 4 (number, percentage).
+ *   - HSL/A color module level 3 and 4 (number, deg, rad, turn).
+ *   - Hexadecimal `#RGBA` `#RRGGBBAA` (4 and 8-char notations).
+ *   - Hexadecimal RGB value: `#RGB` `#RRGGBB` (3 and 6-char notations).
+ *
+ * @returns       Hex color code; potentially with 8-chars; i.e., with alpha.
+ *
+ * @note Hex color codes must begin with `#` in order to parse w/o error.
+ */
+export const tryParse = (color: string): string => {
+    return $fn.try((): string => parse(color), '')();
 };
 
 /**
