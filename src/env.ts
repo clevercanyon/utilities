@@ -333,6 +333,15 @@ export const isWeb = $fnꓺmemo((): boolean => {
 });
 
 /**
+ * Checks if environment is a PWA.
+ *
+ * @returns True or false.
+ */
+export const isPWA = $fnꓺmemo((): boolean => {
+    return isWeb() && matchMedia('(display-mode: standalone)').matches;
+});
+
+/**
  * Checks if environment is a web browser via jsdom.
  *
  * @returns True or false.
