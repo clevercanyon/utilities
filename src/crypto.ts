@@ -19,6 +19,8 @@ export type HashAlgorithm = 'md5' | 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
 
 /**
  * Regular expression for base64 data URIs.
+ *
+ * @see https://regex101.com/r/wBIQa7/1
  */
 const dataURIBase64PrefixRegExp = /^data:([^:=;,]+(?:\s*;[^:=;,]+=[^:=;,]+)*);base64,/iu;
 
