@@ -18,6 +18,11 @@ export type RandomStringOptions = { type?: string; byteDictionary?: string };
 export type HashAlgorithm = 'md5' | 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
 
 /**
+ * Regular expression for base64 data URIs.
+ */
+const dataURIBase64PrefixRegExp = /^data:([^:=;,]+(?:\s*;[^:=;,]+=[^:=;,]+)*);base64,/iu;
+
+/**
  * Generates an MD5 hash.
  *
  * @param   str String to hash.
@@ -140,7 +145,7 @@ export const base64Encode = (str: string, options?: Base64EncodeOptions): string
 export const base64Decode = (base64: string, options?: Base64DecodeOptions): string => {
     const opts = $obj.defaults({}, options || {}, { urlSafe: false }) as Required<Base64DecodeOptions>;
 
-    base64 = base64.replace(/^data:[^:;,]+;base64,/iu, ''); // Ditch data URI prefixes.
+    base64 = base64.replace(dataURIBase64PrefixRegExp, ''); // Ditch data URI prefixes.
     base64 = opts.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat(base64.length % 4) : base64;
 
     return $str.textDecoder.decode(Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0))));
@@ -158,10 +163,10 @@ export const base64Decode = (base64: string, options?: Base64DecodeOptions): str
  */
 export const base64DecodeToBlob = (base64: string, options?: Base64DecodeToBlobOptions): Blob => {
     const opts = $obj.defaults({}, options || {}, { urlSafe: false, type: '' }) as Required<Base64DecodeToBlobOptions>,
-        [, dataURIType = ''] = base64.match(/^data:([^:;,]+);base64,/iu) || [],
+        [, dataURIType = ''] = base64.match(dataURIBase64PrefixRegExp) || [],
         type = opts.type || dataURIType || ''; // Prefers explicit type.
 
-    base64 = base64.replace(/^data:[^:;,]+;base64,/iu, ''); // Ditch data URI prefixes.
+    base64 = base64.replace(dataURIBase64PrefixRegExp, ''); // Ditch data URI prefixes.
     base64 = opts.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat(base64.length % 4) : base64;
     return new Blob([Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0)))], { type });
 };
