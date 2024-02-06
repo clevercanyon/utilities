@@ -55,6 +55,7 @@ const tꓺaddress = 'address',
     tꓺcorp = 'corp',
     tꓺcountry = 'country',
     tꓺdescription = 'description',
+    tꓺdesktop = 'desktop',
     tꓺemail = 'email',
     tꓺdsar = 'dsar',
     tꓺfacebook = 'facebook',
@@ -72,6 +73,7 @@ const tꓺaddress = 'address',
     tꓺmxHostname = 'mxHostname',
     tꓺhttpsꓽⳇⳇ = 'https://',
     tꓺicon = 'icon',
+    tꓺiconᱼ2x = tꓺicon + '-2x',
     tꓺംio = '.io',
     tꓺinfo = 'info',
     tꓺisDark = 'isDark',
@@ -83,7 +85,10 @@ const tꓺaddress = 'address',
     tꓺlinkedin = 'linkedin',
     tꓺlogo = 'logo',
     tꓺlogoᱼonᱼdarkᱼbg = tꓺlogo + '-on-dark-bg',
-    tꓺlogoᱼonᱼlightᱼbg = tꓺlogo + '-on-light-bg',
+    tꓺlogoᱼonᱼdarkᱼbgᱼ2x = tꓺlogoᱼonᱼdarkᱼbg + '-2x',
+    tꓺlogoᱼonᱼlightᱼbg = tꓺlogo + '-on-light-bg-2x',
+    tꓺlogoᱼonᱼlightᱼbgᱼ2x = tꓺlogoᱼonᱼlightᱼbg + '-2x',
+    tꓺmobile = 'mobile',
     tꓺn7m = 'n7m',
     tꓺname = 'name',
     tꓺnamespace = 'namespace',
@@ -92,6 +97,7 @@ const tꓺaddress = 'address',
     tꓺnumberOfEmployees = 'numberOfEmployees',
     tꓺogImage = 'ogImage',
     tꓺogᱼimage = 'og-image',
+    tꓺogᱼimageᱼ2x = tꓺogᱼimage + '-2x',
     tꓺonDarkBg = 'onDarkBg',
     tꓺonLightBg = 'onLightBg',
     tꓺorg = 'org',
@@ -101,11 +107,16 @@ const tꓺaddress = 'address',
     tꓺംpng = '.' + tꓺpng,
     tꓺpolicies = 'policies',
     tꓺprivacy = 'privacy',
+    tꓺscreenshots = 'screenshots',
     tꓺsecurity = 'security',
     tꓺslogan = 'slogan',
     tꓺslug = 'slug',
     tꓺslugPrefix = 'slugPrefix',
     tꓺsocialProfiles = 'socialProfiles',
+    tꓺssᱼdesktopᱼN = 'ss-' + tꓺdesktop + '-{N}',
+    tꓺssᱼdesktopᱼNᱼ2x = tꓺssᱼdesktopᱼN + '-2x',
+    tꓺssᱼmobileᱼN = 'ss-' + tꓺmobile + '-{N}',
+    tꓺssᱼmobileᱼNᱼ2x = tꓺssᱼmobileᱼN + '-2x',
     tꓺstate = 'state',
     tꓺstatus = 'status',
     tꓺstatusURL = 'statusURL',
@@ -149,14 +160,23 @@ const tꓺaddress = 'address',
     //
     tꓺⳇassets = './' + tꓺassets,
     tꓺⳇassetsⳇicon = tꓺⳇassets + '/' + tꓺicon,
+    tꓺⳇassetsⳇiconᱼ2x = tꓺⳇassets + '/' + tꓺiconᱼ2x,
     tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg = tꓺⳇassets + '/' + tꓺlogoᱼonᱼdarkᱼbg,
+    tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbgᱼ2x = tꓺⳇassets + '/' + tꓺlogoᱼonᱼdarkᱼbgᱼ2x,
     tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg = tꓺⳇassets + '/' + tꓺlogoᱼonᱼlightᱼbg,
+    tꓺⳇassetsⳇlogoᱼonᱼlightᱼbgᱼ2x = tꓺⳇassets + '/' + tꓺlogoᱼonᱼlightᱼbgᱼ2x,
     tꓺⳇassetsⳇogᱼimage = tꓺⳇassets + '/' + tꓺogᱼimage,
+    tꓺⳇassetsⳇogᱼimageᱼ2x = tꓺⳇassets + '/' + tꓺogᱼimageᱼ2x,
+    tꓺⳇassetsⳇssᱼdesktopᱼN = tꓺⳇassets + '/' + tꓺssᱼdesktopᱼN,
+    tꓺⳇassetsⳇssᱼdesktopᱼNᱼ2x = tꓺⳇassets + '/' + tꓺssᱼdesktopᱼNᱼ2x,
+    tꓺⳇassetsⳇssᱼmobileᱼN = tꓺⳇassets + '/' + tꓺssᱼmobileᱼN,
+    tꓺⳇassetsⳇssᱼmobileᱼNᱼ2x = tꓺⳇassets + '/' + tꓺssᱼmobileᱼNᱼ2x,
     //
-    tꓺobjꓺwidthHeight608x120 = { [tꓺwidth]: 608, [tꓺheight]: 120 } as { width: number; height: number },
-    tꓺobjꓺwidthHeight866x120 = { [tꓺwidth]: 866, [tꓺheight]: 120 } as { width: number; height: number },
-    tꓺobjꓺwidthHeight1024x1024 = { [tꓺwidth]: 1024, [tꓺheight]: 1024 } as { width: number; height: number },
-    tꓺobjꓺwidthHeight2400x1260 = { [tꓺwidth]: 2400, [tꓺheight]: 1260 } as { width: number; height: number };
+    tꓺobjꓺwidthHeightᱼ304x60ˣ2ꘌ608x120 = { [tꓺwidth]: 608, [tꓺheight]: 120 } as { width: number; height: number },
+    tꓺobjꓺwidthHeightᱼ433x60ˣ2ꘌ866x120 = { [tꓺwidth]: 866, [tꓺheight]: 120 } as { width: number; height: number },
+    tꓺobjꓺwidthHeightᱼ512x512ˣ2ꘌ1024x1024 = { [tꓺwidth]: 1024, [tꓺheight]: 1024 } as { width: number; height: number },
+    tꓺobjꓺwidthHeightᱼ1200x630ˣ2ꘌ2400x1260 = { [tꓺwidth]: 2400, [tꓺheight]: 1260 } as { width: number; height: number },
+    tꓺobjꓺwidthHeightᱼ630x1200ˣ2ꘌ1260x2400 = { [tꓺwidth]: 1260, [tꓺheight]: 2400 } as { width: number; height: number };
 
 /**
  * Adds a new brand at runtime.
@@ -280,24 +300,58 @@ const initializeRawProps = (): void => {
         },
         [tꓺicon]: {
             [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംsvg,
-            [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺicon + tꓺംpng,
-            ...tꓺobjꓺwidthHeight1024x1024,
+            [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺiconᱼ2x + tꓺംpng,
+            ...tꓺobjꓺwidthHeightᱼ512x512ˣ2ꘌ1024x1024,
         },
         [tꓺlogo]: {
             [tꓺonDarkBg]: {
                 [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
-                [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
+                [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼdarkᱼbgᱼ2x + tꓺംpng,
             },
             [tꓺonLightBg]: {
                 [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
-                [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
+                [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺlogoᱼonᱼlightᱼbgᱼ2x + tꓺംpng,
             },
-            ...tꓺobjꓺwidthHeight866x120,
+            ...tꓺobjꓺwidthHeightᱼ433x60ˣ2ꘌ866x120,
         },
         [tꓺogImage]: {
             [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംsvg,
-            [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimage + tꓺംpng,
-            ...tꓺobjꓺwidthHeight2400x1260,
+            [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺogᱼimageᱼ2x + tꓺംpng,
+            ...tꓺobjꓺwidthHeightᱼ1200x630ˣ2ꘌ2400x1260,
+        },
+        [tꓺscreenshots]: {
+            [tꓺdesktop]: {
+                ...Object.fromEntries(
+                    ((entries: [number, { svg: string; png: string }][] = []) => {
+                        for (let i = 1; i <= 3; i++)
+                            entries.push([
+                                i,
+                                {
+                                    [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺssᱼdesktopᱼN.replace('{N}', i.toString()) + tꓺംsvg,
+                                    [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺssᱼdesktopᱼNᱼ2x.replace('{N}', i.toString()) + tꓺംpng,
+                                },
+                            ]);
+                        return entries;
+                    })(),
+                ),
+                ...tꓺobjꓺwidthHeightᱼ1200x630ˣ2ꘌ2400x1260,
+            },
+            [tꓺmobile]: {
+                ...Object.fromEntries(
+                    ((entries: [number, { svg: string; png: string }][] = []) => {
+                        for (let i = 1; i <= 3; i++)
+                            entries.push([
+                                i,
+                                {
+                                    [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺssᱼmobileᱼN.replace('{N}', i.toString()) + tꓺംsvg,
+                                    [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon + '/' + tꓺssᱼmobileᱼNᱼ2x.replace('{N}', i.toString()) + tꓺംpng,
+                                },
+                            ]);
+                        return entries;
+                    })(),
+                ),
+                ...tꓺobjꓺwidthHeightᱼ630x1200ˣ2ꘌ1260x2400,
+            },
         },
         [tꓺpolicies]: {
             [tꓺterms]: tꓺhttpsꓽⳇⳇclevercanyonംcomⳇlegalⳇ + tꓺterms,
@@ -382,24 +436,58 @@ const initializeRawProps = (): void => {
                 },
                 [tꓺicon]: {
                     [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംsvg,
-                    [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺicon + tꓺംpng,
-                    ...tꓺobjꓺwidthHeight1024x1024,
+                    [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺiconᱼ2x + tꓺംpng,
+                    ...tꓺobjꓺwidthHeightᱼ512x512ˣ2ꘌ1024x1024,
                 },
                 [tꓺlogo]: {
                     [tꓺonDarkBg]: {
                         [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംsvg,
-                        [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbg + tꓺംpng,
+                        [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼdarkᱼbgᱼ2x + tꓺംpng,
                     },
                     [tꓺonLightBg]: {
                         [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംsvg,
-                        [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbg + tꓺംpng,
+                        [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺlogoᱼonᱼlightᱼbgᱼ2x + tꓺംpng,
                     },
-                    ...tꓺobjꓺwidthHeight608x120,
+                    ...tꓺobjꓺwidthHeightᱼ304x60ˣ2ꘌ608x120,
                 },
                 [tꓺogImage]: {
                     [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംsvg,
-                    [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimage + tꓺംpng,
-                    ...tꓺobjꓺwidthHeight2400x1260,
+                    [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺogᱼimageᱼ2x + tꓺംpng,
+                    ...tꓺobjꓺwidthHeightᱼ1200x630ˣ2ꘌ2400x1260,
+                },
+                [tꓺscreenshots]: {
+                    [tꓺdesktop]: {
+                        ...Object.fromEntries(
+                            ((entries: [number, { svg: string; png: string }][] = []) => {
+                                for (let i = 1; i <= 3; i++)
+                                    entries.push([
+                                        i,
+                                        {
+                                            [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺssᱼdesktopᱼN.replace('{N}', i.toString()) + tꓺംsvg,
+                                            [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺssᱼdesktopᱼNᱼ2x.replace('{N}', i.toString()) + tꓺംpng,
+                                        },
+                                    ]);
+                                return entries;
+                            })(),
+                        ),
+                        ...tꓺobjꓺwidthHeightᱼ1200x630ˣ2ꘌ2400x1260,
+                    },
+                    [tꓺmobile]: {
+                        ...Object.fromEntries(
+                            ((entries: [number, { svg: string; png: string }][] = []) => {
+                                for (let i = 1; i <= 3; i++)
+                                    entries.push([
+                                        i,
+                                        {
+                                            [tꓺsvg]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺssᱼmobileᱼN.replace('{N}', i.toString()) + tꓺംsvg,
+                                            [tꓺpng]: tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop + '/' + tꓺssᱼmobileᱼNᱼ2x.replace('{N}', i.toString()) + tꓺംpng,
+                                        },
+                                    ]);
+                                return entries;
+                            })(),
+                        ),
+                        ...tꓺobjꓺwidthHeightᱼ630x1200ˣ2ꘌ1260x2400,
+                    },
                 },
                 [tꓺcontacts]: {
                     [tꓺadmin]: {
@@ -507,21 +595,53 @@ export const addApp = (options?: AddAppOptions): $type.Brand => {
 
                 [tꓺicon]: {
                     [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇicon + tꓺംsvg),
-                    [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇicon + tꓺംpng),
+                    [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇiconᱼ2x + tꓺംpng),
                 },
                 [tꓺlogo]: {
                     [tꓺonDarkBg]: {
                         [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംsvg),
-                        [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംpng),
+                        [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbgᱼ2x + tꓺംpng),
                     },
                     [tꓺonLightBg]: {
                         [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംsvg),
-                        [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംpng),
+                        [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbgᱼ2x + tꓺംpng),
                     },
                 },
                 [tꓺogImage]: {
                     [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇogᱼimage + tꓺംsvg),
-                    [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇogᱼimage + tꓺംpng),
+                    [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇogᱼimageᱼ2x + tꓺംpng),
+                },
+                [tꓺscreenshots]: {
+                    [tꓺdesktop]: {
+                        ...Object.fromEntries(
+                            ((entries: [number, { svg: string; png: string }][] = []) => {
+                                for (let i = 1; i <= 3; i++)
+                                    entries.push([
+                                        i,
+                                        {
+                                            [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇssᱼdesktopᱼN.replace('{N}', i.toString()) + tꓺംsvg),
+                                            [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇssᱼdesktopᱼNᱼ2x.replace('{N}', i.toString()) + tꓺംpng),
+                                        },
+                                    ]);
+                                return entries;
+                            })(),
+                        ),
+                    },
+                    [tꓺmobile]: {
+                        ...Object.fromEntries(
+                            ((entries: [number, { svg: string; png: string }][] = []) => {
+                                for (let i = 1; i <= 3; i++)
+                                    entries.push([
+                                        i,
+                                        {
+                                            [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇssᱼmobileᱼN.replace('{N}', i.toString()) + tꓺംsvg),
+                                            [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇssᱼmobileᱼNᱼ2x.replace('{N}', i.toString()) + tꓺംpng),
+                                        },
+                                    ]);
+                                return entries;
+                            })(),
+                        ),
+                    },
                 },
             },
             props,

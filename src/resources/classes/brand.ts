@@ -94,6 +94,48 @@ declare class ClassInterface {
         readonly width: number;
         readonly height: number;
     };
+    public readonly screenshots: {
+        readonly desktop: {
+            readonly '1': {
+                readonly svg: string;
+                readonly png: string;
+            };
+            readonly '2': {
+                readonly svg: string;
+                readonly png: string;
+            };
+            readonly '3': {
+                readonly svg: string;
+                readonly png: string;
+            };
+            readonly [x: number]: {
+                readonly svg: string;
+                readonly png: string;
+            };
+            readonly width: number;
+            readonly height: number;
+        };
+        readonly mobile: {
+            readonly '1': {
+                readonly svg: string;
+                readonly png: string;
+            };
+            readonly '2': {
+                readonly svg: string;
+                readonly png: string;
+            };
+            readonly '3': {
+                readonly svg: string;
+                readonly png: string;
+            };
+            readonly [x: number]: {
+                readonly svg: string;
+                readonly png: string;
+            };
+            readonly width: number;
+            readonly height: number;
+        };
+    };
     public readonly policies: {
         readonly terms: string;
         readonly privacy: string;
@@ -302,6 +344,52 @@ export const getClass = (): Constructor => {
             readonly png: string;
             readonly width: number;
             readonly height: number;
+        };
+
+        /**
+         * Screenshots, with dimensions.
+         */
+        public readonly screenshots!: {
+            readonly desktop: {
+                readonly '1': {
+                    readonly svg: string;
+                    readonly png: string;
+                };
+                readonly '2': {
+                    readonly svg: string;
+                    readonly png: string;
+                };
+                readonly '3': {
+                    readonly svg: string;
+                    readonly png: string;
+                };
+                readonly [x: number]: {
+                    readonly svg: string;
+                    readonly png: string;
+                };
+                readonly width: number;
+                readonly height: number;
+            };
+            readonly mobile: {
+                readonly '1': {
+                    readonly svg: string;
+                    readonly png: string;
+                };
+                readonly '2': {
+                    readonly svg: string;
+                    readonly png: string;
+                };
+                readonly '3': {
+                    readonly svg: string;
+                    readonly png: string;
+                };
+                readonly [x: number]: {
+                    readonly svg: string;
+                    readonly png: string;
+                };
+                readonly width: number;
+                readonly height: number;
+            };
         };
 
         /**

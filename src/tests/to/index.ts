@@ -247,6 +247,30 @@ describe('$to', async () => {
             'ogImage.width',
             'ogImage.height',
 
+            'screenshots.desktop.1.svg',
+            'screenshots.desktop.1.png',
+
+            'screenshots.desktop.2.svg',
+            'screenshots.desktop.2.png',
+
+            'screenshots.desktop.3.svg',
+            'screenshots.desktop.3.png',
+
+            'screenshots.desktop.width',
+            'screenshots.desktop.height',
+
+            'screenshots.mobile.1.svg',
+            'screenshots.mobile.1.png',
+
+            'screenshots.mobile.2.svg',
+            'screenshots.mobile.2.png',
+
+            'screenshots.mobile.3.svg',
+            'screenshots.mobile.3.png',
+
+            'screenshots.mobile.width',
+            'screenshots.mobile.height',
+
             'policies.terms',
             'policies.privacy',
             'policies.cookies',
@@ -428,6 +452,30 @@ describe('$to', async () => {
             'ogImage.png',
             'ogImage.width',
             'ogImage.height',
+
+            'screenshots.desktop.1.svg',
+            'screenshots.desktop.1.png',
+
+            'screenshots.desktop.2.svg',
+            'screenshots.desktop.2.png',
+
+            'screenshots.desktop.3.svg',
+            'screenshots.desktop.3.png',
+
+            'screenshots.desktop.width',
+            'screenshots.desktop.height',
+
+            'screenshots.mobile.1.svg',
+            'screenshots.mobile.1.png',
+
+            'screenshots.mobile.2.svg',
+            'screenshots.mobile.2.png',
+
+            'screenshots.mobile.3.svg',
+            'screenshots.mobile.3.png',
+
+            'screenshots.mobile.width',
+            'screenshots.mobile.height',
 
             'policies.terms',
             'policies.privacy',
