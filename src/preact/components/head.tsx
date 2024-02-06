@@ -171,6 +171,7 @@ const tꓺicon = 'icon',
     tꓺdnsPrefetchR2 = tꓺdnsPrefetch + 'R2',
     tꓺdnsPrefetchWorkers = tꓺdnsPrefetch + 'Workers',
     tꓺdnsᱼprefetch = tꓺdns + '-' + tꓺprefetch,
+    tꓺEntryPoint = 'EntryPoint',
     tꓺfetch = 'fetch',
     tꓺfetchPriority = tꓺfetch + 'Priority',
     tꓺfounder = 'founder',
@@ -238,6 +239,7 @@ const tꓺicon = 'icon',
     tꓺpngIcon = 'pngIcon',
     tꓺPostalAddress = 'PostalAddress',
     tꓺpostalCode = 'postalCode',
+    tꓺpotentialAction = 'potentialAction',
     tꓺpreload = 'preload',
     tꓺpreloadStyleBundle = tꓺpreload + 'StyleBundle',
     tꓺprimaryImageOfPage = 'primaryImageOfPage',
@@ -245,10 +247,13 @@ const tꓺicon = 'icon',
     tꓺpublished_time = 'published_' + tꓺtime,
     tꓺpublisher = 'publisher',
     tꓺpublishTime = 'publishTime',
+    tꓺurlTemplate = 'urlTemplate',
+    tꓺqueryᱼinput = 'query-input',
     tꓺr2 = 'r2',
     tꓺrel = 'rel',
     tꓺrobots = 'robots',
     tꓺsameAs = 'sameAs',
+    tꓺSearchAction = 'SearchAction',
     tꓺscript = 'script',
     tꓺscriptBundle = 'scriptBundle',
     tꓺsection = 'section',
@@ -267,6 +272,7 @@ const tꓺicon = 'icon',
     tꓺsvgIcon = 'svgIcon',
     tꓺtag = 'tag',
     tꓺtags = 'tags',
+    tꓺtarget = 'target',
     tꓺtext = 'text',
     tꓺtextⳇ = tꓺtext + '/',
     tꓺtextⳇplain = tꓺtextⳇ + 'plain',
@@ -851,7 +857,8 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
     // Extracts brand images.
     const brandꓺlogo = brand.logo,
         brandꓺlogoꓺonLightBg = brandꓺlogo.onLightBg,
-        brandꓺogImage = brand.ogImage;
+        brandꓺogImage = brand.ogImage,
+        brandꓺsearchAction = brand.searchAction;
 
     // Organization graph(s).
     // {@see https://schema.org/Corporation}.
@@ -939,6 +946,20 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
         [tꓺname]: brand.name,
         [tꓺdescription]: brand.description,
 
+        ...(brandꓺsearchAction
+            ? {
+                  [tꓺpotentialAction]: [
+                      {
+                          [tꓺමtype]: tꓺSearchAction,
+                          [tꓺtarget]: {
+                              [tꓺමtype]: tꓺEntryPoint,
+                              [tꓺurlTemplate]: brandꓺsearchAction.urlTemplate,
+                          },
+                          [tꓺqueryᱼinput]: brandꓺsearchAction.queryInput,
+                      },
+                  ],
+              }
+            : {}),
         [tꓺimage]: {
             [tꓺමtype]: tꓺImageObject,
             [tꓺමid]: brand.url + '#' + tꓺlogo,

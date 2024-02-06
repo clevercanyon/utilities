@@ -52,7 +52,10 @@ declare class ClassInterface {
 
     public readonly url: string;
     public readonly statusURL: string;
-
+    public readonly searchAction?: {
+        readonly urlTemplate: string;
+        readonly queryInput: string;
+    };
     public readonly slug: string;
     public readonly var: string;
 
@@ -267,6 +270,14 @@ export const getClass = (): Constructor => {
          * URL; e.g., `https://status.my-brand.com/`.
          */
         public readonly statusURL!: string;
+
+        /**
+         * Search action (optional, but recommended).
+         */
+        public readonly searchAction?: {
+            readonly urlTemplate: string;
+            readonly queryInput: string;
+        };
 
         /**
          * Slug; e.g., `my-brand`.
@@ -488,7 +499,6 @@ export const getClass = (): Constructor => {
          * @returns Object {@see RawProps}.
          */
         public rawProps(): RawProps {
-            // Enforces brand raw props being readonly.
             return $obj.deepFreeze({ ...this, org: this.org.slug }) as RawProps;
         }
     };

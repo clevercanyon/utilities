@@ -213,6 +213,7 @@ describe('$to', async () => {
 
             'url',
             'statusURL',
+            'searchAction',
 
             'slug',
             'var',
@@ -419,6 +420,7 @@ describe('$to', async () => {
 
             'url',
             'statusURL',
+            'searchAction',
 
             'slug',
             'var',
