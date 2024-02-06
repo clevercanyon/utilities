@@ -41,7 +41,8 @@ const tꓺaddress = 'address',
     tꓺasciiOnly = 'asciiOnly',
     tꓺadmin = 'admin',
     tꓺassets = 'assets',
-    tꓺbrands = 'brands',
+    tꓺbrand = 'brand',
+    tꓺbrands = tꓺbrand + 's',
     tꓺcity = 'city',
     tꓺclevercanyon = 'clevercanyon',
     tꓺCleverCanyon = 'CleverCanyon',
@@ -154,23 +155,25 @@ const tꓺaddress = 'address',
     tꓺමclevercanyonⳇclevercanyonംcom = tꓺමclevercanyon + '/' + tꓺclevercanyonംcom,
     tꓺමclevercanyonⳇhopംgdn = tꓺමclevercanyon + '/' + tꓺhopംgdn,
     //
+    // Our two org-level brands get served from an R2 bucket, such that we don’t need to
+    // perform added DNS lookups for things likes logos, icons from clevercanyon.com, hop.gdn.
     tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇ = tꓺhttpsꓽⳇⳇ + 'r2.' + tꓺhopംgdn + '/' + tꓺassets + '/' + tꓺbrands + '/',
     tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇclevercanyon = tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇ + tꓺclevercanyon,
     tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇhop = tꓺhttpsꓽⳇⳇr2ംhopംgdnⳇassetsⳇbrandsⳇ + tꓺhop,
     //
-    tꓺⳇassets = './' + tꓺassets,
-    tꓺⳇassetsⳇicon = tꓺⳇassets + '/' + tꓺicon,
-    tꓺⳇassetsⳇiconᱼ2x = tꓺⳇassets + '/' + tꓺiconᱼ2x,
-    tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg = tꓺⳇassets + '/' + tꓺlogoᱼonᱼdarkᱼbg,
-    tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbgᱼ2x = tꓺⳇassets + '/' + tꓺlogoᱼonᱼdarkᱼbgᱼ2x,
-    tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg = tꓺⳇassets + '/' + tꓺlogoᱼonᱼlightᱼbg,
-    tꓺⳇassetsⳇlogoᱼonᱼlightᱼbgᱼ2x = tꓺⳇassets + '/' + tꓺlogoᱼonᱼlightᱼbgᱼ2x,
-    tꓺⳇassetsⳇogᱼimage = tꓺⳇassets + '/' + tꓺogᱼimage,
-    tꓺⳇassetsⳇogᱼimageᱼ2x = tꓺⳇassets + '/' + tꓺogᱼimageᱼ2x,
-    tꓺⳇassetsⳇssᱼdesktopᱼN = tꓺⳇassets + '/' + tꓺssᱼdesktopᱼN,
-    tꓺⳇassetsⳇssᱼdesktopᱼNᱼ2x = tꓺⳇassets + '/' + tꓺssᱼdesktopᱼNᱼ2x,
-    tꓺⳇassetsⳇssᱼmobileᱼN = tꓺⳇassets + '/' + tꓺssᱼmobileᱼN,
-    tꓺⳇassetsⳇssᱼmobileᱼNᱼ2x = tꓺⳇassets + '/' + tꓺssᱼmobileᱼNᱼ2x,
+    tꓺംⳇassetsⳇbrand = './' + tꓺassets + '/' + tꓺbrand,
+    tꓺംⳇassetsⳇbrandⳇicon = tꓺംⳇassetsⳇbrand + '/' + tꓺicon,
+    tꓺംⳇassetsⳇbrandⳇiconᱼ2x = tꓺംⳇassetsⳇbrand + '/' + tꓺiconᱼ2x,
+    tꓺംⳇassetsⳇbrandⳇlogoᱼonᱼdarkᱼbg = tꓺംⳇassetsⳇbrand + '/' + tꓺlogoᱼonᱼdarkᱼbg,
+    tꓺംⳇassetsⳇbrandⳇlogoᱼonᱼdarkᱼbgᱼ2x = tꓺംⳇassetsⳇbrand + '/' + tꓺlogoᱼonᱼdarkᱼbgᱼ2x,
+    tꓺംⳇassetsⳇbrandⳇlogoᱼonᱼlightᱼbg = tꓺംⳇassetsⳇbrand + '/' + tꓺlogoᱼonᱼlightᱼbg,
+    tꓺംⳇassetsⳇbrandⳇlogoᱼonᱼlightᱼbgᱼ2x = tꓺംⳇassetsⳇbrand + '/' + tꓺlogoᱼonᱼlightᱼbgᱼ2x,
+    tꓺംⳇassetsⳇbrandⳇogᱼimage = tꓺംⳇassetsⳇbrand + '/' + tꓺogᱼimage,
+    tꓺംⳇassetsⳇbrandⳇogᱼimageᱼ2x = tꓺംⳇassetsⳇbrand + '/' + tꓺogᱼimageᱼ2x,
+    tꓺംⳇassetsⳇbrandⳇssᱼdesktopᱼN = tꓺംⳇassetsⳇbrand + '/' + tꓺssᱼdesktopᱼN,
+    tꓺംⳇassetsⳇbrandⳇssᱼdesktopᱼNᱼ2x = tꓺംⳇassetsⳇbrand + '/' + tꓺssᱼdesktopᱼNᱼ2x,
+    tꓺംⳇassetsⳇbrandⳇssᱼmobileᱼN = tꓺംⳇassetsⳇbrand + '/' + tꓺssᱼmobileᱼN,
+    tꓺംⳇassetsⳇbrandⳇssᱼmobileᱼNᱼ2x = tꓺംⳇassetsⳇbrand + '/' + tꓺssᱼmobileᱼNᱼ2x,
     //
     tꓺobjꓺwidthHeightᱼ304x60ˣ2ꘌ608x120 = { [tꓺwidth]: 608, [tꓺheight]: 120 } as { width: number; height: number },
     tꓺobjꓺwidthHeightᱼ433x60ˣ2ꘌ866x120 = { [tꓺwidth]: 866, [tꓺheight]: 120 } as { width: number; height: number },
@@ -221,8 +224,16 @@ export const remove = (pkgName: string): void => {
 export const get = (pkgName: string): $type.Brand => {
     if (!rawPropsInitialized) initializeRawProps();
 
-    pkgName = '&' === pkgName ? tꓺමclevercanyonⳇclevercanyonംcom : '&&' === pkgName ? tꓺමclevercanyonⳇhopംgdn : pkgName;
-    // `&`, `&&` are self-referential Clever Canyon and Hop.gdn brand aliases.
+    // `&`, `&&` are self-referential
+    // Clever Canyon and Hop.gdn aliases.
+    pkgName =
+        '&' === pkgName
+            ? tꓺමclevercanyonⳇclevercanyonംcom
+            : //
+              '&&' === pkgName
+              ? tꓺමclevercanyonⳇhopംgdn
+              : //
+                pkgName;
 
     if (!pkgName || !rawProps[pkgName]) {
         throw Error('NC4Pnsxq'); // Missing brand: `' + pkgName + '`.
@@ -594,22 +605,22 @@ export const addApp = (options?: AddAppOptions): $type.Brand => {
                 [tꓺvarPrefix]: pkgSlugAsVar + '_',
 
                 [tꓺicon]: {
-                    [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇicon + tꓺംsvg),
-                    [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇiconᱼ2x + tꓺംpng),
+                    [tꓺsvg]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇicon + tꓺംsvg),
+                    [tꓺpng]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇiconᱼ2x + tꓺംpng),
                 },
                 [tꓺlogo]: {
                     [tꓺonDarkBg]: {
-                        [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbg + tꓺംsvg),
-                        [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼdarkᱼbgᱼ2x + tꓺംpng),
+                        [tꓺsvg]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇlogoᱼonᱼdarkᱼbg + tꓺംsvg),
+                        [tꓺpng]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇlogoᱼonᱼdarkᱼbgᱼ2x + tꓺംpng),
                     },
                     [tꓺonLightBg]: {
-                        [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbg + tꓺംsvg),
-                        [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇlogoᱼonᱼlightᱼbgᱼ2x + tꓺംpng),
+                        [tꓺsvg]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇlogoᱼonᱼlightᱼbg + tꓺംsvg),
+                        [tꓺpng]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇlogoᱼonᱼlightᱼbgᱼ2x + tꓺംpng),
                     },
                 },
                 [tꓺogImage]: {
-                    [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇogᱼimage + tꓺംsvg),
-                    [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇogᱼimageᱼ2x + tꓺംpng),
+                    [tꓺsvg]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇogᱼimage + tꓺംsvg),
+                    [tꓺpng]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇogᱼimageᱼ2x + tꓺംpng),
                 },
                 [tꓺscreenshots]: {
                     [tꓺdesktop]: {
@@ -619,8 +630,8 @@ export const addApp = (options?: AddAppOptions): $type.Brand => {
                                     entries.push([
                                         i,
                                         {
-                                            [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇssᱼdesktopᱼN.replace('{N}', i.toString()) + tꓺംsvg),
-                                            [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇssᱼdesktopᱼNᱼ2x.replace('{N}', i.toString()) + tꓺംpng),
+                                            [tꓺsvg]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇssᱼdesktopᱼN.replace('{N}', i.toString()) + tꓺംsvg),
+                                            [tꓺpng]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇssᱼdesktopᱼNᱼ2x.replace('{N}', i.toString()) + tꓺംpng),
                                         },
                                     ]);
                                 return entries;
@@ -634,8 +645,8 @@ export const addApp = (options?: AddAppOptions): $type.Brand => {
                                     entries.push([
                                         i,
                                         {
-                                            [tꓺsvg]: relPathToURLString(tꓺⳇassetsⳇssᱼmobileᱼN.replace('{N}', i.toString()) + tꓺംsvg),
-                                            [tꓺpng]: relPathToURLString(tꓺⳇassetsⳇssᱼmobileᱼNᱼ2x.replace('{N}', i.toString()) + tꓺംpng),
+                                            [tꓺsvg]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇssᱼmobileᱼN.replace('{N}', i.toString()) + tꓺംsvg),
+                                            [tꓺpng]: relPathToURLString(tꓺംⳇassetsⳇbrandⳇssᱼmobileᱼNᱼ2x.replace('{N}', i.toString()) + tꓺംpng),
                                         },
                                     ]);
                                 return entries;
