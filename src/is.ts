@@ -240,6 +240,7 @@ export const bigint = (value: unknown): value is bigint => {
  * @note Returns false for `-Infinity`, `Infinity`, which are not integers.
  * @note Returns false for `NaN`, which is technically a number, but not an integer.
  * @note Returns true for numbers ending in `.0`, which are actually integers.
+ * @note Returns true in some other edge cases; {@see https://o5p.me/MFVotL}.
  */
 export const integer = (value: unknown): value is number => {
     return Number.isInteger(value);
