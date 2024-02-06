@@ -287,11 +287,16 @@ export const finite = (value: unknown): value is number => {
  * @note Returns false for `NaN`, which is technically a number type, but not numeric.
  * @note Returns false for bigint values, as those are not numbers.
  */
-export const numeric = (value: unknown, type?: 'integer' | 'safeInteger' | 'safeArrayKey' | 'float'): value is number | string => {
+export const numeric = (value: unknown, type?: 'integer' | 'negativeInteger' | 'positiveInteger' | 'safeInteger' | 'safeArrayKey' | 'float'): value is number | string => {
     switch (type) {
         case 'integer':
-            return integer(value) || (string(value) && numericIntegerRegExp.test(value) && integer(Number(value)));
-
+        case 'negativeInteger':
+        case 'positiveInteger': {
+            const is = integer(value) || (string(value) && numericIntegerRegExp.test(value) && integer(Number(value)));
+            if (is && 'negativeInteger' === type) return Number(value) < 0;
+            if (is && 'positiveInteger' === type) return Number(value) > 0;
+            return is; // e.g., Not an integer, or when type is `integer`.
+        }
         case 'safeInteger':
             return safeInteger(value) || (string(value) && numericIntegerRegExp.test(value) && safeInteger(Number(value)));
 
