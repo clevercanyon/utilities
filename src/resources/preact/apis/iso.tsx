@@ -230,8 +230,6 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
  *
  * @returns        An unrouted component that lazy loads a route component. Suitable for use as the `component` prop
  *   passed to a routed {@see Route}; e.g., `<Router><Route component={lazyRoute(...)} /></Router>`.
- *
- * @note This utility is at the heart of all our other lazy loading utilities.
  */
 export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedProps> => {
     let promise: Promise<Awaited<ReturnType<LazyRouteLoader>>['default']> | undefined, //
