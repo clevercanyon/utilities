@@ -110,6 +110,10 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
     // Self-reference, as plain object value.
     const thisObj = this as unknown as $type.Object;
 
+    // Initializes will-unmount flag.
+
+    const willUnmount = $preact.useRef(false);
+
     // Initializes parent context reference; i.e., for nested routers.
 
     const parentContext = $preact.useRef({} as RouteContext);
@@ -184,10 +188,10 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
             // Reduces global loading stack size by `1`.
             loadingStackSize = Math.max(0, loadingStackSize - 1);
 
-            // If this is the most recently suspended route...
+            // If this is the most recently suspended route ...
             if (currentRouteCounterSnapshot === currentRouteCounter.current) {
-                // Loading successful. Unsuspend after a tick and stop rendering previous route.
-                (previousRoute.current = null), void resolvedPromise.then(updateTicks); // Triggers re-render.
+                previousRoute.current = null; // We can stop rendering previous route.
+                if (!willUnmount.current) updateTicks(0); // Triggers re-render.
             }
         });
     }, []);
@@ -298,23 +302,23 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
         }, []);
 
         // Pending effects when loaded.
-        const pendingEffectsWhenLoaded = $preact.useCallback((willUnmount?: true): void => {
+        const pendingEffectsWhenLoaded = $preact.useCallback((): void => {
             // Shorter references for conditions below.
             const isLoading = currentRouteIsLoading.current,
                 isPendingEffects = currentRoutePendingEffectsWhenLoaded.current;
 
             // If will unmount, only relevant if loading and/or pending effects.
-            if (willUnmount) if (!isLoading && !isPendingEffects) return;
+            if (willUnmount.current) if (!isLoading && !isPendingEffects) return;
 
             // Otherwise, only relevant if not loading and is pending effects.
-            if (!willUnmount) if (isLoading || !isPendingEffects) return;
+            if (!willUnmount.current) if (isLoading || !isPendingEffects) return;
 
             // Extracts data from current location state.
             const { isInitialHydration } = locationState.current;
 
             // If router will unmount while loading, this reduces global loading stack size by `1`.
             // Since we unmounted while loading we need to error on the side of not loading forever.
-            if (willUnmount) loadingStackSize = Math.max(0, loadingStackSize - 1);
+            if (willUnmount.current) loadingStackSize = Math.max(0, loadingStackSize - 1);
 
             // Flags these as true. We’re handling pending effects on loaded state now.
             currentRouteIsLoading.current = currentRoutePendingEffectsWhenLoaded.current = false;
@@ -378,7 +382,7 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
         }, [locationState.current, ticks]);
 
         // Runs pending effects as if loaded whenever component is unmounted while loading.
-        this.componentWillUnmount = $preact.useCallback((): void => pendingEffectsWhenLoaded(true), []);
+        this.componentWillUnmount = $preact.useCallback((): void => ((willUnmount.current = true), pendingEffectsWhenLoaded()), []);
     }
     // Renders `currentRoute` and `previousRoute` components.
     // Note: `currentRoute` must render first to trigger a thrown promise.
@@ -470,11 +474,6 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
     }
     return newRouteContext;
 };
-
-/**
- * Defines a resolved promise.
- */
-const resolvedPromise = Promise.resolve();
 
 /**
  * Initializes loading stack size & various handlers.
