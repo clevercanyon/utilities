@@ -335,11 +335,16 @@ export const isWeb = $fnꓺmemo((): boolean => {
 /**
  * Checks if environment is a PWA.
  *
+ * We don’t memoize this test because a PWA is often just a standalone view, and in Chrome, this can often result in
+ * that view simply being brought about by shifting an already-loaded copy of a web page to a standalone view; i.e.,
+ * without any reload occurring. In such a case, if we cached this utility, it would return false unless and until a
+ * full refresh of the PWA in standalone view ocurrs. Thus, {@see isWeb()} is cached, but {@see isPWA()} cannot be.
+ *
  * @returns True or false.
  */
-export const isPWA = $fnꓺmemo((): boolean => {
+export const isPWA = (): boolean => {
     return isWeb() && matchMedia('(display-mode: standalone)').matches;
-});
+};
 
 /**
  * Checks if environment is a web browser via jsdom.
