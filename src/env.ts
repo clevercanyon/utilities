@@ -341,9 +341,11 @@ export const isWeb = $fnꓺmemo((): boolean => {
  * full refresh of the PWA in standalone view ocurrs. Thus, {@see isWeb()} is cached, but {@see isPWA()} cannot be.
  *
  * @returns True or false.
+ *
+ * @note `window.matchMedia` is not supported by JSDOM.
  */
 export const isPWA = (): boolean => {
-    return isWeb() && matchMedia('(display-mode: standalone)').matches;
+    return isWeb() && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
 };
 
 /**
