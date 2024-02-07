@@ -5,7 +5,7 @@
  */
 
 import { initialize as consentInitialize, state as consentState } from '#@preact/apis/web/consent.ts';
-import { $app, $cookie, $dom, $env, $fn, $is, $json, $obj, $redact, $str, $url, $user, type $type } from '#index.ts';
+import { $cookie, $dom, $env, $fn, $is, $json, $obj, $redact, $str, $url, $user, type $type } from '#index.ts';
 import { finder as buildCSSSelector } from '@medv/finder';
 
 /**
@@ -77,9 +77,6 @@ export const initialize = async (): Promise<void> => {
         $dom.onLoad((): void => {
             // Awaits consent API initialization.
             void consentInitialize().then((): void => {
-                // Acquires app’s brand.
-                const brand = $app.brand();
-
                 // Initializes analytics state.
                 $obj.patchDeep(state, {
                     debug: state.debug,
@@ -91,8 +88,8 @@ export const initialize = async (): Promise<void> => {
                     configured: false,
                     deployed: false,
 
-                    context: 'web', // This is explicitly `web` analytics.
-                    subcontext: ['site'].includes(brand.type) ? brand.type : 'unknown',
+                    context: 'web', // Web analytics.
+                    subcontext: $env.isPWA() ? 'pwa' : 'site',
 
                     utxUserId: $user.utxId(),
                     utxAuthorId: $user.utxAuthorId(),
