@@ -190,32 +190,51 @@ export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, r
  * @returns             A routed component that lazy loads an async function component.
  */
 export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode) => {
-    let promise: ReturnType<$preact.AsyncFnComponent<Props>> | undefined, //
-        fnDidResolve: true | undefined,
-        fnRtn: Awaited<typeof promise> | undefined;
+    const promise: (Promise<$preact.VNode<Props> | null> | undefined)[] = [],
+        haveFnRtn: (boolean | undefined)[] = [],
+        fnRtn: ($preact.VNode<Props> | null | undefined)[] = [];
 
-    const component: $preact.FnComponent<Props> = (props: Props): $preact.VNode<Props> | null => {
-        const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
-            didPromiseThenUpdateTicks = $preact.useRef() as $preact.Ref<true | undefined>;
-
-        promise ??= fn(props).then((rtn) => ((fnDidResolve = true), (fnRtn = rtn)));
-        if (fnDidResolve) {
-            promise = didPromiseThenUpdateTicks.current = fnDidResolve = undefined;
-            return fnRtn as $preact.VNode<Props> | null;
-        }
-        if (!didPromiseThenUpdateTicks.current) {
-            didPromiseThenUpdateTicks.current = true;
-            void promise.then(updateTicks);
-        }
-        throw promise;
-    };
     return (props?: Props): LazyRouterVNode => {
+        let i = -1; // Instance counter.
+        i++; // Increments instance counter.
+
         return (
             <Router {...routerProps}>
                 <Route
                     default
-                    component={(unusedꓺ: RoutedProps): $preact.VNode<RoutedProps> => {
-                        return $preact.create(component, props || ({} as Props)) as unknown as $preact.VNode<RoutedProps>;
+                    component={(unusedꓺ: RoutedProps): $preact.VNode<Props> | null => {
+                        const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
+                            didPromiseThen = $preact.useRef() as $preact.Ref<true | undefined>;
+
+                        /**
+                         * A problem is that because it is async, the component throws a promise, then we hit
+                         * childDidSuspend() and preact moves on. Within the promise function the `currentComponent` has
+                         * changed in the eyes of preact, which means hooks/contexts won’t work inside the async
+                         * component function as expected. Not sure how to fix this. `lazyRoute()` doesn’t have this
+                         * problem because while it is pending, nothing is happening. Here, what we have is essentially
+                         * a promise forking itself outside of the preact workflow. For now, anything needed by an async
+                         * component function must be passed down as props.
+                         *
+                         * @review: ↑ Consider ways to improve this.
+                         */
+                        promise[i] ??= fn(props || ({} as Props)) //
+                            .then((rtn) => ((haveFnRtn[i] = true), (fnRtn[i] = rtn)));
+
+                        if (haveFnRtn[i]) {
+                            const vNode = fnRtn[i];
+
+                            delete promise[i];
+                            delete haveFnRtn[i];
+                            delete fnRtn[i];
+                            didPromiseThen.current = undefined;
+
+                            return vNode as $preact.VNode<Props> | null;
+                        }
+                        if (!didPromiseThen.current) {
+                            didPromiseThen.current = true;
+                            void promise[i]?.then(updateTicks);
+                        }
+                        throw promise[i];
                     }}
                 />
             </Router>
