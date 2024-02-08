@@ -29,7 +29,9 @@ export type HydrativelyRenderSPAOptions = {
 };
 export type AppManifest = { [x: $type.ObjectKey]: $type.Object };
 
-export type LazyComponentLoader<Props extends $preact.AnyProps = $preact.Props> = () => Promise<{ default: $preact.AnyComponent<Props> }>;
+export type LazyComponentLoader<Props extends $preact.AnyProps = $preact.Props> = //
+    () => Promise<{ default: $preact.AnyComponent<Props> }>;
+
 export type LazyComponentProps<Type extends LazyComponentLoader> = // Conditional type.
     Awaited<ReturnType<Type>>['default'] extends $preact.ClassComponent
         ? ConstructorParameters<Awaited<ReturnType<Type>>['default']>[0] extends undefined
@@ -41,6 +43,11 @@ export type LazyComponentProps<Type extends LazyComponentLoader> = // Conditiona
               : Parameters<Awaited<ReturnType<Type>>['default']>[0]
           : $preact.Props;
 
+export type LazyComponentPromises = {
+    promise: { current?: Promise<$preact.VNode | null> };
+    resolved: { current?: boolean }; // Promise resolved?
+    resolvedVNode: { current?: $preact.VNode | null };
+}[];
 export type LazyRouteLoader = () => Promise<{ default: $preact.AnyComponent<RoutedProps> }>;
 export type LazyRouterProps = Omit<RouterProps, 'children'>; // Except, no `children`.
 export type LazyRouterVNode = $preact.VNode<LazyRouterProps>;
@@ -53,7 +60,8 @@ export type LazyRouterVNode = $preact.VNode<LazyRouterProps>;
  *
  * A request-specific {@see $type.Fetcher} instance must be passed down through props when prerendering so the same
  * fetcher instance survives potentially multiple prerender passes; e.g., on thrown promises. Otherwise, a new fetcher
- * instance would be created on each prerender pass by `<Data>`, resulting in our fetcher cache resetting each time.
+ * instance would be created on each prerender pass by `<Data>`, resulting in our fetcher cache resetting each time. The
+ * same is true for `lazyCPs`, which are lazy component promises that must also persist state between prerender passes.
  *
  * @param   options Options; {@see PrerenderSPAOptions}.
  *
@@ -70,7 +78,8 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
         httpState = props.httpState || {}, // Passed through props as state by reference.
         url = props.url || request.url, // URL required, as we cannot detect via `location`.
         cspNonce = props.cspNonce || request.headers.get('x-csp-nonce') || '', // Nonce for CSP.
-        fetcher = props.fetcher || defaultFetcher(); // Required for prerender; see notes above.
+        fetcher = props.fetcher || defaultFetcher(), // Required for prerender; see notes above.
+        lazyCPs = props.lazyCPs || ([] as LazyComponentPromises); // Required for prerender.
 
     let styleBundle: undefined | string, //
         scriptBundle: undefined | string; // Initialize.
@@ -99,6 +108,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
             // `<Data>` props.
             cspNonce, // Nonce for CSP.
             fetcher, // Request-specific fetcher.
+            lazyCPs, // Request-specific lazy component promises.
             head: $obj.patchDeep({ styleBundle, scriptBundle }, props.head),
         },
         prerenderedData = await prerender(App, { props: appProps });
@@ -160,6 +170,7 @@ export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions)
      *
      * - `cspNonce`: If not already in props, `<Data>` uses global state from script code.
      * - `fetcher`: If not already in props, `<Data>` uses the same default as prerender does.
+     * - `lazyCPs`: If not already in props, `<Data>` uses the same default as prerender does.
      * - `head`: If not already in props, `<Data>` uses global state from script code.
      */
 };
@@ -184,79 +195,69 @@ export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, r
 /**
  * Produces a routed component that lazy loads an async function component.
  *
- * A problem is that because this is async, components throw a promise, then we hit childDidSuspend() and preact moves
- * on. Within the promise function `currentComponent` has changed in the eyes of Preact, which means hooks/contexts
- * won’t work inside async functions. Not sure how to fix this. `lazyRoute()` doesn’t have this problem because while it
- * is pending nothing is happening. Here, what we have is essentially a promise forking itself outside of the preact
- * workflow. For now, anything needed by an async component function must be passed down as props.
+ * Note: For now, any hooks/contexts needed by an async function component must be passed down as props.
+ *
+ * Why? The problem is that because this is async, components throw a promise, childDidSuspend(), and Preact moves on.
+ * Within the promise function `currentComponent` has changed in the eyes of Preact, which means hooks/contexts won’t
+ * work inside async functions. We are not sure how to fix this. {@see lazyRoute()} doesn’t have this problem because
+ * promises are connected to imports. Here, what we have is essentially a promise forking itself outside of the Preact
+ * workflow. For now, any hooks/contexts needed by an async function component must be passed down as props.
  *
  * @param   fn          Async function component; {@see $preact.AsyncFnComponent}.
  * @param   routerProps Optional router props; {@see LazyRouterProps}.
  *
  * @returns             A routed component that lazy loads an async function component.
  *
- * @review: Consider ways to improve this. See notes above regarding hooks/contexts.
+ * @review: Consider ways to improve this. See notes above regarding `currentComponent`.
  */
 export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode) => {
-    if ($env.isSSR()) {
-        const promise: (Promise<$preact.VNode<Props> | null> | undefined)[] = [],
-            haveFnRtn: (boolean | undefined)[] = [],
-            fnRtn: ($preact.VNode<Props> | null | undefined)[] = [];
+    return (props?: Props): LazyRouterVNode => {
+        const isSSR = $env.isSSR(), // Server-side prerender?
+            { state: { lazyCPs } } = $preact.useData(); // prettier-ignore
 
-        return (props?: Props): LazyRouterVNode => {
-            let i = -1; // Instance counter.
-            i++; // Increments instance counter.
+        let i = -1; // Instances.
+        if (isSSR) {
+            i++; // Increments counter.
+            lazyCPs[i] ??= {
+                promise: { current: undefined },
+                resolved: { current: undefined },
+                resolvedVNode: { current: undefined },
+            };
+        }
+        return (
+            <Router {...routerProps}>
+                <Route
+                    default
+                    component={(unusedꓺ: RoutedProps): $preact.VNode | null => {
+                        const didPromiseThen = $preact.useRef() as $preact.Ref<boolean>,
+                            [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
+                            //
+                            promiseRef = $preact.useRef() as $preact.Ref<Promise<$preact.VNode | null>>,
+                            resolvedRef = $preact.useRef() as $preact.Ref<boolean>, // Promise resolved?
+                            resolvedVNodeRef = $preact.useRef() as $preact.Ref<$preact.VNode | null>,
+                            //
+                            promise = isSSR ? lazyCPs[i].promise : promiseRef,
+                            resolved = isSSR ? lazyCPs[i].resolved : resolvedRef,
+                            resolvedVNode = isSSR ? lazyCPs[i].resolvedVNode : resolvedVNodeRef;
 
-            return (
-                <Router {...routerProps}>
-                    <Route
-                        default
-                        component={(unusedꓺ: RoutedProps): $preact.VNode<Props> | null => {
-                            promise[i] ??= fn(props || ({} as Props)) //
-                                .then((rtn) => ((haveFnRtn[i] = true), (fnRtn[i] = rtn)));
+                        promise.current ??= fn(props || ({} as Props)) //
+                            .then((value) => ((resolved.current = true), (resolvedVNode.current = value)));
 
-                            if (haveFnRtn[i]) {
-                                return fnRtn[i] as $preact.VNode<Props> | null;
-                            }
-                            throw promise[i];
-                        }}
-                    />
-                </Router>
-            );
-        };
-    } else {
-        return (props?: Props): LazyRouterVNode => {
-            return (
-                <Router {...routerProps}>
-                    <Route
-                        default
-                        component={(unusedꓺ: RoutedProps): $preact.VNode<Props> | null => {
-                            const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
-                                didPromiseThen = $preact.useRef() as $preact.Ref<boolean>,
-                                //
-                                promise = $preact.useRef() as $preact.Ref<Promise<$preact.VNode<Props> | null>>,
-                                haveFnRtn = $preact.useRef() as $preact.Ref<boolean>,
-                                fnRtn = $preact.useRef() as $preact.Ref<$preact.VNode<Props> | null>;
-
-                            promise.current ??= fn(props || ({} as Props)) //
-                                .then((rtn) => ((haveFnRtn.current = true), (fnRtn.current = rtn)));
-
-                            if (haveFnRtn.current) {
-                                const vNode = fnRtn.current;
-                                promise.current = haveFnRtn.current = fnRtn.current = didPromiseThen.current = null;
-                                return vNode;
-                            }
-                            if (!didPromiseThen.current) {
-                                didPromiseThen.current = true;
-                                void promise.current.then(updateTicks);
-                            }
-                            throw promise.current;
-                        }}
-                    />
-                </Router>
-            );
-        };
-    }
+                        if (resolved.current) {
+                            const vNode = resolvedVNode.current as $preact.VNode | null;
+                            if (!isSSR) didPromiseThen.current = promise.current = resolved.current = resolvedVNode.current = null;
+                            return vNode; // i.e., vNode or `null` return value from async component function.
+                        }
+                        if (!didPromiseThen.current) {
+                            didPromiseThen.current = true;
+                            void promise.current.then(updateTicks);
+                        }
+                        throw promise.current;
+                    }}
+                />
+            </Router>
+        );
+    };
 };
 
 /**

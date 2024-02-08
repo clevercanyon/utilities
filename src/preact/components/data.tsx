@@ -7,6 +7,7 @@ import '#@initialize.ts';
 import { $app, $class, $env, $is, $json, $obj, $obp, $preact, $str, type $type } from '#index.ts';
 import { type default as HeadInstance, type PartialActualState as PartialActualHeadState } from '#preact/components/head.tsx';
 import { Component, createContext } from 'preact';
+import { type LazyComponentPromises } from '../../resources/preact/apis/iso.tsx';
 
 /**
  * Defines data types.
@@ -19,6 +20,7 @@ export type State = $preact.State<{
     globalObp: string;
     cspNonce: string;
     fetcher: $type.Fetcher;
+    lazyCPs: LazyComponentPromises;
     head: {
         instance?: HeadInstance;
     } & Pick<PartialActualHeadState, PassableHeadStateKeys>;
@@ -27,6 +29,7 @@ export type PartialState = $preact.State<{
     globalObp?: State['globalObp'];
     cspNonce?: State['cspNonce'];
     fetcher?: State['fetcher'];
+    lazyCPs?: State['lazyCPs'];
     head?: Partial<State['head']>;
 }>;
 export type PartialStateUpdates = $preact.State<
@@ -72,7 +75,7 @@ export type MergeableGlobalState = $preact.State<
  * - These variables must remain `const`, as they keep types DRY.
  * - Please do not export these variables, they are for internal use only.
  */
-const passableStateKeys = ['globalObp', 'cspNonce', 'fetcher', 'head'] as const,
+const passableStateKeys = ['globalObp', 'cspNonce', 'fetcher', 'lazyCPs', 'head'] as const,
     passableHeadStateKeys = ['styleBundle', 'scriptBundle'] as const;
 
 type PassableStateKeys = $type.Writable<typeof passableStateKeys>[number];
@@ -149,13 +152,14 @@ export default class Data extends Component<Props, State> {
         super(props); // Parent constructor.
 
         const globalObp = props.globalObp || defaultGlobalObp(),
-            fetcher = props.fetcher || defaultFetcher();
+            fetcher = props.fetcher || defaultFetcher(),
+            lazyCPs = props.lazyCPs || [];
 
         this.state = $obj.mergeDeep(
             { cspNonce: '', head: {} }, // Defaults.
             $obj.pick(initialGlobalState(globalObp), mergeableGlobalStateKeys as unknown as string[]),
             $preact.omitProps($obj.pick(props, passableStateKeys as unknown as string[]), ['globalObp', 'fetcher']), //
-            { $set: { globalObp, fetcher } }, // Set explicity.
+            { $set: { globalObp, fetcher, lazyCPs } }, // Set explicity.
         ) as unknown as State;
 
         this.contextTools = {
