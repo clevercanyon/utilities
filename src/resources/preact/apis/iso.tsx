@@ -286,13 +286,13 @@ export const lazyRoute = (loader: LazyRouteLoader): ((props: RoutedProps) => $pr
 
     return (props: RoutedProps): $preact.VNode<RoutedProps> | null => {
         const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
-            didPromiseThenUpdateTicks = $preact.useRef(false);
+            didPromiseThen = $preact.useRef(false);
 
         promise ??= loader().then((module) => (component = module.default));
         if (component) return $preact.create(component, props);
 
-        if (!didPromiseThenUpdateTicks.current) {
-            didPromiseThenUpdateTicks.current = true;
+        if (!didPromiseThen.current) {
+            didPromiseThen.current = true;
             void promise.then(updateTicks);
         }
         throw promise;
