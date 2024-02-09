@@ -160,7 +160,7 @@ export default class Data extends Component<Props, State> {
         this.state = $obj.mergeDeep(
             { cspNonce: '', head: {} }, // Defaults.
             $obj.pick(initialGlobalState(globalObp), mergeableGlobalStateKeys as unknown as string[]),
-            $preact.omitProps($obj.pick(props, passableStateKeys as unknown as string[]), ['globalObp', 'fetcher']), //
+            $preact.omitProps($obj.pick(props, passableStateKeys as unknown as string[]), ['globalObp', 'fetcher', 'lazyCPs']), //
             { $set: { globalObp, fetcher, lazyCPs } }, // Set explicity.
         ) as unknown as State;
 
