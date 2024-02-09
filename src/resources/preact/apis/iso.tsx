@@ -4,7 +4,7 @@
 
 import { prerender } from '#@preact/apis/iso/index.tsx';
 import { $dom, $env, $is, $obj, $path, $preact, $str, type $type } from '#index.ts';
-import { defaultFetcher } from '#preact/components/data.tsx';
+import { defaultFetcher, defaultLazyCPs } from '#preact/components/data.tsx';
 import { type State as HTTPState } from '#preact/components/http.tsx';
 import { type Props as RootProps } from '#preact/components/root.tsx';
 import { Route, default as Router, type RoutedProps, type Props as RouterProps } from '#preact/components/router.tsx';
@@ -44,10 +44,13 @@ export type LazyComponentProps<Type extends LazyComponentLoader> = // Conditiona
           : $preact.Props;
 
 export type LazyComponentPromises = {
-    promise: { current?: Promise<$preact.VNode | null> };
-    resolved: { current?: boolean }; // Promise resolved?
-    resolvedVNode: { current?: $preact.VNode | null };
-}[];
+    counter: number;
+    promises: {
+        promise: { current?: Promise<$preact.VNode | null> };
+        resolved: { current?: boolean }; // Promise resolved?
+        resolvedVNode: { current?: $preact.VNode | null };
+    }[];
+};
 export type LazyRouteLoader = () => Promise<{ default: $preact.AnyComponent<RoutedProps> }>;
 export type LazyRouterProps = Omit<RouterProps, 'children'>; // Except, no `children`.
 export type LazyRouterVNode = $preact.VNode<LazyRouterProps>;
@@ -79,7 +82,7 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
         url = props.url || request.url, // URL required, as we cannot detect via `location`.
         cspNonce = props.cspNonce || request.headers.get('x-csp-nonce') || '', // Nonce for CSP.
         fetcher = props.fetcher || defaultFetcher(), // Required for prerender; see notes above.
-        lazyCPs = props.lazyCPs || ([] as LazyComponentPromises); // Required for prerender.
+        lazyCPs = props.lazyCPs || defaultLazyCPs(); // Required for prerender; see notes above.
 
     let styleBundle: undefined | string, //
         scriptBundle: undefined | string; // Initialize.
@@ -215,10 +218,10 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
         const isSSR = $env.isSSR(), // Server-side prerender?
             { state: { lazyCPs } } = $preact.useData(); // prettier-ignore
 
-        let i = -1; // Instances.
+        let i = -1; // Promise index.
         if (isSSR) {
-            i++; // Increments counter.
-            lazyCPs[i] ??= {
+            i = ++lazyCPs.counter;
+            lazyCPs.promises[i] ??= {
                 promise: { current: undefined },
                 resolved: { current: undefined },
                 resolvedVNode: { current: undefined },
@@ -236,9 +239,9 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
                             resolvedRef = $preact.useRef() as $preact.Ref<boolean>, // Promise resolved?
                             resolvedVNodeRef = $preact.useRef() as $preact.Ref<$preact.VNode | null>,
                             //
-                            promise = isSSR ? lazyCPs[i].promise : promiseRef,
-                            resolved = isSSR ? lazyCPs[i].resolved : resolvedRef,
-                            resolvedVNode = isSSR ? lazyCPs[i].resolvedVNode : resolvedVNodeRef;
+                            promise = isSSR ? lazyCPs.promises[i].promise : promiseRef,
+                            resolved = isSSR ? lazyCPs.promises[i].resolved : resolvedRef,
+                            resolvedVNode = isSSR ? lazyCPs.promises[i].resolvedVNode : resolvedVNodeRef;
 
                         promise.current ??= fn(props || ({} as Props)) //
                             .then((value) => ((resolved.current = true), (resolvedVNode.current = value)));

@@ -153,7 +153,9 @@ export default class Data extends Component<Props, State> {
 
         const globalObp = props.globalObp || defaultGlobalObp(),
             fetcher = props.fetcher || defaultFetcher(),
-            lazyCPs = props.lazyCPs || [];
+            lazyCPs = props.lazyCPs || defaultLazyCPs();
+
+        lazyCPs.counter = -1; // Always starts @ `-1`.
 
         this.state = $obj.mergeDeep(
             { cspNonce: '', head: {} }, // Defaults.
@@ -256,6 +258,17 @@ export const defaultGlobalObp = (): string => {
  */
 export const defaultFetcher = (): $type.Fetcher => {
     return new ($class.getFetcher())();
+};
+
+/**
+ * Defines default lazy component promises.
+ *
+ * This is also called upon by our ISO prerenderer.
+ *
+ * @returns {@see LazyComponentPromises} Default lazy CPs.
+ */
+export const defaultLazyCPs = (): LazyComponentPromises => {
+    return { counter: -1, promises: [] };
 };
 
 /**
