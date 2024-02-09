@@ -189,7 +189,7 @@ export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions)
  *
  * @returns             A routed component that lazy loads a dynamically imported component.
  */
-export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, routerProps?: LazyRouterProps): ((props?: LazyComponentProps<Loader>) => LazyRouterVNode) => {
+export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, routerProps?: LazyRouterProps): ((props?: LazyComponentProps<Loader>) => LazyRouterVNode | null) => {
     return lazyComponent(async (props?: LazyComponentProps<Loader>): Promise<$preact.VNode<LazyComponentProps<Loader>>> => {
         return $preact.create((await loader()).default, props || ({} as LazyComponentProps<Loader>));
     }, routerProps);
@@ -213,7 +213,7 @@ export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, r
  *
  * @review: Consider ways to improve this. See notes above regarding `currentComponent`.
  */
-export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode) => {
+export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode | null) => {
     return (props?: Props): LazyRouterVNode => {
         const isSSR = $env.isSSR(), // Server-side prerender?
             { state: { lazyCPs } } = $preact.useData(); // prettier-ignore
@@ -227,37 +227,35 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
                 resolvedVNode: { current: undefined },
             };
         }
+        const Lazy = (unusedꓺ: RoutedProps): $preact.VNode<RoutedProps> | null => {
+            const didPromiseThen = $preact.useRef() as $preact.Ref<boolean>,
+                [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
+                //
+                promiseRef = $preact.useRef() as $preact.Ref<Promise<$preact.VNode | null>>,
+                resolvedRef = $preact.useRef() as $preact.Ref<boolean>, // Promise resolved?
+                resolvedVNodeRef = $preact.useRef() as $preact.Ref<$preact.VNode | null>,
+                //
+                promise = isSSR ? lazyCPs.promises[i].promise : promiseRef,
+                resolved = isSSR ? lazyCPs.promises[i].resolved : resolvedRef,
+                resolvedVNode = isSSR ? lazyCPs.promises[i].resolvedVNode : resolvedVNodeRef;
+
+            promise.current ??= fn(props || ({} as Props)) //
+                .then((value) => ((resolved.current = true), (resolvedVNode.current = value)));
+
+            if (resolved.current) {
+                const vNode = resolvedVNode.current as $preact.VNode<RoutedProps> | null;
+                if (!isSSR) didPromiseThen.current = promise.current = resolved.current = resolvedVNode.current = null;
+                return vNode; // i.e., vNode or `null` return value from async component function.
+            }
+            if (!didPromiseThen.current) {
+                didPromiseThen.current = true;
+                void promise.current.then(updateTicks);
+            }
+            throw promise.current;
+        };
         return (
             <Router {...routerProps}>
-                <Route
-                    default
-                    component={(unusedꓺ: RoutedProps): $preact.VNode | null => {
-                        const didPromiseThen = $preact.useRef() as $preact.Ref<boolean>,
-                            [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
-                            //
-                            promiseRef = $preact.useRef() as $preact.Ref<Promise<$preact.VNode | null>>,
-                            resolvedRef = $preact.useRef() as $preact.Ref<boolean>, // Promise resolved?
-                            resolvedVNodeRef = $preact.useRef() as $preact.Ref<$preact.VNode | null>,
-                            //
-                            promise = isSSR ? lazyCPs.promises[i].promise : promiseRef,
-                            resolved = isSSR ? lazyCPs.promises[i].resolved : resolvedRef,
-                            resolvedVNode = isSSR ? lazyCPs.promises[i].resolvedVNode : resolvedVNodeRef;
-
-                        promise.current ??= fn(props || ({} as Props)) //
-                            .then((value) => ((resolved.current = true), (resolvedVNode.current = value)));
-
-                        if (resolved.current) {
-                            const vNode = resolvedVNode.current as $preact.VNode | null;
-                            if (!isSSR) didPromiseThen.current = promise.current = resolved.current = resolvedVNode.current = null;
-                            return vNode; // i.e., vNode or `null` return value from async component function.
-                        }
-                        if (!didPromiseThen.current) {
-                            didPromiseThen.current = true;
-                            void promise.current.then(updateTicks);
-                        }
-                        throw promise.current;
-                    }}
-                />
+                <Route default component={Lazy} />
             </Router>
         );
     };
@@ -271,11 +269,11 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
  * @returns        An unrouted component that lazy loads a route component. Suitable for use as the `component` prop
  *   passed to a routed {@see Route}; e.g., `<Router><Route component={lazyRoute(...)} /></Router>`.
  */
-export const lazyRoute = (loader: LazyRouteLoader): $preact.FnComponent<RoutedProps> => {
+export const lazyRoute = (loader: LazyRouteLoader): ((props: RoutedProps) => $preact.VNode<RoutedProps> | null) => {
     let promise: Promise<Awaited<ReturnType<LazyRouteLoader>>['default']> | undefined, //
         component: Awaited<typeof promise> | undefined;
 
-    return (props: RoutedProps): $preact.VNode<RoutedProps> => {
+    return (props: RoutedProps): $preact.VNode<RoutedProps> | null => {
         const [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
             didPromiseThenUpdateTicks = $preact.useRef(false);
 
