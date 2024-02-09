@@ -214,6 +214,38 @@ export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, r
  * @review: Consider ways to improve this. See notes above regarding `currentComponent`.
  */
 export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode | null) => {
+    type LazyProps = Props & {
+        ꓺi: number;
+        ꓺisSSR: boolean;
+        ꓺlazyCPs: LazyComponentPromises;
+    };
+    const Lazy = (props: LazyProps): $preact.VNode<RoutedProps> | null => {
+        const { ꓺi: i, ꓺisSSR: isSSR, ꓺlazyCPs: lazyCPs } = props,
+            didPromiseThen = $preact.useRef() as $preact.Ref<boolean>,
+            [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
+            //
+            promiseRef = $preact.useRef() as $preact.Ref<Promise<$preact.VNode | null>>,
+            resolvedRef = $preact.useRef() as $preact.Ref<boolean>, // Promise resolved?
+            resolvedVNodeRef = $preact.useRef() as $preact.Ref<$preact.VNode | null>,
+            //
+            promise = isSSR ? lazyCPs.promises[i].promise : promiseRef,
+            resolved = isSSR ? lazyCPs.promises[i].resolved : resolvedRef,
+            resolvedVNode = isSSR ? lazyCPs.promises[i].resolvedVNode : resolvedVNodeRef;
+
+        promise.current ??= fn(props || ({} as Props)) //
+            .then((value) => ((resolved.current = true), (resolvedVNode.current = value)));
+
+        if (resolved.current) {
+            const vNode = resolvedVNode.current as $preact.VNode<RoutedProps> | null;
+            if (!isSSR) didPromiseThen.current = promise.current = resolved.current = resolvedVNode.current = null;
+            return vNode; // i.e., vNode or `null` return value from async component function.
+        }
+        if (!didPromiseThen.current) {
+            didPromiseThen.current = true;
+            void promise.current.then(updateTicks);
+        }
+        throw promise.current;
+    };
     return (props?: Props): LazyRouterVNode => {
         const isSSR = $env.isSSR(), // Server-side prerender?
             { state: { lazyCPs } } = $preact.useData(); // prettier-ignore
@@ -227,35 +259,14 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
                 resolvedVNode: { current: undefined },
             };
         }
-        const Lazy = (unusedꓺ: RoutedProps): $preact.VNode<RoutedProps> | null => {
-            const didPromiseThen = $preact.useRef() as $preact.Ref<boolean>,
-                [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
-                //
-                promiseRef = $preact.useRef() as $preact.Ref<Promise<$preact.VNode | null>>,
-                resolvedRef = $preact.useRef() as $preact.Ref<boolean>, // Promise resolved?
-                resolvedVNodeRef = $preact.useRef() as $preact.Ref<$preact.VNode | null>,
-                //
-                promise = isSSR ? lazyCPs.promises[i].promise : promiseRef,
-                resolved = isSSR ? lazyCPs.promises[i].resolved : resolvedRef,
-                resolvedVNode = isSSR ? lazyCPs.promises[i].resolvedVNode : resolvedVNodeRef;
-
-            promise.current ??= fn(props || ({} as Props)) //
-                .then((value) => ((resolved.current = true), (resolvedVNode.current = value)));
-
-            if (resolved.current) {
-                const vNode = resolvedVNode.current as $preact.VNode<RoutedProps> | null;
-                if (!isSSR) didPromiseThen.current = promise.current = resolved.current = resolvedVNode.current = null;
-                return vNode; // i.e., vNode or `null` return value from async component function.
-            }
-            if (!didPromiseThen.current) {
-                didPromiseThen.current = true;
-                void promise.current.then(updateTicks);
-            }
-            throw promise.current;
-        };
         return (
             <Router {...routerProps}>
-                <Route default component={Lazy} />
+                <Route
+                    default
+                    component={(unusedꓺ: RoutedProps): $preact.VNode<RoutedProps> | null => {
+                        return <Lazy {...({ ...props, ꓺi: i, ꓺisSSR: isSSR, ꓺlazyCPs: lazyCPs } as LazyProps)} />;
+                    }}
+                />
             </Router>
         );
     };
