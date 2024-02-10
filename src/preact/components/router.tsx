@@ -203,7 +203,7 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
                         cancelLoadingHandler(), cancelLoadedHandler();
                         loadedHandler = $dom.afterNextFrame((): void => xPreactAppLoading().remove());
                     }
-                } else updateTicks(0); // Triggers re-render.
+                } else void resolvedPromise.then(updateTicks); // Triggers re-render after a single tick.
             }
         });
     }, []);
@@ -380,8 +380,8 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
             }
         }, []);
 
-        // Runs all effects.
-        $preact.useEffect((): void => {
+        // Runs all layout effects.
+        $preact.useLayoutEffect((): void => {
             hydrationEffects(), effectsWhenLoading(), effectsWhenLoaded(), effectsWhenNotLoading();
         }, [locationState.current, ticks]);
 
@@ -478,6 +478,11 @@ const pathMatchesRoutePattern = (path: string, routePattern: string, routeContex
     }
     return newRouteContext;
 };
+
+/**
+ * Defines a resolved promise.
+ */
+const resolvedPromise = Promise.resolve();
 
 /**
  * Initializes loading stack size & various handlers.
