@@ -380,8 +380,8 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
             }
         }, []);
 
-        // Runs all layout effects.
-        $preact.useLayoutEffect((): void => {
+        // Runs all effects.
+        $preact.useEffect((): void => {
             hydrationEffects(), effectsWhenLoading(), effectsWhenLoaded(), effectsWhenNotLoading();
         }, [locationState.current, ticks]);
 
