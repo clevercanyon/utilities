@@ -214,13 +214,17 @@ export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, r
  * @review: Consider ways to improve this. See notes above regarding `currentComponent`.
  */
 export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode | null) => {
-    type LazyProps = Props & {
-        lazyꓺi: number;
-        lazyꓺisSSR: boolean;
-        lazyꓺlazyCPs: LazyComponentPromises;
+    type Context = {
+        isSSR: boolean;
+        lazyCPi: number;
+        lazyCPs: LazyComponentPromises;
+        props: Props | undefined;
     };
-    const Lazy = (props: LazyProps): $preact.VNode<LazyProps> | null => {
-        const { lazyꓺi: i, lazyꓺisSSR: isSSR, lazyꓺlazyCPs: lazyCPs } = props,
+    const ContextObject = $preact.createContext({} as Context),
+        useContext = (): Context => $preact.useContext(ContextObject);
+
+    const Lazy = (unusedꓺ: RoutedProps): $preact.VNode<RoutedProps> | null => {
+        const { isSSR, lazyCPi, lazyCPs, props } = useContext(),
             didPromiseThen = $preact.useRef() as $preact.Ref<boolean>,
             [, updateTicks] = $preact.useReducer((c) => (c + 1 >= 10000 ? 1 : c + 1), 0),
             //
@@ -228,15 +232,15 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
             resolvedRef = $preact.useRef() as $preact.Ref<boolean>, // Promise resolved?
             resolvedVNodeRef = $preact.useRef() as $preact.Ref<$preact.VNode | null>,
             //
-            promise = isSSR ? lazyCPs.promises[i].promise : promiseRef,
-            resolved = isSSR ? lazyCPs.promises[i].resolved : resolvedRef,
-            resolvedVNode = isSSR ? lazyCPs.promises[i].resolvedVNode : resolvedVNodeRef;
+            promise = isSSR ? lazyCPs.promises[lazyCPi].promise : promiseRef,
+            resolved = isSSR ? lazyCPs.promises[lazyCPi].resolved : resolvedRef,
+            resolvedVNode = isSSR ? lazyCPs.promises[lazyCPi].resolvedVNode : resolvedVNodeRef;
 
-        promise.current ??= fn($preact.omitProps(props, ['lazyꓺi', 'lazyꓺisSSR', 'lazyꓺlazyCPs']) as unknown as Props) //
+        promise.current ??= fn(props || ({} as Props)) //
             .then((value) => ((resolved.current = true), (resolvedVNode.current = value)));
 
         if (resolved.current) {
-            const vNode = resolvedVNode.current as $preact.VNode<LazyProps> | null;
+            const vNode = resolvedVNode.current as $preact.VNode<RoutedProps> | null;
             if (!isSSR) didPromiseThen.current = promise.current = resolved.current = resolvedVNode.current = null;
             return vNode; // i.e., vNode or `null` return value from async component function.
         }
@@ -250,25 +254,21 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
         const isSSR = $env.isSSR(), // Server-side prerender?
             { state: { lazyCPs } } = $preact.useData(); // prettier-ignore
 
-        let i = -1; // Promise index.
+        let lazyCPi = 0; // Promise index.
         if (isSSR) {
-            i = ++lazyCPs.counter;
-            lazyCPs.promises[i] ??= {
+            lazyCPi = ++lazyCPs.counter;
+            lazyCPs.promises[lazyCPi] ??= {
                 promise: { current: undefined },
                 resolved: { current: undefined },
                 resolvedVNode: { current: undefined },
             };
         }
-        const lazyProps = { ...props, lazyꓺi: i, lazyꓺisSSR: isSSR, lazyꓺlazyCPs: lazyCPs } as LazyProps;
         return (
-            <Router {...routerProps}>
-                <Route
-                    default
-                    component={(unusedꓺ: RoutedProps): $preact.VNode<RoutedProps> | null => {
-                        return $preact.create(Lazy, lazyProps) as unknown as $preact.VNode<RoutedProps>;
-                    }}
-                />
-            </Router>
+            <ContextObject.Provider value={{ isSSR, lazyCPi, lazyCPs, props }}>
+                <Router {...routerProps}>
+                    <Route default component={Lazy} />
+                </Router>
+            </ContextObject.Provider>
         );
     };
 };
