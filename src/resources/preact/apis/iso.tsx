@@ -259,12 +259,13 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
                 resolvedVNode: { current: undefined },
             };
         }
+        const lazyProps = { ...props, lazyꓺi: i, lazyꓺisSSR: isSSR, lazyꓺlazyCPs: lazyCPs } as LazyProps;
         return (
             <Router {...routerProps}>
                 <Route
                     default
                     component={(unusedꓺ: RoutedProps): $preact.VNode<RoutedProps> | null => {
-                        return <Lazy {...({ ...props, lazyꓺi: i, lazyꓺisSSR: isSSR, lazyꓺlazyCPs: lazyCPs } as LazyProps)} />;
+                        return $preact.create(Lazy, lazyProps) as unknown as $preact.VNode<RoutedProps>;
                     }}
                 />
             </Router>
