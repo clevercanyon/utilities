@@ -468,8 +468,27 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
  *
  * @returns          Mutatable HTTP response copy promise.
  *
- * @review This also leads to an unfortunate edge case where it is possible for a byte range request to chop HTML markup into slices
- * that prevent us for accurately repopulating CSP nonce replacement codes. See notes above and please work to prevent this.
+ * @review An unfortunate edge case where it is possible for a byte range request to chop HTML markup into slices;
+ *         e.g., slicing a CSP replacement code, which would cause the repopulation of CSP nonce replacement codes
+ *         to break. See notes above and please work on ways to avoid the potential for this to occur.
+ *
+ *         - Currently unsure of how to fix this other than to try and prevent range requests on HTML files?
+ *         - Under what scenarios in the wild is this currently an issue, if any? Are any of those impacted by missing nonces?
+ *         - Is it possible to partially replace nonce replacement codes in such a way that we adhere to range requests when doing so?
+ *           - It may not be, but it might be partially possible and as a result would further reduce the potential for this to occur.
+ * ---
+ * @review Uncached content will not return or support byte range requests. Thus, if a user happens to be the first one to
+ *         request a given URL, that request will not support a range request. We should work to avoid this scenario such
+ *         that all requests can support range requests, including the first to access.
+ *
+ *           - One way to fix this might be to cache and serve the first response in real-time vs.
+ *             responding right away and allowing it be cached async. Please consider the performance trade-off.
+ *             If we end up going this route then we’ll probably want to remove the `accept-ranges` header here
+ *             and instead set it somewhere else farther up the processing workflow tree.
+ *
+ *               - Questions that need to be answered before going this route:
+ *                 - How long does it take, on average, for Cloudflare to cache a response?
+ *                 - Is `cache.put()` followed by `cache.match()` consistent or eventually consistent?
  */
 export const prepareCachedResponse = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
     if (
@@ -500,6 +519,12 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
     } else {
         response = new Response(response.body as BodyInit, response); // Mutatable copy.
     }
+    if ($env.isCFW() && response.headers.has('content-length') && !response.headers.has('accept-ranges')) {
+        // The Cloudflare cache API supports byte range requests; {@see https://o5p.me/omV7Jx}.
+        // Cloudflare only supports byte range requests whenever a `content-length` header is given.
+        // So if using a Cloudflare worker and caching, this signals support for byte range requests.
+        response.headers.set('accept-ranges', 'bytes');
+    }
     response.headers.set('x-cache-status', 'hit; prepared');
 
     return response; // Mutatable copy.
@@ -525,6 +550,7 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
 export const prepareResponseForCache = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
     response = response.clone(); // Must clone response, which requires added memory.
     response.headers.delete('x-cache-status'); // Serves no purpose in a cache.
+
     if (
         responseIsHTML(response) && //
         !responseIsEncoded(response) &&
@@ -548,12 +574,6 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
             response = new Response(htmlMarkup, response);
         }
         response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
-    }
-    if ($env.isCFW() && response.headers.has('content-length') && !response.headers.has('accept-ranges')) {
-        // The Cloudflare cache API supports byte range requests; {@see https://o5p.me/omV7Jx}.
-        // Cloudflare only supports byte range requests whenever a `content-length` header is given.
-        // So if we are using a Cloudflare worker and caching, we can signal our support for byte range requests.
-        response.headers.set('accept-ranges', 'bytes');
     }
     return response; // Mutatable clone.
 };
