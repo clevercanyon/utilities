@@ -542,6 +542,12 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
         }
         response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
     }
+    if ($env.isCFW() && response.headers.has('content-length') && !response.headers.has('accept-ranges')) {
+        // The Cloudflare cache API supports byte range requests; {@see https://o5p.me/omV7Jx}.
+        // Cloudflare only supports byte range requests whenever a `content-length` header is given.
+        // So if we are using a Cloudflare worker and caching, we can signal our support for byte range requests.
+        response.headers.set('accept-ranges', 'bytes');
+    }
     return response; // Mutatable clone.
 };
 
