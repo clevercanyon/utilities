@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import { $crypto } from '#index.ts';
+import { $crypto, $str } from '#index.ts';
 import { describe, expect, test } from 'vitest';
 
 describe('$crypto', async () => {
@@ -168,6 +168,12 @@ describe('$crypto', async () => {
 
         expect(uuidThree === uuidOne).toBe(false);
         expect(uuidThree === uuidTwo).toBe(false);
+    });
+    test('.cspNonce()', async () => {
+        for (let i = 0; i < 10000; i++) {
+            expect($str.byteLength($crypto.cspNonce())).toBe(44);
+        }
+        expect($str.byteLength($crypto.cspNonceReplacementCode())).toBe(44);
     });
     test('.safeEqual()', async () => {
         expect($crypto.safeEqual('a', 'a')).toBe(true);

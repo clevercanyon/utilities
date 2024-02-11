@@ -97,7 +97,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             html: indexHTML,
         } = await $preact.iso.prerenderSPA({
             request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c'), {
-                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+                headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
@@ -122,7 +122,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             html: testHTML,
         } = await $preact.iso.prerenderSPA({
             request: new Request(new URL('https://x.tld/test?a=_a&b=_b&c=_c'), {
-                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+                headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
@@ -147,7 +147,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             html: lazyHTML,
         } = await $preact.iso.prerenderSPA({
             request: new Request(new URL('https://x.tld/lazy?a=_a&b=_b&c=_c'), {
-                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+                headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.

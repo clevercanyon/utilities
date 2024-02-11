@@ -122,9 +122,9 @@ describe('$http', async () => {
     });
     test('.prepareCachedResponse()', async () => {
         const request1 = new Request('https://example.com/', {
-                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+                headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
-            cspReplCode = $http.cspNonceReplacementCode(),
+            cspReplCode = $crypto.cspNonceReplacementCode(),
             cspNonce = request1.headers.get('x-csp-nonce') || '',
             response1 = await $http.prepareCachedResponse(
                 request1,
@@ -154,9 +154,9 @@ describe('$http', async () => {
     });
     test('.prepareResponseForCache()', async () => {
         const request1 = new Request('https://example.com/', {
-                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+                headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
-            cspReplCode = $http.cspNonceReplacementCode(),
+            cspReplCode = $crypto.cspNonceReplacementCode(),
             cspNonce = request1.headers.get('x-csp-nonce') || '',
             response1 = await $http.prepareResponseForCache(
                 request1,

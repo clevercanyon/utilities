@@ -373,6 +373,24 @@ export const uuidV4 = (options?: UUIDV4Options): string => {
 };
 
 /**
+ * Generates an nonce for content security policies.
+ *
+ * @returns Nonce for content security policies; always 44 bytes in length.
+ */
+export const cspNonce = (): string => {
+    return base64Encode(uuidV4() /* 32 bytes */); // Fixed length of 44 bytes.
+};
+
+/**
+ * Returns an nonce replacement code for content security policies.
+ *
+ * @returns Nonce replacement code for content security policies; always 44 bytes in length.
+ */
+export const cspNonceReplacementCode = (): string => {
+    return '{%-_{%-___________cspNonce___________-%}_-%}'; // Fixed length of 44 bytes.
+};
+
+/**
  * Performs a timing-safe string comparison.
  *
  * Currently, this only works in a Cloudflare environment; {@see https://o5p.me/0PgtOY}.

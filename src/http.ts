@@ -45,13 +45,6 @@ export type ExtractHeaderOptions = {
 };
 
 /**
- * Gets our CSP nonce replacement code.
- *
- * @returns String CSP nonce replacement code.
- */
-export const cspNonceReplacementCode = (): string => '{%-_{%-_cspNonce_-%}_-%}';
-
-/**
  * HTTP route config.
  *
  * @param   config Optional config options.
@@ -77,7 +70,7 @@ export const routeConfig = (config?: RouteConfig): Required<RouteConfig> => {
  */
 export const requestConfig = async (config?: RequestConfig): Promise<Required<RequestConfig>> => {
     return $obj.defaults({}, config || {}, {
-        cspNonce: config?.cspNonce || $crypto.base64Encode($crypto.uuidV4()),
+        cspNonce: config?.cspNonce || $crypto.cspNonce(),
         enforceAppBaseURLOrigin: $env.isC10n() && $app.hasBaseURL(),
         enforceNoTrailingSlash: $env.isC10n(),
     }) as Required<RequestConfig>;
@@ -467,10 +460,16 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
  * utilities, because doing so would hinder our ability to easily transform markup. The best approach for HTML is to
  * utilize Cloudflare for on-the-fly encoding, because we don’t want an HTML response to be encoded at this layer.
  *
+ * Important to keep in mind that we are potentially dealing with a response to a byte range request here. In such a
+ * case, the response body could potentially be an HTML fragment based on the byte range requested by the caller.
+ *
  * @param   request  HTTP request.
  * @param   response HTTP response from a cache.
  *
  * @returns          Mutatable HTTP response copy promise.
+ *
+ * @review This also leads to an unfortunate edge case where it is possible for a byte range request to chop HTML markup into slices
+ * that prevent us for accurately repopulating CSP nonce replacement codes. See notes above and please work to prevent this.
  */
 export const prepareCachedResponse = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
     if (
@@ -479,14 +478,21 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
         request.headers.has('x-csp-nonce') &&
         response.headers.has('content-security-policy')
     ) {
-        const cspNonceReplCode = cspNonceReplacementCode(),
+        const cspNonceReplCode = $crypto.cspNonceReplacementCode(),
             cspNonce = request.headers.get('x-csp-nonce') || '',
             csp = response.headers.get('content-security-policy') || '';
 
         if (responseNeedsContentBody(request, response.status, response.body)) {
-            response = new Response((await response.text()).replaceAll(cspNonceReplCode, cspNonce), response);
-        } else response = new Response(null, response); // Mutatable copy.
+            const htmlMarkup = (await response.text()) //
+                .replaceAll(cspNonceReplCode, cspNonce);
 
+            // Content length does not and must not change. Otherwise, we would have to alter our `content-length` header,
+            // which would get a little messy because it is possible we are actually dealing with a byte range request/response.
+            // The length does not change here because CSP nonce replacement codes exactly match the length of CSP nonce values.
+            response = new Response(htmlMarkup, response);
+        } else {
+            response = new Response(null, response); // Mutatable copy.
+        }
         response.headers.set('content-security-policy', csp.replaceAll(cspNonceReplCode, cspNonce));
         //
     } else if (!responseNeedsContentBody(request, response.status, response.body)) {
@@ -525,20 +531,21 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
         request.headers.has('x-csp-nonce') &&
         response.headers.has('content-security-policy')
     ) {
-        const cspNonceReplCode = cspNonceReplacementCode(),
+        const cspNonceReplCode = $crypto.cspNonceReplacementCode(),
             csp = response.headers.get('content-security-policy') || '';
 
         if (response.body) {
-            // {@see https://regex101.com/r/oTjEIq/7} {@see https://regex101.com/r/1MioJI/9}.
-            response = new Response(
-                (await response.text())
-                    .replace(/(<script(?:\s+[^<>]*?)?\s+nonce\s*=\s*)(['"])[^'"<>]*\2/giu, '$1$2' + cspNonceReplCode + '$2')
-                    .replace(
-                        /(<script(?:\s+[^<>]*?)?\s+id\s*=\s*(['"])global-data\2[^<>]*>(?:[\s\S](?!<\/script>))*)((['"]{0,1})cspNonce\4\s*:\s*)(['"])[^'"<>]*\5/iu,
-                        '$1$3$5' + cspNonceReplCode + '$5',
-                    ),
-                response,
-            );
+            const htmlMarkup = (await response.text())
+                // {@see https://regex101.com/r/oTjEIq/7} {@see https://regex101.com/r/1MioJI/9}.
+                .replace(/(<script(?:\s+[^<>]*?)?\s+nonce\s*=\s*)(['"])[^'"<>]*\2/giu, '$1$2' + cspNonceReplCode + '$2')
+                .replace(
+                    /(<script(?:\s+[^<>]*?)?\s+id\s*=\s*(['"])global-data\2[^<>]*>(?:[\s\S](?!<\/script>))*)((['"]{0,1})cspNonce\4\s*:\s*)(['"])[^'"<>]*\5/iu,
+                    '$1$3$5' + cspNonceReplCode + '$5',
+                );
+            // Content length does not and must not change. Otherwise, we would have to alter our `content-length` header,
+            // which would get a little messy because it is possible we are later dealing with a byte range request/response.
+            // The length does not change here because CSP nonce replacement codes exactly match the length of CSP nonce values.
+            response = new Response(htmlMarkup, response);
         }
         response.headers.set('content-security-policy', csp.replace(/'nonce-[^']+'/giu, `'nonce-${cspNonceReplCode}'`));
     }

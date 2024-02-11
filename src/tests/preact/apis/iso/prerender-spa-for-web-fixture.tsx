@@ -81,7 +81,7 @@ describe('$preact.iso.prerenderSPA() [web-fixture]', async () => {
     test('$preact.iso.prerenderSPA()', async () => {
         const { httpState, docType, html } = await $preact.iso.prerenderSPA({
             request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c'), {
-                headers: { 'x-csp-nonce': $crypto.base64Encode($crypto.uuidV4()) },
+                headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
