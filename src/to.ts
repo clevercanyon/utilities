@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $is, $obj, $symbol, type $type } from '#index.ts';
+import { $is, $obj, $str, $symbol, type $type } from '#index.ts';
 
 /**
  * Converts any value into a string.
@@ -187,6 +187,23 @@ const plainObjectDeepꓺplainValueꓺhelper = (value: unknown, circular: Map<obj
     } else {
         return plainObjectDeepꓺhelper(value, circular);
     }
+};
+
+/**
+ * Converts any value into a camelCase object.
+ *
+ * @param   value Value to convert into a camelCase object.
+ *
+ * @returns       Object in the form of a shallow clone, with camelCase keys.
+ */
+export const camelCaseObject = (value: unknown): $type.Object => {
+    const camelCase = Object(value) as $type.Object;
+
+    for (const [key, _value] of Object.entries(camelCase)) {
+        delete camelCase[key];
+        camelCase[$str.camelCase(key)] = _value;
+    }
+    return camelCase;
 };
 
 /**

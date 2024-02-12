@@ -136,27 +136,6 @@ export const protoOwnC9r = (value: unknown, levelsUp: number = 1): $type.ObjectC
 };
 
 /**
- * Checks if an object has own property.
- *
- * Polyfill for {@see Object.hasOwn()} in es2022. This uses {@see Object.prototype.hasOwnProperty()}, which is more
- * efficient than {@see has()}. This should be used when we don’t need to support object path notation.
- *
- * @deprecated 2023-09-25 We can use {@see Object.hasOwn()} now that we have moved to es2022.
- *
- * @param   value Object to search in.
- * @param   key   Object key to consider.
- *
- * @returns       True if object has own property.
- *
- * @note This also works on arrays with an [index].
- * @note This also works with object keys that are symbols.
- * @note There is no `hasIn()` utility. Instead, use `key in value`.
- */
-export const hasOwn = <Type, Key extends $type.ObjectKey>(value: Type, key: Key): value is Type & Record<Key, unknown> => {
-    return $is.object(value) && Object.prototype.hasOwnProperty.call(value, key);
-};
-
-/**
  * Gets all of an object’s enumerable keys.
  *
  * @param   value Value from which to get keys.
