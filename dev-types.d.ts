@@ -36,6 +36,14 @@ declare module 'virtual:brand/config' {
 }
 
 /**
+ * Declares virtual Cloudflare runtime modules.
+ */
+declare module 'cloudflare:sockets' {
+    import type * as cf from '@cloudflare/workers-types/experimental';
+    export function connect(address: string | cf.SocketAddress, options?: cf.SocketOptions): cf.Socket;
+}
+
+/**
  * Defines missing `entries()` on FormData.
  */
 interface FormData {
