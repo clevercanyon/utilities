@@ -521,7 +521,7 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
         // When using a Cloudflare worker and caching, this signals our support for range requests.
         // Cloudflare only supports byte range requests whenever a `content-length` header is available.
         // However, Cloudflare strips away this header regardless, unless and until a `range:` request is made.
-        // Therefore, to test for support for byte range requests send a HEAD|GET request with a `range:` header.
+        // Therefore, to test support for byte range requests send a HEAD|GET request with a `range:` header.
         response.headers.set('accept-ranges', 'bytes');
     }
     response.headers.set('x-cache-status', 'hit; prepared');

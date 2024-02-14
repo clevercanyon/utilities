@@ -57,13 +57,7 @@ type ConfigMinutia = {
 };
 type WithContextOptions = Partial<{
     request?: $type.Request;
-    cfwContext?: Readonly<
-        Pick<
-            $type.cf.ExecutionContext | Parameters<$type.cf.PagesFunction>[0],
-            // These are the two required keys.
-            'waitUntil' | 'passThroughOnException'
-        >
-    >;
+    cfw?: { ctx: Readonly<Pick<$type.cf.ExecutionContext | Parameters<$type.cf.PagesFunction>[0], 'waitUntil'>> };
 }>;
 type WithContextInterface = {
     withContext(subcontext?: object, subcontextOptions?: WithContextOptions): WithContextInterface;
@@ -433,8 +427,8 @@ export const getClass = (): Constructor => {
                         );
                         const logged = this.log(message, withContext, level);
 
-                        if (contextOpts.cfwContext) {
-                            contextOpts.cfwContext.waitUntil(logged);
+                        if (contextOpts.cfw?.ctx) {
+                            contextOpts.cfw.ctx.waitUntil(logged);
                         }
                         return logged;
                     },
@@ -495,8 +489,8 @@ export const getClass = (): Constructor => {
                     flush: async (): Promise<boolean> => {
                         const flushed = this.flush();
 
-                        if (contextOpts.cfwContext) {
-                            contextOpts.cfwContext.waitUntil(flushed);
+                        if (contextOpts.cfw?.ctx) {
+                            contextOpts.cfw.ctx.waitUntil(flushed);
                         }
                         return flushed;
                     },
