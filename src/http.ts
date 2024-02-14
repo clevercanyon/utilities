@@ -224,7 +224,7 @@ export const prepareResponse = async (request: $type.Request, config?: ResponseC
 
         if ($env.isCFW() /* {@see https://o5p.me/uXMnF4} */) {
             const _ = globalThis as $type.Keyable,
-                FixedLengthStream = _.FixedLengthStream as typeof $type.cf.FixedLengthStream,
+                FixedLengthStream = _.FixedLengthStream as typeof $type.cfw.FixedLengthStream,
                 { writable: writableStream, readable: readableStream } = new FixedLengthStream(gzipContentLength);
 
             const writer = writableStream.getWriter();

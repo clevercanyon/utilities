@@ -8,7 +8,7 @@ import '#@initialize.ts';
 
 import { $to } from '#index.ts';
 import { type Dayjs } from 'dayjs';
-import type * as cf from '@cloudflare/workers-types/experimental';
+import type * as cfw from '@cloudflare/workers-types/experimental';
 
 // ---
 // Types.
@@ -74,7 +74,7 @@ export type DOMEventHandler = ((event: Event) => void) | ((event: CustomEvent) =
 /**
  * Cloudflare worker types.
  */
-export type { cf }; // `cf` namespace.
+export type { cfw }; // `cfw` namespace.
 
 /**
  * Cloudflare turnstile types.
@@ -379,14 +379,14 @@ type $TypedArray =
     | BigInt64Array
     | BigUint64Array;
 
-type $URL = URL | cf.URL;
-type $Request = Request | cf.Request;
-type $RequestInit = (RequestInit | cf.RequestInit) & { cache?: string };
-type $Response = Response | cf.Response;
-type $ResponseInit = ResponseInit | cf.ResponseInit;
-type $BodyInit = BodyInit | cf.BodyInit;
-type $Headers = Headers | cf.Headers;
-type $fetch = typeof fetch | typeof cf.fetch;
+type $URL = URL | cfw.URL;
+type $Request = Request | cfw.Request;
+type $RequestInit = (RequestInit | cfw.RequestInit) & { cache?: string };
+type $Response = Response | cfw.Response;
+type $ResponseInit = ResponseInit | cfw.ResponseInit;
+type $BodyInit = BodyInit | cfw.BodyInit;
+type $Headers = Headers | cfw.Headers;
+type $fetch = typeof fetch | typeof cfw.fetch;
 type $Error<Type extends Error = Error> = Type;
 type $Timeout = ReturnType<typeof setTimeout> | number;
 type $Interval = ReturnType<typeof setInterval> | number;

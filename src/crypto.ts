@@ -411,7 +411,7 @@ export const safeEqual = (strA: string, strB: string): boolean => {
         b = textEncoder.encode(strB);
 
     if (a.byteLength !== b.byteLength) return false;
-    return (crypto as $type.cf.Crypto).subtle.timingSafeEqual(a, b);
+    return (crypto as $type.cfw.Crypto).subtle.timingSafeEqual(a, b);
 };
 
 /* ---

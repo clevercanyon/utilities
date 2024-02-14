@@ -232,7 +232,7 @@ export const ipGeoData = $fnꓺmemo(
         const isTest = $env.isTest(); // Cached for reuse below.
 
         if (request || isTest) {
-            const cf = (request as undefined | $type.cf.Request)?.cf,
+            const cf = (request as undefined | $type.cfw.Request)?.cf,
                 data = {
                     ip: isTest ? '184.153.133.157' // Madawaska IP.
                   : request ? await ip(request) : '', // prettier-ignore

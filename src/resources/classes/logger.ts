@@ -57,7 +57,7 @@ type ConfigMinutia = {
 };
 type WithContextOptions = Partial<{
     request?: $type.Request;
-    cfw?: { ctx: Readonly<Pick<$type.cf.ExecutionContext | Parameters<$type.cf.PagesFunction>[0], 'waitUntil'>> };
+    cfw?: { ctx: Readonly<Pick<$type.cfw.ExecutionContext | Parameters<$type.cfw.PagesFunction>[0], 'waitUntil'>> };
 }>;
 type WithContextInterface = {
     withContext(subcontext?: object, subcontextOptions?: WithContextOptions): WithContextInterface;
