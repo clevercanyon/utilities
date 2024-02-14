@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import { $redact, $user } from '#index.ts';
+import { $http, $redact, $user } from '#index.ts';
 import { describe, expect, test } from 'vitest';
 
 describe('$redact', async () => {
@@ -87,43 +87,51 @@ describe('$redact', async () => {
         });
     });
     test('.headers()', async () => {
-        expect(
-            $redact.headers({
-                'foo': 'bar',
-                'x-waf-key': '7MbXxN9krvfrU4Cp',
-                'forwarded': 'for=184.153.133.157',
-                'x-forwarded-for': '184.153.133.157',
-                'cf-connecting-ip': '184.153.133.157',
-                'referer': 'https://x.tld/?foo=hello+world&utm_source=test',
-                'location': 'https://x.tld/?foo=hello+world&utm_source=test',
-            }),
-        ).toStrictEqual({
-            'foo': 'b*r',
-            'x-waf-key': '7Mb**********4Cp',
-            'forwarded': 'for*************157',
-            'x-forwarded-for': '184*********157',
-            'cf-connecting-ip': '184*********157',
-            'referer': 'https://x.tld/?foo=hel*****rld&utm_source=test',
-            'location': 'https://x.tld/?foo=hel*****rld&utm_source=test',
-        });
-        expect(
-            $redact.headers({
-                'foo': 'bar',
-                'x-waf-key': '7MbXxN9krvfrU4Cp',
-                'forwarded': 'for=184.153.133.157',
-                'x-forwarded-for': '184.153.133.157',
-                'cf-connecting-ip': '184.153.133.157',
-                'referer': 'An invalid URL should go unredacted; e.g., for closer review.',
-                'location': 'An invalid URL should go unredacted; e.g., for closer review.',
-            }),
-        ).toStrictEqual({
-            'foo': 'b*r',
-            'x-waf-key': '7Mb**********4Cp',
-            'forwarded': 'for*************157',
-            'x-forwarded-for': '184*********157',
-            'cf-connecting-ip': '184*********157',
-            'referer': 'An invalid URL should go unredacted; e.g., for closer review.',
-            'location': 'An invalid URL should go unredacted; e.g., for closer review.',
-        });
+        expect([
+            ...$redact
+                .headers(
+                    $http.parseHeaders({
+                        'cf-connecting-ip': '184.153.133.157',
+                        'foo': 'bar',
+                        'forwarded': 'for=184.153.133.157',
+                        'location': 'https://x.tld/?foo=hello+world&utm_source=test',
+                        'referer': 'https://x.tld/?foo=hello+world&utm_source=test',
+                        'x-forwarded-for': '184.153.133.157',
+                        'x-waf-key': '7MbXxN9krvfrU4Cp',
+                    }),
+                )
+                .entries(),
+        ]).toStrictEqual([
+            ['cf-connecting-ip', '184*********157'],
+            ['foo', 'b*r'],
+            ['forwarded', 'for*************157'],
+            ['location', 'https://x.tld/?foo=hel*****rld&utm_source=test'],
+            ['referer', 'https://x.tld/?foo=hel*****rld&utm_source=test'],
+            ['x-forwarded-for', '184*********157'],
+            ['x-waf-key', '7Mb**********4Cp'],
+        ]);
+        expect([
+            ...$redact
+                .headers(
+                    $http.parseHeaders({
+                        'cf-connecting-ip': '184.153.133.157',
+                        'foo': 'bar',
+                        'forwarded': 'for=184.153.133.157',
+                        'location': 'An invalid URL should go unredacted; e.g., for closer review.',
+                        'referer': 'An invalid URL should go unredacted; e.g., for closer review.',
+                        'x-forwarded-for': '184.153.133.157',
+                        'x-waf-key': '7MbXxN9krvfrU4Cp',
+                    }),
+                )
+                .entries(),
+        ]).toStrictEqual([
+            ['cf-connecting-ip', '184*********157'],
+            ['foo', 'b*r'],
+            ['forwarded', 'for*************157'],
+            ['location', 'An invalid URL should go unredacted; e.g., for closer review.'],
+            ['referer', 'An invalid URL should go unredacted; e.g., for closer review.'],
+            ['x-forwarded-for', '184*********157'],
+            ['x-waf-key', '7Mb**********4Cp'],
+        ]);
     });
 });

@@ -40,9 +40,6 @@ export type SecurityHeaderOptions = {
     cspNonce?: string;
     enableCORs?: boolean;
 };
-export type ExtractHeaderOptions = {
-    lowercase?: boolean;
-};
 
 /**
  * HTTP route config.
@@ -934,30 +931,45 @@ export const responseIsEncoded = $fnꓺmemo(2, (response: $type.Response): boole
 });
 
 /**
- * Extracts headers, returning a plain object.
+ * Parses headers into a {@see $type.Headers} object instance.
  *
- * @param   headers Headers instance or string-keyed object.
- * @param   options Options (all optional); {@see ExtractHeaderOptions}.
+ * @param   parseable Headers instance, string-keyed object, or raw HTTP headers as a string.
  *
- *   - Note that a {@see Headers} object always contains lowercase keys. Therefore, this option is only applicable when a
- *       string-keyed object is passed; i.e., if {@see Headers} are passed, this will always return lowercase keys.
- *
- * @returns         Extracted headers, as a plain object.
+ * @returns           Parsed headers into a {@see $type.Headers} object instance.
  */
-export const extractHeaders = (headers: $type.Headers | { [x: string]: string }, options?: ExtractHeaderOptions): { [x: string]: string } => {
-    const plain: { [x: string]: string } = {}; // Initialize.
-    const opts = $obj.defaults({}, options || {}, { lowercase: true }) as Required<ExtractHeaderOptions>;
+export const parseHeaders = (parseable: $type.Headers | { [x: string]: string } | string): $type.Headers => {
+    if (parseable instanceof Headers) {
+        return new Headers(parseable); // Simply clones existing headers.
+    }
+    const headers = new Headers(); // Initialize headers instance.
 
-    if (headers instanceof Headers) {
-        headers.forEach((value, name) => {
-            plain[opts.lowercase ? name.toLowerCase() : name] = value;
-        });
-    } else {
-        for (const [name, value] of Object.entries(headers as { [x: string]: string })) {
-            plain[opts.lowercase ? name.toLowerCase() : name] = value;
+    if ($is.object(parseable)) {
+        for (let [name, value] of Object.entries(parseable)) {
+            headers.set(name, value);
+        }
+    } else if ($is.string(parseable)) {
+        const lines = parseable.split(/[\r\n]+/u);
+
+        for (let i = 0, name = ''; i < lines.length; i++) {
+            const line = lines[i]; // Current line.
+
+            if (name && [' ', '\t'].includes(line[0])) {
+                headers.set(name, ((headers.get(name) || '') + ' ' + line.trim()).trim());
+                continue; // Multiline header concatenation.
+            }
+            if (!line.includes(':')) continue; // Invalid line.
+
+            name = line.slice(0, line.indexOf(':')).toLowerCase().trim();
+            const value = line.slice(line.indexOf(':') + 1).trim();
+
+            if (!name) continue; // Invalid line.
+
+            if (headers.has(name)) {
+                headers.append(name, value);
+            } else headers.set(name, value);
         }
     }
-    return plain;
+    return headers;
 };
 
 /**

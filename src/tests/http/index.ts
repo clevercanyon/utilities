@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import { $crypto, $http, $is, $mime } from '#index.ts';
+import { $crypto, $http, $is, $mime, $str } from '#index.ts';
 import { describe, expect, test } from 'vitest';
 
 describe('$http', async () => {
@@ -387,12 +387,66 @@ describe('$http', async () => {
         expect($http.requestPathHasStaticExtension(new Request('https://example.com/'))).toBe(false);
         expect($http.requestPathHasStaticExtension(new Request('https://example.com/robots.php'))).toBe(false);
     });
-    test('.extractHeaders()', async () => {
-        expect($http.extractHeaders(new Headers({ A: 'A', B: 'B', c: 'c' }))).toStrictEqual({ a: 'A', b: 'B', c: 'c' });
-        expect($http.extractHeaders(new Headers({ A: 'A', B: 'B', c: 'c' }), { lowercase: false })).toStrictEqual({ a: 'A', b: 'B', c: 'c' });
+    test('.parseHeaders()', async () => {
+        const headers = $http.parseHeaders({ A: 'A', B: 'B', c: 'c' });
+        expect(headers).toBeInstanceOf(Headers);
 
-        expect($http.extractHeaders({ A: 'A', B: 'B', c: 'c' })).toStrictEqual({ a: 'A', b: 'B', c: 'c' });
-        expect($http.extractHeaders({ A: 'A', B: 'B', c: 'c' }, { lowercase: false })).toStrictEqual({ A: 'A', B: 'B', c: 'c' });
+        expect(headers.has('a')).toBe(true);
+        expect(headers.has('A')).toBe(true);
+
+        expect(headers.has('b')).toBe(true);
+        expect(headers.has('B')).toBe(true);
+
+        expect(headers.has('c')).toBe(true);
+        expect(headers.has('C')).toBe(true);
+
+        expect(headers.has('d')).toBe(false);
+        expect(headers.has('D')).toBe(false);
+
+        expect([...headers.entries()]).toStrictEqual([
+            ['a', 'A'],
+            ['b', 'B'],
+            ['c', 'c'],
+        ]);
+        expect([
+            ...$http
+                .parseHeaders(
+                    $str.dedent(`
+                        POST /features HTTP/1.1
+                        Host: example.com
+                        Connection: keep-alive
+                        Accept: */*
+                        Accept: */*
+                        Set-Cookie: foo=bar
+                        Set-Cookie: foo=bar
+                        Accept-Encoding: gzip,deflate
+                        Accept-Encoding: gzip,deflate
+                        Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4
+                        Content-Type: multipart/form-data; boundary="111362:53119209"
+                        Content-Encoding: gzip,deflate
+                        Content-Encoding: gzip,deflate
+                        Content-Length: 301
+                        X-Foo: foo line one
+                         foo line two
+                        X-Bar: bar line one
+                            bar line two
+                    `),
+                )
+                .entries(),
+        ]).toStrictEqual([
+            ['accept', '*/*, */*'],
+            ['accept-encoding', 'gzip,deflate, gzip,deflate'],
+            ['accept-language', 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4'],
+            ['connection', 'keep-alive'],
+            ['content-encoding', 'gzip,deflate, gzip,deflate'],
+            ['content-length', '301'],
+            ['content-type', 'multipart/form-data; boundary="111362:53119209"'],
+            ['host', 'example.com'],
+            ['set-cookie', 'foo=bar'],
+            ['set-cookie', 'foo=bar'],
+            ['x-bar', 'bar line one bar line two'],
+            ['x-foo', 'foo line one foo line two'],
+        ]);
     });
     test('.defaultSecurityHeaders()', async () => {
         expect($http.defaultSecurityHeaders()).toSatisfy((v: unknown) => {

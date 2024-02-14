@@ -2,7 +2,7 @@
  * Logger utility class.
  */
 
-import { $app, $class, $dom, $env, $fn, $http, $is, $json, $obj, $obp, $redact, $time, $url, $user, type $type } from '#index.ts';
+import { $app, $class, $dom, $env, $fn, $is, $json, $obj, $obp, $redact, $time, $url, $user, type $type } from '#index.ts';
 
 /**
  * Constructor cache.
@@ -794,7 +794,7 @@ const jsonStringifyMiddleware = (key: string, value: unknown): unknown => {
             ]),
             url: $redact.url(value.url),
             ...('referrer' in value ? { referrer: $redact.url(value.referrer) } : {}),
-            headers: $redact.headers($http.extractHeaders(value.headers)),
+            headers: [...$redact.headers(value.headers).entries()],
         };
     } else if ($is.response(value)) {
         return {
@@ -807,7 +807,7 @@ const jsonStringifyMiddleware = (key: string, value: unknown): unknown => {
                 'bodyUsed',
             ]),
             ...(value.url ? { url: $redact.url(value.url) } : {}),
-            headers: $redact.headers($http.extractHeaders(value.headers)),
+            headers: [...$redact.headers(value.headers).entries()],
             bodyObjectTags: $obj.tags(value.body),
         };
     }

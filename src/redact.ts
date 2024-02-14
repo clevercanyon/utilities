@@ -91,26 +91,33 @@ export const ipGeoData = <Type extends $user.IPGeoData>(data: Type, options?: IP
 };
 
 /**
- * Redacts plain object headers.
+ * Redacts an HTTP headers instance.
  *
- * @param   headers Plain object headers.
+ * @param   headers HTTP headers instance.
  * @param   options All optional; {@see HeaderOptions}.
  *
- * @returns         Redacted headers.
+ * @returns         Redacted HTTP headers instance clone.
  */
-export const headers = <Type extends { [x: string]: string }>(headers: Type, options?: HeaderOptions): ReturnType<typeof $obj.map<Type>> => {
-    return $obj.map(headers, (value: string, name: string): unknown => {
-        const lcName = name.toLowerCase(); // For comparisons below.
+export const headers = <Type extends $type.Headers>(headers: Type, options?: HeaderOptions): Type => {
+    const entries = [...headers.entries()];
 
-        if ($http.publicHeaderNames().includes(lcName)) {
-            if ($http.urlHeaderNames().includes(lcName)) {
-                if (['refresh'].includes(lcName)) {
-                    return value.replace(/(;\s*url=)(.+)$/iu, (...m: string[]): string => m[1] + redactURL(m[2], options));
-                }
-                return redactURL(value, options);
+    for (let i = 0; i < entries.length; i++) {
+        let name = entries[i][0], // Shorter reference.
+            value = entries[i][1]; // Same; shorter.
+
+        if ($http.publicHeaderNames().includes(name)) {
+            if ($http.urlHeaderNames().includes(name)) {
+                //
+                if (['refresh'].includes(name)) {
+                    value = value // Redact URL portion only.
+                        .replace(/(;\s*url=)(.+)$/iu, (...m: string[]): string => {
+                            return m[1] + redactURL(m[2], options);
+                        });
+                } else value = redactURL(value, options);
             }
-            return value;
-        }
-        return redact(value, options);
-    });
+        } else value = redact(value, options);
+
+        (entries[i][0] = name), (entries[i][1] = value);
+    }
+    return new Headers(entries) as Type; // Redacted HTTP headers instance clone.
 };
