@@ -15,7 +15,7 @@ import dayjsTimezone from 'dayjs/plugin/timezone.js'; // 2.09KiB.
 import dayjsToObject from 'dayjs/plugin/toObject.js'; // 422 bytes.
 import dayjsUTC from 'dayjs/plugin/utc.js'; // 2.2KiB.
 
-import { $app, $is, $obj, $symbol, type $type } from '#index.ts';
+import { $app, $fn, $is, $obj, $symbol, type $type } from '#index.ts';
 
 let initialized: boolean = false;
 let i18n: Intl.ResolvedDateTimeFormatOptions;
@@ -216,6 +216,18 @@ export const parse = (parseable?: Parseable, options?: ParseOptions): $type.Time
         throw Error('HavduxTK'); // Unable to parse time from: `' + String(from) + '`.
     }
     return applyLocaleTZOptions(time, options);
+};
+
+/**
+ * Tries to parse a time using configurable options.
+ *
+ * @param   parseable                 Parseable time; {@see parse()}.
+ * @param   options                   Options (all optional); {@see parse()}.
+ *
+ * @returns {@see $type.Time}           Time instance in requested timezone, else `undefined`.
+ */
+export const tryParse = (parseable?: Parseable, options?: ParseOptions): $type.Time | undefined => {
+    return $fn.try((): $type.Time => parse(parseable, options), undefined)();
 };
 
 // ---
