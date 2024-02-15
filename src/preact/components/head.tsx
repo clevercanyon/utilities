@@ -511,7 +511,10 @@ export default class Head extends Component<Props, ActualState> {
                 } = state,
                 { baseURL } = locationState,
                 { cspNonce } = dataState,
-                authorꓺname = $is.person(author) ? author.name : author;
+                //
+                authorꓺisPerson = $is.person(author),
+                authorꓺurl = authorꓺisPerson ? author.url : '',
+                authorꓺname = authorꓺisPerson ? author.name : author;
 
             const vNodes: { [x: string]: $preact.VNode } = {
                 [tꓺcharset]: h(tꓺmeta, { [tꓺcharset]: charset }),
@@ -552,7 +555,7 @@ export default class Head extends Component<Props, ActualState> {
 
                 ...(tꓺarticle === ogType // {@see https://ogp.me/#type_article}.
                     ? {
-                          ...(authorꓺname ? { [tꓺogArticleAuthor]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺauthor, [tꓺcontent]: authorꓺname }) } : {}), // prettier-ignore
+                          ...(authorꓺurl ? { [tꓺogArticleAuthor]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺauthor, [tꓺcontent]: authorꓺurl }) } : {}), // prettier-ignore
                           ...(publishTime ? { [tꓺogArticlePublishedTime]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺpublished_time, [tꓺcontent]: publishTime?.toISO() || '' }) } : {}), // prettier-ignore
                           ...(lastModifiedTime ? { [tꓺogArticleModifiedTime]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺmodified_time, [tꓺcontent]: lastModifiedTime?.toISO() || '' }) } : {}), // prettier-ignore
                           ...(ogCategory ? { [tꓺogArticleSection]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺsection, [tꓺcontent]: ogCategory }) } : {}), // prettier-ignore
