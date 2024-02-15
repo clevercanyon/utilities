@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $is, $obj, type $type } from '#index.ts';
+import { $fn, $is, $obj, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -75,6 +75,18 @@ export function stringify(value: unknown | undefined, options?: StringifyOptions
 export const parse = (json: string | undefined, options?: ParseOptions): unknown => {
     const opts = $obj.defaults({}, options || {}, { noMiddleware: tꓺvꓺfalse }) as Required<ParseOptions>;
     return tꓺvꓺundefined === json ? tꓺvꓺundefined : JSON.parse(json, opts.noMiddleware ? tꓺvꓺundefined : (key, value) => parseMiddleware(key, value, opts.middleware));
+};
+
+/**
+ * Tries to convert JSON back into original value.
+ *
+ * @param   json    JSON to parse into original value; {@see parse()}.
+ * @param   options Options (all optional); {@see parse()}.
+ *
+ * @returns         Original value parsed from JSON, else `undefined`.
+ */
+export const tryParse = (json: string | undefined, options?: ParseOptions): unknown => {
+    return $fn.try((): unknown => parse(json, options), tꓺvꓺundefined)();
 };
 
 /**
