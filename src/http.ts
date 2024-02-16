@@ -933,12 +933,12 @@ export const responseIsEncoded = $fnꓺmemo(2, (response: $type.Response): boole
 /**
  * Parses headers into a {@see $type.Headers} object instance.
  *
- * @param   parseable Headers instance, string-keyed object, or raw HTTP headers as a string.
+ * @param   parseable Headers instance, array of entries, string-keyed object, or raw HTTP headers as a string.
  *
  * @returns           Parsed headers into a {@see $type.Headers} object instance.
  */
-export const parseHeaders = (parseable: $type.Headers | { [x: string]: string } | string): $type.Headers => {
-    if (parseable instanceof Headers) {
+export const parseHeaders = (parseable: $type.Headers | [string, string][] | { [x: string]: string } | string): $type.Headers => {
+    if (parseable instanceof Headers || $is.array(parseable)) {
         return new Headers(parseable); // Simply clones existing headers.
     }
     const headers = new Headers(); // Initialize headers instance.
