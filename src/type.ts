@@ -321,6 +321,55 @@ type $ꓺPartialReadonlyMapDeep<KeyType, ValueType> = Readonly<Map<PartialDeep<K
 type $ꓺPartialObjectDeep<Type extends object> = { [Key in keyof Type]?: PartialDeep<Type[Key]> };
 
 /**
+ * Required utility types.
+ */
+export type RequiredDeep<Type> = //
+    Type extends void | Primitive
+        ? Type // Not applicable.
+        : //
+          Type extends $ꓺAnyFn
+          ? //
+            {} extends $ꓺRequiredObjectDeep<Type>
+              ? Type // No keys; not applicable.
+              : //
+                $ꓺHasMultipleCallSignatures<Type> extends true
+                ? Type // Not possible when there are multiple signatures.
+                : //
+                  Type extends $ꓺAnyObjectC9r
+                  ? (new (...args: Parameters<Type>) => ReturnType<Type>) & $ꓺRequiredObjectDeep<Type>
+                  : ((...args: Parameters<Type>) => ReturnType<Type>) & $ꓺRequiredObjectDeep<Type>
+          : //
+            Type extends Set<infer TypeOfSet>
+            ? $ꓺRequiredSetDeep<TypeOfSet>
+            : //
+              Type extends Readonly<Set<infer TypeOfSet>>
+              ? $ꓺRequiredReadonlySetDeep<TypeOfSet>
+              : //
+                Type extends Map<infer KeyTypeOfMap, infer ValueTypeOfMap>
+                ? $ꓺRequiredMapDeep<KeyTypeOfMap, ValueTypeOfMap>
+                : //
+                  Type extends Readonly<Map<infer KeyTypeOfMap, infer ValueTypeOfMap>>
+                  ? $ꓺRequiredReadonlyMapDeep<KeyTypeOfMap, ValueTypeOfMap>
+                  : //
+                    Type extends Readonly<(infer TypeOfArray)[]>
+                    ? TypeOfArray[] extends Type // Tests for non-tuple arrays, specifically.
+                        ? Readonly<TypeOfArray[]> extends Type // Differentiates readonly.
+                            ? Readonly<RequiredDeep<TypeOfArray>[]>
+                            : RequiredDeep<TypeOfArray>[]
+                        : $ꓺRequiredObjectDeep<Type>
+                    : //
+                      Type extends object
+                      ? $ꓺRequiredObjectDeep<Type>
+                      : //
+                        Type; // Not applicable.
+
+type $ꓺRequiredSetDeep<Type> = Set<RequiredDeep<Type>>;
+type $ꓺRequiredReadonlySetDeep<Type> = Readonly<Set<RequiredDeep<Type>>>;
+type $ꓺRequiredMapDeep<KeyType, ValueType> = Map<RequiredDeep<KeyType>, RequiredDeep<ValueType>>;
+type $ꓺRequiredReadonlyMapDeep<KeyType, ValueType> = Readonly<Map<RequiredDeep<KeyType>, RequiredDeep<ValueType>>>;
+type $ꓺRequiredObjectDeep<Type extends object> = { [Key in keyof Type]: RequiredDeep<Type[Key]> };
+
+/**
  * Parameter utility types.
  */
 export type PartialParametersOf<Type extends $Function> = PartialParameters<Parameters<Type>>;
