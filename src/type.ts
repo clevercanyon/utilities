@@ -367,7 +367,7 @@ type $ꓺRequiredSetDeep<Type> = Set<RequiredDeep<Type>>;
 type $ꓺRequiredReadonlySetDeep<Type> = Readonly<Set<RequiredDeep<Type>>>;
 type $ꓺRequiredMapDeep<KeyType, ValueType> = Map<RequiredDeep<KeyType>, RequiredDeep<ValueType>>;
 type $ꓺRequiredReadonlyMapDeep<KeyType, ValueType> = Readonly<Map<RequiredDeep<KeyType>, RequiredDeep<ValueType>>>;
-type $ꓺRequiredObjectDeep<Type extends object> = { [Key in keyof Type]: RequiredDeep<Type[Key]> };
+type $ꓺRequiredObjectDeep<Type extends object> = Required<{ [Key in keyof Type]: RequiredDeep<Type[Key]> }>;
 
 /**
  * Parameter utility types.
