@@ -891,7 +891,7 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
  *
  * @returns         True if content is HTML.
  */
-export const contentIsHTML = $fnꓺmemo(2, (headers: $type.Headers | { [x: string]: string }): boolean => {
+export const contentIsHTML = $fnꓺmemo(2, (headers: $type.Headers | [string, string][] | { [x: string]: string }): boolean => {
     headers = headers instanceof Headers ? headers : new Headers(headers);
     return 'text/html' === headers.get('content-type')?.split(';')[0]?.toLowerCase();
 });
@@ -903,7 +903,7 @@ export const contentIsHTML = $fnꓺmemo(2, (headers: $type.Headers | { [x: strin
  *
  * @returns         True if content is encoded.
  */
-export const contentIsEncoded = $fnꓺmemo(2, (headers: $type.Headers | { [x: string]: string }): boolean => {
+export const contentIsEncoded = $fnꓺmemo(2, (headers: $type.Headers | [string, string][] | { [x: string]: string }): boolean => {
     headers = headers instanceof Headers ? headers : new Headers(headers);
     return !['', 'none'].includes((headers.get('content-encoding') || '').toLowerCase());
 });
