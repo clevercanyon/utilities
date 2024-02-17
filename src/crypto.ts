@@ -129,7 +129,7 @@ export const hmacSHA512 = $fnꓺmemo(2, async (str: string, key?: string): Promi
  */
 export const base64Encode = (str: string, options?: Base64EncodeOptions): string => {
     const opts = $obj.defaults({}, options || {}, { urlSafe: false }) as Required<Base64EncodeOptions>,
-        base64 = btoa(String.fromCodePoint(...$str.textEncoder.encode(str)));
+        base64 = btoa(String.fromCodePoint(...$str.textEncode(str)));
 
     return opts.urlSafe ? base64.replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '') : base64;
 };
@@ -150,7 +150,7 @@ export const base64Decode = (base64: string, options?: Base64DecodeOptions): str
     base64 = base64.replace(dataURIBase64PrefixRegExp, ''); // Ditch data URI prefixes.
     base64 = opts.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat(base64.length % 4) : base64;
 
-    return $str.textDecoder.decode(Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0))));
+    return $str.textDecode(Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0))));
 };
 
 /**
@@ -406,9 +406,8 @@ export const safeEqual = (strA: string, strB: string): boolean => {
     if (!$env.isCFW()) return strA === strB;
     if (strA.length !== strB.length) return false;
 
-    const textEncoder = $str.textEncoder;
-    const a = textEncoder.encode(strA),
-        b = textEncoder.encode(strB);
+    const a = $str.textEncode(strA),
+        b = $str.textEncode(strB);
 
     if (a.byteLength !== b.byteLength) return false;
     return (crypto as $type.cfw.Crypto).subtle.timingSafeEqual(a, b);
@@ -439,7 +438,7 @@ const bufferToHex = (buffer: ArrayBuffer): string => {
  * @returns      Hash promise, of variable length, based on selected algorithm.
  */
 const buildHash = async (algo: HashAlgorithm, str: string): Promise<string> => {
-    return bufferToHex(await crypto.subtle.digest(algo, $str.textEncoder.encode(str)));
+    return bufferToHex(await crypto.subtle.digest(algo, $str.textEncode(str)));
 };
 
 /**
@@ -466,8 +465,8 @@ const buildHMACHash = async (algo: HashAlgorithm, str: string, key?: string): Pr
     }
     if (!key) throw Error('Fh5H2DRf');
 
-    const encodedKey = $str.textEncoder.encode(key),
+    const encodedKey = $str.textEncode(key),
         cryptoKey = await crypto.subtle.importKey('raw', encodedKey, { name: 'hmac', hash: { name: algo } }, false, ['sign', 'verify']);
 
-    return bufferToHex(await crypto.subtle.sign('hmac', cryptoKey, $str.textEncoder.encode(str)));
+    return bufferToHex(await crypto.subtle.sign('hmac', cryptoKey, $str.textEncode(str)));
 };

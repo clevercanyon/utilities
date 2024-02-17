@@ -39,7 +39,7 @@ export const decode = async (bytes: Uint8Array): Promise<string> => {
     for await (const chunk of decompressedStream as unknown as Iterable<Uint8Array>) {
         chunks.push(chunk); // Chunks of byte arrays.
     }
-    return $str.textDecoder.decode(await combineByteArrays(chunks));
+    return $str.textDecode(await combineByteArrays(chunks));
 };
 
 // ---

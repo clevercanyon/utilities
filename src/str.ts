@@ -46,13 +46,6 @@ export type EscHTMLOptions = { doubleEncode: boolean };
 export type EscFTSQueryOptions = { defaultColumns?: string[] };
 
 /* ---
- * Encoder/decoder.
- */
-
-export const textEncoder: TextEncoder = new TextEncoder();
-export const textDecoder: TextDecoder = new TextDecoder();
-
-/* ---
  * Size utilities.
  */
 
@@ -90,7 +83,7 @@ export const charLength = (str: string): number => {
  * @returns     Byte array.
  */
 export const toBytes = (str: string): Uint8Array => {
-    return textEncoder.encode(str);
+    return textEncode(str);
 };
 
 /**
@@ -101,7 +94,36 @@ export const toBytes = (str: string): Uint8Array => {
  * @returns       String.
  */
 export const fromBytes = (bytes: Uint8Array): string => {
-    return textDecoder.decode(bytes);
+    return textDecode(bytes);
+};
+
+/* ---
+ * Encoding utilities.
+ */
+
+/**
+ * Encodes a string.
+ *
+ * @param   str String to encode.
+ *
+ * @returns     Byte array.
+ */
+export const textEncode = (str: string): Uint8Array => {
+    return new TextEncoder().encode(str);
+};
+
+/**
+ * Decodes a string.
+ *
+ * When decoding streams please do not use this utility. Rather, create a new instance of {@see TextDecoder()}, and
+ * please pass in the `{ stream: true }` option when decoding. A decoder is stateful, particularly on streams.
+ *
+ * @param   bytes Byte array to decode.
+ *
+ * @returns       Decoded string.
+ */
+export const textDecode = (buffer: Uint8Array): string => {
+    return new TextDecoder().decode(buffer);
 };
 
 /* ---
