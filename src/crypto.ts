@@ -126,10 +126,12 @@ export const hmacSHA512 = $fnꓺmemo(2, async (str: string, key?: string): Promi
  * @param   options All optional; {@see Base64EncodeOptions}.
  *
  * @returns         Base-64 encoded string.
+ *
+ * @see https://web.dev/articles/base64-encoding
  */
 export const base64Encode = (str: string, options?: Base64EncodeOptions): string => {
     const opts = $obj.defaults({}, options || {}, { urlSafe: false }) as Required<Base64EncodeOptions>,
-        base64 = btoa(String.fromCodePoint(...$str.textEncode(str)));
+        base64 = btoa($str.textEncode(str).reduce((str, i) => (str += String.fromCodePoint(i)), ''));
 
     return opts.urlSafe ? base64.replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '') : base64;
 };
@@ -143,6 +145,8 @@ export const base64Encode = (str: string, options?: Base64EncodeOptions): string
  * @returns         Base-64 decoded string.
  *
  * @throws          When input string is not valid base-64.
+ *
+ * @see https://web.dev/articles/base64-encoding
  */
 export const base64Decode = (base64: string, options?: Base64DecodeOptions): string => {
     const opts = $obj.defaults({}, options || {}, { urlSafe: false }) as Required<Base64DecodeOptions>;
@@ -162,6 +166,8 @@ export const base64Decode = (base64: string, options?: Base64DecodeOptions): str
  * @returns         Base-64 decoded blob.
  *
  * @throws          When input string is not valid base-64.
+ *
+ * @see https://web.dev/articles/base64-encoding
  */
 export const base64DecodeToBlob = (base64: string, options?: Base64DecodeToBlobOptions): Blob => {
     const opts = $obj.defaults({}, options || {}, { urlSafe: false, type: '' }) as Required<Base64DecodeToBlobOptions>,
@@ -170,6 +176,7 @@ export const base64DecodeToBlob = (base64: string, options?: Base64DecodeToBlobO
 
     base64 = base64.replace(dataURIBase64PrefixRegExp, ''); // Ditch data URI prefixes.
     base64 = opts.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat(base64.length % 4) : base64;
+
     return new Blob([Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0)))], { type });
 };
 

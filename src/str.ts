@@ -98,7 +98,7 @@ export const fromBytes = (bytes: Uint8Array): string => {
 };
 
 /* ---
- * Encoding utilities.
+ * Text utilities.
  */
 
 /**
