@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $app, $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, $url, type $type } from '#index.ts';
+import { $app, $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, $to, $url, type $type } from '#index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode, type Context as DataContext } from '#preact/components/data.tsx';
 import { type State as HTMLState } from '#preact/components/html.tsx';
 import { Component } from 'preact';
@@ -481,6 +481,7 @@ export default class Head extends Component<Props, ActualState> {
                     robots,
                     canonical,
                     //
+                    siteName,
                     suffixedTitle,
                     description,
                     tags,
@@ -510,11 +511,7 @@ export default class Head extends Component<Props, ActualState> {
                     append,
                 } = state,
                 { baseURL } = locationState,
-                { cspNonce } = dataState,
-                //
-                authorꓺisPerson = $is.person(author),
-                authorꓺurl = authorꓺisPerson ? author.url : '',
-                authorꓺname = authorꓺisPerson ? author.name : author;
+                { cspNonce } = dataState;
 
             const vNodes: { [x: string]: $preact.VNode } = {
                 [tꓺcharset]: h(tꓺmeta, { [tꓺcharset]: charset }),
@@ -529,7 +526,7 @@ export default class Head extends Component<Props, ActualState> {
                 [tꓺtitle]: h(tꓺtitle, {}, suffixedTitle),
                 [tꓺdescription]: h(tꓺmeta, { [tꓺname]: tꓺdescription, [tꓺcontent]: description }),
                 ...(tags.length ? { [tꓺkeywords]: h(tꓺmeta, { [tꓺname]: tꓺkeywords, [tꓺcontent]: tags.join(', ') }) } : {}),
-                ...(authorꓺname ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: authorꓺname }) } : {}),
+                ...(author?.name || siteName ? { [tꓺauthor]: h(tꓺmeta, { [tꓺname]: tꓺauthor, [tꓺcontent]: author?.name || siteName }) } : {}),
 
                 [tꓺhumans]: h(tꓺlink, { [tꓺrel]: tꓺauthor, [tꓺtype]: tꓺtextⳇplain, [tꓺhref]: humans }),
                 ...(isLocalVite ? {} : { [tꓺmanifest]: h(tꓺlink, { [tꓺrel]: tꓺmanifest, [tꓺhref]: manifest }) }),
@@ -555,7 +552,7 @@ export default class Head extends Component<Props, ActualState> {
 
                 ...(tꓺarticle === ogType // {@see https://ogp.me/#type_article}.
                     ? {
-                          ...(authorꓺurl ? { [tꓺogArticleAuthor]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺauthor, [tꓺcontent]: authorꓺurl }) } : {}), // prettier-ignore
+                          ...(author?.url ? { [tꓺogArticleAuthor]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺauthor, [tꓺcontent]: author.url }) } : {}), // prettier-ignore
                           ...(publishTime ? { [tꓺogArticlePublishedTime]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺpublished_time, [tꓺcontent]: publishTime?.toISO() || '' }) } : {}), // prettier-ignore
                           ...(lastModifiedTime ? { [tꓺogArticleModifiedTime]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺmodified_time, [tꓺcontent]: lastModifiedTime?.toISO() || '' }) } : {}), // prettier-ignore
                           ...(ogCategory ? { [tꓺogArticleSection]: h(tꓺmeta, { [tꓺproperty]: tꓺogꓽarticleꓽ + tꓺsection, [tꓺcontent]: ogCategory }) } : {}), // prettier-ignore
@@ -809,7 +806,7 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             [tꓺtags]: tags || ogTags || [],
             [tꓺimage]: asAbsoluteURLString(image || ogImage || brandꓺogImage.png),
 
-            [tꓺauthor]: $is.string(author) ? $fn.try(() => $person.get(author as string), tꓺvꓺundefined)() : author,
+            [tꓺauthor]: $is.person(author) ? author : $fn.try(() => $person.get($to.string(author)), tꓺvꓺundefined)(),
             [tꓺpublishTime]: publishTime ? $time.parse(publishTime) : tꓺvꓺundefined,
             [tꓺlastModifiedTime]: lastModifiedTime ? $time.parse(lastModifiedTime) : tꓺvꓺundefined,
 
