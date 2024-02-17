@@ -30,8 +30,8 @@ export type ResponseConfig = {
     sMaxAge?: number | null;
     staleAge?: number | null;
 
-    headers?: $type.Headers | { [x: string]: string };
-    appendHeaders?: $type.Headers | { [x: string]: string };
+    headers?: $type.HeadersInit;
+    appendHeaders?: $type.HeadersInit;
 
     body?: $type.BodyInit | null;
     encodeBody?: 'gzip' | null;
@@ -281,8 +281,15 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
 
     // Enforces `Headers` object type on headers given by config.
 
-    cfg.headers = cfg.headers instanceof Headers ? cfg.headers : new Headers(cfg.headers || {});
-    cfg.appendHeaders = cfg.appendHeaders instanceof Headers ? cfg.appendHeaders : new Headers(cfg.appendHeaders || {});
+    cfg.headers = // Headers.
+        cfg.headers instanceof Headers
+            ? cfg.headers // Use existing instance.
+            : new Headers((cfg.headers || {}) as HeadersInit);
+
+    cfg.appendHeaders = // Appends.
+        cfg.appendHeaders instanceof Headers
+            ? cfg.appendHeaders // Use existing instance.
+            : new Headers((cfg.appendHeaders || {}) as HeadersInit);
 
     // Populates always-on headers.
 
@@ -891,8 +898,8 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
  *
  * @returns         True if content is HTML.
  */
-export const contentIsHTML = $fnꓺmemo(2, (headers: $type.Headers | [string, string][] | { [x: string]: string }): boolean => {
-    headers = headers instanceof Headers ? headers : new Headers(headers);
+export const contentIsHTML = $fnꓺmemo(2, (headers: $type.HeadersInit): boolean => {
+    headers = headers instanceof Headers ? headers : new Headers(headers as HeadersInit);
     return 'text/html' === headers.get('content-type')?.split(';')[0]?.toLowerCase();
 });
 
@@ -903,8 +910,8 @@ export const contentIsHTML = $fnꓺmemo(2, (headers: $type.Headers | [string, st
  *
  * @returns         True if content is encoded.
  */
-export const contentIsEncoded = $fnꓺmemo(2, (headers: $type.Headers | [string, string][] | { [x: string]: string }): boolean => {
-    headers = headers instanceof Headers ? headers : new Headers(headers);
+export const contentIsEncoded = $fnꓺmemo(2, (headers: $type.HeadersInit): boolean => {
+    headers = headers instanceof Headers ? headers : new Headers(headers as HeadersInit);
     return !['', 'none'].includes((headers.get('content-encoding') || '').toLowerCase());
 });
 
@@ -931,15 +938,15 @@ export const responseIsEncoded = $fnꓺmemo(2, (response: $type.Response): boole
 });
 
 /**
- * Parses headers into a {@see $type.Headers} object instance.
+ * Parses headers into a {@see $type.Headers} instance.
  *
- * @param   parseable Headers instance, array of entries, string-keyed object, or raw HTTP headers as a string.
+ * @param   parseable Headers; {@see $type.RawHeadersInit}.
  *
- * @returns           Parsed headers into a {@see $type.Headers} object instance.
+ * @returns           Parsed headers into a {@see $type.Headers} instance.
  */
-export const parseHeaders = (parseable: $type.Headers | [string, string][] | { [x: string]: string } | string): $type.Headers => {
+export const parseHeaders = (parseable: $type.RawHeadersInit): $type.Headers => {
     if (parseable instanceof Headers || $is.array(parseable)) {
-        return new Headers(parseable); // Simply clones existing headers.
+        return new Headers(parseable as HeadersInit);
     }
     const headers = new Headers(); // Initialize headers instance.
 

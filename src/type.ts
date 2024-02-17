@@ -47,14 +47,17 @@ export type * from '#class.ts';
  * Cross env types.
  */
 export type { $URL as URL };
+
 export type { $Headers as Headers };
-export type { $BodyInit as BodyInit };
+export type { $HeadersInit as HeadersInit };
+export type { $RawHeadersInit as RawHeadersInit };
 
 export type { $Request as Request };
 export type { $RequestInit as RequestInit };
 
 export type { $Response as Response };
 export type { $ResponseInit as ResponseInit };
+export type { $BodyInit as BodyInit };
 
 export type { $Timeout as Timeout };
 export type { $Interval as Interval };
@@ -429,16 +432,23 @@ type $TypedArray =
     | BigUint64Array;
 
 type $URL = URL | cfw.URL;
+
+type $Headers = Headers | cfw.Headers;
+type $HeadersInit = HeadersInit | cfw.HeadersInit;
+type $RawHeadersInit = HeadersInit | cfw.HeadersInit | string;
+
 type $Request = Request | cfw.Request;
 type $RequestInit = (RequestInit | cfw.RequestInit) & { cache?: string };
+
 type $Response = Response | cfw.Response;
 type $ResponseInit = ResponseInit | cfw.ResponseInit;
 type $BodyInit = BodyInit | cfw.BodyInit;
-type $Headers = Headers | cfw.Headers;
-type $fetch = typeof fetch | typeof cfw.fetch;
-type $Error<Type extends Error = Error> = Type;
+
 type $Timeout = ReturnType<typeof setTimeout> | number;
 type $Interval = ReturnType<typeof setInterval> | number;
+
+type $fetch = typeof fetch | typeof cfw.fetch;
+type $Error<Type extends Error = Error> = Type;
 
 type $Unkeyable = Record<ObjectKey, never>;
 type $AnyObject<Type extends object = object> = {} & Type;
