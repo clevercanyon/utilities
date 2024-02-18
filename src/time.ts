@@ -197,23 +197,44 @@ export const parse = (parseable?: Parseable, options?: ParseOptions): $type.Time
             time = dayjs(parseable); // Milliseconds.
         }
     } else if ($is.string(parseable)) {
-        // RFC-7231: `Tue, 21 Feb 2023 13:16:32 GMT`; {@see https://o5p.me/xGuzSc}.
-        if (/^[a-z]{3}, \d{2} [a-z]{3} \d{4} \d{2}:\d{2}:\d{2} GMT$/iu.test(parseable)) {
-            time = dayjs.utc(parseable.replace(/(?:^[a-z]{3}, | GMT$)/giu, ''), 'DD MMM YYYY HH:mm:ss', true);
-            //
-            // SQL-like: `2023[-02[-21[ 13[:16[:32][.000]]]]]`, `2023[02[21[ 13[16[32][000]]]]]`.
-            // Dayjs can parse SQL-like dates without separators. However, without any separators,
-            // we consider it a timestamp if >= 10 digits. So please, use hyphens, or at least a space.
-        } else if (!/Z$/iu.test(parseable) /* {@see https://o5p.me/wv9Jfv} {@see https://o5p.me/uru3CY} */) {
-            time = dayjs.utc(parseable); // UTC implied, as this format does not support a timezone specifier.
-            //
-        } /* Simplified ISO-8601: `2023-02-21[T13:16[:32[.000]][Z|+00:00|+0000]]`; {@see https://o5p.me/qgRkeM}. */
-        // When the timezone is absent, date-only forms are interpreted as UTC and date-time forms as local time.
-        // For that reason, it is strongly suggested not to use date-time forms without a timezone specifier.
-        else time = dayjs(parseable); // Dayjs simply passes this on to `Date()` in native JS.
+        if (rfc7231RegExp.test(parseable)) {
+            time = dayjs.utc(
+                parseable
+                    .replace(/^[a-z]+,\s/iu, '') //
+                    .replace(/\s([^\s]+)$/iu, ''),
+                'DD MMM YYYY HH:mm:ss',
+            );
+        } else if (rfc2822ꓺ5322RegExp.test(parseable)) {
+            time = dayjs(
+                parseable
+                    .replace(/^[a-z]+,\s/iu, '') //
+                    .replace(/\s([^\s]+)$/iu, (...m: string[]) => ' ' + tzAbbrToZZ(m[1])),
+                'DD MMM YYYY HH:mm:ss ZZ',
+            );
+        } else if (rfc822RegExp.test(parseable)) {
+            time = dayjs(
+                parseable
+                    .replace(/^[a-z]+,\s/iu, '') //
+                    .replace(/\s([^\s]+)$/iu, (...m: string[]) => ' ' + tzAbbrToZZ(m[1])),
+                'DD MMM YY HH:mm:ss ZZ',
+            );
+        } else if (rfc850RegExp.test(parseable)) {
+            time = dayjs(
+                parseable
+                    .replace(/^[a-z]+,\s/iu, '') //
+                    .replace(/\s([^\s]+)$/iu, (...m: string[]) => ' ' + tzAbbrToZZ(m[1])),
+                'DD-MMM-YY HH:mm:ss ZZ',
+            );
+        }
+        // ISO-8601 SQL-like: `2023[-02[-21[ 13[:16[:32][.000]]]]]`, `2023[02[21[ 13[16[32][000]]]]]`.
+        // ISO-8601 JS-like, simplified: `2023-02-21[T13:16[:32[.000]][Z|+00:00|+0000]]`; {@see https://o5p.me/qgRkeM}.
+        // Dayjs is capable of parsing ISO-8601 dates without separators. However, when there are no separators we will have
+        // already considered it to be a timestamp; i.e., whenever it’s >= 10 digits. So please use hyphens, or at least a space.
+        else if (!hasTZRegExp.test(parseable)) time = dayjs.utc(parseable); // No timezone implies UTC.
+        else time = dayjs(parseable); // Dayjs default parser.
     }
     if (!time || !time.isValid()) {
-        throw Error('HavduxTK'); // Unable to parse time from: `' + String(from) + '`.
+        throw Error('HavduxTK'); // Unable to parse time.
     }
     return applyLocaleTZOptions(time, options);
 };
@@ -364,3 +385,80 @@ const applyLocaleTZOptions = (time: $type.Time, options?: LocaleTZOptions): $typ
 
     return time.locale(opts.locale).tz(opts.zone);
 };
+
+/**
+ * Converts a timezone abbreviation into a `ZZ` `[+-]/d{4}` offset specifier.
+ *
+ * @param   abbr Timezone abbreviation.
+ *
+ * @returns      `ZZ` format; i.e., `[+-]/d{4}` offset specifier.
+ *
+ *   - If there is no match, this returns the original unmodified value.
+ */
+const tzAbbrToZZ = (abbr: string): string => {
+    switch (abbr.toUpperCase()) {
+        case 'Z':
+        case 'UT':
+        case 'UTC':
+        case 'GMT':
+            return '+0000';
+
+        case 'EDT':
+            return '-0400';
+
+        case 'EST':
+        case 'CDT':
+            return '-0500';
+
+        case 'CST':
+        case 'MDT':
+            return '-0600';
+
+        case 'MST':
+        case 'PDT':
+            return '-0700';
+
+        case 'PST':
+        case 'AKDT':
+            return '-0800';
+
+        case 'AKST':
+            return '-0900';
+
+        default:
+            return abbr;
+    }
+};
+
+/**
+ * HTTP RFC-7231 regular expression.
+ *
+ * `[Tue, ]21 Feb 2023 13:16:32 GMT`; {@see https://o5p.me/xGuzSc}. Current HTTP formatting.
+ */
+const rfc7231RegExp = /^(?:[a-z]{3},\s)?\d{2}\s[a-z]{3}\s\d{4}\s\d{2}:\d{2}:\d{2}\s(?:Z|UT|UTC|GMT|[+-]00(?::?00)?)$/iu;
+
+/**
+ * Email RFC-2822 & RFC-5322 regular expression.
+ *
+ * `[Tue, ]21 Feb 2023 13:16:32 {TZ}`; {@see https://o5p.me/y7Lf0h}. Current email formatting.
+ */
+const rfc2822ꓺ5322RegExp = /^(?:[a-z]{3},\s)?\d{2}\s[a-z]{3}\s\d{4}\s\d{2}:\d{2}:\d{2}\s(?:Z|UT|UTC|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|AKST|AKDT[+-]\d{2}(?::?\d{2})?)$/iu;
+
+/**
+ * Email RFC-822 regular expression.
+ *
+ * `[Tue, ]21 Feb 23 13:16:32 {TZ}`; {@see https://o5p.me/kffMpw}. Obsolete email formatting of yesterday.
+ */
+const rfc822RegExp = /^(?:[a-z]{3},\s)?\d{2}\s[a-z]{3}\s\d{2}\s\d{2}:\d{2}:\d{2}\s(?:Z|UT|UTC|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|AKST|AKDT|[+-]\d{2}(?::?\d{2})?)$/iu;
+
+/**
+ * Email RFC-850 regular expression.
+ *
+ * `[Tuesday, ]21-Feb-23 13:16:32 {TZ}`; {@see https://o5p.me/R4XVA9}. Ancient obsolete email formatting.
+ */
+const rfc850RegExp = /^(?:[a-z]+,\s)?\d{2}-[a-z]{3}-\d{2}\s\d{2}:\d{2}:\d{2}\s(?:Z|UT|UTC|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|AKST|AKDT|[+-]\d{2}(?::?\d{2})?)$/iu;
+
+/**
+ * No timezone regular expression.
+ */
+const hasTZRegExp = /(?:Z|\s(?:Z|UT|UTC|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|AKST|AKDT[+-]\d{2}(?::?\d{2})?))$/iu;

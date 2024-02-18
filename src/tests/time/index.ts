@@ -59,13 +59,42 @@ describe('$time', async () => {
         expect($time.parse($time.parse('2023-01-01T00:00:00Z')).toISO()).toBe('2023-01-01T00:00:00.000Z');
         expect($time.parse($time.parse('2023-01-01T00:00:00.000Z')).toISO()).toBe('2023-01-01T00:00:00.000Z');
 
-        // RFC-7231: `Tue, 21 Feb 2023 13:16:32 GMT`; {@see https://o5p.me/xGuzSc}.
+        // HTTP RFC-7231: `[Tue, ]21 Feb 2023 13:16:32 GMT`; {@see https://o5p.me/xGuzSc}.
+        expect($time.parse('01 Jan 2023 00:00:00 GMT').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('01 Jan 2023 00:00:01 GMT').toISO()).toBe('2023-01-01T00:00:01.000Z');
         expect($time.parse('Sun, 01 Jan 2023 00:00:00 GMT').toISO()).toBe('2023-01-01T00:00:00.000Z');
         expect($time.parse('Sun, 01 Jan 2023 00:00:01 GMT').toISO()).toBe('2023-01-01T00:00:01.000Z');
 
-        // SQL-like: `2023[-02[-21[ 13[:16[:32][.000]]]]]`, `2023[02[21[ 13[16[32][000]]]]]`.
-        // Dayjs can parse SQL-like dates without separators. However, without any separators,
-        // we consider it a timestamp if >= 10 digits. So please, use hyphens, or at least a space.
+        // Email RFC-2822 & RFC-5322: `[Tue, ]21 Feb 2023 13:16:32 {TZ}`; {@see https://o5p.me/y7Lf0h}.
+        expect($time.parse('Sun, 01 Jan 2023 00:00:00 EST').toISO()).toBe('2023-01-01T05:00:00.000Z');
+        expect($time.parse('01 Jan 2023 00:00:01 GMT').toISO()).toBe('2023-01-01T00:00:01.000Z');
+        expect($time.parse('Sun, 01 Jan 2023 00:00:00 +0000').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('Sun, 01 Jan 2023 00:00:00 +00:00').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('01 Jan 2023 00:00:01 -0500').toISO()).toBe('2023-01-01T05:00:01.000Z');
+        expect($time.parse('Sun, 01 Jan 2023 00:00:00 GMT').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('Sun, 01 Jan 2023 00:00:01 GMT').toISO()).toBe('2023-01-01T00:00:01.000Z');
+
+        // Email RFC-822: `[Tue, ]21 Feb 23 13:16:32 {TZ}`; {@see https://o5p.me/kffMpw}.
+        expect($time.parse('Sun, 01 Jan 23 00:00:00 EST').toISO()).toBe('2023-01-01T05:00:00.000Z');
+        expect($time.parse('01 Jan 23 00:00:01 GMT').toISO()).toBe('2023-01-01T00:00:01.000Z');
+        expect($time.parse('Sun, 01 Jan 23 00:00:00 +0000').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('Sun, 01 Jan 23 00:00:00 +00:00').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('01 Jan 23 00:00:01 -0500').toISO()).toBe('2023-01-01T05:00:01.000Z');
+        expect($time.parse('Sun, 01 Jan 23 00:00:00 GMT').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('Sun, 01 Jan 23 00:00:01 GMT').toISO()).toBe('2023-01-01T00:00:01.000Z');
+
+        // Email RFC-850: `[Tuesday, ]21-Feb-23 13:16:32 {TZ}`; {@see https://o5p.me/R4XVA9}.
+        expect($time.parse('Sunday, 01-Jan-23 00:00:00 EST').toISO()).toBe('2023-01-01T05:00:00.000Z');
+        expect($time.parse('01-Jan-23 00:00:01 GMT').toISO()).toBe('2023-01-01T00:00:01.000Z');
+        expect($time.parse('Sunday, 01-Jan-23 00:00:00 +0000').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('Sunday, 01-Jan-23 00:00:00 +00:00').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('01-Jan-23 00:00:01 -0500').toISO()).toBe('2023-01-01T05:00:01.000Z');
+        expect($time.parse('Sunday, 01-Jan-23 00:00:00 GMT').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('Sunday, 01-Jan-23 00:00:01 GMT').toISO()).toBe('2023-01-01T00:00:01.000Z');
+
+        // SQL ISO-8601: `2023[-02[-21[ 13[:16[:32][.000]]]]]`, `2023[02[21[ 13[16[32][000]]]]]`.
+        // Dayjs is capable of parsing SQL-like dates without separators. However, when there are no separators we will have
+        // already considered it to be a timestamp; i.e., whenever it’s >= 10 digits. So please use hyphens, or at least a space.
         expect($time.parse('20230101').toISO()).toBe('2023-01-01T00:00:00.000Z'); // Less than 10 digits.
         expect($time.parse('20230101 010101').toISO()).toBe('2023-01-01T01:01:01.000Z'); // Space = non-numeric.
         expect($time.parse('20230101 010101001').toISO()).toBe('2023-01-01T01:01:01.001Z'); // Space = non-numeric.
@@ -77,7 +106,7 @@ describe('$time', async () => {
         expect($time.parse('2023-01-01 00:00:00.000+00:00').toISO()).toBe('2023-01-01T00:00:00.000Z');
         expect($time.parse('2023-01-01 00:00:00.000 +00:00').toISO()).toBe('2023-01-01T00:00:00.000Z');
 
-        // Simplified ISO-8601: `2023-02-21[T13:16[:32[.000]][Z|+00:00|+0000]]`; {@see https://o5p.me/qgRkeM}.
+        // JS simplified ISO-8601: `2023-02-21[T13:16[:32[.000]][Z|+00:00|+0000]]`; {@see https://o5p.me/qgRkeM}.
         // When the timezone is absent, date-only forms are interpreted as UTC and date-time forms as local time.
         // For that reason, it is strongly suggested not to use date-time forms without a timezone specifier.
         expect($time.parse('2023-01-01T00:00').toISO()).toBe('2023-01-01T00:00:00.000Z');
@@ -88,7 +117,25 @@ describe('$time', async () => {
         expect($time.parse('2023-01-01 00:00:00 Z').toISO()).toBe('2023-01-01T00:00:00.000Z');
         expect($time.parse('2023-01-01 00:00:00.000Z').toISO()).toBe('2023-01-01T00:00:00.000Z');
         expect($time.parse('2023-01-01 00:00:00.000 Z').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000 UT').toISO()).toBe('2023-01-01T00:00:00.000Z');
         expect($time.parse('2023-01-01 00:00:00.000 UTC').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000 GMT').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000 +0000').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000 -0000').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000 +00:00').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000 -0500').toISO()).toBe('2023-01-01T05:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000 -05:00').toISO()).toBe('2023-01-01T05:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000 +00').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000 -00').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000 -05').toISO()).toBe('2023-01-01T05:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000+0000').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000-0000').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000+00:00').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000-0500').toISO()).toBe('2023-01-01T05:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000-05:00').toISO()).toBe('2023-01-01T05:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000+00').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000-00').toISO()).toBe('2023-01-01T00:00:00.000Z');
+        expect($time.parse('2023-01-01 00:00:00.000-05').toISO()).toBe('2023-01-01T05:00:00.000Z');
 
         // Invalid formats that throw.
         expect(() => $time.parse('2022-W52-7').toISO()).toThrow();
