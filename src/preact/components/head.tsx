@@ -201,6 +201,7 @@ const tꓺicon = 'icon',
     tꓺlink = 'link',
     tꓺlocale = 'locale',
     tꓺlogo = 'logo',
+    tꓺmainEntityOfPage = 'mainEntityOfPage',
     tꓺmanifest = 'manifest',
     tꓺmedia = 'media',
     tꓺmeta = 'meta',
@@ -1021,6 +1022,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
             [tꓺdatePublished]: state.publishTime?.toISO() || '',
             [tꓺdateModified]: state.lastModifiedTime?.toISO() || '',
 
+            [tꓺmainEntityOfPage]: { [tꓺමid]: pageꓺogURL + '#' + tꓺpage },
             ...(pageꓺogImage
                 ? {
                       [tꓺprimaryImageOfPage]: {
@@ -1046,7 +1048,7 @@ const generateStructuredData = (options: { brand: $type.Brand; htmlState: HTMLSt
 
     const data = {
         [tꓺමcontext]: tꓺhttpsꓽⳇⳇ + 'schema.org/',
-        [tꓺමgraph]: [...orgGraphs, siteGraph, pageGraph],
+        [tꓺමgraph]: [pageGraph, siteGraph, ...orgGraphs.reverse()],
     };
     return $json.stringify(data);
 };
