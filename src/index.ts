@@ -5,6 +5,7 @@
 import '#@initialize.ts';
 
 export * as $app from '#app.ts';
+export * as $arr from '#arr.ts';
 export * as $brand from '#brand.ts';
 export * as $class from '#class.ts';
 export * as $color from '#color.ts';

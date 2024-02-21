@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.840",
+    "version": "1.0.841",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -34,6 +34,11 @@
             "types": "./dist/types/app.d.ts",
             "import": "./dist/app.js",
             "default": "./dist/app.js"
+        },
+        "./arr": {
+            "types": "./dist/types/arr.d.ts",
+            "import": "./dist/arr.js",
+            "default": "./dist/arr.js"
         },
         "./brand": {
             "types": "./dist/types/brand.d.ts",
