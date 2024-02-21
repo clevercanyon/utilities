@@ -71,6 +71,25 @@ export const contentType = (file: string, defaultType?: string, charset?: string
 };
 
 /**
+ * Checks if a given MIME type is binary.
+ *
+ * @param   type MIME type to consider.
+ *
+ * @returns      True if MIME type is binary.
+ */
+export const typeIsBinary = (type: string): boolean => {
+    type = type.split(';', 2)[0].toLowerCase();
+    if (!type) return true; // octet-stream.
+
+    for (const [, group] of Object.entries(types())) {
+        for (const [, subgroup] of Object.entries(group)) {
+            if (type === subgroup.type) return subgroup.binary;
+        }
+    }
+    return false;
+};
+
+/**
  * Gets charset for a given MIME content type.
  *
  * @param   contentType MIME content type.
