@@ -1028,6 +1028,7 @@ export const urlHeaderNames = (): string[] => [
     'x-pingback',
     'x-rewrite-url',
     'x-sourcemap',
+    'content-location',
 ];
 
 /**
