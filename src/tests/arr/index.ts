@@ -6,6 +6,9 @@ import { $arr, $str } from '#index.ts';
 import { describe, expect, test } from 'vitest';
 
 describe('$arr', async () => {
+    test('.shuffle()', async () => {
+        expect($arr.shuffle([0, 1, 2, 3]).length).toBe(4);
+    });
     test('.indexOfSequence()', async () => {
         expect($arr.indexOfSequence([0, 1, 2, 3], [0])).toBe(0);
         expect($arr.indexOfSequence([0, 1, 2, 3], [3])).toBe(3);
