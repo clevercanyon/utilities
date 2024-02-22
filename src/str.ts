@@ -10,9 +10,44 @@ import ipRegex from 'ip-regex';
 const ipV4MaxLength = 15; // Max length of an IPv4 address.
 const ipV6MaxLength = 45; // Max length of an IPv6 address.
 
-let unescHTMLDiv: HTMLElement; // Initialize.
-const escHTMLEntityMap: { [x: string]: string } = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-const unescHTMLCharMap: { [x: string]: string } = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
+const escHTMLMap: { [x: string]: string } = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&apos;',
+};
+const unescHTMLMap: { [x: string]: string } = {
+    '&amp;': '&',
+    '&#38;': '&',
+    '&#038;': '&',
+    '&#x26;': '&',
+    '&#x0026;': '&',
+
+    '&lt;': '<',
+    '&#60;': '<',
+    '&#060;': '<',
+    '&#x3C;': '<',
+    '&#x003C;': '<',
+
+    '&gt;': '>',
+    '&#62;': '>',
+    '&#062;': '>',
+    '&#x3E;': '>',
+    '&#x003E;': '>',
+
+    '&quot;': '"',
+    '&#34;': '"',
+    '&#034;': '"',
+    '&#x22;': '"',
+    '&#x0022;': '"',
+
+    '&apos;': "'",
+    '&#39;': "'",
+    '&#039;': "'",
+    '&#x27;': "'",
+    '&#x0027;': "'",
+};
 
 // Please be cautious, this has the `g`, and therefore it has state.
 const wordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p{L})|(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})|(?<=[\p{L}\p{N}])(?=\p{Lu}\p{Ll}))/gu;
@@ -727,15 +762,14 @@ export const unquote = (str: string, options: UnquoteOptions = {}): string => {
  * @param   options Options (all optional).
  *
  * @returns         Escaped string.
- *
- * @see https://www.npmjs.com/package/html-entities
  */
 export const escHTML = (str: string, options?: EscHTMLOptions): string => {
-    const defaultOpts = { doubleEncode: false };
-    const opts = $obj.defaults({}, options || {}, defaultOpts) as Required<EscHTMLOptions>;
+    const defaultOpts = { doubleEncode: false },
+        opts = $obj.defaults({}, options || {}, defaultOpts) as Required<EscHTMLOptions>;
 
     if (!opts.doubleEncode) str = unescHTML(str);
-    return str.replace(/[&<>"']/gu, (char) => escHTMLEntityMap[char]);
+    const regExp = new RegExp(Object.keys(escHTMLMap).join('|'), 'giu');
+    return str.replace(regExp, (char) => escHTMLMap[char]);
 };
 
 /**
@@ -744,16 +778,15 @@ export const escHTML = (str: string, options?: EscHTMLOptions): string => {
  * @param   str String to unescape.
  *
  * @returns     Unescaped string.
- *
- * @see https://www.npmjs.com/package/html-entities
  */
 export const unescHTML = (str: string): string => {
     if ($env.isWeb()) {
-        unescHTMLDiv ??= $dom.create('div');
-        unescHTMLDiv.innerHTML = str;
-        return unescHTMLDiv.innerText;
+        const div = $dom.create('div');
+        div.innerHTML = str;
+        return div.innerText;
     }
-    return str.replace(/&(?:amp|lt|gt|quot|#39);/gu, (entity) => unescHTMLCharMap[entity]);
+    const regExp = new RegExp(Object.keys(unescHTMLMap).join('|'), 'giu');
+    return str.replace(regExp, (entity) => unescHTMLMap[entity]);
 };
 
 /**

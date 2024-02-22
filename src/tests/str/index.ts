@@ -402,17 +402,17 @@ describe('$str', async () => {
     });
     test('.escHTML()', async () => {
         expect($str.escHTML('<foo> & <"aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ\'>')) //
-            .toBe('&lt;foo&gt; &amp; &lt;&quot;aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ&#39;&gt;');
+            .toBe('&lt;foo&gt; &amp; &lt;&quot;aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ&apos;&gt;');
 
-        expect($str.escHTML('<foo> & &amp; <"heļlṏ, ꓺ ... 🦊 wɵrḻɖ!\'>')).toBe('&lt;foo&gt; &amp; &amp; &lt;&quot;heļlṏ, ꓺ ... 🦊 wɵrḻɖ!&#39;&gt;');
-        expect($str.escHTML('<foo> & &amp; <"heļlṏ, ꓺ ... 🦊 wɵrḻɖ!\'>', { doubleEncode: true })).toBe('&lt;foo&gt; &amp; &amp;amp; &lt;&quot;heļlṏ, ꓺ ... 🦊 wɵrḻɖ!&#39;&gt;');
+        expect($str.escHTML('<foo> & &amp; <"heļlṏ, ꓺ ... 🦊 wɵrḻɖ!\'>')).toBe('&lt;foo&gt; &amp; &amp; &lt;&quot;heļlṏ, ꓺ ... 🦊 wɵrḻɖ!&apos;&gt;');
+        expect($str.escHTML('<foo> & &amp; <"heļlṏ, ꓺ ... 🦊 wɵrḻɖ!\'>', { doubleEncode: true })).toBe('&lt;foo&gt; &amp; &amp;amp; &lt;&quot;heļlṏ, ꓺ ... 🦊 wɵrḻɖ!&apos;&gt;');
     });
     test('.unescHTML()', async () => {
-        expect($str.unescHTML('&lt;foo&gt; &amp; &lt;&quot;aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ&#39;&gt;')) //
+        expect($str.unescHTML('&lt;foo&gt; &amp; &lt;&quot;aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ&apos;&gt;')) //
             .toBe('<foo> & <"aeiouAEIOUaeiouyAEIOUYaeiouÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ\'>');
 
-        expect($str.unescHTML('&lt;foo&gt; &amp; &amp; &lt;&quot;heļlṏ, ꓺ ... 🦊 wɵrḻɖ!&#39;&gt;')).toBe('<foo> & & <"heļlṏ, ꓺ ... 🦊 wɵrḻɖ!\'>');
-        expect($str.unescHTML('&lt;foo&gt; &amp; &amp;amp; &lt;&quot;heļlṏ, ꓺ ... 🦊 wɵrḻɖ!&#39;&gt;')).toBe('<foo> & &amp; <"heļlṏ, ꓺ ... 🦊 wɵrḻɖ!\'>');
+        expect($str.unescHTML('&lt;foo&gt; &amp; &amp; &lt;&quot;heļlṏ, ꓺ ... 🦊 wɵrḻɖ!&apos;&gt;')).toBe('<foo> & & <"heļlṏ, ꓺ ... 🦊 wɵrḻɖ!\'>');
+        expect($str.unescHTML('&lt;foo&gt; &amp; &amp;amp; &lt;&quot;heļlṏ, ꓺ ... 🦊 wɵrḻɖ!&apos;&gt;')).toBe('<foo> & &amp; <"heļlṏ, ꓺ ... 🦊 wɵrḻɖ!\'>');
     });
     test('.escRegExp()', async () => {
         expect($str.escRegExp('.*+?^${}()|[]\\')).toBe('\\.\\*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\');
