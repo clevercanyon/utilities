@@ -164,6 +164,8 @@ export const base64Decode = (base64: string, options?: Base64DecodeOptions): str
  * @param   options All optional; {@see BlobToBase64Options}.
  *
  * @returns         Base64-encoded string.
+ *
+ * @see https://web.dev/articles/base64-encoding
  */
 export const blobToBase64 = async (blob: $type.Blob, options?: BlobToBase64Options): Promise<string> => {
     const opts = $obj.defaults({}, options || {}, { urlSafe: false, type: '' }) as Required<BlobToBase64Options>,
