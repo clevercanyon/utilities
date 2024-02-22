@@ -13,7 +13,8 @@ import { $env, $obj, $str, type $type } from '#index.ts';
 export type UUIDV4Options = { dashes?: boolean };
 export type Base64EncodeOptions = { urlSafe?: boolean };
 export type Base64DecodeOptions = { urlSafe?: boolean };
-export type Base64DecodeToBlobOptions = { urlSafe?: boolean; type?: string };
+export type BlobToBase64Options = { urlSafe?: boolean };
+export type Base64ToBlobOptions = { urlSafe?: boolean; type?: string };
 export type RandomStringOptions = { type?: string; byteDictionary?: string };
 export type HashAlgorithm = 'md5' | 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
 
@@ -120,7 +121,7 @@ export const sha512 = $fnꓺmemo(2, async (str: string): Promise<string> => buil
 export const hmacSHA512 = $fnꓺmemo(2, async (str: string, key?: string): Promise<string> => buildHMACHash('sha-512', str, key));
 
 /**
- * Base-64 encodes a string.
+ * Base64-encodes a string.
  *
  * @param   str     Input string to encode.
  * @param   options All optional; {@see Base64EncodeOptions}.
@@ -137,12 +138,12 @@ export const base64Encode = (str: string, options?: Base64EncodeOptions): string
 };
 
 /**
- * Decodes a base-64 encoded string.
+ * Decodes a base64-encoded string.
  *
  * @param   str     Input base-4 string to decode.
  * @param   options All optional; {@see Base64DecodeOptions}.
  *
- * @returns         Base-64 decoded string.
+ * @returns         Base64-decoded string.
  *
  * @throws          When input string is not valid base-64.
  *
@@ -156,21 +157,37 @@ export const base64Decode = (base64: string, options?: Base64DecodeOptions): str
 
     return $str.textDecode(Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0))));
 };
+/**
+ * Base64-encodes a blob.
+ *
+ * @param   blob    Input blob to encode.
+ * @param   options All optional; {@see BlobToBase64Options}.
+ *
+ * @returns         Base64-encoded string.
+ */
+export const blobToBase64 = async (blob: $type.Blob, options?: BlobToBase64Options): Promise<string> => {
+    const opts = $obj.defaults({}, options || {}, { urlSafe: false }) as Required<BlobToBase64Options>,
+        base64 = btoa(new Uint8Array(await blob.arrayBuffer()).reduce((str, i) => (str += String.fromCodePoint(i)), ''));
+    return (
+        'data:' + blob.type + ';base64,' + // As a data URI to preserve MIME type.
+        (opts.urlSafe ? base64.replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '') : base64)
+    ); // prettier-ignore
+};
 
 /**
- * Decodes a base-64 encoded string into a blob.
+ * Decodes a base64-encoded string into a blob.
  *
  * @param   str     Input base-4 string to decode.
- * @param   options All optional; {@see Base64DecodeToBlobOptions}.
+ * @param   options All optional; {@see Base64ToBlobOptions}.
  *
- * @returns         Base-64 decoded blob.
+ * @returns         Base64-decoded blob.
  *
  * @throws          When input string is not valid base-64.
  *
  * @see https://web.dev/articles/base64-encoding
  */
-export const base64DecodeToBlob = (base64: string, options?: Base64DecodeToBlobOptions): Blob => {
-    const opts = $obj.defaults({}, options || {}, { urlSafe: false, type: '' }) as Required<Base64DecodeToBlobOptions>,
+export const base64ToBlob = async (base64: string, options?: Base64ToBlobOptions): Promise<Blob> => {
+    const opts = $obj.defaults({}, options || {}, { urlSafe: false, type: '' }) as Required<Base64ToBlobOptions>,
         [, dataURIType = ''] = base64.match(dataURIBase64PrefixRegExp) || [],
         type = opts.type || dataURIType || ''; // Prefers explicit type.
 

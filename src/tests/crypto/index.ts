@@ -195,20 +195,31 @@ describe('$crypto', async () => {
             'aeiouAEIOUaeiouyAEIOUYaeiouAEIOUanoANOaeiouyAEIOUYçÇßØøÅåÆæœ',
         );
     });
-    test('.base64DecodeToBlob()', async () => {
-        expect($crypto.base64DecodeToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==').size).toBe(70);
-        expect($crypto.base64DecodeToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5_DmMO4w4XDpcOGw6bFkw', { urlSafe: true }).size).toBe(70);
+    test('.blobToBase64()', async () => {
+        const blob = new Blob(['<p></p>'], { type: 'text/html' }),
+            reBlob = await $crypto.base64ToBlob(await $crypto.blobToBase64(blob));
 
-        expect($crypto.base64DecodeToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==').type).toBe('');
-        expect($crypto.base64DecodeToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==', { type: 'text/plain' }).type).toBe(
+        expect(await $crypto.blobToBase64(blob)).toBe('data:text/html;base64,PHA+PC9wPg==');
+        expect(await $crypto.blobToBase64(blob, { urlSafe: true })).toBe('data:text/html;base64,PHA-PC9wPg');
+        expect(await $crypto.blobToBase64(reBlob, { urlSafe: true })).toBe('data:text/html;base64,PHA-PC9wPg');
+    });
+    test('.base64ToBlob()', async () => {
+        expect((await $crypto.base64ToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==')).size).toBe(70);
+        expect((await $crypto.base64ToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5_DmMO4w4XDpcOGw6bFkw', { urlSafe: true })).size).toBe(70);
+
+        expect((await $crypto.base64ToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==')).type).toBe('');
+        expect((await $crypto.base64ToBlob('YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==', { type: 'text/plain' })).type).toBe(
             'text/plain',
         );
-        expect($crypto.base64DecodeToBlob('data:text/plain;base64,YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==').size).toBe(70);
+        expect((await $crypto.base64ToBlob('data:text/plain;base64,YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==')).size).toBe(
+            70,
+        );
         expect(
-            $crypto.base64DecodeToBlob('data:text/plain;base64,YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5_DmMO4w4XDpcOGw6bFkw', { urlSafe: true })
+            (await $crypto.base64ToBlob('data:text/plain;base64,YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5_DmMO4w4XDpcOGw6bFkw', { urlSafe: true }))
                 .size,
         ).toBe(70);
-        expect($crypto.base64DecodeToBlob('data:text/plain;base64,YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==').type).toBe(
+
+        expect((await $crypto.base64ToBlob('data:text/plain;base64,YWVpb3VBRUlPVWFlaW91eUFFSU9VWWFlaW91QUVJT1Vhbm9BTk9hZWlvdXlBRUlPVVnDp8OHw5/DmMO4w4XDpcOGw6bFkw==')).type).toBe(
             'text/plain',
         );
         const svg = `<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#fff" /><line x1="899" y1="0" x2="899" y2="630" opacity=".75" stroke="#2d7116" stroke-width="50" /><line x1="0" y1="29" x2="1200" y2="29" opacity=".75" stroke="#2d7116" stroke-width="50" /><line x1="406" y1="0" x2="406" y2="630" opacity=".75" stroke="#d71164" stroke-width="22" /><line x1="0" y1="616" x2="1200" y2="616" opacity=".75" stroke="#d71164" stroke-width="22" /><line x1="728" y1="0" x2="728" y2="630" opacity=".75" stroke="#711642" stroke-width="27" /><line x1="0" y1="218" x2="1200" y2="218" opacity=".75" stroke="#711642" stroke-width="27" /><line x1="1048" y1="0" x2="1048" y2="630" opacity=".75" stroke="#11642b" stroke-width="71" /><line x1="0" y1="88" x2="1200" y2="88" opacity=".75" stroke="#11642b" stroke-width="71" /><line x1="408" y1="0" x2="408" y2="630" opacity=".75" stroke="#1642b7" stroke-width="92" /><line x1="0" y1="408" x2="1200" y2="408" opacity=".75" stroke="#1642b7" stroke-width="92" /><line x1="1193" y1="0" x2="1193" y2="630" opacity=".75" stroke="#642b72" stroke-width="43" /><line x1="0" y1="23" x2="1200" y2="23" opacity=".75" stroke="#642b72" stroke-width="43" /><line x1="498" y1="0" x2="498" y2="630" opacity=".75" stroke="#42b726" stroke-width="85" /><line x1="0" y1="18" x2="1200" y2="18" opacity=".75" stroke="#42b726" stroke-width="85" /><line x1="661" y1="0" x2="661" y2="630" opacity=".75" stroke="#2b726b" stroke-width="73" /><line x1="0" y1="31" x2="1200" y2="31" opacity=".75" stroke="#2b726b" stroke-width="73" /><line x1="403" y1="0" x2="403" y2="630" opacity=".75" stroke="#b726b0" stroke-width="50" /><line x1="0" y1="163" x2="1200" y2="163" opacity=".75" stroke="#b726b0" stroke-width="50" /><line x1="1191" y1="0" x2="1191" y2="630" opacity=".75" stroke="#726b04" stroke-width="22" /><line x1="0" y1="81" x2="1200" y2="81" opacity=".75" stroke="#726b04" stroke-width="22" /><line x1="240" y1="0" x2="240" y2="630" opacity=".75" stroke="#26b044" stroke-width="27" /><line x1="0" y1="510" x2="1200" y2="510" opacity=".75" stroke="#26b044" stroke-width="27" /><line x1="313" y1="0" x2="313" y2="630" opacity=".75" stroke="#6b0440" stroke-width="71" /><line x1="0" y1="313" x2="1200" y2="313" opacity=".75" stroke="#6b0440" stroke-width="71" /><line x1="567" y1="0" x2="567" y2="630" opacity=".75" stroke="#b04401" stroke-width="92" /><line x1="0" y1="567" x2="1200" y2="567" opacity=".75" stroke="#b04401" stroke-width="92" /><line x1="1139" y1="0" x2="1139" y2="630" opacity=".75" stroke="#044016" stroke-width="43" /><line x1="0" y1="389" x2="1200" y2="389" opacity=".75" stroke="#044016" stroke-width="43" /><line x1="694" y1="0" x2="694" y2="630" opacity=".75" stroke="#440162" stroke-width="85" /><line x1="0" y1="334" x2="1200" y2="334" opacity=".75" stroke="#440162" stroke-width="85" /><line x1="0" y1="0" x2="0" y2="630" opacity=".75" stroke="#401627" stroke-width="73" /><line x1="0" y1="0" x2="1200" y2="0" opacity=".75" stroke="#401627" stroke-width="73" /><line x1="899" y1="0" x2="899" y2="630" opacity=".75" stroke="#01627c" stroke-width="50" /><line x1="0" y1="29" x2="1200" y2="29" opacity=".75" stroke="#01627c" stroke-width="50" /><line x1="406" y1="0" x2="406" y2="630" opacity=".75" stroke="#1627ca" stroke-width="22" /><line x1="0" y1="616" x2="1200" y2="616" opacity=".75" stroke="#1627ca" stroke-width="22" /><line x1="728" y1="0" x2="728" y2="630" opacity=".75" stroke="#627ca9" stroke-width="27" /><line x1="0" y1="218" x2="1200" y2="218" opacity=".75" stroke="#627ca9" stroke-width="27" /><line x1="1048" y1="0" x2="1048" y2="630" opacity=".75" stroke="#27ca9f" stroke-width="71" /><line x1="0" y1="88" x2="1200" y2="88" opacity=".75" stroke="#27ca9f" stroke-width="71" /><line x1="408" y1="0" x2="408" y2="630" opacity=".75" stroke="#7ca9fb" stroke-width="92" /><line x1="0" y1="408" x2="1200" y2="408" opacity=".75" stroke="#7ca9fb" stroke-width="92" /><line x1="1193" y1="0" x2="1193" y2="630" opacity=".75" stroke="#ca9fba" stroke-width="43" /><line x1="0" y1="23" x2="1200" y2="23" opacity=".75" stroke="#ca9fba" stroke-width="43" /><line x1="498" y1="0" x2="498" y2="630" opacity=".75" stroke="#a9fbac" stroke-width="85" /><line x1="0" y1="18" x2="1200" y2="18" opacity=".75" stroke="#a9fbac" stroke-width="85" /><line x1="661" y1="0" x2="661" y2="630" opacity=".75" stroke="#9fbac3" stroke-width="73" /><line x1="0" y1="31" x2="1200" y2="31" opacity=".75" stroke="#9fbac3" stroke-width="73" /></svg>`;
@@ -216,6 +227,6 @@ describe('$crypto', async () => {
 
         expect($crypto.base64Encode(svg)).toBe(svgBase64);
         expect($crypto.base64Decode(svgBase64)).toBe(svg);
-        expect($crypto.base64DecodeToBlob('data:image/svg+xml;base64,' + $crypto.base64Encode(svg)).type).toBe('image/svg+xml');
+        expect((await $crypto.base64ToBlob('data:image/svg+xml;base64,' + $crypto.base64Encode(svg))).type).toBe('image/svg+xml');
     });
 });

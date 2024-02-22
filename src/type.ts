@@ -64,6 +64,7 @@ export type { $Interval as Interval };
 
 export type { $fetch as fetch };
 export type { $Error as Error };
+export type { $Blob as Blob };
 
 /**
  * DOM-related types.
@@ -449,6 +450,7 @@ type $Interval = ReturnType<typeof setInterval> | number;
 
 type $fetch = typeof fetch | typeof cfw.fetch;
 type $Error<Type extends Error = Error> = Type;
+type $Blob = Blob | cfw.Blob;
 
 type $Unkeyable = Record<ObjectKey, never>;
 type $AnyObject<Type extends object = object> = {} & Type;
