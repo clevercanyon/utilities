@@ -435,8 +435,8 @@ type $TypedArray =
 type $URL = URL | cfw.URL;
 
 type $Headers = Headers | cfw.Headers;
-type $HeadersInit = HeadersInit | cfw.HeadersInit;
-type $RawHeadersInit = HeadersInit | cfw.HeadersInit | string;
+type $HeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: string }>;
+type $RawHeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: string }> | string;
 
 type $Request = Request | cfw.Request;
 type $RequestInit = (RequestInit | cfw.RequestInit) & { cache?: string };
