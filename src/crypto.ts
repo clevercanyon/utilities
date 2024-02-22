@@ -13,7 +13,7 @@ import { $env, $obj, $str, type $type } from '#index.ts';
 export type UUIDV4Options = { dashes?: boolean };
 export type Base64EncodeOptions = { urlSafe?: boolean };
 export type Base64DecodeOptions = { urlSafe?: boolean };
-export type BlobToBase64Options = { urlSafe?: boolean };
+export type BlobToBase64Options = { urlSafe?: boolean; type?: string };
 export type Base64ToBlobOptions = { urlSafe?: boolean; type?: string };
 export type RandomStringOptions = { type?: string; byteDictionary?: string };
 export type HashAlgorithm = 'md5' | 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
@@ -166,10 +166,12 @@ export const base64Decode = (base64: string, options?: Base64DecodeOptions): str
  * @returns         Base64-encoded string.
  */
 export const blobToBase64 = async (blob: $type.Blob, options?: BlobToBase64Options): Promise<string> => {
-    const opts = $obj.defaults({}, options || {}, { urlSafe: false }) as Required<BlobToBase64Options>,
-        base64 = btoa(new Uint8Array(await blob.arrayBuffer()).reduce((str, i) => (str += String.fromCodePoint(i)), ''));
+    const opts = $obj.defaults({}, options || {}, { urlSafe: false, type: '' }) as Required<BlobToBase64Options>,
+        base64 = btoa(new Uint8Array(await blob.arrayBuffer()).reduce((str, i) => (str += String.fromCodePoint(i)), '')),
+        type = opts.type || blob.type || ''; // Prefers explicit type.
+
     return (
-        'data:' + blob.type + ';base64,' + // As a data URI to preserve MIME type.
+        'data:' + type + ';base64,' + // As a data URI to preserve MIME type.
         (opts.urlSafe ? base64.replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '') : base64)
     ); // prettier-ignore
 };
