@@ -24,7 +24,7 @@ export type ResponseConfig = {
 
     enableCORs?: boolean;
     varyOn?: string[];
-    cacheVersion?: string;
+    cacheVersion?: string | 'none';
 
     maxAge?: number | null;
     sMaxAge?: number | null;
@@ -998,8 +998,11 @@ export const verifyTurnstile = async (request: $type.Request, turnstile: string)
     formData.append('response', turnstile);
 
     const verificationEndpointURL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+
     return await fetch(verificationEndpointURL, { method: 'POST', body: formData })
-        .then(async (response): Promise<$type.Object> => $to.plainObject(await response.json()))
+        .then(async (response): Promise<$type.Object> => {
+            return $to.plainObject(await response.json());
+        })
         .then((response) => Boolean(response.success))
         .catch((): boolean => false);
 };
