@@ -58,6 +58,10 @@ const emailRegExp = /^[a-z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)
 // Regular expression for fulltext search query columns prefix.
 const ftsQueryColumnsPrefixRegExp = /^(?:-\s+)?(?:[a-z_0-9]+:|\{[a-z_\s0-9]+\}:)/iu;
 
+// Regular expression that tests for asian characters.
+const hasAsianCharsRegExp =
+    /[\u0900-\u097f\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\u3131-\ud79d\u0e00-\u0e7f\u0a00-\u0a7f\u0b80-\u0bff\u0f00-\u0fdf\u0fc0-\u0fff]/iu;
+
 /**
  * Defines types.
  */
@@ -1040,4 +1044,15 @@ export const isIPv6Host = (str: string): boolean => {
  */
 export const test = (str: string, regExp: RegExp | RegExp[] | Readonly<RegExp[]>): boolean => {
     return $to.array(regExp).some((regExp) => regExp.test(str));
+};
+
+/**
+ * Tests a string for asian characters.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     True if string contains asian characters.
+ */
+export const hasAsianChars = (str: string): boolean => {
+    return hasAsianCharsRegExp.test(str);
 };

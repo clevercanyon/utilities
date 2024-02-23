@@ -572,4 +572,75 @@ describe('$str', async () => {
         expect($str.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', /^.*?a(x|z)iou.*$/u)).toBe(false);
         expect($str.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', /^.*?🦊🦊🦊🦊🦊🦊🦊.*$/u)).toBe(false);
     });
+    test('.hasAsianChars()', async () => {
+        /**
+         * Chinese:
+         *
+         * - 你 (nǐ) - "you"
+         * - 好 (hǎo) - "good"
+         * - 中国 (Zhōngguó) - "China"
+         * - 人 (rén) - "person"
+         * - 中文 (zhōngwén) - "Chinese language"
+         */
+        expect($str.hasAsianChars('你')).toBe(true);
+        expect($str.hasAsianChars('好')).toBe(true);
+        expect($str.hasAsianChars('中国')).toBe(true);
+        expect($str.hasAsianChars('人')).toBe(true);
+        expect($str.hasAsianChars('中文')).toBe(true);
+
+        /**
+         * Japanese:
+         *
+         * - あ (a) - Hiragana character.
+         * - い (i) - Hiragana character.
+         * - こんにちは (konnichiwa) - "hello"
+         * - 日本 (Nihon) - "Japan"
+         * - ありがとう (arigatou) - "thank you"
+         */
+        expect($str.hasAsianChars('あ')).toBe(true);
+        expect($str.hasAsianChars('い')).toBe(true);
+        expect($str.hasAsianChars('こんにちは')).toBe(true);
+        expect($str.hasAsianChars('日本')).toBe(true);
+        expect($str.hasAsianChars('ありがとう')).toBe(true);
+
+        /**
+         * Korean:
+         *
+         * - 안녕하세요 (annyeonghaseyo) - "hello"
+         * - 한국 (hanguk) - "Korea"
+         * - 사랑 (sarang) - "love"
+         * - 감사합니다 (gamsahamnida) - "thank you"
+         * - 안녕 (annyeong) - "goodbye"
+         */
+        expect($str.hasAsianChars('안녕하세요')).toBe(true);
+        expect($str.hasAsianChars('한국')).toBe(true);
+        expect($str.hasAsianChars('사랑')).toBe(true);
+        expect($str.hasAsianChars('감사합니다')).toBe(true);
+        expect($str.hasAsianChars('안녕')).toBe(true);
+
+        /**
+         * Other Asian characters:
+         *
+         * - อักษรไทย (akson thai) - "Thai alphabet"
+         * - ਪੰਜਾਬੀ (Panjabi) - "Punjabi language" (Gurmukhi script)
+         * - தமிழ் (Tamiḻ) - "Tamil language" (Tamil script)
+         * - हिन्दी (Hindī) - "Hindi language" (Devanagari script)
+         * - བོད་སྐད (bod skad) - "Tibetan language" (Tibetan script)
+         */
+        expect($str.hasAsianChars('อักษรไทย')).toBe(true);
+        expect($str.hasAsianChars('ਪੰਜਾਬੀ')).toBe(true);
+        expect($str.hasAsianChars('தமிழ்')).toBe(true);
+        expect($str.hasAsianChars('हिन्दी')).toBe(true);
+        expect($str.hasAsianChars('བོད་སྐད')).toBe(true);
+
+        /**
+         * Other non-asian characters:
+         */
+        expect($str.hasAsianChars('aeiouAEIOUaeiouyAEIOUYaeiou ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊')).toBe(false);
+
+        /**
+         * Notably, our double-dot character is an asian character.
+         */
+        expect($str.hasAsianChars('ꓺ')).toBe(true);
+    });
 });
