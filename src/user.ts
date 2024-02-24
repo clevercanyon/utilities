@@ -198,8 +198,19 @@ export const ip = $fnꓺmemo(2, async (request?: $type.Request, prioritizeForwar
             ...(!prioritizeForwardedHeaders ? forwardedHeaders : []),
         ]) {
             let ip = request.headers.get(headerName) || '';
-            if (ip && 'forwarded' === headerName) ip = ip.match(/\bfor=['"]?\[?([^[\]"\s;,]+)/iu)?.[1] || '';
-            if (ip) ip = $str.trim(ip.split(/[\s;,]+/u)[0].toLowerCase());
+
+            if (ip && 'forwarded' === headerName) {
+                // {@see https://regex101.com/r/QNCDee/1}.
+                ip = ip.match(/\bfor=['"]?\[?([^'"[\]\s;,]+)/iu)?.[1] || '';
+            }
+            if (ip) {
+                ip =
+                    ip
+                        .split(/[\s;,]+/u)
+                        .map((ip) => $str.trim(ip))
+                        .find((ip) => $str.isIP(ip))
+                        ?.toLowerCase() || '';
+            }
             if (ip) return ip;
         }
         return ''; // Unavailable.
