@@ -126,13 +126,6 @@ export type EnsuredType<Type> =
     : unknown; // prettier-ignore
 
 /**
- * Key utility types.
- */
-export type KeyPrefixIndicates<ObjType, Prefix extends string, Type> = {
-    [Key in keyof ObjType]: Key extends `${Prefix}${string}` ? Type : ObjType[Key];
-};
-
-/**
  * Readonly utility types.
  */
 export type ReadonlyDeep<Type> = //
