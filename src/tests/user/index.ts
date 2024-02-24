@@ -49,7 +49,7 @@ describe('$user', async () => {
             'colo': 'EWR',
             'continent': 'NA',
             'country': 'US',
-            'ip': '184.153.133.157',
+            'ip': '127.88.201.42',
             'latitude': '47.33320',
             'longitude': '-68.33160',
             'metroCode': '552',
@@ -61,6 +61,6 @@ describe('$user', async () => {
         expect($user.ipGeoData.cache.keys.length).toBe(1);
     });
     test('.ip()', async () => {
-        expect(await $user.ip()).toBe('184.153.133.157');
+        expect(await $user.ip()).toBe('127.88.201.42');
     });
 });

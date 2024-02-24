@@ -10,7 +10,7 @@ import { $app, $cookie, $crypto, $env, $fn, $http, $json, $obj, $obp, $str, $to,
 /**
  * Defines types.
  *
- *     ip: '184.153.133.157',
+ *     ip: '127.88.201.42',
  *
  *     city: 'Madawaska',
  *     region: 'Maine',
@@ -245,7 +245,7 @@ export const ipGeoData = $fnꓺmemo(
         if (request || isTest) {
             const cf = (request as undefined | $type.cfw.Request)?.cf,
                 data = {
-                    ip: isTest ? '184.153.133.157' // Madawaska IP.
+                    ip: isTest ? '127.88.201.42' // Random private IP.
                   : request ? await ip(request) : '', // prettier-ignore
 
                     city: isTest ? 'Madawaska' : cf?.city,

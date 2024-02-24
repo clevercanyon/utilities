@@ -76,7 +76,7 @@ describe('$redact', async () => {
             colo: 'EWR',
             continent: 'NA',
             country: 'US',
-            ip: '184*********157',
+            ip: '127*******.42',
             latitude: '4******0',
             longitude: '-68***160',
             metroCode: '552',
@@ -91,46 +91,46 @@ describe('$redact', async () => {
             ...$redact
                 .headers(
                     $http.parseHeaders({
-                        'cf-connecting-ip': '184.153.133.157',
+                        'cf-connecting-ip': '127.88.201.42',
                         'foo': 'bar',
-                        'forwarded': 'for=184.153.133.157',
+                        'forwarded': 'for=127.88.201.42',
                         'location': 'https://x.tld/?foo=hello+world&utm_source=test',
                         'referer': 'https://x.tld/?foo=hello+world&utm_source=test',
-                        'x-forwarded-for': '184.153.133.157',
+                        'x-forwarded-for': '127.88.201.42',
                         'x-waf-key': '7MbXxN9krvfrU4Cp',
                     }),
                 )
                 .entries(),
         ]).toStrictEqual([
-            ['cf-connecting-ip', '184*********157'],
+            ['cf-connecting-ip', '127*******.42'],
             ['foo', 'b*r'],
-            ['forwarded', 'for*************157'],
+            ['forwarded', 'for***********.42'],
             ['location', 'https://x.tld/?foo=hel*****rld&utm_source=test'],
             ['referer', 'https://x.tld/?foo=hel*****rld&utm_source=test'],
-            ['x-forwarded-for', '184*********157'],
+            ['x-forwarded-for', '127*******.42'],
             ['x-waf-key', '7Mb**********4Cp'],
         ]);
         expect([
             ...$redact
                 .headers(
                     $http.parseHeaders({
-                        'cf-connecting-ip': '184.153.133.157',
+                        'cf-connecting-ip': '127.88.201.42',
                         'foo': 'bar',
-                        'forwarded': 'for=184.153.133.157',
+                        'forwarded': 'for=127.88.201.42',
                         'location': 'An invalid URL should go unredacted; e.g., for closer review.',
                         'referer': 'An invalid URL should go unredacted; e.g., for closer review.',
-                        'x-forwarded-for': '184.153.133.157',
+                        'x-forwarded-for': '127.88.201.42',
                         'x-waf-key': '7MbXxN9krvfrU4Cp',
                     }),
                 )
                 .entries(),
         ]).toStrictEqual([
-            ['cf-connecting-ip', '184*********157'],
+            ['cf-connecting-ip', '127*******.42'],
             ['foo', 'b*r'],
-            ['forwarded', 'for*************157'],
+            ['forwarded', 'for***********.42'],
             ['location', 'An invalid URL should go unredacted; e.g., for closer review.'],
             ['referer', 'An invalid URL should go unredacted; e.g., for closer review.'],
-            ['x-forwarded-for', '184*********157'],
+            ['x-forwarded-for', '127*******.42'],
             ['x-waf-key', '7Mb**********4Cp'],
         ]);
     });
