@@ -63,20 +63,10 @@ export type { $Timeout as Timeout };
 export type { $Interval as Interval };
 
 export type { $fetch as fetch };
-export type { $Error as Error };
 export type { $Blob as Blob };
 
-/**
- * Error-related types.
- */
-export type ErrorCause = // Our own recipe.
-    // Any one of the following will suffice.
-    | $Error
-    | string
-    | ReadonlyDeep<{
-          code: string;
-          meta?: object;
-      }>;
+export type { $Error as Error };
+export type { $ErrorCause as ErrorCause };
 
 /**
  * DOM-related types.
@@ -461,9 +451,16 @@ type $Timeout = ReturnType<typeof setTimeout> | number;
 type $Interval = ReturnType<typeof setInterval> | number;
 
 type $fetch = typeof fetch | typeof cfw.fetch;
-type $Error<Type extends Error = Error> = Type;
 type $Blob = Blob | cfw.Blob;
 
+type $Error<Type extends Error = Error & { cause?: $ErrorCause }> = Type;
+type $ErrorCause<Type extends Error = Error & { cause?: $ErrorCause }> =
+    | $Error<Type>
+    | string
+    | ReadonlyDeep<{
+          code: string;
+          meta?: object;
+      }>;
 type $Unkeyable = Record<ObjectKey, never>;
 type $AnyObject<Type extends object = object> = {} & Type;
 type $Keyable<Type extends object = object> = { [x: ObjectKey]: unknown } & Type;
