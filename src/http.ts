@@ -892,21 +892,44 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
 });
 
 /**
- * Content is type?
+ * Gets clean content type from headers.
  *
  * @param   headers HTTP headers.
- * @param   extType Canonical extension(s).
  *
- * @returns         True if content is one of the given types.
+ * @returns         Clean content type from headers.
+ *
+ *   - Clean MIME type. Lowercase, excluding `; charset=*`.
  */
-export const contentIsType = $fnꓺmemo(2, (headers: $type.HeadersInit, extType: string | string[]): boolean => {
-    headers = headers instanceof Headers ? headers : new Headers(headers as HeadersInit);
-    const mimeType = (headers.get('content-type') || '').toLowerCase().split(';')[0];
+export const cleanContentType = $fnꓺmemo(2, (headers: $type.HeadersInit): string => {
+    return $mime.typeClean(parseHeaders(headers).get('content-type') || '');
+});
 
-    if (!mimeType) return false;
-    return $to.array(extType).some((ext) => {
-        return mimeType === $mime.contentType('.' + $str.lTrim(ext, '.'), undefined, '');
-    });
+/**
+ * Checks if content is a given MIME or extension type.
+ *
+ * @param   headers  HTTP headers.
+ * @param   extTypes MIME type(s) and/or canonical extension(s).
+ *
+ *   - Examples: `text/html`, `text/plain`, `html`, `txt`, or another extension.
+ *
+ * @returns          True if content is a given MIME or extension type.
+ */
+export const contentIsType = $fnꓺmemo(2, (headers: $type.HeadersInit, extTypes: string | string[]): boolean => {
+    const cleanType = cleanContentType(headers);
+    return $to
+        .array(extTypes)
+        .map((extType: string): string =>
+            extType
+                .toLowerCase()
+                .split(/\s*;\s*/u)[0]
+                .trim(),
+        )
+        .some((extType: string): boolean => {
+            return (
+                cleanType === extType || // e.g., `text/html`, `text/plain`.
+                cleanType === $mime.contentType('.' + $str.lTrim(extType, '.'), undefined, '')
+            );
+        });
 });
 
 /**
@@ -928,8 +951,7 @@ export const contentIsHTML = $fnꓺmemo(2, (headers: $type.HeadersInit): boolean
  * @returns         True if content is encoded.
  */
 export const contentIsEncoded = $fnꓺmemo(2, (headers: $type.HeadersInit): boolean => {
-    headers = headers instanceof Headers ? headers : new Headers(headers as HeadersInit);
-    return !['', 'none'].includes((headers.get('content-encoding') || '').toLowerCase());
+    return !['', 'none'].includes((parseHeaders(headers).get('content-encoding') || '').toLowerCase());
 });
 
 /**

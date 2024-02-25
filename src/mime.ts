@@ -26,48 +26,17 @@ export type Types = $type.ReadonlyDeep<{
 }>;
 
 /**
- * Gets a file's MIME type.
+ * Cleans a MIME type value.
  *
- * @param   file        Absolute or relative file path.
- * @param   defaultType Default MIME type if unable to determine. Default is: `application/octet-stream`.
+ * @param   type MIME type to clean.
  *
- * @returns             MIME type; e.g., `text/html`, `image/svg+xml`, etc.
+ * @returns      Clean. Lowercase, excluding `; charset=*`.
  */
-export const fileType = (file: string, defaultType?: string): string => {
-    const fileExt = $path.ext(file); // File extension.
-    defaultType = defaultType || mimeTypeStream;
-
-    if (!fileExt) return defaultType; // Not possible.
-
-    for (const [, group] of Object.entries(types())) {
-        for (const [subgroupExts, subgroup] of Object.entries(group)) {
-            if (subgroupExts.split('|').includes(fileExt)) return subgroup.type;
-        }
-    }
-    return defaultType; // Not possible.
-};
-
-/**
- * Gets a file's MIME type + charset, suitable for `content-type:` header.
- *
- * @param   file        Absolute or relative file path.
- * @param   defaultType Default MIME type if unable to determine. {@see fileType()} for default value.
- * @param   charset     Optional charset code to use. To explicitly force no charset, set this to an empty string.
- *   Otherwise, if not given explicitly, {@see contentTypeCharset()} determines charset value; e.g., `utf-8`.
- *
- * @returns             MIME content type + a possible charset. Suitable for `content-type:` header.
- */
-export const contentType = (file: string, defaultType?: string, charset?: string): string => {
-    let fileContentType = fileType(file, defaultType);
-
-    if (undefined !== charset) {
-        if ('' !== charset /* Empty indicates no charset explicitly. */) {
-            fileContentType += '; charset=' + charset;
-        }
-    } else if ((charset = contentTypeCharset(fileContentType))) {
-        fileContentType += '; charset=' + charset;
-    }
-    return fileContentType;
+export const typeClean = (type: string): string => {
+    return type
+        .toLowerCase()
+        .split(/\s*;\s*/u)[0]
+        .trim();
 };
 
 /**
@@ -78,9 +47,9 @@ export const contentType = (file: string, defaultType?: string, charset?: string
  * @returns      True if MIME type is binary.
  */
 export const typeIsBinary = (type: string): boolean => {
-    type = type.split(';', 2)[0].toLowerCase();
-    if (!type) return true; // octet-stream.
-
+    if (!(type = typeClean(type))) {
+        return true; // Assume true.
+    }
     for (const [, group] of Object.entries(types())) {
         for (const [, subgroup] of Object.entries(group)) {
             if (type === subgroup.type) return subgroup.binary;
@@ -90,25 +59,73 @@ export const typeIsBinary = (type: string): boolean => {
 };
 
 /**
- * Gets charset for a given MIME content type.
+ * Gets a file's clean MIME type.
  *
- * @param   contentType MIME content type.
+ * @param   file        Absolute or relative file path.
+ * @param   defaultType Default MIME type if unable to determine.
  *
- * @returns             Charset for MIME content type; else empty string.
+ *   - Default is: `application/octet-stream`.
+ *
+ * @returns             MIME type; e.g., `text/html`, `image/svg+xml`, etc.
  */
-export const contentTypeCharset = (contentType: string): string => {
-    if (!contentType) return ''; // Not applicable.
+export const cleanType = (file: string, defaultType?: string): string => {
+    const fileExt = $path.ext(file); // File extension.
+    defaultType = defaultType || mimeTypeStream;
 
+    if (!fileExt) return defaultType;
+
+    for (const [, group] of Object.entries(types())) {
+        for (const [subgroupExts, subgroup] of Object.entries(group)) {
+            if (subgroupExts.split('|').includes(fileExt)) return subgroup.type;
+        }
+    }
+    return defaultType;
+};
+
+/**
+ * Gets a file's MIME type + charset suitable for `content-type:` header.
+ *
+ * @param   file        Absolute or relative file path.
+ * @param   defaultType Default MIME type if unable to determine.
+ * @param   charset     Optional charset. Set this to an empty string to explicitly force no charset. Otherwise, if not
+ *   given explicitly {@see contentTypeCharset()} will determine charset value based on MIME type; e.g., `utf-8`.
+ *
+ * @returns             MIME content type + a possible charset suitable for `content-type:` header.
+ */
+export const contentType = (file: string, defaultType?: string, charset?: string): string => {
+    let type = cleanType(file, defaultType);
+
+    if (undefined !== charset) {
+        if ('' !== charset /* Empty indicates no charset explicitly. */) {
+            type += '; charset=' + charset;
+        }
+    } else if ((charset = contentTypeCharset(type))) {
+        type += '; charset=' + charset;
+    }
+    return type;
+};
+
+/**
+ * Gets charset for a given MIME type.
+ *
+ * @param   type MIME type to consider.
+ *
+ * @returns      Charset for MIME content type; else empty string.
+ */
+export const contentTypeCharset = (type: string): string => {
+    if (!(type = typeClean(type))) {
+        return ''; // Not applicable.
+    }
     switch (true) {
-        case contentType.startsWith('text/'):
-        case contentType.endsWith('+xml'):
-        case contentType.endsWith('+json'):
-        case 'application/json' === contentType:
-        case 'application/json5' === contentType:
-        case 'application/php-source' === contentType:
-        case 'application/php-archive' === contentType:
-        case 'application/xml-dtd' === contentType:
-        case 'application/hta' === contentType:
+        case type.startsWith('text/'):
+        case type.endsWith('+xml'):
+        case type.endsWith('+json'):
+        case 'application/json' === type:
+        case 'application/json5' === type:
+        case 'application/php-source' === type:
+        case 'application/php-archive' === type:
+        case 'application/xml-dtd' === type:
+        case 'application/hta' === type:
             return 'utf-8';
     }
     return ''; // Not applicable.

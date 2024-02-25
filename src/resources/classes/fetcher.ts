@@ -2,7 +2,7 @@
  * Fetcher utility class.
  */
 
-import { $app, $class, $crypto, $env, $json, $obp, $str, type $type } from '#index.ts';
+import { $app, $class, $crypto, $env, $json, $mime, $obp, $str, type $type } from '#index.ts';
 
 /**
  * Constructor cache.
@@ -55,9 +55,9 @@ const tꓺapplicationⳇ = 'application/',
     tꓺxml = 'xml';
 
 /**
- * Defines cachedable response content MIME types.
+ * Defines cachedable response content types.
  */
-const cacheableResponseContentMIMETypes = [
+const cacheableResponseContentTypes = [
     tꓺtextⳇ + tꓺplain,
     tꓺapplicationⳇ + tꓺjson,
     tꓺapplicationⳇ + 'ld+' + tꓺjson,
@@ -159,12 +159,12 @@ export const getClass = (): Constructor => {
             }
             if ($env.isWeb()) return fetch(...args); // No cache writes client-side.
 
-            const response = await fetch(...args); // Uses native fetch.
-            const responseContentType = (response.headers.get('content-type') || '').toLowerCase();
-            const responseContentMIMEType = responseContentType.split(';')[0]; // Removes a possible `; charset=*`.
+            const response = await fetch(...args), // Uses native fetch.
+                responseContentType = response.headers.get('content-type') || '',
+                responseCleanContentType = $mime.typeClean(responseContentType);
 
-            if (!cacheableResponseContentMIMETypes.includes(responseContentMIMEType)) {
-                return response; // Don't cache MIME types not in list above.
+            if (!cacheableResponseContentTypes.includes(responseCleanContentType)) {
+                return response; // Don't cache types not in list above.
             }
             const globalCacheEntry: GlobalCacheEntry = {
                 body: await response.text(),
