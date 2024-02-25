@@ -456,10 +456,10 @@ type $Interval = ReturnType<typeof setInterval> | number;
 type $fetch = typeof fetch | typeof cfw.fetch;
 type $Blob = Blob | cfw.Blob;
 
-type $ErrorCause = Error | string | $ErrorCauseObject;
-type $ErrorCauseObject = Readonly<{
+type $ErrorCause<Meta extends object = object> = Error | string | $ErrorCauseObject<Meta>;
+type $ErrorCauseObject<Meta extends object = object> = Readonly<{
     code: string;
-    meta?: $StrKeyable;
+    meta?: $StrKeyable<Meta>;
 }>;
 type $Unkeyable = Record<ObjectKey, never>;
 type $AnyObject<Type extends object = object> = {} & Type;
