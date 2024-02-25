@@ -5,13 +5,13 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $is, $obj } from '#index.ts';
+import { $is, $obj, $str } from '#index.ts';
 
 /**
  * Defines types.
  */
 export type MessageOptions = {
-    expectedCauses?: string[];
+    expectedCauses?: (string | RegExp)[];
     default: string;
 };
 
@@ -43,10 +43,15 @@ export const codeRegExp = $fnꓺmemo((): RegExp => errorCodeRegExp);
 /**
  * Generates an error message from a thrown value.
  *
+ * A safe message from a thrown value is a message that’s attached to a {@see $type.Error}, and is either an error code,
+ * or was thrown due to an expected cause. Expected causes can be passed as an option to this utility.
+ *
  * @param   thrown  Something thrown and caught by this utility’s caller.
  * @param   options `{ default: 'Message or code.' }` is required; {@see MessageOptions}.
  *
- * @returns         Error message from thrown value.
+ * @returns         Safe error message from thrown value.
+ *
+ * @see isExpectedCause()
  */
 export const safeMessageFrom = (thrown: unknown, options: MessageOptions): string => {
     const opts = $obj.defaults({}, options || {}, { expectedCauses: [] }) as Required<MessageOptions>,
@@ -55,19 +60,47 @@ export const safeMessageFrom = (thrown: unknown, options: MessageOptions): strin
     if ($is.errorCode(thrown)) {
         return tꓺError𑂱codeꓽ𑂱 + thrown.message + '.';
     }
-    if ($is.error(thrown) && opts.expectedCauses.length) {
+    if (opts.expectedCauses.length && $is.error(thrown)) {
         let error: unknown = thrown; // Initialize.
 
-        while ($is.error(error) && error.cause) {
-            if ($is.string(error.cause)) {
-                const errorCause = error.cause,
-                    hasExpectedCause = opts.expectedCauses.some((expectedCause): boolean => {
-                        return expectedCause === errorCause || errorCause.startsWith(expectedCause + ':');
-                    });
-                if (hasExpectedCause) return error.message;
+        while ($is.error(error) && $is.errorCause(error.cause)) {
+            if (
+                error.message &&
+                (($is.string(error.cause) && isExpectedCause(opts.expectedCauses, error.cause)) ||
+                    ($is.plainObject(error.cause) && isExpectedCause(opts.expectedCauses, error.cause.code)))
+            ) {
+                return error.message; // Expected; i.e., safe, error message.
             }
-            error = error.cause;
+            error = error.cause; // Up the stack we go.
         }
     }
     return codeRegExp().test(opts.default) ? tꓺError𑂱codeꓽ𑂱 + opts.default + '.' : opts.default;
+};
+
+// ---
+// Misc utilites.
+
+/**
+ * Checks if a cause code is expected.
+ *
+ * @param   expectedCauses Expected causes.
+ * @param   code           An error’s cause code.
+ *
+ * @returns                True if cause code is expected.
+ */
+const isExpectedCause = (expectedCauses: (string | RegExp)[], code: string): boolean => {
+    return expectedCauses.some((expectedCause: string | RegExp): boolean => {
+        if ($is.string(expectedCause)) {
+            return (
+                code === $str.rTrim(expectedCause, ':') || // Even match.
+                //
+                // `expectedCause` does not contain a `:`. True if code starts with `expectedCause:`.
+                (!expectedCause.includes(':') && code.startsWith(expectedCause + ':')) ||
+                //
+                // `expectedCause` explicitly ends with a `:`. True if `code` starts with `expectedCause:`.
+                (expectedCause.endsWith(':') && code.startsWith(expectedCause)) // i.e., Ends with a prefix.
+            );
+        }
+        return expectedCause.test(code); // Expected cause w/ its own regular expression.
+    });
 };

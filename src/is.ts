@@ -511,18 +511,18 @@ export const blob = (value: unknown): value is Blob => {
 };
 
 /**
- * Checks if value is an {@see Error}.
+ * Checks if value is an {@see $type.Error}.
  *
  * @param   value Value to consider.
  *
- * @returns       True if value is an {@see Error}.
+ * @returns       True if value is an {@see $type.Error}.
  */
 export const error = (value: unknown): value is $type.Error => {
     return value instanceof Error;
 };
 
 /**
- * Checks if value is an {@see Error} code.
+ * Checks if value is an {@see $type.Error} code.
  *
  * Error codes are {@see Error} instances containing a message that’s exactly 8 alphanumeric bytes in length; i.e.,
  * merely an error code. A few examples: `yYxSWAPg`, `56MMRj3J`, `xejqwBWR`, `Rqr8YpSW`, `t6Sg78Yr`, `fkDneern`. Using a
@@ -537,12 +537,25 @@ export const error = (value: unknown): value is $type.Error => {
  *
  * @param   value Value to consider.
  *
- * @returns       True if value is an {@see Error} code.
+ * @returns       True if value is an {@see $type.Error} code.
  *
  * @see $error.codeRegExp()
  */
 export const errorCode = (value: unknown): value is $type.Error => {
     return error(value) && $error.codeRegExp().test(value.message);
+};
+
+/**
+ * Checks if value is a {@see $type.ErrorCause}.
+ *
+ * An error cause is either another error, a string, or an object with `{ code, meta? }`.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is a {@see $type.ErrorCause}.
+ */
+export const errorCause = (value: unknown): value is $type.ErrorCause => {
+    return error(value) || string(value) || (object(value) && string(value.code) && (nul(value.meta) || object(value.meta)));
 };
 
 /**

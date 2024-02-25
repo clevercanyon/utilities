@@ -67,6 +67,18 @@ export type { $Error as Error };
 export type { $Blob as Blob };
 
 /**
+ * Error-related types.
+ */
+export type ErrorCause = // Our own recipe.
+    // Any one of the following will suffice.
+    | $Error
+    | string
+    | ReadonlyDeep<{
+          code: string;
+          meta?: object;
+      }>;
+
+/**
  * DOM-related types.
  */
 export type DOMAtts = { [x: string]: unknown };
