@@ -927,7 +927,7 @@ export const contentIsType = $fnꓺmemo(2, (headers: $type.HeadersInit, extTypes
         .some((extType: string): boolean => {
             return (
                 cleanType === extType || // e.g., `text/html`, `text/plain`.
-                cleanType === $mime.contentType('.' + $str.lTrim(extType, '.'), undefined, '')
+                cleanType === $mime.cleanType('.' + $str.lTrim(extType, '.'))
             );
         });
 });
