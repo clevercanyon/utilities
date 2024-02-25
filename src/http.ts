@@ -892,6 +892,24 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
 });
 
 /**
+ * Content is type?
+ *
+ * @param   headers HTTP headers.
+ * @param   extType Canonical extension(s).
+ *
+ * @returns         True if content is one of the given types.
+ */
+export const contentIsType = $fnꓺmemo(2, (headers: $type.HeadersInit, extType: string | string[]): boolean => {
+    headers = headers instanceof Headers ? headers : new Headers(headers as HeadersInit);
+    const mimeType = (headers.get('content-type') || '').toLowerCase().split(';')[0];
+
+    if (!mimeType) return false;
+    return $to.array(extType).some((ext) => {
+        return mimeType === $mime.contentType('.' + $str.lTrim(ext, '.'), undefined, '');
+    });
+});
+
+/**
  * Content is HTML?
  *
  * @param   headers HTTP headers.
@@ -899,8 +917,7 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
  * @returns         True if content is HTML.
  */
 export const contentIsHTML = $fnꓺmemo(2, (headers: $type.HeadersInit): boolean => {
-    headers = headers instanceof Headers ? headers : new Headers(headers as HeadersInit);
-    return 'text/html' === headers.get('content-type')?.split(';')[0]?.toLowerCase();
+    return contentIsType(headers, 'html'); // Leverages existing utility.
 });
 
 /**
