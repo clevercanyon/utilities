@@ -17,11 +17,6 @@ export type MessageOptions = {
 
 /**
  * Error code regular expression.
- */
-const errorCodeRegExp = /^[a-z0-9]{8}$/iu;
-
-/**
- * Error code regular expression.
  *
  * Error codes are {@see Error} instances containing a message that’s exactly 8 alphanumeric bytes in length; i.e.,
  * merely an error code. A few examples: `yYxSWAPg`, `56MMRj3J`, `xejqwBWR`, `Rqr8YpSW`, `t6Sg78Yr`, `fkDneern`. Using a
@@ -38,7 +33,7 @@ const errorCodeRegExp = /^[a-z0-9]{8}$/iu;
  *
  * @see $is.errorCode()
  */
-export const codeRegExp = $fnꓺmemo((): RegExp => errorCodeRegExp);
+export const codeRegExp = $fnꓺmemo((): RegExp => /^[a-z0-9]{8}$/iu);
 
 /**
  * Generates an error message from a thrown value.
