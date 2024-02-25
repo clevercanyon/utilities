@@ -460,7 +460,7 @@ type $ErrorCause =
     | string
     | Readonly<{
           code: string;
-          meta?: object;
+          meta?: $StrKeyable;
       }>;
 type $Unkeyable = Record<ObjectKey, never>;
 type $AnyObject<Type extends object = object> = {} & Type;
