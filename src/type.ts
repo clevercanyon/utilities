@@ -69,6 +69,7 @@ export type { $Blob as Blob };
  * Error-related types.
  */
 export type { $ErrorCause as ErrorCause };
+export type { $ErrorCauseObject as ErrorCauseObject };
 
 /**
  * DOM-related types.
@@ -455,13 +456,11 @@ type $Interval = ReturnType<typeof setInterval> | number;
 type $fetch = typeof fetch | typeof cfw.fetch;
 type $Blob = Blob | cfw.Blob;
 
-type $ErrorCause =
-    | Error
-    | string
-    | Readonly<{
-          code: string;
-          meta?: $StrKeyable;
-      }>;
+type $ErrorCause = Error | string | $ErrorCauseObject;
+type $ErrorCauseObject = Readonly<{
+    code: string;
+    meta?: $StrKeyable;
+}>;
 type $Unkeyable = Record<ObjectKey, never>;
 type $AnyObject<Type extends object = object> = {} & Type;
 type $Keyable<Type extends object = object> = { [x: ObjectKey]: unknown } & Type;

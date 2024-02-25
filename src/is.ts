@@ -12,6 +12,13 @@ const numericIntegerRegExp = /^(?:0|-?[1-9][0-9]*)$/u;
 const numericFloatRegExp = /^(?:0|-?[1-9][0-9]*)?\.[0-9]+$/u;
 
 /**
+ * Defines types.
+ */
+export type IsErrorCauseOptions = {
+    type?: 'error' | 'string' | 'object';
+};
+
+/**
  * Checks if a value is NaN.
  *
  * @param   value Value to consider.
@@ -550,12 +557,39 @@ export const errorCode = (value: unknown): value is Error => {
  *
  * An error cause is either another error, a string, or an object with `{ code, meta? }`.
  *
- * @param   value Value to consider.
+ * @param   value   Value to consider.
+ * @param   options All optional; {@see IsErrorCauseOptions}.
  *
- * @returns       True if value is a {@see $type.ErrorCause}.
+ * @returns         True if value is a {@see $type.ErrorCause}.
  */
-export const errorCause = (value: unknown): value is $type.ErrorCause => {
-    return error(value) || string(value) || (object(value) && string(value.code) && (nul(value.meta) || object(value.meta)));
+export const errorCause = <Options extends IsErrorCauseOptions>(
+    value: unknown,
+    options?: Options,
+): value is Options extends { type: 'error' }
+    ? Error // Another error possibly identifying cause.
+    : //
+      Options extends { type: 'string' }
+      ? string // String cause code; e.g., `foo-bar`.
+      : //
+        Options extends { type: 'object' }
+        ? $type.ErrorCauseObject // `{ code, meta? }`.
+        : //
+          $type.ErrorCause => {
+    //
+    switch (options?.type) {
+        case 'error': {
+            return error(value);
+        }
+        case 'string': {
+            return string(value);
+        }
+        case 'object': {
+            return object(value) && string(value.code) && (nul(value.meta) || object(value.meta));
+        }
+        default: {
+            return error(value) || string(value) || (object(value) && string(value.code) && (nul(value.meta) || object(value.meta)));
+        }
+    }
 };
 
 /**
