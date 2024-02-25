@@ -18,5 +18,10 @@ describe('$error', async () => {
 
         const thrown4 = Error('Something is wrong.', { cause: 'user' });
         expect($error.safeMessageFrom(thrown4, { causes: ['user'], default: 'Unknown error.' })).toBe('Something is wrong.');
+
+        const thrown5 = Error('Thrown 5.', { cause: 'user' });
+        const thrown6 = Error('Thrown 6.', { cause: thrown5 });
+        const thrown7 = Error('Thrown 7.', { cause: thrown6 });
+        expect($error.safeMessageFrom(thrown7, { causes: ['user'], default: 'Unknown error.' })).toBe('Thrown 5.');
     });
 });

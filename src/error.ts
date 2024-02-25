@@ -17,6 +17,11 @@ export type MessageOptions = {
 
 /**
  * Error code regular expression.
+ */
+const errorCodeRegExp = /^[a-z0-9]{8}$/iu;
+
+/**
+ * Error code regular expression.
  *
  * Error codes are {@see Error} instances containing a message that’s exactly 8 alphanumeric bytes in length; i.e.,
  * merely an error code. A few examples: `yYxSWAPg`, `56MMRj3J`, `xejqwBWR`, `Rqr8YpSW`, `t6Sg78Yr`, `fkDneern`. Using a
@@ -33,7 +38,7 @@ export type MessageOptions = {
  *
  * @see $is.errorCode()
  */
-export const codeRegExp = $fnꓺmemo((): RegExp => /^[a-z0-9]{8}$/iu);
+export const codeRegExp = $fnꓺmemo((): RegExp => errorCodeRegExp);
 
 /**
  * Generates an error message from a thrown value.
@@ -45,17 +50,22 @@ export const codeRegExp = $fnꓺmemo((): RegExp => /^[a-z0-9]{8}$/iu);
  */
 export const safeMessageFrom = (thrown: unknown, options: MessageOptions): string => {
     const opts = $obj.defaults({}, options || {}, { causes: [] }) as Required<MessageOptions>,
-        isError = $is.error(thrown),
-        isErrorCode = isError && $is.errorCode(thrown),
-        tꓺError𑂱codeꓽ𑂱 = 'Error code: ';
+        tꓺError𑂱codeꓽ𑂱 = 'Error code: '; // Text token.
 
-    return isErrorCode ? tꓺError𑂱codeꓽ𑂱 + thrown.message + '.'
-        : //
-          isError && opts.causes.length && $is.string(thrown.cause) && opts.causes.includes(thrown.cause)
-          ? thrown.message // Thrown message is deemed safe to use.
-          : //
-          codeRegExp().test(opts.default)
-            ? tꓺError𑂱codeꓽ𑂱 + opts.default + '.'
-            : opts.default;
-    // prettier-ignore
+    if ($is.error(thrown)) {
+        if ($is.errorCode(thrown)) {
+            return tꓺError𑂱codeꓽ𑂱 + thrown.message + '.';
+        }
+        if (opts.causes.length) {
+            let error: unknown = thrown; // Initialize.
+
+            while ($is.error(error) && error.cause) {
+                if ($is.string(error.cause) && opts.causes.includes(error.cause)) {
+                    return error.message;
+                }
+                error = error.cause;
+            }
+        }
+    }
+    return codeRegExp().test(opts.default) ? tꓺError𑂱codeꓽ𑂱 + opts.default + '.' : opts.default;
 };
