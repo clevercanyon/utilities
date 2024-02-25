@@ -65,7 +65,9 @@ export type { $Interval as Interval };
 export type { $fetch as fetch };
 export type { $Blob as Blob };
 
-export type { $Error as Error };
+/**
+ * Error-related types.
+ */
 export type { $ErrorCause as ErrorCause };
 
 /**
@@ -453,11 +455,10 @@ type $Interval = ReturnType<typeof setInterval> | number;
 type $fetch = typeof fetch | typeof cfw.fetch;
 type $Blob = Blob | cfw.Blob;
 
-type $Error<Type extends Error = Error & { cause?: $ErrorCause }> = Type;
-type $ErrorCause<Type extends Error = Error & { cause?: $ErrorCause }> =
-    | $Error<Type>
+type $ErrorCause =
+    | Error
     | string
-    | ReadonlyDeep<{
+    | Readonly<{
           code: string;
           meta?: object;
       }>;

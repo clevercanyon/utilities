@@ -97,10 +97,10 @@ export const once = $standalone.$fnꓺonce;
  *
  * @returns             Invocation return value, else `catchReturn` value (if passed), else {@see Error}.
  */
-function tryFn<Fn extends $type.Function>(fn: Fn): TryFunction<Fn, $type.Error>;
+function tryFn<Fn extends $type.Function>(fn: Fn): TryFunction<Fn, Error>;
 function tryFn<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn: CatchReturn, options?: TryOptions): TryFunction<Fn, CatchReturn>;
 
-function tryFn<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: CatchReturn, options?: TryOptions): TryFunction<Fn, CatchReturn | $type.Error> {
+function tryFn<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: CatchReturn, options?: TryOptions): TryFunction<Fn, CatchReturn | Error> {
     const useCatchReturn = arguments.length >= 2; // Use `catchReturn` value as default?
     const opts = $obj.defaults({}, options || {}, { throwOnError: false }) as Required<TryOptions>;
 
@@ -113,7 +113,7 @@ function tryFn<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: Cat
                 if (useCatchReturn) return catchReturn;
                 return $is.error(thrown) ? thrown : Error('T5TGFUSp');
             }
-        } as TryFunction<Fn, CatchReturn | $type.Error>;
+        } as TryFunction<Fn, CatchReturn | Error>;
     } else {
         return function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>) {
             try {
@@ -123,7 +123,7 @@ function tryFn<Fn extends $type.Function, CatchReturn>(fn: Fn, catchReturn?: Cat
                 if (useCatchReturn) return catchReturn;
                 return $is.error(thrown) ? thrown : Error('eKnHRRWW');
             }
-        } as TryFunction<Fn, CatchReturn | $type.Error>;
+        } as TryFunction<Fn, CatchReturn | Error>;
     }
 }
 export { tryFn as try }; // Must export as alias.

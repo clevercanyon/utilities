@@ -708,7 +708,7 @@ const listenForWebErrors = (logger: Interface): void => {
         void logger.error('[Error Event]: ' + event.message, {
             event: {
                 type: event.type,
-                error: event.error as $type.Error,
+                error: event.error as Error,
                 file: event.filename + ':' + String(event.lineno) + ':' + String(event.colno),
             },
         });

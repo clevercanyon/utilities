@@ -38,8 +38,8 @@ export const codeRegExp = $fnꓺmemo((): RegExp => /^[a-z0-9]{8}$/iu);
 /**
  * Generates an error message from a thrown value.
  *
- * A safe message from a thrown value is a message that’s attached to a {@see $type.Error}, and is either an error code,
- * or was thrown due to an expected cause. Expected causes can be passed as an option to this utility.
+ * A safe message from a thrown value is a message that’s attached to a {@see Error}, and is either an error code, or
+ * was thrown due to an expected cause. Expected causes can be passed as an option to this utility.
  *
  * @param   thrown  Something thrown and caught by this utility’s caller.
  * @param   options `{ default: 'Message or code.' }` is required; {@see MessageOptions}.

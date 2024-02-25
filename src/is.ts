@@ -511,18 +511,18 @@ export const blob = (value: unknown): value is Blob => {
 };
 
 /**
- * Checks if value is an {@see $type.Error}.
+ * Checks if value is an {@see Error}.
  *
  * @param   value Value to consider.
  *
- * @returns       True if value is an {@see $type.Error}.
+ * @returns       True if value is an {@see Error}.
  */
-export const error = (value: unknown): value is $type.Error => {
+export const error = (value: unknown): value is Error => {
     return value instanceof Error;
 };
 
 /**
- * Checks if value is an {@see $type.Error} code.
+ * Checks if value is an {@see Error} code.
  *
  * Error codes are {@see Error} instances containing a message that’s exactly 8 alphanumeric bytes in length; i.e.,
  * merely an error code. A few examples: `yYxSWAPg`, `56MMRj3J`, `xejqwBWR`, `Rqr8YpSW`, `t6Sg78Yr`, `fkDneern`. Using a
@@ -537,11 +537,11 @@ export const error = (value: unknown): value is $type.Error => {
  *
  * @param   value Value to consider.
  *
- * @returns       True if value is an {@see $type.Error} code.
+ * @returns       True if value is an {@see Error} code.
  *
  * @see $error.codeRegExp()
  */
-export const errorCode = (value: unknown): value is $type.Error => {
+export const errorCode = (value: unknown): value is Error => {
     return error(value) && $error.codeRegExp().test(value.message);
 };
 
