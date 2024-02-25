@@ -11,7 +11,7 @@ import { $is, $obj } from '#index.ts';
  * Defines types.
  */
 export type MessageOptions = {
-    causes?: string[];
+    expectedCauses?: string[];
     default: string;
 };
 
@@ -49,22 +49,24 @@ export const codeRegExp = $fnꓺmemo((): RegExp => errorCodeRegExp);
  * @returns         Error message from thrown value.
  */
 export const safeMessageFrom = (thrown: unknown, options: MessageOptions): string => {
-    const opts = $obj.defaults({}, options || {}, { causes: [] }) as Required<MessageOptions>,
+    const opts = $obj.defaults({}, options || {}, { expectedCauses: [] }) as Required<MessageOptions>,
         tꓺError𑂱codeꓽ𑂱 = 'Error code: '; // Text token.
 
-    if ($is.error(thrown)) {
-        if ($is.errorCode(thrown)) {
-            return tꓺError𑂱codeꓽ𑂱 + thrown.message + '.';
-        }
-        if (opts.causes.length) {
-            let error: unknown = thrown; // Initialize.
+    if ($is.errorCode(thrown)) {
+        return tꓺError𑂱codeꓽ𑂱 + thrown.message + '.';
+    }
+    if ($is.error(thrown) && opts.expectedCauses.length) {
+        let error: unknown = thrown; // Initialize.
 
-            while ($is.error(error) && error.cause) {
-                if ($is.string(error.cause) && opts.causes.includes(error.cause)) {
-                    return error.message;
-                }
-                error = error.cause;
+        while ($is.error(error) && error.cause) {
+            if ($is.string(error.cause)) {
+                const errorCause = error.cause,
+                    hasExpectedCause = opts.expectedCauses.some((expectedCause): boolean => {
+                        return expectedCause === errorCause || errorCause.startsWith(expectedCause + ':');
+                    });
+                if (hasExpectedCause) return error.message;
             }
+            error = error.cause;
         }
     }
     return codeRegExp().test(opts.default) ? tꓺError𑂱codeꓽ𑂱 + opts.default + '.' : opts.default;
