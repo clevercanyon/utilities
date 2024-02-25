@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $str } from '#index.ts';
+import { $bytes, $str } from '#index.ts';
 
 /**
  * Gzip-encodes a string into a compressed byte array.
@@ -21,7 +21,7 @@ export const encode = async (str: string): Promise<Uint8Array> => {
     for await (const chunk of compressedStream as unknown as Iterable<Uint8Array>) {
         chunks.push(chunk); // Chunks of byte arrays.
     }
-    return combineByteArrays(chunks);
+    return $bytes.combine(chunks);
 };
 
 /**
@@ -39,22 +39,5 @@ export const decode = async (bytes: Uint8Array): Promise<string> => {
     for await (const chunk of decompressedStream as unknown as Iterable<Uint8Array>) {
         chunks.push(chunk); // Chunks of byte arrays.
     }
-    return $str.textDecode(await combineByteArrays(chunks));
-};
-
-// ---
-// Misc utilities.
-
-/**
- * Combines multiple byte arrays.
- *
- * @param   uint8Arrays Input byte arrays.
- *
- * @returns             Byte array promise; {@see Uint8Array}.
- */
-const combineByteArrays = async (uint8Arrays: Readonly<Uint8Array>[]): Promise<Uint8Array> => {
-    const blob = new Blob(uint8Arrays),
-        arrayBuffer = await blob.arrayBuffer();
-
-    return new Uint8Array(arrayBuffer);
+    return $str.textDecode(await $bytes.combine(chunks));
 };
