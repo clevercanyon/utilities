@@ -378,6 +378,65 @@ export const obpPartSafe = (str: string): string => {
 };
 
 /* ---
+ * Split utilities.
+ */
+
+/**
+ * Alternative to {@see String.prototype.split()}.
+ *
+ * @param   str       String to split.
+ * @param   delimiter String or regular expression to split on.
+ *
+ *   - Unlike {@see String.prototype.split()}, `delimiter` may not be an empty string because we choose not to support
+ *       splitting on UTF-16 code units. If you really need this feature it is better to use native `.split()`.
+ *   - //
+ * @param   limit     Limit, which does _not_ behave like {@see String.prototype.split()}.
+ *
+ *   - Setting a limit when calling this utility results in a maximum array length of the `limit` given. However, unlike
+ *       {@see String.prototype.split()}, the last item in the array will always contain the rest of the input string.
+ *       In short, it's not just a limit on length of array, but also on actual number of splits to perform.
+ *
+ * @returns           Array of split parts, based on input parameters.
+ *
+ * @throws            If attempting to split UTF-16 code units using an empty delimiter.
+ */
+export const split = (str: string, delimiter: string | RegExp, limit?: number): string[] => {
+    if (0 === limit) {
+        return []; // Same as native split().
+    }
+    if ('' === delimiter) {
+        throw Error('dN4Gt9m7'); // We choose not to support UTF-16 code units.
+        // If you really need this feature it is better to use native `.split()`.
+    }
+    if (!$is.finite(limit) || limit < 0) {
+        return str.split(delimiter); // Infinite; use native `.split()`.
+    }
+    const parts = [],
+        d = delimiter,
+        regExp = !$is.regExp(d)
+            ? new RegExp(escRegExp(d), 'g') // String to regexp.
+            : new RegExp(d.source, d.flags.includes('g') ? d.flags : d.flags + 'g');
+
+    let lastIndex = 0, // Initialize.
+        match: RegExpExecArray | null = null;
+
+    while (parts.length < limit - 1 && (match = regExp.exec(str)) !== null) {
+        parts.push(str.slice(lastIndex, match.index));
+        lastIndex = regExp.lastIndex;
+
+        if (0 === lastIndex && parts.length > 1) {
+            // This happens whenever a regexp has only zero-width matches.
+            throw Error('EtjAg4dj'); // We choose not to support UTF-16 code units.
+            // If you really need this feature it is better to use native `.split()`.
+        }
+    }
+    if (parts.length <= limit - 1) {
+        parts.push(str.slice(lastIndex));
+    }
+    return parts;
+};
+
+/* ---
  * Word utilities.
  */
 

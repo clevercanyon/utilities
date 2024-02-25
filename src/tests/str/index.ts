@@ -126,6 +126,41 @@ describe('$str', async () => {
         expect($str.charLength($str.midClip('🦊øÅåabcdefg', { maxChars: 10 }))).toBe(10);
         expect($str.charLength($str.midClip('abcdefg🦊øÅå', { maxChars: 10 }))).toBe(10);
     });
+    test('.split()', async () => {
+        expect('abc'.split('')).toStrictEqual(['a', 'b', 'c']);
+        expect(() => $str.split('abc', '')).toThrowError('dN4Gt9m7');
+
+        expect('a.b.c'.split('.')).toStrictEqual(['a', 'b', 'c']);
+        expect($str.split('a.b.c', '.')).toStrictEqual(['a', 'b', 'c']);
+
+        expect('a.b.c'.split('..')).toStrictEqual(['a.b.c']);
+        expect($str.split('a.b.c', '..')).toStrictEqual(['a.b.c']);
+
+        expect('a.b.c'.split('.', 2)).toStrictEqual(['a', 'b']);
+        expect($str.split('a.b.c', '.', 2)).toStrictEqual(['a', 'b.c']);
+
+        expect('a.b.c'.split(/[.]/u, 2)).toStrictEqual(['a', 'b']);
+        expect($str.split('a.b.c', /[.]/u, 2)).toStrictEqual(['a', 'b.c']);
+
+        expect('a...b...c'.split(/[.]+/u, 2)).toStrictEqual(['a', 'b']);
+        expect($str.split('a...b...c', /[.]+/u, 2)).toStrictEqual(['a', 'b...c']);
+
+        expect('a...b...c....d.e.f.g.'.split(/[.]+/u, 3)).toStrictEqual(['a', 'b', 'c']);
+        expect($str.split('a...b...c....d.e.f.g.', /[.]+/u, 3)).toStrictEqual(['a', 'b', 'c....d.e.f.g.']);
+
+        expect('a.b.c.d.e.f.g'.split(/\b/u, 3)).toStrictEqual(['a', '.', 'b']);
+        expect(() => $str.split('a.b.c.d.e.f.g', /\b/u, 3)).toThrowError('EtjAg4dj');
+
+        expect('a.b.c.d.e.f.g'.split(/[.]{0}/u, 3)).toStrictEqual(['a', '.', 'b']);
+        expect(() => $str.split('a.b.c.d.e.f.g', /[.]{0}/u, 3)).toThrowError('EtjAg4dj');
+
+        expect('headers\r\n\r\nbody content...\r\n\r\n...rest of body contents'.split('\r\n\r\n', 2)).toStrictEqual(['headers', 'body content...']);
+        expect($str.split('headers\r\n\r\nbody content...\r\n\r\n...rest of body contents', '\r\n\r\n', 2)).toStrictEqual([
+            'headers',
+            'body content...\r\n\r\n' + //
+                '...rest of body contents',
+        ]);
+    });
     test('.splitWords()', async () => {
         expect($str.splitWords('')).toStrictEqual([]);
         expect($str.splitWords('[heļlṏ, ꓺ ... 🦊 wɵrḻɖ!]')).toStrictEqual(['heļlṏ', 'ꓺ', 'wɵrḻɖ']);
