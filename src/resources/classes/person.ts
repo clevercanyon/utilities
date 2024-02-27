@@ -45,7 +45,7 @@ declare class ClassInterface {
         readonly [x: string]: string;
     };
     public constructor(props: C9rProps | Class);
-    public gravatarSize(size: number): string;
+    public gravatarSize(size: 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048): string;
     public rawProps(): RawProps;
 }
 type ClassInterfaceProps = Omit<ClassInterface, 'constructor' | 'gravatarSize' | 'rawProps'>;
@@ -149,11 +149,11 @@ export const getClass = (): Constructor => {
         /**
          * Gravatar at a specific size.
          *
-         * @param   size Size; e.g., `96`.
+         * @param   size Size; e.g., `128`.
          *
          * @returns      Gravatar URL.
          */
-        public gravatarSize(size: number): string {
+        public gravatarSize(size: 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048): string {
             return $url.addQueryVar('size', String(size), this.gravatar.url);
         }
 

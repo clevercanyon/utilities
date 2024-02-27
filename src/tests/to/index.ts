@@ -513,4 +513,75 @@ describe('$to', async () => {
             'socialProfiles.npm',
         ]);
     });
+    test('.toCamelCaseObject()', async () => {
+        expect(
+            Object.keys(
+                $to.camelCaseObject({
+                    'w': undefined,
+                    'h': undefined,
+
+                    'view_box': undefined,
+                    'bg_color': undefined,
+
+                    'lines': undefined,
+                    'line_types': undefined,
+                    'line_colors': undefined,
+                    'line_opacity': undefined,
+                    'line_min_width': undefined,
+                    'line_max_width': undefined,
+
+                    'corner_marks': undefined,
+                    'corner_marks_color': undefined,
+                    'corner_marks_width': undefined,
+                    'corner_marks_length': undefined,
+                    'corner_marks_padding': undefined,
+
+                    'text': undefined,
+                    'text_font_size': undefined,
+                    'text_font_color': undefined,
+                    'text_font_weight': undefined,
+                    'text_line_height': undefined,
+                    'text_font_face': undefined,
+
+                    'text_drop_shadow': undefined,
+                    'text_drop_shadow_blur': undefined,
+                    'text_drop_shadow_intensity': undefined,
+                    'text_drop_shadow_offset_x': undefined,
+                    'text_drop_shadow_offset_y': undefined,
+                }),
+            ),
+        ).toStrictEqual([
+            'w',
+            'h',
+
+            'viewBox',
+            'bgColor',
+
+            'lines',
+            'lineTypes',
+            'lineColors',
+            'lineOpacity',
+            'lineMinWidth',
+            'lineMaxWidth',
+
+            'cornerMarks',
+            'cornerMarksColor',
+            'cornerMarksWidth',
+            'cornerMarksLength',
+            'cornerMarksPadding',
+
+            'text',
+            'textFontSize',
+            'textFontColor',
+            'textFontWeight',
+            'textLineHeight',
+            'textFontFace',
+
+            'textDropShadow',
+            'textDropShadowBlur',
+            'textDropShadowIntensity',
+            'textDropShadowOffsetX',
+            'textDropShadowOffsetY',
+        ]);
+    });
 });

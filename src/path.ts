@@ -106,11 +106,11 @@ export const basename = (path: string): string => {
 };
 
 /**
- * Gets a raw filesystem basename.
+ * Gets a filesystem basename w/o extension.
  *
  * @param   path Path to consider.
  *
- * @returns      Raw filesystem basename.
+ * @returns      Filesystem basename w/o extension.
  */
 export const rawBasename = (path: string): string => {
     return removeExt(basename(path));
