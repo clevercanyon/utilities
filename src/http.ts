@@ -944,6 +944,17 @@ export const contentIsHTML = $fnꓺmemo(2, (headers: $type.HeadersInit): boolean
 });
 
 /**
+ * Content is binary?
+ *
+ * @param   headers HTTP headers.
+ *
+ * @returns         True if content is binary.
+ */
+export const contentIsBinary = $fnꓺmemo(2, (headers: $type.HeadersInit): boolean => {
+    return $mime.typeIsBinary(cleanContentType(headers));
+});
+
+/**
  * Content is encoded?
  *
  * @param   headers HTTP headers.
@@ -960,6 +971,8 @@ export const contentIsEncoded = $fnꓺmemo(2, (headers: $type.HeadersInit): bool
  * @param   response HTTP response.
  *
  * @returns          True if response is HTML.
+ *
+ * @todo: Deprecate this in favor of {@see contentIsHTML()}.
  */
 export const responseIsHTML = $fnꓺmemo(2, (response: $type.Response): boolean => {
     return contentIsHTML(response.headers);
@@ -971,6 +984,8 @@ export const responseIsHTML = $fnꓺmemo(2, (response: $type.Response): boolean 
  * @param   response HTTP response.
  *
  * @returns          True if response is encoded.
+ *
+ * @todo: Deprecate this in favor of {@see contentIsEncoded()}.
  */
 export const responseIsEncoded = $fnꓺmemo(2, (response: $type.Response): boolean => {
     return contentIsEncoded(response.headers);
