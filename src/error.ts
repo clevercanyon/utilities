@@ -10,10 +10,14 @@ import { $is, $obj, $str } from '#index.ts';
 /**
  * Defines types.
  */
-export type MessageOptions = {
-    expectedCauses?: (string | RegExp)[];
+export type SafeMessageFromOptions = {
+    expectedCauses?: ExpectedCause[];
     default: string;
 };
+export type ThrownByExpectecCauseOptions = {
+    expectedCauses: ExpectedCause[];
+};
+type ExpectedCause = string | RegExp;
 
 /**
  * Error code regular expression.
@@ -38,38 +42,57 @@ export const codeRegExp = $fnꓺmemo((): RegExp => /^[a-z0-9]{8}$/iu);
 /**
  * Generates an error message from a thrown value.
  *
- * A safe message from a thrown value is a message that’s attached to a {@see Error}, and is either an error code, or
- * was thrown due to an expected cause. Expected causes can be passed as an option to this utility.
+ * A safe message from a thrown value is a message that’s attached to an {@see Error} and is either an error code, or
+ * was thrown due to an expected cause code. Expected cause codes can be passed as an option to this utility.
  *
  * @param   thrown  Something thrown and caught by this utility’s caller.
- * @param   options `{ default: 'Message or code.' }` is required; {@see MessageOptions}.
+ * @param   options `{ default: 'Message or code.' }` required; {@see SafeMessageFromOptions}.
  *
  * @returns         Safe error message from thrown value.
- *
- * @see isExpectedCause()
  */
-export const safeMessageFrom = (thrown: unknown, options: MessageOptions): string => {
-    const opts = $obj.defaults({}, options || {}, { expectedCauses: [] }) as Required<MessageOptions>,
+export const safeMessageFrom = (thrown: unknown, options: SafeMessageFromOptions): string => {
+    const opts = $obj.defaults({}, options || {}, { expectedCauses: [] }) as Required<SafeMessageFromOptions>,
         tꓺError𑂱codeꓽ𑂱 = 'Error code: '; // Text token.
 
     if ($is.errorCode(thrown)) {
         return tꓺError𑂱codeꓽ𑂱 + thrown.message + '.';
     }
-    if (opts.expectedCauses.length && $is.error(thrown)) {
-        let error: unknown = thrown; // Initialize.
-
-        while ($is.error(error) && $is.errorCause(error.cause)) {
-            if (
-                error.message &&
-                (($is.string(error.cause) && isExpectedCause(opts.expectedCauses, error.cause)) ||
-                    ($is.plainObject(error.cause) && isExpectedCause(opts.expectedCauses, error.cause.code)))
-            ) {
-                return error.message; // Expected; i.e., safe, error message.
-            }
-            error = error.cause; // Up the stack we go.
+    let error: unknown = thrown; // Initialize.
+    while (opts.expectedCauses.length && $is.error(error) && $is.errorCause(error.cause)) {
+        if (
+            error.message &&
+            (($is.string(error.cause) && isExpectedCauseCode(opts.expectedCauses, error.cause)) ||
+                ($is.plainObject(error.cause) && isExpectedCauseCode(opts.expectedCauses, error.cause.code)))
+        ) {
+            return error.message; // Expected; i.e., safe, error message.
         }
+        error = error.cause; // Up the stack we go.
     }
     return codeRegExp().test(opts.default) ? tꓺError𑂱codeꓽ𑂱 + opts.default + '.' : opts.default;
+};
+
+/**
+ * Checks if thrown by an expected cause.
+ *
+ * @param   thrown  Something thrown and caught by this utility’s caller.
+ * @param   options `{ expectedCauses }` required; {@see ThrownByExpectecCauseOptions}.
+ *
+ * @returns         True if thrown by an expected cause.
+ */
+export const thrownByExpectedCause = (thrown: unknown, options: ThrownByExpectecCauseOptions): boolean => {
+    const opts = $obj.defaults({}, options || {}, { expectedCauses: [] }) as Required<ThrownByExpectecCauseOptions>;
+
+    let error: unknown = thrown; // Initialize.
+    while (opts.expectedCauses.length && $is.error(error) && $is.errorCause(error.cause)) {
+        if (
+            ($is.string(error.cause) && isExpectedCauseCode(opts.expectedCauses, error.cause)) || //
+            ($is.plainObject(error.cause) && isExpectedCauseCode(opts.expectedCauses, error.cause.code))
+        ) {
+            return true; // Expected cause; i.e., true.
+        }
+        error = error.cause; // Up the stack we go.
+    }
+    return false;
 };
 
 // ---
@@ -78,13 +101,13 @@ export const safeMessageFrom = (thrown: unknown, options: MessageOptions): strin
 /**
  * Checks if a cause code is expected.
  *
- * @param   expectedCauses Expected causes.
- * @param   code           An error’s cause code.
+ * @param   expectedCauses Expected causes; {@see ExpectedCause[]}.
+ * @param   code           An error’s cause code for comparison.
  *
  * @returns                True if cause code is expected.
  */
-const isExpectedCause = (expectedCauses: (string | RegExp)[], code: string): boolean => {
-    return expectedCauses.some((expectedCause: string | RegExp): boolean => {
+const isExpectedCauseCode = (expectedCauses: ExpectedCause[], code: string): boolean => {
+    return expectedCauses.some((expectedCause: ExpectedCause): boolean => {
         if ($is.string(expectedCause)) {
             return (
                 code === $str.rTrim(expectedCause, ':') || // Even match.
