@@ -14,7 +14,7 @@ export type SafeMessageFromOptions = {
     expectedCauses?: ExpectedCause[];
     default: string;
 };
-export type ThrownByExpectecCauseOptions = {
+export type ThrownByExpectedCauseOptions = {
     expectedCauses: ExpectedCause[];
 };
 type ExpectedCause = string | RegExp;
@@ -75,12 +75,12 @@ export const safeMessageFrom = (thrown: unknown, options: SafeMessageFromOptions
  * Checks if thrown by an expected cause.
  *
  * @param   thrown  Something thrown and caught by this utility’s caller.
- * @param   options `{ expectedCauses }` required; {@see ThrownByExpectecCauseOptions}.
+ * @param   options `{ expectedCauses }` required; {@see ThrownByExpectedCauseOptions}.
  *
  * @returns         True if thrown by an expected cause.
  */
-export const thrownByExpectedCause = (thrown: unknown, options: ThrownByExpectecCauseOptions): boolean => {
-    const opts = $obj.defaults({}, options || {}, { expectedCauses: [] }) as Required<ThrownByExpectecCauseOptions>;
+export const thrownByExpectedCause = (thrown: unknown, options: ThrownByExpectedCauseOptions): boolean => {
+    const opts = $obj.defaults({}, options || {}, { expectedCauses: [] }) as Required<ThrownByExpectedCauseOptions>;
 
     let error: unknown = thrown; // Initialize.
     while (opts.expectedCauses.length && $is.error(error) && $is.errorCause(error.cause)) {
