@@ -62,7 +62,7 @@ const tꓺbrucewrks = 'brucewrks',
     tꓺhttpsꓽⳇⳇwwwംnpmjsംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺnpmjs + tꓺംcom + '/~',
     tꓺhttpsꓽⳇⳇkeybaseംioⳇ = tꓺhttpsꓽⳇⳇ + tꓺkeybase + tꓺംio + '/',
     //
-    tꓺhttpsꓽⳇⳇworkersംhopംgdnⳇutilitiesⳇapiⳇgravatarⳇv1ⳇ = tꓺhttpsꓽⳇⳇ + tꓺworkers + tꓺംhopംgdn + '/utilities/api/' + tꓺgravatar + '/v1/',
+    tꓺhttpsꓽⳇⳇworkersംhopംgdnⳇapiⳇgravatarⳇv1ⳇ = tꓺhttpsꓽⳇⳇ + tꓺworkers + tꓺംhopംgdn + '/api/' + tꓺgravatar + '/v1/',
     tꓺobjꓺwidthHeight512x512 = { width: 512, height: 512 } as { width: number; height: number };
 
 /**
@@ -146,7 +146,7 @@ const initializeRawProps = (): void => {
         [tꓺurl]: tꓺhttpsꓽⳇⳇ + tꓺjaswrks + tꓺംcom + '/',
 
         [tꓺgravatar]: {
-            [tꓺurl]: tꓺhttpsꓽⳇⳇworkersംhopംgdnⳇutilitiesⳇapiⳇgravatarⳇv1ⳇ + '17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c.png?size=512',
+            [tꓺurl]: tꓺhttpsꓽⳇⳇworkersംhopംgdnⳇapiⳇgravatarⳇv1ⳇ + '17c7f6ff2e18895eb11da018bf928c8a3e3603607546426805f29f2a700e693c.png?size=512',
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {
@@ -174,7 +174,7 @@ const initializeRawProps = (): void => {
         [tꓺurl]: tꓺhttpsꓽⳇⳇgithubംcomⳇ + tꓺbrucewrks,
 
         [tꓺgravatar]: {
-            [tꓺurl]: tꓺhttpsꓽⳇⳇworkersംhopംgdnⳇutilitiesⳇapiⳇgravatarⳇv1ⳇ + 'bcdabcc96b6c049e1de6e6e32b0d4b772a4e9cb92e14e50591ee021ec4dd8317.png?size=512',
+            [tꓺurl]: tꓺhttpsꓽⳇⳇworkersംhopംgdnⳇapiⳇgravatarⳇv1ⳇ + 'bcdabcc96b6c049e1de6e6e32b0d4b772a4e9cb92e14e50591ee021ec4dd8317.png?size=512',
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {

@@ -266,7 +266,7 @@ export const ipGeoData = $fnꓺmemo(
             //
         } else if ($env.isCFW()) throw Error('NQva8dRK'); // See notes above.
 
-        return fetch('https://workers.hop.gdn/utilities/api/ip-geo/v1') //
+        return fetch('https://workers.hop.gdn/api/ip-geo/v1') //
             .then(async (response): Promise<IPGeoDataResponsePayload> => {
                 return $to.plainObject(await response.json()) as IPGeoDataResponsePayload;
             })
