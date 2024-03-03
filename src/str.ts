@@ -50,7 +50,6 @@ const ipV4MaxLength = 15,
 
         '&nbsp;': '\u00A0',
     };
-
 // Please be cautious, this has the `g`, and therefore it has state.
 const wordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p{L})|(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})|(?<=[\p{L}\p{N}])(?=\p{Lu}\p{Ll}))/gu;
 
