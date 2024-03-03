@@ -7,47 +7,49 @@ import '#@initialize.ts';
 import { $dom, $env, $is, $obj, $to } from '#index.ts';
 import ipRegex from 'ip-regex';
 
-const ipV4MaxLength = 15; // Max length of an IPv4 address.
-const ipV6MaxLength = 45; // Max length of an IPv6 address.
+const ipV4MaxLength = 15,
+    ipV6MaxLength = 45,
+    //
+    escHTMLMap: { [x: string]: string } = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&apos;',
+    },
+    unescHTMLMap: { [x: string]: string } = {
+        '&amp;': '&',
+        '&#38;': '&',
+        '&#038;': '&',
+        '&#x26;': '&',
+        '&#x0026;': '&',
 
-const escHTMLMap: { [x: string]: string } = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&apos;',
-};
-const unescHTMLMap: { [x: string]: string } = {
-    '&amp;': '&',
-    '&#38;': '&',
-    '&#038;': '&',
-    '&#x26;': '&',
-    '&#x0026;': '&',
+        '&lt;': '<',
+        '&#60;': '<',
+        '&#060;': '<',
+        '&#x3c;': '<',
+        '&#x003c;': '<',
 
-    '&lt;': '<',
-    '&#60;': '<',
-    '&#060;': '<',
-    '&#x3C;': '<',
-    '&#x003C;': '<',
+        '&gt;': '>',
+        '&#62;': '>',
+        '&#062;': '>',
+        '&#x3e;': '>',
+        '&#x003e;': '>',
 
-    '&gt;': '>',
-    '&#62;': '>',
-    '&#062;': '>',
-    '&#x3E;': '>',
-    '&#x003E;': '>',
+        '&quot;': '"',
+        '&#34;': '"',
+        '&#034;': '"',
+        '&#x22;': '"',
+        '&#x0022;': '"',
 
-    '&quot;': '"',
-    '&#34;': '"',
-    '&#034;': '"',
-    '&#x22;': '"',
-    '&#x0022;': '"',
+        '&apos;': "'",
+        '&#39;': "'",
+        '&#039;': "'",
+        '&#x27;': "'",
+        '&#x0027;': "'",
 
-    '&apos;': "'",
-    '&#39;': "'",
-    '&#039;': "'",
-    '&#x27;': "'",
-    '&#x0027;': "'",
-};
+        '&nbsp;': '\u00A0',
+    };
 
 // Please be cautious, this has the `g`, and therefore it has state.
 const wordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p{L})|(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})|(?<=[\p{L}\p{N}])(?=\p{Lu}\p{Ll}))/gu;
