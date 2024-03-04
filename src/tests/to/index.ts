@@ -513,7 +513,78 @@ describe('$to', async () => {
             'socialProfiles.npm',
         ]);
     });
-    test('.toCamelCaseObject()', async () => {
+    test('.snakeCaseObject()', async () => {
+        expect(
+            Object.keys(
+                $to.snakeCaseObject({
+                    'w': undefined,
+                    'h': undefined,
+
+                    'viewBox': undefined,
+                    'bgColor': undefined,
+
+                    'lines': undefined,
+                    'lineTypes': undefined,
+                    'lineColors': undefined,
+                    'lineOpacity': undefined,
+                    'lineMinWidth': undefined,
+                    'lineMaxWidth': undefined,
+
+                    'cornerMarks': undefined,
+                    'cornerMarksColor': undefined,
+                    'cornerMarksWidth': undefined,
+                    'cornerMarksLength': undefined,
+                    'cornerMarksPadding': undefined,
+
+                    'text': undefined,
+                    'textFontSize': undefined,
+                    'textFontColor': undefined,
+                    'textFontWeight': undefined,
+                    'textLineHeight': undefined,
+                    'textFontFace': undefined,
+
+                    'textDropShadow': undefined,
+                    'textDropShadowBlur': undefined,
+                    'textDropShadowIntensity': undefined,
+                    'textDropShadowOffsetX': undefined,
+                    'textDropShadowOffsetY': undefined,
+                }),
+            ),
+        ).toStrictEqual([
+            'w',
+            'h',
+
+            'view_box',
+            'bg_color',
+
+            'lines',
+            'line_types',
+            'line_colors',
+            'line_opacity',
+            'line_min_width',
+            'line_max_width',
+
+            'corner_marks',
+            'corner_marks_color',
+            'corner_marks_width',
+            'corner_marks_length',
+            'corner_marks_padding',
+
+            'text',
+            'text_font_size',
+            'text_font_color',
+            'text_font_weight',
+            'text_line_height',
+            'text_font_face',
+
+            'text_drop_shadow',
+            'text_drop_shadow_blur',
+            'text_drop_shadow_intensity',
+            'text_drop_shadow_offset_x',
+            'text_drop_shadow_offset_y',
+        ]);
+    });
+    test('.camelCaseObject()', async () => {
         expect(
             Object.keys(
                 $to.camelCaseObject({

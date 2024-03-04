@@ -190,6 +190,23 @@ const plainObjectDeepꓺplainValueꓺhelper = (value: unknown, circular: Map<obj
 };
 
 /**
+ * Converts any value into a snake_case object.
+ *
+ * @param   value Value to convert into a snake_case object.
+ *
+ * @returns       Object in the form of a shallow clone, with snake_case keys.
+ */
+export const snakeCaseObject = (value: unknown): $type.Object => {
+    const snakeCase = Object(value) as $type.Object;
+
+    for (const [key, _value] of Object.entries(snakeCase)) {
+        delete snakeCase[key];
+        snakeCase[$str.snakeCase(key)] = _value;
+    }
+    return snakeCase;
+};
+
+/**
  * Converts any value into a camelCase object.
  *
  * @param   value Value to convert into a camelCase object.
