@@ -260,6 +260,19 @@ export function unset(...args: unknown[]): void {
 }
 
 /**
+ * Checks if environment is a CI.
+ *
+ * @returns True or false.
+ *
+ *   GitHub sets the following environment variables:
+ *
+ *   - `CI=true` (boolean); {@see https://o5p.me/FGyhju}.
+ */
+export const isCI = $fnꓺmemo((): boolean => {
+    return test('CI'); // Set by GitHub; maybe by others also.
+});
+
+/**
  * Checks if environment is a test framework.
  *
  * @returns True or false.

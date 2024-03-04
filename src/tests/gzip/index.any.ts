@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import { $gzip } from '#index.ts';
+import { $env, $gzip } from '#index.ts';
 import { describe, expect, test } from 'vitest';
 
 describe('$gzip', async () => {
@@ -21,14 +21,32 @@ describe('$gzip', async () => {
         },
     };
     test('.encode()', async () => {
+        /**
+         * We simplify assertions on CI because encoded byte arrays can differ slightly across various OS builds. This
+         * is due to the fact that gzip implementations use slightly different metadata across gzip versions.
+         */
         for (const [str, bytes] of Object.entries(bytesMap.gzip)) {
-            expect(await $gzip.encode(str)).toStrictEqual(bytes);
+            if ($env.isCI()) {
+                expect((await $gzip.encode(str)) instanceof Uint8Array).toBe(true);
+            } else {
+                expect(await $gzip.encode(str)).toStrictEqual(bytes);
+                expect((await $gzip.encode(str)).length).toBe(56);
+            }
         }
+        /**
+         * We do NOT simplify these assertions on CI. While encoded byte arrays can differ slightly across various OS
+         * builds, the deflate algorithm doesn’t include metadata, so it should always match up, regardless.
+         */
         for (const [str, bytes] of Object.entries(bytesMap.deflate)) {
             expect(await $gzip.encode(str, { deflate: true })).toStrictEqual(bytes);
+            expect((await $gzip.encode(str, { deflate: true })).length).toBe(44);
         }
     });
     test('.decode()', async () => {
+        /**
+         * We do NOT simplify these assertions on CI. While encoded byte arrays can differ slightly across various OS
+         * builds, the strings decoded using the above byte arrays should always be the same, regardless.
+         */
         for (const [str, bytes] of Object.entries(bytesMap.gzip)) {
             expect(await $gzip.decode(bytes)).toBe(str);
         }
