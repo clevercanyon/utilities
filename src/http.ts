@@ -497,8 +497,8 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
  */
 export const prepareCachedResponse = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
     if (
-        responseIsHTML(response) && //
-        !responseIsEncoded(response) &&
+        contentIsHTML(response.headers) && //
+        !contentIsEncoded(response.headers) &&
         request.headers.has('x-csp-nonce') &&
         response.headers.has('content-security-policy')
     ) {
@@ -558,8 +558,8 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
     response.headers.delete('x-cache-status'); // Serves no purpose in a cache.
 
     if (
-        responseIsHTML(response) && //
-        !responseIsEncoded(response) &&
+        contentIsHTML(response.headers) && //
+        !contentIsEncoded(response.headers) &&
         request.headers.has('x-csp-nonce') &&
         response.headers.has('content-security-policy')
     ) {
@@ -963,32 +963,6 @@ export const contentIsBinary = $fnꓺmemo(2, (headers: $type.HeadersInit): boole
  */
 export const contentIsEncoded = $fnꓺmemo(2, (headers: $type.HeadersInit): boolean => {
     return !['', 'none'].includes((parseHeaders(headers).get('content-encoding') || '').toLowerCase());
-});
-
-/**
- * Response is HTML?
- *
- * @param   response HTTP response.
- *
- * @returns          True if response is HTML.
- *
- * @todo: Deprecate this in favor of {@see contentIsHTML()}.
- */
-export const responseIsHTML = $fnꓺmemo(2, (response: $type.Response): boolean => {
-    return contentIsHTML(response.headers);
-});
-
-/**
- * Response is encoded?
- *
- * @param   response HTTP response.
- *
- * @returns          True if response is encoded.
- *
- * @todo: Deprecate this in favor of {@see contentIsEncoded()}.
- */
-export const responseIsEncoded = $fnꓺmemo(2, (response: $type.Response): boolean => {
-    return contentIsEncoded(response.headers);
 });
 
 /**
