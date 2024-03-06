@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.884",
+    "version": "1.0.885",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -135,11 +135,6 @@
             "import": "./dist/path.js",
             "default": "./dist/path.js"
         },
-        "./person": {
-            "types": "./dist/types/person.d.ts",
-            "import": "./dist/person.js",
-            "default": "./dist/person.js"
-        },
         "./preact": {
             "types": "./dist/types/preact.d.ts",
             "import": "./dist/preact.js",
@@ -259,6 +254,11 @@
             "types": "./dist/types/preact/components/turnstile.d.ts",
             "import": "./dist/preact/components/turnstile.js",
             "default": "./dist/preact/components/turnstile.js"
+        },
+        "./profile": {
+            "types": "./dist/types/profile.d.ts",
+            "import": "./dist/profile.js",
+            "default": "./dist/profile.js"
         },
         "./redact": {
             "types": "./dist/types/redact.d.ts",

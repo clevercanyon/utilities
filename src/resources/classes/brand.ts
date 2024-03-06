@@ -37,7 +37,7 @@ declare class ClassInterface {
         readonly zip: string;
         readonly country: string;
     };
-    public readonly founder: $type.Person;
+    public readonly founder: $type.Profile;
     public readonly foundingDate: string;
     public readonly numberOfEmployees: number;
 
@@ -217,9 +217,9 @@ export const getClass = (): Constructor => {
         };
 
         /**
-         * Brand founder; i.e., a Person.
+         * Brand founder; i.e., a Profile.
          */
-        public readonly founder!: $type.Person;
+        public readonly founder!: $type.Profile;
 
         /**
          * Founding date; e.g., `2023-10-03`.

@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $app, $dom, $env, $fn, $is, $json, $obj, $person, $preact, $time, $to, $url, type $type } from '#index.ts';
+import { $app, $dom, $env, $fn, $is, $json, $obj, $preact, $profile, $time, $to, $url, type $type } from '#index.ts';
 import { globalToScriptCode as dataGlobalToScriptCode, type Context as DataContext } from '#preact/components/data.tsx';
 import { type State as HTMLState } from '#preact/components/html.tsx';
 import { Component } from 'preact';
@@ -28,7 +28,7 @@ export type ActualState = $preact.State<{
     tags?: string[];
     image?: $type.URL | string;
 
-    author?: $type.Person | string;
+    author?: $type.Profile | string;
     publishTime?: $type.Time | string;
     lastModifiedTime?: $type.Time | string;
 
@@ -73,7 +73,7 @@ export type State = $preact.State<{
     tags: string[];
     image: string; // Absolute URL.
 
-    author?: $type.Person;
+    author?: $type.Profile;
     publishTime?: $type.Time;
     lastModifiedTime?: $type.Time;
 
@@ -807,7 +807,7 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             [tꓺtags]: tags || ogTags || [],
             [tꓺimage]: asAbsoluteURLString(image || ogImage || brandꓺogImage.png),
 
-            [tꓺauthor]: $is.person(author) ? author : $fn.try(() => $person.get($to.string(author)), tꓺvꓺundefined)(),
+            [tꓺauthor]: $is.profile(author) ? author : $fn.try(() => $profile.get($to.string(author)), tꓺvꓺundefined)(),
             [tꓺpublishTime]: publishTime ? $time.parse(publishTime) : tꓺvꓺundefined,
             [tꓺlastModifiedTime]: lastModifiedTime ? $time.parse(lastModifiedTime) : tꓺvꓺundefined,
 

@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import { $app, $brand, $env, $json, $person, $preact, $url } from '#index.ts';
+import { $app, $brand, $env, $json, $preact, $profile, $url } from '#index.ts';
 import { Body, HTML, Head, Root, Route, type RootProps } from '#preact/components.tsx';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 
@@ -64,7 +64,7 @@ describe('$preact.iso.hydrativelyRenderSPA() [web]', async () => {
     const Index = (): $preact.VNode => {
         return (
             <HTML>
-                <Head title={'index'} author={$person.get('&')} />
+                <Head title={'index'} author={$profile.get('@jaswrks')} />
                 <Body class='h-full'>
                     <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
                 </Body>

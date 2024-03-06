@@ -198,7 +198,7 @@ describe('$to', async () => {
             'address.zip',
             'address.country',
 
-            'founder', // Person object, not plain.
+            'founder', // Profile object, not plain.
             'foundingDate',
             'numberOfEmployees',
 
@@ -388,9 +388,9 @@ describe('$to', async () => {
             'address.zip',
             'address.country',
 
+            'founder.name',
             'founder.firstName',
             'founder.lastName',
-            'founder.name',
             'founder.username',
             'founder.headline',
             'founder.description',

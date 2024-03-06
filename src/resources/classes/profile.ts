@@ -1,33 +1,33 @@
 /**
- * Person utility class.
+ * Profile utility class.
  */
 
-import { $class, $obj, $str, $symbol, $url, type $type } from '#index.ts';
+import { $class, $is, $obj, $str, $symbol, $url, type $type } from '#index.ts';
 
 /**
  * Constructor cache.
  */
-let Person: Constructor;
+let Profile: Constructor;
 
 /**
  * Defines types.
  */
-export type RawProps = Omit<ClassInterfaceProps, 'name'> & {
-    name?: string; // Optional, can be derived from `firstName`, `lastName`.
+export type RawProps = Omit<ClassInterfaceProps, 'name' | 'firstName' | 'lastName'> & {
+    name?: string;
+    firstName?: string;
+    lastName?: string;
 };
-export type C9rProps = Omit<ClassInterfaceProps, 'name'> & {
-    name?: string; // Optional, can be derived from `firstName`, `lastName`.
-};
+export type C9rProps = RawProps;
+
 export type Constructor = {
     new (props: C9rProps | Class): Class;
 };
 export type Class = $type.Utility & ClassInterface;
 
 declare class ClassInterface {
+    public readonly name: string;
     public readonly firstName: string;
     public readonly lastName: string;
-
-    public readonly name: string;
     public readonly username: string;
 
     public readonly headline: string;
@@ -51,14 +51,19 @@ declare class ClassInterface {
 type ClassInterfaceProps = Omit<ClassInterface, 'constructor' | 'gravatarSize' | 'rawProps'>;
 
 /**
- * Person class factory.
+ * Profile class factory.
  *
  * @returns Class constructor.
  */
 export const getClass = (): Constructor => {
-    if (Person) return Person;
+    if (Profile) return Profile;
 
-    Person = class extends $class.getUtility() implements Class {
+    Profile = class extends $class.getUtility() implements Class {
+        /**
+         * Full name; e.g., `Jason Caldwell`.
+         */
+        public readonly name!: string;
+
         /**
          * First name; e.g., `Jason`.
          */
@@ -68,11 +73,6 @@ export const getClass = (): Constructor => {
          * Last name; e.g., `Caldwell`.
          */
         public readonly lastName!: string;
-
-        /**
-         * Full name; e.g., `Jason Caldwell`.
-         */
-        public readonly name!: string;
 
         /**
          * Username; e.g., `jaswrks`.
@@ -122,12 +122,21 @@ export const getClass = (): Constructor => {
          */
         public constructor(props: C9rProps | Class) {
             super(); // Parent constructor.
-            const isClone = props instanceof Person;
+            const isClone = $is.profile(props);
+
+            this.name = this.firstName = this.lastName = '';
 
             for (const [key, value] of $obj.keyAndSymbolEntries(props)) {
                 this[key] = value; // Property assignments.
             }
-            this.name = $str.trim(this.firstName + ' ' + this.lastName);
+            if (!this.name /* Derives `name` from `firstName` & `lastName`. */) {
+                this.name = $str.trim(this.firstName + ' ' + this.lastName);
+            }
+            const nameParts = this.name.split(/\s+/u).filter((part) => {
+                return !/^(?:Mr|Ms|Miss|Mrs|Dr|Jr|Sr|Co|Corp|Inc|LL[PC]|LTD|[a-z])\.?$/iu.test(part);
+            });
+            if (!this.firstName && nameParts.length) this.firstName = nameParts[0];
+            if (!this.lastName && nameParts.length > 1) this.lastName = nameParts.slice(-1)[0];
 
             if (isClone) {
                 // Clones will freeze; i.e., upon cloning.
@@ -163,12 +172,12 @@ export const getClass = (): Constructor => {
          * @returns Object {@see RawProps}.
          */
         public rawProps(): RawProps {
-            // Enforces person raw props being readonly.
+            // Enforces raw props being readonly.
             return $obj.deepFreeze({ ...this });
         }
     };
-    return Object.defineProperty(Person, 'name', {
-        ...Object.getOwnPropertyDescriptor(Person, 'name'),
-        value: 'Person',
+    return Object.defineProperty(Profile, 'name', {
+        ...Object.getOwnPropertyDescriptor(Profile, 'name'),
+        value: 'Profile',
     });
 };

@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $app, $class, $obj, $person, $str, $url, type $type } from '#index.ts';
+import { $app, $class, $obj, $profile, $str, $url, type $type } from '#index.ts';
 
 /**
  * Tracks initialization.
@@ -276,7 +276,7 @@ const initializeRawProps = (): void => {
             [tꓺzip]: '04210',
             [tꓺcountry]: 'US',
         },
-        [tꓺfounder]: $person.get('&'),
+        [tꓺfounder]: $profile.get('@jaswrks'),
         [tꓺfoundingDate]: '2023-10-03',
         [tꓺnumberOfEmployees]: 10,
 

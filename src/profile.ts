@@ -1,5 +1,5 @@
 /**
- * Person utilities.
+ * Profile utilities.
  */
 
 import '#@initialize.ts';
@@ -14,12 +14,12 @@ let rawPropsInitialized = false;
 /**
  * Cache of instances keyed by username.
  */
-const instances: { [x: string]: $type.Person } = {};
+const instances: { [x: string]: $type.Profile } = {};
 
 /**
  * Raw props keyed by username.
  */
-const rawProps: { [x: string]: $type.PersonRawProps } = {};
+const rawProps: { [x: string]: $type.ProfileRawProps } = {};
 
 /**
  * Defines tokens.
@@ -66,18 +66,18 @@ const tꓺbrucewrks = 'brucewrks',
     tꓺobjꓺwidthHeight512x512 = { width: 512, height: 512 } as { width: number; height: number };
 
 /**
- * Adds a new person at runtime.
+ * Adds a new profile at runtime.
  *
- * @param   username The person’s username.
- * @param   props    Raw person props; {@see $type.PersonRawProps}.
+ * @param   username The profile’s username.
+ * @param   props    Raw profile props; {@see $type.ProfileRawProps}.
  *
- * @returns          Person instance {@see $type.Person}.
+ * @returns          Profile instance {@see $type.Profile}.
  */
-export const add = (username: string, props: $type.PersonRawProps): $type.Person => {
+export const add = (username: string, props: $type.ProfileRawProps): $type.Profile => {
     if (!rawPropsInitialized) initializeRawProps();
 
     if (Object.hasOwn(rawProps, username)) {
-        throw Error('Czuf6MDV'); // Person `' + username + '` exists already.
+        throw Error('Czuf6MDV');
     }
     // Enforces raw props being readonly.
     rawProps[username] = $obj.deepFreeze(props);
@@ -86,9 +86,9 @@ export const add = (username: string, props: $type.PersonRawProps): $type.Person
 };
 
 /**
- * Removes a person at runtime.
+ * Removes a profile at runtime.
  *
- * @param username The person’s username.
+ * @param username The profile’s username.
  */
 export const remove = (username: string): void => {
     if (!rawPropsInitialized) initializeRawProps();
@@ -99,13 +99,13 @@ export const remove = (username: string): void => {
 };
 
 /**
- * Gets a person instance.
+ * Gets a profile instance.
  *
- * @param   username Person username.
+ * @param   username Profile username.
  *
- * @returns          Person instance {@see $type.Person}.
+ * @returns          Profile instance {@see $type.Profile}.
  */
-export const get = (username: string): $type.Person => {
+export const get = (username: string): $type.Profile => {
     if (!rawPropsInitialized) initializeRawProps();
 
     username = $str.lTrim(username, '@');
@@ -113,13 +113,13 @@ export const get = (username: string): $type.Person => {
     // `&` is a self-referential founder alias.
 
     if (!username || !rawProps[username]) {
-        throw Error('72PZaBbj'); // Missing person: `' + username + '`.
+        throw Error('72PZaBbj');
     }
     if (instances[username]) {
         return instances[username];
     }
-    const Person = $class.getPerson(); // Person class.
-    instances[username] = new Person({ ...rawProps[username] });
+    const Profile = $class.getProfile();
+    instances[username] = new Profile({ ...rawProps[username] });
 
     return instances[username];
 };

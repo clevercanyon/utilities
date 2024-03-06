@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 
-import { $app, $brand, $crypto, $env, $json, $person, $preact, $url } from '#index.ts';
+import { $app, $brand, $crypto, $env, $json, $preact, $profile, $url } from '#index.ts';
 import { Body, HTML, Head, Root, Route, type RootProps } from '#preact/components.tsx';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
@@ -69,7 +69,7 @@ describe('$preact.iso.prerenderSPA() [web-fixture]', async () => {
         const { state: dataState } = $preact.useData();
         return (
             <HTML>
-                <Head title={'index'} author={$person.get('&')} />
+                <Head title={'index'} author={$profile.get('@jaswrks')} />
                 <Body class='h-full'>
                     <script type='route-context-props' nonce={dataState.cspNonce} dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
                 </Body>

@@ -626,14 +626,14 @@ export const brand = (value: unknown): value is $type.Brand => {
 };
 
 /**
- * Checks if value is a person.
+ * Checks if value is a profile.
  *
  * @param   value Value to consider.
  *
- * @returns       True if value is a person.
+ * @returns       True if value is a profile.
  */
-export const person = (value: unknown): value is $type.Person => {
-    return object(value) && objectOfTag(value, $app.$pkgName + '/Person');
+export const profile = (value: unknown): value is $type.Profile => {
+    return object(value) && objectOfTag(value, $app.$pkgName + '/Profile');
 };
 
 /**
