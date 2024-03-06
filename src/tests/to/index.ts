@@ -65,6 +65,22 @@ describe('$to', async () => {
         expect(testCustomAnonObj).toEqual({ values: { a: 'a', b: 'b', c: 'c' } });
         expect(Object.keys(testCustomAnonObj)).toStrictEqual(['values']);
     });
+    test('.numberBetween()', async () => {
+        expect($to.numberBetween(-1, 0, 3)).toStrictEqual(0);
+        expect($to.numberBetween(0, 0, 3)).toStrictEqual(0);
+        expect($to.numberBetween(1, 0, 3)).toStrictEqual(1);
+        expect($to.numberBetween(2, 0, 3)).toStrictEqual(2);
+        expect($to.numberBetween(3, 0, 3)).toStrictEqual(3);
+        expect($to.numberBetween(4, 0, 3)).toStrictEqual(3);
+    });
+    test('.integerBetween()', async () => {
+        expect($to.integerBetween(-1.2, 0, 3)).toStrictEqual(0);
+        expect($to.integerBetween(0.2, 0, 3)).toStrictEqual(0);
+        expect($to.integerBetween(0.8, 0, 3)).toStrictEqual(1);
+        expect($to.integerBetween(2.2, 0, 3)).toStrictEqual(2);
+        expect($to.integerBetween(3.4, 0, 3)).toStrictEqual(3);
+        expect($to.integerBetween(3.9, 0, 3)).toStrictEqual(3);
+    });
     test('.array()', async () => {
         expect($to.array(NaN)).toStrictEqual([NaN]);
         expect($to.array(null)).toStrictEqual([]);

@@ -24,6 +24,32 @@ export const string = (value: unknown): string => {
 };
 
 /**
+ * Converts any value into a number between inclusive min/max values.
+ *
+ * @param   value Value to cast as a number.
+ * @param   min   Minimum value of number.
+ * @param   max   Maximum value of number.
+ *
+ * @returns       Number between min/max inclusive values.
+ */
+export const numberBetween = (value: unknown, min: number, max: number): number => {
+    return Math.max(min, Math.min(max, Number(value) || 0));
+};
+
+/**
+ * Converts any value into an integer between inclusive min/max values.
+ *
+ * @param   value Value to cast as an integer.
+ * @param   min   Minimum value of integer.
+ * @param   max   Maximum value of integer.
+ *
+ * @returns       Integer between min/max inclusive values.
+ */
+export const integerBetween = (value: unknown, min: number, max: number): number => {
+    return numberBetween(Math.round(Number(value) || 0), min, max);
+};
+
+/**
  * Converts any value into a map.
  *
  * There’s no native map casting in JavaScript. `new Map(Object.entries(value))` is about the shortest you can get,
