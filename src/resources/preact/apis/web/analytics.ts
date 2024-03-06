@@ -446,31 +446,28 @@ const deployProviders = (): void => {
  * potentially be updated beyond the initial data; e.g., if a user updates their preferences using our consent dialog.
  *
  * @diagram https://coggle.it/diagram/ZUg4jScP9MedqiuI/t/user/bca9701d3238b926fad4768aafce4182cfcecd58398bf379fad917f714c9d3ea
+ *
+ * @see https://o5p.me/3EMNhI
  */
 const updateProvidersConsentData = (): void => {
     // Extracts from consent state.
     const { consentInitialized } = state,
         { canUse } = consentState;
 
-    // Updates Google Analytics consent data.
+    // Updates Google Analytics & Google-related consent data.
     // When initializing, this must be the first addition to the GA queue.
     // i.e., Consent data must come even before `gtag('js', ...)`, and others.
+    // Some of these may not used by Google Analytics, but do impact other Google integrations.
     gtag('consent', consentInitialized ? 'update' : 'default', {
-        // We do consider these to be essential cookies.
-        // However, they are still third-party cookies that share/sell data.
         security_storage: canUse.thirdParty && canUse.essential ? 'granted' : 'denied',
-
-        // We don’t consider these to be essential cookies.
-        // For our purposes, personalization === functionality.
         functionality_storage: canUse.thirdParty && canUse.functionality ? 'granted' : 'denied',
         personalization_storage: canUse.thirdParty && canUse.functionality ? 'granted' : 'denied',
-
-        // We don’t consider these to be essential cookies.
-        // These are the only two buckets actually used by Google Analytics.
         analytics_storage: canUse.thirdParty && canUse.analytics ? 'granted' : 'denied',
         ad_storage: canUse.thirdParty && canUse.advertising ? 'granted' : 'denied',
+        ad_user_data: canUse.thirdParty && canUse.advertising ? 'granted' : 'denied',
+        ad_personalization: canUse.thirdParty && canUse.advertising && canUse.functionality ? 'granted' : 'denied',
     });
-    // Flags consent data as having now been initialized.
+    // Flags consent data as having now been initialized for all providers.
     state.consentInitialized = true; // First update initializes consent data.
 };
 
