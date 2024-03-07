@@ -319,6 +319,12 @@ export const trackEvent = async (name: string, props: EventProps = {}): Promise<
             // Analytics hostname; e.g., `acme.example.com:3000` (with port).
             x_hostname: $str.clip($url.currentHost({ withPort: true }), { maxChars: 100 }),
 
+            // Filters out internal traffic by marking it as such.
+            ...($env.isCI() || $env.isTest() || $env.isLocal() || $env.isVite() ||
+                /(?:TermlyBot|Better\s+Uptime\s+Bot)/iu.test(navigator.userAgent)
+                ? { traffic_type: 'internal' }
+                : {}), // prettier-ignore
+
             ...utmXQueryVarDimensions(), // e.g., `x_utm_source`, etc.
             ...props, // Any additional props passed in.
         };
