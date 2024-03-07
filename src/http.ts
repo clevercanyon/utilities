@@ -1036,6 +1036,19 @@ export const verifyTurnstile = async (request: $type.Request, turnstile: string)
 };
 
 /**
+ * Logs a heartbeat for monitoring purposes.
+ *
+ * @param   id Heartbeat ID; e.g., `JGndBRX5LXN79q5q1GkpsmaQ`.
+ *
+ * @returns    Promise of heartbeat response.
+ */
+export const heartbeat = async (id: string): Promise<void> => {
+    await fetch('https://uptime.betterstack.com/api/v1/heartbeat/' + $url.encode(id), {
+        signal: AbortSignal.timeout($time.secondInMilliseconds),
+    }).catch(() => undefined);
+};
+
+/**
  * Supported HTTP request methods.
  *
  * @returns An array of supported HTTP request methods (uppercase).
