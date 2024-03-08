@@ -18,6 +18,7 @@ export type C9rProps = Partial<{
     isEssential: boolean;
     listenForErrors: boolean;
     configMinutia: ConfigMinutia;
+    cfw?: CFW | undefined;
 }>;
 export type Constructor = {
     new (props?: C9rProps | Class): Class;
@@ -31,6 +32,8 @@ declare class ClassInterface {
     public isEssential: boolean;
     public listenForErrors: boolean;
     public configMinutia: ConfigMinutia;
+    public cfw: CFW | undefined;
+
     public constructor(props?: C9rProps | Class);
     public withContext(context?: object, contextOptions?: WithContextOptions): WithContextInterface;
     public log(message: string, context?: object, level?: string): Promise<boolean>;
@@ -47,18 +50,22 @@ type LogEntry = {
     context: $type.Object;
 };
 type ConfigMinutia = {
+    httpTimeout: number; // In milliseconds.
+
+    throttledFlushWaitTime: number; // In milliseconds.
+    throttledFlushAfterLogEntries: number;
+
     maxRetries: number;
     maxRetryFailures: number;
-    retryAfterExpMultiplier: number;
-    maxRetryFailuresExpiresAfter: number;
-
-    throttledFlushWaitTime: number;
-    throttledFlushAfterLogEntries: number;
+    retryAfterExpMultiplier: number; // In milliseconds.
+    maxRetryFailuresExpiresAfter: number; // In milliseconds.
 };
-type WithContextOptions = Partial<{
-    request?: $type.Request;
-    cfw?: { ctx: Readonly<Pick<$type.cfw.ExecutionContext | Parameters<$type.cfw.PagesFunction>[0], 'waitUntil'>> };
-}>;
+type CFW = {
+    subrequestCounter: { value: number };
+    ctx: Readonly<Pick<$type.cfw.ExecutionContext | Parameters<$type.cfw.PagesFunction>[0], 'waitUntil'>>;
+};
+type WithContextOptions = Partial<{ request?: $type.Request }>;
+
 type WithContextInterface = {
     withContext(subcontext?: object, subcontextOptions?: WithContextOptions): WithContextInterface;
     log(message: string, subcontext?: object, level?: string): Promise<boolean>;
@@ -102,6 +109,11 @@ export const getClass = (): Constructor => {
          * Configuration minutia.
          */
         public configMinutia: ConfigMinutia;
+
+        /**
+         * Cloudflare worker data.
+         */
+        public cfw: CFW | undefined;
 
         /**
          * Log entry queue.
@@ -161,13 +173,15 @@ export const getClass = (): Constructor => {
              * time that a single worker request is allowed to take via `ctx.waitUntil()` promises.
              */
             this.configMinutia ??= {
+                httpTimeout: $time.secondInMilliseconds * 5, // In milliseconds.
+
+                throttledFlushWaitTime: $time.secondInMilliseconds, // In milliseconds.
+                throttledFlushAfterLogEntries: 5, // Begin throttling after this many entries.
+
                 maxRetries: 3,
                 maxRetryFailures: 10,
-                retryAfterExpMultiplier: $time.secondInMilliseconds / 2,
-                maxRetryFailuresExpiresAfter: $time.minuteInMilliseconds * 30,
-
-                throttledFlushAfterLogEntries: 5,
-                throttledFlushWaitTime: $time.secondInMilliseconds,
+                retryAfterExpMultiplier: $time.secondInMilliseconds / 2, // In milliseconds.
+                maxRetryFailuresExpiresAfter: $time.minuteInMilliseconds * 30, // In milliseconds.
             };
             this.queue = []; // Initializes log entry queue.
             this.logEntryCounter = 0; // Initialize log entry counter.
@@ -191,7 +205,7 @@ export const getClass = (): Constructor => {
 
             // {@see withContext()} for Cloudflare workers.
             // It has `waitUntil()` handling baked into it already.
-            // Log uncaught errors using try/catch, or via Logpush; {@see https://o5p.me/QKF7MQ}.
+            // Logs uncaught errors using try/catch, or via Logpush; {@see https://o5p.me/QKF7MQ}.
 
             if ($env.isNode()) {
                 if (this.listenForErrors) listenForNodeErrors(this);
@@ -352,26 +366,32 @@ export const getClass = (): Constructor => {
             return jsonCloneObjectDeep({
                 _: {
                     env: {
-                        isLocal: $env.isLocal(request),
-                        isLocalVite: $env.isLocalVite(request),
+                        $set: {
+                            isLocal: $env.isLocal(request),
+                            isLocalVite: $env.isLocalVite(request),
+                        },
                     },
                     user: {
-                        isMajorCrawler: $user.isMajorCrawler(request),
-                        hasGlobalPrivacy: $user.hasGlobalPrivacy(request),
+                        $set: {
+                            isMajorCrawler: $user.isMajorCrawler(request),
+                            hasGlobalPrivacy: $user.hasGlobalPrivacy(request),
 
-                        agent: $user.agent(request),
-                        languages: $user.languages(request),
+                            agent: $user.agent(request),
+                            languages: $user.languages(request),
 
-                        utxId: $user.utxId(request),
-                        utxAuthorId: $user.utxAuthorId(request),
-                        utxCustomerId: $user.utxCustomerId(request),
-                        geo: $redact.ipGeoData(await $user.ipGeoData(request)),
+                            utxId: $user.utxId(request),
+                            utxAuthorId: $user.utxAuthorId(request),
+                            utxCustomerId: $user.utxCustomerId(request),
+                            geo: $redact.ipGeoData(await $user.ipGeoData(request)),
 
-                        consentData: $user.consentData(request),
-                        // Omitting `ipGeoData` because we already have it in `geo`.
-                        consentState: $obj.omit(await $user.consentState(request), ['ipGeoData']),
+                            consentData: $user.consentData(request),
+                            // Omitting `ipGeoData` because we already have it in `geo`.
+                            consentState: $obj.omit(await $user.consentState(request), ['ipGeoData']),
+                        },
                     },
-                    request, // Request objects are partially redacted by our JSON middlware.
+                    $set: {
+                        request, // Request objects are partially redacted by our JSON middlware.
+                    },
                 },
             });
         }
@@ -385,7 +405,7 @@ export const getClass = (): Constructor => {
          * @returns                With-context interface; {@see WithContextInterface}.
          */
         public withContext(context: object, contextOptions?: WithContextOptions): WithContextInterface {
-            const contextOpts = $obj.defaults({}, contextOptions || {}) as WithContextOptions,
+            const contextOpts = contextOptions || ({} as WithContextOptions),
                 withContextInterface = {
                     /**
                      * Generates a with-subcontext logger interface.
@@ -422,15 +442,10 @@ export const getClass = (): Constructor => {
 
                         const withContext = $obj.mergeDeep(
                             jsonCloneObjectDeep(context), // Inherits current context data/opts.
-                            contextOpts.request ? await this.requestContext(contextOpts.request) : {}, // Returns a clone.
-                            jsonCloneObjectDeep(subcontext || {}), // Optionally, subcontext data also.
+                            contextOpts.request ? await this.requestContext(contextOpts.request) : {},
+                            jsonCloneObjectDeep(subcontext || {}), // Optionally, subcontext data.
                         );
-                        const logged = this.log(message, withContext, level);
-
-                        if (contextOpts.cfw?.ctx) {
-                            contextOpts.cfw.ctx.waitUntil(logged);
-                        }
-                        return logged;
+                        return this.log(message, withContext, level);
                     },
 
                     /**
@@ -487,12 +502,7 @@ export const getClass = (): Constructor => {
                      * @returns Boolean promise. True on success.
                      */
                     flush: async (): Promise<boolean> => {
-                        const flushed = this.flush();
-
-                        if (contextOpts.cfw?.ctx) {
-                            contextOpts.cfw.ctx.waitUntil(flushed);
-                        }
-                        return flushed;
+                        return this.flush();
                     },
                 };
             return withContextInterface;
@@ -532,7 +542,12 @@ export const getClass = (): Constructor => {
             this.queue.push(logEntry); // Adds to queue.
             this.logEntryCounter++; // Increments counter.
 
-            return this.possiblyThrottledFlush();
+            const logged = this.possiblyThrottledFlush();
+
+            if (this.cfw?.ctx) {
+                this.cfw.ctx.waitUntil(logged);
+            }
+            return logged;
         }
 
         /**
@@ -603,34 +618,23 @@ export const getClass = (): Constructor => {
 
             let retryTimeout: $type.Timeout,
                 retryAttempts = 0; // Initialize.
-            const jsonStringifiedQueue = jsonStringifyQueue(currentQueue);
+            const currentQueueJSONSnapshot = jsonStringifyQueue(currentQueue);
 
             const httpPost = (): Promise<boolean> => {
                 return new Promise((resolve): void => {
+                    if (this.cfw?.subrequestCounter) {
+                        this.cfw.subrequestCounter.value++;
+                    }
                     void fetch(this.endpoint, {
                         keepalive: true,
                         redirect: 'manual',
                         method: 'POST',
-                        headers: {
-                            'content-type': $json.contentType(),
-                            'authorization': this.endpointToken,
-                        },
-                        body: jsonStringifiedQueue,
+                        signal: AbortSignal.timeout(this.configMinutia.httpTimeout),
+                        headers: { 'content-type': $json.contentType(), 'authorization': this.endpointToken },
+                        body: currentQueueJSONSnapshot,
                     })
                         .then((response: Response): void => {
-                            if (!response.ok || 202 !== response.status) {
-                                if (retryAttempts >= this.configMinutia.maxRetries) {
-                                    if (++this.retryFailures >= this.configMinutia.maxRetryFailures) {
-                                        // After X retry failures, suspend for X milliseconds.
-                                        this.maxRetryFailuresExpirationTime = Date.now() + this.configMinutia.maxRetryFailuresExpiresAfter;
-                                    }
-                                    resolve(false); // Retry failure.
-                                } else {
-                                    retryAttempts++;
-                                    clearTimeout(retryTimeout);
-                                    retryTimeout = setTimeout((): void => void httpPost(), Math.exp(retryAttempts) * this.configMinutia.retryAfterExpMultiplier);
-                                }
-                            } else {
+                            if (response.ok && 202 === response.status) {
                                 // Even though there is no response body, we still need to read the empty response.
                                 // Otherwise, Chrome will throw an erroneous 'Fetch failed loading: POST` in console.
                                 void response.text().then((): void => {
@@ -638,11 +642,40 @@ export const getClass = (): Constructor => {
                                     this.maxRetryFailuresExpirationTime = 0;
                                     resolve(true);
                                 });
+                            } else {
+                                if (retryAttempts >= this.configMinutia.maxRetries) {
+                                    if (++this.retryFailures >= this.configMinutia.maxRetryFailures) {
+                                        // After X retry failures, suspend for X milliseconds.
+                                        this.maxRetryFailuresExpirationTime = Date.now() + this.configMinutia.maxRetryFailuresExpiresAfter;
+                                    }
+                                    console.log('Logger error: urXnSrab.', { response });
+                                    resolve(false); // Retry failure; loss of data.
+                                } else {
+                                    retryAttempts++;
+                                    clearTimeout(retryTimeout);
+                                    retryTimeout = setTimeout(
+                                        (): void => void httpPost().then(resolve), // Chained resolution.
+                                        Math.exp(retryAttempts) * this.configMinutia.retryAfterExpMultiplier,
+                                    );
+                                }
                             }
                         })
                         .catch((thrown: unknown): void => {
-                            console.log('Error code: 4M8aGQ9V.', { thrown });
-                            resolve(false); // Something very wrong.
+                            if (retryAttempts >= this.configMinutia.maxRetries) {
+                                if (++this.retryFailures >= this.configMinutia.maxRetryFailures) {
+                                    // After X retry failures, suspend for X milliseconds.
+                                    this.maxRetryFailuresExpirationTime = Date.now() + this.configMinutia.maxRetryFailuresExpiresAfter;
+                                }
+                                console.log('Logger error: w56UMKsu.', { thrown });
+                                resolve(false); // Retry failure; loss of data.
+                            } else {
+                                retryAttempts++;
+                                clearTimeout(retryTimeout);
+                                retryTimeout = setTimeout(
+                                    (): void => void httpPost().then(resolve), // Chained resolution.
+                                    Math.exp(retryAttempts) * this.configMinutia.retryAfterExpMultiplier,
+                                );
+                            }
                         });
                 });
             };
