@@ -145,10 +145,10 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
         // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
         // It’s worth noting that all our local test configurations make `https:` requests only.
         url.protocol = 'https:'; // Rewrites to assumed original request URL w/ `https:`.
-        request = new Request(url.toString(), request as RequestInit); // Mutatable.
-    } else {
-        request = new Request(request as Request); // Mutatable.
     }
+    url.searchParams.delete('utx_audit_log'); // Not to be seen by any other handlers.
+    request = new Request(url.toString(), request as RequestInit); // Mutatable.
+
     if (cfg.cspNonce) {
         request.headers.set('x-csp-nonce', cfg.cspNonce); // Internal header.
     } else {
