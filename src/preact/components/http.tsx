@@ -64,7 +64,7 @@ const reduceState = (state: State, updates: PartialStateUpdates): State => {
  *
  * @returns       VNode / JSX element tree.
  *
- * @note State is patched by reference, which comes from props.
+ * @note State is patched by reference, which typically comes from props.
  */
 export default function HTTP(props: Props): $preact.VNode<Props> {
     const [state, updateState] = $preact.useReducer(reduceState, undefined, (): State => {

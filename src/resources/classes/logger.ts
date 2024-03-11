@@ -18,7 +18,7 @@ export type C9rProps = Partial<{
     isEssential: boolean;
     listenForErrors: boolean;
     configMinutia: ConfigMinutia;
-    cfw?: CFW | undefined;
+    cfw?: CFWData | undefined;
 }>;
 export type Constructor = {
     new (props?: C9rProps | Class): Class;
@@ -32,7 +32,7 @@ declare class ClassInterface {
     public isEssential: boolean;
     public listenForErrors: boolean;
     public configMinutia: ConfigMinutia;
-    public cfw: CFW | undefined;
+    public cfw: CFWData | undefined;
 
     public constructor(props?: C9rProps | Class);
     public withContext(context?: object, contextOptions?: WithContextOptions): WithContextInterface;
@@ -60,13 +60,13 @@ type ConfigMinutia = {
     retryAfterExpMultiplier: number; // In milliseconds.
     maxRetryFailuresExpiresAfter: number; // In milliseconds.
 };
-type CFW = {
-    subrequestCounter: $type.SubrequestCounter;
-    ctx: Readonly<Pick<$type.cfw.ExecutionContext | Parameters<$type.cfw.PagesFunction>[0], 'waitUntil'>>;
+type CFWData = {
+    ctx: $type.cfwꓺstd.ExecutionContext;
+    subrequestCounter: $type.cfwꓺstd.SubrequestCounter;
 };
 type WithContextOptions = Partial<{
     request?: $type.Request;
-    subrequestCounter?: $type.SubrequestCounter;
+    cfw?: { subrequestCounter?: $type.cfwꓺstd.SubrequestCounter };
 }>;
 type WithContextInterface = {
     withContext(subcontext?: object, subcontextOptions?: WithContextOptions): WithContextInterface;
@@ -115,7 +115,7 @@ export const getClass = (): Constructor => {
         /**
          * Cloudflare worker data.
          */
-        public cfw: CFW | undefined;
+        public cfw: CFWData | undefined;
 
         /**
          * Log entry queue.
@@ -360,14 +360,16 @@ export const getClass = (): Constructor => {
         }
 
         /**
-         * Gets `request` context data.
+         * Gets `request` context data via {@see WithContextOptions}.
          *
-         * @param   request           Request.
-         * @param   subrequestCounter Subrequest counter.
+         * @param   withContextOptions { request }; {@see WithContextOptions}.
          *
-         * @returns                   `request` context data promise.
+         * @returns                    `request` context data promise.
          */
-        protected async requestContext(request: $type.Request, subrequestCounter?: $type.SubrequestCounter): Promise<$type.Object> {
+        protected async withRequestContext(withContextOptions: WithContextOptions): Promise<$type.Object> {
+            const { request, cfw: { subrequestCounter } = {} } = withContextOptions;
+            if (!request) return {}; // Not applicable.
+
             return jsonCloneObjectDeep({
                 _: {
                     env: {
@@ -394,10 +396,7 @@ export const getClass = (): Constructor => {
                             consentState: $obj.omit(await $user.consentState(request), ['ipGeoData']),
                         },
                     },
-                    $set: {
-                        request, // Request objects are partially redacted by our JSON middlware.
-                        subrequestCounter, // i.e. `{ value: number }`, which counts subrequests.
-                    },
+                    $set: { request, subrequestCounter },
                 },
             });
         }
@@ -447,9 +446,9 @@ export const getClass = (): Constructor => {
                         // i.e., Allowing context to mutate at runtime, then snapshot here.
 
                         const withContext = $obj.mergeDeep(
-                            jsonCloneObjectDeep(context), // Inherits current context data/opts.
-                            contextOpts.request ? await this.requestContext(contextOpts.request, contextOpts.subrequestCounter) : {},
-                            jsonCloneObjectDeep(subcontext || {}), // Optionally, subcontext data.
+                            jsonCloneObjectDeep(context), // Inherits current context.
+                            contextOpts.request ? await this.withRequestContext(contextOpts) : {},
+                            jsonCloneObjectDeep(subcontext || {}), // Optionally, subcontext.
                         );
                         return this.log(message, withContext, level);
                     },

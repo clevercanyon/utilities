@@ -4,10 +4,11 @@
 
 import '#@initialize.ts';
 
+import { type C9rProps as FetcherC9rProps } from '#@classes/fetcher.ts';
+import { type LazyComponentPromises } from '#@preact/apis/iso.tsx';
 import { $app, $class, $env, $is, $json, $obj, $obp, $preact, $str, type $type } from '#index.ts';
 import { type default as HeadInstance, type PartialActualState as PartialActualHeadState } from '#preact/components/head.tsx';
 import { Component, createContext } from 'preact';
-import { type LazyComponentPromises } from '../../resources/preact/apis/iso.tsx';
 
 /**
  * Defines data types.
@@ -254,10 +255,12 @@ export const defaultGlobalObp = (): string => {
  *
  * This is also called upon by our ISO prerenderer.
  *
- * @returns {@see $type.Fetcher} Default fetcher instance.
+ * @param   c9rProps                    Constructor props.
+ *
+ * @returns {@see $type.Fetcher}          Default fetcher instance.
  */
-export const defaultFetcher = (): $type.Fetcher => {
-    return new ($class.getFetcher())();
+export const defaultFetcher = (c9rProps?: FetcherC9rProps): $type.Fetcher => {
+    return new ($class.getFetcher())(c9rProps);
 };
 
 /**

@@ -2,19 +2,21 @@
  * Types.
  */
 // organize-imports-ignore
+/* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '#@initialize.ts';
 
 import { $to } from '#index.ts';
 import { type Dayjs } from 'dayjs';
+import { type Interface as LoggerInterface } from '#@classes/logger.ts';
 import type * as cfw from '@cloudflare/workers-types/experimental';
 
 // ---
 // Types.
 
 /**
- * Basic types.
+ * Defines basic types.
  */
 export type Any = any;
 
@@ -38,13 +40,13 @@ export type Primitive = null | undefined | boolean | number | bigint | string | 
 export type ObjectEntries<Type extends object = $Keyable> = [keyof Type, Type[keyof Type]][];
 
 /**
- * Class types.
+ * Defines class types.
  */
 export type { $Time as Time };
 export type * from '#class.ts';
 
 /**
- * Cross env types.
+ * Defines cross env types.
  */
 export type { $URL as URL };
 
@@ -54,7 +56,6 @@ export type { $RawHeadersInit as RawHeadersInit };
 
 export type { $Request as Request };
 export type { $RequestInit as RequestInit };
-export type { $SubrequestCounter as SubrequestCounter };
 
 export type { $Response as Response };
 export type { $ResponseInit as ResponseInit };
@@ -62,18 +63,19 @@ export type { $BodyInit as BodyInit };
 
 export type { $Timeout as Timeout };
 export type { $Interval as Interval };
+export type { $AbortSignal as AbortSignal };
 
 export type { $fetch as fetch };
 export type { $Blob as Blob };
 
 /**
- * Error-related types.
+ * Defines error-related types.
  */
 export type { $ErrorCause as ErrorCause };
 export type { $ErrorCauseObject as ErrorCauseObject };
 
 /**
- * DOM-related types.
+ * Defines DOM-related types.
  */
 export type DOMAtts = { [x: string]: unknown };
 export type DOMEventTools = { cancel: () => void };
@@ -82,20 +84,62 @@ export type DOMEventDelegated = CustomEvent<{ target: Element; event: Event }>;
 export type DOMEventHandler = ((event: Event) => void) | ((event: CustomEvent) => void) | ((event: Event) => Promise<void>) | ((event: CustomEvent) => Promise<void>);
 
 /**
- * Cloudflare worker types.
+ * Defines Cloudflare worker types.
  */
 export type { cfw }; // `cfw` namespace.
 
 /**
- * Cloudflare turnstile types.
+ * Defines standardized Cloudflare types common across workers & functions.
  */
-type CFTurnstile = typeof turnstile & {
+export namespace cfwꓺstd {
+    export type ExecutionContext = Readonly<
+        Pick<
+            cfw.ExecutionContext | Parameters<cfw.PagesFunction>[0],
+            // These are the two required keys.
+            'waitUntil' | 'passThroughOnException'
+        >
+    >;
+    export type Environment = Readonly<{
+        RT: cfw.Fetcher;
+        RT_AI: cfw.Fetcher;
+        RT_D1: cfw.D1Database;
+        RT_R2: cfw.R2Bucket;
+        RT_KV: cfw.KVNamespace;
+        RT_QE: cfw.Queue;
+
+        AI: cfw.Fetcher;
+        D1: cfw.D1Database;
+        R2: cfw.R2Bucket;
+        KV: cfw.KVNamespace;
+        QE: cfw.Queue;
+    }>;
+    export type SubrequestCounter = { value: number };
+
+    export type RequestContextData = Readonly<{
+        ctx: ExecutionContext;
+        env: Environment;
+
+        url: cfw.URL;
+        request: cfw.Request;
+
+        fetch: typeof cfw.fetch;
+        caches: typeof cfw.caches;
+
+        auditLogger: LoggerInterface;
+        consentLogger: LoggerInterface;
+        subrequestCounter: SubrequestCounter;
+    }>;
+}
+/**
+ * Defines turnstile type, powered by Cloudflare.
+ */
+type $ꓺTurnstile = typeof turnstile & {
     remove(widgetId: string): void; // Adds missing `remove()` fn.
 };
-export type { CFTurnstile as Turnstile };
+export type { $ꓺTurnstile as Turnstile };
 
 /**
- * Ensurable types.
+ * Defines ensurable types.
  */
 export type EnsurableType =
     | 'boolean' | 'boolean[]'
@@ -132,7 +176,7 @@ export type EnsuredType<Type> =
     : unknown; // prettier-ignore
 
 /**
- * Readonly utility types.
+ * Defines readonly utility types.
  */
 export type ReadonlyDeep<Type> = //
     Type extends void | Primitive
@@ -184,7 +228,7 @@ type $ꓺReadonlyMapDeep<KeyType, ValueType> = Readonly<Map<ReadonlyDeep<KeyType
 type $ꓺReadonlyObjectDeep<Type extends object> = { readonly [Key in keyof Type]: ReadonlyDeep<Type[Key]> };
 
 /**
- * Writable utility types.
+ * Defines writable utility types.
  */
 export type Writable<Type> = //
     Type extends void | Primitive
@@ -282,7 +326,7 @@ type $ꓺWritableMapDeep<Type extends Readonly<Map<unknown, unknown>>> = // Thes
     Type extends Readonly<Map<infer KeyTypeOfMap, infer ValueTypeOfMap>> ? Map<WritableDeep<KeyTypeOfMap>, WritableDeep<ValueTypeOfMap>> : Type;
 
 /**
- * Partial utility types.
+ * Defines partial utility types.
  */
 export type PartialDeep<Type> = //
     Type extends void | Primitive
@@ -331,7 +375,7 @@ type $ꓺPartialReadonlyMapDeep<KeyType, ValueType> = Readonly<Map<PartialDeep<K
 type $ꓺPartialObjectDeep<Type extends object> = { [Key in keyof Type]?: PartialDeep<Type[Key]> };
 
 /**
- * Required utility types.
+ * Defines required utility types.
  */
 export type RequiredDeep<Type> = //
     Type extends void | Primitive
@@ -380,7 +424,7 @@ type $ꓺRequiredReadonlyMapDeep<KeyType, ValueType> = Readonly<Map<RequiredDeep
 type $ꓺRequiredObjectDeep<Type extends object> = Required<{ [Key in keyof Type]: RequiredDeep<Type[Key]> }>;
 
 /**
- * Parameter utility types.
+ * Defines parameter utility types.
  */
 export type PartialParametersOf<Type extends $Function> = PartialParameters<Parameters<Type>>;
 export type PartialParameters<Tuple extends unknown[], Extracted extends unknown[] = []> = //
@@ -403,12 +447,12 @@ export type RemainingParameters<Provided extends unknown[], Expected extends unk
           [];
 
 /**
- * Flat array type.
+ * Defines flat array type.
  */
 export type FlatArray<Type, Depth extends number> = ReturnType<typeof Array.prototype.flat<Type, Depth>>;
 
 /**
- * Predicate types.
+ * Defines predicate types.
  */
 // These must narrow to a specific type, and not reflect a type.
 // e.g., We don’t want any of these to ever return a union of types.
@@ -421,7 +465,7 @@ export type OfAsyncIterable<Type> = Type extends AsyncIterable<infer TypeOfAsync
 export type OfArray<Type> = Type extends (infer TypeOfArray)[] ? TypeOfArray[] : Type extends Readonly<(infer TypeOfArray)[]> ? Readonly<TypeOfArray[]> : unknown[];
 
 /**
- * Protected internal types.
+ * Defines protected internal types.
  */
 type $Time = Dayjs;
 
@@ -446,7 +490,6 @@ type $RawHeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]
 
 type $Request = Request | cfw.Request;
 type $RequestInit = (RequestInit | cfw.RequestInit) & { cache?: string };
-type $SubrequestCounter = { value: number };
 
 type $Response = Response | cfw.Response;
 type $ResponseInit = ResponseInit | cfw.ResponseInit;
@@ -454,6 +497,7 @@ type $BodyInit = BodyInit | cfw.BodyInit;
 
 type $Timeout = ReturnType<typeof setTimeout> | number;
 type $Interval = ReturnType<typeof setInterval> | number;
+type $AbortSignal = AbortSignal | cfw.AbortSignal;
 
 type $fetch = typeof fetch | typeof cfw.fetch;
 type $Blob = Blob | cfw.Blob;
@@ -474,7 +518,7 @@ type $AsyncFunction<Type extends $ꓺAnyAsyncFn = $ꓺAnyAsyncFn> = (...args: Pa
 type $AnyVoidFunction<Type extends $ꓺAnyVoidFn = $ꓺAnyVoidFn> = (...args: Parameters<Type>) => ReturnType<Type>;
 
 /**
- * Private internal types.
+ * Defines private internal types.
  */
 type $ꓺAnyFn = (...args: any[]) => unknown;
 type $ꓺAnyAsyncFn = (...args: any[]) => Promise<unknown>;

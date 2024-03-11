@@ -232,6 +232,9 @@ export const ip = $fnꓺmemo(2, async (request?: $type.Request, prioritizeForwar
  *   globally at runtime by a worker that is actually serving multiple requests. Any attempt to obtain IP geolocation
  *   data from a Cloudflare worker, without passing in a specific `request`, results in an exception being thrown.
  *
+ *   For the same reason, it is therefore not necessary to pass in an entire Cloudflare request context data object. We
+ *   only need the current request object. It has everything this particular utility needs.
+ *
  * @see https://o5p.me/rwa3h7
  */
 export const ipGeoData = $fnꓺmemo(

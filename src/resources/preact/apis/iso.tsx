@@ -16,6 +16,7 @@ export type PrerenderSPAOptions = {
     request: $type.Request;
     appManifest: AppManifest;
     App: $preact.AnyComponent<RootProps>;
+    cfw?: $type.cfwꓺstd.RequestContextData;
     props?: RootProps;
 };
 export type PrerenderSPAPromise = Promise<{
@@ -59,12 +60,17 @@ export type LazyRouterVNode = $preact.VNode<LazyRouterProps>;
 // Prerender utilities.
 
 /**
- * Prerenders SPA component on server-side.
+ * Prerenders SPA component server-side.
  *
- * A request-specific {@see $type.Fetcher} instance must be passed down through props when prerendering so the same
- * fetcher instance survives potentially multiple prerender passes; e.g., on thrown promises. Otherwise, a new fetcher
- * instance would be created on each prerender pass by `<Data>`, resulting in our fetcher cache resetting each time. The
- * same is true for `lazyCPs`, which are lazy component promises that must also persist state between prerender passes.
+ * A request-specific {@see HTTPState} must be passed down through props when prerendering, such that it can be
+ * referenced immediately after; i.e., to determine, potentially modify, and ultimately return HTTP state.
+ *
+ * A request-specific {@see $type.Fetcher} instance must also be passed down through props when prerendering, such that
+ * the same fetcher instance survives potentially multiple prerender passes; e.g., on thrown promises. Otherwise, a new
+ * fetcher instance would be created each time by `<Data>`, resulting in our fetcher cache resetting each time.
+ *
+ * The same is true for `lazyCPs`, which are {@see $preact.iso.LazyComponentPromises}. They must also persist state
+ * between prerender passes, such that their state is not lost from one prerender pass to the next.
  *
  * @param   options Options; {@see PrerenderSPAOptions}.
  *
@@ -76,13 +82,13 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
     if (!$env.isSSR()) throw Error('kTqymmPe');
 
     const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<PrerenderSPAOptions>,
-        { request, appManifest, App, props } = opts, // Extracts all options.
+        { request, appManifest, App, cfw, props } = opts,
         //
-        httpState = props.httpState || {}, // Passed through props as state by reference.
-        url = props.url || request.url, // URL required, as we cannot detect via `location`.
-        cspNonce = props.cspNonce || request.headers.get('x-csp-nonce') || '', // Nonce for CSP.
-        fetcher = props.fetcher || defaultFetcher(), // Required for prerender; see notes above.
-        lazyCPs = props.lazyCPs || defaultLazyCPs(); // Required for prerender; see notes above.
+        httpState = props.httpState || {},
+        url = props.url || request.url, // Server-side.
+        cspNonce = props.cspNonce || request.headers.get('x-csp-nonce') || '',
+        fetcher = props.fetcher || defaultFetcher({ cfw }),
+        lazyCPs = props.lazyCPs || defaultLazyCPs();
 
     let styleBundle: undefined | string, //
         scriptBundle: undefined | string; // Initialize.
@@ -167,7 +173,7 @@ export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions)
      *
      * `<Location>` props.
      *
-     * - `url`: If not already in props, it’s detected via `window.location`.
+     * - `url`: If not already in props, it’s detected via `location`.
      *
      * `<Data>` props.
      *

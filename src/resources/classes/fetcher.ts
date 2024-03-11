@@ -14,6 +14,7 @@ let Fetcher: Constructor;
  */
 export type C9rProps = {
     globalObp?: $type.ObjectPath;
+    cfw?: $type.cfwꓺstd.RequestContextData;
 };
 export type Constructor = {
     new (props?: C9rProps | Class): Class;
@@ -22,6 +23,8 @@ export type Class = $type.Utility & ClassInterface;
 
 declare class ClassInterface {
     public readonly globalObp: $type.ObjectPath;
+    public readonly cfw: $type.cfwꓺstd.RequestContextData | undefined;
+
     public readonly global: Global;
     public readonly fetch: $type.fetch;
 
@@ -81,7 +84,12 @@ export const getClass = (): Constructor => {
         public readonly globalObp: $type.ObjectPath;
 
         /**
-         * Global object; i.e., via object path.
+         * Cloudflare worker request context data.
+         */
+        public readonly cfw: $type.cfwꓺstd.RequestContextData | undefined;
+
+        /**
+         * Global via `globalObp`.
          */
         public readonly global: Global;
 
@@ -97,9 +105,10 @@ export const getClass = (): Constructor => {
          */
         public constructor(props?: C9rProps | Class) {
             super(); // Parent constructor.
+            props = props || {}; // Object value.
 
-            props = props || {}; // Force object value.
             this.globalObp = props.globalObp || $str.obpPartSafe($app.$pkgName) + '.fetcher';
+            this.cfw = props.cfw; // Cloudflare worker request context data.
 
             if ($env.isSSR()) {
                 // Write to cache server-side.
@@ -109,7 +118,7 @@ export const getClass = (): Constructor => {
                 this.global = $obp.get(globalThis, this.globalObp, {}) as Global;
                 this.global.cache = this.global.cache || {};
             }
-            this.fetch = ((...args: Parameters<typeof fetch>) => this.fetcher(...args)) as $type.fetch;
+            this.fetch = ((...args: Parameters<typeof globalThis.fetch>) => this.fetcher(...args)) as $type.fetch;
         }
 
         /**
@@ -143,11 +152,13 @@ export const getClass = (): Constructor => {
         /**
          * Wraps native {@see fetch()}.
          *
-         * @param   args              {@see fetch()}.
+         * @param   args              Same as {@see fetch()}.
          *
-         * @returns {@see fetch()}      Same as native fetch.
+         * @returns {@see fetch()}      Same as global native fetch.
          */
-        protected async fetcher(...args: Parameters<typeof fetch>): ReturnType<typeof fetch> {
+        protected async fetcher(...args: Parameters<typeof globalThis.fetch>): ReturnType<typeof globalThis.fetch> {
+            const fetch = (this.cfw?.fetch || globalThis.fetch) as typeof globalThis.fetch;
+
             if (!this.isCacheableRequest(args[1])) {
                 return fetch(...args); // Uses native fetch.
             }

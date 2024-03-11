@@ -36,6 +36,9 @@ export type ResponseConfig = {
     body?: $type.BodyInit | null;
     encodeBody?: 'gzip' | null;
 };
+export type HeartbeatOptions = {
+    cfw?: $type.cfwꓺstd.RequestContextData;
+};
 export type SecurityHeaderOptions = {
     cspNonce?: string;
     enableCORs?: boolean;
@@ -1012,11 +1015,15 @@ export const parseHeaders = (parseable: $type.RawHeadersInit): $type.Headers => 
 /**
  * Logs a heartbeat for monitoring purposes.
  *
- * @param   id Heartbeat ID; e.g., `JGndBRX5LXN79q5q1GkpsmaQ`.
+ * @param   id      Heartbeat ID; e.g., `JGndBRX5LXN79q5q1GkpsmaQ`.
+ * @param   options All optional; {@see HeartbeatOptions}.
  *
- * @returns    Promise of heartbeat response.
+ * @returns         Promise of heartbeat response.
  */
-export const heartbeat = async (id: string): Promise<void> => {
+export const heartbeat = async (id: string, options?: HeartbeatOptions): Promise<void> => {
+    const opts = $obj.defaults({}, options || {}) as HeartbeatOptions,
+        fetch = (opts.cfw?.fetch || globalThis.fetch) as typeof globalThis.fetch;
+
     await fetch('https://uptime.betterstack.com/api/v1/heartbeat/' + $url.encode(id), {
         signal: AbortSignal.timeout($time.secondInMilliseconds),
     }).catch(() => undefined);
