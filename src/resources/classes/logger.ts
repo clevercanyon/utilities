@@ -61,11 +61,13 @@ type ConfigMinutia = {
     maxRetryFailuresExpiresAfter: number; // In milliseconds.
 };
 type CFW = {
-    subrequestCounter: { value: number };
+    subrequestCounter: $type.SubrequestCounter;
     ctx: Readonly<Pick<$type.cfw.ExecutionContext | Parameters<$type.cfw.PagesFunction>[0], 'waitUntil'>>;
 };
-type WithContextOptions = Partial<{ request?: $type.Request }>;
-
+type WithContextOptions = Partial<{
+    request?: $type.Request;
+    subrequestCounter?: $type.SubrequestCounter;
+}>;
 type WithContextInterface = {
     withContext(subcontext?: object, subcontextOptions?: WithContextOptions): WithContextInterface;
     log(message: string, subcontext?: object, level?: string): Promise<boolean>;
@@ -360,9 +362,12 @@ export const getClass = (): Constructor => {
         /**
          * Gets `request` context data.
          *
-         * @returns `request` context data promise.
+         * @param   request           Request.
+         * @param   subrequestCounter Subrequest counter.
+         *
+         * @returns                   `request` context data promise.
          */
-        protected async requestContext(request: $type.Request): Promise<$type.Object> {
+        protected async requestContext(request: $type.Request, subrequestCounter?: $type.SubrequestCounter): Promise<$type.Object> {
             return jsonCloneObjectDeep({
                 _: {
                     env: {
@@ -391,6 +396,7 @@ export const getClass = (): Constructor => {
                     },
                     $set: {
                         request, // Request objects are partially redacted by our JSON middlware.
+                        subrequestCounter, // i.e. `{ value: number }`, which counts subrequests.
                     },
                 },
             });
@@ -442,7 +448,7 @@ export const getClass = (): Constructor => {
 
                         const withContext = $obj.mergeDeep(
                             jsonCloneObjectDeep(context), // Inherits current context data/opts.
-                            contextOpts.request ? await this.requestContext(contextOpts.request) : {},
+                            contextOpts.request ? await this.requestContext(contextOpts.request, contextOpts.subrequestCounter) : {},
                             jsonCloneObjectDeep(subcontext || {}), // Optionally, subcontext data.
                         );
                         return this.log(message, withContext, level);
@@ -622,9 +628,6 @@ export const getClass = (): Constructor => {
 
             const httpPost = (): Promise<boolean> => {
                 return new Promise((resolve): void => {
-                    if (this.cfw?.subrequestCounter) {
-                        this.cfw.subrequestCounter.value++;
-                    }
                     void fetch(this.endpoint, {
                         keepalive: true,
                         redirect: 'manual',
@@ -677,6 +680,7 @@ export const getClass = (): Constructor => {
                                 );
                             }
                         });
+                    if (this.cfw) this.cfw.subrequestCounter.value++;
                 });
             };
             return httpPost();

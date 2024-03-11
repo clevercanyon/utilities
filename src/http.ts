@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $app, $crypto, $env, $fn, $gzip, $is, $mime, $obj, $path, $str, $symbol, $time, $to, $url, $user, type $type } from '#index.ts';
+import { $app, $crypto, $env, $fn, $gzip, $is, $mime, $obj, $path, $str, $symbol, $time, $to, $url, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -144,10 +144,12 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
         // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
         // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
         // It’s worth noting that all our local test configurations make `https:` requests only.
-        url.protocol = 'https:'; // Rewrites to assumed original request URL w/ `https:`.
+        url.protocol = 'https:';
     }
     url.searchParams.delete('utx_audit_log'); // Not to be seen by any other handlers.
-    request = new Request(url.toString(), request as RequestInit); // Mutatable.
+
+    // Rewrites to a mutable request with revised URL.
+    request = new Request(url.toString(), request as RequestInit);
 
     if (cfg.cspNonce) {
         request.headers.set('x-csp-nonce', cfg.cspNonce); // Internal header.
@@ -1005,34 +1007,6 @@ export const parseHeaders = (parseable: $type.RawHeadersInit): $type.Headers => 
         }
     }
     return headers;
-};
-
-/**
- * Verifies a Cloudflare turnstile response.
- *
- * @param   request   HTTP request to verify.
- * @param   turnstile Turnstile response token.
- *
- * @returns           True if turnstile can be verified by Cloudflare.
- *
- * @requiredEnv cfw
- */
-export const verifyTurnstile = async (request: $type.Request, turnstile: string): Promise<boolean> => {
-    if (!$env.isCFW()) throw Error('SqRkpZAB');
-
-    const formData = new FormData();
-    formData.append('secret', $env.get('SSR_APP_TURNSTILE_SECRET_KEY', { type: 'string' }) || $env.get('APP_TURNSTILE_SECRET_KEY', { type: 'string' }));
-    formData.append('remoteip', await $user.ip(request));
-    formData.append('response', turnstile);
-
-    const verificationEndpointURL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
-
-    return await fetch(verificationEndpointURL, { method: 'POST', body: formData })
-        .then(async (response): Promise<$type.Object> => {
-            return $to.plainObject(await response.json());
-        })
-        .then((response) => Boolean(response.success))
-        .catch((): boolean => false);
 };
 
 /**

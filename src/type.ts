@@ -54,6 +54,7 @@ export type { $RawHeadersInit as RawHeadersInit };
 
 export type { $Request as Request };
 export type { $RequestInit as RequestInit };
+export type { $SubrequestCounter as SubrequestCounter };
 
 export type { $Response as Response };
 export type { $ResponseInit as ResponseInit };
@@ -445,6 +446,7 @@ type $RawHeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]
 
 type $Request = Request | cfw.Request;
 type $RequestInit = (RequestInit | cfw.RequestInit) & { cache?: string };
+type $SubrequestCounter = { value: number };
 
 type $Response = Response | cfw.Response;
 type $ResponseInit = ResponseInit | cfw.ResponseInit;
