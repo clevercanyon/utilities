@@ -548,10 +548,8 @@ export const getClass = (): Constructor => {
             this.logEntryCounter++; // Increments counter.
 
             const logged = this.possiblyThrottledFlush();
+            if (this.cfw) this.cfw.ctx.waitUntil(logged);
 
-            if (this.cfw?.ctx) {
-                this.cfw.ctx.waitUntil(logged);
-            }
             return logged;
         }
 
