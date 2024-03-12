@@ -1022,13 +1022,9 @@ export const heartbeat = async (id: string, options?: HeartbeatOptions): Promise
     const opts = $obj.defaults({}, options || {}) as HeartbeatOptions,
         fetch = (opts.cfw ? opts.cfw.fetch : globalThis.fetch) as typeof globalThis.fetch;
 
-    const response = fetch('https://uptime.betterstack.com/api/v1/heartbeat/' + $url.encode(id), {
+    await fetch('https://uptime.betterstack.com/api/v1/heartbeat/' + $url.encode(id), {
         signal: AbortSignal.timeout($time.secondInMilliseconds),
     }).catch(() => undefined);
-
-    if (opts.cfw) opts.cfw.ctx.waitUntil(response);
-
-    await response;
 };
 
 /**
