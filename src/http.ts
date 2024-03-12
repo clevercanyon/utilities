@@ -1015,10 +1015,8 @@ export const parseHeaders = (parseable: $type.RawHeadersInit): $type.Headers => 
 /**
  * Logs a heartbeat for monitoring purposes.
  *
- * @param   id      Heartbeat ID; e.g., `JGndBRX5LXN79q5q1GkpsmaQ`.
- * @param   options All optional; {@see HeartbeatOptions}.
- *
- * @returns         Promise of heartbeat response.
+ * @param id      Heartbeat ID; e.g., `JGndBRX5LXN79q5q1GkpsmaQ`.
+ * @param options All optional; {@see HeartbeatOptions}.
  */
 export const heartbeat = async (id: string, options?: HeartbeatOptions): Promise<void> => {
     const opts = $obj.defaults({}, options || {}) as HeartbeatOptions,
