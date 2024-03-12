@@ -1308,6 +1308,42 @@ export const protectedHeaderNames = (): string[] => [
 ];
 
 /**
+ * Protected cross-domain header names.
+ *
+ * These contain potentially-sensitive data and should therefore not be included in redirected cross-domain requests.
+ *
+ * @returns An array of protected cross-domain header names (lowercase).
+ */
+export const protectedCrossDomainHeaderNames = (): string[] => [
+    'cookie', //
+    'set-cookie',
+    'lsc-cookie',
+
+    'authorization',
+    'www-authenticate',
+
+    'proxy-authenticate',
+    'proxy-authorization',
+
+    'sec-websocket-key',
+    'sec-websocket-accept',
+
+    'signature',
+    'signed-headers',
+
+    'x-request-id',
+    'x-correlation-id',
+
+    'idempotency-key',
+    'x-csp-nonce',
+    'x-csrf-token',
+    'x-nonce',
+    'x-uidh',
+    'x-waf-key',
+    'x-wp-nonce',
+];
+
+/**
  * CORS HTTP request header names.
  *
  * The `access-control-allow-headers` response header is used in response to a preflight request which includes

@@ -125,7 +125,6 @@ export namespace $cfw {
 
         fetch: typeof cfw.fetch;
         caches: typeof cfw.caches;
-
         auditLogger: LoggerInterface;
         consentLogger: LoggerInterface;
         subrequestCounter: SubrequestCounter;
