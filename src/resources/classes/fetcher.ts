@@ -157,7 +157,7 @@ export const getClass = (): Constructor => {
          * @returns {@see fetch()}      Same as global native fetch.
          */
         protected async fetcher(...args: Parameters<typeof globalThis.fetch>): ReturnType<typeof globalThis.fetch> {
-            const fetch = (this.cfw?.fetch || globalThis.fetch) as typeof globalThis.fetch;
+            const fetch = (this.cfw ? this.cfw.fetch : globalThis.fetch) as typeof globalThis.fetch;
 
             if (!this.isCacheableRequest(args[1])) {
                 return fetch(...args); // Uses native fetch.

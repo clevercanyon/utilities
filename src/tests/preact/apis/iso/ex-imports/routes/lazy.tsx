@@ -25,12 +25,12 @@ export type ComponentProps = $preact.Props<{
  * @note {@see globalThis.fetch()} is stubbed out in the main test file.
  */
 export const Component = $preact.lazyComponent(async (props: ComponentProps): Promise<$preact.VNode<ComponentProps>> => {
-    const fetcher = $preact.useFetcher();
+    const { fetch } = $preact.useFetcher();
 
-    await fetcher.fetch('http://x.tld/a');
-    await fetcher.fetch('http://x.tld/b');
-    await fetcher.fetch('http://x.tld/c');
-    await fetcher.fetch('http://x.tld/d');
+    await fetch('http://x.tld/a');
+    await fetch('http://x.tld/b');
+    await fetch('http://x.tld/c');
+    await fetch('http://x.tld/d');
 
     await (async () => null)();
     await (async () => undefined)();
