@@ -64,10 +64,9 @@ type CFWData = {
     ctx: $type.cfwꓺstd.ExecutionContext;
     subrequestCounter: $type.cfwꓺstd.SubrequestCounter;
 };
-type WithContextOptions = Partial<{
+type WithContextOptions = {
     request?: $type.Request;
-    cfw?: { subrequestCounter?: $type.cfwꓺstd.SubrequestCounter };
-}>;
+};
 type WithContextInterface = {
     withContext(subcontext?: object, subcontextOptions?: WithContextOptions): WithContextInterface;
     log(message: string, subcontext?: object, level?: string): Promise<boolean>;
@@ -367,7 +366,7 @@ export const getClass = (): Constructor => {
          * @returns                    `request` context data promise.
          */
         protected async withRequestContext(withContextOptions: WithContextOptions): Promise<$type.Object> {
-            const { request, cfw: { subrequestCounter } = {} } = withContextOptions;
+            const { request } = withContextOptions;
             if (!request) return {}; // Not applicable.
 
             return jsonCloneObjectDeep({
@@ -396,7 +395,10 @@ export const getClass = (): Constructor => {
                             consentState: $obj.omit(await $user.consentState(request), ['ipGeoData']),
                         },
                     },
-                    $set: { request, subrequestCounter },
+                    $set: {
+                        request,
+                        ...(this.cfw ? { subrequestCounter: this.cfw.subrequestCounter } : {}),
+                    },
                 },
             });
         }
