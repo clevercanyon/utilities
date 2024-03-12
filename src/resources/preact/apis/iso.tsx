@@ -16,7 +16,7 @@ export type PrerenderSPAOptions = {
     request: $type.Request;
     appManifest: AppManifest;
     App: $preact.AnyComponent<RootProps>;
-    cfw?: $type.cfwꓺstd.RequestContextData;
+    cfw?: $type.$cfw.RequestContextData;
     props?: RootProps;
 };
 export type PrerenderSPAPromise = Promise<{

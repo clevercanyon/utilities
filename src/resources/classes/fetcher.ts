@@ -14,7 +14,7 @@ let Fetcher: Constructor;
  */
 export type C9rProps = {
     globalObp?: $type.ObjectPath;
-    cfw?: $type.cfwꓺstd.RequestContextData;
+    cfw?: $type.$cfw.RequestContextData;
 };
 export type Constructor = {
     new (props?: C9rProps | Class): Class;
@@ -23,7 +23,7 @@ export type Class = $type.Utility & ClassInterface;
 
 declare class ClassInterface {
     public readonly globalObp: $type.ObjectPath;
-    public readonly cfw: $type.cfwꓺstd.RequestContextData | undefined;
+    public readonly cfw: $type.$cfw.RequestContextData | undefined;
 
     public readonly global: Global;
     public readonly fetch: $type.fetch;
@@ -86,7 +86,7 @@ export const getClass = (): Constructor => {
         /**
          * Cloudflare worker request context data.
          */
-        public readonly cfw: $type.cfwꓺstd.RequestContextData | undefined;
+        public readonly cfw: $type.$cfw.RequestContextData | undefined;
 
         /**
          * Global via `globalObp`.

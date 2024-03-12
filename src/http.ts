@@ -37,7 +37,7 @@ export type ResponseConfig = {
     encodeBody?: 'gzip' | null;
 };
 export type HeartbeatOptions = {
-    cfw?: $type.cfwꓺstd.RequestContextData;
+    cfw?: $type.$cfw.RequestContextData;
 };
 export type SecurityHeaderOptions = {
     cspNonce?: string;

@@ -61,8 +61,8 @@ type ConfigMinutia = {
     maxRetryFailuresExpiresAfter: number; // In milliseconds.
 };
 type CFWData = {
-    ctx: $type.cfwꓺstd.ExecutionContext;
-    subrequestCounter: $type.cfwꓺstd.SubrequestCounter;
+    ctx: $type.$cfw.ExecutionContext;
+    subrequestCounter: $type.$cfw.SubrequestCounter;
 };
 type WithContextOptions = {
     request?: $type.Request;

@@ -89,9 +89,9 @@ export type DOMEventHandler = ((event: Event) => void) | ((event: CustomEvent) =
 export type { cfw }; // `cfw` namespace.
 
 /**
- * Defines standardized Cloudflare types common across workers & functions.
+ * Defines types common across Cloudflare workers & functions.
  */
-export namespace cfwꓺstd {
+export namespace $cfw {
     export type ScheduledEvent = Readonly<cfw.FetcherScheduledOptions>;
     export type ExecutionContext = Readonly<
         Pick<
