@@ -1020,11 +1020,15 @@ export const parseHeaders = (parseable: $type.RawHeadersInit): $type.Headers => 
  */
 export const heartbeat = async (id: string, options?: HeartbeatOptions): Promise<void> => {
     const opts = $obj.defaults({}, options || {}) as HeartbeatOptions,
-        fetch = (opts.cfw?.fetch || globalThis.fetch) as typeof globalThis.fetch;
+        fetch = (opts.cfw ? opts.cfw.fetch : globalThis.fetch) as typeof globalThis.fetch;
 
-    await fetch('https://uptime.betterstack.com/api/v1/heartbeat/' + $url.encode(id), {
+    const response = fetch('https://uptime.betterstack.com/api/v1/heartbeat/' + $url.encode(id), {
         signal: AbortSignal.timeout($time.secondInMilliseconds),
     }).catch(() => undefined);
+
+    if (opts.cfw) opts.cfw.ctx.waitUntil(response);
+
+    await response;
 };
 
 /**
