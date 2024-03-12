@@ -518,6 +518,17 @@ export const blob = (value: unknown): value is Blob => {
 };
 
 /**
+ * Checks if value is a readable stream.
+ *
+ * @param   value Value to consider.
+ *
+ * @returns       True if value is a readable stream.
+ */
+export const readableStream = (value: unknown): value is ReadableStream => {
+    return value instanceof ReadableStream;
+};
+
+/**
  * Checks if value is an {@see Error}.
  *
  * @param   value Value to consider.
