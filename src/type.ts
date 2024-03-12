@@ -92,6 +92,7 @@ export type { cfw }; // `cfw` namespace.
  * Defines standardized Cloudflare types common across workers & functions.
  */
 export namespace cfwꓺstd {
+    export type ScheduledEvent = Readonly<cfw.FetcherScheduledOptions>;
     export type ExecutionContext = Readonly<
         Pick<
             cfw.ExecutionContext | Parameters<cfw.PagesFunction>[0],
