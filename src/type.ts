@@ -129,7 +129,7 @@ export namespace $cfw {
         consentLogger: LoggerInterface;
         subrequestCounter: SubrequestCounter;
     }>;
-    export type Route = ((rcData: RequestContextData) => Promise<cfw.Response>) & {
+    export type Route<Type extends RequestContextData = RequestContextData> = ((rcData: Type) => Promise<cfw.Response>) & {
         config?: Required<$http.RouteConfig>;
     };
 }
