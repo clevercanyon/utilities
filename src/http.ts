@@ -983,24 +983,25 @@ export const parseHeaders = (parseable: $type.RawHeadersInit): $type.Headers => 
  *
  * This is most useful when following redirect responses.
  *
- * @param   parseable     Parseable headers, which may include a `referrer-policy` header.
- * @param   fromParseable Parseable URL or string; e.g., a URL that is issuing a redirection.
- * @param   toParseable   Parseable URL or string; e.g., a URL that is set as the redirect location.
+ * @param headers       Headers instance, which may include a `referrer-policy` header.
+ * @param fromParseable Parseable URL or string; e.g., a URL that is issuing a redirection.
+ * @param toParseable   Parseable URL or string; e.g., a URL that is set as the redirect location.
  *
- * @returns               Parsed {@see $type.Headers} instance with an appropriate `referer` header value.
+ * @note This does not return a value. It modifies an existing headers instance by reference.
  */
-export const prepareRefererHeader = (parseable: $type.RawHeadersInit, fromParseable: $type.URL | string, toParseable: $type.URL | string): $type.Headers => {
-    const headers = parseHeaders(parseable),
-        referrerPolicy = ((headers.get('referrer-policy') || '').split(/\s*,\s*/u).slice(-1)[0] || '').toLowerCase(),
+export const prepareRefererHeader = (headers: $type.Headers, fromParseable: $type.URL | string, toParseable: $type.URL | string): void => {
+    const referrerPolicy = ((headers.get('referrer-policy') || '')
+            .split(/\s*,\s*/u).slice(-1)[0] || '')
+            .toLowerCase(), // prettier-ignore
         //
         fromURL = $url.tryParse(fromParseable),
         toURL = $url.tryParse(toParseable);
 
     if (!fromURL || !toURL) {
         headers.delete('referer');
-        return headers; // Not possible.
+        return; // Not possible.
     }
-    let referer = ''; // Initializes header value.
+    let referer = ''; // Initialize.
 
     switch (referrerPolicy) {
         case 'no-referrer': {
@@ -1064,7 +1065,6 @@ export const prepareRefererHeader = (parseable: $type.RawHeadersInit, fromParsea
     } else {
         headers.delete('referer');
     }
-    return headers;
 };
 
 /**
