@@ -7,10 +7,10 @@
 
 import '#@initialize.ts';
 
-import { $to } from '#index.ts';
 import { type Dayjs } from 'dayjs';
 import { type Interface as LoggerInterface } from '#@classes/logger.ts';
 import type * as cfw from '@cloudflare/workers-types/experimental';
+import { $to, type $http } from '#index.ts';
 
 // ---
 // Types.
@@ -129,6 +129,9 @@ export namespace $cfw {
         consentLogger: LoggerInterface;
         subrequestCounter: SubrequestCounter;
     }>;
+    export type Route = ((rcData: RequestContextData) => Promise<cfw.Response>) & {
+        config?: Required<$http.RouteConfig>;
+    };
 }
 /**
  * Defines turnstile type, powered by Cloudflare.
