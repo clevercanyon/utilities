@@ -252,6 +252,29 @@ describe('$url', async () => {
         expect($url.isRelative('/')).toBe(false);
         expect($url.isRelative('')).toBe(true);
     });
+    test('.isPotentiallyTrustworthy()', async () => {
+        expect($url.isPotentiallyTrustworthy('about:blank')).toBe(true);
+        expect($url.isPotentiallyTrustworthy('about:srcdoc')).toBe(true);
+
+        expect($url.isPotentiallyTrustworthy('https://x.tld/')).toBe(true);
+        expect($url.isPotentiallyTrustworthy('wss://x.tld/')).toBe(true);
+
+        expect($url.isPotentiallyTrustworthy('https://localhost/')).toBe(true);
+        expect($url.isPotentiallyTrustworthy('http://localhost/')).toBe(true);
+
+        expect($url.isPotentiallyTrustworthy('https://127.0.0.1/')).toBe(true);
+        expect($url.isPotentiallyTrustworthy('http://127.0.0.1/')).toBe(true);
+
+        expect($url.isPotentiallyTrustworthy('data:foo')).toBe(true);
+        expect($url.isPotentiallyTrustworthy('blob:foo')).toBe(true);
+        expect($url.isPotentiallyTrustworthy('file:foo')).toBe(true);
+        expect($url.isPotentiallyTrustworthy('filesystem:foo')).toBe(true);
+
+        expect($url.isPotentiallyTrustworthy('')).toBe(false);
+        expect($url.isPotentiallyTrustworthy('::invalid::')).toBe(false);
+        expect($url.isPotentiallyTrustworthy('http://x.tld/')).toBe(false);
+        expect($url.isPotentiallyTrustworthy('http://123.456.789.000/')).toBe(false);
+    });
     test('.rootHost()', async () => {
         expect($url.rootHost('abc.tld')).toBe('abc.tld');
         expect($url.rootHost('abc.Xyz.tld')).toBe('xyz.tld');

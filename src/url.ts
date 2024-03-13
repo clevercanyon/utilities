@@ -648,6 +648,31 @@ export const isRelative = $fnꓺmemo(12, (parseable: $type.URL | string): boolea
     return !isAbsolute(parseable) && !/^\//u.test(parseable as string);
 });
 
+/**
+ * Tests if a URL is potentially trustworthy.
+ *
+ * @param   parseable Parseable URL or string.
+ *
+ * @returns           True if URL is potentially trustworthy.
+ *
+ * @see https://o5p.me/9talJI for details on spec compliance.
+ */
+export const isPotentiallyTrustworthy = $fnꓺmemo(12, (parseable: $type.URL | string): boolean => {
+    if ($is.string(parseable) && ['about:blank', 'about:srcdoc'].includes(parseable)) {
+        return true; // Special trustworthy cases.
+    }
+    const url = tryParse(parseable);
+    if (!url) return false; // Invalid URL.
+
+    if (['https:', 'wss:', 'data:', 'blob:', 'file:', 'filesystem:'].includes(url.protocol)) {
+        return true; // Potentially trustworthy protocols.
+    }
+    if ($str.test(rootHost(url, { withPort: false }), localHostPatterns())) {
+        return true; // Potentially trustworthy local hosts.
+    }
+    return false;
+});
+
 /* ---
  * Root host utilities.
  */
