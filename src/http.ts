@@ -44,6 +44,9 @@ export type SecurityHeaderOptions = {
     enableCORs?: boolean;
 };
 
+// ---
+// Route utilities.
+
 /**
  * HTTP route config.
  *
@@ -61,6 +64,9 @@ export const routeConfig = (config?: RouteConfig): Required<RouteConfig> => {
     }) as Required<RouteConfig>;
 };
 
+// ---
+// Request utilities.
+
 /**
  * HTTP request config.
  *
@@ -74,33 +80,6 @@ export const requestConfig = async (config?: RequestConfig): Promise<Required<Re
         enforceAppBaseURLOrigin: $env.isC10n() && $app.hasBaseURL(),
         enforceNoTrailingSlash: $env.isC10n(),
     }) as Required<RequestConfig>;
-};
-
-/**
- * HTTP response config.
- *
- * @param   config Optional config options.
- *
- * @returns        HTTP response config promise.
- */
-export const responseConfig = async (config?: ResponseConfig): Promise<Required<ResponseConfig>> => {
-    return $obj.defaults({}, config || {}, {
-        status: 405,
-
-        enableCORs: false,
-        varyOn: [],
-        cacheVersion: '',
-
-        maxAge: null,
-        sMaxAge: null,
-        staleAge: null,
-
-        headers: {},
-        appendHeaders: {},
-
-        body: null,
-        encodeBody: null,
-    }) as Required<ResponseConfig>;
 };
 
 /**
@@ -161,6 +140,309 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
         // i.e., We don’t allow bad actors to send a request with their own nonce.
     }
     return request; // Mutatable copy.
+};
+
+/**
+ * Request has a supported method?
+ *
+ * @param   request HTTP request.
+ *
+ * @returns         True if request has a supported method.
+ */
+export const requestHasSupportedMethod = (request: $type.Request): boolean => {
+    return supportedRequestMethods().includes(request.method);
+};
+
+/**
+ * Request has a cacheable request method?
+ *
+ * @param   request HTTP request.
+ *
+ * @returns         True if request has a cacheable request method.
+ */
+export const requestHasCacheableMethod = $fnꓺmemo(2, (request: $type.Request): boolean => {
+    return requestHasSupportedMethod(request) && ['HEAD', 'GET'].includes(request.method);
+});
+
+/**
+ * Request is coming from an identified user?
+ *
+ * @param   request HTTP request.
+ *
+ * @returns         True if request is coming from an identified user.
+ */
+export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean => {
+    if (request.headers.has('authorization')) {
+        return true; // Authorization header.
+    }
+    if (!request.headers.has('cookie')) {
+        return false; // No cookies.
+    }
+    const cookie = request.headers.get('cookie') || ''; // Contains encoded cookies.
+    return /(?:^\s*|;\s*)(?:ut[mx]_)?(?:author|user|customer)(?:[_-][^=;]+)?=\s*"?[^";]/iu.test(cookie);
+});
+
+/**
+ * Request is coming from a specific via token?
+ *
+ * WARNING: We do not, by default, vary caches based on `x-via`. Therefore, _only_ use this when processing an
+ * uncacheable request type; e.g., `POST` request, or by explicitly declaring that a cache should vary on `x-via`.
+ *
+ * @param   request HTTP request.
+ * @param   via     `x-via` token to consider.
+ *
+ * @returns         True if request is coming from `x-via` token.
+ */
+export const requestIsVia = $fnꓺmemo(2, (request: $type.Request, via: string): boolean => {
+    if (!request.headers.has('x-via')) {
+        return false; // No `x-via` header.
+    }
+    const header = request.headers.get('x-via') || ''; // Contains via tokens.
+    return $is.notEmpty(header) && new RegExp('(?:^|[,;])\\s*(?:' + $str.escRegExp(via) + ')\\s*(?:$|[,;])', 'ui').test(header);
+});
+
+/**
+ * Request expects a JSON response?
+ *
+ * WARNING: We do not vary caches based on `accept`. Therefore, you should _only_ use this when processing an
+ * uncacheable request type; e.g., `POST` request, or another that is uncacheable; {@see requestHasCacheableMethod()}.
+ *
+ * WARNING: This isn’t foolproof because it assumes anything of our own served from `/api` will expect JSON in the
+ * absense of an `accept` header. Therefore, only use in contexts where false-positives are not detrimental.
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request expects a JSON response.
+ */
+export const requestExpectsJSON = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    let url = _url || $url.parse(request.url);
+    url = $fn.try(() => $url.removeAppBasePath(url), url)();
+    const acceptHeader = request.headers.get('accept') || '';
+    return (
+        (acceptHeader && /\b(?:application\/json)\b/iu.test(acceptHeader)) || //
+        (!acceptHeader && $env.isC10n() && '/' !== url.pathname && /^\/(?:api)(?:$|\/)/iu.test(url.pathname))
+    );
+});
+
+/**
+ * Request path is invalid?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path is invalid.
+ */
+export const requestPathIsInvalid = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return /\\|\/{2,}|\.{2,}/iu.test(url.pathname);
+});
+
+/**
+ * Request has an invalid app base URL origin?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request has an invalid app base URL origin.
+ */
+export const requestPathHasInvalidAppBaseURLOrigin = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    const appBaseURL = $app.baseURL({ parsed: true });
+
+    if (url.host !== appBaseURL.host) return true;
+    return (
+        url.protocol !== appBaseURL.protocol && //
+        // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
+        // In Miniflare, we don’t consider a mismatched protocol to be an issue.
+        // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
+        // It’s worth noting that all our local test configurations make `https:` requests only.
+        (!$env.isCFWViaMiniflare() || 'http:' !== url.protocol)
+    );
+});
+
+/**
+ * Request path has an invalid trailing slash?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path has an invalid trailing slash.
+ */
+export const requestPathHasInvalidTrailingSlash = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return url.pathname.endsWith('/');
+});
+
+/**
+ * Request path is forbidden?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path is forbidden.
+ */
+export const requestPathIsForbidden = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    if (/\/\./iu.test(url.pathname) && !/^\/\.well-known(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No dotfile paths, except `/.well-known` at root of a domain.
+    }
+    if (/(?:~|[^/.]\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No backups, copies, logs, or temp paths.
+    }
+    if (/\/(?:[^/]*[._-])?(?:private|cache|logs?|te?mp)(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No private, cache, log, or temp paths.
+    }
+    if (/\/(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(url.pathname)) {
+        return true; // No package management dependencies paths.
+    }
+    return false;
+});
+
+/**
+ * Request path is dynamic?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request is dynamic.
+ *
+ * @note This is determining whether it *might* be; i.e., probably is dynamic, not that is in fact dynamic.
+ *       The best practice is to attempt to resolve dynamically first, then fall back on static handlers.
+ */
+export const requestPathIsDynamic = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
+    return requestPathHasDynamicBase(request, url) || requestPathIsPotentiallyDynamic(request, url) || !requestPathHasStaticExtension(request, url);
+});
+
+/**
+ * Request path has a dynamic base?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path has a dynamic base.
+ */
+export const requestPathHasDynamicBase = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    let url = _url || $url.parse(request.url);
+    url = $fn.try(() => $url.removeAppBasePath(url), url)();
+    if ('/' === url.pathname) return false;
+
+    return /^\/(?:api)(?:$|\/)/iu.test(url.pathname);
+});
+
+/**
+ * Request path is potentially dynamic?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path is potentially dynamic.
+ */
+export const requestPathIsPotentiallyDynamic = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return requestPathIsSEORelatedFile(request, url) && !/\/favicon\.ico$/iu.test(url.pathname);
+});
+
+/**
+ * Request path is an SEO file?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path is an SEO file.
+ */
+export const requestPathIsSEORelatedFile = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return /\/(?:\.well[-_]known\/|sitemaps\/.*\.xml|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|manifest\.json|(?:ads|humans|robots)\.txt|favicon\.ico)$/iu.test(url.pathname);
+});
+
+/**
+ * Request path is in an admin area?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path is in an admin area.
+ */
+export const requestPathIsInAdmin = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return /\/(?:[^/]+[-_])?admin(?:[-_][^/]+)?(?:$|\/)/iu.test(url.pathname);
+});
+
+/**
+ * Request path is static?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request is static.
+ */
+export const requestPathIsStatic = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
+    return !requestPathIsDynamic(request, url);
+});
+
+/**
+ * Request path has a static file extension?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path has a static file extension.
+ */
+export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return $path.hasStaticExt(url.pathname);
+});
+
+/**
+ * Supported HTTP request methods.
+ *
+ * @returns An array of supported HTTP request methods (uppercase).
+ */
+export const supportedRequestMethods = (): string[] => ['OPTIONS', 'HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+
+// ---
+// Response utilities.
+
+/**
+ * HTTP response config.
+ *
+ * @param   config Optional config options.
+ *
+ * @returns        HTTP response config promise.
+ */
+export const responseConfig = async (config?: ResponseConfig): Promise<Required<ResponseConfig>> => {
+    return $obj.defaults({}, config || {}, {
+        status: 405,
+
+        enableCORs: false,
+        varyOn: [],
+        cacheVersion: '',
+
+        maxAge: null,
+        sMaxAge: null,
+        staleAge: null,
+
+        headers: {},
+        appendHeaders: {},
+
+        body: null,
+        encodeBody: null,
+    }) as Required<ResponseConfig>;
 };
 
 /**
@@ -458,6 +740,50 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
 };
 
 /**
+ * Get HTTP response status text.
+ *
+ * @param   status HTTP status code.
+ *
+ * @returns        HTTP response status text.
+ */
+export const responseStatusText = (status: string | number): string => {
+    return responseStatusCodes()[String(status)] || '';
+};
+
+/**
+ * Response needs content headers?
+ *
+ * @param   request        HTTP request.
+ * @param   responseStatus HTTP response status code.
+ * @param   responseBody   HTTP response body.
+ *
+ * @returns                True if response needs content headers.
+ *
+ * @see https://fetch.spec.whatwg.org/#null-body-status
+ */
+export const responseNeedsContentHeaders = $fnꓺmemo(2, (request: $type.Request, responseStatus: number, responseBody: $type.BodyInit | null): boolean => {
+    return requestHasSupportedMethod(request) && !['OPTIONS'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus) && !$is.nul(responseBody);
+});
+
+/**
+ * Response needs content body?
+ *
+ * @param   request        HTTP request.
+ * @param   responseStatus HTTP response status code.
+ * @param   responseBody   HTTP response body.
+ *
+ * @returns                True if response needs content body.
+ *
+ * @see https://fetch.spec.whatwg.org/#null-body-status
+ */
+export const responseNeedsContentBody = $fnꓺmemo(2, (request: $type.Request, responseStatus: number, responseBody: $type.BodyInit | null): boolean => {
+    return requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus) && !$is.nul(responseBody);
+});
+
+// ---
+// Response cache utilities.
+
+/**
  * Prepares a cached HTTP response.
  *
  * For performance reasons, this utility reserves the right to read the `.body` of the input response. The assumption is
@@ -589,6 +915,69 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
     return response; // Mutatable clone.
 };
 
+// ---
+// Heartbeat utilities.
+
+/**
+ * Logs a heartbeat for monitoring purposes.
+ *
+ * @param id      Heartbeat ID; e.g., `JGndBRX5LXN79q5q1GkpsmaQ`.
+ * @param options All optional; {@see HeartbeatOptions}.
+ */
+export const heartbeat = async (id: string, options?: HeartbeatOptions): Promise<void> => {
+    const opts = $obj.defaults({}, options || {}) as HeartbeatOptions,
+        fetch = (opts.cfw ? opts.cfw.fetch : globalThis.fetch) as typeof globalThis.fetch;
+
+    await fetch('https://uptime.betterstack.com/api/v1/heartbeat/' + $url.encode(id), {
+        signal: AbortSignal.timeout($time.secondInMilliseconds),
+    }).catch(() => undefined);
+};
+
+// ---
+// Header utilities.
+
+/**
+ * Parses headers into a {@see $type.Headers} instance.
+ *
+ * @param   parseable Headers; {@see $type.RawHeadersInit}.
+ *
+ * @returns           Parsed headers into a {@see $type.Headers} instance.
+ */
+export const parseHeaders = (parseable: $type.RawHeadersInit): $type.Headers => {
+    if (parseable instanceof Headers || $is.array(parseable)) {
+        return new Headers(parseable as HeadersInit);
+    }
+    const headers = new Headers(); // Initialize headers instance.
+
+    if ($is.object(parseable)) {
+        for (let [name, value] of Object.entries(parseable)) {
+            headers.set(name, value);
+        }
+    } else if ($is.string(parseable)) {
+        const lines = parseable.split(/[\r\n]+/u);
+
+        for (let i = 0, name = ''; i < lines.length; i++) {
+            const line = lines[i]; // Current line.
+
+            if (name && [' ', '\t'].includes(line[0])) {
+                headers.set(name, ((headers.get(name) || '') + ' ' + line.trim()).trim());
+                continue; // Multiline header concatenation.
+            }
+            if (!line.includes(':')) continue; // Invalid line.
+
+            name = line.slice(0, line.indexOf(':')).toLowerCase().trim();
+            const value = line.slice(line.indexOf(':') + 1).trim();
+
+            if (!name) continue; // Invalid line.
+
+            if (headers.has(name)) {
+                headers.append(name, value);
+            } else headers.set(name, value);
+        }
+    }
+    return headers;
+};
+
 /**
  * Prepares `referer` based on from » to URLs & referrer policy.
  *
@@ -602,6 +991,8 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
  */
 export const prepareRefererHeader = (parseable: $type.RawHeadersInit, fromParseable: $type.URL | string, toParseable: $type.URL | string): $type.Headers => {
     const headers = parseHeaders(parseable),
+        referrerPolicy = ((headers.get('referrer-policy') || '').split(/\s*,\s*/u).slice(-1)[0] || '').toLowerCase(),
+        //
         fromURL = $url.tryParse(fromParseable),
         toURL = $url.tryParse(toParseable);
 
@@ -609,10 +1000,7 @@ export const prepareRefererHeader = (parseable: $type.RawHeadersInit, fromParsea
         headers.delete('referer');
         return headers; // Not possible.
     }
-    let referer = ''; // Initializes `referer` header value.
-
-    const referrerPolicy = ((headers.get('referrer-policy') || '')
-        .split(/\s*,\s*/u).slice(-1)[0] || '').toLowerCase(); // prettier-ignore
+    let referer = ''; // Initializes header value.
 
     switch (referrerPolicy) {
         case 'no-referrer': {
@@ -641,13 +1029,19 @@ export const prepareRefererHeader = (parseable: $type.RawHeadersInit, fromParsea
             break;
         }
         case 'strict-origin': {
-            if (!$url.isPotentiallyTrustworthy(fromURL) || $url.isPotentiallyTrustworthy(toURL)) {
+            if (!$url.isPotentiallyTrustworthy(fromURL)) {
+                referer = fromURL.origin;
+                //
+            } else if ($url.isPotentiallyTrustworthy(toURL)) {
                 referer = fromURL.origin;
             }
             break;
         }
         case 'no-referrer-when-downgrade': {
-            if (!$url.isPotentiallyTrustworthy(fromURL) || $url.isPotentiallyTrustworthy(toURL)) {
+            if (!$url.isPotentiallyTrustworthy(fromURL)) {
+                referer = fromURL.toString();
+                //
+            } else if ($url.isPotentiallyTrustworthy(toURL)) {
                 referer = fromURL.toString();
             }
             break;
@@ -657,324 +1051,21 @@ export const prepareRefererHeader = (parseable: $type.RawHeadersInit, fromParsea
             if (fromURL.origin === toURL.origin) {
                 referer = fromURL.toString();
                 //
-            } else if (!$url.isPotentiallyTrustworthy(fromURL) || $url.isPotentiallyTrustworthy(toURL)) {
+            } else if (!$url.isPotentiallyTrustworthy(fromURL)) {
+                referer = fromURL.origin;
+                //
+            } else if ($url.isPotentiallyTrustworthy(toURL)) {
                 referer = fromURL.origin;
             }
         }
     }
-    if ('' !== referer) {
+    if (referer) {
         headers.set('referer', referer);
-    } else headers.delete('referer');
-
+    } else {
+        headers.delete('referer');
+    }
     return headers;
 };
-
-/**
- * Get HTTP response status text.
- *
- * @param   status HTTP status code.
- *
- * @returns        HTTP response status text.
- */
-export const responseStatusText = (status: string | number): string => {
-    return responseStatusCodes()[String(status)] || '';
-};
-
-/**
- * Request has a supported method?
- *
- * @param   request HTTP request.
- *
- * @returns         True if request has a supported method.
- */
-export const requestHasSupportedMethod = (request: $type.Request): boolean => {
-    return supportedRequestMethods().includes(request.method);
-};
-
-/**
- * Request has a cacheable request method?
- *
- * @param   request HTTP request.
- *
- * @returns         True if request has a cacheable request method.
- */
-export const requestHasCacheableMethod = $fnꓺmemo(2, (request: $type.Request): boolean => {
-    return requestHasSupportedMethod(request) && ['HEAD', 'GET'].includes(request.method);
-});
-
-/**
- * Response needs content headers?
- *
- * @param   request        HTTP request.
- * @param   responseStatus HTTP response status code.
- * @param   responseBody   HTTP response body.
- *
- * @returns                True if response needs content headers.
- *
- * @see https://fetch.spec.whatwg.org/#null-body-status
- */
-export const responseNeedsContentHeaders = $fnꓺmemo(2, (request: $type.Request, responseStatus: number, responseBody: $type.BodyInit | null): boolean => {
-    return requestHasSupportedMethod(request) && !['OPTIONS'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus) && !$is.nul(responseBody);
-});
-
-/**
- * Response needs content body?
- *
- * @param   request        HTTP request.
- * @param   responseStatus HTTP response status code.
- * @param   responseBody   HTTP response body.
- *
- * @returns                True if response needs content body.
- *
- * @see https://fetch.spec.whatwg.org/#null-body-status
- */
-export const responseNeedsContentBody = $fnꓺmemo(2, (request: $type.Request, responseStatus: number, responseBody: $type.BodyInit | null): boolean => {
-    return requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus) && !$is.nul(responseBody);
-});
-
-/**
- * Request is coming from an identified user?
- *
- * @param   request HTTP request.
- *
- * @returns         True if request is coming from an identified user.
- */
-export const requestIsFromUser = $fnꓺmemo(2, (request: $type.Request): boolean => {
-    if (request.headers.has('authorization')) {
-        return true; // Authorization header.
-    }
-    if (!request.headers.has('cookie')) {
-        return false; // No cookies.
-    }
-    const cookie = request.headers.get('cookie') || ''; // Contains encoded cookies.
-    return /(?:^\s*|;\s*)(?:ut[mx]_)?(?:author|user|customer)(?:[_-][^=;]+)?=\s*"?[^";]/iu.test(cookie);
-});
-
-/**
- * Request is coming from a specific via token?
- *
- * WARNING: We do not, by default, vary caches based on `x-via`. Therefore, _only_ use this when processing an
- * uncacheable request type; e.g., `POST` request, or by explicitly declaring that a cache should vary on `x-via`.
- *
- * @param   request HTTP request.
- * @param   via     `x-via` token to consider.
- *
- * @returns         True if request is coming from `x-via` token.
- */
-export const requestIsVia = $fnꓺmemo(2, (request: $type.Request, via: string): boolean => {
-    if (!request.headers.has('x-via')) {
-        return false; // No `x-via` header.
-    }
-    const header = request.headers.get('x-via') || ''; // Contains via tokens.
-    return $is.notEmpty(header) && new RegExp('(?:^|[,;])\\s*(?:' + $str.escRegExp(via) + ')\\s*(?:$|[,;])', 'ui').test(header);
-});
-
-/**
- * Request expects a JSON response?
- *
- * WARNING: We do not vary caches based on `accept`. Therefore, you should _only_ use this when processing an
- * uncacheable request type; e.g., `POST` request, or another that is uncacheable; {@see requestHasCacheableMethod()}.
- *
- * WARNING: This isn’t foolproof because it assumes anything of our own served from `/api` will expect JSON in the
- * absense of an `accept` header. Therefore, only use in contexts where false-positives are not detrimental.
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request expects a JSON response.
- */
-export const requestExpectsJSON = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    let url = _url || $url.parse(request.url);
-    url = $fn.try(() => $url.removeAppBasePath(url), url)();
-    const acceptHeader = request.headers.get('accept') || '';
-    return (
-        (acceptHeader && /\b(?:application\/json)\b/iu.test(acceptHeader)) || //
-        (!acceptHeader && $env.isC10n() && '/' !== url.pathname && /^\/(?:api)(?:$|\/)/iu.test(url.pathname))
-    );
-});
-
-/**
- * Request path is invalid?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path is invalid.
- */
-export const requestPathIsInvalid = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    const url = _url || $url.parse(request.url);
-    if ('/' === url.pathname) return false;
-
-    return /\\|\/{2,}|\.{2,}/iu.test(url.pathname);
-});
-
-/**
- * Request has an invalid app base URL origin?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request has an invalid app base URL origin.
- */
-export const requestPathHasInvalidAppBaseURLOrigin = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    const url = _url || $url.parse(request.url);
-    const appBaseURL = $app.baseURL({ parsed: true });
-
-    if (url.host !== appBaseURL.host) return true;
-    return (
-        url.protocol !== appBaseURL.protocol && //
-        // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
-        // In Miniflare, we don’t consider a mismatched protocol to be an issue.
-        // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
-        // It’s worth noting that all our local test configurations make `https:` requests only.
-        (!$env.isCFWViaMiniflare() || 'http:' !== url.protocol)
-    );
-});
-
-/**
- * Request path has an invalid trailing slash?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path has an invalid trailing slash.
- */
-export const requestPathHasInvalidTrailingSlash = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    const url = _url || $url.parse(request.url);
-    if ('/' === url.pathname) return false;
-
-    return url.pathname.endsWith('/');
-});
-
-/**
- * Request path is forbidden?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path is forbidden.
- */
-export const requestPathIsForbidden = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    const url = _url || $url.parse(request.url);
-    if ('/' === url.pathname) return false;
-
-    if (/\/\./iu.test(url.pathname) && !/^\/\.well-known(?:$|\/)/iu.test(url.pathname)) {
-        return true; // No dotfile paths, except `/.well-known` at root of a domain.
-    }
-    if (/(?:~|[^/.]\.(?:bak|backup|copy|log|old|te?mp))(?:$|\/)/iu.test(url.pathname)) {
-        return true; // No backups, copies, logs, or temp paths.
-    }
-    if (/\/(?:[^/]*[._-])?(?:private|cache|logs?|te?mp)(?:$|\/)/iu.test(url.pathname)) {
-        return true; // No private, cache, log, or temp paths.
-    }
-    if (/\/(?:yarn|vendor|node[_-]modules|jspm[_-]packages|bower[_-]components)(?:$|\/)/iu.test(url.pathname)) {
-        return true; // No package management dependencies paths.
-    }
-    return false;
-});
-
-/**
- * Request path is dynamic?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request is dynamic.
- *
- * @note This is determining whether it *might* be; i.e., probably is dynamic, not that is in fact dynamic.
- *       The best practice is to attempt to resolve dynamically first, then fall back on static handlers.
- */
-export const requestPathIsDynamic = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
-    return requestPathHasDynamicBase(request, url) || requestPathIsPotentiallyDynamic(request, url) || !requestPathHasStaticExtension(request, url);
-});
-
-/**
- * Request path has a dynamic base?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path has a dynamic base.
- */
-export const requestPathHasDynamicBase = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    let url = _url || $url.parse(request.url);
-    url = $fn.try(() => $url.removeAppBasePath(url), url)();
-    if ('/' === url.pathname) return false;
-
-    return /^\/(?:api)(?:$|\/)/iu.test(url.pathname);
-});
-
-/**
- * Request path is potentially dynamic?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path is potentially dynamic.
- */
-export const requestPathIsPotentiallyDynamic = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    const url = _url || $url.parse(request.url);
-    if ('/' === url.pathname) return false;
-
-    return requestPathIsSEORelatedFile(request, url) && !/\/favicon\.ico$/iu.test(url.pathname);
-});
-
-/**
- * Request path is an SEO file?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path is an SEO file.
- */
-export const requestPathIsSEORelatedFile = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    const url = _url || $url.parse(request.url);
-    if ('/' === url.pathname) return false;
-
-    return /\/(?:\.well[-_]known\/|sitemaps\/.*\.xml|(?:[^/]+[-_])?sitemap(?:[-_][^/]+)?\.xml|manifest\.json|(?:ads|humans|robots)\.txt|favicon\.ico)$/iu.test(url.pathname);
-});
-
-/**
- * Request path is in an admin area?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path is in an admin area.
- */
-export const requestPathIsInAdmin = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    const url = _url || $url.parse(request.url);
-    if ('/' === url.pathname) return false;
-
-    return /\/(?:[^/]+[-_])?admin(?:[-_][^/]+)?(?:$|\/)/iu.test(url.pathname);
-});
-
-/**
- * Request path is static?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request is static.
- */
-export const requestPathIsStatic = $fnꓺmemo(2, (request: $type.Request, url?: $type.URL): boolean => {
-    return !requestPathIsDynamic(request, url);
-});
-
-/**
- * Request path has a static file extension?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path has a static file extension.
- */
-export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    const url = _url || $url.parse(request.url);
-    if ('/' === url.pathname) return false;
-
-    return $path.hasStaticExt(url.pathname);
-});
 
 /**
  * Gets clean content type from headers.
@@ -1049,70 +1140,6 @@ export const contentIsBinary = $fnꓺmemo(2, (headers: $type.HeadersInit): boole
 export const contentIsEncoded = $fnꓺmemo(2, (headers: $type.HeadersInit): boolean => {
     return !['', 'none'].includes((parseHeaders(headers).get('content-encoding') || '').toLowerCase());
 });
-
-/**
- * Parses headers into a {@see $type.Headers} instance.
- *
- * @param   parseable Headers; {@see $type.RawHeadersInit}.
- *
- * @returns           Parsed headers into a {@see $type.Headers} instance.
- */
-export const parseHeaders = (parseable: $type.RawHeadersInit): $type.Headers => {
-    if (parseable instanceof Headers || $is.array(parseable)) {
-        return new Headers(parseable as HeadersInit);
-    }
-    const headers = new Headers(); // Initialize headers instance.
-
-    if ($is.object(parseable)) {
-        for (let [name, value] of Object.entries(parseable)) {
-            headers.set(name, value);
-        }
-    } else if ($is.string(parseable)) {
-        const lines = parseable.split(/[\r\n]+/u);
-
-        for (let i = 0, name = ''; i < lines.length; i++) {
-            const line = lines[i]; // Current line.
-
-            if (name && [' ', '\t'].includes(line[0])) {
-                headers.set(name, ((headers.get(name) || '') + ' ' + line.trim()).trim());
-                continue; // Multiline header concatenation.
-            }
-            if (!line.includes(':')) continue; // Invalid line.
-
-            name = line.slice(0, line.indexOf(':')).toLowerCase().trim();
-            const value = line.slice(line.indexOf(':') + 1).trim();
-
-            if (!name) continue; // Invalid line.
-
-            if (headers.has(name)) {
-                headers.append(name, value);
-            } else headers.set(name, value);
-        }
-    }
-    return headers;
-};
-
-/**
- * Logs a heartbeat for monitoring purposes.
- *
- * @param id      Heartbeat ID; e.g., `JGndBRX5LXN79q5q1GkpsmaQ`.
- * @param options All optional; {@see HeartbeatOptions}.
- */
-export const heartbeat = async (id: string, options?: HeartbeatOptions): Promise<void> => {
-    const opts = $obj.defaults({}, options || {}) as HeartbeatOptions,
-        fetch = (opts.cfw ? opts.cfw.fetch : globalThis.fetch) as typeof globalThis.fetch;
-
-    await fetch('https://uptime.betterstack.com/api/v1/heartbeat/' + $url.encode(id), {
-        signal: AbortSignal.timeout($time.secondInMilliseconds),
-    }).catch(() => undefined);
-};
-
-/**
- * Supported HTTP request methods.
- *
- * @returns An array of supported HTTP request methods (uppercase).
- */
-export const supportedRequestMethods = (): string[] => ['OPTIONS', 'HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 /**
  * URL-containing header names.

@@ -658,7 +658,7 @@ export const isRelative = $fnꓺmemo(12, (parseable: $type.URL | string): boolea
  * @see https://o5p.me/9talJI for details on spec compliance.
  */
 export const isPotentiallyTrustworthy = $fnꓺmemo(12, (parseable: $type.URL | string): boolean => {
-    if ($is.string(parseable) && ['about:blank', 'about:srcdoc'].includes(parseable.toLowerCase())) {
+    if ($is.string(parseable) && ['about:blank', 'about:srcdoc', 'about:client'].includes(parseable.toLowerCase())) {
         return true; // Special trustworthy cases.
     }
     const url = tryParse(parseable);
