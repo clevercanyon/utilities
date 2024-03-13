@@ -184,6 +184,28 @@ describe('$http', async () => {
         expect(response1Body).toContain(" cspNonce: '" + cspReplCode + "'");
         expect(response1Body).not.toContain(" cspNonce: '" + cspNonce + "'");
     });
+    test('.prepareRefererHeader()', async () => {
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'no-referrer' }, 'https://x.tld/a', 'https://x.tld/b').get('referer')).toBe(null);
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'origin' }, 'https://x.tld/a', 'https://x.tld/b').get('referer')).toBe('https://x.tld');
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'unsafe-url' }, 'https://x.tld/a', 'https://x.tld/b').get('referer')).toBe('https://x.tld/a');
+
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'same-origin' }, 'https://x.tld/a', 'https://x.tld/b').get('referer')).toBe('https://x.tld/a');
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'same-origin' }, 'https://x.tld/a', 'https://y.tld/b').get('referer')).toBe(null);
+
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'origin-when-cross-origin' }, 'https://x.tld/a', 'https://x.tld/b').get('referer')).toBe('https://x.tld/a');
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'origin-when-cross-origin' }, 'https://x.tld/a', 'https://y.tld/b').get('referer')).toBe('https://x.tld');
+
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'strict-origin' }, 'https://x.tld/a', 'https://x.tld/b').get('referer')).toBe('https://x.tld');
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'strict-origin' }, 'https://x.tld/a', 'http://y.tld/b').get('referer')).toBe(null);
+
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'no-referrer-when-downgrade' }, 'https://x.tld/a', 'https://x.tld/b').get('referer')).toBe('https://x.tld/a');
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'no-referrer-when-downgrade' }, 'https://x.tld/a', 'http://x.tld/b').get('referer')).toBe(null);
+
+        expect($http.prepareRefererHeader({}, 'https://x.tld/a', 'https://x.tld/b').get('referer')).toBe('https://x.tld/a');
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'strict-origin-when-cross-origin' }, 'https://x.tld/a', 'https://x.tld/b').get('referer')).toBe('https://x.tld/a');
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'strict-origin-when-cross-origin' }, 'https://x.tld/a', 'https://y.tld/b').get('referer')).toBe('https://x.tld');
+        expect($http.prepareRefererHeader({ 'referrer-policy': 'strict-origin-when-cross-origin' }, 'https://x.tld/a', 'http://y.tld/b').get('referer')).toBe(null);
+    });
     test('.responseStatusText()', async () => {
         expect($http.responseStatusText(200)).toBe('OK');
         expect($http.responseStatusText(400)).toBe('Bad Request');

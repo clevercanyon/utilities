@@ -590,6 +590,86 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
 };
 
 /**
+ * Prepares `referer` based on from » to URLs & referrer policy.
+ *
+ * This is most useful when following redirect responses.
+ *
+ * @param   parseable     Parseable headers, which may include a `referrer-policy` header.
+ * @param   fromParseable Parseable URL or string; e.g., a URL that is issuing a redirection.
+ * @param   toParseable   Parseable URL or string; e.g., a URL that is set as the redirect location.
+ *
+ * @returns               Parsed {@see $type.Headers} instance with an appropriate `referer` header value.
+ */
+export const prepareRefererHeader = (parseable: $type.RawHeadersInit, fromParseable: $type.URL | string, toParseable: $type.URL | string): $type.Headers => {
+    const headers = parseHeaders(parseable),
+        fromURL = $url.tryParse(fromParseable),
+        toURL = $url.tryParse(toParseable);
+
+    if (!fromURL || !toURL) {
+        headers.delete('referer');
+        return headers; // Not possible.
+    }
+    let referer = ''; // Initializes `referer` header value.
+
+    const referrerPolicy = ((headers.get('referrer-policy') || '')
+        .split(/\s*,\s*/u).slice(-1)[0] || '').toLowerCase(); // prettier-ignore
+
+    switch (referrerPolicy) {
+        case 'no-referrer': {
+            break; // No referrer.
+        }
+        case 'origin': {
+            referer = fromURL.origin;
+            break;
+        }
+        case 'unsafe-url': {
+            referer = fromURL.toString();
+            break;
+        }
+        case 'same-origin': {
+            if (fromURL.origin === toURL.origin) {
+                referer = fromURL.toString();
+            }
+            break;
+        }
+        case 'origin-when-cross-origin': {
+            if (fromURL.origin === toURL.origin) {
+                referer = fromURL.toString();
+            } else {
+                referer = fromURL.origin;
+            }
+            break;
+        }
+        case 'strict-origin': {
+            if (!$url.isPotentiallyTrustworthy(fromURL) || $url.isPotentiallyTrustworthy(toURL)) {
+                referer = fromURL.origin;
+            }
+            break;
+        }
+        case 'no-referrer-when-downgrade': {
+            if (!$url.isPotentiallyTrustworthy(fromURL) || $url.isPotentiallyTrustworthy(toURL)) {
+                referer = fromURL.toString();
+            }
+            break;
+        }
+        case 'strict-origin-when-cross-origin':
+        default: {
+            if (fromURL.origin === toURL.origin) {
+                referer = fromURL.toString();
+                //
+            } else if (!$url.isPotentiallyTrustworthy(fromURL) || $url.isPotentiallyTrustworthy(toURL)) {
+                referer = fromURL.origin;
+            }
+        }
+    }
+    if ('' !== referer) {
+        headers.set('referer', referer);
+    } else headers.delete('referer');
+
+    return headers;
+};
+
+/**
  * Get HTTP response status text.
  *
  * @param   status HTTP status code.
