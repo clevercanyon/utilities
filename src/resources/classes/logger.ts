@@ -628,9 +628,9 @@ export const getClass = (): Constructor => {
             const httpPost = (): Promise<boolean> => {
                 return new Promise((resolve): void => {
                     void fetch(this.endpoint, {
-                        keepalive: true,
-                        redirect: 'manual',
-                        method: 'POST',
+                        keepalive: true, // Similar to beacon API.
+                        method: 'POST', // We are posting log entries.
+                        redirect: 'manual', // Do not follow automatically.
                         signal: AbortSignal.timeout(this.configMinutia.httpTimeout),
                         headers: { 'content-type': $json.contentType(), 'authorization': this.endpointToken },
                         body: currentQueueJSONSnapshot,
