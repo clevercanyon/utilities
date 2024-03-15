@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $is, $obj, $str } from '#index.ts';
+import { $is, $obj, $str, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -38,6 +38,17 @@ type ExpectedCause = string | RegExp;
  * @see $is.errorCode()
  */
 export const codeRegExp = $fnꓺmemo((): RegExp => /^[a-z0-9]{8}$/iu);
+
+/**
+ * Gets all error properties.
+ *
+ * @param   error Error instance.
+ *
+ * @returns       Plain error object.
+ */
+export const properties = ({ name, message, cause, stack }: Error): $type.StrKeyable<$type.Writable<Error>> => {
+    return { name, message, cause, stack } as ReturnType<typeof properties>;
+};
 
 /**
  * Generates an error message from a thrown value.

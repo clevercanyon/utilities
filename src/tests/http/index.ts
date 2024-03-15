@@ -184,6 +184,55 @@ describe('$http', async () => {
         expect(response1Body).toContain(" cspNonce: '" + cspReplCode + "'");
         expect(response1Body).not.toContain(" cspNonce: '" + cspNonce + "'");
     });
+    test('.requestHash()', async () => {
+        expect(
+            await $http.requestHash(
+                new Request('https://x.tld/', {
+                    redirect: 'manual',
+                    headers: { 'foo': 'foo', 'bar': 'bar' },
+                }),
+            ),
+        ).toBe('34187aa82135e8e0f8ba3b44dc49ed77b3fd0fb1');
+
+        expect(
+            await $http.requestHash(
+                new Request('https://x.tld/', {
+                    headers: { 'bar': 'bar', 'foo': 'foo' },
+                    redirect: 'manual',
+                }),
+            ),
+        ).toBe('34187aa82135e8e0f8ba3b44dc49ed77b3fd0fb1');
+
+        expect(
+            await $http.requestHash(
+                new Request('https://x.tld/', {
+                    method: 'POST',
+                    redirect: 'manual',
+                    headers: {
+                        'foo': 'foo',
+                        'bar': 'bar',
+                        'content-type': 'text/plain; charset=utf-8',
+                    },
+                    body: 'body',
+                }),
+            ),
+        ).toBe('1d3a8d27cea851282d31c7c4e507ed04b0d94efb');
+
+        expect(
+            await $http.requestHash(
+                new Request('https://x.tld/', {
+                    redirect: 'manual',
+                    method: 'POST',
+                    headers: {
+                        'bar': 'bar',
+                        'foo': 'foo',
+                        'content-type': 'text/plain; charset=utf-8',
+                    },
+                    body: 'body',
+                }),
+            ),
+        ).toBe('1d3a8d27cea851282d31c7c4e507ed04b0d94efb');
+    });
     test('.prepareRefererHeader()', async () => {
         const headers1 = new Headers({ 'referrer-policy': 'no-referrer' });
         $http.prepareRefererHeader(headers1, 'https://x.tld/a', 'https://x.tld/b');
@@ -231,7 +280,7 @@ describe('$http', async () => {
 
         const headers12 = new Headers({});
         $http.prepareRefererHeader(headers12, 'https://x.tld/a', 'https://x.tld/b');
-        expect(headers12.get('referer')).toBe('https://x.tld/a');
+        expect(headers12.get('referer')).toBe(null);
 
         const headers13 = new Headers({ 'referrer-policy': 'strict-origin-when-cross-origin' });
         $http.prepareRefererHeader(headers13, 'https://x.tld/a', 'https://x.tld/b');

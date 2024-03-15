@@ -797,48 +797,23 @@ const jsonCloneObjectDeep = (object: object): $type.Object => {
  * @param   key   A JSON string key.
  * @param   value Any arbitrary value.
  *
- * @returns       Value to JSON-encode.
+ * @returns       Value to JSON-encode via middleware.
  */
 const jsonStringifyMiddleware = (key: string, value: unknown): unknown => {
+    let properties; // Initialize.
+
     if ($is.error(value)) {
-        return {
-            name: value.name,
-            message: value.message,
-            cause: value.cause,
-            stack: value.stack,
-        };
+        return $redact.errorProperties(value);
+        //
     } else if ($is.request(value)) {
         return {
-            ...$obj.pick(Object.fromEntries($obj.allEntries(value)), [
-                'method', //
-                'destination',
-                'referrerPolicy',
-                'mode',
-                'credentials',
-                'cache',
-                'redirect',
-                'integrity',
-                'keepalive',
-                'isReloadNavigation',
-                'isHistoryNavigation',
-            ]),
-            url: $redact.url(value.url),
-            ...('referrer' in value ? { referrer: $redact.url(value.referrer) } : {}),
-            headers: [...$redact.headers(value.headers).entries()],
+            ...(properties = $redact.requestProperties(value)),
+            headers: [...properties.headers.entries()],
         };
     } else if ($is.response(value)) {
         return {
-            ...$obj.pick(Object.fromEntries($obj.allEntries(value)), [
-                'type', //
-                'redirected',
-                'ok',
-                'status',
-                'statusText',
-                'bodyUsed',
-            ]),
-            ...(value.url ? { url: $redact.url(value.url) } : {}),
-            headers: [...$redact.headers(value.headers).entries()],
-            bodyObjectTags: $obj.tags(value.body),
+            ...(properties = $redact.responseProperties(value)),
+            headers: [...properties.headers.entries()],
         };
     }
     return value;

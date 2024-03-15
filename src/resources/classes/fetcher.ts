@@ -2,7 +2,7 @@
  * Fetcher utility class.
  */
 
-import { $app, $class, $crypto, $env, $json, $mime, $obp, $str, type $type } from '#index.ts';
+import { $app, $class, $env, $http, $json, $mime, $obp, $str, type $type } from '#index.ts';
 
 /**
  * Constructor cache.
@@ -38,6 +38,7 @@ export type GlobalCacheEntry = {
     body: string;
     init: {
         status: number;
+        statusText: string;
         headers: { [x: string]: string };
     };
 };
@@ -58,9 +59,9 @@ const tꓺapplicationⳇ = 'application/',
     tꓺxml = 'xml';
 
 /**
- * Defines cachedable response content types.
+ * Defines cachedable response types.
  */
-const cacheableResponseContentTypes = [
+const cacheableResponseTypes = [
     tꓺtextⳇ + tꓺplain,
     tꓺapplicationⳇ + tꓺjson,
     tꓺapplicationⳇ + 'ld+' + tꓺjson,
@@ -118,7 +119,7 @@ export const getClass = (): Constructor => {
                 this.global = $obp.get(globalThis, this.globalObp, {}) as Global;
                 this.global.cache = this.global.cache || {};
             }
-            this.fetch = ((...args: Parameters<typeof globalThis.fetch>) => this.fetcher(...args)) as $type.fetch;
+            this.fetch = ((...args: Parameters<$type.fetch>) => this.fetcher(...args)) as $type.fetch;
         }
 
         /**
@@ -138,49 +139,55 @@ export const getClass = (): Constructor => {
         /**
          * Checks if request is cacheable.
          *
-         * @param   requestInit Request init properties.
+         * @param   request Request to consider.
          *
-         * @returns             True if request is cacheable.
+         * @returns         True if request is cacheable.
          */
-        protected isCacheableRequest(requestInit?: RequestInit): boolean {
+        protected isCacheable(request: Request): boolean {
+            let cache; // i.e., `cache` not supported by all environments.
+            try { cache = request.cache; } catch {} // prettier-ignore
+
             return (
-                ['HEAD', 'GET'].includes((requestInit?.method || 'GET').toUpperCase()) &&
-                !['no-store', 'no-cache', 'reload'].includes((requestInit?.cache || 'default').toLowerCase())
+                ['HEAD', 'GET'].includes((request.method || 'GET').toUpperCase()) && //
+                !['no-store', 'no-cache', 'reload'].includes((cache || 'default').toLowerCase())
             );
         }
 
         /**
-         * Wraps native {@see fetch()}.
+         * Wraps global native {@see fetch()}.
          *
-         * @param   args              Same as {@see fetch()}.
+         * @param   args Same as global native {@see fetch()}.
          *
-         * @returns {@see fetch()}      Same as global native fetch.
+         * @returns      Same as global native {@see fetch()}. However, this will only return a `content-type` header
+         *   when a request is either read from, or written to, a cache entry. In such a case, we discard all other
+         *   headers. Otherwise, for requests not read from or written to a cache entry, this returns all headers.
          */
-        protected async fetcher(...args: Parameters<typeof globalThis.fetch>): ReturnType<typeof globalThis.fetch> {
-            const fetch = (this.cfw ? this.cfw.fetch : globalThis.fetch) as typeof globalThis.fetch;
+        protected async fetcher(...args: Parameters<$type.fetch>): Promise<Awaited<ReturnType<$type.fetch>>> {
+            const request = new Request(...(args as [RequestInfo | URL, RequestInit | undefined])),
+                fetch = (this.cfw ? this.cfw.fetch : globalThis.fetch) as typeof globalThis.fetch;
 
-            if (!this.isCacheableRequest(args[1])) {
-                return fetch(...args); // Uses native fetch.
-            }
-            const cacheKey = await $crypto.sha1($json.stringify(args));
+            if (!this.isCacheable(request)) return fetch(request);
+
+            const cacheKey = await $http.requestHash(request);
 
             if (Object.hasOwn(this.global.cache, cacheKey)) {
                 const globalCacheEntry = this.global.cache[cacheKey];
                 return new Response(globalCacheEntry.body, globalCacheEntry.init);
             }
-            if ($env.isWeb()) return fetch(...args); // No cache writes client-side.
+            if ($env.isWeb()) return fetch(request); // No cache writes client-side.
 
-            const response = await fetch(...args), // Uses native fetch.
+            const response = await fetch(request),
                 responseContentType = response.headers.get('content-type') || '',
                 responseCleanContentType = $mime.typeClean(responseContentType);
 
-            if (!cacheableResponseContentTypes.includes(responseCleanContentType)) {
+            if (!cacheableResponseTypes.includes(responseCleanContentType)) {
                 return response; // Don't cache types not in list above.
             }
             const globalCacheEntry: GlobalCacheEntry = {
                 body: await response.text(),
                 init: {
                     status: response.status,
+                    statusText: response.statusText,
                     headers: { 'content-type': responseContentType },
                 },
             };

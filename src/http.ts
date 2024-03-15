@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $app, $crypto, $env, $fn, $gzip, $is, $mime, $obj, $path, $str, $symbol, $time, $to, $url, type $type } from '#index.ts';
+import { $app, $crypto, $env, $fn, $gzip, $is, $json, $mime, $obj, $path, $str, $symbol, $time, $to, $url, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -143,15 +143,52 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
 };
 
 /**
+ * Produces a hash of a given HTTP request.
+ *
+ * Properties and headers are sorted for hash consistency.
+ *
+ * @param   request HTTP request.
+ *
+ * @returns         SHA-1 hash of HTTP request.
+ *
+ * @note Please {@see requestPropertyDefaults()}, which makes hashing possible.
+ */
+export const requestHash = $fnꓺmemo(2, async (request: $type.Request): Promise<string> => {
+    const defaults = requestPropertyDefaults(),
+        properties = requestProperties(request),
+        unsortedProps = $obj.defaults(properties, defaults) as $type.StrKeyable;
+
+    const sortedProps = Object.fromEntries([...Object.entries(unsortedProps)].sort((a, b) => a[0].localeCompare(b[0])));
+    sortedProps.headers = [...request.headers.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+
+    if (sortedProps.body /* Requires request clone. */) {
+        sortedProps.body = await request.clone().text();
+    }
+    return await $crypto.sha1($json.stringify(sortedProps));
+});
+
+/**
+ * Gets all request properties.
+ *
+ * @param   request HTTP request.
+ *
+ * @returns         Plain request object.
+ */
+export const requestProperties = $fnꓺmemo(2, (request: $type.Request): $type.StrKeyable<$type.Writable<$type.Request>> => {
+    const allProps = Object.fromEntries($obj.allEntries(request));
+    return $obj.pick(allProps, Object.keys(requestPropertyDefaults())) as ReturnType<typeof requestProperties>;
+});
+
+/**
  * Request has a supported method?
  *
  * @param   request HTTP request.
  *
  * @returns         True if request has a supported method.
  */
-export const requestHasSupportedMethod = (request: $type.Request): boolean => {
+export const requestHasSupportedMethod = $fnꓺmemo(2, (request: $type.Request): boolean => {
     return supportedRequestMethods().includes(request.method);
-};
+});
 
 /**
  * Request has a cacheable request method?
@@ -406,6 +443,42 @@ export const requestPathHasStaticExtension = $fnꓺmemo(2, (request: $type.Reque
     if ('/' === url.pathname) return false;
 
     return $path.hasStaticExt(url.pathname);
+});
+
+/**
+ * Gets request property defaults.
+ *
+ * These are currently used as the basis for creating a {@see requestHash()}. They have been confirmed to align with
+ * global {@see fetch()} defaults across Node v20.0.9, Cloudflare workers, JSDOM, and Chrome v122.0.6261.129. Our
+ * `$http` {@see requestHash()} unit tests were also created to monitor cross-env consistency of these defaults.
+ *
+ * It is important that these remain cross-env compatible and perfectly aligned because in some cases there are SSR
+ * requests that pass through our fetcher class, which caches response data, and must later match client-side keys.
+ *
+ * @param   request HTTP request.
+ *
+ * @returns         Request property defaults.
+ */
+export const requestPropertyDefaults = $fnꓺmemo((): $type.StrKeyable<Readonly<$type.Request>> => {
+    return $obj.freeze({
+        url: '',
+        cache: 'default',
+        credentials: 'same-origin',
+        destination: '',
+        integrity: '',
+        keepalive: false,
+        method: 'GET',
+        mode: 'cors',
+        redirect: 'follow',
+        referrer: 'about:client',
+        referrerPolicy: '',
+        isReloadNavigation: false,
+        isHistoryNavigation: false,
+        cf: undefined, // Cloudflare.
+        headers: new Headers(),
+        body: null,
+        bodyUsed: false,
+    }) as unknown as ReturnType<typeof requestPropertyDefaults>;
 });
 
 /**
@@ -740,6 +813,28 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
 };
 
 /**
+ * Gets all response properties.
+ *
+ * @param   response HTTP response.
+ *
+ * @returns          Plain response object.
+ */
+export const responseProperties = (response: $type.Response): $type.StrKeyable<$type.Writable<$type.Response>> => {
+    const allProps = Object.fromEntries($obj.allEntries(response));
+
+    return $obj.pick(allProps, [
+        'ok', //
+        'url',
+        'type',
+        'status',
+        'statusText',
+        'redirected',
+        'body',
+        'bodyUsed',
+    ]) as ReturnType<typeof responseProperties>;
+};
+
+/**
  * Get HTTP response status text.
  *
  * @param   status HTTP status code.
@@ -1004,6 +1099,7 @@ export const prepareRefererHeader = (headers: $type.Headers, fromParseable: $typ
     let referer = ''; // Initialize.
 
     switch (referrerPolicy) {
+        case '': // Empty.
         case 'no-referrer': {
             break; // No referrer.
         }

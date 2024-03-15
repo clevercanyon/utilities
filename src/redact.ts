@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $http, $is, $obj, $str, $url, $user, type $type } from '#index.ts';
+import { $error, $http, $is, $obj, $str, $url, $user, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -14,6 +14,9 @@ export type ObjectOptions = Options;
 export type URLOptions = Options;
 export type IPGeoDataOptions = Options;
 export type HeaderOptions = Options;
+export type RequestOptions = Options;
+export type ResponseOptions = Options;
+export type ErrorOptions = Options;
 
 /**
  * Redacts data in a string.
@@ -89,6 +92,7 @@ export const ipGeoData = <Type extends $user.IPGeoData>(data: Type, options?: IP
         return ['continent', 'country', 'region', 'regionCode', 'colo', 'metroCode', 'timezone'].includes(key) ? value : redact(value, options);
     });
 };
+// const redactIPGeoData = ipGeoData; // Internal alias.
 
 /**
  * Redacts an HTTP headers instance.
@@ -121,3 +125,55 @@ export const headers = <Type extends $type.Headers>(headers: Type, options?: Hea
     }
     return new Headers(entries) as Type; // Redacted HTTP headers instance clone.
 };
+const redactHeaders = headers; // Internal alias.
+
+/**
+ * Redacts an HTTP request instance.
+ *
+ * @param   request HTTP request instance.
+ * @param   options All optional; {@see RequestOptions}.
+ *
+ * @returns         Redacted HTTP request instance properties.
+ */
+export const requestProperties = <Type extends $type.Request>(request: Type, options?: RequestOptions): ReturnType<typeof $http.requestProperties> => {
+    const properties = $http.requestProperties(request);
+    return {
+        ...properties,
+        url: redactURL(properties.url, options),
+        referrer: redactURL((properties.referrer || '') as string, options),
+        headers: redactHeaders(properties.headers, options),
+    } as ReturnType<typeof requestProperties>;
+};
+// const redactRequestProperties = request; // Internal alias.
+
+/**
+ * Redacts an HTTP response instance.
+ *
+ * @param   response HTTP response instance.
+ * @param   options  All optional; {@see ResponseOptions}.
+ *
+ * @returns          Redacted HTTP response instance properties.
+ */
+export const responseProperties = <Type extends $type.Response>(response: Type, options?: ResponseOptions): ReturnType<typeof $http.responseProperties> => {
+    const properties = $http.responseProperties(response);
+    return {
+        ...properties,
+        url: redactURL(properties.url, options),
+        headers: redactHeaders(properties.headers, options),
+    } as ReturnType<typeof responseProperties>;
+};
+// const redactResponseProperties = response; // Internal alias.
+
+/**
+ * Redacts an error instance.
+ *
+ * @param   error   Error instance.
+ * @param   options All optional; {@see ErrorOptions}.
+ *
+ * @returns         Redacted error instance properties.
+ */
+export const errorProperties = <Type extends Error>(error: Type, unusedꓺoptions?: ErrorOptions): ReturnType<typeof $error.properties> => {
+    const properties = $error.properties(error);
+    return properties as unknown as ReturnType<typeof errorProperties>;
+};
+// const redactErrorProperties = error; // Internal alias.

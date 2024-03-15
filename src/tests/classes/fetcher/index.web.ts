@@ -3,7 +3,7 @@
  */
 /* eslint-disable @typescript-eslint/unbound-method -- safe to ignore. */
 
-import { $class, $obj } from '#index.ts';
+import { $class, $http, $mime, $obj } from '#index.ts';
 import { describe, expect, test, vi } from 'vitest';
 
 describe('Fetcher', async () => {
@@ -13,9 +13,10 @@ describe('Fetcher', async () => {
         // Mocks `globalThis.fetch()`.
 
         const globalFetchMock = vi.fn(async () => {
-            return new Response('x', {
+            return new Response('', {
                 status: 200,
-                headers: { 'content-type': 'text/plain; charset=utf-8' },
+                statusText: $http.responseStatusText(200),
+                headers: { 'content-type': $mime.contentType('.txt') },
             });
         });
         vi.stubGlobal('fetch', globalFetchMock);
@@ -25,7 +26,7 @@ describe('Fetcher', async () => {
 
         // Creates fetcher instance.
 
-        const fetcher = new Fetcher();
+        const fetcher = new Fetcher({ globalObp: 'h2jqtet5' });
 
         // Performs fetchs using fetcher.
 

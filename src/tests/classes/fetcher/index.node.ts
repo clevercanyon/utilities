@@ -3,7 +3,7 @@
  */
 /* eslint-disable @typescript-eslint/unbound-method -- safe to ignore. */
 
-import { $class, $obj } from '#index.ts';
+import { $class, $http, $mime, $obj } from '#index.ts';
 import { describe, expect, test, vi } from 'vitest';
 
 describe('Fetcher', async () => {
@@ -15,7 +15,8 @@ describe('Fetcher', async () => {
         const globalFetchMock = vi.fn(async () => {
             return new Response('', {
                 status: 200,
-                headers: { 'content-type': 'text/plain; charset=utf-8' },
+                statusText: $http.responseStatusText(200),
+                headers: { 'content-type': $mime.contentType('.txt') },
             });
         });
         vi.stubGlobal('fetch', globalFetchMock);
@@ -25,7 +26,7 @@ describe('Fetcher', async () => {
 
         // Creates fetcher instance.
 
-        const fetcher = new Fetcher();
+        const fetcher = new Fetcher({ globalObp: 'cmhksxr6' });
 
         // Performs fetchs using fetcher.
 
@@ -37,9 +38,16 @@ describe('Fetcher', async () => {
         expect($obj.keysAndSymbols(fetcher.global.cache).length).toBe(3);
         expect(globalFetchMock).toHaveBeenCalledTimes(3);
 
-        const expectedCache = { body: '', init: { status: 200, headers: { 'content-type': 'text/plain; charset=utf-8' } } };
-        expect(fetcher.global.cache['8bda1366754d87cfe1ee93cd190c29c8a93c9015']).toStrictEqual(expectedCache);
-        expect(fetcher.global.cache['93a570d7f8fb175c7d6a255f48b2730f79f00365']).toStrictEqual(expectedCache);
-        expect(fetcher.global.cache['35381d33ad7f3bece934225019c135a51d8be3f3']).toStrictEqual(expectedCache);
+        const expectedCache = {
+            body: '',
+            init: {
+                status: 200,
+                statusText: $http.responseStatusText(200),
+                headers: { 'content-type': $mime.contentType('.txt') },
+            },
+        };
+        expect(fetcher.global.cache['ccb3b1f7061e279e02f9d3761d0dcf90ced8e4b8']).toStrictEqual(expectedCache);
+        expect(fetcher.global.cache['e42f835c52038a7a9f0d37f1e570d0f573185ecd']).toStrictEqual(expectedCache);
+        expect(fetcher.global.cache['cca6054445f5e17c31218d204a66bbabba314234']).toStrictEqual(expectedCache);
     });
 });

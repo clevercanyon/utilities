@@ -22,7 +22,7 @@ export type ComponentProps = $preact.Props<{
  *
  * @returns       VNode / JSX element tree (promise).
  *
- * @note {@see globalThis.fetch()} is stubbed out in the main test file.
+ * @note Global {@see fetch()} is stubbed out in the main test file.
  */
 export const Component = $preact.lazyComponent(async (props: ComponentProps): Promise<$preact.VNode<ComponentProps>> => {
     const { fetch } = $preact.useFetcher();
@@ -49,11 +49,13 @@ export const Component = $preact.lazyComponent(async (props: ComponentProps): Pr
  * @returns       VNode / JSX element tree.
  */
 export default function Lazy(unusedꓺprops: Props): $preact.VNode<Props> {
+    const route = $preact.useRoute();
+
     return (
         <HTML>
             <Head title={'lazy'} />
             <Body>
-                <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify($preact.useRoute()) }}></script>
+                <script type='route-context-props' dangerouslySetInnerHTML={{ __html: $json.stringify(route) }}></script>
                 <Component a={'_a'} b={'_b'} c={'_c'} />
             </Body>
         </HTML>

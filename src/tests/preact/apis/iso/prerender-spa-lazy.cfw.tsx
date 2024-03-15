@@ -152,7 +152,6 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        console.log(lazyHTML);
         expect(lazyHTTPState.status).toBe(200);
         expect(lazyDocType).toBe('<!doctype html>');
         expect(lazyHTML).toContain('<title data-key="title">lazy</title>');
@@ -168,7 +167,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
         expect(lazyHTML).toContain('<script type="lazy-component-props">{"a":"_a","b":"_b","c":"_c"');
         expect(lazyHTML).toContain(
             // ISO fetcher cache should be dumped into script tag for client-side use.
-            '{"cache":{"d7b70ada5bdf8fd5be68ba2c359958a3768e044e":{"body":"","init":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"d77a93a8edb0b9a6e7655df474aaed757e4ae449":{"body":"","init":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"ddd3a839cabaa8bd47010410e0d588596e4e539e":{"body":"","init":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}},"c34287a716fbae3b50f5fe7070c998e997368560":{"body":"","init":{"status":200,"headers":{"content-type":"text/plain; charset=utf-8"}}}}};',
+            '{"cache":{"63d7b6e9feaf01aee1b0edbb3c11cf55d6e4420b":{"body":"","init":{"status":200,"statusText":"","headers":{"content-type":"text/plain; charset=utf-8"}}},"d4336cc4ea6ee452114d1eb38f13723b1d28c96f":{"body":"","init":{"status":200,"statusText":"","headers":{"content-type":"text/plain; charset=utf-8"}}},"a36e49fefb323e24289c1569cf5c504fccd9bc51":{"body":"","init":{"status":200,"statusText":"","headers":{"content-type":"text/plain; charset=utf-8"}}},"ae54d66ff4e90e22497818cc03b95e8dd8eff6e6":{"body":"","init":{"status":200,"statusText":"","headers":{"content-type":"text/plain; charset=utf-8"}}}}};',
         );
         expect(lazyHTML).toContain('</html>');
     });
