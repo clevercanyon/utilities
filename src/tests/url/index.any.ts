@@ -415,6 +415,9 @@ describe('$url', async () => {
         expect($url.addQueryVars({ abc: 'a.b.c' }, '../path/xyz.ext?abc=abc&y=0&x=0&z=0', new URL('https://abc.tld/'), { replaceExisting: true })).toBe(
             '/path/xyz.ext?abc=a.b.c&x=0&y=0&z=0',
         );
+        expect($url.addQueryVars({ abc: 'a:b:c' }, new URL('https://abc.tld/path/xyz.ext?abc=abc&y=0:0&x=0&z=0').toString())).toBe(
+            'https://abc.tld/path/xyz.ext?abc=a%3Ab%3Ac&x=0&y=0%3A0&z=0',
+        );
     });
     test('.removeQueryVar()', async () => {
         expect($url.removeQueryVar('abc', 'https://abc.tld/path/xyz.ext?abc=')).toBe('https://abc.tld/path/xyz.ext');
