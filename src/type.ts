@@ -8,8 +8,8 @@
 import '#@initialize.ts';
 
 import { type Dayjs } from 'dayjs';
+import type * as cfw from '#@types/cfw.ts';
 import { type Interface as LoggerInterface } from '#@classes/logger.ts';
-import type * as cfw from '@cloudflare/workers-types/experimental';
 import { $to, type $http } from '#index.ts';
 
 // ---
@@ -56,6 +56,7 @@ export type { $RawHeadersInit as RawHeadersInit };
 
 export type { $Request as Request };
 export type { $RequestInit as RequestInit };
+export type { $RequestC10n as RequestC10n };
 
 export type { $Response as Response };
 export type { $ResponseInit as ResponseInit };
@@ -491,9 +492,14 @@ type $Headers = Headers | cfw.Headers;
 type $HeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: string }>;
 type $RawHeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: string }> | string;
 
-type $Request = Request | cfw.Request;
+type $Request = (Request | cfw.Request) & { cache?: string };
 type $RequestInit = (RequestInit | cfw.RequestInit) & { cache?: string };
-
+type $RequestC10n = {
+    c10n?: {
+        scheduledEvent?: $cfw.ScheduledEvent;
+        serviceBinding?: { subrequestCounter: $cfw.SubrequestCounter };
+    };
+};
 type $Response = Response | cfw.Response;
 type $ResponseInit = ResponseInit | cfw.ResponseInit;
 type $BodyInit = BodyInit | cfw.BodyInit;

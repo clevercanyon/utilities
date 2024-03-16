@@ -1,6 +1,7 @@
 /**
- * Defines types for environments.
+ * Types.
  */
+
 interface Navigator {
     globalPrivacyControl: string;
 }

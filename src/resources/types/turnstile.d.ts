@@ -1,6 +1,7 @@
 /**
- * Defines types for Turnstile.
+ * Types.
  */
+
 interface Window {
     onloadTurnstile: () => void;
 }
