@@ -46,8 +46,8 @@ describe('Fetcher', async () => {
                 headers: { 'content-type': $mime.contentType('.txt') },
             },
         };
-        expect(fetcher.global.cache['ccb3b1f7061e279e02f9d3761d0dcf90ced8e4b8']).toStrictEqual(expectedCache);
-        expect(fetcher.global.cache['e42f835c52038a7a9f0d37f1e570d0f573185ecd']).toStrictEqual(expectedCache);
-        expect(fetcher.global.cache['cca6054445f5e17c31218d204a66bbabba314234']).toStrictEqual(expectedCache);
+        expect(fetcher.global.cache['dea440f47ad1caee47a54e1d9caebc4ee4829de5']).toStrictEqual(expectedCache);
+        expect(fetcher.global.cache['6e589b81c89bc2c5c7d1a20cd59fb92c2be5b08a']).toStrictEqual(expectedCache);
+        expect(fetcher.global.cache['d07c269b27b019bd5dd5c22bec9795e437eca3e7']).toStrictEqual(expectedCache);
     });
 });

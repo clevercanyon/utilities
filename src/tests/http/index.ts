@@ -192,7 +192,7 @@ describe('$http', async () => {
                     headers: { 'foo': 'foo', 'bar': 'bar' },
                 }),
             ),
-        ).toBe('34187aa82135e8e0f8ba3b44dc49ed77b3fd0fb1');
+        ).toBe('932cedfb51a4f5fdf07be8506fb2bea06d28c58d');
 
         expect(
             await $http.requestHash(
@@ -201,7 +201,7 @@ describe('$http', async () => {
                     redirect: 'manual',
                 }),
             ),
-        ).toBe('34187aa82135e8e0f8ba3b44dc49ed77b3fd0fb1');
+        ).toBe('932cedfb51a4f5fdf07be8506fb2bea06d28c58d');
 
         expect(
             await $http.requestHash(
@@ -216,7 +216,7 @@ describe('$http', async () => {
                     body: 'body',
                 }),
             ),
-        ).toBe('1d3a8d27cea851282d31c7c4e507ed04b0d94efb');
+        ).toBe('408752f44d6b6106f1b76c6f28d1924b8f569fa5');
 
         expect(
             await $http.requestHash(
@@ -231,7 +231,7 @@ describe('$http', async () => {
                     body: 'body',
                 }),
             ),
-        ).toBe('1d3a8d27cea851282d31c7c4e507ed04b0d94efb');
+        ).toBe('408752f44d6b6106f1b76c6f28d1924b8f569fa5');
     });
     test('.prepareRefererHeader()', async () => {
         const headers1 = new Headers({ 'referrer-policy': 'no-referrer' });

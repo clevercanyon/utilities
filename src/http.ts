@@ -145,20 +145,28 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
 /**
  * Produces a hash of a given HTTP request.
  *
- * Properties and headers are sorted for hash consistency.
+ * Properties, headers, and URL query vars are sorted for consistency. We hash a canonicalized URL; i.e., without query
+ * vars and/or a #hash. Query vars are hashed separately and any #hash value is ignored entirely. Query vars are hashed
+ * as decoded entries, such that we avoid encoding discrepancies across platforms; e.g., {@see https://o5p.me/mwt0RQ}.
  *
  * @param   request HTTP request.
  *
  * @returns         SHA-1 hash of HTTP request.
  *
- * @note Please {@see requestPropertyDefaults()}, which makes hashing possible.
+ * @see requestPropertyDefaults(), which is what makes hashing possible.
  */
 export const requestHash = $fnꓺmemo(2, async (request: $type.Request): Promise<string> => {
-    const defaults = requestPropertyDefaults(),
+    const url = new URL(request.url),
+        defaults = requestPropertyDefaults(),
         properties = requestProperties(request),
         unsortedProps = $obj.defaults(properties, defaults) as $type.StrKeyable;
 
     const sortedProps = Object.fromEntries([...Object.entries(unsortedProps)].sort((a, b) => a[0].localeCompare(b[0])));
+
+    sortedProps.url = {
+        canonical: $url.toCanonical(url), // i.e., Without ?query and/or #hash.
+        queryVars: [...url.searchParams.entries()].sort((a, b) => a[0].localeCompare(b[0])),
+    };
     sortedProps.headers = [...request.headers.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 
     if (sortedProps.body /* Requires request clone. */) {

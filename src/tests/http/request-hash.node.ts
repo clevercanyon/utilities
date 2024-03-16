@@ -2,4 +2,4 @@
  * Test suite.
  */
 
-import './request-hash.web.ts';
+import './request-hash.any.ts';
