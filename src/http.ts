@@ -482,7 +482,8 @@ export const requestPropertyDefaults = $fnꓺmemo((): $type.StrKeyable<Readonly<
         referrerPolicy: '',
         isReloadNavigation: false,
         isHistoryNavigation: false,
-        cf: undefined, // Cloudflare.
+        cf: undefined, // Cloudflare data.
+        c10n: undefined, // Our own data.
         headers: new Headers(),
         body: null,
         bodyUsed: false,
