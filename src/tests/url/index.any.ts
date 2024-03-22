@@ -129,7 +129,100 @@ describe('$url', async () => {
         expect($url.removeAppBasePath(new URL('https://x.tld/base/path')).toString()).toBe('https://x.tld/path');
         expect($url.removeAppBasePath(new URL('https://x.tld/base/path/')).toString()).toBe('https://x.tld/path/');
     });
-    test('.appR2Origin()', async () => {
+    test('$app.rootR2OriginURL()', async () => {
+        expect($app.rootR2OriginURL()).toBe('https://r2.tld');
+    });
+    test('.fromAppRootR2Origin()', async () => {
+        expect($url.fromAppRootR2Origin('path')).toBe('https://r2.tld/path');
+        expect($url.fromAppRootR2Origin('path/')).toBe('https://r2.tld/path/');
+
+        expect($url.fromAppRootR2Origin('./path')).toBe('https://r2.tld/path');
+        expect($url.fromAppRootR2Origin('./path/')).toBe('https://r2.tld/path/');
+
+        expect($url.fromAppRootR2Origin('https://r2.tld/path')).toBe('https://r2.tld/path');
+        expect($url.fromAppRootR2Origin('https://r2.tld/path/')).toBe('https://r2.tld/path/');
+
+        expect($url.fromAppRootR2Origin(new URL('https://r2.tld/path'))).toBe('https://r2.tld/path');
+        expect($url.fromAppRootR2Origin(new URL('https://r2.tld/path/'))).toBe('https://r2.tld/path/');
+    });
+    test('.pathFromAppRootR2Origin()', async () => {
+        expect($url.pathFromAppRootR2Origin('path')).toBe('/path');
+        expect($url.pathFromAppRootR2Origin('path/')).toBe('/path/');
+
+        expect($url.pathFromAppRootR2Origin('./path')).toBe('/path');
+        expect($url.pathFromAppRootR2Origin('./path/')).toBe('/path/');
+
+        expect($url.pathFromAppRootR2Origin('https://r2.tld/path')).toBe('/path');
+        expect($url.pathFromAppRootR2Origin('https://r2.tld/path/')).toBe('/path/');
+
+        expect($url.pathFromAppRootR2Origin(new URL('https://r2.tld/path'))).toBe('/path');
+        expect($url.pathFromAppRootR2Origin(new URL('https://r2.tld/path/'))).toBe('/path/');
+    });
+    test('$app.rootR2BaseURL()', async () => {
+        expect($app.rootR2BaseURL()).toBe('https://r2.tld/base/');
+    });
+    test('.appRootR2BasePath()', async () => {
+        expect($url.appRootR2BasePath()).toBe('/base/');
+    });
+    test('.fromAppRootR2Base()', async () => {
+        expect($url.fromAppRootR2Base('path')).toBe('https://r2.tld/base/path');
+        expect($url.fromAppRootR2Base('path/')).toBe('https://r2.tld/base/path/');
+
+        expect($url.fromAppRootR2Base('./path')).toBe('https://r2.tld/base/path');
+        expect($url.fromAppRootR2Base('./path/')).toBe('https://r2.tld/base/path/');
+
+        expect($url.fromAppRootR2Base('https://r2.tld/path')).toBe('https://r2.tld/path');
+        expect($url.fromAppRootR2Base('https://r2.tld/path/')).toBe('https://r2.tld/path/');
+
+        expect($url.fromAppRootR2Base(new URL('https://r2.tld/path'))).toBe('https://r2.tld/path');
+        expect($url.fromAppRootR2Base(new URL('https://r2.tld/path/'))).toBe('https://r2.tld/path/');
+    });
+    test('.pathFromAppRootR2Base()', async () => {
+        expect($url.pathFromAppRootR2Base('path')).toBe('/base/path');
+        expect($url.pathFromAppRootR2Base('path/')).toBe('/base/path/');
+
+        expect($url.pathFromAppRootR2Base('./path')).toBe('/base/path');
+        expect($url.pathFromAppRootR2Base('./path/')).toBe('/base/path/');
+
+        expect($url.pathFromAppRootR2Base('https://r2.tld/path')).toBe('/path');
+        expect($url.pathFromAppRootR2Base('https://r2.tld/path/')).toBe('/path/');
+
+        expect($url.pathFromAppRootR2Base(new URL('https://r2.tld/path'))).toBe('/path');
+        expect($url.pathFromAppRootR2Base(new URL('https://r2.tld/path/'))).toBe('/path/');
+    });
+    test('.addAppRootR2BasePath()', async () => {
+        expect($url.addAppRootR2BasePath('path')).toBe('/base/path');
+        expect($url.addAppRootR2BasePath('path/')).toBe('/base/path/');
+
+        expect($url.addAppRootR2BasePath('./path')).toBe('/base/path');
+        expect($url.addAppRootR2BasePath('./path/')).toBe('/base/path/');
+
+        expect($url.addAppRootR2BasePath('https://r2.tld/path')).toBe('https://r2.tld/base/path');
+        expect($url.addAppRootR2BasePath('https://r2.tld/path/')).toBe('https://r2.tld/base/path/');
+
+        expect($url.addAppRootR2BasePath(new URL('https://r2.tld/path')) instanceof URL).toBe(true);
+        expect($url.addAppRootR2BasePath(new URL('https://r2.tld/path/')) instanceof URL).toBe(true);
+
+        expect($url.addAppRootR2BasePath(new URL('https://r2.tld/path')).toString()).toBe('https://r2.tld/base/path');
+        expect($url.addAppRootR2BasePath(new URL('https://r2.tld/path/')).toString()).toBe('https://r2.tld/base/path/');
+    });
+    test('.removeAppRootR2BasePath()', async () => {
+        expect($url.removeAppRootR2BasePath('/base/path')).toBe('./path');
+        expect($url.removeAppRootR2BasePath('/base/path/')).toBe('./path/');
+
+        expect($url.removeAppRootR2BasePath('./base/path')).toBe('./path');
+        expect($url.removeAppRootR2BasePath('./base/path/')).toBe('./path/');
+
+        expect($url.removeAppRootR2BasePath('https://r2.tld/base/path')).toBe('https://r2.tld/path');
+        expect($url.removeAppRootR2BasePath('https://r2.tld/base/path/')).toBe('https://r2.tld/path/');
+
+        expect($url.removeAppRootR2BasePath(new URL('https://r2.tld/base/path')) instanceof URL).toBe(true);
+        expect($url.removeAppRootR2BasePath(new URL('https://r2.tld/base/path/')) instanceof URL).toBe(true);
+
+        expect($url.removeAppRootR2BasePath(new URL('https://r2.tld/base/path')).toString()).toBe('https://r2.tld/path');
+        expect($url.removeAppRootR2BasePath(new URL('https://r2.tld/base/path/')).toString()).toBe('https://r2.tld/path/');
+    });
+    test('$app.r2OriginURL()', async () => {
         expect($app.r2OriginURL()).toBe('https://r2.tld');
     });
     test('.fromAppR2Origin()', async () => {
@@ -158,7 +251,7 @@ describe('$url', async () => {
         expect($url.pathFromAppR2Origin(new URL('https://r2.tld/path'))).toBe('/path');
         expect($url.pathFromAppR2Origin(new URL('https://r2.tld/path/'))).toBe('/path/');
     });
-    test('.appR2Base()', async () => {
+    test('$app.r2BaseURL()', async () => {
         expect($app.r2BaseURL()).toBe('https://r2.tld/base/');
     });
     test('.appR2BasePath()', async () => {
