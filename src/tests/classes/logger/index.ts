@@ -7,6 +7,8 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
 const __origAppPkgName__ = $env.get('APP_PKG_NAME', { type: 'unknown' });
 const __origAppBaseURL__ = $env.get('APP_BASE_URL', { type: 'unknown' });
+const __origAppRootR2OriginURL__ = $env.get('APP_ROOT_R2_ORIGIN_URL', { type: 'unknown' });
+const __origAppRootR2BaseURL__ = $env.get('APP_ROOT_R2_BASE_URL', { type: 'unknown' });
 const __origAppR2OriginURL__ = $env.get('APP_R2_ORIGIN_URL', { type: 'unknown' });
 const __origAppR2BaseURL__ = $env.get('APP_R2_BASE_URL', { type: 'unknown' });
 const __origAppBrandProps__ = $env.get('APP_BRAND_PROPS', { type: 'unknown' });
@@ -19,6 +21,8 @@ describe('Logger', async () => {
     beforeAll(async () => {
         $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
         $env.set('APP_BASE_URL', 'https://x.tld/base/');
+        $env.set('APP_ROOT_R2_ORIGIN_URL', 'https://r2.tld');
+        $env.set('APP_ROOT_R2_BASE_URL', 'https://r2.tld/base/');
         $env.set('APP_R2_ORIGIN_URL', 'https://r2.tld');
         $env.set('APP_R2_BASE_URL', 'https://r2.tld/base/');
         $env.set('APP_BRAND_PROPS', { type: 'site' });
@@ -27,6 +31,8 @@ describe('Logger', async () => {
     afterAll(async () => {
         $env.set('APP_PKG_NAME', __origAppPkgName__);
         $env.set('APP_BASE_URL', __origAppBaseURL__);
+        $env.set('APP_ROOT_R2_ORIGIN_URL', __origAppRootR2OriginURL__);
+        $env.set('APP_ROOT_R2_BASE_URL', __origAppRootR2BaseURL__);
         $env.set('APP_R2_ORIGIN_URL', __origAppR2OriginURL__);
         $env.set('APP_R2_BASE_URL', __origAppR2BaseURL__);
         $env.set('APP_BRAND_PROPS', __origAppBrandProps__);
@@ -39,6 +45,12 @@ describe('Logger', async () => {
             //
             $app.hasBaseURL.flush(),
             $app.baseURL.flush(),
+            //
+            $app.hasRootR2OriginURL.flush(),
+            $app.rootR2OriginURL.flush(),
+            //
+            $app.hasRootR2BaseURL.flush(),
+            $app.rootR2BaseURL.flush(),
             //
             $app.hasR2OriginURL.flush(),
             $app.r2OriginURL.flush(),

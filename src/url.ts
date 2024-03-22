@@ -389,6 +389,127 @@ function _removeAppBasePath(parseable: $type.URL | string): Readonly<$type.URL> 
 export const removeAppBasePath = $fnꓺmemo(24, _removeAppBasePath);
 
 /* ---
+ * App root R2 origin utilities.
+ */
+
+/**
+ * Gets app’s root R2 origin URL.
+ *
+ * @returns App’s root R2 origin URL.
+ *
+ * @see $app.rootR2OriginURL()
+ */
+
+/**
+ * Gets URL from app’s root R2 origin.
+ *
+ * @param   parseable Parseable URL or string.
+ *
+ * @returns           A full URL from app’s root R2 origin.
+ */
+export const fromAppRootR2Origin = $fnꓺmemo(24, (parseable: $type.URL | string): string => {
+    return parse(parseable, $app.rootR2OriginURL() + '/').toString();
+});
+
+/**
+ * Gets root-relative path from app’s root R2 origin.
+ *
+ * @param   parseable Parseable URL or string.
+ *
+ * @returns           `/base/path?query#hash` from app’s root R2 origin.
+ */
+export const pathFromAppRootR2Origin = $fnꓺmemo(24, (parseable: $type.URL | string): string => {
+    return toPathQueryHash(fromAppRootR2Origin(parseable));
+});
+
+/* ---
+ * App root R2 base utilities.
+ */
+
+/**
+ * Gets app’s root R2 base URL.
+ *
+ * @returns App’s root R2 base URL.
+ *
+ * @see $app.rootR2BaseURL()
+ */
+
+/**
+ * Gets app’s root R2 base path.
+ *
+ * @returns App’s root R2 base path.
+ */
+export const appRootR2BasePath = $fnꓺmemo((): string => {
+    return parse($app.rootR2BaseURL()).pathname;
+});
+
+/**
+ * Gets URL from app’s root R2 base.
+ *
+ * @param   parseable Parseable URL or string.
+ *
+ * @returns           A full URL from app’s root R2 base.
+ */
+export const fromAppRootR2Base = $fnꓺmemo(24, (parseable: $type.URL | string): string => {
+    return parse(parseable, $app.rootR2BaseURL()).toString();
+});
+
+/**
+ * Gets root-relative path from app’s root R2 base.
+ *
+ * @param   parseable Parseable URL or string.
+ *
+ * @returns           `/base/path?query#hash` from app’s root R2 base.
+ */
+export const pathFromAppRootR2Base = $fnꓺmemo(24, (parseable: $type.URL | string): string => {
+    return toPathQueryHash(fromAppRootR2Base(parseable));
+});
+
+/**
+ * Adds app’s root R2 base path.
+ *
+ * @param   parseable Parseable URL or string.
+ *
+ * @returns           Parseable URL or string with app’s root R2 base path.
+ *
+ *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
+ *
+ * @note Unable to deep freeze a URL, but we would do so if possible.
+ *       For now, we just declare it readonly using a TypeScript return type.
+ *
+ * @see addBasePath()
+ */
+function _addAppRootR2BasePath(parseable: $type.URL): Readonly<$type.URL>;
+function _addAppRootR2BasePath(parseable: string): string;
+
+function _addAppRootR2BasePath(parseable: $type.URL | string): Readonly<$type.URL> | string {
+    return addBasePath(parseable, $app.rootR2BaseURL());
+}
+export const addAppRootR2BasePath = $fnꓺmemo(24, _addAppRootR2BasePath);
+
+/**
+ * Removes app’s root R2 base path.
+ *
+ * @param   parseable Parseable URL or string.
+ *
+ * @returns           Parseable URL or string without app’s root R2 base path.
+ *
+ *   - Returns a {@see URL} if input was a {@see URL}. A string otherwise.
+ *
+ * @note Unable to deep freeze a URL, but we would do so if possible.
+ *       For now, we just declare it readonly using a TypeScript return type.
+ *
+ * @see removeBasePath()
+ */
+function _removeAppRootR2BasePath(parseable: $type.URL): Readonly<$type.URL>;
+function _removeAppRootR2BasePath(parseable: string): string;
+
+function _removeAppRootR2BasePath(parseable: $type.URL | string): Readonly<$type.URL> | string {
+    return removeBasePath(parseable, $app.rootR2BaseURL());
+}
+export const removeAppRootR2BasePath = $fnꓺmemo(24, _removeAppRootR2BasePath);
+
+/* ---
  * App R2 origin utilities.
  */
 
