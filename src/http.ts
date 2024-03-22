@@ -43,7 +43,7 @@ export type SecurityHeaderOptions = {
     cspNonce?: string;
     enableCORs?: boolean;
 };
-export type BrowserUAHeaders = Readonly<{
+export type BrowserUAHeaders = {
     'user-agent': string;
 
     'accept': string;
@@ -66,7 +66,7 @@ export type BrowserUAHeaders = Readonly<{
     'sec-fetch-user': string;
 
     'upgrade-insecure-requests': string;
-}>;
+};
 
 // ---
 // Route utilities.
