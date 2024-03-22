@@ -1464,6 +1464,7 @@ export const publicHeaderNames = (): string[] => [
     'sec-ch-ua-model',
     'sec-ch-ua-platform-version',
     'sec-ch-ua-platform',
+    'sec-ch-ua-wow64',
     'sec-ch-ua',
     'sec-fetch-dest',
     'sec-fetch-mode',
@@ -1694,6 +1695,7 @@ export const corsRequestHeaderNames = (): string[] => [
     'sec-ch-ua-model',
     'sec-ch-ua-platform-version',
     'sec-ch-ua-platform',
+    'sec-ch-ua-wow64',
     'sec-ch-ua',
     'sec-fetch-dest',
     'sec-fetch-mode',
@@ -2003,35 +2005,35 @@ export const defaultSecurityHeaders = (options?: SecurityHeaderOptions): { [x: s
         // Regarding the `unload()` permission, it impacts back/forward cache.
         // {@see https://web.dev/articles/bfcache} for further details from Google.
         'permissions-policy': (
-            ` accelerometer=(self),` +
-            ` autoplay=(self),` +
-            ` camera=(self),` +
-            ` clipboard-read=(self),` +
-            ` clipboard-write=(self),` +
-            ` cross-origin-isolated=(self),` +
-            ` display-capture=(self),` +
-            ` encrypted-media=(self),` +
-            ` fullscreen=(self),` +
-            ` gamepad=(self),` +
-            ` geolocation=(self),` +
-            ` gyroscope=(self),` +
-            ` hid=(self),` +
-            ` idle-detection=(self),` +
-            ` interest-cohort=(self),` +
-            ` keyboard-map=(self),` +
-            ` magnetometer=(self),` +
-            ` microphone=(self),` +
-            ` midi=(self),` +
-            ` payment=(self),` +
-            ` picture-in-picture=(self),` +
-            ` publickey-credentials-get=(self),` +
-            ` screen-wake-lock=(self),` +
-            ` serial=(self),` +
-            ` sync-xhr=(self),` +
-            ` unload=(),` + // Disable.
-            ` usb=(self),` +
-            ` window-management=(self),` +
-            ` xr-spatial-tracking=(self),` +
+            ` accelerometer=(*),` +
+            ` autoplay=(*),` +
+            ` camera=(*),` +
+            ` clipboard-read=(*),` +
+            ` clipboard-write=(*),` +
+            ` cross-origin-isolated=(*),` +
+            ` display-capture=(*),` +
+            ` encrypted-media=(*),` +
+            ` fullscreen=(*),` +
+            ` gamepad=(*),` +
+            ` geolocation=(*),` +
+            ` gyroscope=(*),` +
+            ` hid=(*),` +
+            ` idle-detection=(*),` +
+            ` interest-cohort=(*),` +
+            ` keyboard-map=(*),` +
+            ` magnetometer=(*),` +
+            ` microphone=(*),` +
+            ` midi=(*),` +
+            ` payment=(*),` +
+            ` picture-in-picture=(*),` +
+            ` publickey-credentials-get=(*),` +
+            ` screen-wake-lock=(*),` +
+            ` serial=(*),` +
+            ` sync-xhr=(*),` +
+            ` unload=(),` +
+            ` usb=(*),` +
+            ` window-management=(*),` +
+            ` xr-spatial-tracking=(*),` +
             ''
         ) // ↑ Last line empty for easy sorting of others.
             .trim()
@@ -2044,8 +2046,9 @@ export const defaultSecurityHeaders = (options?: SecurityHeaderOptions): { [x: s
  *
  * See also, CSP for `r2.hop.gdn`:
  *
- *     default-src 'self'; script-src 'self' hop.gdn *.hop.gdn ajax.cloudflare.com challenges.cloudflare.com static.cloudflareinsights.com 'report-sample';
- *     style-src * 'unsafe-inline' 'report-sample'; img-src * data:; font-src *; connect-src *; media-src *; object-src 'none'; child-src *; frame-src *;
+ *     default-src 'self'; script-src 'self' clevercanyon.com *.clevercanyon.com hop.gdn *.hop.gdn wobots.com *.wobots.com
+ *     ajax.cloudflare.com challenges.cloudflare.com static.cloudflareinsights.com 'report-sample'; style-src * 'unsafe-inline'
+ *     'report-sample'; img-src * data:; font-src *; connect-src *; media-src *; object-src 'none'; child-src *; frame-src *;
  *     worker-src *; frame-ancestors *; form-action *; upgrade-insecure-requests; base-uri 'self'; manifest-src 'self';
  *     report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp
  *
@@ -2059,9 +2062,7 @@ export const defaultSecurityHeaders = (options?: SecurityHeaderOptions): { [x: s
 export const c10nSecurityHeaders = (options?: SecurityHeaderOptions): { [x: string]: string } => {
     const opts = $obj.defaults({}, options || {}, { cspNonce: '', enableCORs: false }) as Required<SecurityHeaderOptions>,
         defaultHeaders = defaultSecurityHeaders(opts),
-        hopCSPHostnames = '*.hop.gdn',
-        hopPPOrigins = '"https://*.hop.gdn"',
-        youtubePPOrigins = '"https://www.youtube-nocookie.com"',
+        trustedCSPHostnames = 'clevercanyon.com *.clevercanyon.com hop.gdn *.hop.gdn wobots.com *.wobots.com',
         cloudflareCSPHostnames = 'ajax.cloudflare.com challenges.cloudflare.com static.cloudflareinsights.com';
 
     return {
@@ -2080,7 +2081,7 @@ export const c10nSecurityHeaders = (options?: SecurityHeaderOptions): { [x: stri
             ` object-src 'none';` +
             (opts.cspNonce // `* 'unsafe-inline'` are fallbacks for browsers lacking `strict-dynamic`.
                 ? ` script-src 'nonce-${opts.cspNonce}' 'strict-dynamic' * 'unsafe-inline' 'report-sample';`
-                : ` script-src 'self' ${hopCSPHostnames} ${cloudflareCSPHostnames} 'report-sample';`) +
+                : ` script-src 'self' ${trustedCSPHostnames} ${cloudflareCSPHostnames} 'report-sample';`) +
             ` style-src * 'unsafe-inline' 'report-sample';` +
             ` worker-src *;` +
             //
@@ -2088,7 +2089,7 @@ export const c10nSecurityHeaders = (options?: SecurityHeaderOptions): { [x: stri
             ` default-src 'self';` +
             ` manifest-src 'self';` +
             ` upgrade-insecure-requests;` +
-            ` frame-ancestors ${opts.enableCORs ? `*` : `'self' ${hopCSPHostnames}`};` +
+            ` frame-ancestors ${opts.enableCORs ? `*` : `'self' ${trustedCSPHostnames}`};` +
             ` report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp;` +
             ''
         ) // ↑ Last line empty for easy sorting of others.
@@ -2098,35 +2099,35 @@ export const c10nSecurityHeaders = (options?: SecurityHeaderOptions): { [x: stri
         // Regarding the `unload()` permission, it impacts back/forward cache.
         // {@see https://web.dev/articles/bfcache} for further details from Google.
         'permissions-policy': (
-            ` accelerometer=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
-            ` autoplay=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
-            ` camera=(self ${hopPPOrigins}),` +
-            ` clipboard-read=(self ${hopPPOrigins}),` +
-            ` clipboard-write=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
-            ` cross-origin-isolated=(self ${hopPPOrigins}),` +
-            ` display-capture=(self ${hopPPOrigins}),` +
-            ` encrypted-media=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
-            ` fullscreen=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
-            ` gamepad=(self ${hopPPOrigins}),` +
-            ` geolocation=(self ${hopPPOrigins}),` +
-            ` gyroscope=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
-            ` hid=(self ${hopPPOrigins}),` +
-            ` idle-detection=(self ${hopPPOrigins}),` +
-            ` interest-cohort=(self ${hopPPOrigins}),` +
-            ` keyboard-map=(self ${hopPPOrigins}),` +
-            ` magnetometer=(self ${hopPPOrigins}),` +
-            ` microphone=(self ${hopPPOrigins}),` +
-            ` midi=(self ${hopPPOrigins}),` +
-            ` payment=(self ${hopPPOrigins}),` +
-            ` picture-in-picture=(self ${hopPPOrigins} ${youtubePPOrigins}),` +
-            ` publickey-credentials-get=(self ${hopPPOrigins}),` +
-            ` screen-wake-lock=(self ${hopPPOrigins}),` +
-            ` serial=(self ${hopPPOrigins}),` +
-            ` sync-xhr=(self ${hopPPOrigins}),` +
-            ` unload=(),` + // Disable.
-            ` usb=(self ${hopPPOrigins}),` +
-            ` window-management=(self ${hopPPOrigins}),` +
-            ` xr-spatial-tracking=(self ${hopPPOrigins}),` +
+            ` accelerometer=(*),` +
+            ` autoplay=(*),` +
+            ` camera=(*),` +
+            ` clipboard-read=(*),` +
+            ` clipboard-write=(*),` +
+            ` cross-origin-isolated=(*),` +
+            ` display-capture=(*),` +
+            ` encrypted-media=(*),` +
+            ` fullscreen=(*),` +
+            ` gamepad=(*),` +
+            ` geolocation=(*),` +
+            ` gyroscope=(*),` +
+            ` hid=(*),` +
+            ` idle-detection=(*),` +
+            ` interest-cohort=(*),` +
+            ` keyboard-map=(*),` +
+            ` magnetometer=(*),` +
+            ` microphone=(*),` +
+            ` midi=(*),` +
+            ` payment=(*),` +
+            ` picture-in-picture=(*),` +
+            ` publickey-credentials-get=(*),` +
+            ` screen-wake-lock=(*),` +
+            ` serial=(*),` +
+            ` sync-xhr=(*),` +
+            ` unload=(),` +
+            ` usb=(*),` +
+            ` window-management=(*),` +
+            ` xr-spatial-tracking=(*),` +
             ''
         ) // ↑ Last line empty for easy sorting of others.
             .trim()
