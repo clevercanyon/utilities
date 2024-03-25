@@ -314,6 +314,7 @@ describe('$to', async () => {
             'contacts.privacy.url',
             'contacts.privacy.phone',
 
+            'socialProfiles.discord',
             'socialProfiles.twitter',
             'socialProfiles.linkedin',
             'socialProfiles.facebook',
@@ -521,6 +522,7 @@ describe('$to', async () => {
             'contacts.privacy.url',
             'contacts.privacy.phone',
 
+            'socialProfiles.discord',
             'socialProfiles.twitter',
             'socialProfiles.linkedin',
             'socialProfiles.facebook',
