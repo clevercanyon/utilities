@@ -19,6 +19,8 @@ export type R2BaseURLOptions = { parsed?: boolean };
 export type Config<Type extends object = object> = $type.Object<Type>;
 export type EtcConfig<Type extends object = object> = $type.Object<Type> & {
     user?: {
+        anonId?: string;
+
         id?: string;
         utxId?: string;
 

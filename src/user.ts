@@ -283,6 +283,25 @@ export const ipGeoData = $fnꓺmemo(
 );
 
 /**
+ * Gets user’s anon/analytics ID.
+ *
+ * This is currently derived from Google analytics.
+ *
+ * @param   request Optional HTTP request.
+ *
+ *   - If not passed, only a web environment or an app’s etc config can provide.
+ *
+ * @returns         User’s anon/analytics ID; else an empty string.
+ */
+export const anonId = (request?: $type.Request): string => {
+    if (request || $env.isWeb()) {
+        return $cookie.get('_ga', { request });
+    } else {
+        return $app.etcConfig().user?.anonId || '';
+    }
+};
+
+/**
  * Gets user’s UTX user ID.
  *
  * We use this for analytics, which only allows 36 chars.
