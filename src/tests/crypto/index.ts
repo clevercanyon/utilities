@@ -2,10 +2,21 @@
  * Test suite.
  */
 
-import { $crypto, $str } from '#index.ts';
-import { describe, expect, test } from 'vitest';
+import { $crypto, $env, $str } from '#index.ts';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+
+const __origC10nHMACSHAKey__ = $env.get('APP_C10N_HMAC_SHA_KEY', { type: 'unknown' });
+const __origHMACSHAKey__ = $env.get('APP_HMAC_SHA_KEY', { type: 'unknown' });
 
 describe('$crypto', async () => {
+    beforeAll(async () => {
+        $env.set('APP_C10N_HMAC_SHA_KEY', 'vTFRDGNsjdZbJ3iaQEmjufPbzNGJENRbvyL76Thwy8TjoWJUGDzTt67WyMoAoHae');
+        $env.set('APP_HMAC_SHA_KEY', 'D2YUKonceWrTqB3FXxzGzBurUDMavtMQEP8TuRbRxBFKGJjK4ZG9WXJnwkwQivt3');
+    });
+    afterAll(async () => {
+        $env.set('APP_C10N_HMAC_SHA_KEY', __origC10nHMACSHAKey__);
+        $env.set('APP_HMAC_SHA_KEY', __origHMACSHAKey__);
+    });
     test('.sha1()', async () => {
         expect((await $crypto.sha1('')).length).toBe(40);
         expect(await $crypto.sha1('')).toBe('da39a3ee5e6b4b0d3255bfef95601890afd80709');
@@ -228,5 +239,39 @@ describe('$crypto', async () => {
         expect($crypto.base64Encode(svg)).toBe(svgBase64);
         expect($crypto.base64Decode(svgBase64)).toBe(svg);
         expect((await $crypto.base64ToBlob('data:image/svg+xml;base64,' + $crypto.base64Encode(svg))).type).toBe('image/svg+xml');
+    });
+    test('.emailToken(), .emailVerify()', async () => {
+        const emailAddress1 = 'user@x.tld',
+            token1 = await $crypto.emailToken(emailAddress1),
+            email1 = await $crypto.emailVerify(token1);
+
+        // Hash is 64 bytes in length.
+        // Expire time is 10 bytes in length.
+        // Plus byte length of base64-encoded email.
+        expect($str.byteLength(token1)).toBeGreaterThan(74);
+        expect(email1).toBe(emailAddress1);
+
+        // ---
+
+        const emailAddress2 = '@x.tld',
+            token2 = await $crypto.emailToken(emailAddress2),
+            email2 = await $crypto.emailVerify(token2);
+
+        // Hash is 64 bytes in length.
+        // Expire time is 10 bytes in length.
+        // Plus byte length of base64-encoded email.
+        expect($str.byteLength(token2)).toBeGreaterThan(74);
+        expect(email2).toBe('');
+
+        // ---
+
+        const token3 = 'x!@#$%^&*()_+ha2VDat9sWwGf6WYNu8ToEWcfhTGK9dZG3CHQRvVKWsE72tWh6eaiCtFBgnmed4g1234567890',
+            email3 = await $crypto.emailVerify(token3);
+
+        // Hash is 64 bytes in length.
+        // Expire time is 10 bytes in length.
+        // Plus byte length of base64-encoded email.
+        expect($str.byteLength(token3)).toBeGreaterThan(74);
+        expect(email3).toBe('');
     });
 });

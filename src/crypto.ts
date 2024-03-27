@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $env, $obj, $str, type $type } from '#index.ts';
+import { $env, $fn, $is, $obj, $str, $time, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -153,10 +153,11 @@ export const base64Decode = (base64: string, options?: Base64DecodeOptions): str
     const opts = $obj.defaults({}, options || {}, { urlSafe: false }) as Required<Base64DecodeOptions>;
 
     base64 = base64.replace(dataURIBase64PrefixRegExp, ''); // Ditch data URI prefixes.
-    base64 = opts.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat(base64.length % 4) : base64;
+    base64 = opts.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat((4 - (base64.length % 4)) % 4) : base64;
 
-    return $str.textDecode(Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0))));
+    return $str.textDecode(Uint8Array.from($fn.try(() => atob(base64), '')(), (v: string): number => Number(v.codePointAt(0))));
 };
+
 /**
  * Base64-encodes a blob.
  *
@@ -198,7 +199,41 @@ export const base64ToBlob = async (base64: string, options?: Base64ToBlobOptions
     base64 = base64.replace(dataURIBase64PrefixRegExp, ''); // Ditch data URI prefixes.
     base64 = opts.urlSafe ? base64.replaceAll('-', '+').replaceAll('_', '/') + '='.repeat(base64.length % 4) : base64;
 
-    return new Blob([Uint8Array.from(atob(base64), (v: string): number => Number(v.codePointAt(0)))], { type });
+    return new Blob([Uint8Array.from($fn.try(() => atob(base64), '')(), (v: string): number => Number(v.codePointAt(0)))], { type });
+};
+
+/**
+ * Produces an email verification token.
+ *
+ * @param   rawEmail Email address to verify.
+ *
+ * @returns          Promise of email verification token.
+ */
+export const emailToken = async (rawEmail: string): Promise<string> => {
+    const email = rawEmail.toLowerCase(),
+        expireTime = $time.stamp() + $time.weekInSeconds,
+        hash = await hmacSHA256(email + String(expireTime));
+
+    return base64Encode(email, { urlSafe: true }) + hash + String(expireTime);
+};
+
+/**
+ * Verifies an email address.
+ *
+ * @param   token Email verification token.
+ *
+ * @returns       Promise of verified email address; else empty string.
+ */
+export const emailVerify = async (token: string): Promise<string> => {
+    const hash = token.slice(-74, -10),
+        expireTime = Number(token.slice(-10)),
+        email = base64Decode(token.slice(0, -74), { urlSafe: true });
+
+    if ($str.isEmail(email) && $is.safeInteger(expireTime) && expireTime > $time.stamp())
+        if (safeEqual(hash, await hmacSHA256(email + String(expireTime)))) {
+            return email; // Verified email address.
+        }
+    return ''; // Failure.
 };
 
 /**
