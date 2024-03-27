@@ -13,8 +13,8 @@ let topLevelObp: string = '',
 const vars: { [x: string]: unknown } = {};
 
 export type CaptureOptions = { overrideExisting: boolean };
+
 export type GetOptions = { type?: $type.EnsurableType; require?: boolean; default?: unknown };
-export type GetOptionsWithoutType = GetOptions & { type?: undefined };
 export type GetOptionsWithType = GetOptions & { type: $type.EnsurableType };
 
 export type QVTests = { [x: string]: null | undefined | boolean | RegExp | RegExp[] };
@@ -170,11 +170,11 @@ const initializeVars = (): void => {
  *   - Returns the first query to produce a value that’s not undefined; see `leadingObps`.
  *   - If no value is found, the default value from options is returned, which, by default, is `undefined`.
  */
-export function get<Options extends GetOptionsWithoutType>(leadingObps: string | string[], subObpOrObp: string, options?: Options): unknown;
 export function get<Options extends GetOptionsWithType>(leadingObps: string | string[], subObpOrObp: string, options: Options): $type.EnsuredType<Options['type']>;
+export function get<Options extends GetOptions>(leadingObps: string | string[], subObpOrObp: string, options?: Options): unknown;
 
-export function get<Options extends GetOptionsWithoutType>(subObpOrObp: string, options?: Options): unknown; // Shorter variants as a convenience.
 export function get<Options extends GetOptionsWithType>(subObpOrObp: string, options: Options): $type.EnsuredType<Options['type']>;
+export function get<Options extends GetOptions>(subObpOrObp: string, options?: Options): unknown;
 
 export function get(...args: unknown[]): unknown {
     if (!varsInitialized) initializeVars();
