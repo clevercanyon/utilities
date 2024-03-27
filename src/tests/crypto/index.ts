@@ -246,9 +246,10 @@ describe('$crypto', async () => {
             email1 = await $crypto.emailVerify(token1);
 
         // Hash is 64 bytes in length.
+        // User ID is 20 bytes in length.
         // Expire time is 10 bytes in length.
         // Plus byte length of base64-encoded email.
-        expect($str.byteLength(token1)).toBeGreaterThan(74);
+        expect($str.byteLength(token1)).toBeGreaterThan(94);
         expect(email1).toBe(emailAddress1);
 
         // ---
@@ -258,20 +259,36 @@ describe('$crypto', async () => {
             email2 = await $crypto.emailVerify(token2);
 
         // Hash is 64 bytes in length.
+        // User ID is 20 bytes in length.
         // Expire time is 10 bytes in length.
         // Plus byte length of base64-encoded email.
-        expect($str.byteLength(token2)).toBeGreaterThan(74);
+        expect($str.byteLength(token2)).toBeGreaterThan(94);
         expect(email2).toBe('');
 
         // ---
 
-        const token3 = 'x!@#$%^&*()_+ha2VDat9sWwGf6WYNu8ToEWcfhTGK9dZG3CHQRvVKWsE72tWh6eaiCtFBgnmed4g1234567890',
+        const token3 = 'x!@#$%^&*()_+00000000000000000123ha2VDat9sWwGf6WYNu8ToEWcfhTGK9dZG3CHQRvVKWsE72tWh6eaiCtFBgnmed4g1234567890',
             email3 = await $crypto.emailVerify(token3);
 
         // Hash is 64 bytes in length.
+        // User ID is 20 bytes in length.
         // Expire time is 10 bytes in length.
         // Plus byte length of base64-encoded email.
-        expect($str.byteLength(token3)).toBeGreaterThan(74);
+        expect($str.byteLength(token3)).toBeGreaterThan(94);
         expect(email3).toBe('');
+
+        // ---
+
+        const userId4 = 123,
+            emailAddress4 = 'user@x.tld',
+            token4 = await $crypto.emailToken(emailAddress4, userId4),
+            email4 = await $crypto.emailVerify(token4, userId4);
+
+        // Hash is 64 bytes in length.
+        // User ID is 20 bytes in length.
+        // Expire time is 10 bytes in length.
+        // Plus byte length of base64-encoded email.
+        expect($str.byteLength(token4)).toBeGreaterThan(94);
+        expect(email4).toBe(emailAddress4);
     });
 });
