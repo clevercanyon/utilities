@@ -205,31 +205,35 @@ export const base64ToBlob = async (base64: string, options?: Base64ToBlobOptions
 /**
  * Produces an email verification token.
  *
- * @param   rawEmail Email address to verify.
+ * @param   userEmail User email address to verify.
+ * @param   userId    Optional user ID; e.g., for change of address.
  *
- * @returns          Promise of email verification token.
+ * @returns           Promise of email verification token.
  */
-export const emailToken = async (rawEmail: string): Promise<string> => {
-    const email = rawEmail.toLowerCase(),
+export const emailToken = async (userEmail: string, userId: number = 0): Promise<string> => {
+    const email = userEmail.toLowerCase(),
+        id = userId.toString().padStart(20, '0'),
         expireTime = $time.stamp() + $time.weekInSeconds,
         hash = await hmacSHA256(email + String(expireTime));
 
-    return base64Encode(email, { urlSafe: true }) + hash + String(expireTime);
+    return base64Encode(email, { urlSafe: true }) + id + hash + String(expireTime);
 };
 
 /**
  * Verifies an email address.
  *
- * @param   token Email verification token.
+ * @param   token  Email verification token.
+ * @param   userId Optional user ID; e.g., for change of address.
  *
- * @returns       Promise of verified email address; else empty string.
+ * @returns        Promise of verified email address; else empty string.
  */
-export const emailVerify = async (token: string): Promise<string> => {
+export const emailVerify = async (token: string, userId: number = 0): Promise<string> => {
     const hash = token.slice(-74, -10),
         expireTime = Number(token.slice(-10)),
-        email = base64Decode(token.slice(0, -74), { urlSafe: true });
+        id = Number($str.lTrim(token.slice(-94, -74), '0') || 0),
+        email = base64Decode(token.slice(0, -94), { urlSafe: true });
 
-    if ($str.isEmail(email) && $is.safeInteger(expireTime) && expireTime > $time.stamp())
+    if (id === userId && $str.isEmail(email) && $is.safeInteger(expireTime) && expireTime > $time.stamp())
         if (safeEqual(hash, await hmacSHA256(email + String(expireTime)))) {
             return email; // Verified email address.
         }
