@@ -16,6 +16,7 @@ export type Options = {
     expires?: number;
     samesite?: string;
     secure?: boolean;
+    httpOnly?: boolean;
 };
 export type ExistsOptions = {
     request?: $type.Request;
@@ -158,11 +159,11 @@ export const get = $fnꓺmemo(
  *
  * @param name    Cookie name.
  * @param value   Cookie value.
- * @param options Options (all optional); {@see Options}.
+ * @param options {@see Options}.
  *
  * @requiredEnv web
  */
-export const set = (name: string, value: string, options: Options = {}): void => {
+export const set = (name: string, value: string, options: Omit<Options, 'httpOnly'> = {}): void => {
     if (!nameIsValid(name)) {
         throw Error('zVYzdc6k'); // Invalid name: `' + name + '`.
     }
@@ -172,16 +173,16 @@ export const set = (name: string, value: string, options: Options = {}): void =>
         expires: 31536000,
         samesite: 'lax',
         secure: 'https' === $url.currentScheme(),
-    }) as Required<Options>;
+    }) as Required<Omit<Options, 'httpOnly'>>;
 
-    const domain = opts.domain ? '; domain=' + opts.domain : '';
-    const path = opts.path ? '; path=' + opts.path : '';
-    const expires = opts.expires <= -1 ? '; expires=Thu, 01 Jan 1970 00:00:00 GMT' : '; max-age=' + String(opts.expires);
-    const samesite = opts.samesite ? '; samesite=' + opts.samesite : '';
-    const secure = 'none' === opts.samesite.toLowerCase() || opts.secure ? '; secure' : '';
+    const domain = opts.domain ? '; domain=' + opts.domain : '',
+        path = opts.path ? '; path=' + opts.path : '',
+        expires = opts.expires <= -1 ? '; expires=Thu, 01 Jan 1970 00:00:00 GMT' : '; max-age=' + String(opts.expires),
+        samesite = opts.samesite ? '; samesite=' + opts.samesite : '',
+        secure = 'none' === opts.samesite.toLowerCase() || opts.secure ? '; secure' : '';
 
-    // The `httpOnly` attribute is explicitly `false` when using JavaScript.
     // See: <https://stackoverflow.com/a/14691716>.
+    // The `httpOnly` attribute is explicitly `false` client-side.
 
     document.cookie = $url.encode(name) + '=' + $url.encode(value) + domain + path + expires + samesite + secure;
 
@@ -191,6 +192,38 @@ export const set = (name: string, value: string, options: Options = {}): void =>
         webCookieMap.set(name, value); // Cookie’s latest value.
     }
     parse.flush(), exists.flush(), get.flush(); // Flushes memoization cache.
+};
+
+/**
+ * Prepares a cookie header.
+ *
+ * @param request Request.
+ * @param name    Cookie name.
+ * @param value   Cookie value.
+ * @param options {@see Options}.
+ */
+export const header = (request: $type.Request, name: string, value: string, options: Options = {}): string => {
+    if (!nameIsValid(name)) {
+        throw Error('WP2Nuz49'); // Invalid name: `' + name + '`.
+    }
+    const url = $url.parse(request.url),
+        opts = $obj.defaults({}, options, {
+            domain: url.hostname,
+            path: '/',
+            expires: 31536000,
+            samesite: 'lax',
+            secure: 'https:' === url.protocol,
+            httpOnly: false,
+        }) as Required<Options>;
+
+    const domain = opts.domain ? '; domain=' + opts.domain : '',
+        path = opts.path ? '; path=' + opts.path : '',
+        expires = opts.expires <= -1 ? '; expires=Thu, 01 Jan 1970 00:00:00 GMT' : '; max-age=' + String(opts.expires),
+        samesite = opts.samesite ? '; samesite=' + opts.samesite : '',
+        secure = 'none' === opts.samesite.toLowerCase() || opts.secure ? '; secure' : '',
+        httpOnly = opts.httpOnly ? '; httpOnly' : '';
+
+    return $url.encode(name) + '=' + $url.encode(value) + domain + path + expires + samesite + secure + httpOnly;
 };
 
 /**
