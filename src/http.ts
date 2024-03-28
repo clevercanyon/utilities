@@ -783,7 +783,13 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
         if ($is.integer(cfg.maxAge)) {
             cacheControl(cfg.maxAge, cfg.sMaxAge, cfg.staleAge);
             //
-        } else if (!requestHasCacheableMethod(request) || cfg.status >= 300) {
+        } else if ('none' === cfg.cacheVersion) {
+            cacheControl(0); // Do not cache.
+            //
+        } else if (cfg.status >= 300) {
+            cacheControl(0); // Do not cache.
+            //
+        } else if (!requestHasCacheableMethod(request)) {
             cacheControl(0); // Do not cache.
             //
         } else if (requestPathIsSEORelatedFile(request, url)) {
