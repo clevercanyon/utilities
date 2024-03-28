@@ -25,6 +25,9 @@ export type HashAlgorithm = 'md5' | 'sha-1' | 'sha-256' | 'sha-384' | 'sha-512';
  */
 const dataURIBase64PrefixRegExp = /^data:([^:=;,]+(?:\s*;[^:=;,]+=[^:=;,]+)*);base64,/iu;
 
+// ---
+// Hash utilities.
+
 /**
  * Generates an MD5 hash.
  *
@@ -120,6 +123,9 @@ export const sha512 = $fnꓺmemo(2, async (str: string): Promise<string> => buil
  */
 export const hmacSHA512 = $fnꓺmemo(2, async (str: string, key?: string): Promise<string> => buildHMACHash('sha-512', str, key));
 
+// ---
+// Base64 utilities.
+
 /**
  * Base64-encodes a string.
  *
@@ -202,25 +208,29 @@ export const base64ToBlob = async (base64: string, options?: Base64ToBlobOptions
     return new Blob([Uint8Array.from($fn.try(() => atob(base64), '')(), (v: string): number => Number(v.codePointAt(0)))], { type });
 };
 
+// ---
+// Email utilities.
+
 /**
  * Produces an email verification token.
  *
- * @param   userEmail User email address to verify.
- * @param   userId    Optional user ID; e.g., for change of address.
+ * @param   email  User email address to verify.
+ * @param   userId Optional user ID; e.g., for change of address.
  *
- * @returns           Promise of email verification token.
+ * @returns        Promise of email verification token.
  */
-export const emailToken = async (userEmail: string, userId: number = 0): Promise<string> => {
-    const email = userEmail.toLowerCase(),
-        id = userId.toString().padStart(20, '0'),
-        expireTime = $time.stamp() + $time.weekInSeconds,
-        hash = await hmacSHA256(email + String(expireTime));
+export const emailToken = async (email: string, userId: number = 0): Promise<string> => {
+    const tokenEmail = email.toLowerCase(),
+        tokenUUIDV4x2 = uuidV4() + uuidV4(),
+        tokenUserId = userId.toString().padStart(20, '0'),
+        tokenExpireTime = $time.stamp() + $time.weekInSeconds,
+        tokenHash = await hmacSHA256(tokenUUIDV4x2 + tokenEmail + tokenUserId + String(tokenExpireTime));
 
-    return base64Encode(email, { urlSafe: true }) + id + hash + String(expireTime);
+    return base64Encode(tokenEmail, { urlSafe: true }) + tokenUUIDV4x2 + tokenUserId + tokenHash + String(tokenExpireTime);
 };
 
 /**
- * Verifies an email address.
+ * Verifies an email token.
  *
  * @param   token  Email verification token.
  * @param   userId Optional user ID; e.g., for change of address.
@@ -228,17 +238,102 @@ export const emailToken = async (userEmail: string, userId: number = 0): Promise
  * @returns        Promise of verified email address; else empty string.
  */
 export const emailVerify = async (token: string, userId: number = 0): Promise<string> => {
-    const hash = token.slice(-74, -10),
-        expireTime = Number(token.slice(-10)),
-        id = Number($str.lTrim(token.slice(-94, -74), '0') || 0),
-        email = base64Decode(token.slice(0, -94), { urlSafe: true });
+    const tokenHash = token.slice(-74, -10),
+        tokenUserId = token.slice(-94, -74),
+        tokenUUIDV4x2 = token.slice(-158, -94),
+        tokenExpireTime = Number(token.slice(-10)),
+        tokenEmail = base64Decode(token.slice(0, -158), { urlSafe: true }),
+        tokenActualUserId = Number($str.lTrim(tokenUserId, '0') || '0');
 
-    if (id === userId && $str.isEmail(email) && $is.safeInteger(expireTime) && expireTime > $time.stamp())
-        if (safeEqual(hash, await hmacSHA256(email + String(expireTime)))) {
-            return email; // Verified email address.
+    if ($is.safeInteger(tokenExpireTime) && tokenExpireTime > $time.stamp())
+        if (safeEqual(tokenHash, await hmacSHA256(tokenUUIDV4x2 + tokenEmail + tokenUserId + String(tokenExpireTime)))) {
+            if ($str.isEmail(tokenEmail) && safeEqual(String(userId), String(tokenActualUserId))) {
+                return tokenEmail; // Verified user email address.
+            }
         }
     return ''; // Failure.
 };
+
+// ---
+// Authentication utilities.
+
+/**
+ * Gets authorization token name.
+ *
+ * @returns Authorization token name.
+ *
+ * @note Always 42 bytes in total length.
+ */
+export const authTokenName = (): string => {
+    const hash =
+        $env.get('SSR_APP_AUTH_TOKEN_NAME_HASH', { type: 'string' }) || //
+        $env.get('APP_AUTH_TOKEN_NAME_HASH', { type: 'string', require: true });
+
+    return 'user_auth_' + hash.padStart(32, '0').slice(0, 32);
+};
+
+/**
+ * Gets authorization token salt.
+ *
+ * @returns Authorization token salt.
+ */
+export const authTokenSalt = (): string => {
+    return (
+        $env.get('SSR_APP_AUTH_TOKEN_SECRET_SALT', { type: 'string' }) || //
+        $env.get('APP_AUTH_TOKEN_SECRET_SALT', { type: 'string', require: true })
+    );
+};
+
+/**
+ * Produces an authorization token.
+ *
+ * @param   userId User ID to authenticate.
+ *
+ * @returns        Promise of token `{ name, value }`.
+ */
+export const authToken = async (userId: number): Promise<{ name: string; value: string }> => {
+    const tokenName = authTokenName(),
+        tokenSalt = authTokenSalt(),
+        //
+        tokenUUIDV4x2 = uuidV4() + uuidV4(),
+        tokenUserId = userId.toString().padStart(20, '0'),
+        tokenExpireTime = $time.stamp() + $time.yearInSeconds,
+        tokenHash = await hmacSHA256(tokenUUIDV4x2 + tokenName + tokenSalt + tokenUserId + String(tokenExpireTime));
+
+    return {
+        name: tokenName, // e.g., `user_auth_[hash]`.
+        value: tokenUUIDV4x2 + tokenUserId + tokenHash + String(tokenExpireTime),
+    };
+};
+
+/**
+ * Verifies an authorization token.
+ *
+ * @param   token Authorization token.
+ *
+ * @returns       Promise of verified user ID; else `0`.
+ */
+export const authVerify = async (token: string): Promise<number> => {
+    const tokenName = authTokenName(),
+        tokenSalt = authTokenSalt(),
+        //
+        tokenHash = token.slice(-74, -10),
+        tokenUUIDV4x2 = token.slice(0, -94),
+        tokenUserId = token.slice(-94, -74),
+        tokenExpireTime = Number(token.slice(-10)),
+        tokenActualUserId = Number($str.lTrim(tokenUserId, '0') || '0');
+
+    if ($is.safeInteger(tokenExpireTime) && tokenExpireTime > $time.stamp())
+        if (safeEqual(tokenHash, await hmacSHA256(tokenUUIDV4x2 + tokenName + tokenSalt + tokenUserId + String(tokenExpireTime)))) {
+            if ($is.safeInteger(tokenActualUserId) && tokenActualUserId > 0) {
+                return tokenActualUserId; // Authenticated user ID.
+            }
+        }
+    return 0; // Failure.
+};
+
+// ---
+// Randomization utilities.
 
 /**
  * Random number generator.
@@ -427,6 +522,9 @@ export const randomString = (byteLength: number = 32, options?: RandomStringOpti
     return str;
 };
 
+// ---
+// UUID utilities.
+
 /**
  * Generates a v4 UUID.
  *
@@ -438,6 +536,9 @@ export const uuidV4 = (options?: UUIDV4Options): string => {
     const opts = $obj.defaults({}, options || {}, { dashes: false }) as Required<UUIDV4Options>;
     return opts.dashes ? crypto.randomUUID() : crypto.randomUUID().replace(/-/gu, '');
 };
+
+// ---
+// CSP utilities.
 
 /**
  * Generates an nonce for content security policies.
@@ -456,6 +557,9 @@ export const cspNonce = (): string => {
 export const cspNonceReplacementCode = (): string => {
     return '{%-_{%-___________cspNonce___________-%}_-%}'; // Fixed length of 44 bytes.
 };
+
+// ---
+// Comparison utilities.
 
 /**
  * Performs a timing-safe string comparison.

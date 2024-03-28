@@ -5,15 +5,21 @@
 import { $crypto, $env, $str } from '#index.ts';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
+const __origAuthTokenNameHash__ = $env.get('APP_AUTH_TOKEN_NAME_HASH', { type: 'unknown' });
+const __origAuthTokenSecretSalt__ = $env.get('APP_AUTH_TOKEN_SECRET_SALT', { type: 'unknown' });
 const __origC10nHMACSHAKey__ = $env.get('APP_C10N_HMAC_SHA_KEY', { type: 'unknown' });
 const __origHMACSHAKey__ = $env.get('APP_HMAC_SHA_KEY', { type: 'unknown' });
 
 describe('$crypto', async () => {
     beforeAll(async () => {
+        $env.set('APP_AUTH_TOKEN_NAME_HASH', 'QpEZmNg94bg8ugGimQXLNovBaRrZdEhR');
+        $env.set('APP_AUTH_TOKEN_SECRET_SALT', 'ocNENcNRr9sNY2EENLAVqcvLf4FvtTZn3TUKChqBRAst7hJ2fbKiCKtBKCpcwWdc');
         $env.set('APP_C10N_HMAC_SHA_KEY', 'vTFRDGNsjdZbJ3iaQEmjufPbzNGJENRbvyL76Thwy8TjoWJUGDzTt67WyMoAoHae');
         $env.set('APP_HMAC_SHA_KEY', 'D2YUKonceWrTqB3FXxzGzBurUDMavtMQEP8TuRbRxBFKGJjK4ZG9WXJnwkwQivt3');
     });
     afterAll(async () => {
+        $env.set('APP_AUTH_TOKEN_NAME_HASH', __origAuthTokenNameHash__);
+        $env.set('APP_AUTH_TOKEN_SECRET_SALT', __origAuthTokenSecretSalt__);
         $env.set('APP_C10N_HMAC_SHA_KEY', __origC10nHMACSHAKey__);
         $env.set('APP_HMAC_SHA_KEY', __origHMACSHAKey__);
     });
@@ -245,11 +251,7 @@ describe('$crypto', async () => {
             token1 = await $crypto.emailToken(emailAddress1),
             email1 = await $crypto.emailVerify(token1);
 
-        // Hash is 64 bytes in length.
-        // User ID is 20 bytes in length.
-        // Expire time is 10 bytes in length.
-        // Plus byte length of base64-encoded email.
-        expect($str.byteLength(token1)).toBeGreaterThan(94);
+        expect($str.byteLength(token1)).toBe(172);
         expect(email1).toBe(emailAddress1);
 
         // ---
@@ -258,37 +260,122 @@ describe('$crypto', async () => {
             token2 = await $crypto.emailToken(emailAddress2),
             email2 = await $crypto.emailVerify(token2);
 
-        // Hash is 64 bytes in length.
-        // User ID is 20 bytes in length.
-        // Expire time is 10 bytes in length.
-        // Plus byte length of base64-encoded email.
-        expect($str.byteLength(token2)).toBeGreaterThan(94);
+        expect($str.byteLength(token2)).toBe(166);
         expect(email2).toBe('');
 
         // ---
 
-        const token3 = 'x!@#$%^&*()_+00000000000000000123ha2VDat9sWwGf6WYNu8ToEWcfhTGK9dZG3CHQRvVKWsE72tWh6eaiCtFBgnmed4g1234567890',
+        const userId3 = 123,
+            emailAddress3 = 'user@x.tld',
+            token3 = '!@#$%^&' + (await $crypto.emailToken(emailAddress3, userId3)),
             email3 = await $crypto.emailVerify(token3);
 
-        // Hash is 64 bytes in length.
-        // User ID is 20 bytes in length.
-        // Expire time is 10 bytes in length.
-        // Plus byte length of base64-encoded email.
-        expect($str.byteLength(token3)).toBeGreaterThan(94);
+        expect($str.byteLength(token3)).toBe(179);
         expect(email3).toBe('');
 
         // ---
 
         const userId4 = 123,
             emailAddress4 = 'user@x.tld',
-            token4 = await $crypto.emailToken(emailAddress4, userId4),
-            email4 = await $crypto.emailVerify(token4, userId4);
+            token4 = (await $crypto.emailToken(emailAddress4, userId4)) + '!@#$%^&',
+            email4 = await $crypto.emailVerify(token4);
 
-        // Hash is 64 bytes in length.
-        // User ID is 20 bytes in length.
-        // Expire time is 10 bytes in length.
-        // Plus byte length of base64-encoded email.
-        expect($str.byteLength(token4)).toBeGreaterThan(94);
-        expect(email4).toBe(emailAddress4);
+        expect($str.byteLength(token4)).toBe(179);
+        expect(email4).toBe('');
+
+        // ---
+
+        const userId5 = 123,
+            emailAddress5 = 'user@x.tld',
+            token5 = '!' + (await $crypto.emailToken(emailAddress5, userId5)).slice(1),
+            email5 = await $crypto.emailVerify(token5);
+
+        expect($str.byteLength(token5)).toBe(172);
+        expect(email5).toBe('');
+
+        // ---
+
+        const userId6 = 0,
+            emailAddress6 = 'user@x.tld',
+            token6 = await $crypto.emailToken(emailAddress6, userId6),
+            email6 = await $crypto.emailVerify(token6, userId6);
+
+        expect($str.byteLength(token6)).toBe(172);
+        expect(email6).toBe(emailAddress6);
+
+        // ---
+
+        const userId7 = 123,
+            emailAddress7 = 'user@x.tld',
+            token7 = await $crypto.emailToken(emailAddress7, userId7),
+            email7 = await $crypto.emailVerify(token7, userId7);
+
+        expect($str.byteLength(token7)).toBe(172);
+        expect(email7).toBe(emailAddress7);
+    });
+    test('.authTokenName()', async () => {
+        expect($str.byteLength($crypto.authTokenName())).toBe(42);
+    });
+    test('.authTokenSalt()', async () => {
+        expect($str.byteLength($crypto.authTokenSalt())).toBe(64);
+    });
+    test('.authToken(), .authVerify()', async () => {
+        const userId1 = 123,
+            token1 = await $crypto.authToken(userId1),
+            verifiedUserId1 = await $crypto.authVerify(token1.value);
+
+        expect($str.byteLength(token1.name)).toBe(42);
+        expect($str.byteLength(token1.value)).toBe(158);
+        expect(verifiedUserId1).toBe(userId1);
+
+        // ---
+
+        const userId2 = 1234567890123456,
+            token2 = await $crypto.authToken(userId2),
+            verifiedUserId2 = await $crypto.authVerify(token2.value);
+
+        expect($str.byteLength(token2.name)).toBe(42);
+        expect($str.byteLength(token2.value)).toBe(158);
+        expect(verifiedUserId2).toBe(userId2);
+
+        // ---
+
+        const userId3 = 0,
+            token3 = await $crypto.authToken(userId3),
+            verifiedUserId3 = await $crypto.authVerify(token3.value);
+
+        expect($str.byteLength(token3.name)).toBe(42);
+        expect($str.byteLength(token3.value)).toBe(158);
+        expect(verifiedUserId3).toBe(userId3);
+
+        // ---
+
+        const userId4 = 123,
+            token4 = await $crypto.authToken(userId4),
+            verifiedUserId4 = await $crypto.authVerify('!@#$%^&' + token4.value);
+
+        expect($str.byteLength(token4.name)).toBe(42);
+        expect($str.byteLength(token4.value)).toBe(158);
+        expect(verifiedUserId4).toBe(0);
+
+        // ---
+
+        const userId5 = 123,
+            token5 = await $crypto.authToken(userId5),
+            verifiedUserId5 = await $crypto.authVerify(token5.value + '!@#$%^&');
+
+        expect($str.byteLength(token5.name)).toBe(42);
+        expect($str.byteLength(token5.value)).toBe(158);
+        expect(verifiedUserId5).toBe(0);
+
+        // ---
+
+        const userId6 = 123,
+            token6 = await $crypto.authToken(userId6),
+            verifiedUserId6 = await $crypto.authVerify('!' + token6.value.slice(1));
+
+        expect($str.byteLength(token6.name)).toBe(42);
+        expect($str.byteLength(token6.value)).toBe(158);
+        expect(verifiedUserId6).toBe(0);
     });
 });
