@@ -122,6 +122,7 @@ export const contentTypeCharset = (type: string): string => {
         case type.endsWith('+json'):
         case 'application/json' === type:
         case 'application/json5' === type:
+        case 'application/x-www-form-urlencoded' === type:
         case 'application/php-source' === type:
         case 'application/php-archive' === type:
         case 'application/xml-dtd' === type:
@@ -281,6 +282,9 @@ export const types = $fnꓺmemo((): Types => {
         'Properties': {
             'env': { type: 'text/plain', binary: false, canonical: 'env', vsCodeLang: 'properties' },
             'props|properties': { type: 'text/plain', binary: false, canonical: 'props', vsCodeLang: 'properties' },
+        },
+        'Form': {
+            'form': { type: 'application/x-www-form-urlencoded', binary: false, canonical: 'form', vsCodeLang: 'plaintext' },
         },
         'Apache': {
             'conf': { type: 'text/plain', binary: false, canonical: 'conf', vsCodeLang: 'apacheconf' },
