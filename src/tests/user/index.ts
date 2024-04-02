@@ -62,5 +62,41 @@ describe('$user', async () => {
     });
     test('.ip()', async () => {
         expect(await $user.ip()).toBe('127.88.201.42');
+        expect(await $user.ip(undefined)).toBe('127.88.201.42');
+
+        expect(
+            await $user.ip(
+                new Request('https://x.tld/', {
+                    headers: {
+                        'x-real-ip': '127.88.201.42',
+                        'x-forwarded-for': '127.87.200.41',
+                    },
+                }),
+            ),
+        ).toBe('127.88.201.42');
+
+        expect(
+            await $user.ip(
+                new Request('https://x.tld/', {
+                    headers: {
+                        'x-real-ip': '127.88.201.42',
+                        'x-forwarded-for': '127.87.200.41',
+                    },
+                }),
+                { prioritizeForwardedHeaders: false },
+            ),
+        ).toBe('127.88.201.42');
+
+        expect(
+            await $user.ip(
+                new Request('https://x.tld/', {
+                    headers: {
+                        'x-real-ip': '127.88.201.42',
+                        'x-forwarded-for': '127.87.200.41',
+                    },
+                }),
+                { prioritizeForwardedHeaders: true },
+            ),
+        ).toBe('127.87.200.41');
     });
 });

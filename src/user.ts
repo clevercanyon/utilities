@@ -41,6 +41,9 @@ export type IPGeoData = $type.ReadonlyDeep<{
     longitude: string;
     timezone: string;
 }>;
+export type IPOptions = {
+    prioritizeForwardedHeaders?: boolean;
+};
 type IPGeoDataResponsePayload = $type.ReadonlyDeep<{
     ok: boolean;
     error?: { message: string };
@@ -171,52 +174,58 @@ export const languages = $fnꓺmemo(2, (request?: $type.Request): string => {
  *   rules on the Cloudflare side would then be out of sync with our custom handling of IP address headers.
  * - Regarding `forwarded`, which contains `for=IPv4|"[IPv6]"`; {@see https://o5p.me/Hfdn1u}.
  *
- * @param   request                    Optional HTTP request.
+ * @param   request Optional HTTP request.
  *
  *   - If not passed, only a remote connection can provide a user’s external IP.
  *   - //
- * @param   prioritizeForwardedHeaders Default is `false` for reasons stated above. Passing `prioritizeForwardedHeaders`
- *   as `true` changes the default prioritization used by this utility. It is useful under certain conditions.
+ * @param   options All optional; {@see IPOptions} for further details.
  *
- * @returns                            Promise of IP address.
+ * @returns         Promise of IP address.
  *
- * @throws                             We don’t want Cloudflare workers making remote connections for IP geolocation
- *   data, because: (a) they already have this data in `request`; and (b) without a `request`, the IP geolocation data
- *   would be memoized globally at runtime by a worker that is actually serving multiple requests. Any attempt to obtain
- *   IP geolocation data from a Cloudflare worker, without passing in a specific `request`, results in an exception
- *   being thrown by {@see ipGeoData()}.
+ * @throws          We don’t want Cloudflare workers making remote connections for IP geolocation data, because: (a)
+ *   they already have this data in `request`; and (b) without a `request` the IP geolocation data would be memoized
+ *   globally at runtime by a worker that is actually serving multiple requests. Any attempt to obtain IP geolocation
+ *   data from a Cloudflare worker, without passing in a specific `request`, results in an exception being thrown by
+ *   {@see ipGeoData()}.
  */
-export const ip = $fnꓺmemo(2, async (request?: $type.Request, prioritizeForwardedHeaders?: boolean): Promise<string> => {
-    if (request) {
-        const forwardedHeaders = [
-            'forwarded', // May contain multiple for=IP directives.
-            'x-forwarded-for', // May contain multiple IPs.
-        ];
-        for (const headerName of [
-            ...(prioritizeForwardedHeaders ? forwardedHeaders : []),
-            ...$http.ipHeaderNames(), // IP header names, in order of precedence.
-            ...(!prioritizeForwardedHeaders ? forwardedHeaders : []),
-        ]) {
-            let ip = request.headers.get(headerName) || '';
+export const ip = $fnꓺmemo(
+    // Ensures no args is the same as passing `request: undefined`. Also uses a serialized copy of any `options`.
+    { maxSize: 2, transformKey: (args: unknown[]): unknown[] => (args.length === 2 ? [args[0], $json.stringify(args[1])] : args.length ? args : [undefined]) },
 
-            if (ip && 'forwarded' === headerName) {
-                // {@see https://regex101.com/r/QNCDee/1}.
-                ip = ip.match(/\bfor=['"]?\[?([^'"[\]\s;,]+)/iu)?.[1] || '';
+    async (request?: $type.Request, options?: IPOptions): Promise<string> => {
+        const opts = $obj.defaults({}, options || {}, { prioritizeForwardedHeaders: false }) as Required<IPOptions>;
+
+        if (request) {
+            const forwardedHeaders = [
+                'forwarded', // May contain multiple for=IP directives.
+                'x-forwarded-for', // May contain multiple IPs.
+            ];
+            for (const headerName of [
+                ...(opts.prioritizeForwardedHeaders ? forwardedHeaders : []),
+                ...$http.ipHeaderNames(), // IP header names, in order of precedence.
+                ...(!opts.prioritizeForwardedHeaders ? forwardedHeaders : []),
+            ]) {
+                let ip = request.headers.get(headerName) || '';
+
+                if (ip && 'forwarded' === headerName) {
+                    // {@see https://regex101.com/r/QNCDee/1}.
+                    ip = ip.match(/\bfor=['"]?\[?([^'"[\]\s;,]+)/iu)?.[1] || '';
+                }
+                if (ip) {
+                    ip =
+                        ip
+                            .split(/[\s;,]+/u)
+                            .map((ip) => $str.trim(ip))
+                            .find((ip) => $str.isIP(ip))
+                            ?.toLowerCase() || '';
+                }
+                if (ip) return ip;
             }
-            if (ip) {
-                ip =
-                    ip
-                        .split(/[\s;,]+/u)
-                        .map((ip) => $str.trim(ip))
-                        .find((ip) => $str.isIP(ip))
-                        ?.toLowerCase() || '';
-            }
-            if (ip) return ip;
+            return ''; // Unavailable.
         }
-        return ''; // Unavailable.
-    }
-    return (await ipGeoData()).ip; // Remote connection.
-});
+        return (await ipGeoData()).ip; // Remote connection.
+    },
+);
 
 /**
  * Gets IP geolocation data.
@@ -240,7 +249,7 @@ export const ip = $fnꓺmemo(2, async (request?: $type.Request, prioritizeForwar
 export const ipGeoData = $fnꓺmemo(
     // Ensures no args is the same as passing `request: undefined`.
     { maxSize: 2, transformKey: (args: unknown[]): unknown[] => (args.length ? args : [undefined]) },
-    //
+
     async (request?: $type.Request): Promise<IPGeoData> => {
         // We don’t want tests making remote connections.
         const isTest = $env.isTest(); // Cached for reuse below.
