@@ -328,7 +328,7 @@ export const ipGeoData = $fnꓺmemo(
  */
 export const id = async (request?: $type.Request): Promise<number> => {
     if (!$env.isSSR()) throw Error('zbH7uWat');
-    return (await $crypto.authVerify(authToken(request))) || 0;
+    return await $crypto.authVerify(authToken(request));
 };
 
 /**
@@ -456,25 +456,29 @@ export const authToken = (request?: $type.Request): string => {
 /**
  * Updates auth data.
  *
- * @param  options {@see UpdateAuthDataOptions}.
+ * @param  authToken {@see $crypto.authToken()}.
  *
- * @throws         We don’t want Cloudflare workers using an app’s etc configuration for auth data. There is no
+ *   - Pass empty string for `authToken` to delete auth data.
+ *   - //
+ * @param  options   {@see UpdateAuthDataOptions}.
+ *
+ * @throws           We don’t want Cloudflare workers using an app’s etc configuration for auth data. There is no
  *   justifiable reason for doing so. Any attempt to update auth data from a Cloudflare worker, without passing in
  *   `request` and `responseHeaders`, results in an exception being thrown.
  *
  * @requiredEnv ssr -- Because auth token cookie is `httpOnly`.
  */
-export const updateAuthData = async (options?: UpdateAuthDataOptions): Promise<void> => {
+export const updateAuthData = async (authToken: string, options?: UpdateAuthDataOptions): Promise<void> => {
     if (!$env.isSSR()) throw Error('ehR3qUAE');
 
     const opts = $obj.defaults({}, options || {}) as UpdateAuthDataOptions,
         rrOpts = $obj.pick(opts, ['request', 'responseHeaders']),
         //
-        ꓺid = await id(opts.request),
-        utxId = ꓺid ? await $crypto.hmacSHA(String(ꓺid), 36) : '',
-        utxCustomerId = ꓺid && opts.isCustomer ? await $crypto.hmacSHA('customer:' + String(ꓺid), 36) : '',
+        id = await $crypto.authVerify(authToken),
+        utxId = id ? await $crypto.hmacSHA(String(id), 36) : '',
+        utxCustomerId = id && opts.isCustomer ? await $crypto.hmacSHA('customer:' + String(id), 36) : '',
         //
-        newAuthToken = ꓺid ? await $crypto.authToken(ꓺid) : { name: '', value: '' },
+        newAuthToken = id ? await $crypto.authToken(id) : { name: '', value: '' },
         newAuthData = { utxId, utxCustomerId, authToken: newAuthToken.value };
 
     if (opts.request && opts.responseHeaders) {
