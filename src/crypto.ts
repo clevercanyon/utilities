@@ -246,13 +246,14 @@ export const base64ToBlob = async (base64: string, options?: Base64ToBlobOptions
  *
  * @returns        Promise of email verification token.
  *
+ *   - Token always expires automatically after 2 days.
  *   - Token length is variable, based on length of email address.
  */
 export const emailToken = async (email: string, userId: number = 0): Promise<string> => {
     const tokenEmail = email.toLowerCase(),
         tokenUUIDV4x2 = uuidV4() + uuidV4(),
         tokenUserId = userId.toString().padStart(20, '0'),
-        tokenExpireTime = $time.stamp() + $time.weekInSeconds,
+        tokenExpireTime = $time.stamp() + $time.dayInSeconds * 2,
         tokenHash = await hmacSHA256(tokenUUIDV4x2 + tokenEmail + tokenUserId + String(tokenExpireTime));
 
     return base64Encode(tokenEmail, { urlSafe: true }) + tokenUUIDV4x2 + tokenUserId + tokenHash + String(tokenExpireTime);
@@ -320,8 +321,9 @@ export const authTokenSalt = (): string => {
  *
  * @returns        Promise of token `{ name, value }`.
  *
- *   - Name is always 42 bytes in length.
- *   - Value is always 158 bytes in length.
+ *   - Token name is always 42 bytes in length.
+ *   - Token value is always 158 bytes in length.
+ *   - Token always expires automatically after 1 year.
  */
 export const authToken = async (userId: number): Promise<{ name: string; value: string }> => {
     const tokenName = authTokenName(),

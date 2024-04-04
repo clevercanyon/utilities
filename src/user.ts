@@ -316,6 +316,22 @@ export const ipGeoData = $fnꓺmemo(
 );
 
 /**
+ * Gets current user ID.
+ *
+ * @param   request Optional HTTP request.
+ *
+ *   - If not passed, only an app’s etc config can provide.
+ *
+ * @returns         Promise of user ID, else `0` if not logged in.
+ *
+ * @requiredEnv ssr -- Because auth token cookie is `httpOnly`.
+ */
+export const id = async (request?: $type.Request): Promise<number> => {
+    if (!$env.isSSR()) throw Error('zbH7uWat');
+    return (await $crypto.authVerify(authToken(request))) || 0;
+};
+
+/**
  * Gets user’s anon/analytics ID.
  *
  * This is currently derived from Google analytics.
@@ -424,7 +440,7 @@ export const utxCustomerId = (request?: $type.Request): string => {
  *   justifiable reason for doing so. Any attempt to obtain this data from a Cloudflare worker, without passing in a
  *   `request`, results in an exception being thrown.
  *
- * @requiredEnv ssr -- Because cookie is `httpOnly`.
+ * @requiredEnv ssr -- Because auth token cookie is `httpOnly`.
  */
 export const authToken = (request?: $type.Request): string => {
     if (!$env.isSSR()) throw Error('Ctg8SNjQ');
@@ -440,37 +456,36 @@ export const authToken = (request?: $type.Request): string => {
 /**
  * Updates auth data.
  *
- * @param  authToken Auth token (158 bytes).
- * @param  options   {@see UpdateAuthDataOptions}.
+ * @param  options {@see UpdateAuthDataOptions}.
  *
- * @throws           We don’t want Cloudflare workers using an app’s etc configuration for auth data. There is no
+ * @throws         We don’t want Cloudflare workers using an app’s etc configuration for auth data. There is no
  *   justifiable reason for doing so. Any attempt to update auth data from a Cloudflare worker, without passing in
  *   `request` and `responseHeaders`, results in an exception being thrown.
  *
- * @requiredEnv ssr -- Because cookie is `httpOnly`.
+ * @requiredEnv ssr -- Because auth token cookie is `httpOnly`.
  */
-export const updateAuthData = async (authToken: string, options?: UpdateAuthDataOptions): Promise<void> => {
+export const updateAuthData = async (options?: UpdateAuthDataOptions): Promise<void> => {
     if (!$env.isSSR()) throw Error('ehR3qUAE');
 
     const opts = $obj.defaults({}, options || {}) as UpdateAuthDataOptions,
         rrOpts = $obj.pick(opts, ['request', 'responseHeaders']),
         //
-        id = await $crypto.authVerify(authToken),
-        utxId = id ? await $crypto.hmacSHA(String(id), 36) : '',
-        utxCustomerId = id && opts.isCustomer ? await $crypto.hmacSHA('customer:' + String(id), 36) : '',
+        ꓺid = await id(opts.request),
+        utxId = ꓺid ? await $crypto.hmacSHA(String(ꓺid), 36) : '',
+        utxCustomerId = ꓺid && opts.isCustomer ? await $crypto.hmacSHA('customer:' + String(ꓺid), 36) : '',
         //
-        newAuthToken = id ? await $crypto.authToken(id) : { name: '', value: '' },
-        newAuthData = { authToken: newAuthToken.value, utxId, utxCustomerId };
+        newAuthToken = ꓺid ? await $crypto.authToken(ꓺid) : { name: '', value: '' },
+        newAuthData = { utxId, utxCustomerId, authToken: newAuthToken.value };
 
     if (opts.request && opts.responseHeaders) {
-        if (id && utxId && newAuthToken.name && newAuthToken.value) {
-            $cookie.set(newAuthToken.name, newAuthToken.value, { ...rrOpts, httpOnly: true });
+        if (newAuthToken.name && newAuthToken.value) {
             $cookie.set('utx_user_id', utxId, { ...rrOpts });
             $cookie.set('utx_customer_id', utxCustomerId, { ...rrOpts });
+            $cookie.set(newAuthToken.name, newAuthToken.value, { ...rrOpts, httpOnly: true });
         } else {
-            $cookie.delete($crypto.authTokenName(), { ...rrOpts, httpOnly: true });
             $cookie.delete('utx_user_id', { ...rrOpts });
             $cookie.delete('utx_customer_id', { ...rrOpts });
+            $cookie.delete($crypto.authTokenName(), { ...rrOpts, httpOnly: true });
         }
     } else if ($env.isCFW()) throw Error('5tqY9PzB'); // See notes above.
     //
