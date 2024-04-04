@@ -322,60 +322,54 @@ describe('$crypto', async () => {
     test('.authToken(), .authVerify()', async () => {
         const userId1 = 123,
             token1 = await $crypto.authToken(userId1),
-            verifiedUserId1 = await $crypto.authVerify(token1.value);
+            verifiedUserId1 = await $crypto.authVerify(token1);
 
-        expect($str.byteLength(token1.name)).toBe(42);
-        expect($str.byteLength(token1.value)).toBe(158);
+        expect($str.byteLength(token1)).toBe(158);
         expect(verifiedUserId1).toBe(userId1);
 
         // ---
 
         const userId2 = 1234567890123456,
             token2 = await $crypto.authToken(userId2),
-            verifiedUserId2 = await $crypto.authVerify(token2.value);
+            verifiedUserId2 = await $crypto.authVerify(token2);
 
-        expect($str.byteLength(token2.name)).toBe(42);
-        expect($str.byteLength(token2.value)).toBe(158);
+        expect($str.byteLength(token2)).toBe(158);
         expect(verifiedUserId2).toBe(userId2);
 
         // ---
 
         const userId3 = 0,
             token3 = await $crypto.authToken(userId3),
-            verifiedUserId3 = await $crypto.authVerify(token3.value);
+            verifiedUserId3 = await $crypto.authVerify(token3);
 
-        expect($str.byteLength(token3.name)).toBe(42);
-        expect($str.byteLength(token3.value)).toBe(158);
+        expect($str.byteLength(token3)).toBe(158);
         expect(verifiedUserId3).toBe(userId3);
 
         // ---
 
         const userId4 = 123,
             token4 = await $crypto.authToken(userId4),
-            verifiedUserId4 = await $crypto.authVerify('!@#$%^&' + token4.value);
+            verifiedUserId4 = await $crypto.authVerify('!@#$%^&' + token4);
 
-        expect($str.byteLength(token4.name)).toBe(42);
-        expect($str.byteLength(token4.value)).toBe(158);
+        expect($str.byteLength(token4)).toBe(158);
         expect(verifiedUserId4).toBe(0);
 
         // ---
 
         const userId5 = 123,
             token5 = await $crypto.authToken(userId5),
-            verifiedUserId5 = await $crypto.authVerify(token5.value + '!@#$%^&');
+            verifiedUserId5 = await $crypto.authVerify(token5 + '!@#$%^&');
 
-        expect($str.byteLength(token5.name)).toBe(42);
-        expect($str.byteLength(token5.value)).toBe(158);
+        expect($str.byteLength(token5)).toBe(158);
         expect(verifiedUserId5).toBe(0);
 
         // ---
 
         const userId6 = 123,
             token6 = await $crypto.authToken(userId6),
-            verifiedUserId6 = await $crypto.authVerify('!' + token6.value.slice(1));
+            verifiedUserId6 = await $crypto.authVerify('!' + token6.slice(1));
 
-        expect($str.byteLength(token6.name)).toBe(42);
-        expect($str.byteLength(token6.value)).toBe(158);
+        expect($str.byteLength(token6)).toBe(158);
         expect(verifiedUserId6).toBe(0);
     });
 });

@@ -478,14 +478,14 @@ export const updateAuthData = async (authToken: string, options?: UpdateAuthData
         utxId = id ? await $crypto.hmacSHA(String(id), 36) : '',
         utxCustomerId = id && opts.isCustomer ? await $crypto.hmacSHA('customer:' + String(id), 36) : '',
         //
-        newAuthToken = id ? await $crypto.authToken(id) : { name: '', value: '' },
-        newAuthData = { utxId, utxCustomerId, authToken: newAuthToken.value };
+        newAuthToken = id ? await $crypto.authToken(id) : '',
+        newAuthData = { utxId, utxCustomerId, authToken: newAuthToken };
 
     if (opts.request && opts.responseHeaders) {
-        if (newAuthToken.name && newAuthToken.value) {
+        if (newAuthToken) {
             $cookie.set('utx_user_id', utxId, { ...rrOpts });
             $cookie.set('utx_customer_id', utxCustomerId, { ...rrOpts });
-            $cookie.set(newAuthToken.name, newAuthToken.value, { ...rrOpts, httpOnly: true });
+            $cookie.set($crypto.authTokenName(), newAuthToken, { ...rrOpts, httpOnly: true });
         } else {
             $cookie.delete('utx_user_id', { ...rrOpts });
             $cookie.delete('utx_customer_id', { ...rrOpts });

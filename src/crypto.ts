@@ -244,7 +244,7 @@ export const base64ToBlob = async (base64: string, options?: Base64ToBlobOptions
  * @param   email  User email address to verify.
  * @param   userId Optional user ID; e.g., for change of address.
  *
- * @returns        Promise of email verification token.
+ * @returns        Promise of email verification token; variable length.
  *
  *   - Token always expires automatically after 2 days.
  *   - Token length is variable, based on length of email address.
@@ -305,7 +305,7 @@ export const authTokenName = (): string => {
 /**
  * Gets authorization token salt.
  *
- * @returns Authorization token salt; recommended length is 64 bytes.
+ * @returns Authorization token salt; typically 64 bytes.
  */
 export const authTokenSalt = (): string => {
     return (
@@ -319,13 +319,12 @@ export const authTokenSalt = (): string => {
  *
  * @param   userId User ID to authenticate.
  *
- * @returns        Promise of token `{ name, value }`.
+ * @returns        Promise of auth token; 158 bytes.
  *
- *   - Token name is always 42 bytes in length.
- *   - Token value is always 158 bytes in length.
  *   - Token always expires automatically after 1 year.
+ *   - Token is always 158 bytes in length.
  */
-export const authToken = async (userId: number): Promise<{ name: string; value: string }> => {
+export const authToken = async (userId: number): Promise<string> => {
     const tokenName = authTokenName(),
         tokenSalt = authTokenSalt(),
         //
@@ -334,10 +333,7 @@ export const authToken = async (userId: number): Promise<{ name: string; value: 
         tokenExpireTime = $time.stamp() + $time.yearInSeconds, // 10 bytes.
         tokenHash = await hmacSHA256(tokenUUIDV4x2 + tokenName + tokenSalt + tokenUserId + String(tokenExpireTime)); // 64 bytes.
 
-    return {
-        name: tokenName, // e.g., `user_auth_[hash]`.
-        value: tokenUUIDV4x2 + tokenUserId + tokenHash + String(tokenExpireTime),
-    };
+    return tokenUUIDV4x2 + tokenUserId + tokenHash + String(tokenExpireTime);
 };
 
 /**
