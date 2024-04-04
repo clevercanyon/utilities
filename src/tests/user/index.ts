@@ -10,14 +10,14 @@ describe('$user', async () => {
         const consentData1 = $user.consentData();
         expect(consentData1.prefs.optIn.acceptAnalyticsCookies).toBe(null);
 
-        $user.updateConsentData({ prefs: { optIn: { acceptAnalyticsCookies: true } } });
+        await $user.updateConsentData({ prefs: { optIn: { acceptAnalyticsCookies: true } } });
         expect(consentData1.prefs.optIn.acceptAnalyticsCookies).toBe(null);
 
         const consentData2 = $user.consentData();
         expect(consentData2.prefs.optIn.acceptAnalyticsCookies).toBe(true);
 
         // Restores original consent data.
-        $user.updateConsentData({ prefs: { optIn: { acceptAnalyticsCookies: null } } });
+        await $user.updateConsentData({ prefs: { optIn: { acceptAnalyticsCookies: null } } });
     });
     test('.consentData()', async () => {
         const consentData1 = $user.consentData();

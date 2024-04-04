@@ -135,8 +135,8 @@ export default function ConsentDialog(): $preact.VNode<Props> {
 
     // Updates preferences.
 
-    const updatePrefs = $preact.useCallback((prefs: $user.ConsentData['prefs']): void => {
-        void consent.then(({ state: consentState }) => {
+    const updatePrefs = $preact.useCallback(async (prefs: $user.ConsentData['prefs']): Promise<void> => {
+        void consent.then(async ({ state: consentState }) => {
             // State updates.
             const updates = {
                 data: {
@@ -151,7 +151,7 @@ export default function ConsentDialog(): $preact.VNode<Props> {
             };
             // Computes next data, updates cookie data, state, and closes.
             const nextData = $preact.reduceState(stateRef.current, updates).data;
-            $user.updateConsentData(nextData), updateState(updates), closeDialog();
+            await $user.updateConsentData(nextData), updateState(updates), closeDialog();
 
             // Logs data as proof of consent having been granted|denied by user.
             void consentLogger.log('Consent dialog update.', { data: nextData });
@@ -178,10 +178,10 @@ export default function ConsentDialog(): $preact.VNode<Props> {
 
     // Defines various event handlers.
 
-    const onSave = $preact.useCallback((): void => updatePrefs(queryPrefs()), []),
-        onAcceptAll = $preact.useCallback((): void => updatePrefs(allPrefsAs(true)), []),
-        onDeclineAll = $preact.useCallback((): void => updatePrefs(allPrefsAs(false)), []),
-        onClose = $preact.useCallback((): void => updatePrefs(prefsPriorToOpen.current), []);
+    const onSave = $preact.useCallback((): void => void updatePrefs(queryPrefs()), []),
+        onAcceptAll = $preact.useCallback((): void => void updatePrefs(allPrefsAs(true)), []),
+        onDeclineAll = $preact.useCallback((): void => void updatePrefs(allPrefsAs(false)), []),
+        onClose = $preact.useCallback((): void => void updatePrefs(prefsPriorToOpen.current), []);
 
     const onCheckboxChange = $preact.useCallback((): void => updateState({ data: { prefs: queryPrefs() } }), []),
         onInadvertentSubmit = $preact.useCallback((event: Event): void => event.preventDefault(), []);

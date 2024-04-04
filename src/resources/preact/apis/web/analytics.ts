@@ -145,7 +145,7 @@ export const initialize = async (): Promise<void> => {
 /**
  * Gets anon ID (aka: client ID), powered by GA.
  *
- * @returns Anon ID promise; e.g., `826737564.1651025377` (20 chars); 36 chars max.
+ * @returns Anon ID promise; e.g., `826737564.1651025377`; 20 bytes; 36 chars max.
  */
 export const anonId = async (): Promise<string> => {
     return new Promise((resolve) => {
@@ -156,7 +156,7 @@ export const anonId = async (): Promise<string> => {
 /**
  * Gets session ID (based on timestamp), powered by GA.
  *
- * @returns Session ID promise; e.g., `1651031160` (10 chars); 36 chars max.
+ * @returns Session ID promise; e.g., `1651031160`; 10 bytes; 36 chars max.
  */
 export const sessionId = async (): Promise<string> => {
     return new Promise((resolve) => {
@@ -167,7 +167,7 @@ export const sessionId = async (): Promise<string> => {
 /**
  * Gets UTX user ID (e.g., a hash).
  *
- * @returns UTX user ID promise; 36 chars max.
+ * @returns UTX user ID promise; 36 bytes; 36 chars max.
  */
 export const utxUserId = async (): Promise<string> => {
     return state.utxUserId; // Async uniformity.
@@ -176,7 +176,7 @@ export const utxUserId = async (): Promise<string> => {
 /**
  * Gets UTX author ID (e.g., a hash).
  *
- * @returns UTX author ID promise; 36 chars max.
+ * @returns UTX author ID promise; 36 bytes; 36 chars max.
  */
 export const utxAuthorId = async (): Promise<string> => {
     return state.utxAuthorId; // Async uniformity.
@@ -185,7 +185,7 @@ export const utxAuthorId = async (): Promise<string> => {
 /**
  * Gets UTX customer ID (e.g., a hash).
  *
- * @returns UTX customer ID promise; 36 chars max.
+ * @returns UTX customer ID promise; 36 bytes; 36 chars max.
  */
 export const utxCustomerId = async (): Promise<string> => {
     return state.utxCustomerId; // Async uniformity.

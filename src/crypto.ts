@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $env, $fn, $is, $obj, $str, $time, type $type } from '#index.ts';
+import { $env, $fn, $is, $obj, $str, $time, $to, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -38,6 +38,33 @@ const dataURIBase64PrefixRegExp = /^data:([^:=;,]+(?:\s*;[^:=;,]+=[^:=;,]+)*);ba
  * @requiredEnv cfw -- Only Cloudflare implements MD5 legacy compat.
  */
 export const md5 = $fnꓺmemo(2, async (str: string): Promise<string> => buildHash('md5', str));
+
+/**
+ * Generates a SHA hash.
+ *
+ * @param   str String to hash.
+ * @param   x   Length of hash; 1-128.
+ *
+ * @returns     SHA hash; `x` hexadecimals in length.
+ */
+export const sha = $fnꓺmemo(2, async (str: string, x: number): Promise<string> => {
+    return (await buildHash('sha-512', str)).slice(0, $to.numberBetween(x, 1, 128));
+});
+
+/**
+ * Generates an HMAC SHA hash.
+ *
+ * @param   str String to hash.
+ * @param   x   Length of hash; 1-128.
+ * @param   key Key to use when hashing.
+ *
+ *   - Default key is taken from `APP_HMAC_SHA_KEY`.
+ *
+ * @returns     HMAC SHA hash; `x` hexadecimals in length.
+ */
+export const hmacSHA = $fnꓺmemo(2, async (str: string, x: number, key?: string): Promise<string> => {
+    return (await buildHMACHash('sha-512', str, key)).slice(0, $to.numberBetween(x, 1, 128));
+});
 
 /**
  * Generates a SHA-1 hash.
@@ -218,6 +245,8 @@ export const base64ToBlob = async (base64: string, options?: Base64ToBlobOptions
  * @param   userId Optional user ID; e.g., for change of address.
  *
  * @returns        Promise of email verification token.
+ *
+ *   - Token length is variable, based on length of email address.
  */
 export const emailToken = async (email: string, userId: number = 0): Promise<string> => {
     const tokenEmail = email.toLowerCase(),
@@ -232,12 +261,14 @@ export const emailToken = async (email: string, userId: number = 0): Promise<str
 /**
  * Verifies an email token.
  *
- * @param   token  Email verification token.
+ * @param   token  Email verification token (variable length).
  * @param   userId Optional user ID; e.g., for change of address.
  *
  * @returns        Promise of verified email address; else empty string.
  */
 export const emailVerify = async (token: string, userId: number = 0): Promise<string> => {
+    if (!token) return ''; // Invalid token.
+
     const tokenHash = token.slice(-74, -10),
         tokenUserId = token.slice(-94, -74),
         tokenUUIDV4x2 = token.slice(-158, -94),
@@ -251,7 +282,7 @@ export const emailVerify = async (token: string, userId: number = 0): Promise<st
                 return tokenEmail; // Verified user email address.
             }
         }
-    return ''; // Failure.
+    return ''; // Invalid token.
 };
 
 // ---
@@ -260,9 +291,7 @@ export const emailVerify = async (token: string, userId: number = 0): Promise<st
 /**
  * Gets authorization token name.
  *
- * @returns Authorization token name.
- *
- * @note Always 42 bytes in total length.
+ * @returns Authorization token name; 42 bytes.
  */
 export const authTokenName = (): string => {
     const hash =
@@ -275,7 +304,7 @@ export const authTokenName = (): string => {
 /**
  * Gets authorization token salt.
  *
- * @returns Authorization token salt.
+ * @returns Authorization token salt; recommended length is 64 bytes.
  */
 export const authTokenSalt = (): string => {
     return (
@@ -290,15 +319,18 @@ export const authTokenSalt = (): string => {
  * @param   userId User ID to authenticate.
  *
  * @returns        Promise of token `{ name, value }`.
+ *
+ *   - Name is always 42 bytes in length.
+ *   - Value is always 158 bytes in length.
  */
 export const authToken = async (userId: number): Promise<{ name: string; value: string }> => {
     const tokenName = authTokenName(),
         tokenSalt = authTokenSalt(),
         //
-        tokenUUIDV4x2 = uuidV4() + uuidV4(),
-        tokenUserId = userId.toString().padStart(20, '0'),
-        tokenExpireTime = $time.stamp() + $time.yearInSeconds,
-        tokenHash = await hmacSHA256(tokenUUIDV4x2 + tokenName + tokenSalt + tokenUserId + String(tokenExpireTime));
+        tokenUUIDV4x2 = uuidV4() + uuidV4(), // 64 bytes.
+        tokenUserId = userId.toString().padStart(20, '0'), // 20 bytes.
+        tokenExpireTime = $time.stamp() + $time.yearInSeconds, // 10 bytes.
+        tokenHash = await hmacSHA256(tokenUUIDV4x2 + tokenName + tokenSalt + tokenUserId + String(tokenExpireTime)); // 64 bytes.
 
     return {
         name: tokenName, // e.g., `user_auth_[hash]`.
@@ -309,11 +341,14 @@ export const authToken = async (userId: number): Promise<{ name: string; value: 
 /**
  * Verifies an authorization token.
  *
- * @param   token Authorization token.
+ * @param   token Authorization token (158 bytes).
  *
  * @returns       Promise of verified user ID; else `0`.
  */
 export const authVerify = async (token: string): Promise<number> => {
+    if (!token || 158 !== $str.byteLength(token)) {
+        return 0; // Invalid token.
+    }
     const tokenName = authTokenName(),
         tokenSalt = authTokenSalt(),
         //
@@ -329,7 +364,7 @@ export const authVerify = async (token: string): Promise<number> => {
                 return tokenActualUserId; // Authenticated user ID.
             }
         }
-    return 0; // Failure.
+    return 0; // Invalid token.
 };
 
 // ---
