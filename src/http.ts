@@ -21,6 +21,7 @@ export type RequestConfig = {
 };
 export type ResponseConfig = {
     status?: number;
+    statusText?: string;
 
     enableCORs?: boolean;
     cacheVersion?: string | 'none';
@@ -121,16 +122,16 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
     let url = $url.tryParse(request.url);
 
     if (!url /* Catches unparseable URLs. */) {
-        throw await prepareResponse(request, { status: 400, body: responseStatusText(400) });
+        throw await prepareResponse(request, { status: 400, statusText: 'Invalid URL.' });
     }
     if (requestPathIsInvalid(request, url)) {
-        throw await prepareResponse(request, { status: 400, body: responseStatusText(400) });
+        throw await prepareResponse(request, { status: 400, statusText: 'Invalid URL path.' });
     }
     if (requestPathIsForbidden(request, url)) {
-        throw await prepareResponse(request, { status: 403, body: responseStatusText(403) });
+        throw await prepareResponse(request, { status: 403, statusText: 'Forbidden URL path.' });
     }
     if (!requestHasSupportedMethod(request)) {
-        throw await prepareResponse(request, { status: 405, body: responseStatusText(405) });
+        throw await prepareResponse(request, { status: 405, statusText: responseStatusText(405) });
     }
     if (cfg.enforceAppBaseURLOrigin && requestPathHasInvalidAppBaseURLOrigin(request, url)) {
         const appBaseURL = $app.baseURL({ parsed: true });
@@ -268,30 +269,6 @@ export const requestIsVia = $fnꓺmemo(2, (request: $type.Request, via: string):
     }
     const header = request.headers.get('x-via') || ''; // Contains via tokens.
     return $is.notEmpty(header) && new RegExp('(?:^|[,;])\\s*(?:' + $str.escRegExp(via) + ')\\s*(?:$|[,;])', 'ui').test(header);
-});
-
-/**
- * Request expects a JSON response?
- *
- * WARNING: We do not vary caches based on `accept`. Therefore, you should _only_ use this when processing an
- * uncacheable request type; e.g., `POST` request, or another that is uncacheable; {@see requestHasCacheableMethod()}.
- *
- * WARNING: This isn’t foolproof because it assumes anything of our own served from `/api` will expect JSON in the
- * absense of an `accept` header. Therefore, only use in contexts where false-positives are not detrimental.
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request expects a JSON response.
- */
-export const requestExpectsJSON = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    let url = _url || $url.parse(request.url);
-    url = $fn.try(() => $url.removeAppBasePath(url), url)();
-    const acceptHeader = request.headers.get('accept') || '';
-    return (
-        (acceptHeader && /\b(?:application\/json)\b/iu.test(acceptHeader)) || //
-        (!acceptHeader && $env.isC10n() && '/' !== url.pathname && /^\/(?:api)(?:$|\/)/iu.test(url.pathname))
-    );
 });
 
 /**
@@ -569,12 +546,12 @@ export const prepareResponse = async (request: $type.Request, config?: ResponseC
      */
     if (!url /* Catches unparseable URLs. */) {
         const url400 = new URL('https://0.0.0.0/'),
-            cfg400 = await responseConfig({ status: 400, body: responseStatusText(400) }),
+            cfg400 = await responseConfig({ status: 400 }),
             needsContentBody = responseNeedsContentBody(request, cfg400.status, cfg400.body);
 
         return new Response((needsContentBody ? cfg400.body : null) as BodyInit | null, {
             status: cfg400.status,
-            statusText: responseStatusText(cfg400.status),
+            statusText: responseStatusText(cfg400.status) + '; Invalid URL.',
             headers: await prepareResponseHeaders(request, url400, cfg400),
         });
     }
@@ -589,12 +566,12 @@ export const prepareResponse = async (request: $type.Request, config?: ResponseC
         cfg.status = 204; // No content for CORs preflight requests.
     }
     if (!cfg.status /* Catches empty/invalid status. */) {
-        const cfg500 = await responseConfig({ status: 500, body: responseStatusText(500) }),
+        const cfg500 = await responseConfig({ status: 500 }),
             needsContentBody = responseNeedsContentBody(request, cfg500.status, cfg500.body);
 
         return new Response((needsContentBody ? cfg500.body : null) as BodyInit | null, {
             status: cfg500.status,
-            statusText: responseStatusText(cfg500.status),
+            statusText: responseStatusText(cfg500.status) + '; Missing status.',
             headers: await prepareResponseHeaders(request, url, cfg500),
         });
     }
@@ -631,6 +608,7 @@ export const prepareResponse = async (request: $type.Request, config?: ResponseC
             cfg.body = readableStream; // Readable stream includes a length property.
         }
     }
+
     /**
      * A few points to remember:
      *
@@ -641,12 +619,16 @@ export const prepareResponse = async (request: $type.Request, config?: ResponseC
      * example, a HEAD request should return all the same headers that a GET request does, which would include, for
      * example, the `content-length` of a body, or the `content-length` of an encoded body.
      */
+    let statusText = responseStatusText(cfg.status);
+    statusText += cfg.statusText && cfg.statusText !== statusText ? '; ' + cfg.statusText : '';
+
     const headers = await prepareResponseHeaders(request, url, cfg),
         needsContentBody = responseNeedsContentBody(request, cfg.status, cfg.body);
 
     return new Response((needsContentBody ? cfg.body : null) as BodyInit | null, {
         status: cfg.status,
-        statusText: responseStatusText(cfg.status),
+        statusText, // See above.
+
         headers, // Prepared above; {@see prepareResponseHeaders()}.
         // Tells Cloudflare when we encoded manually; {@see https://o5p.me/fHo2ON}.
         ...(cfg.encodeBody && $env.isCFW() && !$is.nul(cfg.body) ? { encodeBody: 'manual' } : {}),
@@ -881,7 +863,7 @@ export const responseProperties = (response: $type.Response): $type.StrKeyable<$
  * @returns        HTTP response status text.
  */
 export const responseStatusText = (status: string | number): string => {
-    return responseStatusCodes()[String(status)] || '';
+    return responseStatusCodes()[String(status)] || 'Unknown Status';
 };
 
 /**
