@@ -12,7 +12,7 @@ import { $app, $crypto, $env, $fn, $gzip, $is, $json, $mime, $obj, $path, $str, 
  */
 export type RouteConfig = Partial<
     // Partial response configuration.
-    Pick<ResponseConfig, 'enableCORs' | 'varyOn' | 'cacheVersion'>
+    Pick<ResponseConfig, 'enableCORs' | 'cacheVersion' | 'varyOn'>
 >;
 export type RequestConfig = {
     cspNonce?: string;
@@ -23,8 +23,8 @@ export type ResponseConfig = {
     status?: number;
 
     enableCORs?: boolean;
-    varyOn?: string[];
     cacheVersion?: string | 'none';
+    varyOn?: string[];
 
     maxAge?: number | null;
     sMaxAge?: number | null;
@@ -536,8 +536,8 @@ export const responseConfig = async (config?: ResponseConfig): Promise<Required<
         status: 405,
 
         enableCORs: false,
-        varyOn: [],
         cacheVersion: '',
+        varyOn: [],
 
         maxAge: null,
         sMaxAge: null,
