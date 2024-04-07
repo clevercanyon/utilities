@@ -124,8 +124,8 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
 
     let html = prerenderedData.html; // Prerendered HTML markup.
 
-    if (!html /* 404 error when render is empty. */) {
-        $obj.patchDeep(httpState, { status: 404 }); // Patches HTTP state.
+    if (!html && !Object.hasOwn(httpState, 'body')) {
+        $obj.patchDeep(httpState, { status: 404 }); // 404 error when render is empty.
         const StandAlone404 = (await import('#preact/components/404.tsx')).StandAlone;
         html = $preact.ssr.renderToString(<StandAlone404 class='preact-iso-404' />);
     }

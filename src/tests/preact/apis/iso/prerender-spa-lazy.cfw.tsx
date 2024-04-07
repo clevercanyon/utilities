@@ -114,7 +114,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(indexHTTPState.status).toBe(200);
+        expect(indexHTTPState.status).toBe(undefined);
         expect(indexDocType).toBe('<!doctype html>');
         expect(indexHTML).toContain('<title data-key="title">index</title>');
         expect(indexHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -139,7 +139,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(testHTTPState.status).toBe(200);
+        expect(testHTTPState.status).toBe(undefined);
         expect(testDocType).toBe('<!doctype html>');
         expect(testHTML).toContain('<title data-key="title">test</title>');
         expect(testHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -164,7 +164,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(lazyHTTPState.status).toBe(200);
+        expect(lazyHTTPState.status).toBe(undefined);
         expect(lazyDocType).toBe('<!doctype html>');
         expect(lazyHTML).toContain('<title data-key="title">lazy</title>');
         expect(lazyHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');

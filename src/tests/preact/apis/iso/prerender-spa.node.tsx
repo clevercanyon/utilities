@@ -186,7 +186,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(indexHTTPState.status).toBe(200);
+        expect(indexHTTPState.status).toBe(undefined);
         expect(indexDocType).toBe('<!doctype html>');
         expect(indexHTML).toContain('<title data-key="title">index</title>');
         expect(indexHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -213,7 +213,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(blogHTTPState.status).toBe(200);
+        expect(blogHTTPState.status).toBe(undefined);
         expect(blogDocType).toBe('<!doctype html>');
         expect(blogHTML).toContain('<title data-key="title">blog</title>');
         expect(blogHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -240,7 +240,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(blogPostHTTPState.status).toBe(200);
+        expect(blogPostHTTPState.status).toBe(undefined);
         expect(blogPostDocType).toBe('<!doctype html>');
         expect(blogPostHTML).toContain('<title data-key="title">blog post</title>');
         expect(blogPostHTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -267,7 +267,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherA1HTTPState.status).toBe(200);
+        expect(othersOtherA1HTTPState.status).toBe(undefined);
         expect(othersOtherA1DocType).toBe('<!doctype html>');
         expect(othersOtherA1HTML).toContain('<title data-key="title">other-a</title>');
         expect(othersOtherA1HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -292,7 +292,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherA2HTTPState.status).toBe(200);
+        expect(othersOtherA2HTTPState.status).toBe(undefined);
         expect(othersOtherA2DocType).toBe('<!doctype html>');
         expect(othersOtherA2HTML).toContain('<title data-key="title">other-a</title>');
         expect(othersOtherA2HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -319,7 +319,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherB1HTTPState.status).toBe(200);
+        expect(othersOtherB1HTTPState.status).toBe(undefined);
         expect(othersOtherB1DocType).toBe('<!doctype html>');
         expect(othersOtherB1HTML).toContain('<title data-key="title">other-b</title>');
         expect(othersOtherB1HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -346,7 +346,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherB2HTTPState.status).toBe(200);
+        expect(othersOtherB2HTTPState.status).toBe(undefined);
         expect(othersOtherB2DocType).toBe('<!doctype html>');
         expect(othersOtherB2HTML).toContain('<title data-key="title">other-b</title>');
         expect(othersOtherB2HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -373,7 +373,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherC1HTTPState.status).toBe(200);
+        expect(othersOtherC1HTTPState.status).toBe(undefined);
         expect(othersOtherC1DocType).toBe('<!doctype html>');
         expect(othersOtherC1HTML).toContain('<title data-key="title">other-c</title>');
         expect(othersOtherC1HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -400,7 +400,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherC2HTTPState.status).toBe(200);
+        expect(othersOtherC2HTTPState.status).toBe(undefined);
         expect(othersOtherC2DocType).toBe('<!doctype html>');
         expect(othersOtherC2HTML).toContain('<title data-key="title">other-c</title>');
         expect(othersOtherC2HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -427,7 +427,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherC3HTTPState.status).toBe(200);
+        expect(othersOtherC3HTTPState.status).toBe(undefined);
         expect(othersOtherC3DocType).toBe('<!doctype html>');
         expect(othersOtherC3HTML).toContain('<title data-key="title">other-c</title>');
         expect(othersOtherC3HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -481,7 +481,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherD2HTTPState.status).toBe(200);
+        expect(othersOtherD2HTTPState.status).toBe(undefined);
         expect(othersOtherD2DocType).toBe('<!doctype html>');
         expect(othersOtherD2HTML).toContain('<title data-key="title">other-d</title>');
         expect(othersOtherD2HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -508,7 +508,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherD3HTTPState.status).toBe(200);
+        expect(othersOtherD3HTTPState.status).toBe(undefined);
         expect(othersOtherD3DocType).toBe('<!doctype html>');
         expect(othersOtherD3HTML).toContain('<title data-key="title">other-d</title>');
         expect(othersOtherD3HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -535,7 +535,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherE1HTTPState.status).toBe(200);
+        expect(othersOtherE1HTTPState.status).toBe(undefined);
         expect(othersOtherE1DocType).toBe('<!doctype html>');
         expect(othersOtherE1HTML).toContain('<title data-key="title">other-e</title>');
         expect(othersOtherE1HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -562,7 +562,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(othersOtherE2HTTPState.status).toBe(200);
+        expect(othersOtherE2HTTPState.status).toBe(undefined);
         expect(othersOtherE2DocType).toBe('<!doctype html>');
         expect(othersOtherE2HTML).toContain('<title data-key="title">other-e</title>');
         expect(othersOtherE2HTML).toContain('<link rel="stylesheet" href="./style.css" media="all" data-key="styleBundle"/>');
@@ -616,7 +616,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             appManifest: { 'index.html': { css: ['foo.css'], file: 'foo.js' } },
             App, // Defined above.
         });
-        expect(othersOtherE4HTTPState.status).toBe(200);
+        expect(othersOtherE4HTTPState.status).toBe(undefined);
         expect(othersOtherE4DocType).toBe('<!doctype html>');
         expect(othersOtherE4HTML).toContain('<title data-key="title">other-e</title>');
         expect(othersOtherE4HTML).toContain('<link rel="stylesheet" href="./foo.css" media="all" data-key="styleBundle"/>');

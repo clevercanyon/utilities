@@ -98,7 +98,7 @@ describe('$preact.iso.prerenderSPA() [web-fixture]', async () => {
             appManifest: { 'index.html': { css: ['style.css'], file: 'script.js' } },
             App, // Defined above.
         });
-        expect(httpState.status).toBe(200);
+        expect(httpState.status).toBe(undefined);
         expect(!!docType).toBe(true), expect(!!html).toBe(true);
 
         if (fs && path && url) {

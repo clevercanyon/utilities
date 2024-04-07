@@ -4,17 +4,16 @@
 
 import '#@initialize.ts';
 
-import { $env, $obj, $preact } from '#index.ts';
+import { $env, $http, $obj, $preact } from '#index.ts';
 import { createContext } from 'preact';
 
 /**
  * Defines types.
  */
-export type State = $preact.State<{
-    status: number;
-}>;
+export type State = $preact.State<$http.ResponseConfig>;
 export type PartialState = Partial<State>;
 export type PartialStateUpdates = PartialState;
+
 export type Props = $preact.BasicTreeProps<{
     httpState?: PartialState;
 }>;
@@ -68,7 +67,7 @@ const reduceState = (state: State, updates: PartialStateUpdates): State => {
  */
 export default function HTTP(props: Props): $preact.VNode<Props> {
     const [state, updateState] = $preact.useReducer(reduceState, undefined, (): State => {
-        return $obj.patchDeep(props.httpState || {}, { status: 200 }) as unknown as State;
+        return props.httpState || ({} as State);
     });
     return <ContextObject.Provider value={{ state, updateState }}>{props.children}</ContextObject.Provider>;
 }
