@@ -147,7 +147,7 @@ export type State<Type extends $type.StrKeyable = $type.StrKeyable> = Omit<Reado
 export type Context<Type extends $type.StrKeyable = $type.StrKeyable> = Omit<Readonly<Type>, 'children' | 'dangerouslySetInnerHTML'>;
 export type Ref<Type = unknown> = preact.RefObject<Type>;
 
-export type StateUpdater<Type> = preactꓺhooksꓺStateUpdater<Type>; // e.g., {@see useState()}.
+export type StateUpdater<Type> = preactꓺhooksꓺStateDispatcher<preactꓺhooksꓺStateUpdater<Type>>; // e.g., {@see useState()}.
 export type StateDispatcher<Type> = preactꓺhooksꓺStateDispatcher<Type>; // e.g., {@see useReducedState()}.
 
 export type { ClassMap }; // Re-exports class map type.
