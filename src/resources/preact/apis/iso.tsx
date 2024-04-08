@@ -202,20 +202,17 @@ export const lazyLoader = <Loader extends LazyComponentLoader>(loader: Loader, r
 /**
  * Produces a routed component that lazy loads an async function component.
  *
- * Note: For now, any hooks/contexts needed by an async function component must be passed down as props.
+ * Note: Any hooks/contexts needed by an async function component must be passed down as props.
  *
- * Why? The problem is that because this is async, components throw a promise, childDidSuspend(), and Preact moves on.
- * Within the promise function `currentComponent` has changed in the eyes of Preact, which means hooks/contexts won’t
- * work inside async functions. We are not sure how to fix this. {@see lazyRoute()} doesn’t have this problem because
- * promises are connected to imports. Here, what we have is essentially a promise forking itself outside of the Preact
- * workflow. For now, any hooks/contexts needed by an async function component must be passed down as props.
+ * Why? Async components throw a promise, triggering `childDidSuspend()`, and Preact moves on. Within the promise
+ * function `currentComponent` has changed in the eyes of Preact, which means hooks/contexts won’t work inside async
+ * functions. Here, what we have is essentially a promise forking itself outside of the Preact workflow. Therefore, any
+ * hooks/contexts needed by an async function component must be passed down as props.
  *
  * @param   fn          Async function component; {@see $preact.AsyncFnComponent}.
  * @param   routerProps Optional router props; {@see LazyRouterProps}.
  *
  * @returns             A routed component that lazy loads an async function component.
- *
- * @review: Consider ways to improve this. See notes above regarding `currentComponent`.
  */
 export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncFnComponent<Props>, routerProps?: LazyRouterProps): ((props?: Props) => LazyRouterVNode | null) => {
     type Context = {
