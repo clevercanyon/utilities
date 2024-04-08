@@ -80,7 +80,7 @@ describe('<Root>', async () => {
                 </HTML>
             );
         };
-        const html = $preact.ssr.renderToString(
+        const html = await $preact.ssr.renderToString(
             <Root url={$app.baseURL()} baseURL={$app.baseURL()}>
                 <Route default component={Index} />
             </Root>,

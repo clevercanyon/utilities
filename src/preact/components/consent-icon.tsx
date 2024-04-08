@@ -29,10 +29,11 @@ export type Props = $preact.NoProps;
  *        Also, it sits on top of a site’s header and navigation dialog, which should be at `100`, `101`.
  */
 export default function ConsentIcon(/* props: Props = {} */): $preact.VNode<Props> {
-    const consent = $preact.useConsent();
-    const onClick = $preact.useCallback((): void => {
-        void consent.then(({ openDialog }) => openDialog());
-    }, []);
+    const consent = $preact.useConsent(),
+        onClick = $preact.useCallback((): void => {
+            void consent.then(({ openDialog }) => openDialog());
+        }, []);
+
     return (
         <As tag='x-preact-app-consent-icon'>
             <div style={{ zIndex: 102 }} class='fixed bottom-0 left-0'>

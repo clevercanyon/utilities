@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $app, $dom, $env, $fn, $is, $json, $obj, $preact, $profile, $time, $to, $url, type $type } from '#index.ts';
-import { globalToScriptCode as dataGlobalToScriptCode, type Context as DataContext } from '#preact/components/data.tsx';
+import { globalToScriptCode, type Context as DataContext } from '#preact/components/data.tsx';
 import { type State as HTMLState } from '#preact/components/html.tsx';
 import { Component } from 'preact';
 
@@ -569,7 +569,7 @@ export default class Head extends Component<Props, ActualState> {
                 ...(styleBundle ? { [tꓺpreloadStyleBundle]: h(tꓺlink, { [tꓺrel]: tꓺpreload, [tꓺfetchPriority]: tꓺhigh, [tꓺhref]: styleBundle, [tꓺas]: tꓺstyle }) } : {}), // prettier-ignore
 
                 ...(styleBundle ? { [tꓺstyleBundle]: h(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: styleBundle, [tꓺmedia]: tꓺall }) } : {}), // prettier-ignore
-                ...(scriptBundle && isSSR ? { [tꓺglobalData]: h(tꓺscript, { [tꓺid]: tꓺglobalᱼdata, [tꓺnonce]: cspNonce, [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: dataGlobalToScriptCode(dataState) } }) } : {}), // prettier-ignore
+                ...(scriptBundle && isSSR ? { [tꓺglobalData]: h(tꓺscript, { [tꓺid]: tꓺglobalᱼdata, [tꓺnonce]: cspNonce, [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: globalToScriptCode(dataState) } }) } : {}), // prettier-ignore
                 ...(scriptBundle ? { [tꓺscriptBundle]: h(tꓺscript, { [tꓺtype]: tꓺmodule, [tꓺnonce]: cspNonce, [tꓺsrc]: scriptBundle }) } : {}), // prettier-ignore
 
                 [tꓺstructuredData]: h(tꓺscript, {

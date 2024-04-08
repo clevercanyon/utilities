@@ -2,9 +2,8 @@
  * Preact API.
  */
 
-import { prerender } from '#@preact/apis/iso/index.tsx';
 import { $dom, $env, $is, $obj, $path, $preact, $str, type $type } from '#index.ts';
-import { defaultFetcher, defaultLazyCPs } from '#preact/components/data.tsx';
+import { defaultFetcher, defaultLazyCPs, fetcherGlobalToScriptCodeReplacementCode } from '#preact/components/data.tsx';
 import { type State as HTTPState } from '#preact/components/http.tsx';
 import { type Props as RootProps } from '#preact/components/root.tsx';
 import { Route, default as Router, type RoutedProps, type Props as RouterProps } from '#preact/components/router.tsx';
@@ -106,28 +105,27 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
     if (!scriptBundle || './' === scriptBundle) throw Error('M6spfQqT');
 
     const appProps = {
-            ...props,
+        ...props,
 
-            // `<HTTP>` props.
-            httpState, // By reference.
+        // `<HTTP>` props.
+        httpState, // By reference.
 
-            // `<Location>` props.
-            url, // Absolute request URL.
+        // `<Location>` props.
+        url, // Absolute request URL.
 
-            // `<Data>` props.
-            cspNonce, // Nonce for CSP.
-            fetcher, // Request-specific fetcher.
-            lazyCPs, // Request-specific lazy component promises.
-            head: $obj.patchDeep({ styleBundle, scriptBundle }, props.head),
-        },
-        prerenderedData = await prerender(App, { props: appProps });
-
-    let html = prerenderedData.html; // Prerendered HTML markup.
+        // `<Data>` props.
+        cspNonce, // Nonce for CSP.
+        fetcher, // Request-specific fetcher.
+        lazyCPs, // Request-specific lazy component promises.
+        head: $obj.patchDeep({ styleBundle, scriptBundle }, props.head),
+    };
+    let html = await $preact.ssr.renderToString(App, { props: appProps });
+    if (html) html = html.replace(fetcherGlobalToScriptCodeReplacementCode(), fetcher.globalToScriptCode());
 
     if (!html && !Object.hasOwn(httpState, 'body')) {
-        $obj.patchDeep(httpState, { status: 404 }); // 404 error when render is empty.
         const StandAlone404 = (await import('#preact/components/404.tsx')).StandAlone;
-        html = $preact.ssr.renderToString(<StandAlone404 class='preact-iso-404' />);
+        html = await $preact.ssr.renderToString(<StandAlone404 class='preact-iso-404' />);
+        $obj.patchDeep(httpState, { status: 404 }); // 404 error when empty.
     }
     return { httpState: httpState as HTTPState, docType: '<!doctype html>', html };
 };

@@ -61,13 +61,12 @@ export default function Body(props: Props = {}): $preact.VNode<Props> {
         return 'block' + ($preact.classMap(actualState).has(hFull) ? ' ' + hFull : '');
     }, [actualState]);
 
-    if ($env.isWeb()) {
-        $preact.useLayoutEffect((): void => {
-            $dom.newAtts($dom.body(), state);
-            const xPreactApp = $dom.xPreactApp();
-            if (xPreactApp) $dom.setAtts(xPreactApp, { class: xPreactAppClasses });
-        }, [state]);
-    }
+    $preact.useLayoutEffect((): void => {
+        $dom.newAtts($dom.body(), state);
+        const xPreactApp = $dom.xPreactApp();
+        if (xPreactApp) $dom.setAtts(xPreactApp, { class: xPreactAppClasses });
+    }, [state]);
+
     return (
         <ContextObject.Provider value={{ state, updateState }}>
             {$env.isWeb() ? (

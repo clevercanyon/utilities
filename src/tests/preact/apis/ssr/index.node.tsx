@@ -7,6 +7,6 @@ import { describe, expect, test } from 'vitest';
 
 describe('$preact.ssr', async () => {
     test('.renderToString()', async () => {
-        expect($preact.ssr.renderToString(<html lang='en-US'></html>)).toBe('<html lang="en-US"></html>');
+        expect(await $preact.ssr.renderToString(<html lang='en-US'></html>)).toBe('<html lang="en-US"></html>');
     });
 });

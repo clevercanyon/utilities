@@ -161,7 +161,7 @@ export default class Data extends Component<Props, State> {
         this.state = $obj.mergeDeep(
             { cspNonce: '', head: {} }, // Defaults.
             $obj.pick(initialGlobalState(globalObp), mergeableGlobalStateKeys as unknown as string[]),
-            $preact.omitProps($obj.pick(props, passableStateKeys as unknown as string[]), ['globalObp', 'fetcher', 'lazyCPs']), //
+            $preact.omitProps($obj.pick(props, passableStateKeys as unknown as string[]), ['globalObp', 'fetcher', 'lazyCPs']),
             { $set: { globalObp, fetcher, lazyCPs } }, // Set explicity.
         ) as unknown as State;
 
@@ -298,10 +298,23 @@ export const globalToScriptCode = (state: State): string => {
     let scriptCode = globalScriptCode.init; // Initializes global vars in script code.
     scriptCode += ' ' + globalScriptCode.set + ' = ' + $json.stringify(globalState) + ';';
 
-    // We also dump the script code from our accompanying fetcher.
-    scriptCode += state.fetcher ? ' ' + state.fetcher.globalToScriptCode() : '';
+    // We also dump a placeholder for the accompanying fetcher script code.
+    scriptCode += state.fetcher ? ' ' + fetcherGlobalToScriptCodeReplacementCode() : '';
 
     return scriptCode; // To be used in a `<script>` tag.
+};
+
+/**
+ * Get replacement code for `fetcher.globalToScriptCode`.
+ *
+ * We use a replacement code because when rendering server-side, fetcher state can be updated by any component; i.e., as
+ * rendering occurs throughout a vNode tree. Therefore, it’s not until server-side rendering is completely finished that
+ * we can inject a fetcher’s global script code. {@see $preact.iso.prerenderSPA()}.
+ *
+ * @returns Replacement code for `fetcher.globalToScriptCode`.
+ */
+export const fetcherGlobalToScriptCodeReplacementCode = (): string => {
+    return "'{%-_{%-fetcher.globalToScriptCode-%}_-%}';";
 };
 
 // ---

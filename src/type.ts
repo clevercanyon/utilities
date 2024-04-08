@@ -492,8 +492,8 @@ type $Headers = Headers | cfw.Headers;
 type $HeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: string }>;
 type $RawHeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: string }> | string;
 
-type $Request = (Request | cfw.Request) & { cache?: string };
-type $RequestInit = (RequestInit | cfw.RequestInit) & { cache?: string };
+type $Request = Request | cfw.Request;
+type $RequestInit = RequestInit | cfw.RequestInit;
 type $RequestC10n = {
     c10n?: {
         scheduledEvent?: $cfw.ScheduledEvent;
