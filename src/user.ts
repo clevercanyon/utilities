@@ -454,6 +454,21 @@ export const authToken = (request?: $type.Request): string => {
 };
 
 /**
+ * Checks if user has auth data.
+ *
+ * @param   request Optional HTTP request.
+ *
+ *   - If not passed, only a web environment or an app’s etc config can provide.
+ *
+ * @returns         True if user has auth data.
+ *
+ *   - Only that a user has auth data. Not that it is valid auth data.
+ */
+export const hasAuthData = (request?: $type.Request): boolean => {
+    return utxId(request) ? true : false;
+};
+
+/**
  * Updates auth data.
  *
  * @param  authToken {@see $crypto.authToken()}.
