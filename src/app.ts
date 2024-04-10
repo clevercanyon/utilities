@@ -20,12 +20,15 @@ export type Config<Type extends object = object> = $type.Object<Type>;
 export type EtcConfig<Type extends object = object> = $type.Object<Type> & {
     user?: {
         anonId?: string;
-        utxId?: string;
-        utxAuthorId?: string;
-        utxCustomerId?: string;
 
+        utxId?: string;
+        utxCustomerId?: string;
         authToken?: string;
+
         consent?: $user.ConsentData;
+
+        utxAuthorId?: string;
+        author?: $type.StrKeyable;
     };
 };
 export type UpdateConfigOptions<Type extends object = object> = {

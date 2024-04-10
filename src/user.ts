@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $app, $cookie, $crypto, $env, $fn, $http, $json, $obj, $obp, $str, $time, $to, $type } from '#index.ts';
+import { $app, $cookie, $crypto, $env, $http, $json, $obj, $obp, $str, $time, $to, $type } from '#index.ts';
 
 /**
  * Defines IP types.
@@ -94,6 +94,36 @@ export type UpdateConsentDataOptions = {
 };
 
 /**
+ * Defines author types.
+ */
+export type AuthorData = $type.StrKeyable;
+
+export type UpdateAuthorDataOptions = {
+    request?: $type.Request;
+    responseHeaders?: $type.Headers;
+    callback?: (authorData: $type.ReadonlyDeep<AuthorData>) => void | Promise<void>;
+};
+
+// ---
+// UA utilities.
+
+/**
+ * Gets user-agent; e.g., `Mozilla/5.0 ...`.
+ *
+ * @param   request Optional HTTP request.
+ *
+ *   - If not passed, only a web environment can provide.
+ *
+ * @returns         User-agent string; e.g., `Mozilla/5.0 ...`.
+ */
+export const agent = $fnꓺmemo(2, (request?: $type.Request): string => {
+    if (request) {
+        return request.headers.get('user-agent') || '';
+    }
+    return $env.isWeb() ? navigator.userAgent : '';
+});
+
+/**
  * Checks if user-agent is a major crawler.
  *
  * @param   request Optional HTTP request to check.
@@ -135,22 +165,6 @@ export const hasGlobalPrivacy = $fnꓺmemo(2, (request?: $type.Request): boolean
 });
 
 /**
- * Gets user-agent; e.g., `Mozilla/5.0 ...`.
- *
- * @param   request Optional HTTP request.
- *
- *   - If not passed, only a web environment can provide.
- *
- * @returns         User-agent string; e.g., `Mozilla/5.0 ...`.
- */
-export const agent = $fnꓺmemo(2, (request?: $type.Request): string => {
-    if (request) {
-        return request.headers.get('user-agent') || '';
-    }
-    return $env.isWeb() ? navigator.userAgent : '';
-});
-
-/**
  * Gets languages; e.g., `fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5`.
  *
  * @param   request Optional HTTP request.
@@ -165,6 +179,9 @@ export const languages = $fnꓺmemo(2, (request?: $type.Request): string => {
     }
     return $env.isWeb() ? navigator.languages.join(',') : '';
 });
+
+// ---
+// IP utilities.
 
 /**
  * Gets external IP address.
@@ -315,6 +332,9 @@ export const ipGeoData = $fnꓺmemo(
     },
 );
 
+// ---
+// ID utilities.
+
 /**
  * Gets current user ID.
  *
@@ -325,16 +345,20 @@ export const ipGeoData = $fnꓺmemo(
  * @returns         Promise of user ID, else `0` if not logged in.
  *
  * @requiredEnv ssr -- Because auth token cookie is `httpOnly`.
+ *
+ * @note Cache is flushed by {@see updateAuthData()}.
  */
-export const id = async (request?: $type.Request): Promise<number> => {
+export const id = $fnꓺmemo(2, async (request?: $type.Request): Promise<number> => {
     if (!$env.isSSR()) throw Error('zbH7uWat');
     return await $crypto.authVerify(authToken(request));
-};
+});
 
 /**
  * Gets user’s anon/analytics ID.
  *
- * This is currently derived from Google analytics.
+ * It is better to obtain this value using our analytics library. Using our analytics library ensures it has actually
+ * been set vs. querying for it too early and then an empty string gets cached by this utility. That said, this utility
+ * is still a useful way of getting a user’s anon/analytics ID from server-side code.
  *
  * @param   request Optional HTTP request.
  *
@@ -345,15 +369,18 @@ export const id = async (request?: $type.Request): Promise<number> => {
  * @throws          We don’t want Cloudflare workers using an app’s etc configuration for this data. There is no
  *   justifiable reason for doing so. Any attempt to obtain this data from a Cloudflare worker, without passing in a
  *   `request`, results in an exception being thrown.
+ *
+ * @note Cache is never flushed, as this is only set once by our analytics library.
+ *       While an anon/analytics ID can change, it does not change in the context of any single session.
  */
-export const anonId = (request?: $type.Request): string => {
+export const anonId = $fnꓺmemo(2, (request?: $type.Request): string => {
     if (request || $env.isWeb()) {
         return $cookie.get('_ga', { request });
     }
     if ($env.isCFW()) throw Error('y473Bkp8'); // See notes above.
 
     return $app.etcConfig().user?.anonId || '';
-};
+});
 
 /**
  * Gets user’s UTX user ID.
@@ -369,15 +396,17 @@ export const anonId = (request?: $type.Request): string => {
  * @throws          We don’t want Cloudflare workers using an app’s etc configuration for this data. There is no
  *   justifiable reason for doing so. Any attempt to obtain this data from a Cloudflare worker, without passing in a
  *   `request`, results in an exception being thrown.
+ *
+ * @note Cache is flushed by {@see updateAuthData()}.
  */
-export const utxId = (request?: $type.Request): string => {
+export const utxId = $fnꓺmemo(2, (request?: $type.Request): string => {
     if (request || $env.isWeb()) {
         return $cookie.get('utx_user_id', { request });
     }
     if ($env.isCFW()) throw Error('pHxUF4fp'); // See notes above.
 
     return $app.etcConfig().user?.utxId || '';
-};
+});
 
 /**
  * Gets user’s UTX author ID.
@@ -393,15 +422,17 @@ export const utxId = (request?: $type.Request): string => {
  * @throws          We don’t want Cloudflare workers using an app’s etc configuration for this data. There is no
  *   justifiable reason for doing so. Any attempt to obtain this data from a Cloudflare worker, without passing in a
  *   `request`, results in an exception being thrown.
+ *
+ * @note Cache is flushed by {@see updateAuthorData()}.
  */
-export const utxAuthorId = (request?: $type.Request): string => {
+export const utxAuthorId = $fnꓺmemo(2, (request?: $type.Request): string => {
     if (request || $env.isWeb()) {
         return $cookie.get('utx_author_id', { request });
     }
     if ($env.isCFW()) throw Error('bbvNzKvh'); // See notes above.
 
     return $app.etcConfig().user?.utxAuthorId || '';
-};
+});
 
 /**
  * Gets user’s UTX customer ID.
@@ -417,15 +448,42 @@ export const utxAuthorId = (request?: $type.Request): string => {
  * @throws          We don’t want Cloudflare workers using an app’s etc configuration for this data. There is no
  *   justifiable reason for doing so. Any attempt to obtain this data from a Cloudflare worker, without passing in a
  *   `request`, results in an exception being thrown.
+ *
+ * @note Cache is flushed by {@see updateAuthData()}.
  */
-export const utxCustomerId = (request?: $type.Request): string => {
+export const utxCustomerId = $fnꓺmemo(2, (request?: $type.Request): string => {
     if (request || $env.isWeb()) {
         return $cookie.get('utx_customer_id', { request });
     }
     if ($env.isCFW()) throw Error('jukRgwZc'); // See notes above.
 
     return $app.etcConfig().user?.utxCustomerId || '';
-};
+});
+
+// ---
+// Auth utilities.
+
+/**
+ * Checks if user is logged in.
+ *
+ * @param   request Optional HTTP request.
+ *
+ *   - If not passed, only a web environment or an app’s etc config can provide.
+ *
+ * @returns         True if user is logged in.
+ *
+ *   - WARNING: This does not authenticate a user or imply that a logged-in user is a valid logged-in user. It simply
+ *       returns true if a user has cookies indicating they are logged into an account. That’s all.
+ *
+ * @throws          We don’t want Cloudflare workers using an app’s etc configuration for this data. There is no
+ *   justifiable reason for doing so. Any attempt to obtain this data from a Cloudflare worker, without passing in a
+ *   `request`, results in an exception being thrown.
+ *
+ * @note Cache is flushed by {@see updateAuthData()}.
+ */
+export const isLoggedIn = $fnꓺmemo(2, (request?: $type.Request): boolean => {
+    return utxId(request) ? true : false;
+});
 
 /**
  * Gets user’s auth token.
@@ -441,8 +499,10 @@ export const utxCustomerId = (request?: $type.Request): string => {
  *   `request`, results in an exception being thrown.
  *
  * @requiredEnv ssr -- Because auth token cookie is `httpOnly`.
+ *
+ * @note Cache is flushed by {@see updateAuthData()}.
  */
-export const authToken = (request?: $type.Request): string => {
+export const authToken = $fnꓺmemo(2, (request?: $type.Request): string => {
     if (!$env.isSSR()) throw Error('Ctg8SNjQ');
 
     if (request /* Cookie is `httpOnly`. */) {
@@ -451,41 +511,41 @@ export const authToken = (request?: $type.Request): string => {
     if ($env.isCFW()) throw Error('MWyyb8sv'); // See notes above.
 
     return $app.etcConfig().user?.authToken || '';
-};
+});
 
 /**
  * Updates auth data.
  *
- * @param  authToken {@see $crypto.authToken()}.
+ * @param  token   {@see $crypto.authToken()}.
  *
  *   - Pass empty string for `authToken` to delete auth data.
  *   - //
- * @param  options   {@see UpdateAuthDataOptions}.
+ * @param  options {@see UpdateAuthDataOptions}.
  *
- * @throws           We don’t want Cloudflare workers using an app’s etc configuration for auth data. There is no
+ * @throws         We don’t want Cloudflare workers using an app’s etc configuration for auth data. There is no
  *   justifiable reason for doing so. Any attempt to update auth data from a Cloudflare worker, without passing in
  *   `request` and `responseHeaders`, results in an exception being thrown.
  *
  * @requiredEnv ssr -- Because auth token cookie is `httpOnly`.
  */
-export const updateAuthData = async (authToken: string, options?: UpdateAuthDataOptions): Promise<void> => {
+export const updateAuthData = async (token: string, options?: UpdateAuthDataOptions): Promise<void> => {
     if (!$env.isSSR()) throw Error('ehR3qUAE');
 
     const opts = $obj.defaults({}, options || {}) as UpdateAuthDataOptions,
         rrOpts = $obj.pick(opts, ['request', 'responseHeaders']),
         //
-        id = await $crypto.authVerify(authToken),
-        utxId = id ? await $crypto.hmacSHA(String(id), 36) : '',
-        utxCustomerId = id && opts.isCustomer ? await $crypto.hmacSHA('customer:' + String(id), 36) : '',
+        ꓺid = await $crypto.authVerify(token),
+        ꓺutxId = ꓺid ? await $crypto.hmacSHA(String(ꓺid), 36) : '',
+        ꓺutxCustomerId = ꓺid && opts.isCustomer ? await $crypto.hmacSHA('customer:' + String(ꓺid), 36) : '',
         //
-        newAuthToken = id ? await $crypto.authToken(id) : '',
-        newAuthData = { utxId, utxCustomerId, authToken: newAuthToken };
+        ꓺauthToken = ꓺid ? await $crypto.authToken(ꓺid) : '',
+        newAuthData = { utxId: ꓺutxId, utxCustomerId: ꓺutxCustomerId, authToken: ꓺauthToken };
 
     if (opts.request && opts.responseHeaders) {
-        if (newAuthToken) {
-            $cookie.set('utx_user_id', utxId, { ...rrOpts });
-            $cookie.set('utx_customer_id', utxCustomerId, { ...rrOpts });
-            $cookie.set($crypto.authTokenName(), newAuthToken, { ...rrOpts, httpOnly: true });
+        if (ꓺauthToken) {
+            $cookie.set('utx_user_id', ꓺutxId, { ...rrOpts });
+            $cookie.set('utx_customer_id', ꓺutxCustomerId, { ...rrOpts });
+            $cookie.set($crypto.authTokenName(), ꓺauthToken, { ...rrOpts, httpOnly: true });
         } else {
             $cookie.delete('utx_user_id', { ...rrOpts });
             $cookie.delete('utx_customer_id', { ...rrOpts });
@@ -495,36 +555,14 @@ export const updateAuthData = async (authToken: string, options?: UpdateAuthData
     //
     else await $app.updateEtcConfig({ user: { ...newAuthData } });
 
+    id.flush(), utxId.flush(), utxCustomerId.flush();
+    authToken.flush(), isLoggedIn.flush();
+
     if (opts.callback) await opts.callback(newAuthData);
 };
 
-/**
- * Updates consent data.
- *
- * @param  updates {@see ConsentData}.
- * @param  options {@see UpdateConsentDataOptions}.
- *
- * @throws         We don’t want Cloudflare workers using an app’s etc configuration for consent data. There is no
- *   justifiable reason for doing so. Any attempt to update consent data from a Cloudflare worker, without passing in
- *   `request` and `responseHeaders`, results in an exception being thrown.
- */
-export const updateConsentData = async (updates: $type.PartialDeep<ConsentData>, options?: UpdateConsentDataOptions): Promise<void> => {
-    const opts = $obj.defaults({}, options || {}) as UpdateConsentDataOptions,
-        rrOpts = $obj.pick(opts, ['request', 'responseHeaders']),
-        //
-        newConsentData = // Merges and deep freezes new consent data.
-            $obj.deepFreeze($obj.mergeClonesDeep(consentData(opts.request), updates)) as unknown as $type.ReadonlyDeep<ConsentData>;
-
-    if ((opts.request && opts.responseHeaders) || $env.isWeb()) {
-        $cookie.set('consent', $json.stringify(newConsentData), { ...rrOpts });
-        //
-    } else if ($env.isCFW()) throw Error('5tqY9PzB'); // See notes above.
-    //
-    else await $app.updateEtcConfig({ user: { consent: newConsentData } });
-
-    consentData.flush(), consentState.flush();
-    if (opts.callback) await opts.callback(newConsentData);
-};
+// ---
+// Consent utilities.
 
 /**
  * Gets consent data.
@@ -549,8 +587,8 @@ export const consentData = $fnꓺmemo(2, (request?: $type.Request): $type.Readon
     let data; // Initialize.
 
     if (request || $env.isWeb()) {
-        const json = $cookie.get('consent', { request }) || '{}';
-        data = $fn.try(() => $json.parse(json), {})();
+        const cookie = $cookie.get('consent', { request });
+        data = cookie ? $to.plainObject($json.tryParse(cookie)) : {};
         //
     } else if ($env.isCFW()) throw Error('WKQr5uZs'); // See notes above.
     //
@@ -636,3 +674,115 @@ export const consentState = $fnꓺmemo(2, async (request?: $type.Request): Promi
     }
     return $obj.deepFreeze(state);
 });
+
+/**
+ * Updates consent data.
+ *
+ * @param  updates {@see ConsentData}.
+ * @param  options {@see UpdateConsentDataOptions}.
+ *
+ * @throws         We don’t want Cloudflare workers using an app’s etc configuration for consent data. There is no
+ *   justifiable reason for doing so. Any attempt to update consent data from a Cloudflare worker, without passing in
+ *   `request` and `responseHeaders`, results in an exception being thrown.
+ */
+export const updateConsentData = async (updates: $type.PartialDeep<ConsentData>, options?: UpdateConsentDataOptions): Promise<void> => {
+    const opts = $obj.defaults({}, options || {}) as UpdateConsentDataOptions,
+        rrOpts = $obj.pick(opts, ['request', 'responseHeaders']),
+        //
+        currentData = consentData(opts.request), // Merges updates into current consent data.
+        newData = $obj.deepFreeze($obj.mergeClonesDeep(currentData, updates)) as unknown as $type.ReadonlyDeep<ConsentData>;
+
+    if ((opts.request && opts.responseHeaders) || $env.isWeb()) {
+        $cookie.set('consent', $json.stringify(newData), { ...rrOpts });
+        //
+    } else if ($env.isCFW()) throw Error('5tqY9PzB'); // See notes above.
+    //
+    else await $app.updateEtcConfig({ user: { consent: newData } });
+
+    consentData.flush(), consentState.flush();
+    if (opts.callback) await opts.callback(newData);
+};
+
+// ---
+// Author utilities.
+
+/**
+ * Checks if user is an author.
+ *
+ * @param   request Optional HTTP request.
+ *
+ *   - If not passed, only a web environment or an app’s etc config can provide.
+ *
+ * @returns         True if user is an author.
+ *
+ *   - WARNING: This does not authenticate a user or imply that an author is a logged-in user, or even a valid author. It
+ *       simply returns true if a user has cookies indicating they are an author. That’s all.
+ *
+ * @throws          We don’t want Cloudflare workers using an app’s etc configuration for this data. There is no
+ *   justifiable reason for doing so. Any attempt to obtain this data from a Cloudflare worker, without passing in a
+ *   `request`, results in an exception being thrown.
+ *
+ * @note Cache is flushed by {@see updateAuthorData()}.
+ */
+export const isAuthor = $fnꓺmemo(2, (request?: $type.Request): boolean => {
+    return utxAuthorId(request) ? true : false;
+});
+
+/**
+ * Gets user’s (i.e., author’s) data.
+ *
+ * We use this to store; e.g., name, email, URL.
+ *
+ * @param   request Optional HTTP request.
+ *
+ *   - If not passed, only a web environment or an app’s etc config can provide.
+ *
+ * @returns         Author’s data; e.g., name, email, URL; else an empty string.
+ *
+ * @throws          We don’t want Cloudflare workers using an app’s etc configuration for this data. There is no
+ *   justifiable reason for doing so. Any attempt to obtain this data from a Cloudflare worker, without passing in a
+ *   `request`, results in an exception being thrown.
+ *
+ * @note Cache is flushed by {@see updateAuthorData()}.
+ */
+export const authorData = $fnꓺmemo(2, (request?: $type.Request): AuthorData => {
+    if (request || $env.isWeb()) {
+        const cookie = $cookie.get('author', { request });
+        return cookie ? $to.plainObject($json.tryParse(cookie)) : {};
+    }
+    if ($env.isCFW()) throw Error('A9gEs46u'); // See notes above.
+
+    return $app.etcConfig().user?.author || {};
+});
+
+/**
+ * Updates user’s (i.e., author’s) data.
+ *
+ * @param  updates {@see AuthorData}.
+ * @param  options {@see UpdateAuthorDataOptions}.
+ *
+ * @throws         We don’t want Cloudflare workers using an app’s etc configuration for author data. There is no
+ *   justifiable reason for doing so. Any attempt to update author data from a Cloudflare worker, without passing in
+ *   `request` and `responseHeaders`, results in an exception being thrown.
+ */
+export const updateAuthorData = async (updates: $type.PartialDeep<AuthorData>, options?: UpdateAuthorDataOptions): Promise<void> => {
+    const opts = $obj.defaults({}, options || {}) as UpdateAuthorDataOptions,
+        rrOpts = $obj.pick(opts, ['request', 'responseHeaders']),
+        //
+        // Reuses an existing UTX author ID, else we generate a new one.
+        ꓺutxAuthorId = utxAuthorId(opts.request) || (await $crypto.hmacSHA($crypto.randomString(256), 36)),
+        //
+        currentData = authorData(opts.request), // Merges updates into current author data.
+        newData = $obj.deepFreeze($obj.mergeClonesDeep(currentData, updates)) as unknown as $type.ReadonlyDeep<AuthorData>;
+
+    if ((opts.request && opts.responseHeaders) || $env.isWeb()) {
+        $cookie.set('utx_author_id', ꓺutxAuthorId, { ...rrOpts });
+        $cookie.set('author', $json.stringify(newData), { ...rrOpts });
+        //
+    } else if ($env.isCFW()) throw Error('v7GuJwND'); // See notes above.
+    //
+    else await $app.updateEtcConfig({ user: { utxAuthorId: ꓺutxAuthorId, author: newData } });
+
+    utxAuthorId.flush(), isAuthor.flush(), authorData.flush();
+    if (opts.callback) await opts.callback(newData);
+};
