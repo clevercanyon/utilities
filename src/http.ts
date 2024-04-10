@@ -12,7 +12,7 @@ import { $app, $crypto, $env, $fn, $gzip, $is, $json, $mime, $obj, $path, $str, 
  */
 export type RouteConfig = Partial<
     // Partial response configuration.
-    Pick<ResponseConfig, 'enableCORs' | 'cacheVersion' | 'varyOn'>
+    Pick<ResponseConfig, 'enableCORs' | 'cacheUsers' | 'cacheVersion' | 'varyOn'>
 >;
 export type RequestConfig = {
     cspNonce?: string;
@@ -20,11 +20,13 @@ export type RequestConfig = {
     enforceNoTrailingSlash?: boolean;
 };
 export type ResponseConfig = {
+    enableCORs?: boolean;
+
     status?: number;
     statusText?: string;
 
-    enableCORs?: boolean;
-    cacheVersion?: string | 'none';
+    cacheUsers?: boolean;
+    cacheVersion?: string;
     varyOn?: string[];
 
     maxAge?: number | null;
@@ -428,6 +430,21 @@ export const requestPathIsInAdmin = $fnꓺmemo(2, (request: $type.Request, _url?
 });
 
 /**
+ * Request path is in an account area?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path is in an account area.
+ */
+export const requestPathIsInAccount = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return /\/(?:[^/]+[-_])?account(?:[-_][^/]+)?(?:$|\/)/iu.test(url.pathname);
+});
+
+/**
  * Request path is static?
  *
  * @param   request HTTP request.
@@ -510,9 +527,11 @@ export const supportedRequestMethods = (): string[] => ['OPTIONS', 'HEAD', 'GET'
  */
 export const responseConfig = async (config?: ResponseConfig): Promise<Required<ResponseConfig>> => {
     return $obj.defaults({}, config || {}, {
+        enableCORs: false,
+
         status: 405,
 
-        enableCORs: false,
+        cacheUsers: false,
         cacheVersion: '',
         varyOn: [],
 
@@ -783,7 +802,10 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
         } else if (requestPathIsInAdmin(request, url)) {
             cacheControl(0); // Do not cache.
             //
-        } else if (requestIsFromUser(request)) {
+        } else if (requestPathIsInAccount(request, url)) {
+            cacheControl(0); // Do not cache.
+            //
+        } else if (!cfg.cacheUsers && requestIsFromUser(request)) {
             cacheControl(0); // Do not cache.
             //
         } else cacheControl($time.dayInSeconds);
