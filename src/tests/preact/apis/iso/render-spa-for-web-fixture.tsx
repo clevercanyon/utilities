@@ -19,7 +19,7 @@ const __origAppR2BaseURL__ = $env.get('APP_R2_BASE_URL', { type: 'unknown' });
 const __origAppBrandProps__ = $env.get('APP_BRAND_PROPS', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 
-describe('$preact.iso.prerenderSPA() [web-fixture]', async () => {
+describe('$preact.iso.renderSPA() [web-fixture]', async () => {
     beforeAll(async () => {
         $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
         $env.set('APP_BASE_URL', 'https://x.tld/base/');
@@ -90,8 +90,8 @@ describe('$preact.iso.prerenderSPA() [web-fixture]', async () => {
     };
     // ---
 
-    test('$preact.iso.prerenderSPA()', async () => {
-        const { httpState, docType, html } = await $preact.iso.prerenderSPA({
+    test('$preact.iso.renderSPA()', async () => {
+        const { httpState, docType, html } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -103,7 +103,7 @@ describe('$preact.iso.prerenderSPA() [web-fixture]', async () => {
 
         if (fs && path && url) {
             // We cannot rewrite this each and every time. It causes `--watch` to enter into an endless loop.
-            // fs.writeFileSync(path.dirname(url.fileURLToPath(import.meta.url)) + '/ex-imports/fixtures/prerender-spa-for-web.html', docType + '\n' + html);
+            // fs.writeFileSync(path.dirname(url.fileURLToPath(import.meta.url)) + '/ex-imports/fixtures/rendered-spa-for-web.html', docType + '\n' + html);
         }
     });
 });

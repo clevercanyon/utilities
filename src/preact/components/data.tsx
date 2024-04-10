@@ -242,7 +242,7 @@ export const namedPropKeys = (): string[] => passableStateKeys as unknown as str
 /**
  * Defines default global object path.
  *
- * This is also called upon by our ISO prerenderer.
+ * This is also called upon by our ISO renderer.
  *
  * @returns Default global object path string.
  */
@@ -253,7 +253,7 @@ export const defaultGlobalObp = (): string => {
 /**
  * Defines default fetcher.
  *
- * This is also called upon by our ISO prerenderer.
+ * This is also called upon by our ISO renderer.
  *
  * @param   c9rProps                    Constructor props.
  *
@@ -266,7 +266,7 @@ export const defaultFetcher = (c9rProps?: FetcherC9rProps): $type.Fetcher => {
 /**
  * Defines default lazy component promises.
  *
- * This is also called upon by our ISO prerenderer.
+ * This is also called upon by our ISO renderer.
  *
  * @returns {@see LazyComponentPromises} Default lazy CPs.
  */
@@ -309,7 +309,7 @@ export const globalToScriptCode = (state: State): string => {
  *
  * We use a replacement code because when rendering server-side, fetcher state can be updated by any component; i.e., as
  * rendering occurs throughout a vNode tree. Therefore, it’s not until server-side rendering is completely finished that
- * we can inject a fetcher’s global script code. {@see $preact.iso.prerenderSPA()}.
+ * we can inject a fetcher’s global script code. {@see $preact.iso.renderSPA()}.
  *
  * @returns Replacement code for `fetcher.globalToScriptCode`.
  */

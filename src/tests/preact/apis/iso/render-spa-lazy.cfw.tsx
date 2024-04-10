@@ -15,7 +15,7 @@ const __origAppR2BaseURL__ = $env.get('APP_R2_BASE_URL', { type: 'unknown' });
 const __origAppBrandProps__ = $env.get('APP_BRAND_PROPS', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 
-describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
+describe('$preact.iso.renderSPA() [lazy-cfw]', async () => {
     beforeAll(async () => {
         $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
         $env.set('APP_BASE_URL', 'https://x.tld/base/');
@@ -107,7 +107,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             httpState: indexHTTPState,
             docType: indexDocType,
             html: indexHTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -132,7 +132,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             httpState: testHTTPState,
             docType: testDocType,
             html: testHTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/test?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -157,7 +157,7 @@ describe('$preact.iso.prerenderSPA() [lazy-cfw]', async () => {
             httpState: lazyHTTPState,
             docType: lazyDocType,
             html: lazyHTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/lazy?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),

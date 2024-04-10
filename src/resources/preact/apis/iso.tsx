@@ -11,19 +11,19 @@ import { Route, default as Router, type RoutedProps, type Props as RouterProps }
 /**
  * Defines types.
  */
-export type PrerenderSPAOptions = {
+export type RenderSPAOptions = {
     request: $type.Request;
     appManifest: AppManifest;
     App: $preact.AnyComponent<RootProps>;
     cfw?: $type.$cfw.RequestContextData;
     props?: RootProps;
 };
-export type PrerenderSPAPromise = Promise<{
+export type RenderedSPAPromise = Promise<{
     httpState: HTTPState;
     docType: string;
     html: string;
 }>;
-export type HydrativelyRenderSPAOptions = {
+export type HydrateSPAOptions = {
     App: $preact.AnyComponent<RootProps>;
     props?: RootProps;
 };
@@ -56,31 +56,31 @@ export type LazyRouterProps = Omit<RouterProps, 'children'>; // Except, no `chil
 export type LazyRouterVNode = $preact.VNode<LazyRouterProps>;
 
 // ---
-// Prerender utilities.
+// Render utilities.
 
 /**
- * Prerenders SPA component server-side.
+ * Renders SPA server-side.
  *
- * A request-specific {@see HTTPState} must be passed down through props when prerendering, such that it can be
- * referenced immediately after; i.e., to determine, potentially modify, and ultimately return HTTP state.
+ * A request-specific {@see HTTPState} must be passed down through props when rendering, such that it can be referenced
+ * immediately after; i.e., to determine, potentially modify, and ultimately return HTTP state.
  *
- * A request-specific {@see $type.Fetcher} instance must also be passed down through props when prerendering, such that
- * the same fetcher instance survives potentially multiple prerender passes; e.g., on thrown promises. Otherwise, a new
- * fetcher instance would be created each time by `<Data>`, resulting in our fetcher cache resetting each time.
+ * A request-specific {@see $type.Fetcher} instance must also be passed down through props when rendering, such that the
+ * same fetcher instance survives potentially multiple render passes; e.g., on thrown promises. Otherwise, a new fetcher
+ * instance would be created each time by `<Data>`, resulting in our fetcher cache resetting each time.
  *
  * The same is true for `lazyCPs`, which are {@see $preact.iso.LazyComponentPromises}. They must also persist state
- * between prerender passes, such that their state is not lost from one prerender pass to the next.
+ * between render passes, such that their state is not lost from one render pass to the next.
  *
- * @param   options Options; {@see PrerenderSPAOptions}.
+ * @param   options Options; {@see RenderSPAOptions}.
  *
- * @returns         Prerendered SPA promise; {@see PrerenderSPAPromise}.
+ * @returns         Rendered SPA promise; {@see RenderedSPAPromise}.
  *
  * @requiredEnv ssr -- This utility must only be used server-side.
  */
-export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPromise => {
+export const renderSPA = async (options: RenderSPAOptions): RenderedSPAPromise => {
     if (!$env.isSSR()) throw Error('kTqymmPe');
 
-    const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<PrerenderSPAOptions>,
+    const opts = $obj.defaults({}, options || {}, { props: {} }) as Required<RenderSPAOptions>,
         { request, appManifest, App, cfw, props } = opts,
         //
         httpState = props.httpState || {},
@@ -134,13 +134,13 @@ export const prerenderSPA = async (options: PrerenderSPAOptions): PrerenderSPAPr
 // Hydration utilities.
 
 /**
- * Hydratively renders SPA component on client-side.
+ * Hydrates SPA client-side.
  *
- * @param options Options; {@see HydrativelyRenderSPAOptions}.
+ * @param options Options; {@see HydrateSPAOptions}.
  *
  * @requiredEnv web -- This utility must only be used client-side.
  */
-export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions): Promise<void> => {
+export const hydrateSPA = async (options: HydrateSPAOptions): Promise<void> => {
     if (!$env.isWeb()) throw Error('N4WUN2gk');
 
     const appSelectors = 'body > x-preact-app',
@@ -161,9 +161,9 @@ export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions)
     }
 
     /**
-     * Regarding `<App>` props from server-side prerender. The thing to keep in mind is that if SSR props were used to
-     * affect a prerender, then those exact same props should also be given when hydrating on the web. Otherwise, there
-     * will be many problems. So long as that’s the case, though, everything will be just fine.
+     * Regarding `<App>` props from server-side render. The thing to keep in mind is that if SSR props were used to
+     * affect a server-side render, then those exact same props should also be given when hydrating on the web.
+     * Otherwise, there will be problems. So long as that’s the case, though, everything will be just fine.
      *
      * `<HTTP>` props.
      *
@@ -176,8 +176,8 @@ export const hydrativelyRenderSPA = async (options: HydrativelyRenderSPAOptions)
      * `<Data>` props.
      *
      * - `cspNonce`: If not already in props, `<Data>` uses global state from script code.
-     * - `fetcher`: If not already in props, `<Data>` uses the same default as prerender does.
-     * - `lazyCPs`: If not already in props, `<Data>` uses the same default as prerender does.
+     * - `fetcher`: If not already in props, `<Data>` uses the same default as renderSPA does.
+     * - `lazyCPs`: If not already in props, `<Data>` uses the same default as renderSPA does.
      * - `head`: If not already in props, `<Data>` uses global state from script code.
      */
 };
@@ -252,7 +252,7 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
         throw promise.current;
     };
     return (props?: Props): LazyRouterVNode => {
-        const isSSR = $env.isSSR(), // Server-side prerender?
+        const isSSR = $env.isSSR(), // Server-side render?
             { state: { lazyCPs } } = $preact.useData(); // prettier-ignore
 
         let lazyCPi = 0; // Promise index.

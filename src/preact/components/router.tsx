@@ -263,7 +263,7 @@ function RouterCore(this: $preact.Component<CoreProps>, _props: CoreProps): $pre
         });
         // It is possible for this to render with `matchingChildVNode` & `defaultChildVNode` both empty.
         // In such a case, there are simply no children to render in the current route. Therefore, it becomes
-        // important for a top-level prerenderer to look for routes that are entirely empty; treating as a 404 error.
+        // important for a top-level renderer to look for routes that are entirely empty; treating as a 404 error.
         return <RouteContextObject.Provider value={currentRouteContext.current}>{matchingChildVNode || defaultChildVNode}</RouteContextObject.Provider>;
         //
     }, [parentContext.current, childArray.current.length, locationState.current]);
@@ -586,8 +586,8 @@ const xPreactAppLoading = $fnꓺmemo((): Element => {
 /**
  * Previous error handler.
  *
- * While error boundaries work when prerenderering, error handlers set via options run client-side only; i.e., not when
- * prerendering. Instead, thrown values bubble up to our prerenderer, which catches; e.g., thrown promises.
+ * While error boundaries work when rendering server-side, error handlers set via options run client-side only; i.e.,
+ * not when rendering server-side. Instead, thrown values bubble up and we catch thrown promises.
  *
  * @note Inspired by `Suspense` from preact/compat. See: <https://o5p.me/TA863r>.
  * @note `__e` = `._catchError`; {@see https://o5p.me/DxqGM3} in `mangle.json`.
@@ -597,8 +597,8 @@ const prevErrorHandler = (preactꓺoptions as unknown as $type.Object).__e;
 /**
  * Configures error handler in support of lazy loads.
  *
- * While error boundaries work when prerenderering, error handlers set via options run client-side only; i.e., not when
- * prerendering. Instead, thrown values bubble up to our prerenderer, which catches; e.g., thrown promises.
+ * While error boundaries work when rendering server-side, error handlers set via options run client-side only; i.e.,
+ * not when rendering server-side. Instead, thrown values bubble up and we catch thrown promises.
  *
  * @param args Variadic args passed in by error hook in preact core.
  *

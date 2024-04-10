@@ -15,7 +15,7 @@ const __origAppR2BaseURL__ = $env.get('APP_R2_BASE_URL', { type: 'unknown' });
 const __origAppBrandProps__ = $env.get('APP_BRAND_PROPS', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 
-describe('$preact.iso.hydrativelyRenderSPA() [web]', async () => {
+describe('$preact.iso.hydrateSPA() [web]', async () => {
     beforeAll(async () => {
         $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
         $env.set('APP_BASE_URL', 'https://x.tld/base/');
@@ -85,7 +85,7 @@ describe('$preact.iso.hydrativelyRenderSPA() [web]', async () => {
     };
     // ---
 
-    test('$preact.iso.hydrativelyRenderSPA()', async () => {
+    test('$preact.iso.hydrateSPA()', async () => {
         vi.stubGlobal(
             'fetch',
             vi.fn(async (): Promise<Response> => {
@@ -96,7 +96,7 @@ describe('$preact.iso.hydrativelyRenderSPA() [web]', async () => {
             }),
         );
         // Populates DOM using fixture from SSR.
-        const doctypeHTML = (await import('#tests/preact/apis/iso/ex-imports/fixtures/prerender-spa-for-web.html?raw')).default;
+        const doctypeHTML = (await import('#tests/preact/apis/iso/ex-imports/fixtures/rendered-spa-for-web.html?raw')).default;
         Object.defineProperty(window, 'location', { value: new URL('https://x.tld/?a=_a&b=_b&c=_c') });
         document.open(), document.write(doctypeHTML), document.close();
 
@@ -121,7 +121,7 @@ describe('$preact.iso.hydrativelyRenderSPA() [web]', async () => {
         expect(domIndexBodyMarkup).toContain('"params":{}');
 
         // Hydrate DOM now and continue.
-        await $preact.iso.hydrativelyRenderSPA({ App });
+        await $preact.iso.hydrateSPA({ App });
 
         // Allow plenty of time for effects, such that any errors can be detected while testing.
         await new Promise((resolve) => {

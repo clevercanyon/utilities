@@ -15,7 +15,7 @@ const __origAppR2BaseURL__ = $env.get('APP_R2_BASE_URL', { type: 'unknown' });
 const __origAppBrandProps__ = $env.get('APP_BRAND_PROPS', { type: 'unknown' });
 const __origAppBrand__ = $env.get('APP_BRAND', { type: 'unknown' });
 
-describe('$preact.iso.prerenderSPA()', async () => {
+describe('$preact.iso.renderSPA()', async () => {
     beforeAll(async () => {
         $env.set('APP_PKG_NAME', '@clevercanyon/x.tld');
         $env.set('APP_BASE_URL', 'https://x.tld/base/');
@@ -179,7 +179,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: indexHTTPState,
             docType: indexDocType,
             html: indexHTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -206,7 +206,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: blogHTTPState,
             docType: blogDocType,
             html: blogHTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/blog?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -233,7 +233,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: blogPostHTTPState,
             docType: blogPostDocType,
             html: blogPostHTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/blog/post/123?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -260,7 +260,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherA1HTTPState,
             docType: othersOtherA1DocType,
             html: othersOtherA1HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-a/123?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -285,7 +285,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherA2HTTPState,
             docType: othersOtherA2DocType,
             html: othersOtherA2HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-a/123/another?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -312,7 +312,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherB1HTTPState,
             docType: othersOtherB1DocType,
             html: othersOtherB1HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-b?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -339,7 +339,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherB2HTTPState,
             docType: othersOtherB2DocType,
             html: othersOtherB2HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-b/123?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -366,7 +366,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherC1HTTPState,
             docType: othersOtherC1DocType,
             html: othersOtherC1HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-c?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -393,7 +393,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherC2HTTPState,
             docType: othersOtherC2DocType,
             html: othersOtherC2HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-c/123?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -420,7 +420,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherC3HTTPState,
             docType: othersOtherC3DocType,
             html: othersOtherC3HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-c/123/456/789?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -447,7 +447,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherD1HTTPState,
             docType: othersOtherD1DocType,
             html: othersOtherD1HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-d?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -474,7 +474,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherD2HTTPState,
             docType: othersOtherD2DocType,
             html: othersOtherD2HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-d/123?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -501,7 +501,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherD3HTTPState,
             docType: othersOtherD3DocType,
             html: othersOtherD3HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-d/123/456?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -528,7 +528,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherE1HTTPState,
             docType: othersOtherE1DocType,
             html: othersOtherE1HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-e?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -555,7 +555,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherE2HTTPState,
             docType: othersOtherE2DocType,
             html: othersOtherE2HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-e/123?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -582,7 +582,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherE3HTTPState,
             docType: othersOtherE3DocType,
             html: othersOtherE3HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-e/123/456?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -609,7 +609,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
             httpState: othersOtherE4HTTPState,
             docType: othersOtherE4DocType,
             html: othersOtherE4HTML,
-        } = await $preact.iso.prerenderSPA({
+        } = await $preact.iso.renderSPA({
             request: new Request(new URL('https://x.tld/others/other-e/123?a=_a&b=_b&c=_c'), {
                 headers: { 'x-csp-nonce': $crypto.cspNonce() },
             }),
@@ -633,7 +633,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
         // ---
 
         await expect(async () => {
-            await $preact.iso.prerenderSPA({
+            await $preact.iso.renderSPA({
                 request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c')),
                 appManifest: { 'index.html': { css: [], file: 'script.js' } },
                 App, // Defined above.
@@ -643,7 +643,7 @@ describe('$preact.iso.prerenderSPA()', async () => {
         // ---
 
         await expect(async () => {
-            await $preact.iso.prerenderSPA({
+            await $preact.iso.renderSPA({
                 request: new Request(new URL('https://x.tld/?a=_a&b=_b&c=_c')),
                 appManifest: { 'index.html': { css: ['style.css'], file: '' } },
                 App, // Defined above.
