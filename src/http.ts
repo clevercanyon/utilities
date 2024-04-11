@@ -758,20 +758,23 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
             sMaxAge?: ResponseConfig['sMaxAge'], // Server max age; e.g., Cloudflare.
             staleAge?: ResponseConfig['staleAge'], // Browser and server stale age.
         ): void => {
-            maxAge = Math.max(maxAge || 0, 0);
-            maxAge = Math.min(maxAge, $time.yearInSeconds); // 1 year max.
+            maxAge = Math.max($is.integer(maxAge) ? maxAge : 0, 0);
+            maxAge = $to.integerBetween(maxAge, 0, $time.yearInSeconds);
 
             if (0 === maxAge /* Do not cache. */) {
                 cacheHeaders['cache-control'] = 'no-store';
                 cacheHeaders['cdn-cache-control'] = 'no-store';
             } else {
-                // 1h minimum on Cloudflare paid workers plan.
-                // 2h minimum on Cloudflare on free workers plan.
-                sMaxAge = Math.max($is.integer(sMaxAge) ? sMaxAge : maxAge, 0);
-                sMaxAge = 0 === sMaxAge ? 0 : Math.max(Math.max(sMaxAge, maxAge), $time.hourInSeconds * 2);
-
+                if ('none' === cfg.cacheVersion) {
+                    sMaxAge = 0; // No server-side cache.
+                } else {
+                    // 1h minimum on Cloudflare paid workers plan.
+                    // 2h minimum on Cloudflare free workers plan.
+                    sMaxAge = Math.max($is.integer(sMaxAge) ? sMaxAge : maxAge, 0);
+                    sMaxAge = 0 === sMaxAge ? 0 : $to.integerBetween(sMaxAge, $time.hourInSeconds, Math.max($time.hourInSeconds, maxAge));
+                }
                 staleAge = Math.max($is.integer(staleAge) ? staleAge : Math.round(maxAge / 2), 0);
-                staleAge = Math.min(staleAge, $time.dayInSeconds * 90); // 90 days max.
+                staleAge = 0 === staleAge ? 0 : $to.integerBetween(staleAge, 0, Math.min(maxAge, $time.dayInSeconds * 90));
 
                 cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=' + String(maxAge) + ', s-maxage=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
                 cacheHeaders['cdn-cache-control'] = 0 === sMaxAge ? 'no-store' : 'public, must-revalidate, max-age=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
