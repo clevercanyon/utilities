@@ -10,24 +10,20 @@ import { $app, $crypto, $env, $fn, $gzip, $is, $json, $mime, $obj, $path, $str, 
 /**
  * Defines types.
  */
-export type RouteConfig = Partial<
-    // Partial response configuration.
-    Pick<ResponseConfig, 'enableCORs' | 'cacheUsers' | 'cacheVersion' | 'varyOn'>
->;
+export type RouteConfig = {
+    enableCORs?: boolean;
+    cacheUsers?: boolean;
+    cacheVersion?: string;
+    varyOn?: string[];
+};
 export type RequestConfig = {
     cspNonce?: string;
     enforceAppBaseURLOrigin?: boolean;
     enforceNoTrailingSlash?: boolean;
 };
-export type ResponseConfig = {
-    enableCORs?: boolean;
-
+export type ResponseConfig = RouteConfig & {
     status?: number;
     statusText?: string;
-
-    cacheUsers?: boolean;
-    cacheVersion?: string;
-    varyOn?: string[];
 
     maxAge?: number | null;
     sMaxAge?: number | null;
@@ -87,6 +83,8 @@ export type BrowserUAHeaders = {
 export const routeConfig = (config?: RouteConfig): Required<RouteConfig> => {
     return $obj.defaults({}, config || {}, {
         enableCORs: false,
+        cacheUsers: true,
+        cacheVersion: '',
         varyOn: [],
     }) as Required<RouteConfig>;
 };
@@ -526,14 +524,8 @@ export const supportedRequestMethods = (): string[] => ['OPTIONS', 'HEAD', 'GET'
  * @returns        HTTP response config promise.
  */
 export const responseConfig = async (config?: ResponseConfig): Promise<Required<ResponseConfig>> => {
-    return $obj.defaults({}, config || {}, {
-        enableCORs: false,
-
+    return $obj.defaults({}, config || {}, routeConfig(), {
         status: 405,
-
-        cacheUsers: false,
-        cacheVersion: '',
-        varyOn: [],
 
         maxAge: null,
         sMaxAge: null,
