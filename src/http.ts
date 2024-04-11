@@ -757,7 +757,13 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
                 cacheHeaders['cache-control'] = 'no-store';
                 cacheHeaders['cdn-cache-control'] = 'no-store';
             } else {
-                if ('none' === cfg.cacheVersion) {
+                if (
+                    'none' === cfg.cacheVersion ||
+                    !requestHasCacheableMethod(request) ||
+                    requestPathIsInAdmin(request, url) ||
+                    requestPathIsInAccount(request, url) ||
+                    (!cfg.cacheUsers && requestIsFromUser(request))
+                ) {
                     sMaxAge = 0; // No server-side cache.
                 } else {
                     // 1h minimum on Cloudflare paid workers plan.
@@ -767,9 +773,10 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
                 }
                 staleAge = Math.max($is.integer(staleAge) ? staleAge : Math.round(maxAge / 2), 0);
                 staleAge = 0 === staleAge ? 0 : $to.integerBetween(staleAge, 0, Math.min(maxAge, $time.dayInSeconds * 90));
+                const staleDirectives = 'stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge);
 
-                cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=' + String(maxAge) + ', s-maxage=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
-                cacheHeaders['cdn-cache-control'] = 0 === sMaxAge ? 'no-store' : 'public, must-revalidate, max-age=' + String(sMaxAge) + ', stale-while-revalidate=' + String(staleAge) + ', stale-if-error=' + String(staleAge); // prettier-ignore
+                cacheHeaders['cache-control'] = 'public, must-revalidate, max-age=' + String(maxAge) + ', s-maxage=' + String(sMaxAge) + ', ' + staleDirectives;
+                cacheHeaders['cdn-cache-control'] = 0 === sMaxAge ? 'no-store' : 'public, must-revalidate, max-age=' + String(sMaxAge) + ', ' + staleDirectives;
             }
             if (cfg.encodeBody && !$is.nul(cfg.body)) {
                 cacheHeaders['cache-control'] += ', no-transform';
