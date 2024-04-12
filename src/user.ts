@@ -44,7 +44,7 @@ export type AuthData = {
     authToken: string;
 };
 export type UpdateAuthDataOptions = {
-    isCustomer?: boolean;
+    asCustomer?: boolean;
     request?: $type.Request;
     responseHeaders?: $type.Headers;
     callback?: (authData: $type.ReadonlyDeep<AuthData>) => void | Promise<void>;
@@ -534,18 +534,18 @@ export const updateAuthData = async (token: string, options?: UpdateAuthDataOpti
     const opts = $obj.defaults({}, options || {}) as UpdateAuthDataOptions,
         rrOpts = $obj.pick(opts, ['request', 'responseHeaders']),
         //
-        ꓺid = await $crypto.authVerify(token),
-        ꓺutxId = ꓺid ? await $crypto.hmacSHA(String(ꓺid), 36) : '',
-        ꓺutxCustomerId = ꓺid && opts.isCustomer ? await $crypto.hmacSHA('customer:' + String(ꓺid), 36) : '',
+        _id = await $crypto.authVerify(token),
+        _utxId = _id ? await $crypto.hmacSHA(String(_id), 36) : '',
+        _utxCustomerId = _id && opts.asCustomer ? await $crypto.hmacSHA('customer:' + String(_id), 36) : '',
         //
-        ꓺauthToken = ꓺid ? await $crypto.authToken(ꓺid) : '',
-        newAuthData = { utxId: ꓺutxId, utxCustomerId: ꓺutxCustomerId, authToken: ꓺauthToken };
+        newAuthToken = _id ? await $crypto.authToken(_id) : '', // New auth token.
+        newData = { utxId: _utxId, utxCustomerId: _utxCustomerId, authToken: newAuthToken };
 
     if (opts.request && opts.responseHeaders) {
-        if (ꓺauthToken) {
-            $cookie.set('utx_user_id', ꓺutxId, { ...rrOpts });
-            $cookie.set('utx_customer_id', ꓺutxCustomerId, { ...rrOpts });
-            $cookie.set($crypto.authTokenName(), ꓺauthToken, { ...rrOpts, httpOnly: true });
+        if (newAuthToken) {
+            $cookie.set('utx_user_id', _utxId, { ...rrOpts });
+            $cookie.set('utx_customer_id', _utxCustomerId, { ...rrOpts });
+            $cookie.set($crypto.authTokenName(), newAuthToken, { ...rrOpts, httpOnly: true });
         } else {
             $cookie.delete('utx_user_id', { ...rrOpts });
             $cookie.delete('utx_customer_id', { ...rrOpts });
@@ -553,12 +553,12 @@ export const updateAuthData = async (token: string, options?: UpdateAuthDataOpti
         }
     } else if ($env.isCFW()) throw Error('5tqY9PzB'); // See notes above.
     //
-    else await $app.updateEtcConfig({ user: { ...newAuthData } });
+    else await $app.updateEtcConfig({ user: { ...newData } });
 
     id.flush(), utxId.flush(), utxCustomerId.flush();
     authToken.flush(), isLoggedIn.flush();
 
-    if (opts.callback) await opts.callback(newAuthData);
+    if (opts.callback) await opts.callback(newData);
 };
 
 // ---
@@ -770,18 +770,18 @@ export const updateAuthorData = async (updates: $type.PartialDeep<AuthorData>, o
         rrOpts = $obj.pick(opts, ['request', 'responseHeaders']),
         //
         // Reuses an existing UTX author ID, else we generate a new one.
-        ꓺutxAuthorId = utxAuthorId(opts.request) || (await $crypto.hmacSHA($crypto.randomString(256), 36)),
+        _utxAuthorId = utxAuthorId(opts.request) || (await $crypto.hmacSHA($crypto.randomString(256), 36)),
         //
         currentData = authorData(opts.request), // Merges updates into current author data.
         newData = $obj.deepFreeze($obj.mergeClonesDeep(currentData, updates)) as unknown as $type.ReadonlyDeep<AuthorData>;
 
     if ((opts.request && opts.responseHeaders) || $env.isWeb()) {
-        $cookie.set('utx_author_id', ꓺutxAuthorId, { ...rrOpts });
+        $cookie.set('utx_author_id', _utxAuthorId, { ...rrOpts });
         $cookie.set('author', $json.stringify(newData), { ...rrOpts });
         //
     } else if ($env.isCFW()) throw Error('v7GuJwND'); // See notes above.
     //
-    else await $app.updateEtcConfig({ user: { utxAuthorId: ꓺutxAuthorId, author: newData } });
+    else await $app.updateEtcConfig({ user: { utxAuthorId: _utxAuthorId, author: newData } });
 
     utxAuthorId.flush(), isAuthor.flush(), authorData.flush();
     if (opts.callback) await opts.callback(newData);

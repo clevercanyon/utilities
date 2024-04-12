@@ -413,21 +413,6 @@ export const requestPathIsSEORelatedFile = $fnꓺmemo(2, (request: $type.Request
 });
 
 /**
- * Request path is in an admin area?
- *
- * @param   request HTTP request.
- * @param   url     Optional pre-parsed URL. Default is taken from `request`.
- *
- * @returns         True if request path is in an admin area.
- */
-export const requestPathIsInAdmin = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
-    const url = _url || $url.parse(request.url);
-    if ('/' === url.pathname) return false;
-
-    return /\/(?:[^/]+[-_])?admin(?:[-_][^/]+)?(?:$|\/)/iu.test(url.pathname);
-});
-
-/**
  * Request path is in an account area?
  *
  * @param   request HTTP request.
@@ -440,6 +425,21 @@ export const requestPathIsInAccount = $fnꓺmemo(2, (request: $type.Request, _ur
     if ('/' === url.pathname) return false;
 
     return /\/(?:[^/]+[-_])?account(?:[-_][^/]+)?(?:$|\/)/iu.test(url.pathname);
+});
+
+/**
+ * Request path is in an admin area?
+ *
+ * @param   request HTTP request.
+ * @param   url     Optional pre-parsed URL. Default is taken from `request`.
+ *
+ * @returns         True if request path is in an admin area.
+ */
+export const requestPathIsInAdmin = $fnꓺmemo(2, (request: $type.Request, _url?: $type.URL): boolean => {
+    const url = _url || $url.parse(request.url);
+    if ('/' === url.pathname) return false;
+
+    return /\/(?:[^/]+[-_])?admin(?:[-_][^/]+)?(?:$|\/)/iu.test(url.pathname);
 });
 
 /**
@@ -760,8 +760,8 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
                 if (
                     'none' === cfg.cacheVersion ||
                     !requestHasCacheableMethod(request) ||
-                    requestPathIsInAdmin(request, url) ||
                     requestPathIsInAccount(request, url) ||
+                    requestPathIsInAdmin(request, url) ||
                     (!cfg.cacheUsers && requestIsFromUser(request))
                 ) {
                     sMaxAge = 0; // No server-side cache.
@@ -801,10 +801,10 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
         } else if (requestPathIsStatic(request, url)) {
             cacheControl($time.yearInSeconds);
             //
-        } else if (requestPathIsInAdmin(request, url)) {
+        } else if (requestPathIsInAccount(request, url)) {
             cacheControl(0); // Do not cache.
             //
-        } else if (requestPathIsInAccount(request, url)) {
+        } else if (requestPathIsInAdmin(request, url)) {
             cacheControl(0); // Do not cache.
             //
         } else if (!cfg.cacheUsers && requestIsFromUser(request)) {
