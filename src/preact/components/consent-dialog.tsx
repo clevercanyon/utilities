@@ -234,7 +234,7 @@ export default function ConsentDialog(): $preact.VNode<Props> {
                                 Cookie Preferences
                             </h2>
                             <p class='mt-2 text-justify text-xs opacity-75'>
-                                By using our website you consent to all Essential Cookies in accordance with our{' '}
+                                By using this website you consent to all Essential Cookies in accordance with our{' '}
                                 <a href={brand.policies.privacy} target='_blank' title='Privacy Policy'>
                                     privacy&nbsp;policy <Fa6SolidArrowUpRightFromSquare class='inline h-2 w-2' aria-hidden='true' />
                                 </a>{' '}
