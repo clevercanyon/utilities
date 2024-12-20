@@ -134,4 +134,6 @@ dist
 #
 # <custom:start>
 
+/src/cargo/assets/blogger/themes/*.xml
+
 # </custom:end>
