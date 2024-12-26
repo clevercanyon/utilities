@@ -168,7 +168,7 @@ describe('$str', async () => {
         expect($str.splitWords('foo-bar-bazBiz-PascalCase-snake_case-kebab-case')) //
             .toStrictEqual(['foo', 'bar', 'baz', 'Biz', 'Pascal', 'Case', 'snake', 'case', 'kebab', 'case']);
 
-        expect($str.splitWords('foo bar bazBiz PascalCase snake_case kebab-case', { whitespaceOnly: true })) //
+        expect($str.splitWords('foo bar bazBiz PascalCase snake_case kebab-case', { strategy: 'whitespaceOnly' })) //
             .toStrictEqual(['foo', 'bar', 'bazBiz', 'PascalCase', 'snake_case', 'kebab-case']);
 
         expect($str.splitWords('aeiouAEIOUaeiouyAEIOUYaeiouAEIOUanoANOaeiouyAEIOUYçÇßØøÅåÆæœ')) //
@@ -220,7 +220,7 @@ describe('$str', async () => {
         expect($str.titleCase('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('Àèìòù Àèìò Ùáéíóúý Áéíóú Ýâêîôû Âêîô Ûãñõ Ãñ Õäëïöüÿ Äëïöü Ÿç Çß Øø Åå Ææœ');
         expect($str.titleCase('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('Àèìò Ùàèìòùáéíóúý Áéíóú Ýâêîôû Âêîô Ûãñõ Ãñ Õäëïöüÿ Äëïöü Ÿç Çß Øø Åå Ææœ');
 
-        expect($str.titleCase('ÀÈÌÒÙ àèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { splitOnWhitespaceOnly: true })) //
+        expect($str.titleCase('ÀÈÌÒÙ àèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { splitStrategy: 'whitespaceOnly' })) //
             .toBe('Àèìòù Àèìòùáéíóúýáéíóúýâêîôûâêîôûãñõãñõäëïöüÿäëïöüÿççßøøååææœ');
 
         expect($str.titleCase('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { asciiOnly: true })) //
@@ -239,7 +239,7 @@ describe('$str', async () => {
         expect($str.lowerCase('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('àèìòù àèìò ùáéíóúý áéíóú ýâêîôû âêîô ûãñõ ãñ õäëïöüÿ äëïöü ÿç çß øø åå ææœ');
         expect($str.lowerCase('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('àèìò ùàèìòùáéíóúý áéíóú ýâêîôû âêîô ûãñõ ãñ õäëïöüÿ äëïöü ÿç çß øø åå ææœ');
 
-        expect($str.lowerCase('ÀÈÌÒÙ àèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { splitOnWhitespaceOnly: true })) //
+        expect($str.lowerCase('ÀÈÌÒÙ àèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { splitStrategy: 'whitespaceOnly' })) //
             .toBe('àèìòù àèìòùáéíóúýáéíóúýâêîôûâêîôûãñõãñõäëïöüÿäëïöüÿççßøøååææœ');
 
         expect($str.lowerCase('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { asciiOnly: true })) //
@@ -258,7 +258,7 @@ describe('$str', async () => {
         expect($str.upperCase('àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('ÀÈÌÒÙ ÀÈÌÒ ÙÁÉÍÓÚÝ ÁÉÍÓÚ ÝÂÊÎÔÛ ÂÊÎÔ ÛÃÑÕ ÃÑ ÕÄËÏÖÜŸ ÄËÏÖÜ ŸÇ ÇSS ØØ ÅÅ ÆÆŒ');
         expect($str.upperCase('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ')).toBe('ÀÈÌÒ ÙÀÈÌÒÙÁÉÍÓÚÝ ÁÉÍÓÚ ÝÂÊÎÔÛ ÂÊÎÔ ÛÃÑÕ ÃÑ ÕÄËÏÖÜŸ ÄËÏÖÜ ŸÇ ÇSS ØØ ÅÅ ÆÆŒ');
 
-        expect($str.upperCase('ÀÈÌÒÙ àèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { splitOnWhitespaceOnly: true })) //
+        expect($str.upperCase('ÀÈÌÒÙ àèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { splitStrategy: 'whitespaceOnly' })) //
             .toBe('ÀÈÌÒÙ ÀÈÌÒÙÁÉÍÓÚÝÁÉÍÓÚÝÂÊÎÔÛÂÊÎÔÛÃÑÕÃÑÕÄËÏÖÜŸÄËÏÖÜŸÇÇSSØØÅÅÆÆŒ');
 
         expect($str.upperCase('ÀÈÌÒÙàèìòùáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ', { asciiOnly: true })) //

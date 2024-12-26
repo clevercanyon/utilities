@@ -69,7 +69,7 @@ export const pkgSlug = $fnꓺmemo(12, (value?: string): string => {
     value ??= pkgName(); // Uses current app’s package name as the default value.
     value = value.replace(/^@/u, '').split('/')[1] || value; // Scoped package names.
 
-    return $str.kebabCase(value, { asciiOnly: true, letterFirst: 'x' });
+    return $str.kebabCase(value, { asciiOnly: true, splitStrategy: 'boundariesAndCaseOnly', letterFirst: 'x' });
 });
 
 /**

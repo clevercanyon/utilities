@@ -2074,7 +2074,7 @@ export const defaultSecurityHeaders = (options?: SecurityHeaderOptions): { [x: s
 export const c10nSecurityHeaders = (options?: SecurityHeaderOptions): { [x: string]: string } => {
     const opts = $obj.defaults({}, options || {}, { cspNonce: '', enableCORs: false }) as Required<SecurityHeaderOptions>,
         defaultHeaders = defaultSecurityHeaders(opts),
-        trustedCSPHostnames = 'clevercanyon.com *.clevercanyon.com hop.gdn *.hop.gdn wobots.com *.wobots.com',
+        trustedCSPHostnames = 'clevercanyon.com *.clevercanyon.com hop.gdn *.hop.gdn o5p.me *.o5p.me',
         cloudflareCSPHostnames = 'ajax.cloudflare.com challenges.cloudflare.com static.cloudflareinsights.com';
 
     return {

@@ -50,10 +50,19 @@ const ipV4MaxLength = 15,
 
         '&nbsp;': '\u00A0',
     };
-// Please be cautious, this has the `g`, and therefore it has state.
-const wordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p{L})|(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})|(?<=[\p{L}\p{N}])(?=\p{Lu}\p{Ll}))/gu;
+// Whitespace-only regular expression for word splitting.
+const whitespaceOnlyWordSplittingRegExp = /(\s+)/u;
 
-// Regular expression for email validating; {@see https://o5p.me/goVSTH}.
+// Boundaries-only regular expression for word splitting.
+const boundariesOnlyWordSplittingRegExp = /([^\p{L}\p{N}]+)/u;
+
+// Boundaries-and-caSe-only regular expression for word splitting.
+const boundariesAndCaseOnlyWordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{Ll})(?=\p{Lu})|(?<=\p{L})(?=\p{Lu}\p{Ll}))/u;
+
+// Default regular expression for word splitting, which includes everything, including numeric boundaries.
+const defaultWordSplittingRegExp = /([^\p{L}\p{N}]+|(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p{L})|(?<=[\p{Ll}\p{N}])(?=\p{Lu})|(?<=[\p{L}\p{N}])(?=\p{Lu}\p{Ll}))/u;
+
+// Regular expression for email validation; {@see https://o5p.me/goVSTH}.
 const emailRegExp = /^[a-z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*$/iu;
 
 // Regular expression for fulltext search query columns prefix.
@@ -69,16 +78,16 @@ const hasAsianCharsRegExp =
 export type TrimOptions = { left?: boolean; right?: boolean };
 export type ClipOptions = { maxBytes?: number; maxChars?: number; indicator?: string };
 export type MidClipOptions = { maxBytes?: number; maxChars?: number; indicator?: string };
-export type SplitWordOptions = { whitespaceOnly?: boolean };
+export type SplitWordOptions = { strategy?: 'whitespaceOnly' | 'boundariesOnly' | 'boundariesAndCaseOnly' | 'default' };
 
-export type TitleCaseOptions = { asciiOnly?: boolean; splitOnWhitespaceOnly?: boolean };
-export type LowerCaseOptions = { asciiOnly?: boolean; splitOnWhitespaceOnly?: boolean };
-export type UpperCaseOptions = LowerCaseOptions; // Same options as lowerCase.
+export type TitleCaseOptions = { asciiOnly?: boolean; splitStrategy?: SplitWordOptions['strategy'] };
+export type LowerCaseOptions = { asciiOnly?: boolean; splitStrategy?: SplitWordOptions['strategy'] };
+export type UpperCaseOptions = { asciiOnly?: boolean; splitStrategy?: SplitWordOptions['strategy'] };
 
-export type StudlyCaseOptions = { asciiOnly?: boolean; letterFirst?: string };
-export type CamelCaseOptions = { asciiOnly?: boolean; letterFirst?: string };
-export type KebabCaseOptions = { asciiOnly?: boolean; letterFirst?: string };
-export type SnakeCaseOptions = KebabCaseOptions; // Same options as kebabCase.
+export type StudlyCaseOptions = { asciiOnly?: boolean; splitStrategy?: SplitWordOptions['strategy']; letterFirst?: string };
+export type CamelCaseOptions = { asciiOnly?: boolean; splitStrategy?: SplitWordOptions['strategy']; letterFirst?: string };
+export type KebabCaseOptions = { asciiOnly?: boolean; splitStrategy?: SplitWordOptions['strategy']; letterFirst?: string };
+export type SnakeCaseOptions = { asciiOnly?: boolean; splitStrategy?: SplitWordOptions['strategy']; letterFirst?: string };
 
 export type QuoteOptions = { type?: 'single' | 'double' };
 export type UnquoteOptions = { type?: string };
@@ -444,15 +453,23 @@ export const split = (str: string, delimiter: string | RegExp, limit?: number): 
 /**
  * Splits words intelligently, including `-`, `_`, camelCase, PascalCase, and other considerations.
  *
- * @param   str String to consider.
+ * @param   str     String to consider.
+ * @param   options Options (all optional).
  *
- * @returns     Array of all words.
+ * @returns         Array of all words.
  */
 export const splitWords = (str: string, options?: SplitWordOptions): string[] => {
-    const opts = $obj.defaults({}, options || {}, { whitespaceOnly: false }) as Required<SplitWordOptions>;
+    const opts = $obj.defaults({}, options || {}, { strategy: 'default' }) as Required<SplitWordOptions>;
+    let wordSplittingRegExp = defaultWordSplittingRegExp; // Initialize.
 
-    if (opts.whitespaceOnly) {
-        return str.split(/\s+/u); // Whitespace only.
+    if ('whitespaceOnly' === opts.strategy) {
+        wordSplittingRegExp = whitespaceOnlyWordSplittingRegExp;
+        //
+    } else if ('boundariesOnly' === opts.strategy) {
+        wordSplittingRegExp = boundariesOnlyWordSplittingRegExp;
+        //
+    } else if ('boundariesAndCaseOnly' === opts.strategy) {
+        wordSplittingRegExp = boundariesAndCaseOnlyWordSplittingRegExp;
     }
     return str
         .split(wordSplittingRegExp)
@@ -582,11 +599,11 @@ export const capitalize = (str: string): string => {
  *          For some added inspiration, see: <https://o5p.me/DChQQ2>, <https://www.npmjs.com/package/title-case?activeTab=code>.
  */
 export const titleCase = (str: string, options?: TitleCaseOptions): string => {
-    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<TitleCaseOptions>;
-    let words = splitWords(str, { whitespaceOnly: opts.splitOnWhitespaceOnly }); // Splits words intelligently.
+    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, splitStrategy: 'default' }) as Required<TitleCaseOptions>;
+    let words = splitWords(str, { strategy: opts.splitStrategy }); // Splits words intelligently.
 
     if (opts.asciiOnly /* Split again. */) {
-        words = splitWords(asciiOnly(words.join(' ')), { whitespaceOnly: opts.splitOnWhitespaceOnly });
+        words = splitWords(asciiOnly(words.join(' ')), { strategy: opts.splitStrategy });
     }
     for (let key = 0; key < words.length; key++) {
         words[key] = words[key]
@@ -606,11 +623,11 @@ export const titleCase = (str: string, options?: TitleCaseOptions): string => {
  * @returns         Modified string.
  */
 export const lowerCase = (str: string, options?: LowerCaseOptions): string => {
-    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, splitOnWhitespaceOnly: false }) as Required<LowerCaseOptions>;
-    let words = splitWords(str, { whitespaceOnly: opts.splitOnWhitespaceOnly }); // Splits words intelligently.
+    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, splitStrategy: 'default' }) as Required<LowerCaseOptions>;
+    let words = splitWords(str, { strategy: opts.splitStrategy }); // Splits words intelligently.
 
     if (opts.asciiOnly /* Split again. */) {
-        words = splitWords(asciiOnly(words.join(' ')), { whitespaceOnly: opts.splitOnWhitespaceOnly });
+        words = splitWords(asciiOnly(words.join(' ')), { strategy: opts.splitStrategy });
     }
     return words.join(' ').toLowerCase();
 };
@@ -636,11 +653,11 @@ export const upperCase = (str: string, options?: UpperCaseOptions): string => {
  * @returns         Modified string.
  */
 export const studlyCase = (str: string, options?: StudlyCaseOptions): string => {
-    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<StudlyCaseOptions>;
-    let words = splitWords(str); // Splits words intelligently.
+    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, splitStrategy: 'default', letterFirst: '' }) as Required<StudlyCaseOptions>;
+    let words = splitWords(str, { strategy: opts.splitStrategy }); // Splits words intelligently.
 
     if (opts.asciiOnly /* Split again. */) {
-        words = splitWords(asciiOnly(words.join(' ')));
+        words = splitWords(asciiOnly(words.join(' ')), { strategy: opts.splitStrategy });
     }
     for (let key = 0; key < words.length; key++) {
         words[key] = capitalize(words[key]);
@@ -663,15 +680,16 @@ export const studlyCase = (str: string, options?: StudlyCaseOptions): string => 
  * @returns         Modified string.
  */
 export const camelCase = (str: string, options?: CamelCaseOptions): string => {
-    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<CamelCaseOptions>;
-    let words = splitWords(str); // Splits words intelligently.
+    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, splitStrategy: 'default', letterFirst: '' }) as Required<CamelCaseOptions>;
+    let words = splitWords(str, { strategy: opts.splitStrategy }); // Splits words intelligently.
 
     if (opts.asciiOnly /* Split again. */) {
-        words = splitWords(asciiOnly(words.join(' ')));
+        words = splitWords(asciiOnly(words.join(' ')), { strategy: opts.splitStrategy });
     }
     for (let key = 0; key < words.length; key++) {
         if (0 === key) {
             words[key] = words[key].toLowerCase();
+
             if (opts.letterFirst && !/^\p{L}/u.test(words[key])) {
                 words[key] = opts.letterFirst + words[key];
             }
@@ -695,11 +713,11 @@ export const camelCase = (str: string, options?: CamelCaseOptions): string => {
  * @returns         Modified string.
  */
 export const kebabCase = (str: string, options?: KebabCaseOptions): string => {
-    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, letterFirst: '' }) as Required<KebabCaseOptions>;
-    let words = splitWords(str); // Splits words intelligently.
+    const opts = $obj.defaults({}, options || {}, { asciiOnly: false, splitStrategy: 'default', letterFirst: '' }) as Required<KebabCaseOptions>;
+    let words = splitWords(str, { strategy: opts.splitStrategy }); // Splits words intelligently.
 
     if (opts.asciiOnly /* Split again. */) {
-        words = splitWords(asciiOnly(words.join(' ')));
+        words = splitWords(asciiOnly(words.join(' ')), { strategy: opts.splitStrategy });
     }
     for (let key = 0; key < words.length; key++) {
         words[key] = words[key].toLowerCase();
