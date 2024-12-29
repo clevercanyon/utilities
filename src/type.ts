@@ -120,6 +120,9 @@ export namespace $cfw {
     export type SubrequestCounter = { value: number };
 
     export type RequestContextData = Readonly<{
+        emailEvent?: EmailEvent;
+        scheduledEvent?: ScheduledEvent;
+
         ctx: ExecutionContext;
         env: Environment;
 
