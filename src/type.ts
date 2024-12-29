@@ -93,7 +93,9 @@ export type { cfw }; // `cfw` namespace.
  * Defines types common across Cloudflare workers & functions.
  */
 export namespace $cfw {
+    export type EmailEvent = Readonly<cfw.ForwardableEmailMessage>;
     export type ScheduledEvent = Readonly<cfw.FetcherScheduledOptions>;
+
     export type ExecutionContext = Readonly<
         Pick<
             cfw.ExecutionContext | Parameters<cfw.PagesFunction>[0],
@@ -496,6 +498,7 @@ type $Request = Request | cfw.Request;
 type $RequestInit = RequestInit | cfw.RequestInit;
 type $RequestC10n = {
     c10n?: {
+        emailEvent?: $cfw.EmailEvent;
         scheduledEvent?: $cfw.ScheduledEvent;
         serviceBinding?: { subrequestCounter: $cfw.SubrequestCounter };
     };

@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.964",
+    "version": "1.0.965",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
