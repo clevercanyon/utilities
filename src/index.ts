@@ -13,6 +13,7 @@ export * as $color from '#color.ts';
 export * as $cookie from '#cookie.ts';
 export * as $crypto from '#crypto.ts';
 export * as $dom from '#dom.ts';
+export * as $email from '#email.ts';
 export * as $env from '#env.ts';
 export * as $error from '#error.ts';
 export * as $fn from '#fn.ts';

@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $dom, $env, $is, $obj, $to } from '#index.ts';
+import { $dom, $email, $env, $is, $obj, $to } from '#index.ts';
 import ipRegex from 'ip-regex';
 
 const ipV4MaxLength = 15,
@@ -999,23 +999,7 @@ export const isEmail = (str: string): boolean => {
  * @returns     True if string is an addr.
  */
 export const isAddr = (str: string): boolean => {
-    if (!str) return false;
-    if (isEmail(str)) return true;
-
-    const parts = str.split(/(?<=")\s(?=<)/u);
-    return (
-        2 === parts.length &&
-        //
-        parts[0].length >= 3 && // e.g., `"x"`.
-        '"' === parts[0][0] && // Opening quote.
-        '"' === parts[0][parts[0].length - 1] && // Closing quote.
-        parts[0].length <= 255 + 2 && // 2 = quotes; i.e., `"..."`.
-        //
-        parts[1].length >= 3 && // e.g., `<x>`.
-        '<' === parts[1][0] && // Opening bracket.
-        '>' === parts[1][parts[1].length - 1] && // Closing bracket.
-        isEmail(parts[1].slice(1, -1)) // `<email>` validation.
-    );
+    return $email.fromAddr(str) ? true : false;
 };
 
 /* ---
