@@ -9,7 +9,7 @@ import { $str } from '#index.ts';
 /**
  * Defines types.
  */
-export type Addr = { name: string; email: string };
+export type Addr = { name?: string; email: string };
 
 /**
  * Gets email from an addr.
@@ -35,13 +35,13 @@ export const fromAddr = (str: string): string => {
  *
  * @returns     Addr parts; else undefined.
  *
- * @note The limit of 70 characters for the name is consistent with Brevo's API for names.
+ * @note The limit of 70 chars for `name` is consistent with Brevo's API.
  */
 export const parseAddr = (str: string): Addr | undefined => {
     if (!str) return; // Empty string.
 
     if ($str.isEmail(str) /* Email only. */) {
-        return { name: '', email: str };
+        return { email: str };
     }
     const parts = str.split(/(?<=")\s(?=<)/u);
     if (
@@ -57,9 +57,8 @@ export const parseAddr = (str: string): Addr | undefined => {
         '>' === parts[1][parts[1].length - 1] && // Closing bracket.
         $str.isEmail(parts[1].slice(1, -1)) // `<email>` validation.
     ) {
-        return {
-            name: parts[0].slice(1, -1),
-            email: parts[1].slice(1, -1).toLowerCase(),
-        };
+        const name = parts[0].slice(1, -1),
+            email = parts[1].slice(1, -1).toLowerCase();
+        return { ...(name.length ? { name } : {}), email };
     }
 };

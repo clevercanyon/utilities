@@ -41,14 +41,14 @@ describe('$email', async () => {
         expect($email.fromAddr('"X" <@x>')).toBe('');
     });
     test('.parseAddr()', async () => {
-        expect($email.parseAddr('x@x')).toStrictEqual({ name: '', email: 'x@x' });
-        expect($email.parseAddr('x+x@x')).toStrictEqual({ name: '', email: 'x+x@x' });
+        expect($email.parseAddr('x@x')).toStrictEqual({ email: 'x@x' });
+        expect($email.parseAddr('x+x@x')).toStrictEqual({ email: 'x+x@x' });
 
-        expect($email.parseAddr('x@localhost')).toStrictEqual({ name: '', email: 'x@localhost' });
-        expect($email.parseAddr('x+x@localhost')).toStrictEqual({ name: '', email: 'x+x@localhost' });
+        expect($email.parseAddr('x@localhost')).toStrictEqual({ email: 'x@localhost' });
+        expect($email.parseAddr('x+x@localhost')).toStrictEqual({ email: 'x+x@localhost' });
 
-        expect($email.parseAddr('x@hop.gdn')).toStrictEqual({ name: '', email: 'x@hop.gdn' });
-        expect($email.parseAddr('x+x@hop.gdn')).toStrictEqual({ name: '', email: 'x+x@hop.gdn' });
+        expect($email.parseAddr('x@hop.gdn')).toStrictEqual({ email: 'x@hop.gdn' });
+        expect($email.parseAddr('x+x@hop.gdn')).toStrictEqual({ email: 'x+x@hop.gdn' });
 
         expect($email.parseAddr('"X" <x@x>')).toStrictEqual({ name: 'X', email: 'x@x' });
         expect($email.parseAddr('"X" <x+x@x>')).toStrictEqual({ name: 'X', email: 'x+x@x' });
