@@ -34,6 +34,8 @@ export const fromAddr = (str: string): string => {
  * @param   str String to consider.
  *
  * @returns     Addr parts; else undefined.
+ *
+ * @note The limit of 70 characters for the name is consistent with Brevo's API for names.
  */
 export const parseAddr = (str: string): Addr | undefined => {
     if (!str) return; // Empty string.
@@ -48,7 +50,7 @@ export const parseAddr = (str: string): Addr | undefined => {
         parts[0].length >= 3 && // e.g., `"x"`.
         '"' === parts[0][0] && // Opening quote.
         '"' === parts[0][parts[0].length - 1] && // Closing quote.
-        parts[0].length <= 255 + 2 && // 2 = quotes; i.e., `"..."`.
+        parts[0].length <= 70 + 2 && // 2 = quotes; i.e., `"..."`.
         //
         parts[1].length >= 3 && // e.g., `<x>`.
         '<' === parts[1][0] && // Opening bracket.
