@@ -7,6 +7,11 @@ import '#@initialize.ts';
 import { $str } from '#index.ts';
 
 /**
+ * Defines types.
+ */
+export type Addr = { name: string; email: string };
+
+/**
  * Gets email from an addr.
  *
  * - `username@hostname`.
@@ -14,12 +19,28 @@ import { $str } from '#index.ts';
  *
  * @param   str String to consider.
  *
- * @returns     Email from an addr; else empty string.
+ * @returns     Email address; else empty string.
  */
 export const fromAddr = (str: string): string => {
-    if (!str) return '';
-    if ($str.isEmail(str)) return str;
+    return parseAddr(str)?.email || '';
+};
 
+/**
+ * Parses an addr.
+ *
+ * - `username@hostname`.
+ * - `"Name" <username@hostname>`.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     Addr parts; else undefined.
+ */
+export const parseAddr = (str: string): Addr | undefined => {
+    if (!str) return; // Empty string.
+
+    if ($str.isEmail(str) /* Email only. */) {
+        return { name: '', email: str };
+    }
     const parts = str.split(/(?<=")\s(?=<)/u);
     if (
         2 === parts.length &&
@@ -34,7 +55,9 @@ export const fromAddr = (str: string): string => {
         '>' === parts[1][parts[1].length - 1] && // Closing bracket.
         $str.isEmail(parts[1].slice(1, -1)) // `<email>` validation.
     ) {
-        return parts[1].slice(1, -1).toLowerCase();
+        return {
+            name: parts[0].slice(1, -1),
+            email: parts[1].slice(1, -1).toLowerCase(),
+        };
     }
-    return ''; // Not an addr.
 };

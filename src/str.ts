@@ -965,6 +965,20 @@ export const escFTSQuery = (str: string, options?: EscFTSQueryOptions): string =
  */
 
 /**
+ * Tests if a string is an addr.
+ *
+ * - `username@hostname`.
+ * - `"Name" <username@hostname>`.
+ *
+ * @param   str String to consider.
+ *
+ * @returns     True if string is an addr.
+ */
+export const isAddr = (str: string): boolean => {
+    return $email.parseAddr(str) ? true : false;
+};
+
+/**
  * Tests if a string is an email address.
  *
  * - `username@hostname`.
@@ -983,23 +997,9 @@ export const isEmail = (str: string): boolean => {
         parts[1].length > 255 || // Hostname.
         parts[1].split('.').some((part) => part.length > 63)
     )
-        return false; // Not an email.
+        return false; // Not an email address.
 
     return emailRegExp.test(str);
-};
-
-/**
- * Tests if a string is an addr.
- *
- * - `username@hostname`.
- * - `"Name" <username@hostname>`.
- *
- * @param   str String to consider.
- *
- * @returns     True if string is an addr.
- */
-export const isAddr = (str: string): boolean => {
-    return $email.fromAddr(str) ? true : false;
 };
 
 /* ---
