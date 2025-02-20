@@ -138,7 +138,7 @@ const tꓺaddress = 'address',
     tꓺwwwം = 'www.',
     tꓺzip = 'zip',
     //
-    tꓺvꓺc10nPhone = '1-888-430-1445',
+    tꓺvꓺc10nPhone = '1-888-346-0222',
     //
     tꓺclevercanyonംcom = tꓺclevercanyon + tꓺംcom,
     tꓺමclevercanyonംcom = '@' + tꓺclevercanyonംcom,
