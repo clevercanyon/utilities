@@ -324,8 +324,8 @@ const initializeRawProps = (): void => {
         [tꓺslugPrefix]: tꓺo5p + '-',
         [tꓺvarPrefix]: tꓺo5p + '_',
 
-        [tꓺslogan]: 'Cleverly crafted digital brands.',
-        [tꓺdescription]: 'We’re transforming ideas into digital realities.',
+        [tꓺslogan]: 'Your ideas, our code, limitless possibilities.',
+        [tꓺdescription]: 'Your digital partner for growth and innovation.',
 
         [tꓺtheme]: {
             [tꓺisDark]: true,
