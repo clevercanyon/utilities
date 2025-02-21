@@ -159,7 +159,7 @@ export default function Legalese(/* props: Props */): $preact.VNode<Props> {
                                     {brandOrg.name}™ and {brandOrgOrg.name}™ are&nbsp;trademarks&nbsp;of&nbsp;
                                 </>
                             ) : (
-                                <>{brandOrg.name}™ is a &nbsp;trademark&nbsp;of&nbsp;</>
+                                <>{brandOrg.name}™ is a&nbsp;trademark&nbsp;of&nbsp;</>
                             )}
                             {/* Circular reference allows this to work for both cases. */}
                             <span class={tꓺcꓺfontAllSmallCapsClasses} style={tꓺsꓺfontAllSmallCapsStyles}>
