@@ -141,6 +141,7 @@ const tꓺaddress = 'address',
     tꓺvarPrefix = 'varPrefix',
     tꓺwidth = 'width',
     tꓺwwwം = 'www.',
+    tꓺx = 'x',
     tꓺzip = 'zip',
     //
     tꓺvꓺ1ᱼ888ᱼ = '1-888-', // Toll free.
@@ -423,7 +424,10 @@ const initializeRawProps = (): void => {
                 [tꓺphone]: tꓺvꓺo5pPhone,
             },
         },
-        [tꓺsocialProfiles]: {},
+        [tꓺsocialProfiles]: {
+            [tꓺx]: tꓺhttpsꓽⳇⳇ + tꓺx + tꓺംcom + '/' + tꓺo5p + '_hq',
+            [tꓺtwitter]: tꓺhttpsꓽⳇⳇ + tꓺx + tꓺംcom + '/' + tꓺo5p + '_hq',
+        },
     }) as unknown as $type.BrandRawProps;
 
     /**
@@ -608,7 +612,8 @@ const initializeRawProps = (): void => {
                 },
                 [tꓺsocialProfiles]: {
                     [tꓺdiscord]: tꓺhttpsꓽⳇⳇdiscordംclevercanyonംcomⳇ,
-                    [tꓺtwitter]: tꓺhttpsꓽⳇⳇ + tꓺtwitter + tꓺംcom + '/' + tꓺclevercanyon,
+                    [tꓺx]: tꓺhttpsꓽⳇⳇ + tꓺx + tꓺംcom + '/' + tꓺclevercanyon,
+                    [tꓺtwitter]: tꓺhttpsꓽⳇⳇ + tꓺx + tꓺംcom + '/' + tꓺclevercanyon,
                     [tꓺlinkedin]: tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺlinkedin + tꓺംcom + '/' + tꓺcompany + '/' + tꓺclevercanyon,
                     [tꓺfacebook]: tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺfacebook + tꓺംcom + '/' + tꓺclevercanyon,
                     [tꓺkeybase]: tꓺhttpsꓽⳇⳇ + tꓺkeybase + tꓺംio + '/' + tꓺteam + '/' + tꓺclevercanyon,
