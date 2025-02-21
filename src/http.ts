@@ -2058,11 +2058,10 @@ export const defaultSecurityHeaders = (options?: SecurityHeaderOptions): { [x: s
  *
  * See also, CSP for `r2.hop.gdn`:
  *
- *     default-src 'self'; script-src 'self' clevercanyon.com *.clevercanyon.com hop.gdn *.hop.gdn wobots.com *.wobots.com
- *     ajax.cloudflare.com challenges.cloudflare.com static.cloudflareinsights.com 'report-sample'; style-src * 'unsafe-inline'
- *     'report-sample'; img-src * data:; font-src *; connect-src *; media-src *; object-src 'none'; child-src *; frame-src *;
- *     worker-src *; frame-ancestors *; form-action *; upgrade-insecure-requests; base-uri 'self'; manifest-src 'self';
- *     report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp
+ *     default-src 'self'; script-src 'self' clevercanyon.com *.clevercanyon.com hop.gdn *.hop.gdn o5p.org *.o5p.org o5p.me *.o5p.me
+ *      ajax.cloudflare.com challenges.cloudflare.com static.cloudflareinsights.com 'report-sample'; style-src * 'unsafe-inline' 'report-sample';
+ *      img-src * data:; font-src *; connect-src *; media-src *; object-src 'none'; child-src *; frame-src *; worker-src *; frame-ancestors *; form-action *;
+ *      upgrade-insecure-requests; base-uri 'self'; manifest-src 'self'; report-uri https://clevercanyon.report-uri.com/r/d/csp/enforce; report-to csp
  *
  * @param   options Optional; {@see SecurityHeaderOptions}.
  *
@@ -2070,11 +2069,13 @@ export const defaultSecurityHeaders = (options?: SecurityHeaderOptions): { [x: s
  *
  * @see https://report-uri.com/home/generate
  * @see https://csp-evaluator.withgoogle.com/
+ *
+ * @todo Update report-URI headers here and in our Cloudflare configuration.
  */
 export const c10nSecurityHeaders = (options?: SecurityHeaderOptions): { [x: string]: string } => {
     const opts = $obj.defaults({}, options || {}, { cspNonce: '', enableCORs: false }) as Required<SecurityHeaderOptions>,
         defaultHeaders = defaultSecurityHeaders(opts),
-        trustedCSPHostnames = 'clevercanyon.com *.clevercanyon.com hop.gdn *.hop.gdn o5p.me *.o5p.me',
+        trustedCSPHostnames = 'clevercanyon.com *.clevercanyon.com hop.gdn *.hop.gdn o5p.org *.o5p.org o5p.me *.o5p.me',
         cloudflareCSPHostnames = 'ajax.cloudflare.com challenges.cloudflare.com static.cloudflareinsights.com';
 
     return {

@@ -11,5 +11,6 @@ describe('$app', async () => {
     });
     test('.pkgSlug()', async () => {
         expect($app.pkgSlug('workers.o5p.me')).toBe('workers-o5p-me');
+        expect($app.pkgSlug('workers.o5p.org')).toBe('workers-o5p-org');
     });
 });

@@ -49,7 +49,6 @@ const tꓺaddress = 'address',
     tꓺClever𑂱Canyon = 'Clever Canyon',
     tꓺcolor = 'color',
     tꓺംcom = '.com',
-    tꓺംorg = '.org',
     tꓺcompany = 'company',
     tꓺcookies = 'cookies',
     tꓺcontact = 'contact',
@@ -92,6 +91,7 @@ const tꓺaddress = 'address',
     tꓺlogoᱼonᱼdarkᱼbgᱼ2x = tꓺlogoᱼonᱼdarkᱼbg + '-2x',
     tꓺlogoᱼonᱼlightᱼbg = tꓺlogo + '-on-light-bg-2x',
     tꓺlogoᱼonᱼlightᱼbgᱼ2x = tꓺlogoᱼonᱼlightᱼbg + '-2x',
+    tꓺംme = '.me',
     tꓺmobile = 'mobile',
     tꓺn7m = 'n7m',
     tꓺname = 'name',
@@ -107,6 +107,7 @@ const tꓺaddress = 'address',
     tꓺonDarkBg = 'onDarkBg',
     tꓺonLightBg = 'onLightBg',
     tꓺorg = 'org',
+    tꓺംorg = '.' + tꓺorg,
     tꓺphone = 'phone',
     tꓺpkgName = 'pkgName',
     tꓺpng = 'png',
@@ -142,8 +143,9 @@ const tꓺaddress = 'address',
     tꓺwwwം = 'www.',
     tꓺzip = 'zip',
     //
-    tꓺvꓺo5pPhone = '1-888-355-0032',
-    tꓺvꓺc10nPhone = '1-888-346-0222',
+    tꓺvꓺ1ᱼ888ᱼ = '1-888-', // Toll free.
+    tꓺvꓺo5pPhone = tꓺvꓺ1ᱼ888ᱼ + '355-0032',
+    tꓺvꓺc10nPhone = tꓺvꓺ1ᱼ888ᱼ + '346-0222',
     //
     tꓺo5pംorg = tꓺo5p + tꓺംorg,
     tꓺමo5pംorg = '@' + tꓺo5pംorg,
@@ -151,6 +153,10 @@ const tꓺaddress = 'address',
     tꓺhttpsꓽⳇⳇo5pംorgⳇ = tꓺhttpsꓽⳇⳇo5pംorg + '/',
     tꓺhttpsꓽⳇⳇo5pംorgⳇlegalⳇ = tꓺhttpsꓽⳇⳇo5pംorg + '/legal/',
     tꓺhttpsꓽⳇⳇstatusംo5pംorgⳇ = tꓺhttpsꓽⳇⳇ + tꓺstatus + '.' + tꓺo5pംorg + '/',
+    //
+    tꓺo5pംme = tꓺo5p + tꓺംme,
+    tꓺhttpsꓽⳇⳇo5pംme = tꓺhttpsꓽⳇⳇ + tꓺo5pംme,
+    tꓺhttpsꓽⳇⳇo5pംmeⳇ = tꓺhttpsꓽⳇⳇo5pംme + '/',
     //
     tꓺclevercanyonംcom = tꓺclevercanyon + tꓺംcom,
     tꓺමclevercanyonംcom = '@' + tꓺclevercanyonംcom,
@@ -166,8 +172,10 @@ const tꓺaddress = 'address',
     tꓺhttpsꓽⳇⳇhopംgdnⳇ = tꓺhttpsꓽⳇⳇhopംgdn + '/',
     //
     tꓺමjaswrks = '@' + tꓺjaswrks,
-    tꓺමclevercanyon = '@' + tꓺclevercanyon,
     tꓺමjaswrksⳇo5pംorg = tꓺමjaswrks + '/' + tꓺo5pംorg,
+    tꓺමjaswrksⳇo5pംme = tꓺමjaswrks + '/' + tꓺo5pംme,
+    //
+    tꓺමclevercanyon = '@' + tꓺclevercanyon,
     tꓺමclevercanyonⳇclevercanyonംcom = tꓺමclevercanyon + '/' + tꓺclevercanyonംcom,
     tꓺමclevercanyonⳇhopംgdn = tꓺමclevercanyon + '/' + tꓺhopംgdn,
     //
@@ -279,7 +287,7 @@ const initializeRawProps = (): void => {
     rawPropsInitialized = true;
 
     /**
-     * Jason (dba: O5p).
+     * Jason (dba: O5p.org).
      */
     rawProps[tꓺමjaswrksⳇo5pംorg] = $obj.deepFreeze({
         [tꓺorg]: tꓺමjaswrksⳇo5pംorg,
@@ -297,7 +305,7 @@ const initializeRawProps = (): void => {
         [tꓺfoundingDate]: '2023-10-03',
         [tꓺnumberOfEmployees]: 10,
 
-        [tꓺn7m]: 'o5p',
+        [tꓺn7m]: tꓺo5p,
         [tꓺname]: tꓺO5p,
 
         [tꓺpkgName]: tꓺමjaswrksⳇo5pംorg,
@@ -419,6 +427,54 @@ const initializeRawProps = (): void => {
     }) as unknown as $type.BrandRawProps;
 
     /**
+     * Jason (dba: O5p.me).
+     */
+    rawProps[tꓺමjaswrksⳇo5pംme] = $obj.deepFreeze(
+        $obj.mergeDeep(rawProps[tꓺමjaswrksⳇo5pംorg], {
+            $set: {
+                // Inherits o5p.org org.
+                // Inherits o5p.org type.
+
+                // Inherits o5p.org legal name.
+                // Inherits o5p.org address.
+                // Inherits o5p.org founder.
+                // Inherits o5p.org employees.
+
+                // Inherits o5p.org n7m.
+                // Inherits o5p.org name.
+
+                [tꓺpkgName]: tꓺමjaswrksⳇo5pംme,
+                // Inherits o5p.org namespace.
+
+                [tꓺhostname]: tꓺo5pംme,
+                [tꓺmxHostname]: tꓺo5pംme,
+
+                [tꓺurl]: tꓺhttpsꓽⳇⳇo5pംmeⳇ,
+                // Inherits o5p.org status URL.
+
+                // Inherits o5p.org slug.
+                // Inherits o5p.org var.
+
+                // Inherits o5p.org slug prefix.
+                // Inherits o5p.org var prefix.
+
+                // Inherits o5p.org slogan.
+                // Inherits o5p.org description.
+
+                // Inherits o5p.org theme.
+                // Inherits o5p.org icon.
+                // Inherits o5p.org logo.
+                // Inherits o5p.org OG image.
+                // Inherits o5p.org screenshots.
+
+                // Inherits o5p.org policies.
+                // Inherits o5p.org contacts.
+                // Inherits o5p.org social profiles.
+            },
+        }),
+    ) as unknown as $type.BrandRawProps;
+
+    /**
      * Clever Canyon.
      */
     rawProps[tꓺමclevercanyonⳇclevercanyonംcom] = $obj.deepFreeze(
@@ -428,9 +484,9 @@ const initializeRawProps = (): void => {
                 [tꓺtype]: tꓺcorp, // Corporation.
 
                 [tꓺlegalName]: tꓺClever𑂱Canyon + ' LLC',
-                // Inherits o5p address.
-                // Inherits o5p founder.
-                // Inherits o5p employees.
+                // Inherits o5p.org address.
+                // Inherits o5p.org founder.
+                // Inherits o5p.org employees.
 
                 [tꓺn7m]: 'c10n',
                 [tꓺname]: tꓺClever𑂱Canyon,
