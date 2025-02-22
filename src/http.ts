@@ -151,7 +151,7 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
         // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
         // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
         // It’s worth noting that all our local test configurations make `https:` requests only.
-        url.protocol = 'https:';
+        url.protocol = 'https:'; // @todo Remove; likely no longer necessary.
     }
     url.searchParams.delete('utx_audit_log'); // Not to be seen by any other handlers.
 
@@ -213,6 +213,28 @@ export const requestProperties = $fnꓺmemo(2, (request: $type.Request): $type.S
 });
 
 /**
+ * Request context is incoming; i.e., initiated by a client to a server?
+ *
+ * An incoming request is one initiated by a client and received by server-side code. An outgoing request is one
+ * initiated by code; e.g., fetch. Node & Cloudflare have properties we can use to determine which.
+ *
+ * @param   request HTTP request.
+ *
+ * @returns         True if request context is incoming.
+ */
+export const requestIsIncoming = $fnꓺmemo(2, (request: $type.Request): boolean => {
+    let isIncoming = true; // Default value of this flag.
+
+    if ($env.isNode() && !Object.hasOwn(request as Request, 'socket')) {
+        isIncoming = false; // Incoming request.
+        //
+    } else if ($env.isCFW() && !Object.hasOwn((request as $type.cfw.Request).cf || {}, 'httpProtocol')) {
+        isIncoming = false; // Incoming request.
+    }
+    return isIncoming;
+});
+
+/**
  * Request has a supported method?
  *
  * @param   request HTTP request.
@@ -224,14 +246,55 @@ export const requestHasSupportedMethod = $fnꓺmemo(2, (request: $type.Request):
 });
 
 /**
- * Request has a cacheable request method?
+ * Checks if a request type is cacheable.
+ *
+ * This is not a comprehensive check for cacheability. It simply looks at the request method and whether it is incoming
+ * or outgoing. If outgoing, checks cache mode, cache-control header, and Cloudflare cache configuration.
  *
  * @param   request HTTP request.
  *
- * @returns         True if request has a cacheable request method.
+ * @returns         True if request type is cacheable.
  */
-export const requestHasCacheableMethod = $fnꓺmemo(2, (request: $type.Request): boolean => {
-    return requestHasSupportedMethod(request) && ['HEAD', 'GET'].includes(request.method);
+export const requestTypeIsCacheable = $fnꓺmemo(2, (request: $type.Request): boolean => {
+    // Only `HEAD` and `GET` requests are cacheable.
+    // This is always the case, regardless of context.
+    if (
+        !requestHasSupportedMethod(request) || //
+        !['HEAD', 'GET'].includes(request.method)
+    )
+        return false; // Uncacheable.
+
+    // All other incoming requests are cacheable.
+    // i.e., We simply do not consider anything else.
+
+    if (requestIsIncoming(request)) return true; // Cacheable.
+
+    // An outgoing request is typically one configured in code.
+    // Outgoing requests are cacheable based on the following criteria.
+
+    let cacheMode: undefined | string; // Try catch.
+    try { cacheMode = request.cache; } catch {} // prettier-ignore
+    const cacheControl = (request.headers.get('cache-control') || '').toLowerCase();
+
+    if (cacheMode && ['no-store', 'no-cache', 'reload'].includes(cacheMode)) {
+        return false; // Explicitly uncacheable.
+    }
+    if (cacheControl && cacheControl.split(/\s*,\s*/u).some((v) => ['no-store', 'no-cache', 'private', 'must-revalidate', 'max-age=0', 's-maxage=0'].includes(v))) {
+        return false; // Explicitly uncacheable.
+    }
+    if ($env.isCFW() /* Cloudflare workers. */) {
+        const cf = (request as $type.cfw.Request).cf,
+            cacheTtl = (cf as $type.cfw.RequestInitCfProperties)?.cacheTtl,
+            cacheTtlByStatus = (cf as $type.cfw.RequestInitCfProperties)?.cacheTtlByStatus;
+
+        if (cacheTtl && cacheTtl <= -1) {
+            return false; // A negative value makes it uncacheable.
+        }
+        if (cacheTtlByStatus && Object.values(cacheTtlByStatus).some((v) => v <= -1)) {
+            return false; // A negative value makes it uncacheable.
+        }
+    }
+    return true; // Cacheable.
 });
 
 /**
@@ -759,7 +822,7 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
             } else {
                 if (
                     'none' === cfg.cacheVersion ||
-                    !requestHasCacheableMethod(request) ||
+                    !requestTypeIsCacheable(request) ||
                     requestPathIsInAccount(request, url) ||
                     requestPathIsInAdmin(request, url) ||
                     (!cfg.cacheUsers && requestIsFromUser(request))
@@ -792,7 +855,7 @@ const prepareResponseHeaders = async (request: $type.Request, url: $type.URL, cf
         } else if (cfg.status >= 300) {
             cacheControl(0); // Do not cache.
             //
-        } else if (!requestHasCacheableMethod(request)) {
+        } else if (!requestTypeIsCacheable(request)) {
             cacheControl(0); // Do not cache.
             //
         } else if (requestPathIsSEORelatedFile(request, url)) {

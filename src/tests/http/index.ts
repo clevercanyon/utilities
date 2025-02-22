@@ -311,15 +311,15 @@ describe('$http', async () => {
         expect($http.requestHasSupportedMethod(new Request('https://example.com/', { method: 'DELETE' }))).toBe(true);
         expect($http.requestHasSupportedMethod(new Request('https://example.com/', { method: 'ABC' }))).toBe(false);
     });
-    test('.requestHasCacheableMethod()', async () => {
-        expect($http.requestHasCacheableMethod(new Request('https://example.com/', { method: 'OPTIONS' }))).toBe(false);
-        expect($http.requestHasCacheableMethod(new Request('https://example.com/', { method: 'HEAD' }))).toBe(true);
-        expect($http.requestHasCacheableMethod(new Request('https://example.com/', { method: 'GET' }))).toBe(true);
-        expect($http.requestHasCacheableMethod(new Request('https://example.com/', { method: 'POST' }))).toBe(false);
-        expect($http.requestHasCacheableMethod(new Request('https://example.com/', { method: 'PUT' }))).toBe(false);
-        expect($http.requestHasCacheableMethod(new Request('https://example.com/', { method: 'PATCH' }))).toBe(false);
-        expect($http.requestHasCacheableMethod(new Request('https://example.com/', { method: 'DELETE' }))).toBe(false);
-        expect($http.requestHasCacheableMethod(new Request('https://example.com/', { method: 'ABC' }))).toBe(false);
+    test('.requestTypeIsCacheable()', async () => {
+        expect($http.requestTypeIsCacheable(new Request('https://example.com/', { method: 'OPTIONS' }))).toBe(false);
+        expect($http.requestTypeIsCacheable(new Request('https://example.com/', { method: 'HEAD' }))).toBe(true);
+        expect($http.requestTypeIsCacheable(new Request('https://example.com/', { method: 'GET' }))).toBe(true);
+        expect($http.requestTypeIsCacheable(new Request('https://example.com/', { method: 'POST' }))).toBe(false);
+        expect($http.requestTypeIsCacheable(new Request('https://example.com/', { method: 'PUT' }))).toBe(false);
+        expect($http.requestTypeIsCacheable(new Request('https://example.com/', { method: 'PATCH' }))).toBe(false);
+        expect($http.requestTypeIsCacheable(new Request('https://example.com/', { method: 'DELETE' }))).toBe(false);
+        expect($http.requestTypeIsCacheable(new Request('https://example.com/', { method: 'ABC' }))).toBe(false);
     });
     test('.responseNeedsContentHeaders()', async () => {
         expect($http.responseNeedsContentHeaders(new Request('https://example.com/', { method: 'OPTIONS' }), 200, '')).toBe(false);

@@ -315,6 +315,7 @@ describe('$to', async () => {
             'contacts.privacy.phone',
 
             'socialProfiles.discord',
+            'socialProfiles.x',
             'socialProfiles.twitter',
             'socialProfiles.linkedin',
             'socialProfiles.facebook',
@@ -416,6 +417,7 @@ describe('$to', async () => {
             'founder.gravatar.url',
             'founder.gravatar.width',
             'founder.gravatar.height',
+            'founder.socialProfiles.x',
             'founder.socialProfiles.twitter',
             'founder.socialProfiles.linkedin',
             'founder.socialProfiles.facebook',
@@ -523,6 +525,7 @@ describe('$to', async () => {
             'contacts.privacy.phone',
 
             'socialProfiles.discord',
+            'socialProfiles.x',
             'socialProfiles.twitter',
             'socialProfiles.linkedin',
             'socialProfiles.facebook',

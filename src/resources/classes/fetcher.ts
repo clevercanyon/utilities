@@ -2,7 +2,7 @@
  * Fetcher utility class.
  */
 
-import { $app, $class, $env, $http, $json, $mime, $obp, $str, $to, type $type } from '#index.ts';
+import { $app, $class, $env, $http, $json, $mime, $obp, $str, type $type } from '#index.ts';
 
 /**
  * Constructor cache.
@@ -137,28 +137,6 @@ export const getClass = (): Constructor => {
         }
 
         /**
-         * Checks if request is cacheable.
-         *
-         * @param   request Request to consider.
-         *
-         * @returns         True if request is cacheable.
-         */
-        protected isCacheable(request: Request): boolean {
-            let cache: string | undefined; // i.e., Not supported by all environments.
-            try { cache = $to.string(request.cache); } catch {} // prettier-ignore
-
-            let cacheTtl: number | undefined; // i.e., Not supported by all environments.
-            try { cacheTtl = (request as unknown as $type.cfw.Request) //
-                .cf?.cacheTtl as number | undefined; } catch {} // prettier-ignore
-
-            return (
-                ['HEAD', 'GET'].includes((request.method || 'GET').toUpperCase()) && //
-                !['no-store', 'no-cache', 'reload'].includes((cache || 'default').toLowerCase()) &&
-                (undefined === cacheTtl || cacheTtl >= 0) // Only negative values disable cache.
-            );
-        }
-
-        /**
          * Wraps global native {@see fetch()}.
          *
          * @param   args Same as global native {@see fetch()}.
@@ -171,7 +149,7 @@ export const getClass = (): Constructor => {
             const request = new Request(...(args as [RequestInfo | URL, RequestInit | undefined])),
                 fetch = (this.cfw ? this.cfw.fetch : globalThis.fetch) as typeof globalThis.fetch;
 
-            if (!this.isCacheable(request)) return fetch(request);
+            if (!$http.requestTypeIsCacheable(request)) return fetch(request);
 
             const cacheKey = await $http.requestHash(request);
 

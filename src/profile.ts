@@ -54,7 +54,9 @@ const tꓺbrucewrks = 'brucewrks',
     tꓺusername = 'username',
     tꓺworkers = 'workers',
     tꓺwwwം = 'www.',
+    tꓺx = 'x',
     //
+    tꓺhttpsꓽⳇⳇxംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺx + tꓺംcom + '/',
     tꓺhttpsꓽⳇⳇtwitterംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺtwitter + tꓺംcom + '/',
     tꓺhttpsꓽⳇⳇwwwംlinkedinംcomⳇinⳇ = tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺlinkedin + tꓺംcom + '/in/',
     tꓺhttpsꓽⳇⳇwwwംfacebookംcomⳇ = tꓺhttpsꓽⳇⳇ + tꓺwwwം + tꓺfacebook + tꓺംcom + '/',
@@ -150,6 +152,7 @@ const initializeRawProps = (): void => {
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {
+            [tꓺx]: tꓺhttpsꓽⳇⳇxംcomⳇ + tꓺjaswrks,
             [tꓺtwitter]: tꓺhttpsꓽⳇⳇtwitterംcomⳇ + tꓺjaswrks,
             [tꓺlinkedin]: tꓺhttpsꓽⳇⳇwwwംlinkedinംcomⳇinⳇ + tꓺjaswrks,
             [tꓺfacebook]: tꓺhttpsꓽⳇⳇwwwംfacebookംcomⳇ + tꓺjaswrks,
@@ -178,6 +181,7 @@ const initializeRawProps = (): void => {
             ...tꓺobjꓺwidthHeight512x512,
         },
         [tꓺsocialProfiles]: {
+            [tꓺx]: tꓺhttpsꓽⳇⳇxംcomⳇ + tꓺbrucewrks,
             [tꓺtwitter]: tꓺhttpsꓽⳇⳇtwitterംcomⳇ + tꓺbrucewrks,
             [tꓺlinkedin]: tꓺhttpsꓽⳇⳇwwwംlinkedinംcomⳇinⳇ + tꓺbrucewrks,
             [tꓺfacebook]: tꓺhttpsꓽⳇⳇwwwംfacebookംcomⳇ + tꓺbrucewrks,
