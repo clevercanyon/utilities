@@ -188,6 +188,10 @@ export const requestHash = $fnꓺmemo(2, async (request: $type.Request): Promise
 
     const sortedProps = Object.fromEntries([...Object.entries(unsortedProps)].sort((a, b) => a[0].localeCompare(b[0])));
 
+    for (const key of ['cf', 'c10n']) // Keys with nested objects.
+        if ($is.object(sortedProps[key])) {
+            sortedProps[key] = [...Object.entries(sortedProps[key] as object)].sort((a, b) => a[0].localeCompare(b[0]));
+        }
     sortedProps.url = {
         canonical: $url.toCanonical(url), // i.e., Without ?query and/or #hash.
         queryVars: [...url.searchParams.entries()].sort((a, b) => a[0].localeCompare(b[0])),
@@ -225,10 +229,13 @@ export const requestProperties = $fnꓺmemo(2, (request: $type.Request): $type.S
 export const requestIsIncoming = $fnꓺmemo(2, (request: $type.Request): boolean => {
     let isIncoming = true; // Default value of this flag.
 
-    if ($env.isNode() && !Object.hasOwn(request as Request, 'socket')) {
+    const nodeRequest = request as $type.Request & { socket?: object },
+        cfwRequest = request as $type.cfw.Request;
+
+    if ($env.isNode() && (!Object.hasOwn(nodeRequest, 'socket') || !nodeRequest.socket)) {
         isIncoming = false; // Incoming request.
         //
-    } else if ($env.isCFW() && !Object.hasOwn((request as $type.cfw.Request).cf || {}, 'httpProtocol')) {
+    } else if ($env.isCFW() && (!Object.hasOwn(cfwRequest.cf || {}, 'httpProtocol') || !cfwRequest.cf?.httpProtocol)) {
         isIncoming = false; // Incoming request.
     }
     return isIncoming;
