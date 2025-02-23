@@ -140,7 +140,7 @@ export { tryFn as try }; // Must export as alias.
  */
 export const curry = <Fn extends $type.Function, Args extends $type.PartialParametersOf<Fn>>(fn: Fn, ...startingArgs: Args): CurriedFunction<Fn, Args> => {
     return function (this: ThisParameterType<Fn>, ...partialArgs) {
-        const args = [...startingArgs, ...partialArgs] as $type.PartialParametersOf<Fn>;
+        const args = [...startingArgs, ...partialArgs] as unknown as $type.PartialParametersOf<Fn>;
 
         if (args.length >= fn.length) {
             return fn.apply(this, args); // Potentially a promise.

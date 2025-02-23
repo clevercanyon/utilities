@@ -151,7 +151,7 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
         // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
         // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
         // It’s worth noting that all our local test configurations make `https:` requests only.
-        url.protocol = 'https:'; // @todo Remove; likely no longer necessary.
+        url.protocol = 'https:'; // @todo Consider removing after Wrangler 3.25+ {@see https://o5p.me/Rl9kpZ}
     }
     url.searchParams.delete('utx_audit_log'); // Not to be seen by any other handlers.
 

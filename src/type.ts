@@ -56,7 +56,7 @@ export type { $RawHeadersInit as RawHeadersInit };
 
 export type { $Request as Request };
 export type { $RequestInit as RequestInit };
-export type { $RequestC10n as RequestC10n };
+export type { $RequestC10nProps as RequestC10nProps };
 
 export type { $Response as Response };
 export type { $ResponseInit as ResponseInit };
@@ -499,11 +499,27 @@ type $RawHeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]
 
 type $Request = Request | cfw.Request;
 type $RequestInit = RequestInit | cfw.RequestInit;
-type $RequestC10n = {
+type $RequestC10nProps = {
     c10n?: {
         emailEvent?: $cfw.EmailEvent;
         scheduledEvent?: $cfw.ScheduledEvent;
         serviceBinding?: { subrequestCounter: $cfw.SubrequestCounter };
+        proxyOptions?: {
+            proxy?: {
+                host?: string;
+                port?: number;
+                username?: string;
+                password?: string;
+            };
+            method?: 'OPTIONS' | 'HEAD' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+            headers?: $HeadersInit; // Any of the above.
+            body?: string | null | undefined;
+
+            uaBotAppend?: string;
+            redirect?: 'follow' | 'manual';
+            maxRedirects?: number;
+            timeout?: number; // In milliseconds.
+        };
     };
 };
 type $Response = Response | cfw.Response;
