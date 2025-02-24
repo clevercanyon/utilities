@@ -168,7 +168,8 @@ export const getClass = (): Constructor => {
             } catch (thrown: unknown) {
                 response = new Response(null, {
                     status: 500, // Internal server error.
-                    statusText: $http.responseStatusText(500) + ($is.error(thrown) ? '; ' + thrown.message : ''),
+                    // To optimize bundle size, intentionally not using `$http.responseStatusText()`.
+                    statusText: 'Internal Server Error' + ($is.error(thrown) ? '; ' + thrown.message : ''),
                 });
             }
             if (!$is.nul(response.body)) {
