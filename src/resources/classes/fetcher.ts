@@ -35,11 +35,11 @@ export type Global = $type.Object<{
     cache: { [x: string]: GlobalCacheEntry };
 }>;
 export type GlobalCacheEntry = {
-    body: string;
+    body: string | null;
     init: {
         status: number;
         statusText: string;
-        headers: { [x: string]: string };
+        headers: [string, string][];
     };
 };
 
@@ -160,31 +160,32 @@ export const getClass = (): Constructor => {
             if ($env.isWeb()) return fetch(request); // No cache writes client-side.
 
             let response: Response, // Initialize.
-                responseContentType: string = '',
-                responseCleanContentType: string = '';
+                responseBody: string | null = null;
 
             try {
                 response = await fetch(request);
                 //
             } catch (thrown: unknown) {
-                response = new Response('', {
+                response = new Response(null, {
                     status: 500, // Internal server error.
                     statusText: $http.responseStatusText(500) + ($is.error(thrown) ? '; ' + thrown.message : ''),
-                    headers: { 'content-type': tꓺtextⳇ + tꓺplain },
                 });
             }
-            responseContentType = response.headers.get('content-type') || '';
-            responseCleanContentType = $mime.typeClean(responseContentType);
+            if (!$is.nul(response.body)) {
+                const responseContentType = response.headers.get('content-type') || '',
+                    responseCleanContentType = $mime.typeClean(responseContentType);
 
-            if (!cacheableResponseTypes.includes(responseCleanContentType)) {
-                return response; // Don't cache types not in list above.
+                if (!cacheableResponseTypes.includes(responseCleanContentType)) {
+                    return response; // Don't cache types not in list above.
+                }
+                responseBody = await response.text(); // Textual response body.
             }
             const globalCacheEntry: GlobalCacheEntry = {
-                body: await response.text(),
+                body: responseBody,
                 init: {
                     status: response.status,
                     statusText: response.statusText,
-                    headers: { 'content-type': responseContentType },
+                    headers: [...response.headers.entries()],
                 },
             };
             this.global.cache[cacheKey] = globalCacheEntry;

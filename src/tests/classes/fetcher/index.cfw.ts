@@ -43,7 +43,7 @@ describe('Fetcher', async () => {
             init: {
                 status: 200,
                 statusText: $http.responseStatusText(200),
-                headers: { 'content-type': $mime.contentType('.txt') },
+                headers: Object.entries({ 'content-type': $mime.contentType('.txt') }),
             },
         };
         expect(fetcher.global.cache['dea440f47ad1caee47a54e1d9caebc4ee4829de5']).toStrictEqual(expectedCache);

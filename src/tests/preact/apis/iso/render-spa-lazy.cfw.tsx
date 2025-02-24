@@ -2,7 +2,7 @@
  * Test suite.
  */
 
-import { $app, $brand, $crypto, $env, $json, $preact, $url } from '#index.ts';
+import { $app, $brand, $crypto, $env, $http, $json, $preact, $url } from '#index.ts';
 import { Body, HTML, Head, Root, Route, type RootProps, type RoutedProps } from '#preact/components.tsx';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 
@@ -73,6 +73,7 @@ describe('$preact.iso.renderSPA() [lazy-cfw]', async () => {
                     resolve(
                         new Response('', {
                             status: 200,
+                            statusText: $http.responseStatusText(200),
                             headers: { 'content-type': 'text/plain; charset=utf-8' },
                         }),
                     );
@@ -179,7 +180,7 @@ describe('$preact.iso.renderSPA() [lazy-cfw]', async () => {
         expect(lazyHTML).toContain('<script type="lazy-component-props">{"a":"_a","b":"_b","c":"_c"');
         expect(lazyHTML).toContain(
             // ISO fetcher cache should be dumped into script tag for client-side use.
-            '{"cache":{"46f384bdb8c2829d8f779865900ce58ae4609c98":{"body":"","init":{"status":200,"statusText":"","headers":{"content-type":"text/plain; charset=utf-8"}}},"3bed4d619aae949b7d4c8dc5cfee3a5ebb105c81":{"body":"","init":{"status":200,"statusText":"","headers":{"content-type":"text/plain; charset=utf-8"}}},"27080e0ca89940cc844d60ccbc74b80b985f084e":{"body":"","init":{"status":200,"statusText":"","headers":{"content-type":"text/plain; charset=utf-8"}}},"2ab39e754cce3d33fae79fe19cd5ebdd9753a146":{"body":"","init":{"status":200,"statusText":"","headers":{"content-type":"text/plain; charset=utf-8"}}}}};',
+            '{"cache":{"46f384bdb8c2829d8f779865900ce58ae4609c98":{"body":"","init":{"status":200,"statusText":"OK","headers":[["content-type","text/plain; charset=utf-8"]]}},"3bed4d619aae949b7d4c8dc5cfee3a5ebb105c81":{"body":"","init":{"status":200,"statusText":"OK","headers":[["content-type","text/plain; charset=utf-8"]]}},"27080e0ca89940cc844d60ccbc74b80b985f084e":{"body":"","init":{"status":200,"statusText":"OK","headers":[["content-type","text/plain; charset=utf-8"]]}},"2ab39e754cce3d33fae79fe19cd5ebdd9753a146":{"body":"","init":{"status":200,"statusText":"OK","headers":[["content-type","text/plain; charset=utf-8"]]}}}};',
         );
         expect(lazyHTML).toContain('</html>');
     });
