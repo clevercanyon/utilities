@@ -505,6 +505,16 @@ type $RequestC10nProps = {
         emailEvent?: $cfw.EmailEvent;
         scheduledEvent?: $cfw.ScheduledEvent;
         serviceBinding?: { subrequestCounter: $cfw.SubrequestCounter };
+
+        kvOptions?: {
+            cacheTtl?: number; // Cache storage expiration TTL, in seconds.
+            cacheMinTtl?: number; // Minimum time between retries, in seconds.
+            cacheMaxRetries?: number; // After `cacheMinTtl` expires.
+
+            fetch?: // Accepts either of these signatures.
+            | typeof cfw.fetch // Standard fetch signature on Cloudflare.
+                | ((rcData: $cfw.RequestContextData, requestInfo: cfw.RequestInfo, requestInit?: cfw.RequestInit) => Promise<cfw.Response>);
+        };
         proxyOptions?: {
             proxy?: {
                 host?: string;
@@ -512,12 +522,7 @@ type $RequestC10nProps = {
                 username?: string;
                 password?: string;
             };
-            method?: 'OPTIONS' | 'HEAD' | 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-            headers?: $HeadersInit; // Any of the above.
-            body?: string | null | undefined;
-
             uaBotAppend?: string;
-            redirect?: 'follow' | 'manual';
             maxRedirects?: number;
             timeout?: number; // In milliseconds.
         };

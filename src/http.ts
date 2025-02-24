@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $app, $crypto, $env, $fn, $gzip, $http, $is, $json, $mime, $obj, $path, $str, $symbol, $time, $to, $url, type $type } from '#index.ts';
+import { $app, $crypto, $env, $fn, $gzip, $is, $json, $mime, $obj, $path, $str, $symbol, $time, $to, $url, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -207,13 +207,12 @@ export const requestHash = $fnꓺmemo(2, async (request: $type.Request): Promise
         sortedProps.cf = sortByKey(sortedProps.cf);
     }
     if ($is.object(sortedProps.c10n)) {
+        if ($is.object(sortedProps.c10n.kvOptions)) {
+            sortedProps.c10n.kvOptions = sortByKey(sortedProps.c10n.kvOptions);
+        }
         if ($is.object(sortedProps.c10n.proxyOptions)) {
             if ($is.object(sortedProps.c10n.proxyOptions.proxy)) {
                 sortedProps.c10n.proxyOptions.proxy = sortByKey(sortedProps.c10n.proxyOptions.proxy);
-            }
-            if (sortedProps.c10n.proxyOptions.headers) {
-                const headers = $http.parseHeaders(sortedProps.c10n.proxyOptions.headers as $type.RawHeadersInit);
-                sortedProps.c10n.proxyOptions.headers = sortEntriesByKey([...headers.entries()]);
             }
             sortedProps.c10n.proxyOptions = sortByKey(sortedProps.c10n.proxyOptions);
         }
