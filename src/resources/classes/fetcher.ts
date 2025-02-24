@@ -41,6 +41,10 @@ export type GlobalCacheEntry = {
         statusText: string;
         headers: [string, string][];
     };
+    error?: {
+        message: string;
+        cause: $type.ErrorCause;
+    };
 };
 
 /**
@@ -160,7 +164,8 @@ export const getClass = (): Constructor => {
             if ($env.isWeb()) return fetch(request); // No cache writes client-side.
 
             let response: Response, // Initialize.
-                responseBody: string | null = null;
+                responseBody: string | null = null,
+                error: Error | undefined;
 
             try {
                 response = await fetch(request);
@@ -171,15 +176,20 @@ export const getClass = (): Constructor => {
                     // To optimize bundle size, intentionally not using `$http.responseStatusText()`.
                     statusText: 'Internal Server Error' + ($is.error(thrown) ? '; ' + thrown.message : ''),
                 });
+                error ??= Error('Fetch error' + ($is.error(thrown) ? '; ' + thrown.message : '') + '.', { cause: 'try:catch' });
             }
             if (!$is.nul(response.body)) {
                 const responseContentType = response.headers.get('content-type') || '',
                     responseCleanContentType = $mime.typeClean(responseContentType);
 
                 if (!cacheableResponseTypes.includes(responseCleanContentType)) {
-                    return response; // Don't cache types not in list above.
+                    error ??= Error('Uncacheable HTTP response type: ' + responseCleanContentType + '.', { cause: 'response:type' });
+                } else {
+                    responseBody = await response.text(); // Textual response body.
                 }
-                responseBody = await response.text(); // Textual response body.
+            }
+            if (error && this.cfw) {
+                void this.cfw.auditLogger.warn('Fetcher error.', { request, response, error });
             }
             const globalCacheEntry: GlobalCacheEntry = {
                 body: responseBody,
@@ -188,6 +198,7 @@ export const getClass = (): Constructor => {
                     statusText: response.statusText,
                     headers: [...response.headers.entries()],
                 },
+                ...(error ? { error: { message: error.message, cause: String(error.cause) } } : {}),
             };
             this.global.cache[cacheKey] = globalCacheEntry;
             return new Response(globalCacheEntry.body, globalCacheEntry.init);
