@@ -497,8 +497,9 @@ type $Headers = Headers | cfw.Headers;
 type $HeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: string }>;
 type $RawHeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: string }> | string;
 
-type $Request = Request | cfw.Request;
-type $RequestInit = RequestInit | cfw.RequestInit;
+// If request changes, please review {$http.requestHash()}.
+type $Request = (Request & $RequestC10nProps) | cfw.Request;
+type $RequestInit = (RequestInit & $RequestC10nProps) | cfw.RequestInit;
 type $RequestC10nProps = {
     c10n?: {
         emailEvent?: $cfw.EmailEvent;

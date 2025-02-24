@@ -2,7 +2,7 @@
  * Fetcher utility class.
  */
 
-import { $app, $class, $env, $http, $json, $mime, $obp, $str, type $type } from '#index.ts';
+import { $app, $class, $env, $http, $is, $json, $mime, $obp, $str, type $type } from '#index.ts';
 
 /**
  * Constructor cache.
@@ -159,9 +159,22 @@ export const getClass = (): Constructor => {
             }
             if ($env.isWeb()) return fetch(request); // No cache writes client-side.
 
-            const response = await fetch(request),
-                responseContentType = response.headers.get('content-type') || '',
-                responseCleanContentType = $mime.typeClean(responseContentType);
+            let response: Response, // Initialize.
+                responseContentType: string = '',
+                responseCleanContentType: string = '';
+
+            try {
+                response = await fetch(request);
+                //
+            } catch (thrown: unknown) {
+                response = new Response('', {
+                    status: 500, // Internal server error.
+                    statusText: $http.responseStatusText(500) + ($is.error(thrown) ? '; ' + thrown.message : ''),
+                    headers: { 'content-type': tꓺtextⳇ + tꓺplain },
+                });
+            }
+            responseContentType = response.headers.get('content-type') || '';
+            responseCleanContentType = $mime.typeClean(responseContentType);
 
             if (!cacheableResponseTypes.includes(responseCleanContentType)) {
                 return response; // Don't cache types not in list above.

@@ -5,7 +5,7 @@
 import '#@initialize.ts';
 
 import { $fnꓺmemo } from '#@standalone/index.ts';
-import { $app, $crypto, $env, $fn, $gzip, $is, $json, $mime, $obj, $path, $str, $symbol, $time, $to, $url, type $type } from '#index.ts';
+import { $app, $crypto, $env, $fn, $gzip, $http, $is, $json, $mime, $obj, $path, $str, $symbol, $time, $to, $url, type $type } from '#index.ts';
 
 /**
  * Defines types.
@@ -186,20 +186,38 @@ export const requestHash = $fnꓺmemo(2, async (request: $type.Request): Promise
         properties = requestProperties(request),
         unsortedProps = $obj.defaults(properties, defaults) as $type.StrKeyable;
 
-    const sortedProps = Object.fromEntries([...Object.entries(unsortedProps)].sort((a, b) => a[0].localeCompare(b[0])));
+    const sortByKey = (obj: $type.StrKeyable): $type.StrKeyable => {
+            return Object.fromEntries([...Object.entries(obj)].sort((a, b) => a[0].localeCompare(b[0])));
+        },
+        sortEntriesByKey = (objEntries: [string, unknown][]): [string, unknown][] => {
+            return [...objEntries].sort((a, b) => a[0].localeCompare(b[0]));
+        },
+        sortedProps = sortByKey(unsortedProps);
 
-    for (const key of ['cf', 'c10n']) // Keys with nested objects.
-        if ($is.object(sortedProps[key])) {
-            sortedProps[key] = [...Object.entries(sortedProps[key] as object)].sort((a, b) => a[0].localeCompare(b[0]));
-        }
     sortedProps.url = {
-        canonical: $url.toCanonical(url), // i.e., Without ?query and/or #hash.
-        queryVars: [...url.searchParams.entries()].sort((a, b) => a[0].localeCompare(b[0])),
+        canonical: $url.toCanonical(url), // Without ?query and/or #hash.
+        queryVars: sortEntriesByKey([...url.searchParams.entries()]),
     };
-    sortedProps.headers = [...request.headers.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    sortedProps.headers = sortEntriesByKey([...request.headers.entries()]);
 
     if (sortedProps.body /* Requires request clone. */) {
         sortedProps.body = await request.clone().text();
+    }
+    if ($is.object(sortedProps.cf)) {
+        sortedProps.cf = sortByKey(sortedProps.cf);
+    }
+    if ($is.object(sortedProps.c10n)) {
+        if ($is.object(sortedProps.c10n.proxyOptions)) {
+            if ($is.object(sortedProps.c10n.proxyOptions.proxy)) {
+                sortedProps.c10n.proxyOptions.proxy = sortByKey(sortedProps.c10n.proxyOptions.proxy);
+            }
+            if (sortedProps.c10n.proxyOptions.headers) {
+                const headers = $http.parseHeaders(sortedProps.c10n.proxyOptions.headers as $type.RawHeadersInit);
+                sortedProps.c10n.proxyOptions.headers = sortEntriesByKey([...headers.entries()]);
+            }
+            sortedProps.c10n.proxyOptions = sortByKey(sortedProps.c10n.proxyOptions);
+        }
+        sortedProps.c10n = sortByKey(sortedProps.c10n);
     }
     return await $crypto.sha1($json.stringify(sortedProps));
 });
