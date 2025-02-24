@@ -207,6 +207,9 @@ export const requestHash = $fnꓺmemo(2, async (request: $type.Request): Promise
         sortedProps.cf = sortByKey(sortedProps.cf);
     }
     if ($is.object(sortedProps.c10n)) {
+        if ($is.object(sortedProps.c10n.serviceBinding)) {
+            sortedProps.c10n.serviceBinding = sortByKey(sortedProps.c10n.serviceBinding);
+        }
         if ($is.object(sortedProps.c10n.kvOptions)) {
             sortedProps.c10n.kvOptions = sortByKey(sortedProps.c10n.kvOptions);
         }
@@ -315,6 +318,12 @@ export const requestTypeIsCacheable = $fnꓺmemo(2, (request: $type.Request): bo
             return false; // A negative value makes it uncacheable.
         }
         if (cacheTtlByStatus && Object.values(cacheTtlByStatus).some((v) => v <= -1)) {
+            return false; // A negative value makes it uncacheable.
+        }
+        const c10n = (request as $type.cfw.Request).c10n,
+            kvCacheTtl = c10n?.kvOptions?.cacheTtl;
+
+        if (kvCacheTtl && kvCacheTtl <= -1) {
             return false; // A negative value makes it uncacheable.
         }
     }

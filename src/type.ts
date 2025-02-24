@@ -138,6 +138,9 @@ export namespace $cfw {
     export type Route<Type extends RequestContextData = RequestContextData> = ((rcData: Type) => Promise<cfw.Response>) & {
         config?: Required<$http.RouteConfig>;
     };
+    export type FetchFn =
+        | typeof cfw.fetch // Standard fetch signature on Cloudflare.
+        | ((rcData: RequestContextData, requestInfo: cfw.RequestInfo, requestInit?: cfw.RequestInit) => Promise<cfw.Response>);
 }
 /**
  * Defines turnstile type, powered by Cloudflare.
@@ -504,16 +507,15 @@ type $RequestC10nProps = {
     c10n?: {
         emailEvent?: $cfw.EmailEvent;
         scheduledEvent?: $cfw.ScheduledEvent;
-        serviceBinding?: { subrequestCounter: $cfw.SubrequestCounter };
 
+        serviceBinding?: {
+            subrequestCounter: $cfw.SubrequestCounter;
+        };
         kvOptions?: {
-            cacheTtl?: number; // Cache storage expiration TTL, in seconds.
-            cacheMinTtl?: number; // Minimum time between retries, in seconds.
-            cacheMaxRetries?: number; // After `cacheMinTtl` expires.
-
-            fetch?: // Accepts either of these signatures.
-            | typeof cfw.fetch // Standard fetch signature on Cloudflare.
-                | ((rcData: $cfw.RequestContextData, requestInfo: cfw.RequestInfo, requestInit?: cfw.RequestInit) => Promise<cfw.Response>);
+            cacheTtl?: number; // In seconds.
+            cacheMinTtl?: number; // In seconds.
+            cacheMaxRetries?: number;
+            fetch?: $cfw.FetchFn;
         };
         proxyOptions?: {
             proxy?: {
