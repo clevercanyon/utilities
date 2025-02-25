@@ -55,6 +55,7 @@ export type { $HeadersInit as HeadersInit };
 export type { $RawHeadersInit as RawHeadersInit };
 
 export type { $Request as Request };
+export type { $RequestInfo as RequestInfo };
 export type { $RequestInit as RequestInit };
 export type { $RequestC10nProps as RequestC10nProps };
 
@@ -501,33 +502,32 @@ type $HeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: s
 type $RawHeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: string }> | string;
 
 // If request changes, please review {$http.requestHash()}.
-type $Request = (Request & $RequestC10nProps) | cfw.Request;
-type $RequestInit = (RequestInit & $RequestC10nProps) | cfw.RequestInit;
+type $Request = Request | cfw.Request;
+type $RequestInfo = $Request | URL | string | cfw.RequestInfo;
+type $RequestInit = RequestInit | cfw.RequestInit;
 type $RequestC10nProps = {
-    c10n?: {
-        emailEvent?: $cfw.EmailEvent;
-        scheduledEvent?: $cfw.ScheduledEvent;
+    emailEvent?: $cfw.EmailEvent;
+    scheduledEvent?: $cfw.ScheduledEvent;
 
-        serviceBinding?: {
-            subrequestCounter: $cfw.SubrequestCounter;
+    serviceBinding?: {
+        subrequestCounter: $cfw.SubrequestCounter;
+    };
+    kvOptions?: {
+        cacheTtl?: number; // In seconds.
+        cacheMinTtl?: number; // In seconds.
+        cacheMaxRetries?: number;
+        fetch?: $cfw.FetchFn;
+    };
+    proxyOptions?: {
+        proxy?: {
+            host?: string;
+            port?: number;
+            username?: string;
+            password?: string;
         };
-        kvOptions?: {
-            cacheTtl?: number; // In seconds.
-            cacheMinTtl?: number; // In seconds.
-            cacheMaxRetries?: number;
-            fetch?: $cfw.FetchFn;
-        };
-        proxyOptions?: {
-            proxy?: {
-                host?: string;
-                port?: number;
-                username?: string;
-                password?: string;
-            };
-            uaBotAppend?: string;
-            maxRedirects?: number;
-            timeout?: number; // In milliseconds.
-        };
+        uaBotAppend?: string;
+        maxRedirects?: number;
+        timeout?: number; // In milliseconds.
     };
 };
 type $Response = Response | cfw.Response;
