@@ -191,6 +191,7 @@ describe('$obj', async () => {
         expect($obj.allKeys(testObj)).toStrictEqual(['a', 'b', 'c']);
         expect($obj.allKeys(customObj)).toStrictEqual(['values', 'a', 'b', 'c']);
         expect($obj.allKeys(requestObj)).toStrictEqual([
+            'c10n',
             'method',
             'url',
             'headers',
@@ -264,31 +265,33 @@ describe('$obj', async () => {
             ['b', 'b'],
             ['c', 'c'],
         ]);
-        expect(requestObjEntries[0]).toEqual(['method', 'GET']);
-        expect(requestObjEntries[1]).toEqual(['url', 'https://x.tld/']);
-        expect(requestObjEntries[2][0]).toBe('headers');
-        expect(requestObjEntries[3]).toEqual(['destination', '']);
-        expect(requestObjEntries[4]).toEqual(['referrer', 'about:client']);
-        expect(requestObjEntries[5]).toEqual(['referrerPolicy', '']);
-        expect(requestObjEntries[6]).toEqual(['mode', 'cors']);
-        expect(requestObjEntries[7]).toEqual(['credentials', 'same-origin']);
-        expect(requestObjEntries[8]).toEqual(['cache', 'default']);
-        expect(requestObjEntries[9]).toEqual(['redirect', 'follow']);
-        expect(requestObjEntries[10]).toEqual(['integrity', '']);
-        expect(requestObjEntries[11]).toEqual(['keepalive', false]);
-        expect(requestObjEntries[12]).toEqual(['isReloadNavigation', false]);
-        expect(requestObjEntries[13]).toEqual(['isHistoryNavigation', false]);
-        expect(requestObjEntries[14][0]).toBe('signal');
-        expect(requestObjEntries[15][0]).toBe('body');
-        expect(requestObjEntries[16]).toEqual(['bodyUsed', false]);
-        expect(requestObjEntries[17]).toEqual(['duplex', 'half']);
-        expect(requestObjEntries[18][0]).toBe('clone');
-        expect(requestObjEntries[19][0]).toBe('blob');
-        expect(requestObjEntries[20][0]).toBe('arrayBuffer');
-        expect(requestObjEntries[21][0]).toBe('text');
-        expect(requestObjEntries[22][0]).toBe('json');
-        expect(requestObjEntries[23][0]).toBe('formData');
-        expect(requestObjEntries[24]).toEqual(['attribute', undefined]);
+        console.log(requestObjEntries);
+        expect(requestObjEntries[0]).toEqual(['c10n', undefined]);
+        expect(requestObjEntries[1]).toEqual(['method', 'GET']);
+        expect(requestObjEntries[2]).toEqual(['url', 'https://x.tld/']);
+        expect(requestObjEntries[3][0]).toBe('headers');
+        expect(requestObjEntries[4]).toEqual(['destination', '']);
+        expect(requestObjEntries[5]).toEqual(['referrer', 'about:client']);
+        expect(requestObjEntries[6]).toEqual(['referrerPolicy', '']);
+        expect(requestObjEntries[7]).toEqual(['mode', 'cors']);
+        expect(requestObjEntries[8]).toEqual(['credentials', 'same-origin']);
+        expect(requestObjEntries[9]).toEqual(['cache', 'default']);
+        expect(requestObjEntries[10]).toEqual(['redirect', 'follow']);
+        expect(requestObjEntries[11]).toEqual(['integrity', '']);
+        expect(requestObjEntries[12]).toEqual(['keepalive', false]);
+        expect(requestObjEntries[13]).toEqual(['isReloadNavigation', false]);
+        expect(requestObjEntries[14]).toEqual(['isHistoryNavigation', false]);
+        expect(requestObjEntries[15][0]).toBe('signal');
+        expect(requestObjEntries[16][0]).toBe('body');
+        expect(requestObjEntries[17]).toEqual(['bodyUsed', false]);
+        expect(requestObjEntries[18]).toEqual(['duplex', 'half']);
+        expect(requestObjEntries[19][0]).toBe('clone');
+        expect(requestObjEntries[20][0]).toBe('blob');
+        expect(requestObjEntries[21][0]).toBe('arrayBuffer');
+        expect(requestObjEntries[22][0]).toBe('text');
+        expect(requestObjEntries[23][0]).toBe('json');
+        expect(requestObjEntries[24][0]).toBe('formData');
+        expect(requestObjEntries[25]).toEqual(['attribute', undefined]);
 
         expect(responseObjEntries[0]).toEqual(['type', 'default']);
         expect(responseObjEntries[1]).toEqual(['url', '']);
@@ -371,10 +374,11 @@ describe('$obj', async () => {
         expect($obj.allKeysAndSymbols(testCustomObj)).toStrictEqual(['values']);
         expect($obj.allKeysAndSymbols(testObj)).toStrictEqual(['a', 'b', 'c']);
         expect($obj.allKeysAndSymbols(customObj)).toStrictEqual(['values', 'a', 'b', 'c', symbolA]);
-        expect($obj.allKeysAndSymbols(requestObj)).toHaveLength(29);
+        expect($obj.allKeysAndSymbols(requestObj)).toHaveLength(30);
         expect($obj.allKeysAndSymbols(responseObj)).toHaveLength(18);
 
         for (const key of [
+            'c10n',
             'method',
             'url',
             'headers',
@@ -437,35 +441,36 @@ describe('$obj', async () => {
             ['c', 'c'],
             [symbolA, true],
         ]);
-        expect(typeof requestObjEntries[0][1]).toBe('object');
+        expect(typeof requestObjEntries[0][1]).toBe('undefined');
         expect(typeof requestObjEntries[1][1]).toBe('object');
         expect(typeof requestObjEntries[2][1]).toBe('object');
         expect(typeof requestObjEntries[3][1]).toBe('object');
-        expect(requestObjEntries[4]).toEqual(['method', 'GET']);
-        expect(requestObjEntries[5]).toEqual(['url', 'https://x.tld/']);
-        expect(requestObjEntries[6][0]).toBe('headers');
-        expect(requestObjEntries[7]).toEqual(['destination', '']);
-        expect(requestObjEntries[8]).toEqual(['referrer', 'about:client']);
-        expect(requestObjEntries[9]).toEqual(['referrerPolicy', '']);
-        expect(requestObjEntries[10]).toEqual(['mode', 'cors']);
-        expect(requestObjEntries[11]).toEqual(['credentials', 'same-origin']);
-        expect(requestObjEntries[12]).toEqual(['cache', 'default']);
-        expect(requestObjEntries[13]).toEqual(['redirect', 'follow']);
-        expect(requestObjEntries[14]).toEqual(['integrity', '']);
-        expect(requestObjEntries[15]).toEqual(['keepalive', false]);
-        expect(requestObjEntries[16]).toEqual(['isReloadNavigation', false]);
-        expect(requestObjEntries[17]).toEqual(['isHistoryNavigation', false]);
-        expect(requestObjEntries[18][0]).toBe('signal');
-        expect(requestObjEntries[19][0]).toBe('body');
-        expect(requestObjEntries[20]).toEqual(['bodyUsed', false]);
-        expect(requestObjEntries[21]).toEqual(['duplex', 'half']);
-        expect(requestObjEntries[22][0]).toBe('clone');
-        expect(requestObjEntries[23][0]).toBe('blob');
-        expect(requestObjEntries[24][0]).toBe('arrayBuffer');
-        expect(requestObjEntries[25][0]).toBe('text');
-        expect(requestObjEntries[26][0]).toBe('json');
-        expect(requestObjEntries[27][0]).toBe('formData');
-        expect(requestObjEntries[28]).toEqual(['attribute', undefined]);
+        expect(typeof requestObjEntries[4][1]).toBe('object');
+        expect(requestObjEntries[5]).toEqual(['method', 'GET']);
+        expect(requestObjEntries[6]).toEqual(['url', 'https://x.tld/']);
+        expect(requestObjEntries[7][0]).toBe('headers');
+        expect(requestObjEntries[8]).toEqual(['destination', '']);
+        expect(requestObjEntries[9]).toEqual(['referrer', 'about:client']);
+        expect(requestObjEntries[10]).toEqual(['referrerPolicy', '']);
+        expect(requestObjEntries[11]).toEqual(['mode', 'cors']);
+        expect(requestObjEntries[12]).toEqual(['credentials', 'same-origin']);
+        expect(requestObjEntries[13]).toEqual(['cache', 'default']);
+        expect(requestObjEntries[14]).toEqual(['redirect', 'follow']);
+        expect(requestObjEntries[15]).toEqual(['integrity', '']);
+        expect(requestObjEntries[16]).toEqual(['keepalive', false]);
+        expect(requestObjEntries[17]).toEqual(['isReloadNavigation', false]);
+        expect(requestObjEntries[18]).toEqual(['isHistoryNavigation', false]);
+        expect(requestObjEntries[19][0]).toBe('signal');
+        expect(requestObjEntries[20][0]).toBe('body');
+        expect(requestObjEntries[21]).toEqual(['bodyUsed', false]);
+        expect(requestObjEntries[22]).toEqual(['duplex', 'half']);
+        expect(requestObjEntries[23][0]).toBe('clone');
+        expect(requestObjEntries[24][0]).toBe('blob');
+        expect(requestObjEntries[25][0]).toBe('arrayBuffer');
+        expect(requestObjEntries[26][0]).toBe('text');
+        expect(requestObjEntries[27][0]).toBe('json');
+        expect(requestObjEntries[28][0]).toBe('formData');
+        expect(requestObjEntries[29]).toEqual(['attribute', undefined]);
 
         expect(typeof responseObjEntries[0][1]).toBe('object');
         expect(typeof responseObjEntries[1][1]).toBe('object');
