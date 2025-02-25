@@ -502,6 +502,8 @@ type $HeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: s
 type $RawHeadersInit = HeadersInit | cfw.HeadersInit | $StrKeyable<{ [x: string]: string }> | string;
 
 // If request changes, please review {$http.requestHash()}.
+// If request changes, please review {$http.requestTypeIsCacheable()}.
+
 type $Request = Request | cfw.Request;
 type $RequestInfo = $Request | URL | string | cfw.RequestInfo;
 type $RequestInit = RequestInit | cfw.RequestInit;
