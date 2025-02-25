@@ -14,7 +14,7 @@ export declare var Request: {
         CfHostMetadata = unknown, //
         Cf = cfw.CfProperties<CfHostMetadata>,
     >(
-        info: RequestInfo<Cf>,
+        info: RequestInfo<cfw.CfProperties>,
         init?: RequestInit<Cf>,
     ): Request<CfHostMetadata, Cf>;
 };
