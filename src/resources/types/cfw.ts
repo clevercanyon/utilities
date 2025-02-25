@@ -25,7 +25,7 @@ export type RequestInfo<CfHostMetadata = unknown, Cf = cfw.CfProperties<CfHostMe
 export type RequestInit<Cf = cfw.CfProperties> = cfw.RequestInit<Cf> & { c10n?: $type.RequestC10nProps };
 
 export type ServiceWorkerGlobalScope = Omit<cfw.ServiceWorkerGlobalScope, 'Request' | 'fetch'> & {
-    Request: Request;
+    Request: typeof Request;
     fetch(
         this: void, // {@see https://typescript-eslint.io/rules/unbound-method/}.
         info: RequestInfo,
