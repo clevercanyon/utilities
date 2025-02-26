@@ -1013,7 +1013,12 @@ export const responseNeedsContentHeaders = $fnꓺmemo(2, (request: $type.Request
  * @see https://fetch.spec.whatwg.org/#null-body-status
  */
 export const responseNeedsContentBody = $fnꓺmemo(2, (request: $type.Request, responseStatus: number, responseBody: $type.BodyInit | null): boolean => {
-    return requestHasSupportedMethod(request) && !['OPTIONS', 'HEAD'].includes(request.method) && ![101, 103, 204, 205, 304].includes(responseStatus) && !$is.nul(responseBody);
+    return (
+        requestHasSupportedMethod(request) &&
+        !['OPTIONS', 'HEAD'].includes(request.method) &&
+        ![100, 101, 102, 103, 204, 205, 304].includes(responseStatus) &&
+        !$is.nul(responseBody)
+    );
 });
 
 // ---
@@ -1063,6 +1068,8 @@ export const responseNeedsContentBody = $fnꓺmemo(2, (request: $type.Request, r
  *             Or we should be implementing support for range requests within whatever is formulating responses, yes?
  */
 export const prepareCachedResponse = async (request: $type.Request, response: $type.Response): Promise<$type.Response> => {
+    const needsContentBody = responseNeedsContentBody(request, response.status, response.body);
+
     if (
         contentIsHTML(response.headers) && //
         !contentIsEncoded(response.headers) &&
@@ -1073,7 +1080,7 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
             cspNonce = request.headers.get('x-csp-nonce') || '',
             csp = response.headers.get('content-security-policy') || '';
 
-        if (responseNeedsContentBody(request, response.status, response.body)) {
+        if (needsContentBody) {
             // Content length does not and must not change. Otherwise, we would have to alter our `content-length` header,
             // which would get a little messy because it is possible we are actually dealing with a byte range request/response.
             // The length does not change here because CSP nonce replacement codes exactly match the length of CSP nonce values.
@@ -1085,10 +1092,18 @@ export const prepareCachedResponse = async (request: $type.Request, response: $t
         }
         response.headers.set('content-security-policy', csp.replaceAll(cspNonceReplCode, cspNonce));
         //
-    } else if (!responseNeedsContentBody(request, response.status, response.body)) {
+    } else if (!needsContentBody) {
         response = new Response(null, response); // Mutatable copy.
     } else {
         response = new Response(response.body as BodyInit, response); // Mutatable copy.
+    }
+    if (!needsContentBody && 304 === response.status) {
+        // We remove the CSP header on a `304 Not Modified` status, because if we return a new nonce, it will not match the existing
+        // nonce used in the cached body content, which has not been modified at this time. According to the HTTP/1.1 specification
+        // (RFC 9110, Section 15.4.5), a `304 Not Modified` response must not contain a message body and should only include headers
+        // that might have changed and need to override the cached version. Since a 304 response indicates that a cached response
+        // is still valid, a client/browser will reuse the previously cached headers, including the CSP header.
+        response.headers.delete('content-security-policy');
     }
     if ($env.isCFW() && response.headers.has('content-length') && !response.headers.has('accept-ranges')) {
         // The Cloudflare cache API supports byte range requests; {@see https://o5p.me/omV7Jx}.
@@ -1133,7 +1148,7 @@ export const prepareResponseForCache = async (request: $type.Request, response: 
         const cspNonceReplCode = $crypto.cspNonceReplacementCode(),
             csp = response.headers.get('content-security-policy') || '';
 
-        if (response.body) {
+        if (!$is.nul(response.body)) {
             // Content length does not and must not change. Otherwise, we would have to alter our `content-length` header,
             // which would get a little messy because it is possible we are later dealing with a byte range request/response.
             // The length does not change here because CSP nonce replacement codes exactly match the length of CSP nonce values.
