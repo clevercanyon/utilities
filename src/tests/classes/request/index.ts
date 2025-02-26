@@ -41,7 +41,7 @@ describe('Request', async () => {
             method: 'GET',
             c10n: {
                 kvOptions: {
-                    cacheTtl: $time.hourInSeconds,
+                    cacheMaxAge: $time.hourInSeconds,
                 },
             },
         });
@@ -49,7 +49,7 @@ describe('Request', async () => {
         expect(request1.method).toBe('GET');
         expect(request1.c10n).toStrictEqual({
             kvOptions: {
-                cacheTtl: $time.hourInSeconds,
+                cacheMaxAge: $time.hourInSeconds,
             },
         });
         expect($http.requestTypeIsCacheable(request1)).toBe(true);
@@ -62,7 +62,7 @@ describe('Request', async () => {
             },
             c10n: {
                 kvOptions: {
-                    cacheTtl: -1,
+                    cacheMaxAge: -1,
                 },
             },
         });
@@ -70,7 +70,7 @@ describe('Request', async () => {
         expect(request1.method).toBe('POST');
         expect(request1.c10n).toStrictEqual({
             kvOptions: {
-                cacheTtl: -1,
+                cacheMaxAge: -1,
             },
         });
         expect($http.requestTypeIsCacheable(request1)).toBe(false);
@@ -83,7 +83,7 @@ describe('Request', async () => {
             },
             c10n: {
                 kvOptions: {
-                    cacheTtl: -1,
+                    cacheMaxAge: -1,
                 },
             },
         });
@@ -91,7 +91,7 @@ describe('Request', async () => {
         expect(request1.method).toBe('POST');
         expect(request1.c10n).toStrictEqual({
             kvOptions: {
-                cacheTtl: -1,
+                cacheMaxAge: -1,
             },
         });
         expect($http.requestTypeIsCacheable(request1)).toBe(false);
@@ -101,7 +101,7 @@ describe('Request', async () => {
         expect(request2.method).toBe('POST');
         expect(request2.c10n).toStrictEqual({
             kvOptions: {
-                cacheTtl: -1,
+                cacheMaxAge: -1,
             },
         });
         expect($http.requestTypeIsCacheable(request2)).toBe(false);

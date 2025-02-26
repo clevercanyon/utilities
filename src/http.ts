@@ -321,9 +321,9 @@ export const requestTypeIsCacheable = $fnꓺmemo(2, (request: $type.Request): bo
             return false; // A negative value makes it uncacheable.
         }
         const c10n = (request as $type.cfw.Request).c10n,
-            kvCacheTtl = c10n?.kvOptions?.cacheTtl;
+            kvCacheMaxAge = c10n?.kvOptions?.cacheMaxAge;
 
-        if (kvCacheTtl && kvCacheTtl <= -1) {
+        if (kvCacheMaxAge && kvCacheMaxAge <= -1) {
             return false; // A negative value makes it uncacheable.
         }
     }

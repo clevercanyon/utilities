@@ -515,8 +515,8 @@ type $RequestC10nProps = {
         subrequestCounter: $cfw.SubrequestCounter;
     };
     kvOptions?: {
-        cacheTtl?: number; // In seconds.
-        cacheMinTtl?: number; // In seconds.
+        cacheMinAge?: number; // In seconds.
+        cacheMaxAge?: number; // In seconds.
         cacheMaxRetries?: number;
         fetch?: $cfw.FetchFn;
     };
