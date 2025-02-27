@@ -147,12 +147,6 @@ export const prepareRequest = async (request: $type.Request, config?: RequestCon
         url.pathname = $str.rTrim(url.pathname, '/');
         throw await prepareResponse(request, { status: 301, headers: { location: url.toString() } });
     }
-    if ('http:' === url.protocol && $env.isCFWViaMiniflare()) {
-        // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
-        // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
-        // It’s worth noting that all our local test configurations make `https:` requests only.
-        url.protocol = 'https:'; // @todo Consider removing after Wrangler 3.25+ {@see https://o5p.me/Rl9kpZ}
-    }
     url.searchParams.delete('utx_audit_log'); // Not to be seen by any other handlers.
 
     // Rewrites to a mutable request with revised URL.
@@ -394,15 +388,10 @@ export const requestPathHasInvalidAppBaseURLOrigin = $fnꓺmemo(2, (request: $ty
     const url = _url || $url.parse(request.url);
     const appBaseURL = $app.baseURL({ parsed: true });
 
-    if (url.host !== appBaseURL.host) return true;
-    return (
-        url.protocol !== appBaseURL.protocol && //
-        // This Miniflare behavior; i.e., `http:`, began in Wrangler 3.19.0.
-        // In Miniflare, we don’t consider a mismatched protocol to be an issue.
-        // We assume the original request URL was `https:` and Miniflare is acting as a proxy.
-        // It’s worth noting that all our local test configurations make `https:` requests only.
-        (!$env.isCFWViaMiniflare() || 'http:' !== url.protocol)
-    );
+    if (url.host !== appBaseURL.host) {
+        return true; // Host mismatch.
+    }
+    return url.protocol !== appBaseURL.protocol;
 });
 
 /**
