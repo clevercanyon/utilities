@@ -265,7 +265,6 @@ describe('$obj', async () => {
             ['b', 'b'],
             ['c', 'c'],
         ]);
-        console.log(requestObjEntries);
         expect(requestObjEntries[0]).toEqual(['c10n', undefined]);
         expect(requestObjEntries[1]).toEqual(['method', 'GET']);
         expect(requestObjEntries[2]).toEqual(['url', 'https://x.tld/']);

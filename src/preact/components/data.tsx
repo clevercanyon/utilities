@@ -181,8 +181,8 @@ export default class Data extends Component<Props, State> {
     public updateState<Updates extends PartialStateUpdates>(updates: Updates): void {
         // Returning `null` tells Preact not to update; {@see https://o5p.me/9BaxT3}.
         this.setState((currentState: State): Updates | null => {
-            const cleanUpdates = $obj.pick(updates, updatableStateKeys as unknown as string[]) as $type.Writable<Updates>;
-            cleanUpdates.head = $obj.pick(cleanUpdates.head || {}, updatableHeadStateKeys as unknown as string[]);
+            const cleanUpdates = $obj.pick(updates, updatableStateKeys as unknown as string[]) as Updates;
+            (cleanUpdates as $type.Writable<Updates>).head = $obj.pick(cleanUpdates.head || {}, updatableHeadStateKeys as unknown as string[]);
 
             const newState = $obj.updateDeepNoOps(currentState, cleanUpdates);
             return newState !== currentState ? (newState as Updates) : null;

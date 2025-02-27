@@ -52,23 +52,9 @@ export type Kind = 'mergeDeep' | 'mergeClonesDeep' | 'patchDeep' | 'patchClonesD
 export type CircularMap = Map<unknown, Map<unknown, unknown>> & { [x: symbol]: boolean };
 
 export type Handler = {
-    // @someday Figure out how to get these working properly when there are declarative ops.
-    // As of right now, the return type will include an object with declarative op keys.
-
-    <TypeA extends undefined, TypeB extends object>(...args: [TypeA, TypeB]): TypeB;
-    <TypeA extends object, TypeB extends undefined>(...args: [TypeA, TypeB]): TypeA;
-
-    <TypeA extends object, TypeB extends object>(...args: [TypeA, TypeB]): Record<keyof TypeA | keyof TypeB, $type.Object>;
-    <TypeA extends object, TypeB extends object, TypeC extends object>(...args: [TypeA, TypeB, TypeC]): Record<keyof TypeA | keyof TypeB | keyof TypeC, $type.Object>;
-
-    <TypeA extends object, TypeB extends object, TypeC extends object, TypeD extends object>(
-        ...args: [TypeA, TypeB, TypeC, TypeD]
-    ): Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD, $type.Object>;
-
-    <TypeA extends object, TypeB extends object, TypeC extends object, TypeD extends object, TypeE extends object>(
-        ...args: [TypeA, TypeB, TypeC, TypeD, TypeE]
-    ): Record<keyof TypeA | keyof TypeB | keyof TypeC | keyof TypeD | keyof TypeE, $type.Object>;
-
+    <TypeA extends object, TypeB extends undefined>(...args: [TypeA, TypeB]): Record<ExcludeDeclarativeOpKeys<keyof TypeA>, TypeA>;
+    <TypeA extends undefined, TypeB extends object>(...args: [TypeA, TypeB]): Record<ExcludeDeclarativeOpKeys<keyof TypeB>, TypeB>;
+    <Types extends [object, object, ...object[]]>(...args: Types): Record<ExcludeDeclarativeOpKeys<MergeObjectKeys<Types>>, $type.Object>;
     (...args: unknown[]): unknown;
 };
 export type MergeCallback = {
@@ -77,6 +63,18 @@ export type MergeCallback = {
 export type OperationCallback = {
     (target: unknown, params: unknown, separator?: string, calledAs?: string): boolean;
 };
+
+/**
+ * Defines utility types.
+ */
+type ExcludeDeclarativeOpKeys<Type> = Type extends `$${string}` ? never : Type;
+type MergeObjectKeys<Types extends object[]> = Types extends [infer First, ...infer Rest]
+    ? First extends object
+        ? Rest extends object[]
+            ? keyof First | MergeObjectKeys<Rest>
+            : keyof First
+        : never
+    : never;
 
 /**
  * Object MC class factory.
