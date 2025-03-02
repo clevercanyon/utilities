@@ -2,10 +2,25 @@
  * Test suite.
  */
 
-import { $env } from '#index.ts';
+import { $env, $is } from '#index.ts';
+import { env as cfEnv } from 'cloudflare:test';
 import { describe, expect, test } from 'vitest';
 
 describe('$env', async () => {
+    test('.isTest(), .test()', async () => {
+        expect($env.isTest()).toBe(true);
+
+        expect($env.test('TEST')).toBe(true);
+        expect($env.test('VITEST')).toBe(true);
+
+        expect($is.boolean($env.get('TEST'))).toBe(true);
+        expect($is.boolean($env.get('VITEST'))).toBe(true);
+
+        expect(import.meta.env.TEST).toBe('true');
+        expect(import.meta.env.VITEST).toBe('true');
+        expect(import.meta.env.APP_IS_VITE).toBe('serve=' + import.meta.env.MODE);
+        expect(import.meta.env.MODE).toBeOneOf(['ci', 'dev', 'prod', 'stage']);
+    });
     test('.isWeb()', async () => {
         expect($env.isWeb()).toBe(false);
     });
@@ -16,15 +31,13 @@ describe('$env', async () => {
         expect($env.isNode()).toBe(true);
     });
     test('.isCFW()', async () => {
+        expect(cfEnv).toStrictEqual({});
         expect($env.isCFW()).toBe(true);
-    });
-    test('.isCFWViaMiniflare()', async () => {
-        expect($env.isCFWViaMiniflare()).toBe(true);
     });
     test('.isWorker()', async () => {
         expect($env.isWorker()).toBe(false);
     });
     test('.isServiceWorker()', async () => {
-        expect($env.isServiceWorker()).toBe(false);
+        expect($env.isServiceWorker()).toBe(true);
     });
 });

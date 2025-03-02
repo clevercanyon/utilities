@@ -281,7 +281,6 @@ export const isCI = $fnꓺmemo((): boolean => {
  *
  *   - `TEST=true` (boolean).
  *   - `VITEST=true` (boolean).
- *   - `VITEST_MODE=RUN|WATCH|...` (string).
  */
 export const isTest = $fnꓺmemo((): boolean => {
     return test('TEST'); // Set by Vitest; maybe by Jest also.
@@ -346,6 +345,20 @@ export const isWeb = $fnꓺmemo((): boolean => {
 });
 
 /**
+ * Checks if environment is a web browser via jsdom.
+ *
+ * @returns True or false.
+ */
+export const isWebViaJSDOM = $fnꓺmemo((): boolean => {
+    return (
+        'Window' in globalThis && $is.function(Window) &&
+        'Navigator' in globalThis && $is.function(Navigator) &&
+        'navigator' in globalThis && navigator instanceof Navigator &&
+        navigator.userAgent.includes('jsdom/')
+    ); // prettier-ignore
+});
+
+/**
  * Checks if environment is a PWA.
  *
  * We don’t memoize this test because a PWA is often just a standalone view, and in Chrome, this can often result in
@@ -360,20 +373,6 @@ export const isWeb = $fnꓺmemo((): boolean => {
 export const isPWA = (): boolean => {
     return isWeb() && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
 };
-
-/**
- * Checks if environment is a web browser via jsdom.
- *
- * @returns True or false.
- */
-export const isWebViaJSDOM = $fnꓺmemo((): boolean => {
-    return (
-        'Window' in globalThis && $is.function(Window) &&
-        'Navigator' in globalThis && $is.function(Navigator) &&
-        'navigator' in globalThis && navigator instanceof Navigator &&
-        navigator.userAgent.includes('jsdom/')
-    ); // prettier-ignore
-});
 
 /**
  * Checks if environment is the server-side for an {@see isWeb()} app.
@@ -403,20 +402,6 @@ export const isNode = $fnꓺmemo((): boolean => {
 export const isCFW = $fnꓺmemo((): boolean => {
     return (
         isServiceWorker() && // `ServiceWorkerGlobalScope`.
-        'Navigator' in globalThis && $is.function(Navigator) &&
-        'navigator' in globalThis && navigator instanceof Navigator &&
-        'Cloudflare-Workers' === navigator.userAgent
-    ) || isCFWViaMiniflare(); // prettier-ignore
-});
-
-/**
- * Checks if environment is a Cloudflare worker via miniflare.
- *
- * @returns True or false.
- */
-export const isCFWViaMiniflare = $fnꓺmemo((): boolean => {
-    return (
-        (('MINIFLARE' in globalThis && true === MINIFLARE) || test('MINIFLARE')) &&
         'Navigator' in globalThis && $is.function(Navigator) &&
         'navigator' in globalThis && navigator instanceof Navigator &&
         'Cloudflare-Workers' === navigator.userAgent

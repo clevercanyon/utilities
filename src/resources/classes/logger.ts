@@ -281,7 +281,6 @@ export const getClass = (): Constructor => {
                             : {}),
                         ...(isCFW
                             ? {
-                                  isCFWViaMiniflare: $env.isCFWViaMiniflare(),
                                   // Cloudflare workers must use {@see withContext()}.
                                   // At which point additional `env`, `user` context is merged in.
                                   // Be sure to pass the current `request` to {@see withContext()}.

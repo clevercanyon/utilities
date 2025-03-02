@@ -11,11 +11,14 @@ describe('$env', async () => {
 
         expect($env.test('TEST')).toBe(true);
         expect($env.test('VITEST')).toBe(true);
-        expect($env.test('VITEST_MODE')).toBe(true);
 
         expect($is.boolean($env.get('TEST'))).toBe(true);
         expect($is.boolean($env.get('VITEST'))).toBe(true);
-        expect($is.string($env.get('VITEST_MODE'))).toBe(true);
+
+        expect(import.meta.env.TEST).toBe('true');
+        expect(import.meta.env.VITEST).toBe('true');
+        expect(import.meta.env.APP_IS_VITE).toBe('serve=' + import.meta.env.MODE);
+        expect(import.meta.env.MODE).toBeOneOf(['ci', 'dev', 'prod', 'stage']);
     });
     test('$env.setTopLevelObp()', async () => {
         expect($env.setTopLevelObp($app.$pkgName)).toBe(undefined);
