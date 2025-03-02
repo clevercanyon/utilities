@@ -106,13 +106,13 @@ export namespace $cfw {
     >;
     export type Environment = Readonly<{
         RT: cfw.Fetcher;
-        RT_AI: cfw.Fetcher;
+        RT_AI: cfw.Ai;
         RT_D1: cfw.D1Database;
         RT_R2: cfw.R2Bucket;
         RT_KV: cfw.KVNamespace;
         RT_QE: cfw.Queue;
 
-        AI: cfw.Fetcher;
+        AI: cfw.Ai;
         D1: cfw.D1Database;
         R2: cfw.R2Bucket;
         KV: cfw.KVNamespace;
