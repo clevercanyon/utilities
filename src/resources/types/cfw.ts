@@ -5,8 +5,8 @@
 /* eslint-disable @typescript-eslint/no-redeclare */
 
 import { type $type } from '#index.ts';
-export type * from '@cloudflare/workers-types/experimental';
-import type * as cfw from '@cloudflare/workers-types/experimental';
+export type * from '@cloudflare/workers-types/experimental/index.ts';
+import type * as cfw from '@cloudflare/workers-types/experimental/index.ts';
 
 export declare var Request: {
     prototype: Request;
