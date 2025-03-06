@@ -7,6 +7,13 @@ import { describe, expect, test } from 'vitest';
 
 describe('$mm', async () => {
     test('.test()', async () => {
+        expect($mm.any('/', '**')).toBe(true);
+        expect($mm.any('/path', '**')).toBe(true);
+        expect($mm.any('/nested/path', '**')).toBe(true);
+
+        expect($mm.any('', '*')).toBe(false);
+        expect($mm.any('', '**')).toBe(false);
+
         expect($mm.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', 'aeiou*')).toBe(true);
         expect($mm.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', '*aeiou*')).toBe(true);
         expect($mm.test('aeiouAEIOUaeiouyAEIOUYaeiou ꓺ ... 🦊 ÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ🦊', '*a{x,e}iou*')).toBe(true);
