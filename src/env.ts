@@ -10,6 +10,7 @@ import { $app, $cookie, $fn, $is, $obj, $obp, $str, $to, $type, $url } from '#in
 let topLevelObp: string = '',
     topLevelObpSet: boolean = false,
     varsInitialized: boolean = false;
+
 const vars: { [x: string]: unknown } = {};
 
 export type CaptureOptions = { overrideExisting: boolean };
@@ -53,10 +54,12 @@ const globalTopLevelObp = (obp: string): string => {
  * @returns     A potentially resolved top-level object path.
  */
 const resolveTopLevelObp = (obp: string): string => {
+    const tlObp = topLevelObp || $str.obpPartSafe($app.$pkgName);
+
     if (!obp.includes('.')) {
-        return (topLevelObp || $str.obpPartSafe($app.$pkgName)) + '.' + obp;
+        return tlObp + '.' + obp;
     }
-    return obp.replace(/^@top\./u, (topLevelObp || $str.obpPartSafe($app.$pkgName)) + '.');
+    return obp.replace(/^@top\./u, tlObp + '.');
 };
 
 /**
@@ -187,25 +190,36 @@ export function get(...args: unknown[]): unknown {
     } else (leadingObps = args[0] as string | string[]), (subObpOrObp = args[1] as string), (options = args[2] as GetOptions | undefined);
 
     let value: unknown; // Initialize value, which is populated below, if possible.
-    const opts = $obj.defaults({}, options || {}, { type: undefined, require: false, default: undefined }) as GetOptions;
+    const opts = $obj.defaults({}, options || {}, { type: undefined, require: false, default: undefined }) as GetOptions,
+        queriedObps: string[] = []; // Holds a list of all object paths queried below.
 
-    for (const leadingObp of $to.array(leadingObps)) {
-        const obp = [leadingObp, subObpOrObp].filter((v) => '' !== v).join('.');
+    loop: for (const leadingObp of $to.array(leadingObps)) {
+        const obp = [leadingObp, subObpOrObp].filter((v) => '' !== v).join('.'),
+            obpVariants = [...new Set([obp, obp.replace(/(^|\.)(APP_)/gu, '$1SSR_$2')])];
 
-        if (isTopLevelObp(obp)) {
-            // If top-level, look first at globals.
-            value = $obp.get(vars, globalTopLevelObp(obp));
+        if (isTopLevelObp(obp))
+            for (let obp of obpVariants) {
+                obp = globalTopLevelObp(obp);
+                queriedObps.push(obp);
+
+                value = $obp.get(vars, obp);
+                if (undefined !== value) break loop;
+            }
+        for (let obp of obpVariants) {
+            obp = resolveTopLevelObp(obp);
+            queriedObps.push(obp);
+
+            value = $obp.get(vars, obp);
+            if (undefined !== value) break loop;
         }
-        if (undefined === value) {
-            // Otherwise, resolve top-level and query.
-            value = $obp.get(vars, resolveTopLevelObp(obp));
-        }
-        if (undefined !== value) break; // Got value.
     }
     if (undefined === value) value = opts.default;
-    // Only throws if both the value and the default are undefined.
-    if (opts.require && undefined === value) throw Error('r4bAXRmQ');
-
+    if (opts.require && undefined === value)
+        throw Error(
+            'Missing required env var.\n' + //
+                'Queried object paths:\n' +
+                queriedObps.join(', '),
+        );
     if (opts.type /* Ensurable type. */) {
         return $type.ensure(value, opts.type);
     }

@@ -295,11 +295,7 @@ export const emailVerify = async (token: string, userId: number = 0): Promise<st
  * @returns Authorization token name; 42 bytes.
  */
 export const authTokenName = (): string => {
-    const hash =
-        $env.get('SSR_APP_AUTH_TOKEN_NAME_HASH', { type: 'string' }) || //
-        $env.get('APP_AUTH_TOKEN_NAME_HASH', { type: 'string', require: true });
-
-    return 'user_auth_' + hash.padStart(32, '0').slice(0, 32);
+    return 'user_auth_' + $env.get('APP_AUTH_TOKEN_NAME_HASH', { type: 'string', require: true }).padStart(32, '0').slice(0, 32);
 };
 
 /**
@@ -308,10 +304,7 @@ export const authTokenName = (): string => {
  * @returns Authorization token salt; typically 64 bytes.
  */
 export const authTokenSalt = (): string => {
-    return (
-        $env.get('SSR_APP_AUTH_TOKEN_SECRET_SALT', { type: 'string' }) || //
-        $env.get('APP_AUTH_TOKEN_SECRET_SALT', { type: 'string', require: true })
-    );
+    return $env.get('APP_AUTH_TOKEN_SECRET_SALT', { type: 'string', require: true });
 };
 
 /**
@@ -653,19 +646,15 @@ const buildHash = async (algo: HashAlgorithm, str: string): Promise<string> => {
  * @param   key  Key to use when hashing.
  *
  *   - Default key is taken from `APP_HMAC_SHA_KEY`.
- *   - Passing `&` will use `SSR_APP_C10N_HMAC_SHA_KEY`.
+ *   - Passing `&` will use `APP_C10N_HMAC_SHA_KEY`.
  *
  * @returns      HMAC keyed hash promise, of variable length, based on selected algorithm.
  */
 const buildHMACHash = async (algo: HashAlgorithm, str: string, key?: string): Promise<string> => {
     if ('&' === key) {
-        key =
-            $env.get('SSR_APP_C10N_HMAC_SHA_KEY', { type: 'string' }) || //
-            $env.get('APP_C10N_HMAC_SHA_KEY', { type: 'string', require: true });
+        key = $env.get('APP_C10N_HMAC_SHA_KEY', { type: 'string', require: true });
     } else if (!key) {
-        key =
-            $env.get('SSR_APP_HMAC_SHA_KEY', { type: 'string' }) || //
-            $env.get('APP_HMAC_SHA_KEY', { type: 'string', require: true });
+        key = $env.get('APP_HMAC_SHA_KEY', { type: 'string', require: true });
     }
     if (!key) throw Error('Fh5H2DRf');
 
