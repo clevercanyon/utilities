@@ -31,8 +31,8 @@ describe('$env', async () => {
         expect($env.isNode()).toBe(true);
     });
     test('.isCFW()', async () => {
-        expect(cfEnv).toStrictEqual({});
         expect($env.isCFW()).toBe(true);
+        expect(Object.keys(cfEnv)).toStrictEqual(['ASSETS']);
     });
     test('.isWorker()', async () => {
         expect($env.isWorker()).toBe(false);
