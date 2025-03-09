@@ -29,6 +29,7 @@ export * as $path from '#path.ts';
 export * as $preact from '#preact.tsx';
 export * as $profile from '#profile.ts';
 export * as $redact from '#redact.ts';
+export * as $ from '#schema.ts';
 export * as $str from '#str.ts';
 export * as $symbol from '#symbol.ts';
 export * as $time from '#time.ts';

@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.1016",
+    "version": "1.0.1017",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -270,6 +270,11 @@
             "import": "./dist/redact.js",
             "default": "./dist/redact.js"
         },
+        "./schema": {
+            "types": "./dist/types/schema.d.ts",
+            "import": "./dist/schema.js",
+            "default": "./dist/schema.js"
+        },
         "./str": {
             "types": "./dist/types/str.d.ts",
             "import": "./dist/str.js",
@@ -336,7 +341,8 @@
         "preact": "10.20.1",
         "preact-render-to-string": "6.4.1",
         "semver": "7.5.4",
-        "tailwindcss": "3.4.0"
+        "tailwindcss": "3.4.0",
+        "valibot": "1.0.0-rc.3"
     },
     "peerDependenciesMeta": {},
     "optionalDependencies": {},
