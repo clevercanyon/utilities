@@ -49,7 +49,7 @@ declare class ClassInterface {
     public addOperation(name: string, callback: OperationCallback): OperationCallback | undefined;
 }
 export type Kind = 'mergeDeep' | 'mergeClonesDeep' | 'patchDeep' | 'patchClonesDeep' | 'updateDeep' | 'updateClonesDeep';
-export type CircularMap = Map<unknown, Map<unknown, unknown>> & { [x: symbol]: boolean };
+export type CircularMap = Map<unknown, Map<unknown, unknown>> & { [x: symbol]: boolean; isNewFromUndefinedSymbol: symbol };
 
 export type Handler = {
     <TypeA extends object, TypeB extends undefined>(...args: [TypeA, TypeB]): Record<ExcludeDeclarativeOpKeys<keyof TypeA>, TypeA>;
@@ -67,6 +67,9 @@ export type OperationCallback = {
 /**
  * Defines utility types.
  */
+type NewArrayFromUndefined = unknown[] & { [x: symbol]: boolean };
+type NewObjectFromUndefined = object & { [x: symbol]: boolean };
+
 type ExcludeDeclarativeOpKeys<Type> = Type extends `$${string}` ? never : Type;
 type MergeObjectKeys<Types extends object[]> = Types extends [infer First, ...infer Rest]
     ? First extends object
@@ -230,17 +233,19 @@ export const getClass = (): Constructor => {
          * @returns      Merge handler function.
          */
         protected prepareMergeHandler(kind: Kind): Handler {
-            const circularMap: unique symbol = Symbol(kind + ':circularMap');
+            const isCircularMapSymbol: unique symbol = Symbol(kind + ':isCircularMap'),
+                isNewFromUndefinedSymbol: unique symbol = Symbol(kind + ':isNewFromUndefined');
 
             return function (this: Class, ...args: Parameters<Handler>): ReturnType<Handler> {
                 let circular: CircularMap; // Possibly extracted from args.
                 const lastArg = args.at(-1); // Examined below.
 
-                if ($is.map(lastArg) && Object.hasOwn(lastArg, circularMap)) {
+                if ($is.map(lastArg) && Object.hasOwn(lastArg, isCircularMapSymbol)) {
                     circular = args.pop() as CircularMap;
                 } else {
                     circular = new Map() as CircularMap;
-                    circular[circularMap] = true; // Identifying symbol.
+                    circular[isCircularMapSymbol] = true;
+                    circular.isNewFromUndefinedSymbol = isNewFromUndefinedSymbol;
                 }
                 return args.reduce((a: unknown, b: unknown): ReturnType<Handler> => {
                     if (circular.has(a)) {
@@ -250,13 +255,13 @@ export const getClass = (): Constructor => {
                     } /* Creates a new `a` value map. */ else {
                         circular.set(a, new Map()); // Used by callbacks.
                     }
-                    const tagA = $obj.tag(a);
-                    const tabB = $obj.tag(b);
+                    const tagA = $obj.tag(a),
+                        tagB = $obj.tag(b);
 
                     for (const mergeCallback of [
-                        `merge${tagA}${tabB}`, //
+                        `merge${tagA}${tagB}`, //
                         `merge${tagA}Any`,
-                        `mergeAny${tabB}`,
+                        `mergeAny${tagB}`,
                         `mergeAnyAny`,
                     ]) {
                         if ($is.function(this[mergeCallback])) {
@@ -328,8 +333,18 @@ export const getClass = (): Constructor => {
          * @returns          Merged array.
          */
         protected mergeArrayArray(a: unknown[], b: unknown[], kind: Kind, circular: CircularMap): unknown[] {
+            const { isNewFromUndefinedSymbol } = circular;
+
+            const aIsNewFromUndefined = Object.hasOwn(a, isNewFromUndefinedSymbol),
+                bIsNewFromUndefined = Object.hasOwn(b, isNewFromUndefinedSymbol);
+
+            if (aIsNewFromUndefined) delete (a as NewArrayFromUndefined)[isNewFromUndefinedSymbol];
+            if (bIsNewFromUndefined) delete (b as NewArrayFromUndefined)[isNewFromUndefinedSymbol];
+
             if ([this.kinds.PATCH_DEEP, this.kinds.PATCH_CLONES_DEEP].includes(kind)) {
-                circular.get(a)?.set(b, a);
+                circular // Considers `undefined` values.
+                    .get(aIsNewFromUndefined ? undefined : a) //
+                    ?.set(bIsNewFromUndefined ? undefined : b, a);
 
                 a.splice(0, a.length); // Deletes `a` keys.
 
@@ -339,12 +354,18 @@ export const getClass = (): Constructor => {
                 return a; // Returns `a`, mutated by reference.
                 //
             } else if ([this.kinds.UPDATE_DEEP, this.kinds.UPDATE_CLONES_DEEP].includes(kind) && $is.deepEqual(a, b)) {
-                circular.get(a)?.set(b, a);
+                circular // Considers `undefined` values.
+                    .get(aIsNewFromUndefined ? undefined : a) //
+                    ?.set(bIsNewFromUndefined ? undefined : b, a);
+
                 return a; // Returns `a` when there are no differences.
                 //
             } else {
-                const bClone: unknown[] = [];
-                circular.get(a)?.set(b, bClone);
+                const bClone: unknown[] = bIsNewFromUndefined ? b : [];
+
+                circular // Considers `undefined` values.
+                    .get(aIsNewFromUndefined ? undefined : a) //
+                    ?.set(bIsNewFromUndefined ? undefined : b, bClone);
 
                 for (let key = 0; key < b.length; key++) {
                     bClone[key] = this[kind](undefined, b[key], circular);
@@ -364,14 +385,25 @@ export const getClass = (): Constructor => {
          * @returns          Merged object.
          */
         protected mergeObjectObject(a: $type.Object, b: $type.Object, kind: Kind, circular: CircularMap): $type.Object {
-            const aKeys = $obj.keysAndSymbols(a);
-            const bKeys = new Set($obj.keysAndSymbols(b));
+            const { isNewFromUndefinedSymbol } = circular;
+
+            const aIsNewFromUndefined = Object.hasOwn(a, isNewFromUndefinedSymbol),
+                bIsNewFromUndefined = Object.hasOwn(b, isNewFromUndefinedSymbol);
+
+            if (aIsNewFromUndefined) delete (a as NewObjectFromUndefined)[isNewFromUndefinedSymbol];
+            if (bIsNewFromUndefined) delete (b as NewObjectFromUndefined)[isNewFromUndefinedSymbol];
+
+            const aKeys = $obj.keysAndSymbols(a),
+                bKeys = new Set($obj.keysAndSymbols(b));
 
             let newObj = [this.kinds.PATCH_DEEP, this.kinds.PATCH_CLONES_DEEP].includes(kind)
 				? a // Patching `a` target object in this case.
-				: ({} as $type.Object); // prettier-ignore
+				: aIsNewFromUndefined ? a // New from `undefined`?
+                : ({} as $type.Object); // prettier-ignore
 
-            circular.get(a)?.set(b, newObj);
+            circular // Considers `undefined` values.
+                .get(aIsNewFromUndefined ? undefined : a) //
+                ?.set(bIsNewFromUndefined ? undefined : b, newObj);
 
             let keyResult; // For key results below.
             const operations: [string, unknown][] = [];
@@ -427,7 +459,10 @@ export const getClass = (): Constructor => {
          * @note For merges, this ultimately uses {@see mergeArrayArray()} for processing.
          */
         protected mergeUndefinedArray(a: undefined, b: unknown[], kind: Kind, circular: CircularMap): unknown[] {
-            return this[kind]([], b, circular) as unknown as unknown[];
+            const newAFromUndefined = [] as unknown as NewArrayFromUndefined;
+            newAFromUndefined[circular.isNewFromUndefinedSymbol] = true;
+
+            return this[kind](newAFromUndefined, b, circular) as unknown as unknown[];
         }
 
         /**
@@ -443,7 +478,10 @@ export const getClass = (): Constructor => {
          * @note For merges, this ultimately uses {@see mergeArrayArray()} for processing.
          */
         protected mergeArrayUndefined(a: unknown[], b: undefined, kind: Kind, circular: CircularMap): unknown[] {
-            return this[kind](a, [...a], circular) as unknown as unknown[];
+            const newBFromUndefined = [...a] as unknown as NewArrayFromUndefined;
+            newBFromUndefined[circular.isNewFromUndefinedSymbol] = true;
+
+            return this[kind](a, newBFromUndefined, circular) as unknown as unknown[];
         }
 
         /**
@@ -459,7 +497,10 @@ export const getClass = (): Constructor => {
          * @note This ultimately uses {@see mergeObjectObject()} for processing.
          */
         protected mergeUndefinedObject(a: undefined, b: $type.Object, kind: Kind, circular: CircularMap): $type.Object {
-            return this[kind]({} as $type.Object, b, circular) as $type.Object;
+            const newAFromUndefined: NewObjectFromUndefined = {};
+            newAFromUndefined[circular.isNewFromUndefinedSymbol] = true;
+
+            return this[kind](newAFromUndefined, b, circular) as $type.Object;
         }
 
         /**
@@ -475,7 +516,10 @@ export const getClass = (): Constructor => {
          * @note This ultimately uses {@see mergeObjectObject()} for processing.
          */
         protected mergeObjectUndefined(a: $type.Object, b: undefined, kind: Kind, circular: CircularMap): $type.Object {
-            return this[kind](a, {} as $type.Object, circular) as $type.Object;
+            const newBFromUndefined: NewObjectFromUndefined = {};
+            newBFromUndefined[circular.isNewFromUndefinedSymbol] = true;
+
+            return this[kind](a, newBFromUndefined, circular) as $type.Object;
         }
 
         /**
