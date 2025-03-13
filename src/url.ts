@@ -821,7 +821,8 @@ export const rootHost = $fnꓺmemo({ deep: true, maxSize: 12 }, (host?: $type.UR
 
     if ($is.url(host)) {
         const url = host; // As URL object.
-        (host = url.host), (hostname = url.hostname);
+        host = url.host; // Extracts URL data.
+        hostname = url.hostname;
         //
     } else if ($str.isIPv6Host(host)) {
         // e.g., `[::1]:3000`, always in brackets.

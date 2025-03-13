@@ -374,7 +374,7 @@ export const object = $standalone.$isꓺobject;
  *
  * @returns       True if value is a plain object.
  */
-export const plainObject = <Type>(value: $type.OfObject<Type> | unknown): value is $type.OfObject<Type> => {
+export const plainObject = <Type>(value: $type.OfObject<Type> | Type): value is $type.OfObject<Type> => {
     return object(value) && objectTag(value, 'Object');
 };
 
@@ -425,7 +425,7 @@ export const fnArguments = (value: unknown): value is IArguments => {
  *
  * @returns       True if value is a promise.
  */
-export const promise = <Type>(value: $type.OfPromise<Type> | unknown): value is $type.OfPromise<Type> => {
+export const promise = <Type>(value: $type.OfPromise<Type> | Type): value is $type.OfPromise<Type> => {
     return value instanceof Promise;
 };
 
@@ -436,7 +436,7 @@ export const promise = <Type>(value: $type.OfPromise<Type> | unknown): value is 
  *
  * @returns       True if value is a set.
  */
-export const set = <Type>(value: $type.OfSet<Type> | unknown): value is $type.OfSet<Type> => {
+export const set = <Type>(value: $type.OfSet<Type> | Type): value is $type.OfSet<Type> => {
     return value instanceof Set;
 };
 
@@ -447,7 +447,7 @@ export const set = <Type>(value: $type.OfSet<Type> | unknown): value is $type.Of
  *
  * @returns       True if value is a map.
  */
-export const map = <Type>(value: $type.OfMap<Type> | unknown): value is $type.OfMap<Type> => {
+export const map = <Type>(value: $type.OfMap<Type> | Type): value is $type.OfMap<Type> => {
     return value instanceof Map;
 };
 
@@ -676,7 +676,7 @@ export const date = (value: unknown): value is Date => {
  *
  * @returns       True if value is a URL.
  */
-export const url = (value: unknown): value is URL => {
+export const url = (value: unknown): value is $type.URL => {
     return value instanceof URL;
 };
 
@@ -841,7 +841,7 @@ export const sealed = (value: unknown): boolean => {
  *
  * @note See: <https://o5p.me/iYUYVK> for iterable details.
  */
-export const iterable = <Type>(value: $type.OfIterable<Type> | unknown): value is $type.OfIterable<Type> => {
+export const iterable = <Type>(value: $type.OfIterable<Type> | Type): value is $type.OfIterable<Type> => {
     return Symbol.iterator in Object(value);
 };
 
@@ -854,7 +854,7 @@ export const iterable = <Type>(value: $type.OfIterable<Type> | unknown): value i
  *
  * @note See: <https://o5p.me/iYUYVK> for iterable details.
  */
-export const asyncIterable = <Type>(value: $type.OfAsyncIterable<Type> | unknown): value is $type.OfAsyncIterable<Type> => {
+export const asyncIterable = <Type>(value: $type.OfAsyncIterable<Type> | Type): value is $type.OfAsyncIterable<Type> => {
     return Symbol.asyncIterator in Object(value);
 };
 

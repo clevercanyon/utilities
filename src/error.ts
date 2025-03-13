@@ -72,8 +72,8 @@ export const safeMessageFrom = (thrown: unknown, options: SafeMessageFromOptions
     while (opts.expectedCauses.length && $is.error(error) && $is.errorCause(error.cause)) {
         if (
             error.message &&
-            (($is.string(error.cause) && isExpectedCauseCode(opts.expectedCauses, error.cause)) ||
-                ($is.plainObject(error.cause) && isExpectedCauseCode(opts.expectedCauses, error.cause.code)))
+            (($is.errorCause(error.cause, { type: 'string' }) && isExpectedCauseCode(opts.expectedCauses, error.cause)) ||
+                ($is.errorCause(error.cause, { type: 'object' }) && isExpectedCauseCode(opts.expectedCauses, error.cause.code)))
         ) {
             return error.message; // Expected; i.e., safe, error message.
         }
@@ -96,8 +96,8 @@ export const thrownByExpectedCause = (thrown: unknown, options: ThrownByExpected
     let error: unknown = thrown; // Initialize.
     while (opts.expectedCauses.length && $is.error(error) && $is.errorCause(error.cause)) {
         if (
-            ($is.string(error.cause) && isExpectedCauseCode(opts.expectedCauses, error.cause)) || //
-            ($is.plainObject(error.cause) && isExpectedCauseCode(opts.expectedCauses, error.cause.code))
+            ($is.errorCause(error.cause, { type: 'string' }) && isExpectedCauseCode(opts.expectedCauses, error.cause)) || //
+            ($is.errorCause(error.cause, { type: 'object' }) && isExpectedCauseCode(opts.expectedCauses, error.cause.code))
         ) {
             return true; // Expected cause; i.e., true.
         }

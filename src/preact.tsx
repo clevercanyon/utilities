@@ -357,17 +357,18 @@ const classesꓺhelper = (allArgs: Classes[], classMap?: ClassMap): ClassMap => 
                 classesꓺhelper([...arg], map);
                 //
             } else if ($is.string(arg)) {
-                arg.split(/\s+/u).map((c) => c && map.set(c, true));
+                arg.split(/\s+/u).forEach((c) => c && map.set(c, true));
                 //
             } else if ($is.map(arg)) {
                 for (const [classNames, enable] of arg)
-                    ($is.string(classNames) ? classNames : '').split(/\s+/u).map((c) => {
-                        c && true === enable ? map.set(c, true) : map.delete(c);
+                    ($is.string(classNames) ? classNames : '').split(/\s+/u).forEach((c) => {
+                        return c && true === enable ? map.set(c, true) : map.delete(c);
                     });
             } else if ($is.plainObject(arg)) {
-                for (const prop of internalClassPropVariants) {
-                    if (Object.hasOwn(arg, prop)) classesꓺhelper([arg[prop]], map);
-                }
+                for (const prop of internalClassPropVariants)
+                    if (Object.hasOwn(arg, prop) /* Has a class prop variant? */) {
+                        classesꓺhelper([(arg as { [x in ClassPropVariants]: Classes })[prop]], map);
+                    }
             } else if ($is.object(arg) && Object.hasOwn(arg, 'value')) {
                 // Note: accessing `.value` subscribes us to the signal-like value.
                 classesꓺhelper([(arg as preact.JSX.SignalLike<null | undefined | string>).value], map);

@@ -549,9 +549,9 @@ type $ErrorCauseObject<Meta extends object = object> = Readonly<{
     meta?: $StrKeyable<Meta>;
 }>;
 type $Unkeyable = Record<ObjectKey, never>;
-type $AnyObject<Type extends object = object> = {} & Type;
-type $Keyable<Type extends object = object> = { [x: ObjectKey]: unknown } & Type;
-type $StrKeyable<Type extends object = object> = { [x: string]: unknown } & Type;
+type $AnyObject<Type extends object = object> = Type & {};
+type $Keyable<Type extends object = object> = Type & { [x: ObjectKey]: unknown };
+type $StrKeyable<Type extends object = object> = Type & { [x: string]: unknown };
 
 type $ObjectC9r<Type extends $ꓺAnyObjectC9r = $ꓺAnyObjectC9r> = Type;
 type $Function<Type extends $ꓺAnyFn = $ꓺAnyFn> = (...args: Parameters<Type>) => ReturnType<Type>;
