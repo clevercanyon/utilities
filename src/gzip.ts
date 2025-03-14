@@ -26,7 +26,7 @@ export const encode = async (str: string, options?: EncodeOptions): Promise<Uint
         readableStream = new Blob([str]).stream(),
         compressedStream = readableStream.pipeThrough(new CompressionStream(opts.deflate ? 'deflate' : 'gzip'));
 
-    for await (const chunk of compressedStream as unknown as Iterable<Uint8Array>) {
+    for await (const chunk of compressedStream as unknown as AsyncIterable<Uint8Array>) {
         chunks.push(chunk); // Chunks of byte arrays.
     }
     return $bytes.combine(chunks);
@@ -46,7 +46,7 @@ export const decode = async (bytes: Uint8Array, options?: DecodeOptions): Promis
         readableStream = new Blob([bytes]).stream(),
         decompressedStream = readableStream.pipeThrough(new DecompressionStream(opts.deflate ? 'deflate' : 'gzip'));
 
-    for await (const chunk of decompressedStream as unknown as Iterable<Uint8Array>) {
+    for await (const chunk of decompressedStream as unknown as AsyncIterable<Uint8Array>) {
         chunks.push(chunk); // Chunks of byte arrays.
     }
     return $str.textDecode(await $bytes.combine(chunks));

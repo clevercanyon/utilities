@@ -230,8 +230,10 @@ export const parse = (parseable?: Parseable, options?: ParseOptions): $type.Time
         // ISO-8601 JS-like, simplified: `2023-02-21[T13:16[:32[.000]][Z|+00:00|+0000]]`; {@see https://o5p.me/qgRkeM}.
         // Dayjs is capable of parsing ISO-8601 dates without separators. However, when there are no separators we will have
         // already considered it to be a timestamp; i.e., whenever it’s >= 10 digits. So please use hyphens, or at least a space.
-        else if (!hasTZRegExp.test(parseable)) time = dayjs.utc(parseable); // No timezone implies UTC.
-        else time = dayjs(parseable); // Dayjs default parser.
+        else if (!hasTZRegExp.test(parseable)) {
+            time = dayjs.utc(parseable); // No timezone implies UTC timezone.
+            //
+        } else time = dayjs(parseable); // Dayjs default parser.
     }
     if (!time || !time.isValid()) {
         throw Error('HavduxTK'); // Unable to parse time.

@@ -338,7 +338,10 @@ export const getClass = (): Constructor => {
             const aIsNewFromUndefined = Object.hasOwn(a, isNewFromUndefinedSymbol),
                 bIsNewFromUndefined = Object.hasOwn(b, isNewFromUndefinedSymbol);
 
+            // eslint-disable-next-line @typescript-eslint/no-array-delete -- it's a property.
             if (aIsNewFromUndefined) delete (a as NewArrayFromUndefined)[isNewFromUndefinedSymbol];
+
+            // eslint-disable-next-line @typescript-eslint/no-array-delete -- it's a property.
             if (bIsNewFromUndefined) delete (b as NewArrayFromUndefined)[isNewFromUndefinedSymbol];
 
             if ([this.kinds.PATCH_DEEP, this.kinds.PATCH_CLONES_DEEP].includes(kind)) {

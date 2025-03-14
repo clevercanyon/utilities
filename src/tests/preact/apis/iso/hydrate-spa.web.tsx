@@ -103,7 +103,8 @@ describe('$preact.iso.hydrateSPA() [web]', async () => {
         // Neither `document.write` or `(outer|inner)HTML` run embedded script tags, for security reasons.
         // That's why we're extracting and running script code using a `new Function()` below, which runs script code.
         const dataScriptCode = doctypeHTML.match(/<script id="global-data" nonce="[^"]+" data-key="globalData">([^<>]+)<\/script>/u)?.[1] || '';
-        // eslint-disable-next-line @typescript-eslint/no-implied-eval -- OK when testing.
+
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-unsafe-call -- OK when testing.
         if (dataScriptCode) new Function(dataScriptCode)(); // Execute script code.
 
         const domIndexHeadMarkup = document.querySelector('head')?.outerHTML || '';

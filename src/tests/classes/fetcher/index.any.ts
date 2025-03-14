@@ -1,7 +1,6 @@
 /**
  * Test suite.
  */
-/* eslint-disable @typescript-eslint/unbound-method -- safe to ignore. */
 
 import { $class, $http, $mime } from '#index.ts';
 import { describe, expect, test, vi } from 'vitest';

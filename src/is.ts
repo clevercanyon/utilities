@@ -374,7 +374,7 @@ export const object = $standalone.$isꓺobject;
  *
  * @returns       True if value is a plain object.
  */
-export const plainObject = <Type>(value: $type.OfObject<Type> | Type): value is $type.OfObject<Type> => {
+export const plainObject = <Type>(value: $type.OfObject<Type> | unknown): value is $type.OfObject<Type> => {
     return object(value) && objectTag(value, 'Object');
 };
 

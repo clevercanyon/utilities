@@ -551,9 +551,10 @@ export const updateAuthData = async (token: string, options?: UpdateAuthDataOpti
             $cookie.delete('utx_customer_id', { ...rrOpts });
             $cookie.delete($crypto.authTokenName(), { ...rrOpts, httpOnly: true });
         }
-    } else if ($env.isCFW()) throw Error('5tqY9PzB'); // See notes above.
-    //
-    else await $app.updateEtcConfig({ user: { ...newData } });
+    } else if ($env.isCFW()) {
+        throw Error('5tqY9PzB'); // See notes above.
+        //
+    } else await $app.updateEtcConfig({ user: { ...newData } });
 
     id.flush(), utxId.flush(), utxCustomerId.flush();
     authToken.flush(), isLoggedIn.flush();
@@ -590,9 +591,10 @@ export const consentData = $fnꓺmemo(2, (request?: $type.Request): $type.Readon
         const cookie = $cookie.get('consent', { request });
         data = cookie ? $to.plainObject($json.tryParse(cookie)) : {};
         //
-    } else if ($env.isCFW()) throw Error('WKQr5uZs'); // See notes above.
-    //
-    else data = $app.etcConfig().user?.consent || {};
+    } else if ($env.isCFW()) {
+        throw Error('WKQr5uZs'); // See notes above.
+        //
+    } else data = $app.etcConfig().user?.consent || {};
 
     const hasGP = hasGlobalPrivacy(request),
         typecastPrefs = <Type extends object>(prefs: Type): Type => {
@@ -695,9 +697,10 @@ export const updateConsentData = async (updates: $type.PartialDeep<ConsentData>,
     if ((opts.request && opts.responseHeaders) || $env.isWeb()) {
         $cookie.set('consent', $json.stringify(newData), { ...rrOpts });
         //
-    } else if ($env.isCFW()) throw Error('5tqY9PzB'); // See notes above.
-    //
-    else await $app.updateEtcConfig({ user: { consent: newData } });
+    } else if ($env.isCFW()) {
+        throw Error('5tqY9PzB'); // See notes above.
+        //
+    } else await $app.updateEtcConfig({ user: { consent: newData } });
 
     consentData.flush(), consentState.flush();
     if (opts.callback) await opts.callback(newData);
@@ -779,9 +782,10 @@ export const updateAuthorData = async (updates: $type.PartialDeep<AuthorData>, o
         $cookie.set('utx_author_id', _utxAuthorId, { ...rrOpts });
         $cookie.set('author', $json.stringify(newData), { ...rrOpts });
         //
-    } else if ($env.isCFW()) throw Error('v7GuJwND'); // See notes above.
-    //
-    else await $app.updateEtcConfig({ user: { utxAuthorId: _utxAuthorId, author: newData } });
+    } else if ($env.isCFW()) {
+        throw Error('v7GuJwND'); // See notes above.
+        //
+    } else await $app.updateEtcConfig({ user: { utxAuthorId: _utxAuthorId, author: newData } });
 
     utxAuthorId.flush(), isAuthor.flush(), authorData.flush();
     if (opts.callback) await opts.callback(newData);
