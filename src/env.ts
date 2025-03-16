@@ -229,6 +229,10 @@ export function get(...args: unknown[]): unknown {
 /**
  * Sets an environment variable.
  *
+ * If `leadingObp` is given as `@global`, this function can also be used to simultaneously set global environment vars
+ * in node and web environments; i.e., into `process.env` or `window.env`. This only works for global top-level paths,
+ * and it only works with `string|boolean|number` values, which can safely be cast as string values.
+ *
  * @param leadingObp  Optional leading object path.
  * @param subObpOrObp Subpath, or full object path if `leadingObp` is not passed, or empty.
  * @param value       Environment variable value to set in the given object path.
@@ -248,10 +252,25 @@ export function set(...args: unknown[]): void {
 
     const obp = [leadingObp, subObpOrObp].filter((v) => '' !== v).join('.');
     $obp.set(vars, resolveTopLevelObp(obp), $is.string(value) ? $str.parseValue(value) : value);
+
+    if ('@global' === leadingObp && subObpOrObp && !subObpOrObp.includes('.')) {
+        if ($is.string(value) || $is.boolean(value) || $is.number(value)) {
+            if (isNode() && 'env' in process && $is.object(process.env)) {
+                process.env[subObpOrObp] = $to.string(value);
+            } // Global node process environment variables.
+
+            if (isWeb() && 'env' in window && $is.object(window.env)) {
+                window.env[subObpOrObp] = value; // Non-standard; must be populated by web app.
+            } // Global window environment variables.
+        }
+    }
 }
 
 /**
  * Unsets an environment variable.
+ *
+ * If `leadingObp` is given as `@global`, this function can also be used to simultaneously unset global environment vars
+ * in node and web environments; i.e., out of `process.env` or `window.env`. Only works for global top-level paths.
  *
  * @param leadingObp  Optional leading object path.
  * @param subObpOrObp Subpath, or full object path if `leadingObp` is not passed, or empty.
@@ -271,6 +290,16 @@ export function unset(...args: unknown[]): void {
 
     const obp = [leadingObp, subObpOrObp].filter((v) => '' !== v).join('.');
     $obp.unset(vars, resolveTopLevelObp(obp));
+
+    if ('@global' === leadingObp && subObpOrObp && !subObpOrObp.includes('.')) {
+        if (isNode() && 'env' in process && $is.object(process.env)) {
+            delete process.env[subObpOrObp];
+        } // Global node process environment variables.
+
+        if (isWeb() && 'env' in window && $is.object(window.env)) {
+            delete window.env[subObpOrObp]; // Non-standard; must be populated by web app.
+        } // Global window environment variables.
+    }
 }
 
 /**

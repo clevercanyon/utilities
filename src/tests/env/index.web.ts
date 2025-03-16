@@ -38,6 +38,25 @@ describe('$env', async () => {
     test('.isServiceWorker()', async () => {
         expect($env.isServiceWorker()).toBe(false);
     });
+    test('.set(), .unset()', async () => {
+        const testVar = '_ZX6EUCDU_';
+        window.env = window.env || {};
+
+        $env.set('@global', testVar, 'true');
+        expect(window.env[testVar]).toBe('true');
+
+        $env.set('@global', testVar, true);
+        expect(window.env[testVar]).toBe(true);
+
+        $env.set('@global', testVar, 1);
+        expect(window.env[testVar]).toBe(1);
+
+        $env.set('@global', testVar, 1.01);
+        expect(window.env[testVar]).toBe(1.01);
+
+        $env.unset('@global', testVar);
+        expect(window.env[testVar]).toBe(undefined);
+    });
     test('.isLocal()', async () => {
         const flushCaches = () => {
             $url.currentHost.flush();

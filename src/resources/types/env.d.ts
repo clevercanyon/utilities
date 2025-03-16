@@ -2,6 +2,11 @@
  * Types.
  */
 
+interface Window {
+    env: { [x: string]: unknown };
+}
+declare var env: { [x: string]: unknown };
+
 interface Navigator {
     globalPrivacyControl: string;
 }
