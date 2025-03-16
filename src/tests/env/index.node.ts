@@ -43,17 +43,22 @@ describe('$env', async () => {
 
         $env.set('@global', testVar, 'true');
         expect(process.env[testVar]).toBe('true');
+        expect($env.get('@global', testVar)).toBe(true);
 
         $env.set('@global', testVar, true);
         expect(process.env[testVar]).toBe('true');
+        expect($env.get('@global', testVar)).toBe(true);
 
         $env.set('@global', testVar, 1);
         expect(process.env[testVar]).toBe('1');
+        expect($env.get('@global', testVar)).toBe(1);
 
         $env.set('@global', testVar, 1.01);
         expect(process.env[testVar]).toBe('1.01');
+        expect($env.get('@global', testVar)).toBe(1.01);
 
         $env.unset('@global', testVar);
         expect(process.env[testVar]).toBe(undefined);
+        expect($env.get('@global', testVar)).toBe(undefined);
     });
 });
