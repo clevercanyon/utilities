@@ -249,7 +249,6 @@ export const lazyComponent = <Props extends $preact.AnyProps>(fn: $preact.AsyncF
             didPromiseThen.current = true;
             void promise.current.then(updateTicks);
         }
-        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw promise.current;
     };
     return (props?: Props): LazyRouterVNode => {
@@ -298,7 +297,6 @@ export const lazyRoute = (loader: LazyRouteLoader): ((props: RoutedProps) => $pr
             didPromiseThen.current = true;
             void promise.then(updateTicks);
         }
-        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw promise;
     };
 };
