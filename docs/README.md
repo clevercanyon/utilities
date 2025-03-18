@@ -6,8 +6,8 @@ The utilities in this library support all environments.
 
 This package contains many reusable and fundamental building blocks. Many of which are required internally; i.e., in the composition of others herein. In fact, internal reliance on these utilities is so prevalent that the structure of this library is one that necessitates circular imports. There are some important circular import considerations, however.
 
--   [16.3.6.1 Cyclic dependencies in CommonJS](https://o5p.me/tp2pCK)
--   [16.3.6.2 Cyclic dependencies in ECMAScript 6](https://o5p.me/EK1tYf)
+- [16.3.6.1 Cyclic dependencies in CommonJS](https://o5p.me/tp2pCK)
+- [16.3.6.2 Cyclic dependencies in ECMAScript 6](https://o5p.me/EK1tYf)
 
 ðŸ’¡ The the most important thing to keep in mind:
 
@@ -19,4 +19,4 @@ Using circular utilities within a module body is a problem because modules canâ€
 
 ## Utility Docs Index
 
--   [./resources/classes/obj-mc.md](./resources/classes/obj-mc.md)
+- [./resources/classes/obj-mc.md](./resources/classes/obj-mc.md)

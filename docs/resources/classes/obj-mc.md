@@ -14,9 +14,9 @@ All utilities are 100% safe to use on objects containing circular references.
 
 Lossless merge with **deep cloning of arrays and plain objects**, and without changing the `target` object. Great for creating or extending objects deeply. New instances are created deeply with all `...merges` being deep-cloned prior to merging into a `target` object derivation; i.e., the `target` object is not mutated by reference.
 
--   **Note:** This produces a deep clone of arrays and plain objects only. The `$obj.mergeDeep()` and `$obj.patchDeep()` utilities are typically the most popular merge types, as they each produce a lossless merge. There is no data lost because object types that are not arrays or plain objects are simply transferred in by reference.
--   **Note:** This type of merge makes no guarantees regarding the immutability of any `...merges`, and in fact, if declarative operations are used in any of the `...merges`, it is possible that mutations will occur within them. For example, if anything that’s not an array or plain object is simply transferred into `target` by reference and then declaratively operated on.
-    -   _Declarative operations are performed immediately after each merge occurs._
+- **Note:** This produces a deep clone of arrays and plain objects only. The `$obj.mergeDeep()` and `$obj.patchDeep()` utilities are typically the most popular merge types, as they each produce a lossless merge. There is no data lost because object types that are not arrays or plain objects are simply transferred in by reference.
+- **Note:** This type of merge makes no guarantees regarding the immutability of any `...merges`, and in fact, if declarative operations are used in any of the `...merges`, it is possible that mutations will occur within them. For example, if anything that’s not an array or plain object is simply transferred into `target` by reference and then declaratively operated on.
+    - _Declarative operations are performed immediately after each merge occurs._
 
 ```js
 $obj.mergeDeep(target, ...merges);
@@ -71,9 +71,9 @@ Result:
 
 Lossy merge with **deep cloning of _all_ compatible object types**, and without changing the `target` object. New instances are created deeply with all `...merges` being deep-cloned prior to merging into a `target` object derivation; i.e., the `target` object is not mutated by reference. This kind of merge is lossy because deep-cloning is sometimes lossy.
 
--   **Note:** Underneath, this uses `$obj.cloneDeep()` on object types that are not arrays or plain objects. Instead of simply being transferred in by reference like `$obj.mergeDeep()` does, they are instead cloned deeply with `$obj.cloneDeep()`, and _then_ transferred in by reference to the deep clone.
--   **Note:** This type of merge guarantees immutability of all compatible object types in any `...merges`, because there is deep cloning of _all_ compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
-    -   _Declarative operations are performed immediately after each merge occurs._
+- **Note:** Underneath, this uses `$obj.cloneDeep()` on object types that are not arrays or plain objects. Instead of simply being transferred in by reference like `$obj.mergeDeep()` does, they are instead cloned deeply with `$obj.cloneDeep()`, and _then_ transferred in by reference to the deep clone.
+- **Note:** This type of merge guarantees immutability of all compatible object types in any `...merges`, because there is deep cloning of _all_ compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
+    - _Declarative operations are performed immediately after each merge occurs._
 
 ```js
 $obj.mergeClonesDeep(target, ...merges);
@@ -130,9 +130,9 @@ Works exactly the same as `$obj.mergeDeep()`, except it mutates the `target` obj
 
 Lossless merge with **deep cloning of arrays and plain objects**, mutating the `target` object by reference. Great for creating or extending objects deeply. New instances are created deeply with all `...patches` being deep-cloned prior to merging into a `target` object; i.e., the `target` object is mutated by reference.
 
--   **Note:** This produces a deep clone of arrays and plain objects only. The `$obj.mergeDeep()` and `$obj.patchDeep()` utilities are typically the most popular merge types, as they each produce a lossless merge. There is no data lost because object types that are not arrays or plain objects are simply transferred in by reference.
--   **Note:** This type of merge makes no guarantees regarding the immutability of any `...patches`, and in fact, if declarative operations are used in any of the `...patches`, it is possible that mutations will occur within them. For example, if anything that’s not an array or plain object is simply transferred into `target` by reference and then declaratively operated on.
-    -   _Declarative operations are performed immediately after each merge occurs._
+- **Note:** This produces a deep clone of arrays and plain objects only. The `$obj.mergeDeep()` and `$obj.patchDeep()` utilities are typically the most popular merge types, as they each produce a lossless merge. There is no data lost because object types that are not arrays or plain objects are simply transferred in by reference.
+- **Note:** This type of merge makes no guarantees regarding the immutability of any `...patches`, and in fact, if declarative operations are used in any of the `...patches`, it is possible that mutations will occur within them. For example, if anything that’s not an array or plain object is simply transferred into `target` by reference and then declaratively operated on.
+    - _Declarative operations are performed immediately after each merge occurs._
 
 ```js
 $obj.patchDeep(target, ...patches);
@@ -196,9 +196,9 @@ Works exactly the same as `$obj.mergeClonesDeep()`, except it mutates the `targe
 
 Lossy merge with **deep cloning of _all_ compatible object types**, mutating the `target` object by reference. New instances are created deeply with all `...patches` being deep-cloned prior to merging into a `target` object; i.e., the `target` object is mutated by reference. This kind of merge is lossy because deep-cloning is sometimes lossy.
 
--   **Note:** Underneath, this uses `$obj.cloneDeep()` on object types that are not arrays or plain objects. Instead of simply being transferred in by reference like `$obj.patchDeep()` does, they are instead cloned deeply with `$obj.cloneDeep()`, and _then_ transferred in by reference to the deep clone.
--   **Note:** This type of merge guarantees immutability of all compatible object types in any `...patches`, because there is deep cloning of _all_ compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
-    -   _Declarative operations are performed immediately after each merge occurs._
+- **Note:** Underneath, this uses `$obj.cloneDeep()` on object types that are not arrays or plain objects. Instead of simply being transferred in by reference like `$obj.patchDeep()` does, they are instead cloned deeply with `$obj.cloneDeep()`, and _then_ transferred in by reference to the deep clone.
+- **Note:** This type of merge guarantees immutability of all compatible object types in any `...patches`, because there is deep cloning of _all_ compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
+    - _Declarative operations are performed immediately after each merge occurs._
 
 ```js
 $obj.patchClonesDeep(target, ...patches);
@@ -262,10 +262,10 @@ Lossy **immutable merge** with **deep cloning of _all_ compatible object types r
 
 The `target` object is not mutated by reference. Rather, if there are differences, a deep clone of the `target` with all `...updates` having been merged in, is returned. Otherwise, the `target` object is returned unchanged, by reference; i.e., when none of the `...updates` introduce changes. Thus, the return value can be tested to easily determine if changes were introduced.
 
--   **Note:** Underneath, this uses `$is.deepEqual()` to check for differences, and `$obj.cloneDeep()` is used on object types that are not arrays or plain objects. This kind of merge is lossy because deep-cloning is necessary to ensure immutability, and deep-cloning is sometimes lossy, depending on the object types being deep-cloned.
-    -   **Note:** `$is.deepEqual()` uses `Object.keys()` and therefore does not consider symbol keys.
--   **Note:** This type of merge guarantees immutability of all compatible object types in any `...updates`, because there is deep cloning of _all_ compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
-    -   _Declarative operations are performed immediately after each merge occurs._
+- **Note:** Underneath, this uses `$is.deepEqual()` to check for differences, and `$obj.cloneDeep()` is used on object types that are not arrays or plain objects. This kind of merge is lossy because deep-cloning is necessary to ensure immutability, and deep-cloning is sometimes lossy, depending on the object types being deep-cloned.
+    - **Note:** `$is.deepEqual()` uses `Object.keys()` and therefore does not consider symbol keys.
+- **Note:** This type of merge guarantees immutability of all compatible object types in any `...updates`, because there is deep cloning of _all_ compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
+    - _Declarative operations are performed immediately after each merge occurs._
 
 _This utility is currently identical to `$obj.updateClonesDeep()`. However, in general, if deep-cloning is mission-critical, the `$obj.updateClonesDeep()` variant is recommened, as it may evolve in the future to operate more favorably toward deep-cloning vs. this `$obj.updateDeep()` utility, which uses deep-cloning only when it must in order to maintain immutability._
 
@@ -373,10 +373,10 @@ Lossy **immutable merge** with **deep cloning of _all_ compatible object types**
 
 The `target` object is not mutated by reference. Rather, if there are differences, a deep clone of the `target` with all `...updates` having been merged in, is returned. Otherwise, the `target` object is returned unchanged, by reference; i.e., when none of the `...updates` introduce changes. Thus, the return value can be tested to easily determine if changes were introduced.
 
--   **Note:** Underneath, this uses `$is.deepEqual()` to check for differences, and `$obj.cloneDeep()` is used on object types that are not arrays or plain objects. This kind of merge is lossy because deep-cloning is necessary to ensure immutability, and deep-cloning is sometimes lossy, depending on the object types handled by `$obj.cloneDeep()`.
-    -   **Note:** `$is.deepEqual()` uses `Object.keys()` and therefore does not consider symbol keys.
--   **Note:** This type of merge guarantees immutability of all compatible object types in any `...updates`, because there is deep cloning of _all_ compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
-    -   _Declarative operations are performed immediately after each merge occurs._
+- **Note:** Underneath, this uses `$is.deepEqual()` to check for differences, and `$obj.cloneDeep()` is used on object types that are not arrays or plain objects. This kind of merge is lossy because deep-cloning is necessary to ensure immutability, and deep-cloning is sometimes lossy, depending on the object types handled by `$obj.cloneDeep()`.
+    - **Note:** `$is.deepEqual()` uses `Object.keys()` and therefore does not consider symbol keys.
+- **Note:** This type of merge guarantees immutability of all compatible object types in any `...updates`, because there is deep cloning of _all_ compatible object types. Thus, immutability is guaranteed even when there are declarative operations.
+    - _Declarative operations are performed immediately after each merge occurs._
 
 _This utility is currently identical to `$obj.updateDeep()`. However, in general, if deep-cloning is mission-critical, this variant is recommened, as it may evolve in the future to operate more favorably toward deep-cloning vs. `$obj.updateDeep()`, which uses deep-cloning only when it must in order to maintain immutability._
 
@@ -484,10 +484,10 @@ Supported in all merge methods. When merging, patching, or updating objects, you
 
 ### Note:
 
--   The use of `$` as a prefix implies the standard `.` object path separator.
-    -   e.g., `$set: { 'a.b.c[0]': 'value' }` to set `{ a: { b: { c: ['value'] } } }`.
--   The use of `$ꓺ` implies the use of `ꓺ` (i.e., [`\uA4FA`](https://graphemica.com/%EA%93%BA#code)) as an object path separator.
-    -   e.g., `$ꓺset: { 'aꓺbꓺc[0]': 'value' }` to set `{ a: { b: { c: ['value'] } } }`.
+- The use of `$` as a prefix implies the standard `.` object path separator.
+    - e.g., `$set: { 'a.b.c[0]': 'value' }` to set `{ a: { b: { c: ['value'] } } }`.
+- The use of `$ꓺ` implies the use of `ꓺ` (i.e., [`\uA4FA`](https://graphemica.com/%EA%93%BA#code)) as an object path separator.
+    - e.g., `$ꓺset: { 'aꓺbꓺc[0]': 'value' }` to set `{ a: { b: { c: ['value'] } } }`.
 
 ### `$set`, `$ꓺset`
 
@@ -526,7 +526,7 @@ Result:
 
 ### `$unset`, `$ꓺunset`
 
--   aka: `$omit`, `$ꓺomit`.
+- aka: `$omit`, `$ꓺomit`.
 
 To unset properties by name or object path.
 
@@ -557,7 +557,7 @@ Result:
 
 To unset all keys use `*`.
 
--   Note: `*` only unsets array keys and/or end-own enumerable string keys.
+- Note: `*` only unsets array keys and/or end-own enumerable string keys.
 
 ```js
 const result = $obj.mergeDeep(
@@ -584,11 +584,11 @@ Result:
 
 ### `$leave`, `$ꓺleave`
 
--   aka: `$pick`, `$ꓺpick`.
+- aka: `$pick`, `$ꓺpick`.
 
 To leave properties by name or object path. Implies all other properties should be unset.
 
--   Note: only array keys and/or end-own enumerable string keys will be unset by this operation.
+- Note: only array keys and/or end-own enumerable string keys will be unset by this operation.
 
 ```js
 const result = $obj.mergeDeep(
@@ -622,7 +622,7 @@ Result:
 
 To push an item **_as one value_** _(so please be careful)_ onto an array.
 
--   To push multiple values, please see: `$concat`, `$ꓺconcat`.
+- To push multiple values, please see: `$concat`, `$ꓺconcat`.
 
 ```js
 const result = $obj.mergeDeep(
@@ -692,7 +692,7 @@ Result:
 
 To concatenate arrays (i.e., to push multiple items).
 
--   To push a single item, please see: `$push`, `$ꓺpush`.
+- To push a single item, please see: `$push`, `$ꓺpush`.
 
 ```js
 const result = $obj.mergeDeep(
@@ -723,7 +723,7 @@ Result:
 
 ### `$default`, `$ꓺdefault`
 
--   aka: `$defaults`, `$ꓺdefaults`.
+- aka: `$defaults`, `$ꓺdefaults`.
 
 To set default values (i.e., set only if `undefined`).
 
@@ -778,7 +778,7 @@ Result:
 
 ### `$keySortOrder`, `$ꓺkeySortOrder`
 
--   aka: `$propSortOrder`, `$ꓺpropSortOrder`.
+- aka: `$propSortOrder`, `$ꓺpropSortOrder`.
 
 To sort object properties by key, using a given order.
 
@@ -852,13 +852,13 @@ You can declare a new merge handler for custom types and/or override default log
 mc.addMerge(tagA, tagB, callback);
 ```
 
--   `tagA, tagB`: Object tags of the `a` and `b` values; e.g., `Number`, `String`, `Boolean`, `Object`, `Array`, `Date`, `RegExp`, `Function`, `Undefined`, `Null`, `Symbol`, `Set`, `Map`, or any other object tag is permissible.
--   `callback`: Merge handler: `(a, b, kind, circular): unknown`
-    -   `a`: First value for merge. Of type `tagA` passed to `mc.addMerge()`.
-    -   `b`: Second value for merge. Of type `tagB` passed to `mc.addMerge()`.
-    -   `kind`: e.g., `mergeDeep`, `mergeClonesDeep`, `patchDeep`, `patchClonesDeep`, `updateDeep`, `updateClonesDeep`.
-    -   `circular`: Two-dimensional map used to log and recursively handle circular references gracefully.
-        -   If `this[kind]()` is called from within, `circular` must be passed to `this[kind]()` as last arg.
+- `tagA, tagB`: Object tags of the `a` and `b` values; e.g., `Number`, `String`, `Boolean`, `Object`, `Array`, `Date`, `RegExp`, `Function`, `Undefined`, `Null`, `Symbol`, `Set`, `Map`, or any other object tag is permissible.
+- `callback`: Merge handler: `(a, b, kind, circular): unknown`
+    - `a`: First value for merge. Of type `tagA` passed to `mc.addMerge()`.
+    - `b`: Second value for merge. Of type `tagB` passed to `mc.addMerge()`.
+    - `kind`: e.g., `mergeDeep`, `mergeClonesDeep`, `patchDeep`, `patchClonesDeep`, `updateDeep`, `updateClonesDeep`.
+    - `circular`: Two-dimensional map used to log and recursively handle circular references gracefully.
+        - If `this[kind]()` is called from within, `circular` must be passed to `this[kind]()` as last arg.
 
 For example, if you need to handle arrays differently, you can declare a callback that merges `Array` with `Array`. The example below contains the default callback, which you can adapt to handle arrays in the way you prefer.
 
@@ -907,15 +907,15 @@ You can declare a new handler for a declarative operation and/or override defaul
 mc.addOperation(name, callback);
 ```
 
--   `name`: Operation name; e.g., `$concat`, `$unset`, `$pull`, etc. ... or a new one.
--   `callback`: `(target, params, separator?, calledAs?): boolean`.
-    -   `target`: Value the operation should act on.
-    -   `params`: Operation params; e.g., what to `$concat`.
-        -   Array or object keys should be treated as object paths.
-    -   `separator`: Object path separator. Default should be `.`; i.e., a single dot/period.
-        -   If you want to support the `ꓺ` (i.e., [`\uA4FA`](https://graphemica.com/%EA%93%BA#code)) separator, then add a variant with a `$ꓺ` name prefix, and where the `separator` defaults to `ꓺ` in that variant. See `calledAs` for further details regarding the creation of variants.
-    -   `calledAs`: Operation name used to call this handler. Default should be `name`.
-        -   The reason for this to exist is that it can be changed if you add aliases and/or slight variants that use a different separator, for example, even though still leveraging the same callback, just with a different `calledAs` value.
+- `name`: Operation name; e.g., `$concat`, `$unset`, `$pull`, etc. ... or a new one.
+- `callback`: `(target, params, separator?, calledAs?): boolean`.
+    - `target`: Value the operation should act on.
+    - `params`: Operation params; e.g., what to `$concat`.
+        - Array or object keys should be treated as object paths.
+    - `separator`: Object path separator. Default should be `.`; i.e., a single dot/period.
+        - If you want to support the `ꓺ` (i.e., [`\uA4FA`](https://graphemica.com/%EA%93%BA#code)) separator, then add a variant with a `$ꓺ` name prefix, and where the `separator` defaults to `ꓺ` in that variant. See `calledAs` for further details regarding the creation of variants.
+    - `calledAs`: Operation name used to call this handler. Default should be `name`.
+        - The reason for this to exist is that it can be changed if you add aliases and/or slight variants that use a different separator, for example, even though still leveraging the same callback, just with a different `calledAs` value.
 
 For example, here's an already-defined operation handler that could be customized further.
 

@@ -3,7 +3,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "1.0.1032",
+    "version": "1.0.1034",
     "license": "GPL-3.0-or-later",
     "name": "@clevercanyon/utilities",
     "description": "Utilities for JavaScript apps running in any environment.",
@@ -354,8 +354,8 @@
     "cpu": ["x64", "arm64"],
     "os": ["darwin", "linux"],
     "engines": {
-        "node": "^20.5.0 || ^20.9.0 || ^21.6.2",
-        "npm": "^9.8.0 || ^10.1.0 || ^10.2.4"
+        "node": "^20.9.0 || ^21.6.2 || ^22.9.0",
+        "npm": "^10.1.0 || ^10.2.4 || ^10.8.3"
     },
     "config": {
         "c10n": {
@@ -381,11 +381,11 @@
                         "architects": "push"
                     },
                     "labels": {},
-                    "configVersion": "1.0.9",
-                    "envsVersion": "1.0.9"
+                    "configVersion": "1.0.10",
+                    "envsVersion": "1.0.10"
                 },
                 "npmjs": {
-                    "configVersions": "1.0.9,1.0.9"
+                    "configVersions": "1.0.10,1.0.10"
                 }
             }
         }

@@ -146,9 +146,7 @@ export namespace $cfw {
 /**
  * Defines turnstile type, powered by Cloudflare.
  */
-type $ꓺTurnstile = typeof turnstile & {
-    remove(widgetId: string): void; // Adds missing `remove()` fn.
-};
+type $ꓺTurnstile = typeof turnstile;
 export type { $ꓺTurnstile as Turnstile };
 
 /**

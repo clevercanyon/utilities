@@ -55,12 +55,11 @@ export default function Turnstile(props: Props = {}): $preact.VNode<Props> {
                 id: ReturnType<$type.Turnstile['render']>;
             };
             void promise.current.then(({ deploy, siteKey }): void => {
-                void deploy().then(({ render, remove }): void => {
+                void deploy().then((turnstile): void => {
                     tsRender = {
-                        remove,
-                        id: render(($is.object(ers) ? ers.current || ers : ers) as HTMLElement | string, {
+                        remove: (...args) => turnstile.remove(...args),
+                        id: turnstile.render(($is.object(ers) ? ers.current || ers : ers) as HTMLElement | string, {
                             sitekey: siteKey(),
-                            // @ts-ignore -- property ok.
                             'response-field-name': 'turnstile',
                         }),
                     };

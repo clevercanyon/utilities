@@ -627,7 +627,8 @@ export default class Head extends Component<Props, ActualState> {
                 // Nodes get removed here, so a copy avoids issues with in-loop removals.
 
                 for (const node of Array.from($dom.head().childNodes)) {
-                    if (!$is.htmlElement(node)) node.remove(); // e.g., Text or comment node.
+                    if (!$is.htmlElement(node))
+                        node.remove(); // e.g., Text or comment node.
                     //
                     else if (isLocalVite && 'SCRIPT' === node.tagName && '/@vite/client' === node.getAttribute('src')) {
                         continue; // Allow `/@vite/client` to exist locally.

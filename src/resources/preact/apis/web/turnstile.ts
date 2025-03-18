@@ -81,7 +81,7 @@ export const deploy = async (): Promise<$type.Turnstile> => {
         // Waits for the DOM to reach ready state.
         $dom.onReady((): void => {
             // Defines turnstile onload callback.
-            window.onloadTurnstile = (): void => resolve(turnstile as $type.Turnstile);
+            window.onloadTurnstile = (): void => resolve(turnstile);
 
             // Parent element receiving turnstile script tag.
             let parentElement: Element; // Parent container.

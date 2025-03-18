@@ -77,6 +77,7 @@ export type MergeableGlobalState = $preact.State<
  * - Please do not export these variables, they are for internal use only.
  */
 const passableStateKeys = ['globalObp', 'cspNonce', 'fetcher', 'lazyCPs', 'head'] as const,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Used only as a type, for now.
     passableHeadStateKeys = ['styleBundle', 'scriptBundle'] as const;
 
 type PassableStateKeys = $type.Writable<typeof passableStateKeys>[number];
