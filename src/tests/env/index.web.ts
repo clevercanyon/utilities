@@ -17,8 +17,8 @@ describe('$env', async () => {
 
         expect(import.meta.env.TEST).toBe('true');
         expect(import.meta.env.VITEST).toBe('true');
-        expect(import.meta.env.APP_IS_VITE).toBe('serve=' + import.meta.env.MODE);
         expect(import.meta.env.MODE).toBeOneOf(['ci', 'dev', 'prod', 'stage']);
+        expect($env.get('_APP_IS_VITE')).toBe('serve=' + import.meta.env.MODE);
     });
     test('.isWeb()', async () => {
         expect($env.isWeb()).toBe(true);

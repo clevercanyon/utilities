@@ -356,7 +356,7 @@ export const isC10n = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = {
  *       If you’d like to avoid that condition you can simply check `if (!$env.isTest())`.
  */
 export const isVite = $fnꓺmemo({ maxSize: 6, deep: true }, (tests: QVTests = { serve: true }): boolean => {
-    return test('APP_IS_VITE', tests);
+    return test('_APP_IS_VITE', tests);
 });
 
 /**
@@ -534,7 +534,7 @@ export const isLocalVitePrefresh = $fnꓺmemo(2, (request?: $type.Request): bool
  * Tests an environment variable and optionally its query variables.
  *
  * An environment variable that is defined as a query string can optionally have each of its query string variables
- * tested by this utility; e.g., `APP_DEBUG=consent=1&analytics=1`, `APP_IS_VITE=command=mode`.
+ * tested by this utility; e.g., `_APP_IS_VITE=command=mode`, `APP_DEBUG=consent=1&analytics=1`.
  *
  * @param   leadingObps Optional environment variable object path(s).
  * @param   subObpOrObp Subpath, or full object path if `leadingObps` is not passed, or is empty.
