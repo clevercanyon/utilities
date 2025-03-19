@@ -299,6 +299,7 @@ export const appendModule = (src: string, atts: Partial<HTMLScriptElement> = {})
  *
  * @returns      Text node, SVG, HTML, or other element.
  */
+export function create(tag: 'fragment'): DocumentFragment;
 export function create(tag: 'textNode', value?: $type.Primitive): Text;
 export function create<Tag extends keyof HTMLElementTagNameMap>(tag: Tag, atts?: Partial<HTMLElementTagNameMap[Tag]>): HTMLElementTagNameMap[Tag];
 export function create<Tag extends keyof SVGElementTagNameMap>(tag: Tag, atts?: Partial<SVGElementTagNameMap[Tag]>): SVGElementTagNameMap[Tag];
@@ -306,11 +307,14 @@ export function create<Tag extends keyof MathMLElementTagNameMap>(tag: Tag, atts
 export function create<Tag extends keyof HTMLElementDeprecatedTagNameMap>(tag: Tag, atts?: Partial<HTMLElementDeprecatedTagNameMap[Tag]>): HTMLElementDeprecatedTagNameMap[Tag];
 export function create(tag: string, atts?: $type.DOMAtts): Element;
 
-export function create(...args: unknown[]): Text | Element {
+export function create(...args: unknown[]): DocumentFragment | Text | Element {
     const tag = (args[0] as string).toLowerCase();
     let value: $type.Primitive | undefined, atts: $type.DOMAtts | undefined;
 
-    if ('textNode' === tag) {
+    if ('fragment' === tag) {
+        return document.createDocumentFragment();
+        //
+    } else if ('textNode' === tag) {
         value = args[1] as typeof value;
         return document.createTextNode($to.string(value));
     } else {

@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $app, $dom, $env, $fn, $is, $json, $obj, $preact, $profile, $time, $to, $url, type $type } from '#index.ts';
+import { $app, $dom, $env, $fn, $is, $json, $obj, $path, $preact, $profile, $time, $to, $url, type $type } from '#index.ts';
 import { globalToScriptCode, type Context as DataContext } from '#preact/components/data.tsx';
 import { type State as HTMLState } from '#preact/components/html.tsx';
 import { Component } from 'preact';
@@ -132,8 +132,10 @@ type GetComputedStateOptions = { useLayoutState?: boolean };
  * variable names can be minified, so variable name length is not an issue.
  */
 const tꓺicon = 'icon',
+    tꓺmodule = 'module',
     tꓺprefetch = 'prefetch',
     tꓺPrefetch = 'Prefetch',
+    tꓺpreload = 'preload',
     tꓺtime = 'time',
     //
     tꓺabout = 'about',
@@ -207,7 +209,7 @@ const tꓺicon = 'icon',
     tꓺmedia = 'media',
     tꓺmeta = 'meta',
     tꓺmodified_time = 'modified_' + tꓺtime,
-    tꓺmodule = 'module',
+    tꓺmodulepreload = tꓺmodule + tꓺpreload,
     tꓺname = 'name',
     tꓺnonce = 'nonce',
     tꓺnumberOfEmployees = 'numberOfEmployees',
@@ -244,7 +246,6 @@ const tꓺicon = 'icon',
     tꓺPostalAddress = 'PostalAddress',
     tꓺpostalCode = 'postalCode',
     tꓺpotentialAction = 'potentialAction',
-    tꓺpreload = 'preload',
     tꓺpreloadStyleBundle = tꓺpreload + 'StyleBundle',
     tꓺprimaryImageOfPage = 'primaryImageOfPage',
     tꓺproperty = 'property',
@@ -476,7 +477,7 @@ export default class Head extends Component<Props, ActualState> {
         // Memoizes vNodes for all keyed & unkeyed children.
 
         const childVNodes = $preact.useMemo((): ChildVNodes => {
-            const h = $preact.h,
+            const h = $preact.h, // Shorter reference.
                 {
                     charset,
                     themeColor,
@@ -578,9 +579,9 @@ export default class Head extends Component<Props, ActualState> {
                     [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: generateStructuredData({ brand, htmlState, state }) },
                 }),
                 ...Object.fromEntries(
-                    $preact
-                        .toChildArray([children, append])
-                        .filter((child: unknown) => {
+                    // Validates and keys all `children`, including `appends`.
+                    (
+                        $preact.toChildArray([children, append]).filter((child: unknown) => {
                             // Children must be vNodes, not primitives.
                             if (!$is.vNode(child)) throw Error('EBPZT9Rz');
 
@@ -600,8 +601,9 @@ export default class Head extends Component<Props, ActualState> {
                             if (!(key as string).startsWith('_')) (props as $type.Writable<typeof props>)[tꓺdataᱼkey] = '_' + (key as string);
 
                             return true;
-                        })
-                        .map((c) => [(c as $preact.VNode).props[tꓺdataᱼkey] as string, c]),
+                        }) as $preact.VNode[]
+                    ) //
+                        .map((child) => [child.props[tꓺdataᱼkey] as string, child]),
                 ),
             } as unknown as { [x: string]: $preact.VNode };
 
@@ -686,6 +688,60 @@ export default class Head extends Component<Props, ActualState> {
  */
 export const computeHead = (head: ActualState): State => {
     return getComputedState(head, { useLayoutState: false });
+};
+
+/**
+ * Preloads dependencies mapped by Vite.
+ *
+ * @param   dynamicImportFn Dynamic import function.
+ * @param   deps            Array of mapped dependencies.
+ *
+ * @returns                 Promise of dynamic import value.
+ *
+ * @throws                  On any CSS dependency loading failure.
+ */
+export const vitePreload = (dynamicImportFn: $type.AsyncFunction, deps?: string[]): Promise<unknown> => {
+    if (!$env.isWeb()) return dynamicImportFn(); // Do import only.
+
+    return new Promise((resolveDynamicImport) => {
+        $dom.onReady(() => {
+            const promises = [], // Initialize.
+                fragment = $dom.create('fragment'),
+                gdScript = $dom.query(tꓺscript + '#' + tꓺglobalᱼdata) as HTMLScriptElement;
+
+            for (const dep of deps || []) {
+                const key = '_vp:' + dep,
+                    href = './' + dep;
+
+                if ($dom.query('head > [data-key=' + key + ']')) {
+                    continue; // Exists; no need to load again.
+                }
+                let link = undefined as unknown as HTMLLinkElement;
+
+                if ('css' === $path.ext(dep)) {
+                    promises.push(
+                        new Promise((resolve, reject) => {
+                            link = $dom.create(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: href, [tꓺmedia]: tꓺall,
+                                onload: () => resolve(key), onerror: () => reject(new Error(key)),
+                            }); // prettier-ignore
+                        }),
+                    );
+                } else link = $dom.create(tꓺlink, { [tꓺrel]: tꓺmodulepreload, [tꓺnonce]: gdScript.nonce, [tꓺhref]: href });
+
+                link.dataset.key = key; // Each get a key identifier, like any child vnode in `<Head>`.
+                fragment.appendChild(link); // The entire fragment is appended to `<head>` below.
+            }
+            if (fragment.children.length) $dom.head().appendChild(fragment);
+
+            void Promise.allSettled(promises).then((results) => {
+                for (const result of results)
+                    if ('rejected' === result.status && $is.error(result.reason)) {
+                        throw result.reason; // Preload failure.
+                    }
+                resolveDynamicImport(dynamicImportFn());
+            });
+        });
+    });
 };
 
 // ---
