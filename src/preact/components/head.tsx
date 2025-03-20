@@ -4,7 +4,7 @@
 
 import '#@initialize.ts';
 
-import { $app, $dom, $env, $fn, $is, $json, $obj, $path, $preact, $profile, $time, $to, $url, type $type } from '#index.ts';
+import { $app, $dom, $env, $fn, $is, $json, $obj, $path, $preact, $profile, $str, $time, $to, $url, type $type } from '#index.ts';
 import { globalToScriptCode, type Context as DataContext } from '#preact/components/data.tsx';
 import { type State as HTMLState } from '#preact/components/html.tsx';
 import { Component } from 'preact';
@@ -131,7 +131,8 @@ type GetComputedStateOptions = { useLayoutState?: boolean };
  * variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome. Remember,
  * variable names can be minified, so variable name length is not an issue.
  */
-const tꓺicon = 'icon',
+const tꓺhead = 'head',
+    tꓺicon = 'icon',
     tꓺmodule = 'module',
     tꓺprefetch = 'prefetch',
     tꓺPrefetch = 'Prefetch',
@@ -182,7 +183,7 @@ const tꓺicon = 'icon',
     tꓺgenre = 'genre',
     tꓺglobalᱼdata = 'global-data',
     tꓺglobalData = 'globalData',
-    tꓺheadline = 'headline',
+    tꓺheadline = tꓺhead + 'line',
     tꓺhealthy = 'healthy',
     tꓺheight = 'height',
     tꓺhigh = 'high',
@@ -655,7 +656,7 @@ export default class Head extends Component<Props, ActualState> {
                 // This is reused below as we’re iterating each child vNode.
 
                 for (const [, { type, props }] of Object.entries(childVNodes)) {
-                    if ((existing = $dom.query('head > [data-key="' + props['data-key'] + '"]'))) {
+                    if ((existing = $dom.query(tꓺhead + ' > [' + tꓺdataᱼkey + '="' + $str.escSelector(props[tꓺdataᱼkey]) + '"]'))) {
                         $dom.setAtts(existing, props); // Updates existing node.
                     } else {
                         head.appendChild($dom.create(type, props));
@@ -710,16 +711,36 @@ export const vitePreload = (dynamicImportFn: $type.AsyncFunction, deps?: string[
                 gdScript = $dom.query(tꓺscript + '#' + tꓺglobalᱼdata),
                 nonce = (gdScript as HTMLScriptElement)?.nonce || '';
 
-            for (const dep of deps || []) {
-                const key = '_vp:' + dep,
-                    href = './' + dep;
+            for (const subpath of deps || []) {
+                const href = './' + subpath,
+                    key = '_' + tꓺpreload + ':' + subpath,
+                    //
+                    keySelector = $str.escSelector(key),
+                    hrefSelector = $str.escSelector(href),
+                    //
+                    ext = $path.ext(href), // e.g., `css`, `js` built by Vite, and potentially others.
+                    isStyle = 'css' === ext, // CSS extension is known, so hard-coded to avoid use of `$mime` client-side.
+                    isScript = 'js' === ext, // JS extension is known, so hard-coded to avoid use of `$mime` client-side.
+                    isModule = !isStyle; // Anything that is not CSS; e.g., a script is also a preloadable module.
 
-                if ($dom.query('head > [data-key="' + key + '"]')) {
+                if (
+                    $dom.query([
+                        tꓺhead + ' > [' + tꓺdataᱼkey + '="' + keySelector + '"]', //
+                        ...(isStyle ? [tꓺhead + ' > ' + tꓺlink + '[' + tꓺrel + '="' + tꓺstylesheet + '"][' + tꓺhref + '="' + hrefSelector + '"]'] : []),
+                        ...(isScript ? [tꓺhead + ' > ' + tꓺscript + '[' + tꓺsrc + '="' + hrefSelector + '"]'] : []),
+                        ...(isModule // Anything that is not CSS; e.g., a script is also a preloadable module.
+                            ? [
+                                  tꓺhead + ' > ' + tꓺlink + '[' + tꓺrel + '="' + tꓺpreload + '"][' + tꓺhref + '="' + hrefSelector + '"]',
+                                  tꓺhead + ' > ' + tꓺlink + '[' + tꓺrel + '="' + tꓺmodulepreload + '"][' + tꓺhref + '="' + hrefSelector + '"]',
+                              ]
+                            : []),
+                    ]).length
+                )
                     continue; // Exists; no need to load again.
-                }
+
                 let link: HTMLLinkElement; // Initialize.
 
-                if ('css' === $path.ext(href)) {
+                if (isStyle) {
                     (link = $dom.create(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: href, [tꓺmedia]: tꓺall })),
                         promises.push(
                             new Promise((resolve, reject) => {
