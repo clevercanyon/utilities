@@ -655,7 +655,7 @@ export default class Head extends Component<Props, ActualState> {
                 // This is reused below as we’re iterating each child vNode.
 
                 for (const [, { type, props }] of Object.entries(childVNodes)) {
-                    if ((existing = $dom.query('head > [data-key=' + props['data-key'] + ']'))) {
+                    if ((existing = $dom.query('head > [data-key="' + props['data-key'] + '"]'))) {
                         $dom.setAtts(existing, props); // Updates existing node.
                     } else {
                         head.appendChild($dom.create(type, props));
@@ -714,7 +714,7 @@ export const vitePreload = (dynamicImportFn: $type.AsyncFunction, deps?: string[
                 const key = '_vp:' + dep,
                     href = './' + dep;
 
-                if ($dom.query('head > [data-key=' + key + ']')) {
+                if ($dom.query('head > [data-key="' + key + '"]')) {
                     continue; // Exists; no need to load again.
                 }
                 let link: HTMLLinkElement; // Initialize.
