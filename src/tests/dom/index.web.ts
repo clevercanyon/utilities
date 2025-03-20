@@ -200,7 +200,7 @@ describe('$dom', async () => {
         expect($dom.query('head > link[href="./style.css"]') instanceof HTMLLinkElement).toBe(true);
     });
     test('.appendScript()', async () => {
-        $dom.appendScript('./script.js', { id: 'script' });
+        $dom.appendScript('./script.js', { id: 'script', nonce: 'xnonce' });
         expect($dom.query('head > script[src="./script.js"]') instanceof HTMLScriptElement).toBe(true);
     });
     test('.appendModule()', async () => {

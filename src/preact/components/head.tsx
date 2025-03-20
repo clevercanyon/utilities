@@ -708,8 +708,8 @@ export const vitePreload = (dynamicImportFn: $type.AsyncFunction, deps?: string[
         $dom.onReady(() => {
             const promises = [], // Initialize.
                 fragment = $dom.create('fragment'),
-                gdScript = $dom.query(tꓺscript + '#' + tꓺglobalᱼdata),
-                nonce = (gdScript as HTMLScriptElement)?.nonce || '';
+                scriptBundle = $dom.query<HTMLScriptElement>(tꓺhead + ' > [' + tꓺdataᱼkey + '="' + tꓺscriptBundle + '"]'),
+                cspNonce = scriptBundle?.nonce || ''; // From main script bundle.
 
             for (const subpath of deps || []) {
                 const href = './' + subpath,
@@ -738,21 +738,23 @@ export const vitePreload = (dynamicImportFn: $type.AsyncFunction, deps?: string[
                 )
                     continue; // Exists; no need to load again.
 
-                let link: HTMLLinkElement; // Initialize.
+                let link: HTMLLinkElement | undefined; // Initialize.
 
                 if (isStyle) {
-                    (link = $dom.create(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: href, [tꓺmedia]: tꓺall })),
-                        promises.push(
-                            new Promise((resolve, reject) => {
-                                link.onload = () => resolve(key);
-                                link.onerror = () => reject(new Error(key));
-                            }),
-                        );
-                } else {
-                    link = $dom.create(tꓺlink, { [tꓺrel]: tꓺmodulepreload, [tꓺhref]: href, [tꓺnonce]: nonce });
+                    link = $dom.create(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: href, [tꓺmedia]: tꓺall });
+                    promises.push(
+                        new Promise((resolve, reject) => {
+                            (link as HTMLLinkElement).onload = () => resolve(key);
+                            (link as HTMLLinkElement).onerror = () => reject(Error(key));
+                        }),
+                    );
+                } else if (isModule) {
+                    link = $dom.create(tꓺlink, { [tꓺrel]: tꓺmodulepreload, [tꓺhref]: href, [tꓺnonce]: cspNonce });
                 }
-                link.dataset.key = key; // Each get a key identifier, like any child vnode in `<Head>`.
-                fragment.appendChild(link); // The entire fragment is appended to `<head>` below.
+                if (link) {
+                    link.dataset.key = key; // Each get a key identifier, like any child vnode in `<Head>`.
+                    fragment.appendChild(link); // The entire fragment is appended to `<head>` below.
+                }
             }
             if (fragment.children.length) $dom.head().appendChild(fragment);
 

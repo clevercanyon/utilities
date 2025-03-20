@@ -348,6 +348,13 @@ export { create as h }; // `h` is short for hyperscript. Meaning, "JavaScript th
  * @param atts    Attributes.
  */
 export const newAtts = (element: Element, atts: $type.DOMAtts): void => {
+    // Cast as keyable so we can access properties.
+    const elementObj = element as $type.Object<Element>;
+
+    // These should only be set/unset as properties, not as attributes.
+    for (const prop of ['nonce']) if (prop in elementObj && !Object.hasOwn(atts, prop))
+        try { elementObj[prop] = ''; } catch {} // prettier-ignore
+
     for (let i = 0; i < element.attributes.length; i++) {
         const { name } = element.attributes[i];
         if (!Object.hasOwn(atts, name)) element.removeAttribute(name);
@@ -379,6 +386,8 @@ export const newAtts = (element: Element, atts: $type.DOMAtts): void => {
  *
  * @param element Element.
  * @param atts    Attributes.
+ *
+ * @see https://o5p.me/IzTGcl Preact source code.
  */
 export const setAtts = (element: Element, atts: $type.DOMAtts): void => {
     // Cast as keyable so we can access properties.
@@ -412,6 +421,9 @@ export const setAtts = (element: Element, atts: $type.DOMAtts): void => {
             if (!name.startsWith('on')) throw Error('Nsq5Mqr4');
             if (elementObj[name] !== newValue) elementObj[name] = newValue;
             //
+        } else if (['nonce'].includes(name) && name in elementObj) {
+            // These should only be set as properties, not as attributes.
+            if (elementObj[name] !== newValue) elementObj[name] = newValue;
         } else {
             const currentValue = element.getAttribute(name);
 
