@@ -707,7 +707,8 @@ export const vitePreload = (dynamicImportFn: $type.AsyncFunction, deps?: string[
         $dom.onReady(() => {
             const promises = [], // Initialize.
                 fragment = $dom.create('fragment'),
-                gdScript = $dom.query(tꓺscript + '#' + tꓺglobalᱼdata) as HTMLScriptElement;
+                gdScript = $dom.query(tꓺscript + '#' + tꓺglobalᱼdata),
+                nonce = (gdScript as HTMLScriptElement)?.nonce || '';
 
             for (const dep of deps || []) {
                 const key = '_vp:' + dep,
@@ -716,18 +717,19 @@ export const vitePreload = (dynamicImportFn: $type.AsyncFunction, deps?: string[
                 if ($dom.query('head > [data-key=' + key + ']')) {
                     continue; // Exists; no need to load again.
                 }
-                let link = undefined as unknown as HTMLLinkElement;
+                let link: HTMLLinkElement; // Initialize.
 
-                if ('css' === $path.ext(dep)) {
-                    promises.push(
-                        new Promise((resolve, reject) => {
-                            link = $dom.create(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: href, [tꓺmedia]: tꓺall,
-                                onload: () => resolve(key), onerror: () => reject(new Error(key)),
-                            }); // prettier-ignore
-                        }),
-                    );
-                } else link = $dom.create(tꓺlink, { [tꓺrel]: tꓺmodulepreload, [tꓺnonce]: gdScript.nonce, [tꓺhref]: href });
-
+                if ('css' === $path.ext(href)) {
+                    (link = $dom.create(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: href, [tꓺmedia]: tꓺall })),
+                        promises.push(
+                            new Promise((resolve, reject) => {
+                                link.onload = () => resolve(key);
+                                link.onerror = () => reject(new Error(key));
+                            }),
+                        );
+                } else {
+                    link = $dom.create(tꓺlink, { [tꓺrel]: tꓺmodulepreload, [tꓺhref]: href, [tꓺnonce]: nonce });
+                }
                 link.dataset.key = key; // Each get a key identifier, like any child vnode in `<Head>`.
                 fragment.appendChild(link); // The entire fragment is appended to `<head>` below.
             }
