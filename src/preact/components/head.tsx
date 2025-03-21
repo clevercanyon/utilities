@@ -775,6 +775,15 @@ export const computeHead = (head: ActualState): State => {
  * @returns                 Promise of dynamic import value.
  *
  * @throws                  On any CSS dependency loading failure.
+ *
+ * @review This does not currently support SSR preloads, which means that it will not bring
+ *         arbitrary style dependencies into an initial `<Head />` whenever we are doing SSRs.
+ *         Of course, it will not bring `rel='modulepreload'` tags in for SSRs either.
+ *
+ *         The reason this doesn't work with SSRs is because: (a) we have not implemented it here;
+ *         (b) Vite simply does not do any sort of import dependency mapping for SSR code paths.
+ *         Vite's preload system was built for SPAs, and it strictly does dependency mapping for
+ *         dynamic imports only, and only for SPA builds, not for our secondary SSR builds.
  */
 export const vitePreload = (dynamicImportFn: $type.AsyncFunction, deps?: string[]): Promise<unknown> => {
     if (!deps?.length || !$env.isWeb()) {
@@ -794,7 +803,7 @@ export const vitePreload = (dynamicImportFn: $type.AsyncFunction, deps?: string[
             for (const subpath of deps /* Dependencies mapped by Vite. */) {
                 const href = './' + subpath,
                     key = tꓺpreload + ':' + subpath,
-                    ext = $path.ext(href), // e.g., `css`, `js` built by Vite, potentially other exts,
+                    ext = $path.ext(href), // e.g., `css`, `js` built by Vite, potentially other exts.
                     isStyle = 'css' === ext, // CSS extension is known, so hard-coded to avoid use of `$mime` client-side.
                     isScript = 'js' === ext, // JS extension is known, so hard-coded to avoid use of `$mime` client-side.
                     isModule = !isStyle || isScript; // Anything that's not CSS; e.g., scripts are also preloadable modules.

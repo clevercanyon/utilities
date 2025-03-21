@@ -351,10 +351,16 @@ export const newAtts = (element: Element, atts: $type.DOMAtts): void => {
     // Cast as keyable so we can access properties.
     const elementObj = element as $type.Object<Element>;
 
-    // These should only be set/unset as properties, not as attributes.
-    for (const prop of ['nonce']) if (prop in elementObj && !Object.hasOwn(atts, prop))
-        try { elementObj[prop] = ''; } catch {} // prettier-ignore
+    // These caSe-sensitive names should only be unset as properties, not as attributes.
+    for (const name of ['nonce']) if (name in elementObj && !Object.hasOwn(atts, name))
+        try { elementObj[name] = ''; } catch {} // prettier-ignore
 
+    // These caSe-insensitive names should only be unset as properties, not as attributes.
+    for (const name in elementObj)
+        if (name.startsWith('on') && null !== elementObj[name]) {
+            elementObj[name] = null; // Nullifies event handler.
+        }
+    // Everything else uses caSe-insensitive names via `element.*Attribute()` functions.
     for (let i = 0; i < element.attributes.length; i++) {
         const { name } = element.attributes[i];
         if (!Object.hasOwn(atts, name)) element.removeAttribute(name);
@@ -403,6 +409,9 @@ export const setAtts = (element: Element, atts: $type.DOMAtts): void => {
     }
     // Iterates all new attribute names/values.
     for (let [name, newValue] of Object.entries(atts)) {
+        let lcName: string; // Might be needed and defined below.
+
+        // These caSe-sensitive names should only be set as properties, not as attributes.
         if (['innerText', 'children'].includes(name)) {
             if (!$is.primitive(newValue)) throw Error('UTVWT5J9');
             const newStrValue = $to.string(newValue);
@@ -410,6 +419,7 @@ export const setAtts = (element: Element, atts: $type.DOMAtts): void => {
             if (elementObj.innerText !== newStrValue) {
                 elementObj.innerText = newStrValue;
             }
+            // These caSe-sensitive names should only be set as properties, not as attributes.
         } else if (['innerHTML', 'dangerouslySetInnerHTML'].includes(name)) {
             if ($is.object(newValue)) newValue = newValue.__html;
             const newStrValue = $to.string(newValue);
@@ -417,13 +427,15 @@ export const setAtts = (element: Element, atts: $type.DOMAtts): void => {
             if (elementObj.innerHTML !== newStrValue) {
                 elementObj.innerHTML = newStrValue;
             }
-        } else if ($is.function(newValue)) {
-            if (!name.startsWith('on')) throw Error('Nsq5Mqr4');
+            // These caSe-sensitive names should only be set as properties, not as attributes.
+        } else if (['nonce'].includes(name) && name in elementObj) {
             if (elementObj[name] !== newValue) elementObj[name] = newValue;
             //
-        } else if (['nonce'].includes(name) && name in elementObj) {
-            // These should only be set as properties, not as attributes.
-            if (elementObj[name] !== newValue) elementObj[name] = newValue;
+            // These caSe-insensitive names should only be set as properties, not as attributes.
+        } else if ((lcName = name.toLowerCase()).startsWith('on') && lcName in elementObj) {
+            if (elementObj[lcName] !== newValue) elementObj[lcName] = newValue;
+            //
+            // Everything else uses caSe-insensitive names via `element.*Attribute()` functions.
         } else {
             const currentValue = element.getAttribute(name);
 
