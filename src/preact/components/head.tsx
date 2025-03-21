@@ -51,10 +51,12 @@ export type ActualState = $preact.State<{
     styleBundle?: $type.URL | string;
     scriptBundle?: $type.URL | string;
 
+    vitePreloads?: VitePreloads;
     append?: $preact.VNode[];
 }>;
 export type PartialActualState = Partial<ActualState>;
-export type PartialActualStateUpdates = Omit<PartialActualState, ImmutableStateKeys>;
+export type PartialActualInternalStateUpdates = Omit<PartialActualState, ImmutableStateKeys>;
+export type PartialActualStateUpdates = Omit<PartialActualState, ImmutableStateKeys | InternalStateKeys>;
 
 export type State = $preact.State<{
     charset: string;
@@ -97,6 +99,7 @@ export type State = $preact.State<{
     styleBundle: string; // Potentially a relative URL.
     scriptBundle: string; // Potentially a relative URL.
 
+    vitePreloads: VitePreloads;
     append: $preact.VNode[];
 }>;
 export type Props = $preact.CleanProps<PartialActualState> & {
@@ -122,6 +125,9 @@ export type Context = $preact.Context<{
     updateState: Head['updateState'];
     forceFullUpdate: Head['forceFullUpdate'];
 }>;
+type VitePreloads = { [x: string]: $preact.VNode };
+type VitePreloadEvent = CustomEvent<{ data: VitePreloads }>;
+
 type GetComputedStateOptions = { useLayoutState?: boolean };
 
 /**
@@ -131,9 +137,7 @@ type GetComputedStateOptions = { useLayoutState?: boolean };
  * variables as we can reasonably achieve. Variables reduce number of bytes needed to reach desired outcome. Remember,
  * variable names can be minified, so variable name length is not an issue.
  */
-const tꓺhead = 'head',
-    tꓺicon = 'icon',
-    tꓺmodule = 'module',
+const tꓺicon = 'icon',
     tꓺprefetch = 'prefetch',
     tꓺPrefetch = 'Prefetch',
     tꓺpreload = 'preload',
@@ -183,6 +187,7 @@ const tꓺhead = 'head',
     tꓺgenre = 'genre',
     tꓺglobalᱼdata = 'global-data',
     tꓺglobalData = 'globalData',
+    tꓺhead = 'head',
     tꓺheadline = tꓺhead + 'line',
     tꓺhealthy = 'healthy',
     tꓺheight = 'height',
@@ -210,6 +215,7 @@ const tꓺhead = 'head',
     tꓺmedia = 'media',
     tꓺmeta = 'meta',
     tꓺmodified_time = 'modified_' + tꓺtime,
+    tꓺmodule = 'module',
     tꓺmodulepreload = tꓺmodule + tꓺpreload,
     tꓺname = 'name',
     tꓺnonce = 'nonce',
@@ -290,6 +296,7 @@ const tꓺhead = 'head',
     tꓺtype = 'type',
     tꓺurl = 'url',
     tꓺviewport = 'viewport',
+    tꓺvitePreloads = 'vitePreloads',
     tꓺvꓺundefined = undefined,
     tꓺWeb = 'Web',
     tꓺWebPage = tꓺWeb + 'Page',
@@ -315,6 +322,25 @@ const tꓺhead = 'head',
  */
 const immutableStateKeys = [tꓺcharset, tꓺviewport, tꓺbaseURL, tꓺscriptBundle] as const;
 type ImmutableStateKeys = $type.Writable<typeof immutableStateKeys>[number];
+
+/**
+ * Defines a list of internal state keys.
+ *
+ * Some state keys are internal; i.e., they are not immutable, but they should only be updated by routines in this file.
+ * For example, we don’t want `vitePreloads` to be updated outside of this file, because `vitePreloads` is handled
+ * exclusively by `<Head>` internally. Note: This variable must remain a `const`, as it keeps types DRY.
+ *
+ * - `vitePreloads`: There is simply no valid reason for this to ever change outside of this file.
+ */
+const internalStateKeys = [tꓺvitePreloads] as const;
+type InternalStateKeys = $type.Writable<typeof internalStateKeys>[number];
+
+/**
+ * Defines global Vite preloads state.
+ *
+ * @see vitePreload() Stores global Vite preloads.
+ */
+const globalVitePreloads: VitePreloads = {}; // Initialize.
 
 /**
  * Defines pseudo context hook.
@@ -349,9 +375,7 @@ export const useHead = (): Context => {
     }
     return {
         state: instance.computedState,
-        append: (...args) => instance.append(...args),
-        updateState: (...args) => instance.updateState(...args),
-        forceFullUpdate: (...args) => instance.forceFullUpdate(...args),
+        ...instance.contextTools,
     };
 };
 
@@ -377,14 +401,9 @@ export const useHead = (): Context => {
  */
 export default class Head extends Component<Props, ActualState> {
     /**
-     * Constructor.
-     *
-     * @param props Props.
+     * Keeps a count of state updates.
      */
-    public constructor(props: Props = {}) {
-        super(props); // Parent constructor.
-        this.state = $preact.omitProps(props, ['children']);
-    }
+    protected stateUpdates: number;
 
     /**
      * Computed state. Defined at first render time.
@@ -392,18 +411,30 @@ export default class Head extends Component<Props, ActualState> {
     public computedState: State | undefined;
 
     /**
-     * Forces a `<Data>` update. Defined at first render time.
+     * Context tools.
      */
-    protected forceDataUpdate: DataContext['forceUpdate'] | undefined;
+    public contextTools: {
+        append: Head['append'];
+        updateState: Head['updateState'];
+        forceFullUpdate: Head['forceFullUpdate'];
+    };
 
     /**
-     * Forces a full update.
+     * Constructor.
      *
-     * @param callback Optional callback.
+     * @param props Props.
      */
-    public forceFullUpdate(callback?: () => void): void {
-        if (!this.forceDataUpdate) throw Error('QN6EpnRM');
-        this.forceDataUpdate(callback);
+    public constructor(props: Props = {}) {
+        super(props); // Parent constructor.
+
+        this.state = $preact.omitProps(props, ['children']);
+        this.stateUpdates = 0; // Initializes counter.
+
+        this.contextTools = {
+            append: (...args) => this.append(...args),
+            updateState: (...args) => this.updateState(...args),
+            forceFullUpdate: (...args) => this.forceFullUpdate(...args),
+        };
     }
 
     /**
@@ -421,18 +452,48 @@ export default class Head extends Component<Props, ActualState> {
      *
      * This does not allow the use of declarative ops.
      *
-     * @param updates Partial state updates; {@see ImmutableStateKeys}.
+     * @param updates Partial state updates; {@see PartialActualStateUpdates}.
      */
     public updateState<Updates extends PartialActualStateUpdates>(updates: Updates): void {
-        // Returning `null` tells Preact not to update; {@see https://o5p.me/9BaxT3}.
-        this.setState((currentState: ActualState): Updates | null => {
-            // Some `<Head>` state keys are immutable.
-            updates = $obj.omit(updates, immutableStateKeys as unknown as string[]) as Updates;
+        this.internalUpdateState($obj.omit(updates, internalStateKeys as unknown as string[]));
+    }
 
-            const newState = $obj.updateDeepNoOps(currentState, updates);
-            return newState !== currentState ? (newState as Updates) : null;
+    /**
+     * Updates component state.
+     *
+     * This does not allow the use of declarative ops.
+     *
+     * Returning `null` tells Preact not to update; {@see https://o5p.me/9BaxT3}.
+     *
+     * @param updates Partial state updates; {@see PartialActualInternalStateUpdates}.
+     */
+    protected internalUpdateState<Updates extends PartialActualInternalStateUpdates>(updates: Updates): void {
+        this.setState((currentState: ActualState): ActualState | null => {
+            updates = $obj.omit(updates, immutableStateKeys as unknown as string[]) as Updates;
+            const newState = $obj.updateDeepNoOps(currentState, updates) as ActualState;
+
+            if (newState !== currentState) {
+                this.stateUpdates++;
+                return newState;
+            }
+            return null;
         });
     }
+
+    /**
+     * Forces a full update.
+     *
+     * @param callback Optional callback.
+     */
+    public forceFullUpdate(callback?: () => void): void {
+        if (!this.forceDataUpdate) throw Error('QN6EpnRM');
+        this.forceDataUpdate(callback);
+    }
+
+    /**
+     * Forces a `<Data>` update. Defined at first render time.
+     */
+    protected forceDataUpdate: DataContext['forceUpdate'] | undefined;
 
     /**
      * Renders component.
@@ -514,6 +575,7 @@ export default class Head extends Component<Props, ActualState> {
                     scriptBundle,
                     styleBundle,
                     //
+                    vitePreloads,
                     append,
                 } = state,
                 { baseURL } = locationState,
@@ -574,6 +636,8 @@ export default class Head extends Component<Props, ActualState> {
                 ...(scriptBundle && isSSR ? { [tꓺglobalData]: h(tꓺscript, { [tꓺid]: tꓺglobalᱼdata, [tꓺnonce]: cspNonce, [tꓺdangerouslySetInnerHTML]: { [tꓺ__html]: globalToScriptCode(dataState) } }) } : {}), // prettier-ignore
                 ...(scriptBundle ? { [tꓺscriptBundle]: h(tꓺscript, { [tꓺtype]: tꓺmodule, [tꓺnonce]: cspNonce, [tꓺsrc]: scriptBundle }) } : {}), // prettier-ignore
 
+                ...vitePreloads, // Includes tags like `<link rel='stylesheet' />, `<link rel='modulepreload' />`.
+
                 [tꓺstructuredData]: h(tꓺscript, {
                     [tꓺtype]: 'application/ld+json',
                     [tꓺnonce]: cspNonce,
@@ -633,8 +697,8 @@ export default class Head extends Component<Props, ActualState> {
                     if (!$is.htmlElement(node))
                         node.remove(); // e.g., Text or comment node.
                     //
-                    else if (isLocalVite && 'SCRIPT' === node.tagName && '/@vite/client' === node.getAttribute('src')) {
-                        continue; // Allow `/@vite/client` to exist locally.
+                    else if (isLocalVite && 'SCRIPT' === node.tagName && '/@vite/client' === node.getAttribute(tꓺsrc)) {
+                        continue; // Allow local `/@vite/client` to exist indefinitely.
                         //
                     } else if (!node.dataset.key || !Object.hasOwn(childVNodes, node.dataset.key)) {
                         node.remove(); // Removes unkeyed nodes, and keyed nodes that are stale.
@@ -642,14 +706,14 @@ export default class Head extends Component<Props, ActualState> {
                 }
             }, [locationState]);
 
-            // Memoizes effect that runs whenever `childVNodes` changes.
-            // This runs anytime `childVNodes` is altered, such that we are capable of modifying
-            // `<head>` at runtime whenever something is added or removed from the `<Head>` component.
+            // Memoizes effect that runs whenever `locationState` and/or `childVNodes` change.
+            // Since this also runs anytime `childVNodes` is altered, we are capable of modifying
+            // `<head>` at runtime when something is added or removed from the `<Head>` component.
             // e.g., If a component elsewhere does a `useHead()` to `append()` or `updateState()`.
 
             $preact.useEffect((): void => {
-                if (locationState.isInitialHydration) return;
-                // No need for an initial diff when hydrating.
+                if (locationState.isInitialHydration && !this.stateUpdates) return;
+                // No need when hydrating, so long as there have been no state updates.
 
                 const head = $dom.head(); // Memoized `<head>`.
                 let existing; // Potentially an existing element node.
@@ -662,7 +726,18 @@ export default class Head extends Component<Props, ActualState> {
                         head.appendChild($dom.create(type, props));
                     }
                 }
-            }, [childVNodes]);
+            }, [locationState, childVNodes]);
+
+            // Memoizes effect that runs whenever Vite preloads occur.
+            // This event is triggered by our own custom Vite preloader; see below.
+            // It runs anytime we need to update state following a change to {@see globalVitePreloads}.
+            // e.g., An app performs a dynamic import and that import has dependencies mapped out by Vite.
+
+            $preact.useEffect((): (() => void) => {
+                return $dom.on(document, 'x:vite:preload', (event: VitePreloadEvent): void => {
+                    this.internalUpdateState({ [tꓺvitePreloads]: event.detail.data });
+                }).cancel;
+            }, []);
 
             return; // Client-side has effects only.
         }
@@ -702,68 +777,59 @@ export const computeHead = (head: ActualState): State => {
  * @throws                  On any CSS dependency loading failure.
  */
 export const vitePreload = (dynamicImportFn: $type.AsyncFunction, deps?: string[]): Promise<unknown> => {
-    if (!$env.isWeb()) return dynamicImportFn(); // Do import only.
-
+    if (!deps?.length || !$env.isWeb()) {
+        return dynamicImportFn(); // Import only.
+    }
     return new Promise((resolveDynamicImport) => {
         $dom.onReady(() => {
             const promises = [], // Initialize.
-                fragment = $dom.create('fragment'),
+                h = $preact.h, // Shorter reference.
+                styleBundle = $dom.query<HTMLLinkElement>(tꓺhead + ' > [' + tꓺdataᱼkey + '="' + tꓺstyleBundle + '"]'),
                 scriptBundle = $dom.query<HTMLScriptElement>(tꓺhead + ' > [' + tꓺdataᱼkey + '="' + tꓺscriptBundle + '"]'),
+                styleScriptBundleHrefs = [styleBundle?.getAttribute(tꓺhref), scriptBundle?.getAttribute(tꓺsrc)].filter((v) => !!v) as string[],
                 cspNonce = scriptBundle?.nonce || ''; // From main script bundle.
 
-            for (const subpath of deps || []) {
+            let vNodeCounter = 0; // Initializes vNode counter.
+
+            for (const subpath of deps /* Dependencies mapped by Vite. */) {
                 const href = './' + subpath,
-                    key = '_' + tꓺpreload + ':' + subpath,
-                    //
-                    keySelector = $str.escSelector(key),
-                    hrefSelector = $str.escSelector(href),
-                    //
-                    ext = $path.ext(href), // e.g., `css`, `js` built by Vite, and potentially others.
+                    key = tꓺpreload + ':' + subpath,
+                    ext = $path.ext(href), // e.g., `css`, `js` built by Vite, potentially other exts,
                     isStyle = 'css' === ext, // CSS extension is known, so hard-coded to avoid use of `$mime` client-side.
                     isScript = 'js' === ext, // JS extension is known, so hard-coded to avoid use of `$mime` client-side.
-                    isModule = !isStyle; // Anything that is not CSS; e.g., a script is also a preloadable module.
+                    isModule = !isStyle || isScript; // Anything that's not CSS; e.g., scripts are also preloadable modules.
 
-                if (
-                    $dom.query([
-                        tꓺhead + ' > [' + tꓺdataᱼkey + '="' + keySelector + '"]', //
-                        ...(isStyle ? [tꓺhead + ' > ' + tꓺlink + '[' + tꓺrel + '="' + tꓺstylesheet + '"][' + tꓺhref + '="' + hrefSelector + '"]'] : []),
-                        ...(isScript ? [tꓺhead + ' > ' + tꓺscript + '[' + tꓺsrc + '="' + hrefSelector + '"]'] : []),
-                        ...(isModule // Anything that is not CSS; e.g., a script is also a preloadable module.
-                            ? [
-                                  tꓺhead + ' > ' + tꓺlink + '[' + tꓺrel + '="' + tꓺpreload + '"][' + tꓺhref + '="' + hrefSelector + '"]',
-                                  tꓺhead + ' > ' + tꓺlink + '[' + tꓺrel + '="' + tꓺmodulepreload + '"][' + tꓺhref + '="' + hrefSelector + '"]',
-                              ]
-                            : []),
-                    ]).length
-                )
-                    continue; // Exists; no need to load again.
+                if (globalVitePreloads[key] || styleScriptBundleHrefs.includes(href)) {
+                    continue; // Exists already; no need to preload again.
+                }
+                let vNode: LinkVNode | undefined; // Initialize.
+                type LinkVNode = $preact.VNode<Partial<$preact.Intrinsic['link']>>;
 
-                let link: HTMLLinkElement | undefined; // Initialize.
-
-                if (isStyle) {
-                    link = $dom.create(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: href, [tꓺmedia]: tꓺall });
+                if (isStyle /* Styles are actually loaded; not just simply preloaded like modules. */) {
+                    vNode = h(tꓺlink, { [tꓺrel]: tꓺstylesheet, [tꓺhref]: href, [tꓺmedia]: tꓺall }) as LinkVNode;
                     promises.push(
                         new Promise((resolve, reject) => {
-                            (link as HTMLLinkElement).onload = () => resolve(key);
-                            (link as HTMLLinkElement).onerror = () => reject(Error(key));
+                            (vNode as LinkVNode).props.onLoad = () => resolve(key);
+                            (vNode as LinkVNode).props.onError = () => reject(Error(key));
                         }),
                     );
-                } else if (isModule) {
-                    link = $dom.create(tꓺlink, { [tꓺrel]: tꓺmodulepreload, [tꓺhref]: href, [tꓺnonce]: cspNonce });
+                } else if (isModule /* Preloaded using `rel='modulepreload'`. */) {
+                    vNode = h(tꓺlink, { [tꓺrel]: tꓺmodulepreload, [tꓺhref]: href, [tꓺnonce]: cspNonce }) as LinkVNode;
                 }
-                if (link) {
-                    link.dataset.key = key; // Each get a key identifier, like any child vnode in `<Head>`.
-                    fragment.appendChild(link); // The entire fragment is appended to `<head>` below.
+                if (vNode) {
+                    vNodeCounter++;
+                    globalVitePreloads[key] = vNode;
                 }
             }
-            if (fragment.children.length) $dom.head().appendChild(fragment);
-
+            if (vNodeCounter /* Triggers a state update. */) {
+                $dom.trigger(document, 'x:vite:preload', { data: globalVitePreloads });
+            }
             void Promise.allSettled(promises).then((results) => {
                 for (const result of results)
                     if ('rejected' === result.status && $is.error(result.reason)) {
                         throw result.reason; // Preload failure.
                     }
-                resolveDynamicImport(dynamicImportFn());
+                resolveDynamicImport(dynamicImportFn()); // Import after preloading.
             });
         });
     });
@@ -843,6 +909,9 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             //
             styleBundle,
             scriptBundle,
+            //
+            vitePreloads,
+            // append, // Concatenated below.
         } = {
             ...(useLayoutState ? { ...layoutState?.head } : {}),
             ...head, // Actual `<Head>` state.
@@ -865,10 +934,10 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
         let defaultStyleBundle, defaultScriptBundle; // When possible.
 
         if (!styleBundle && '' !== styleBundle && isLocalVite) {
-            defaultStyleBundle = './index.css'; // For vite dev server.
+            defaultStyleBundle = './index.css'; // For Vite dev server.
         }
         if (!scriptBundle && '' !== scriptBundle && isLocalVite) {
-            defaultScriptBundle = './index.tsx'; // For vite dev server.
+            defaultScriptBundle = './index.tsx'; // For Vite dev server.
         }
         const asAbsoluteURLString = (parseable: $type.URL | string): string => {
             return $url.isAbsolute((parseable = parseable.toString())) ? parseable : fromBase(parseable);
@@ -913,11 +982,10 @@ const getComputedState = (head: ActualState, options?: GetComputedStateOptions):
             [tꓺogURL]: asAbsoluteURLString(ogURL || canonical || canonicalURL),
             [tꓺogImage]: asAbsoluteURLString(ogImage || image || brandꓺogImage.png),
 
-            // These URLs are potentially relative, and that’s as it should be. They don’t have to be absolute.
             [tꓺstyleBundle]: ('' === styleBundle ? '' : styleBundle || dataState.head.styleBundle || defaultStyleBundle || '').toString(),
             [tꓺscriptBundle]: ('' === scriptBundle ? '' : scriptBundle || dataState.head.scriptBundle || defaultScriptBundle || '').toString(),
 
-            // Concatenated, not merged, as they are potentially arrays.
+            [tꓺvitePreloads]: vitePreloads || globalVitePreloads,
             [tꓺappend]: ((useLayoutState && layoutState?.head.append) || []).concat(head.append || []),
         };
     }, [useLayoutState, isLocalVite, brand, locationState, dataState, layoutState, head]);

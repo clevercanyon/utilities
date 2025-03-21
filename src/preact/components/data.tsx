@@ -138,6 +138,11 @@ export const useFetcher = (): $type.Fetcher => $preact.useContext(ContextObject)
  */
 export default class Data extends Component<Props, State> {
     /**
+     * Keeps a count of state updates.
+     */
+    protected stateUpdates: number;
+
+    /**
      * Context tools.
      */
     protected contextTools: {
@@ -166,6 +171,7 @@ export default class Data extends Component<Props, State> {
             { $set: { globalObp, fetcher, lazyCPs } }, // Set explicity.
         ) as unknown as State;
 
+        this.stateUpdates = 0; // Initializes counter.
         this.contextTools = {
             updateState: (...args) => this.updateState(...args),
             forceUpdate: (...args) => this.forceUpdate(...args),
@@ -177,16 +183,21 @@ export default class Data extends Component<Props, State> {
      *
      * This does not allow the use of declarative ops.
      *
+     * Returning `null` tells Preact not to update; {@see https://o5p.me/9BaxT3}.
+     *
      * @param updates {@see PartialStateUpdates}.
      */
     public updateState<Updates extends PartialStateUpdates>(updates: Updates): void {
-        // Returning `null` tells Preact not to update; {@see https://o5p.me/9BaxT3}.
-        this.setState((currentState: State): Updates | null => {
+        this.setState((currentState: State): State | null => {
             const cleanUpdates = $obj.pick(updates, updatableStateKeys as unknown as string[]) as Updates;
             (cleanUpdates as $type.Writable<Updates>).head = $obj.pick(cleanUpdates.head || {}, updatableHeadStateKeys as unknown as string[]);
+            const newState = $obj.updateDeepNoOps(currentState, cleanUpdates) as State;
 
-            const newState = $obj.updateDeepNoOps(currentState, cleanUpdates);
-            return newState !== currentState ? (newState as Updates) : null;
+            if (newState !== currentState) {
+                this.stateUpdates++;
+                return newState;
+            }
+            return null;
         });
     }
 
