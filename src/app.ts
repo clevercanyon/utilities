@@ -55,21 +55,44 @@ export const pkgName = $fnꓺmemo((): string => {
 });
 
 /**
- * Gets current or specific app’s package slug.
+ * Parses current (or a specific) app’s package name.
  *
  * @param   value Optional. Default is {@see pkgName()}.
  *
- * @returns       Slug derived from an app’s package name.
+ * @returns       Object with parsed `org` and `name` properties.
  *
  * @throws        If no `value` and `APP_PKG_NAME` is missing.
+ */
+export const pkgNameParts = $fnꓺmemo(12, (value?: string): { org: string; name: string } => {
+    value ??= pkgName(); // Uses current app’s package name as the default value.
+    let m: RegExpExecArray | null = null; // Initializes array of matches.
+    const parts = { org: '', name: '' }; // Initializes parts.
+
+    if ((m = /^@([^/]+)\/([^/]+)$/iu.exec(value))) {
+        (parts.org = m[1]), (parts.name = m[2]);
+        //
+    } else if ((m = /^([^/]+)$/iu.exec(value))) {
+        parts.name = m[1];
+    }
+    return parts;
+});
+
+/**
+ * Gets current (or a specific) app’s package slug.
  *
- * @note e.g., `@org/[slug]` if scoped. Otherwise, a simple `slug`.
+ * @param   value Optional. Default is {@see pkgName()}.
+ *
+ * @returns       Slug derived from an app’s package name; i.e., slugified `[name]` from `@org/[name]` if package is
+ *   scoped. Otherwise, a slugified `[name]` from a simple unscoped package `[name]`.
+ *
+ * @throws        If no `value` and `APP_PKG_NAME` is missing.
  */
 export const pkgSlug = $fnꓺmemo(12, (value?: string): string => {
-    value ??= pkgName(); // Uses current app’s package name as the default value.
-    value = value.replace(/^@/u, '').split('/')[1] || value; // Scoped package names.
-
-    return $str.kebabCase(value, { asciiOnly: true, splitStrategy: 'boundariesAndCaseOnly', letterFirst: 'x' });
+    return $str.kebabCase(pkgNameParts(value).name, {
+        asciiOnly: true,
+        splitStrategy: 'boundariesAndCaseOnly',
+        letterFirst: 'x',
+    });
 });
 
 /**

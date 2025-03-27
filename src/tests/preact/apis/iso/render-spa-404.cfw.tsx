@@ -39,6 +39,7 @@ describe('$preact.iso.renderSPA() [404-cfw]', async () => {
 
         $app.pkgName.flush(), //
             $app.pkgName.flush(),
+            $app.pkgNameParts.flush(),
             $app.pkgSlug.flush(),
             //
             $app.hasBaseURL.flush(),
